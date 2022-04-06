@@ -2,14 +2,17 @@ import { Flex, useColorModeValue } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
+import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio } from 'components/Radio/Radio'
 import { DeviceTimeout, timeoutOptions, useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
-  const { keepKeyWallet, deviceTimeout } = useKeepKey()
+  const {
+    keepKeyWallet,
+    state: { deviceTimeout }
+  } = useKeepKey()
   const [radioTimeout, setRadioTimeout] = useState(DeviceTimeout.TenMinutes)
 
   const handleChange = async (value: DeviceTimeout) => {
@@ -36,7 +39,7 @@ export const ChangeTimeout = () => {
         })}
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
-      <ShowUpdateStatus setting='timeout' />
+      <LastDeviceInteractionStatus setting='timeout' />
       <AwaitKeepKey
         translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
       >

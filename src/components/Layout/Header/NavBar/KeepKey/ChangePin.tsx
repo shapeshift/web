@@ -1,7 +1,7 @@
 import { Button, Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
+import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
@@ -17,7 +17,7 @@ export const ChangePin = () => {
   const renderPinState: JSX.Element = (() => {
     return (
       <>
-        <ShowUpdateStatus setting={setting} />
+        <LastDeviceInteractionStatus setting={setting} />
         <AwaitKeepKey
           translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
         >

@@ -3,11 +3,11 @@ import { upperFirst } from 'lodash'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export type ShowUpdateStatusProps = {
+export type LastDeviceInteractionStatusProps = {
   setting: string
 }
 
-export const ShowUpdateStatus = ({ setting }: ShowUpdateStatusProps) => {
+export const LastDeviceInteractionStatus = ({ setting }: LastDeviceInteractionStatusProps) => {
   const translate = useTranslate()
   const {
     state: { lastDeviceInteractionStatus }

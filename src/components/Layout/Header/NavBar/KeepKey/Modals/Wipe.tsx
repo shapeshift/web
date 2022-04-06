@@ -12,8 +12,9 @@ export const WipeModal = () => {
   const { keepKeyWallet } = useKeepKey()
   const { disconnect } = useWallet()
   const translate = useTranslate()
-  const { keepKeyWipe } = useModal()
-  const { close, isOpen } = keepKeyWipe
+  const {
+    keepKeyWipe: { close, isOpen }
+  } = useModal()
   const {
     state: { awaitingDeviceInteraction }
   } = useWallet()

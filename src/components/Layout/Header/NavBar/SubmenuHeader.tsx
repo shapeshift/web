@@ -14,6 +14,7 @@ export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => 
   const headerColor = useColorModeValue('black', 'white')
   const backArrowColor = useColorModeValue('black.500', 'lightgrey')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
+
   return (
     <Flex flexDir='column' mb={3}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>

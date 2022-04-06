@@ -1,7 +1,7 @@
 import { Flex, FormControl, FormLabel, Spinner, Switch } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
+import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -34,7 +34,7 @@ export const ChangePassphrase = () => {
         title={translate('walletProvider.keepKey.settings.headings.passphrase')}
         description={translate('walletProvider.keepKey.settings.descriptions.passphrase')}
       />
-      <ShowUpdateStatus setting={setting} />
+      <LastDeviceInteractionStatus setting={setting} />
       <FormControl display='flex' alignItems='center'>
         <Flex flexGrow={1}>
           <FormLabel htmlFor='pin-caching' mb='0'>

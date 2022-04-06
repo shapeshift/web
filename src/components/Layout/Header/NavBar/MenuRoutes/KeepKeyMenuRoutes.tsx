@@ -26,12 +26,12 @@ export const KeepKeyMenuRoutes = () => {
   const translate = useTranslate()
   const {
     keepKeyWallet,
-    state: { hasPinCaching },
-    deviceTimeout
+    state: { hasPinCaching, deviceTimeout }
   } = useKeepKey()
   const versions = useKeepKeyVersions()
-  const { state } = useWallet()
-  const { isConnected, walletInfo } = state
+  const {
+    state: { isConnected, walletInfo }
+  } = useWallet()
   const { keepKeyWipe } = useModal()
 
   const getBooleanLabel = (value: boolean | undefined) => {
@@ -46,7 +46,7 @@ export const KeepKeyMenuRoutes = () => {
       : translate('walletProvider.keepKey.settings.status.upToDate')
   }
 
-  const handleWipeClicked = () => {
+  const handleWipeClick = () => {
     keepKeyWipe.open({})
   }
 
@@ -151,7 +151,7 @@ export const KeepKeyMenuRoutes = () => {
             hasSubmenu={true}
           />
           <MenuDivider />
-          <MenuItem onClick={handleWipeClicked} color='red.500' icon={<CloseIcon />}>
+          <MenuItem onClick={handleWipeClick} color='red.500' icon={<CloseIcon />}>
             {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
           </MenuItem>
         </MenuGroup>

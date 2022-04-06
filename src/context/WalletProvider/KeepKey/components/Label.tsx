@@ -2,7 +2,7 @@ import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { NewKeepKeyPath } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
+import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
@@ -13,7 +13,7 @@ export const KeepKeyLabel = () => {
   const handleSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
-    history.push({ pathname: NewKeepKeyPath.RecoverySentence, state: { label } })
+    history.push({ pathname: KeepKeyRoutes.NewRecoverySentence, state: { label } })
   }
 
   return (

@@ -154,7 +154,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         isLoadingLocalWallet: false,
         noBackButton: false,
         keepKeyPinRequestType: null,
-        awaitingDeviceInteraction: false
+        awaitingDeviceInteraction: false,
+        lastDeviceInteractionStatus: undefined
       }
     default:
       return state

@@ -3,15 +3,7 @@ import { Button, Flex, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
-
-export enum NewKeepKeyPath {
-  WipeSuccessful = '/keepkey/new',
-  Label = '/keepkey/label',
-  Pin = '/keepkey/enter-pin',
-  RecoverySentence = '/keepkey/recovery-sentence',
-  InitializeSettingUp = '/keepkey/setting-up',
-  InitializeComplete = '/keepkey/complete'
-}
+import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 export const WipedSuccessfully = () => {
   const [loading, setLoading] = useState(false)
@@ -19,12 +11,12 @@ export const WipedSuccessfully = () => {
 
   const handleCreateWalletPress = async () => {
     setLoading(true)
-    history.push(NewKeepKeyPath.Label)
+    history.push(KeepKeyRoutes.NewLabel)
   }
 
   const handleRecoverWalletPress = async () => {
     setLoading(true)
-    history.push(NewKeepKeyPath.Label)
+    history.push(KeepKeyRoutes.NewLabel)
   }
 
   return (

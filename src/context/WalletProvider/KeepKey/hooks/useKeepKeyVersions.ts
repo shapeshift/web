@@ -48,6 +48,7 @@ export const useKeepKeyVersions = () => {
     if (!wallet || !isKeepKey(wallet)) return
     ;(async () => {
       const { data: releases } = await axios.get<FirmwareReleases>(
+        // We'll need to update this whenever new firmware/bootloader is released.
         'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
         {
           headers: {

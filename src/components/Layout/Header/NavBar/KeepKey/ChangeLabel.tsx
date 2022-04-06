@@ -2,7 +2,7 @@ import { Button, Flex, Input, useColorModeValue } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
+import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -32,7 +32,7 @@ export const ChangeLabel = () => {
         })}
         description={translate('walletProvider.keepKey.settings.descriptions.label')}
       />
-      <ShowUpdateStatus setting={setting} />
+      <LastDeviceInteractionStatus setting={setting} />
       <Input
         type='text'
         placeholder={translate('walletProvider.keepKey.settings.placeholders.label')}

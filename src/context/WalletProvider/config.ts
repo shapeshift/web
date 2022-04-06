@@ -2,10 +2,8 @@ import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
 import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
 import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
-import {
-  NewKeepKeyPath,
-  WipedSuccessfully
-} from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
+import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
+import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
@@ -57,13 +55,13 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,
     routes: [
-      { path: '/keepkey/connect', component: KeepKeyConnect },
-      { path: '/keepkey/success', component: KeepKeySuccess },
-      { path: '/keepkey/enter-pin', component: KeepKeyPin },
-      { path: '/keepkey/passphrase', component: KeepKeyPassphrase },
-      { path: NewKeepKeyPath.WipeSuccessful, component: WipedSuccessfully },
-      { path: NewKeepKeyPath.Label, component: KeepKeyLabel },
-      { path: NewKeepKeyPath.RecoverySentence, component: KeepKeyRecoverySentence }
+      { path: KeepKeyRoutes.Connect, component: KeepKeyConnect },
+      { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
+      { path: KeepKeyRoutes.Pin, component: KeepKeyPin },
+      { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
+      { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
+      { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
+      { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence }
     ]
   },
   [KeyManager.MetaMask]: {

@@ -6,7 +6,7 @@ const cspMeta = Object.entries({
   'connect-src': [
     "'self'",
     'data:',
-    // Whitelist our keepKey versions file
+    // Explicitly whitelist our KeepKey versions file
     'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
     // @shapeshiftoss/swapper@1.15.0: https://github.com/shapeshift/lib/blob/f833ac7f8c70dee801eaa24525336ca6992e5903/packages/swapper/src/swappers/zrx/utils/zrxService.ts#L4
     'https://api.0x.org',

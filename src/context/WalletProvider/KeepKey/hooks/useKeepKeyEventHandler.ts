@@ -29,9 +29,7 @@ export const useKeepKeyEventHandler = (
           setAwaitingDeviceInteraction(true)
           break
         case MessageType.PASSPHRASEREQUEST:
-          if (!modal) {
-            dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
-          }
+          dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
           break
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PASSPHRASEACK:

@@ -99,7 +99,10 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
   }
 
   const handleInputChange = (value: string) => {
-    if (bnOrZero(value).gt(cryptoBalanceHuman)) {
+    if (
+      (activeField === InputType.Crypto && bnOrZero(value).gt(cryptoBalanceHuman)) ||
+      (activeField === InputType.Fiat && bnOrZero(value).gt(fiatAmountAvailable))
+    ) {
       setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
     } else if (values.amountFieldError) {
       setValue(Field.AmountFieldError, '', { shouldValidate: true })

@@ -91,7 +91,7 @@ export const selectAllDelegationsCryptoAmountByAssetId = createSelector(
   }
 )
 
-export const selectDelegationCryptoAmountByValidator = createSelector(
+export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
   selectAllDelegationsCryptoAmountByAssetId,
   selectValidatorAddress,
   (allDelegations, validatorAddress): string => {
@@ -168,7 +168,7 @@ export const selectAllUnbondingsEntriesByAssetIdAndValidator = createSelector(
   (unbondingEntries, validatorAddress) => unbondingEntries[validatorAddress]
 )
 
-export const selectUnbondingCryptoAmountByAssetId = createSelector(
+export const selectUnbondingCryptoAmountByAssetIdAndValidator = createSelector(
   selectUnbondingEntriesByAccountSpecifier,
   selectAssetIdParam,
   (unbondingEntries, selectedAssetId): string => {
@@ -185,8 +185,8 @@ export const selectUnbondingCryptoAmountByAssetId = createSelector(
 )
 
 export const selectTotalBondingsBalanceByAssetId = createSelector(
-  selectUnbondingCryptoAmountByAssetId,
-  selectDelegationCryptoAmountByValidator,
+  selectUnbondingCryptoAmountByAssetIdAndValidator,
+  selectDelegationCryptoAmountByAssetIdAndValidator,
   (unbondingCryptoBalance, delegationCryptoBalance): string =>
     bnOrZero(unbondingCryptoBalance).plus(bnOrZero(delegationCryptoBalance)).toString()
 )

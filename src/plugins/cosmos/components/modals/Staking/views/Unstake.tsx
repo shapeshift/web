@@ -24,8 +24,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
-  selectMarketDataById,
-  selectTotalBondingsBalanceByAssetId
+  selectDelegationCryptoAmountByAssetIdAndValidator,
+  selectMarketDataById
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -58,7 +58,12 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, assetId)
+    selectDelegationCryptoAmountByAssetIdAndValidator(
+      state,
+      accountSpecifier,
+      validatorAddress,
+      assetId
+    )
   )
   const cryptoBalanceHuman = bnOrZero(totalBondings).div(`1e+${asset?.precision}`)
 
@@ -102,7 +107,11 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
   }
 
   const handleInputChange = (value: string) => {
-    if (bnOrZero(value).gt(cryptoBalanceHuman)) {
+    if (
+      (activeField === InputType.Crypto && bnOrZero(value).gt(cryptoBalanceHuman)) ||
+      (activeField === InputType.Fiat &&
+        bnOrZero(value).gt(bnOrZero(cryptoBalanceHuman).times(marketData.price)))
+    ) {
       setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
     } else if (values.amountFieldError) {
       setValue(Field.AmountFieldError, '', { shouldValidate: true })

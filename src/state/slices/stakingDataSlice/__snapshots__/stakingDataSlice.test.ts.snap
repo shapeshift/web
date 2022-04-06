@@ -172,7 +172,7 @@ Object {
 }
 `;
 
-exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId data is loaded returns correct array 1`] = `
+exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId validators and staking data are loaded returns correct array 1`] = `
 Array [
   Object {
     "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
@@ -198,7 +198,7 @@ Array [
 ]
 `;
 
-exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId data is loaded returns correct array with only rewards 1`] = `
+exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId validators and staking data are loaded returns correct array with only rewards 1`] = `
 Array [
   Object {
     "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
@@ -217,7 +217,7 @@ Array [
 ]
 `;
 
-exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId data is loaded returns correct array with only undelegations 1`] = `
+exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId validators and staking data are loaded returns correct array with only undelegations 1`] = `
 Array [
   Object {
     "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",

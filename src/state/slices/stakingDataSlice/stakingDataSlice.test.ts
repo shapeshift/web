@@ -14,7 +14,7 @@ import {
   selectRewardsAmountByAssetId,
   selectSingleValidator,
   selectStakingDataIsLoaded,
-  selectTotalBondingsBalanceByAccountSpecifier,
+  selectTotalBondingsBalanceByAssetId,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectValidatorIsLoaded
 } from './selectors'
@@ -410,9 +410,9 @@ describe('stakingDataSlice', () => {
       })
     })
 
-    describe('selectTotalBondingsBalanceByAccountSpecifier', () => {
+    describe('selectTotalBondingsBalanceByAssetId', () => {
       it('returns 0 when state is empty', async () => {
-        const selected = selectTotalBondingsBalanceByAccountSpecifier(
+        const selected = selectTotalBondingsBalanceByAssetId(
           store.getState(),
           cosmosAccountSpecifier,
           SHAPESHIFT_VALIDATOR_ADDRESS,
@@ -437,7 +437,7 @@ describe('stakingDataSlice', () => {
         })
 
         it('returns the reward amount when there is a reward', async () => {
-          const selected = selectTotalBondingsBalanceByAccountSpecifier(
+          const selected = selectTotalBondingsBalanceByAssetId(
             store.getState(),
             cosmosAccountSpecifier,
             SHAPESHIFT_VALIDATOR_ADDRESS,
@@ -445,14 +445,13 @@ describe('stakingDataSlice', () => {
           )
           expect(selected).toEqual('10115')
 
-          // TODO uncomment after latest cosmos PR merges
-          /*const selected2 = selectTotalBondingsBalanceByAccountSpecifier(
+          const selected2 = selectTotalBondingsBalanceByAssetId(
             store.getState(),
             cosmosAccountSpecifier,
             'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
             cosmosAssetId
           )
-          expect(selected2).toEqual('4')*/
+          expect(selected2).toEqual('4')
         })
       })
     })

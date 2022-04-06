@@ -55,9 +55,9 @@ export const PrimaryChart = ({
   } = useLocaleFormatter({ fiatType: 'USD' })
 
   const [chartColor] = useToken('colors', [color])
-  const toolTipBg = useColorModeValue('white', colors.gray[800])
-  const toolTipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
-  const toolTipColor = useColorModeValue(colors.gray[800], 'white')
+  const tooltipBg = useColorModeValue('white', colors.gray[800])
+  const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
+  const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
   // bounds
   const xMax = Math.max(width - margin.left - margin.right, 0)
@@ -232,10 +232,10 @@ export const PrimaryChart = ({
             left={tooltipLeft}
             style={{
               ...defaultTooltipStyles,
-              background: toolTipBg,
+              background: tooltipBg,
               padding: '0.5rem',
-              border: `1px solid ${toolTipBorder}`,
-              color: toolTipColor
+              border: `1px solid ${tooltipBorder}`,
+              color: tooltipColor
             }}
           >
             <ul style={{ padding: '0', margin: '0', listStyle: 'none' }}>

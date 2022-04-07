@@ -9,7 +9,10 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
-import { selectTotalStakingDelegationCryptoByFilter } from 'state/slices/stakingDataSlice/selectors'
+import {
+  selectTotalStakingDelegationCryptoByFilter,
+  selectTotalStakingDelegationFiat
+} from 'state/slices/stakingDataSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -124,6 +127,13 @@ export const selectPortfolioTotalFiatBalance = createSelector(
       .toFixed(2)
 )
 
+export const selectPortfolioTotalFiatBalanceWithDelegations = createSelector(
+  selectPortfolioTotalFiatBalance,
+  selectTotalStakingDelegationFiat,
+  (portfolioFiatBalance, delegationFiatBalance): string =>
+    bnOrZero(portfolioFiatBalance).plus(delegationFiatBalance).toString()
+)
+
 export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParam,
@@ -182,7 +192,7 @@ export const selectTotalFiatBalanceWithDelegations = createSelector(
   selectMarketData,
   selectAssetIdParamFromFilterOptional,
   (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
-    const price = marketData[assetId].price
+    const price = marketData[assetId]?.price
     const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
       .plus(bnOrZero(delegationCryptoBalance).dividedBy(bnOrZero(10).exponentiatedBy(6)))
       .toString()

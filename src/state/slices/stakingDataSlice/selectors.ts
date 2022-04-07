@@ -7,9 +7,11 @@ import BigNumber from 'bignumber.js'
 import get from 'lodash/get'
 import memoize from 'lodash/memoize'
 import reduce from 'lodash/reduce'
+import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { PubKey } from './stakingDataSlice'
@@ -115,39 +117,42 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   }
 )
 
-export const selectTotalStakingDelegationCrypto = createSelector(
-  selectStakingData,
-  // We make the assumption that all delegation rewards come from a single denom (asset)
-  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  stakingData => {
-    let total = bnOrZero(0)
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for (const [_, value] of Object.entries(stakingData.byAccountSpecifier)) {
-      const amount = reduce(
-        value?.delegations,
+export const selectAllStakingDelegationCrypto = createSelector(selectStakingData, stakingData => {
+  const allStakingData = Object.entries(stakingData.byAccountSpecifier)
+  return reduce(
+    allStakingData,
+    (acc, val) => {
+      const accountId = val[0]
+      const delegations = val[1].delegations
+      const delegationSum = reduce(
+        delegations,
         (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
         bn(0)
       )
-      total = total.plus(amount)
-    }
-
-    return total.toString()
-  }
-)
+      return { ...acc, [accountId]: delegationSum }
+    },
+    {}
+  )
+})
 
 export const selectTotalStakingDelegationFiat = createSelector(
-  selectTotalStakingDelegationCrypto,
+  selectAllStakingDelegationCrypto,
   selectMarketData,
-  // We make the assumption that all delegation rewards come from a single denom (asset)
-  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  (totalStaked, md) => {
-    //TODO this wont work when we support more than only cosmos staking
-    const cosmosPrice = md['cosmos:cosmoshub-4/slip44:118']?.price
-    return bnOrZero(totalStaked)
-      .times(cosmosPrice)
-      .dividedBy(bnOrZero(10).exponentiatedBy(6))
-      .toString()
+  (state: ReduxState) => state.assets.byId,
+  (allStaked: { [k: string]: string }, md, assets) => {
+    const allStakingData = Object.entries(allStaked)
+
+    return reduce(
+      allStakingData,
+      (acc, val) => {
+        const assetId = accountIdToFeeAssetId(val[0])
+        const baseUnitAmount = val[1]
+        const price = md[assetId]?.price
+        const amount = fromBaseUnit(baseUnitAmount, assets[assetId].precision ?? 0)
+        return bnOrZero(amount).times(price).plus(acc)
+      },
+      bn(0)
+    )
   }
 )
 

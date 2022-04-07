@@ -1,26 +1,34 @@
 import {
   Alert,
   AlertDescription,
+  AlertIcon,
   Box,
   Button,
   ButtonGroup,
   Flex,
   Skeleton,
+  Stack,
   Stat,
   StatArrow,
   StatGroup,
-  StatNumber
+  StatNumber,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
+import { IconCircle } from 'components/IconCircle'
+import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectTotalCryptoBalanceWithDelegations,
@@ -30,7 +38,6 @@ import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
-import { useTranslate } from 'react-polyglot'
 
 enum View {
   Price = 'price',
@@ -47,6 +54,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [percentChange, setPercentChange] = useState(0)
+  const alertIconColor = useColorModeValue('blue.500', 'blue.200')
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -122,19 +130,33 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          <Alert
-            alignItems='center'
-            justifyContent='center'
-            textAlign='center'
-            status='info'
-            variant='update-box'
-            borderRadius='lg'
-          >
-            <AlertDescription maxWidth='sm'>
-              {delegationBalance} {asset.symbol} Staked
-            </AlertDescription>
-            <HelperTooltip label={translate('dashboard.portfolio.stakedInfo')} />
-          </Alert>
+          {bnOrZero(delegationBalance).gt(0) && (
+            <Flex mt={4}>
+              <Alert
+                as={Stack}
+                py={2}
+                direction='row'
+                colorScheme='blue'
+                status='info'
+                variant='subtle'
+                borderRadius='xl'
+              >
+                <IconCircle color='inherit' boxSize='24px'>
+                  <StakingUpArrowIcon color={alertIconColor} />
+                </IconCircle>
+
+                <AlertDescription maxWidth='sm'>
+                  <Amount.Crypto
+                    value={delegationBalance}
+                    symbol={asset.symbol}
+                    suffix={translate('defi.staked')}
+                  />
+                </AlertDescription>
+
+                <HelperTooltip label={translate('dashboard.portfolio.stakedInfo')} />
+              </Alert>
+            </Flex>
+          )}
         </Box>
       </Card.Header>
       {view === View.Balance ? (

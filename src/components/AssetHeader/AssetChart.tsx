@@ -19,14 +19,12 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
-  selectAssetByCAIP19,
-  selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter
-} from 'state/slices/selectors'
-import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
+  selectTotalCryptoBalanceWithDelegations,
+  selectTotalFiatBalanceWithDelegations
+} from 'state/slices/portfolioSlice/selectors'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 enum View {
@@ -52,20 +50,13 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
+
+  const fiatBalanceWithDelegations = useAppSelector(state =>
+    selectTotalFiatBalanceWithDelegations(state, filter)
   )
 
-  const delegationCryptoBalance = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, accountId || '')
-  )
-
-  const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
-    .plus(bnOrZero(delegationCryptoBalance).dividedBy(bnOrZero(10).exponentiatedBy(6)))
-    .toString()
-
-  const totalBalance = toFiat(
-    marketData ? bnOrZero(cryptoBalanceWithDelegations).times(marketData?.price).toString() : '0'
+  const cryptoBalanceWithDelegations = useAppSelector(state =>
+    selectTotalCryptoBalanceWithDelegations(state, filter)
   )
 
   return (
@@ -95,7 +86,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
-                value={view === View.Price ? assetPrice : totalBalance}
+                value={view === View.Price ? assetPrice : fiatBalanceWithDelegations}
                 displayType={'text'}
                 thousandSeparator={true}
                 isNumericString={true}

@@ -9,6 +9,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
+import { selectTotalStakingDelegationCryptoByFilter } from 'state/slices/stakingDataSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -19,7 +20,6 @@ import {
   PortfolioBalancesById
 } from './portfolioSliceCommon'
 import { accountIdToFeeAssetId, findAccountsByAssetId } from './utils'
-
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = [
   'eip155:1/slip44:60',
@@ -173,6 +173,33 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
     }
 
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId].precision ?? 0)
+  }
+)
+
+export const selectTotalFiatBalanceWithDelegations = createSelector(
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectTotalStakingDelegationCryptoByFilter,
+  selectMarketData,
+  selectAssetIdParamFromFilterOptional,
+  (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
+    const price = marketData[assetId].price
+    const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
+      .plus(bnOrZero(delegationCryptoBalance).dividedBy(bnOrZero(10).exponentiatedBy(6)))
+      .toString()
+
+    return bnOrZero(cryptoBalanceWithDelegations).times(price).toString()
+  }
+)
+
+export const selectTotalCryptoBalanceWithDelegations = createSelector(
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectTotalStakingDelegationCryptoByFilter,
+  (cryptoBalance, delegationCryptoBalance): string => {
+    const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
+      .plus(bnOrZero(delegationCryptoBalance).dividedBy(bnOrZero(10).exponentiatedBy(6)))
+      .toString()
+
+    return bnOrZero(cryptoBalanceWithDelegations).toString()
   }
 )
 

@@ -99,7 +99,9 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
       setValue(Field.AmountFieldError, '', { shouldValidate: true })
     }
 
-    const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman).times(_percent)
+    const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman)
+      .times(_percent)
+      .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })

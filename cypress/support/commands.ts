@@ -111,6 +111,17 @@ Cypress.Commands.add('mockExternalRequests', () => {
 })
 
 // @ts-ignore
+Cypress.Commands.add('noCache', (url?: string) => {
+  const interceptUrl = url ?? '*'
+  cy.intercept(interceptUrl, { middleware: true }, req => {
+    req.on('before:response', res => {
+      // force all API responses to not be cached
+      res.headers['cache-control'] = 'no-store'
+    })
+  })
+})
+
+// @ts-ignore
 Cypress.Commands.add('mockInternalRequests', () => {
   cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, makeEthAccount()).as(
     'getEthAccount'

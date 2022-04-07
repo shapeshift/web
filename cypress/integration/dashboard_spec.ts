@@ -2,12 +2,14 @@ const baseUrl = Cypress.config().baseUrl
 const linkContract = Cypress.env('linkContract')
 
 beforeEach(() => {
+  cy.noCache()
   // Intercept all account requests relating to our test wallet
   cy.mockAllRequests()
 })
 
 describe('The Dashboard', () => {
   before(() => {
+    cy.noCache()
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()
     cy.login()
@@ -44,7 +46,7 @@ describe('The Dashboard', () => {
     cy.getBySel('trade-preview-button').should('be.disabled')
     cy.getBySel('token-row-sell-max-button').click()
     // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
-    cy.getBySel('trade-preview-button').should('have.text', 'Not enough ETH to cover gas', {
+    cy.getBySel('trade-preview-button').should('contain.text', 'Insufficient Funds', {
       timeout: 30000
     })
     // TODO - We are now at the approval screen - test the rest of the flow

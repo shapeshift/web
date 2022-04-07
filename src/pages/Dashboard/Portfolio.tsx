@@ -1,4 +1,5 @@
 import { Box, Skeleton, Stack, Stat, StatArrow, StatNumber } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -10,7 +11,8 @@ import { Text } from 'components/Text'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalance
+  selectPortfolioTotalFiatBalance,
+  selectTotalStakingDelegationFiat
 } from 'state/slices/selectors'
 
 import { AccountTable } from './components/AccountList/AccountTable'
@@ -20,9 +22,12 @@ export const Portfolio = () => {
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useSelector(selectPortfolioAssetIds)
-  const totalBalance = useSelector(selectPortfolioTotalFiatBalance)
+  const totalBalanceFiat = useSelector(selectPortfolioTotalFiatBalance)
+  const totalDeligationFiat = useSelector(selectTotalStakingDelegationFiat)
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
+
+  const totalBalance = bnOrZero(totalBalanceFiat).plus(totalDeligationFiat).toString()
 
   return (
     <Stack spacing={6} width='full'>

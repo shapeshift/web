@@ -9,6 +9,7 @@ import memoize from 'lodash/memoize'
 import reduce from 'lodash/reduce'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import { PubKey } from './stakingDataSlice'
 
@@ -69,6 +70,42 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelect
     )
 
     return amount.toString()
+  }
+)
+
+export const selectTotalStakingDelegationCrypto = createSelector(
+  selectStakingData,
+  // We make the assumption that all delegation rewards come from a single denom (asset)
+  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
+  stakingData => {
+    let total = bnOrZero(0)
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const [_, value] of Object.entries(stakingData.byAccountSpecifier)) {
+      const amount = reduce(
+        value?.delegations,
+        (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
+        bn(0)
+      )
+      total = total.plus(amount)
+    }
+
+    return total.toString()
+  }
+)
+
+export const selectTotalStakingDelegationFiat = createSelector(
+  selectTotalStakingDelegationCrypto,
+  selectMarketData,
+  // We make the assumption that all delegation rewards come from a single denom (asset)
+  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
+  (totalStaked, md) => {
+    //TODO this wont work when we support more than only cosmos staking
+    const cosmosPrice = md['cosmos:cosmoshub-4/slip44:118']?.price
+    return bnOrZero(totalStaked)
+      .times(cosmosPrice)
+      .dividedBy(bnOrZero(10).exponentiatedBy(6))
+      .toString()
   }
 )
 

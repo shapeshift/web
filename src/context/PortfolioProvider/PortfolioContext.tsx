@@ -12,9 +12,10 @@ import {
   supportsOsmosis
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -26,6 +27,7 @@ import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
@@ -35,6 +37,7 @@ import {
   selectTxIds,
   selectTxs
 } from 'state/slices/selectors'
+import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 
 /**
@@ -55,6 +58,9 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
+
+  // keep track of pending tx ids, so we can refetch the portfolio when they confirm
+  const [pendingTxIds, setPendingTxIds] = useState<Set<string>>(new Set<string>())
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -181,7 +187,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   /**
-   * portfolio refetch on new tx logic
+   * monitor for new pending txs, add them to a set, so we can monitor when they're confirmed
    */
   useEffect(() => {
     // we only want to refetch portfolio if a new tx comes in after we're finished loading
@@ -194,30 +200,60 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     const tx = txsById[txId]
     // always wear protection, or don't it's your choice really
     if (!tx) return
-    /**
-     * TODO(0xdef1cafe): we need this effect to actually watch the whole txsById object
-     *
-     * the issue is we get a pending tx, but the unchained getAccount call does not
-     * optimistically include pending txs, so we need to refetch when the tx is confirmed
-     * add the additional logic here to do this. we should probably ignore pending txs
-     * as refetching will cause charts to update slightly by the fee amount, but not
-     * the actually amount that's related to the asset being sent or received
-     */
-    // the accountSpecifier the tx came from
-    const { txAccountSpecifier } = deserializeUniqueTxId(txId)
-    // only refetch accounts for this tx
-    const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
-      const [chainId, accountSpecifier] = Object.entries(cur)[0]
-      const accountId = chainId + ':' + accountSpecifier
-      if (accountId === txAccountSpecifier) acc[chainId] = accountSpecifier
-      return acc
-    }, {})
-    dispatch(
-      portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
-    )
+
+    if (tx.caip2 === cosmosChainId) {
+      // cosmos txs only come in when they're confirmed, so refetch that account immediately
+      return refetchAccountByTxId(txId)
+    } else {
+      /**
+       * the unchained getAccount call does not include pending txs in the portfolio
+       * add them to a set, and the two effects below monitor the set on pending txs
+       */
+      if (tx.status === 'pending') setPendingTxIds(new Set([...pendingTxIds, txId]))
+    }
+
     // txsById changes on each tx - as txs have more confirmations
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, txIds])
+
+  /**
+   * refetch an account given a newly confirmed txid
+   */
+  const refetchAccountByTxId = useCallback(
+    (txId: TxId) => {
+      // the accountSpecifier the tx came from
+      const { txAccountSpecifier } = deserializeUniqueTxId(txId)
+      // only refetch accounts for this tx
+      const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
+        const [chainId, accountSpecifier] = Object.entries(cur)[0]
+        const accountId = chainId + ':' + accountSpecifier
+        if (accountId === txAccountSpecifier) acc[chainId] = accountSpecifier
+        return acc
+      }, {})
+      const { getAccount } = portfolioApi.endpoints
+      dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
+    },
+    [accountSpecifiersList, dispatch]
+  )
+
+  /**
+   * monitor the pending tx ids for when they change to confirmed.
+   * when they do change to confirmed, refetch the portfolio for that chain
+   * (unchained does not include assets for pending txs)
+   */
+  useEffect(() => {
+    // don't monitor any of this stuff if we're still loading - txsByIds will be thrashing
+    if (txHistoryStatus !== 'loaded') return
+    if (!pendingTxIds.size) return
+    // can't map a set, spread it first
+    const confirmedTxIds = [...pendingTxIds].filter(txId => txsById[txId]?.status === 'confirmed')
+    // txsById will change often, but we only care that if they've gone from pending -> confirmed
+    if (!confirmedTxIds.length) return
+    // refetch the account for each newly confirmed tx
+    confirmedTxIds.forEach(txId => refetchAccountByTxId(txId))
+    // stop monitoring the pending tx ids that have now been confirmed
+    setPendingTxIds(new Set([...difference([...pendingTxIds], confirmedTxIds)]))
+  }, [pendingTxIds, refetchAccountByTxId, txsById, txHistoryStatus])
 
   // we only prefetch market data for the top 1000 assets
   // once the portfolio has loaded, check we have market data

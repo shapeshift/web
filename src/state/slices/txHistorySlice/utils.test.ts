@@ -1,7 +1,6 @@
 import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from 'test/mocks/txs'
 
-import { makeUniqueTxId } from './txHistorySlice'
-import { addToIndex, deserializeUniqueTxId, getRelatedAssetIds } from './utils'
+import { addToIndex, deserializeUniqueTxId, getRelatedAssetIds, makeUniqueTxId } from './utils'
 
 describe('txHistorySlice:utils', () => {
   describe('getRelatedAssetIds', () => {

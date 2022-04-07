@@ -3,20 +3,18 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TestProviders } from 'test/TestProviders'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
 jest.mock('react-hook-form')
-jest.mock('context/WalletProvider/WalletProvider')
+jest.mock('hooks/useWallet/useWallet')
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
   selectFeeAssetById: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
-  selectMarketDataById: () => mockEthAsset,
-  selectAssets: jest.fn(),
-  selectBalanceThreshold: jest.fn()
+  selectMarketDataById: () => mockEthAsset
 }))
 
 const fees = {

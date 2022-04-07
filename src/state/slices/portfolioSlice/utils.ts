@@ -14,7 +14,7 @@ import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { initialState, Portfolio } from './portfolioSlice'
+import { initialState, Portfolio } from './portfolioSliceCommon'
 
 export type UtxoParamsAndAccountType = {
   utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
@@ -312,7 +312,6 @@ export const makeBalancesByChainBucketsFlattened = (
   accountBalances: string[],
   assets: { [k: CAIP19]: Asset }
 ) => {
-
   const initial: Record<ChainTypes, CAIP10[]> = {}
   const balancesByChainBuckets = accountBalances.reduce<Record<ChainTypes, CAIP10[]>>(
     (acc: Record<ChainTypes, CAIP10[]>, accountId) => {

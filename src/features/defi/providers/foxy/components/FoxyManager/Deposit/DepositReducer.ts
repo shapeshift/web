@@ -99,11 +99,6 @@ type SetLoading = {
   payload: boolean
 }
 
-type SetPricePerShare = {
-  type: FoxyDepositActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
 type SetTxid = {
   type: FoxyDepositActionType.SET_TXID
   payload: string
@@ -115,7 +110,6 @@ type FoxyDepositActions =
   | SetDeposit
   | SetUserAddress
   | SetLoading
-  | SetPricePerShare
   | SetTxid
 
 export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => {
@@ -130,8 +124,6 @@ export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => 
       return { ...state, userAddress: action.payload }
     case FoxyDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case FoxyDepositActionType.SET_PRICE_PER_SHARE:
-      return { ...state, pricePerShare: action.payload }
     case FoxyDepositActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:

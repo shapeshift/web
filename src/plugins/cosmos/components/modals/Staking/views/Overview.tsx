@@ -1,68 +1,131 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { ModalCloseButton } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { Skeleton } from '@chakra-ui/react'
+import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
+import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetClaimCard'
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
-import { OverviewHeader } from 'plugins/cosmos/components/OverviewHeader/OverviewHeader'
-import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
-import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
+import { useEffect } from 'react'
+import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAllUnbondingsEntriesByAssetIdAndValidator,
+  selectRewardsAmountByAssetId,
+  selectSingleValidator,
+  selectStakingDataIsLoaded,
+  selectTotalBondingsBalanceByAssetId
+} from 'state/slices/stakingDataSlice/selectors'
+import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 type StakedProps = {
   assetId: CAIP19
+  validatorAddress: string
+  accountSpecifier: CAIP10
 }
 
-// TODO: Wire up the whole component with staked data
-export const Overview = ({ assetId }: StakedProps) => {
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO'
-  }))(assetId) as Asset
+export const Overview: React.FC<StakedProps> = ({
+  assetId,
+  validatorAddress,
+  accountSpecifier
+}) => {
+  const isLoaded = useAppSelector(selectStakingDataIsLoaded)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    ;(async () => {
+      if (!accountSpecifier.length || isLoaded) return
+
+      dispatch(
+        stakingDataApi.endpoints.getStakingData.initiate(
+          { accountSpecifier },
+          { forceRefetch: true }
+        )
+      )
+    })()
+  }, [accountSpecifier, isLoaded, dispatch])
+
+  const validatorInfo = useAppSelector(state =>
+    selectSingleValidator(state, accountSpecifier, validatorAddress)
+  )
+
+  const totalBondings = useAppSelector(state =>
+    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
+  )
+  const undelegationEntries = useAppSelector(state =>
+    selectAllUnbondingsEntriesByAssetIdAndValidator(
+      state,
+      accountSpecifier,
+      validatorAddress,
+      asset.caip19
+    )
+  )
+
+  const rewardsAmount = useAppSelector(state =>
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
+  )
+
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Box pt='38px' pb='70px' px='34px'>
-        <ModalCloseButton borderRadius='full' />
+      <Box p='22px'>
         <Flex
           direction='column'
           maxWidth='595px'
           alignItems='center'
           justifyContent='space-between'
         >
-          <OverviewHeader assetName={asset.name} mb='35px' />
-          <StakedRow
-            mb='10px'
-            assetSymbol={asset.symbol}
-            fiatRate={bnOrZero('8.47')}
-            cryptoStakedAmount={bnOrZero('708.00')}
-            apr={bnOrZero('0.12')}
-          />
-          <StakingButtons assetId={assetId} />
-          <Box width='100%' mt='20px'>
-            {
-              /* TODO: use real unbonds data */
-              new Array(2).fill(undefined).map((_, i) => (
+          <Skeleton
+            isLoaded={Boolean(isLoaded && accountSpecifier)}
+            width='100%'
+            minHeight='48px'
+            mb='30px'
+            justifyContent='space-between'
+          >
+            <StakedRow
+              assetSymbol={asset.symbol}
+              assetIcon={asset.icon}
+              fiatRate={bnOrZero(marketData.price)}
+              cryptoStakedAmount={bnOrZero(totalBondings)
+                .div(`1e+${asset.precision}`)
+                .decimalPlaces(asset.precision)}
+              apr={bnOrZero(validatorInfo?.apr)}
+            />
+          </Skeleton>
+          <Skeleton isLoaded={isLoaded} width='100%' mb='40px' justifyContent='space-between'>
+            <Box width='100%'>
+              <Text translation={'defi.rewards'} mb='12px' color='gray.500' />
+              <AssetClaimCard
+                assetSymbol={asset.symbol}
+                assetIcon={asset.icon}
+                cryptoRewardsAmount={bnOrZero(rewardsAmount)
+                  .div(`1e+${asset.precision}`)
+                  .decimalPlaces(asset.precision)}
+                fiatRate={bnOrZero(marketData.price)}
+                renderButton={() => (
+                  <ClaimButton assetId={assetId} validatorAddress={validatorAddress} />
+                )}
+              />
+            </Box>
+          </Skeleton>
+          <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mb='20px'>
+            <Text translation={'defi.unstaking'} color='gray.500' />
+            <Box width='100%'>
+              {undelegationEntries?.map((undelegation, i) => (
                 <UnbondingRow
                   key={i}
                   assetSymbol={asset.symbol}
-                  fiatRate={bnOrZero('8.47')}
-                  cryptoUnbondedAmount={bnOrZero('420.65')}
-                  unbondingEnd={1646762306}
+                  fiatRate={bnOrZero(marketData.price)}
+                  cryptoUnbondedAmount={bnOrZero(undelegation.amount).div(`1e+${asset.precision}`)}
+                  unbondingEnd={undelegation.completionTime}
                 />
-              ))
-            }
-          </Box>
-          <RewardsRow
-            mb='20px'
-            mt='25px'
-            assetSymbol={asset.symbol}
-            fiatRate={bnOrZero('8.47')}
-            cryptoRewardsAmount={bnOrZero('23.24')}
-          />
-          <ClaimButton assetId={assetId} />
+              ))}
+            </Box>
+          </Skeleton>
         </Flex>
       </Box>
     </AnimatePresence>

@@ -2,7 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 
 import { Languages } from './Languages'
-import { SettingsRoutes } from './Settings'
+import { SettingsRoutes } from './SettingsCommon'
 import { SettingsList } from './SettingsList'
 
 export const SettingsRouter = ({ appHistory }: { appHistory: RouteComponentProps['history'] }) => {

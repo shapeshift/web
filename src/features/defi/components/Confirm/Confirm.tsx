@@ -12,6 +12,8 @@ type ConfirmProps = {
   onConfirm(): Promise<void>
   headerText: string
   prefooter?: React.ReactNode
+  loading: boolean
+  loadingText?: string
   children?: React.ReactNode
 } & AssetToAssetProps
 
@@ -20,6 +22,8 @@ export const Confirm = ({
   onCancel,
   children,
   prefooter,
+  loading,
+  loadingText,
   headerText,
   ...rest
 }: ConfirmProps) => {
@@ -37,10 +41,16 @@ export const Confirm = ({
         <Stack width='full'>
           {prefooter}
           <Flex width='full' justifyContent='space-between'>
-            <Button size='lg' colorScheme='gray' onClick={onCancel}>
+            <Button size='lg' colorScheme='gray' onClick={onCancel} isDisabled={loading}>
               {translate('modals.confirm.cancel')}
             </Button>
-            <Button size='lg' colorScheme='blue' onClick={onConfirm}>
+            <Button
+              size='lg'
+              colorScheme='blue'
+              onClick={onConfirm}
+              isLoading={loading}
+              loadingText={loadingText}
+            >
               {translate('modals.confirm.signBroadcast')}
             </Button>
           </Flex>

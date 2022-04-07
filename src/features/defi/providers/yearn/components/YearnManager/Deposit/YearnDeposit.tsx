@@ -19,10 +19,7 @@ import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import {
-  DefiParams,
-  DefiQueryParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
@@ -37,9 +34,9 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RouteSteps, StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -414,6 +411,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           <Confirm
             onCancel={handleCancel}
             onConfirm={handleDeposit}
+            loading={state.loading}
+            loadingText={translate('common.confirmOnWallet')}
             headerText='modals.confirm.deposit.header'
             assets={[
               {
@@ -629,9 +628,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   return (
-    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+    <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
       <RouteSteps routes={routes} location={location} />
-      <Flex flexDir='column' width='full' minWidth='500px'>
+      <Flex flexDir='column' width='full'>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

@@ -4,39 +4,25 @@ import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import findIndex from 'lodash/findIndex'
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer
-} from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 
-import { KeyManager, SUPPORTED_WALLETS } from './config'
+import { ActionTypes, WalletActions } from './actions'
+import { SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
+import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
+import { KeyManager } from './KeyManager'
 import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
+import { IWalletContext, WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
-
-export enum WalletActions {
-  SET_ADAPTERS = 'SET_ADAPTERS',
-  SET_WALLET = 'SET_WALLET',
-  SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
-  SET_INITIAL_ROUTE = 'SET_INITIAL_ROUTE',
-  SET_IS_CONNECTED = 'SET_IS_CONNECTED',
-  SET_WALLET_MODAL = 'SET_WALLET_MODAL',
-  RESET_STATE = 'RESET_STATE',
-  SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING'
-}
 
 type GenericAdapter = {
   initialize: (...args: any[]) => Promise<any>
   pairDevice: (...args: any[]) => Promise<HDWallet>
 }
 
-type Adapters = Map<KeyManager, GenericAdapter>
+export type Adapters = Map<KeyManager, GenericAdapter>
 
 export type WalletInfo = {
   name: string
@@ -55,6 +41,9 @@ export interface InitialState {
   isConnected: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
+  deviceId: string
+  noBackButton: boolean
+  keepKeyPinRequestType: PinMatrixRequestType | null
 }
 
 const initialState: InitialState = {
@@ -66,35 +55,11 @@ const initialState: InitialState = {
   walletInfo: null,
   isConnected: false,
   modal: false,
-  isLoadingLocalWallet: false
+  isLoadingLocalWallet: false,
+  deviceId: '',
+  noBackButton: false,
+  keepKeyPinRequestType: null
 }
-
-export interface IWalletContext {
-  state: InitialState
-  dispatch: React.Dispatch<ActionTypes>
-  connect: (adapter: KeyManager) => Promise<void>
-  create: (adapter: KeyManager) => Promise<void>
-  disconnect: () => void
-}
-
-export type ActionTypes =
-  | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
-  | {
-      type: WalletActions.SET_WALLET
-      payload: {
-        wallet: HDWallet | null
-        name: string
-        icon: ComponentWithAs<'svg', IconProps>
-        deviceId: string
-        meta?: { label: string }
-      }
-    }
-  | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
-  | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
-  | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
-  | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
-  | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
-  | { type: WalletActions.RESET_STATE }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
   switch (action.type) {
@@ -126,11 +91,41 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
       // Otherwise the connect button for last wallet we clicked on won't work
-      if (action.payload !== state.modal) {
+      if (action.payload === false && state.modal === true) {
         newState.initialRoute = '/'
         newState.isLoadingLocalWallet = false
+        newState.noBackButton = false
+        newState.keepKeyPinRequestType = null
       }
       return newState
+    case WalletActions.NATIVE_PASSWORD_OPEN:
+      return {
+        ...state,
+        modal: action.payload.modal,
+        type: KeyManager.Native,
+        noBackButton: state.isLoadingLocalWallet,
+        deviceId: action.payload.deviceId,
+        initialRoute: '/native/enter-password'
+      }
+    case WalletActions.OPEN_KEEPKEY_PIN:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        noBackButton: true,
+        deviceId: action.payload.deviceId,
+        keepKeyPinRequestType: action.payload.pinRequestType ?? null,
+        initialRoute: '/keepkey/enter-pin'
+      }
+    case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        noBackButton: true,
+        deviceId: action.payload.deviceId,
+        initialRoute: '/keepkey/passphrase'
+      }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
@@ -141,14 +136,14 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         isConnected: false,
         type: null,
         initialRoute: null,
-        isLoadingLocalWallet: false
+        isLoadingLocalWallet: false,
+        noBackButton: false,
+        keepKeyPinRequestType: null
       }
     default:
       return state
   }
 }
-
-const WalletContext = createContext<IWalletContext | null>(null)
 
 const getInitialState = () => {
   const localWalletType = getLocalWalletType()
@@ -369,6 +364,3 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     </WalletContext.Provider>
   )
 }
-
-export const useWallet = (): IWalletContext =>
-  useContext(WalletContext as React.Context<IWalletContext>)

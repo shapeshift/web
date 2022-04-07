@@ -7,7 +7,7 @@ import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
-import { DefiType } from '../contexts/DefiManagerProvider/DefiManagerProvider'
+import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
 
 export type EarnOpportunityType = {
   type?: string
@@ -63,11 +63,13 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
     // show vaults that are expired but have a balance
     // show vaults that don't have an APY but have a balance
     // don't show vaults that don't have a balance and don't have an APY
+    // don't show new vaults that have an APY over 20,000% APY
     if (assetIds.includes(assetCAIP19)) {
       if (
         vault.expired ||
         bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) ||
-        bnOrZero(vault.underlyingTokenBalance.amountUsdc).isEqualTo(0)
+        bnOrZero(vault.underlyingTokenBalance.amountUsdc).isEqualTo(0) ||
+        (bnOrZero(vault?.metadata?.apy?.net_apy).gt(200) && vault?.metadata?.apy?.type === 'new')
       ) {
         if (bnOrZero(cryptoAmount).gt(0)) {
           acc.push(data)
@@ -121,5 +123,5 @@ export const useNormalizeOpportunities = ({
   vaultArray,
   foxyArray
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
-  return [...useTransformVault(vaultArray), ...transformFoxy(foxyArray)]
+  return [...transformFoxy(foxyArray), ...useTransformVault(vaultArray)]
 }

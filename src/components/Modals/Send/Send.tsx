@@ -3,18 +3,11 @@ import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { Form as CosmosForm } from 'plugins/cosmos/components/modals/Send/Form'
 import { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { Form } from './Form'
-
-export enum SendRoutes {
-  Select = '/send/select',
-  Address = '/send/address',
-  Details = '/send/details',
-  Confirm = '/send/confirm',
-  Scan = '/send/scan'
-}
+import { SendRoutes } from './SendCommon'
 
 export const entries = [
   SendRoutes.Address,

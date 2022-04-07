@@ -1,24 +1,34 @@
 import { FlexProps } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { ClaimPath } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type ClaimButtonProps = {
   assetId: CAIP19
+  validatorAddress: string
 }
 
-export const ClaimButton = ({ assetId }: ClaimButtonProps & FlexProps) => {
-  const { cosmosStaking } = useModal()
+export const ClaimButton = ({ assetId, validatorAddress }: ClaimButtonProps & FlexProps) => {
+  const history = useHistory()
 
   const handleClaimClick = () => {
-    cosmosStaking.open({ assetId, action: StakingAction.Claim })
+    history.push(ClaimPath.Confirm, {
+      assetId,
+      validatorAddress
+    })
   }
 
   return (
-    <Button onClick={handleClaimClick} width='100%' colorScheme='green'>
-      <Text translation={'defi.claim'} color='green' fontWeight='bold' />
+    <Button
+      onClick={handleClaimClick}
+      py='12px'
+      px='20px'
+      colorScheme='green'
+      variant='ghost-filled'
+    >
+      <Text translation={'defi.claim'} fontWeight='bold' fontSize='16' />
     </Button>
   )
 }

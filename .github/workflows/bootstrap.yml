@@ -69,7 +69,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ github.ref }}-
-            
+
       - name: install dependencies and verify Cypress
         env:
           # Make sure every Cypress install prints minimal information

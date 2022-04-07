@@ -22,6 +22,7 @@ type AssetDetailsProps = {
 
 export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
   const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
+
   return (
     <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
@@ -34,7 +35,7 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           <AssetChart accountId={accountId} assetId={caip19} isLoaded={true} />
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
-          {cosmosInvestorFlag && <StakingOpportunities />}
+          {cosmosInvestorFlag && <StakingOpportunities assetId={caip19} />}
           <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>

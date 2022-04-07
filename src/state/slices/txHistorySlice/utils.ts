@@ -43,7 +43,7 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
  * asset or account, and parse the tx closer to the view layer.
  */
 
-// we can't use a hypher as a delimiter, as it appears in the chain reference for cosmos
+// we can't use a hyphen as a delimiter, as it appears in the chain reference for cosmos
 export const UNIQUE_TX_ID_DELIMITER = '*'
 export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
   [accountId, tx.txid, tx.address].join(UNIQUE_TX_ID_DELIMITER)

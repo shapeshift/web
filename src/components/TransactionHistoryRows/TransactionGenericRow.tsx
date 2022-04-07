@@ -56,6 +56,7 @@ type TransactionRowAsset = {
   amount: string
   precision: number
   currentPrice?: string
+  icon?: string
 }
 
 type TransactionGenericRowProps = {
@@ -163,7 +164,7 @@ export const TransactionGenericRow = ({
                 }}
               >
                 <AssetIcon
-                  symbol={asset.symbol.toLowerCase()}
+                  src={asset.icon}
                   boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
                 />
                 <Box flex={1}>

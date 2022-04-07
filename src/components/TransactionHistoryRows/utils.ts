@@ -18,21 +18,24 @@ export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetT
         symbol: txDetails.sellAsset?.symbol ?? fallback.symbol,
         amount: txDetails.sellTransfer?.value ?? '0',
         precision: txDetails.sellAsset?.precision ?? fallback.precision,
-        currentPrice: txDetails.sourceMarketData?.price
+        currentPrice: txDetails.sourceMarketData?.price,
+        icon: txDetails.sellAsset?.icon
       }
     case AssetTypes.Destination:
       return {
         symbol: txDetails.buyAsset?.symbol ?? fallback.symbol,
         amount: txDetails.buyTransfer?.value ?? '0',
         precision: txDetails.buyAsset?.precision ?? fallback.precision,
-        currentPrice: txDetails.destinationMarketData?.price
+        currentPrice: txDetails.destinationMarketData?.price,
+        icon: txDetails.buyAsset?.icon
       }
     case AssetTypes.Fee:
       return {
         symbol: txDetails.feeAsset?.symbol ?? fallback.symbol,
         amount: txDetails.tx.fee?.value ?? '0',
         precision: txDetails.feeAsset?.precision ?? fallback.precision,
-        currentPrice: txDetails.feeMarketData?.price
+        currentPrice: txDetails.feeMarketData?.price,
+        icon: txDetails.feeAsset?.icon
       }
     default:
       return {

@@ -4,6 +4,7 @@
     "next": "Suivant",
     "error": "Erreur",
     "cancel": "Annuler",
+    "close": "Fermer",
     "continue": "Continuer",
     "confirm": "Confirmer",
     "reject": "Rejeter",
@@ -16,6 +17,8 @@
     "unresolvableEnsDomain": "Impossible de résoudre le domaine ENS",
     "deposit": "Déposer",
     "withdraw": "Retirer",
+    "withdrawal": "Retrait",
+    "overview": "Aperçu",
     "getStarted": "Commencer",
     "connectWallet": "Connecter Porte-monnaie",
     "connectedWallet": "Porte-monnaie Connecté",
@@ -146,6 +149,10 @@
           "validator": "Le Validateur est chargé de traiter les transactions, de stocker les données et d'ajouter des blocs à la blockchain.",
           "gasFees": "Les frais de carburant sur %{networkName} sont beaucoup plus bas que ceux du réseau principal Ethereum. Ces frais sont versés directement aux validateurs qui sécurisent et exploitent le réseau et ne sont pas versés à ShapeShift."
         }
+      },
+      "foxyOverview": {
+      },
+      "claim": {
       }
     },
     "amountToStake": "Montant à miser",
@@ -410,7 +417,9 @@
     "withdraw": {
       "amountToWithdraw": "Montant à retirer",
       "footerDisclaimer": "Cette transaction nécessitera des frais de carburant pour une transaction.",
-      "slippageSettings": "Paramètres de glissement de taux"
+      "slippageSettings": "Paramètres de glissement de taux",
+      "info": {
+      }
     },
     "approve": {
       "header": "Autoriser le routeur DAO de ShapeShift à dépenser votre %{asset}",
@@ -431,8 +440,8 @@
         "estimatedReturns": "Rendements annuels estimés*",
         "preFooter": "Les récompenses sont cumulées automatiquement"
       },
-      "withdrawFrom": "Retirer de",
       "withdrawTo": "Retirer vers",
+      "withdrawFrom": "Retirer de",
       "depositTo": "Déposer sur",
       "averageApy": "APY moyen",
       "estimatedReturns": "Rendements annuels estimés*",
@@ -461,6 +470,8 @@
     },
     "connect": {
       "loadingText": "Appairer le porte-monnaie"
+    },
+    "settings": {
     }
   },
   "walletProvider": {

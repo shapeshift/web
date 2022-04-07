@@ -17,7 +17,6 @@ export function register(): Plugins {
       {
         name: 'plugins.cosmos.navBar',
         icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
-        featureFlag: 'CosmosPlugin',
         providers: {
           chainAdapters: [
             [

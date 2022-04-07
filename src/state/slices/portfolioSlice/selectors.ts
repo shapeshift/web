@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -22,7 +22,12 @@ import {
   PortfolioAssets,
   PortfolioBalancesById
 } from './portfolioSliceCommon'
-import { accountIdToFeeAssetId, findAccountsByAssetId } from './utils'
+import {
+  findAccountsByAssetId,
+  makeBalancesByChainBucketsFlattened,
+  makeSortedAccountBalances
+} from './utils'
+
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = [
   'eip155:1/slip44:60',
@@ -397,32 +402,16 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
   }
 )
 
-export const selectPortfolioAccountIdsSortedFiat = createSelector(
+export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector(
   selectPortfolioTotalFiatBalanceByAccount,
   selectAssets,
   (totalAccountBalances, assets) => {
-    const sortedAccountBalances = Object.entries(totalAccountBalances)
-      .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
-        bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1
-      )
-      .map(([accountId, _]) => accountId)
-
-    const sortedAccountBalancesByChainBuckets = sortedAccountBalances.reduce(
-      (acc: Record<ChainTypes, CAIP10[]>, accountId) => {
-        const assetId = accountIdToFeeAssetId(accountId)
-        const asset = assets[assetId]
-
-        if (!acc[asset.chain]) {
-          acc[asset.chain] = []
-        }
-
-        acc[asset.chain] = [...acc[asset.chain], accountId]
-        return acc
-      },
-      {} as Record<ChainTypes, CAIP10[]>
+    const sortedAccountBalances = makeSortedAccountBalances(totalAccountBalances)
+    const sortedAccountBalancesByChainBuckets = makeBalancesByChainBucketsFlattened(
+      sortedAccountBalances,
+      assets
     )
-
-    return Object.values(sortedAccountBalancesByChainBuckets).flat()
+    return sortedAccountBalancesByChainBuckets
   }
 )
 

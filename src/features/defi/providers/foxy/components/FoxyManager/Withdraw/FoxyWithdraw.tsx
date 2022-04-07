@@ -345,7 +345,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
 
   const validateFiatAmount = (value: string) => {
     const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
-    const fiat = crypto.times(marketData.price)
+    const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -353,7 +353,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
-  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(marketData.price))
+  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
   const withdrawalFee = useMemo(() => {
     return state.withdraw.withdrawType === WithdrawType.INSTANT
       ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
@@ -622,7 +622,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     }
   }
 
-  if (loading || !asset || !marketData || !feeMarketData)
+  if (loading || !asset || !feeMarketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

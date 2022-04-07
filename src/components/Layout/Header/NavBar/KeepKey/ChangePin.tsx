@@ -4,10 +4,17 @@ import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepK
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { SubMenuBody } from '../SubMenuBody'
+import { SubMenuContainer } from '../SubMenuContainer'
 
 export const ChangePin = () => {
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
+  const {
+    state: { awaitingDeviceInteraction }
+  } = useWallet()
 
   const handleChangePin = async () => {
     await keepKeyWallet?.changePin()
@@ -17,27 +24,35 @@ export const ChangePin = () => {
   const renderPinState: JSX.Element = (() => {
     return (
       <>
-        <LastDeviceInteractionStatus setting={setting} />
-        <AwaitKeepKey
-          translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-        >
-          <Button colorScheme='blue' size='sm' onClick={handleChangePin}>
+        <SubMenuBody>
+          <LastDeviceInteractionStatus setting={setting} />
+          <Button
+            colorScheme='blue'
+            size='sm'
+            onClick={handleChangePin}
+            isLoading={awaitingDeviceInteraction}
+          >
             {translate('walletProvider.keepKey.settings.actions.update', { setting })}
           </Button>
-        </AwaitKeepKey>
+        </SubMenuBody>
+        <AwaitKeepKey
+          translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+        />
       </>
     )
   })()
 
   return (
-    <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
-      <SubmenuHeader
-        title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-          setting
-        })}
-        description={translate('walletProvider.keepKey.settings.descriptions.pin')}
-      />
-      {renderPinState}
-    </Flex>
+    <SubMenuContainer>
+      <Flex flexDir='column'>
+        <SubmenuHeader
+          title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
+            setting
+          })}
+          description={translate('walletProvider.keepKey.settings.descriptions.pin')}
+        />
+        {renderPinState}
+      </Flex>
+    </SubMenuContainer>
   )
 }

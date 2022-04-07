@@ -7,6 +7,9 @@ import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { SubMenuBody } from '../SubMenuBody'
+import { SubMenuContainer } from '../SubMenuContainer'
+
 export const ChangeLabel = () => {
   const translate = useTranslate()
   const { state } = useWallet()
@@ -25,33 +28,40 @@ export const ChangeLabel = () => {
   const placeholderOpacity = useColorModeValue(0.6, 0.4)
 
   return (
-    <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
-      <SubmenuHeader
-        title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-          setting
-        })}
-        description={translate('walletProvider.keepKey.settings.descriptions.label')}
-      />
-      <LastDeviceInteractionStatus setting={setting} />
-      <Input
-        type='text'
-        placeholder={translate('walletProvider.keepKey.settings.placeholders.label')}
-        _placeholder={{ opacity: placeholderOpacity, color: 'inherit' }}
-        mb={3}
-        size='md'
-        background={inputBackground}
-        onChange={e => setKeepKeyLabel(e.target.value)}
-        value={keepKeyLabel}
-        autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-        disabled={awaitingDeviceInteraction}
-      />
-      <AwaitKeepKey
-        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-      >
-        <Button colorScheme='blue' size='sm' onClick={handleChangeLabelInitializeEvent}>
-          {translate('walletProvider.keepKey.settings.actions.update', { setting })}
-        </Button>
-      </AwaitKeepKey>
-    </Flex>
+    <SubMenuContainer>
+      <Flex flexDir='column'>
+        <SubmenuHeader
+          title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
+            setting
+          })}
+          description={translate('walletProvider.keepKey.settings.descriptions.label')}
+        />
+        <SubMenuBody>
+          <LastDeviceInteractionStatus setting={setting} />
+          <Input
+            type='text'
+            placeholder={translate('walletProvider.keepKey.settings.placeholders.label')}
+            _placeholder={{ opacity: placeholderOpacity, color: 'inherit' }}
+            size='md'
+            background={inputBackground}
+            onChange={e => setKeepKeyLabel(e.target.value)}
+            value={keepKeyLabel}
+            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+            disabled={awaitingDeviceInteraction}
+          />
+          <Button
+            isLoading={awaitingDeviceInteraction}
+            colorScheme='blue'
+            size='sm'
+            onClick={handleChangeLabelInitializeEvent}
+          >
+            {translate('walletProvider.keepKey.settings.actions.update', { setting })}
+          </Button>
+        </SubMenuBody>
+        <AwaitKeepKey
+          translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+        />
+      </Flex>
+    </SubMenuContainer>
   )
 }

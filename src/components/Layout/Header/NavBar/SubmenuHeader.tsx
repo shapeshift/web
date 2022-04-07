@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/layout'
-import { Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import { Flex, IconButton, Text, useColorModeValue } from '@chakra-ui/react'
 import { upperFirst } from 'lodash'
 import { useMenuRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 
@@ -12,21 +12,24 @@ type ExpandedMenuItemProps = {
 export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => {
   const { handleBackClick } = useMenuRoutes()
   const headerColor = useColorModeValue('black', 'white')
-  const backArrowColor = useColorModeValue('black.500', 'lightgrey')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
 
   return (
-    <Flex flexDir='column' mb={3}>
+    <Flex flexDir='column' mb={3} px={2}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>
-        <Button onClick={handleBackClick} ml={2} size='sm'>
-          <ArrowBackIcon color={backArrowColor} />
-        </Button>
+        <IconButton
+          isRound
+          size='sm'
+          onClick={handleBackClick}
+          aria-label='Go Back'
+          icon={<ArrowBackIcon />}
+        />
         <Center fontWeight='bold' color={headerColor} fontSize='sm' flex={1} pr={7}>
           {upperFirst(title)}
         </Center>
       </Flex>
       {description && (
-        <Text fontSize='sm' color={descriptionTextColor}>
+        <Text fontSize='sm' px={1} color={descriptionTextColor}>
           {description}
         </Text>
       )}

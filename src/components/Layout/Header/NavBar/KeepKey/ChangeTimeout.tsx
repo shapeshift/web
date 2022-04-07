@@ -1,4 +1,4 @@
-import { Flex, useColorModeValue } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -6,6 +6,10 @@ import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/Kee
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio } from 'components/Radio/Radio'
 import { DeviceTimeout, timeoutOptions, useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { SubMenuBody } from '../SubMenuBody'
+import { SubMenuContainer } from '../SubMenuContainer'
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
@@ -13,6 +17,9 @@ export const ChangeTimeout = () => {
     keepKeyWallet,
     state: { deviceTimeout }
   } = useKeepKey()
+  const {
+    state: { awaitingDeviceInteraction }
+  } = useWallet()
   const [radioTimeout, setRadioTimeout] = useState(DeviceTimeout.TenMinutes)
 
   const handleChange = async (value: DeviceTimeout) => {
@@ -32,17 +39,15 @@ export const ChangeTimeout = () => {
   }, [deviceTimeout?.value])
 
   return (
-    <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
+    <SubMenuContainer>
       <SubmenuHeader
         title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
           setting: 'Timeout'
         })}
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
-      <LastDeviceInteractionStatus setting='timeout' />
-      <AwaitKeepKey
-        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-      >
+      <SubMenuBody>
+        <LastDeviceInteractionStatus setting='timeout' />
         <Radio
           showCheck
           options={timeoutOptions}
@@ -50,15 +55,21 @@ export const ChangeTimeout = () => {
           colorScheme={colorScheme}
           defaultValue={radioTimeout}
           checkColor={checkColor}
+          isLoading={awaitingDeviceInteraction}
+          radioProps={{ width: 'full', justifyContent: 'flex-start' }}
           buttonGroupProps={{
             display: 'flex',
             flexDirection: 'column',
             width: 'full',
             alignItems: 'flex-start',
+            flex: 1,
             spacing: '0'
           }}
         />
-      </AwaitKeepKey>
-    </Flex>
+      </SubMenuBody>
+      <AwaitKeepKey
+        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+      />
+    </SubMenuContainer>
   )
 }

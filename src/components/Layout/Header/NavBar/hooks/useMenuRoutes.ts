@@ -5,12 +5,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 export enum WalletConnectedRoutes {
   Connected = '/connected',
-  KeepKey = '/connected/keepkey',
-  KeepKeyPin = '/connected/keepkey/pin',
-  KeepKeyLabel = '/connected/keepkey/label',
-  KeepKeyTimeout = '/connected/keepkey/timeout',
-  KeepKeyPinCaching = '/connected/keepkey/pin-caching',
-  KeepKeyPassphrase = '/connected/keepkey/passphrase'
+  KeepKey = '/keepkey',
+  KeepKeyPin = '/keepkey/pin',
+  KeepKeyLabel = '/keepkey/label',
+  KeepKeyTimeout = '/keepkey/timeout',
+  KeepKeyPinCaching = '/keepkey/pin-caching',
+  KeepKeyPassphrase = '/keepkey/passphrase'
 }
 
 export const useMenuRoutes = () => {

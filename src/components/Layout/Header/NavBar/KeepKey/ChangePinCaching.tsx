@@ -7,6 +7,9 @@ import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { SubMenuBody } from '../SubMenuBody'
+import { SubMenuContainer } from '../SubMenuContainer'
+
 export const ChangePinCaching = () => {
   const translate = useTranslate()
   const {
@@ -35,32 +38,34 @@ export const ChangePinCaching = () => {
   const setting = 'PIN caching'
 
   return (
-    <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
+    <SubMenuContainer>
       <SubmenuHeader
         title={translate('walletProvider.keepKey.settings.headings.pinCaching')}
         description={translate('walletProvider.keepKey.settings.descriptions.pinCaching')}
       />
-      <LastDeviceInteractionStatus setting={setting} />
-      <FormControl display='flex' alignItems='center'>
-        <Flex flexGrow={1}>
-          <FormLabel htmlFor='pin-caching' mb='0'>
-            {translate('walletProvider.keepKey.settings.actions.enable', {
-              setting
-            })}
-          </FormLabel>
-          {awaitingDeviceInteraction && <Spinner thickness='4px' />}
-        </Flex>
-        <Switch
-          id='pin-caching'
-          isDisabled={awaitingDeviceInteraction}
-          isChecked={hasPinCaching}
-          onChange={handleToggle}
-        />
-      </FormControl>
+      <SubMenuBody>
+        <LastDeviceInteractionStatus setting={setting} />
+        <FormControl display='flex' alignItems='center'>
+          <Flex flexGrow={1}>
+            <FormLabel htmlFor='pin-caching' mb='0'>
+              {translate('walletProvider.keepKey.settings.actions.enable', {
+                setting
+              })}
+            </FormLabel>
+            {awaitingDeviceInteraction && <Spinner thickness='4px' />}
+          </Flex>
+          <Switch
+            id='pin-caching'
+            isDisabled={awaitingDeviceInteraction}
+            isChecked={hasPinCaching}
+            onChange={handleToggle}
+          />
+        </FormControl>
+      </SubMenuBody>
       <AwaitKeepKey
         translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
         onCancel={onCancel}
       />
-    </Flex>
+    </SubMenuContainer>
   )
 }

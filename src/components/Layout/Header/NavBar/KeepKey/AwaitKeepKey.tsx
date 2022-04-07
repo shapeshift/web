@@ -33,16 +33,18 @@ export const AwaitKeepKey = ({ children, translation, onCancel, ...props }: Awai
 
   return awaitingDeviceInteraction ? (
     <>
-      <Divider mt={3} mb={3} />
-      <Flex {...props}>
-        <InfoIcon color={blueShade} mt={1} />
-        <Box ml={3}>
-          <Text translation={translation} mb={3} fontWeight='medium' color={blueShade} />
-          <Button colorScheme='blue' variant='ghost-filled' onClick={cancel} size='sm'>
-            {translate('common.cancel')}
-          </Button>
-        </Box>
-      </Flex>
+      <Divider />
+      <Box p={3}>
+        <Flex {...props}>
+          <InfoIcon color={blueShade} mt={1} />
+          <Box ml={3}>
+            <Text translation={translation} mb={3} fontWeight='medium' color={blueShade} />
+            <Button colorScheme='blue' variant='ghost-filled' onClick={cancel} size='sm'>
+              {translate('common.cancel')}
+            </Button>
+          </Box>
+        </Flex>
+      </Box>
     </>
   ) : (
     <>{children}</>

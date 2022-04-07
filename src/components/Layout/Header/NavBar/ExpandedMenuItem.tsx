@@ -54,6 +54,8 @@ export const ExpandedMenuItem = ({
   const expandedMenuItem = (
     <MenuItem
       display='flex'
+      alignItems='center'
+      px={3}
       {...props}
       closeOnSelect={!hasSubmenu}
       isDisabled={isDisabled}

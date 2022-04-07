@@ -2,17 +2,11 @@ import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { Route } from 'react-router-dom'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
   useMenuRoutes,
   WalletConnectedRoutes
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
-import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
-import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
-import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
-import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
@@ -22,7 +16,7 @@ import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const KeepKeyMenuRoutes = () => {
+export const KeepKeyMenu = () => {
   const { navigateToRoute } = useMenuRoutes()
   const translate = useTranslate()
   const {
@@ -56,9 +50,9 @@ export const KeepKeyMenuRoutes = () => {
       ? translate(...deviceTimeout?.label)
       : translate(deviceTimeout?.label)
 
-  const keepKeyMenu = () => {
+  const RenderMenu = () => {
     const keepKeyStateLoading = (
-      <SubMenuContainer>
+      <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
           <Flex ml={3}>
@@ -75,11 +69,11 @@ export const KeepKeyMenuRoutes = () => {
             </Flex>
           </Flex>
         </MenuGroup>
-      </SubMenuContainer>
+      </>
     )
 
     const keepKeyStateLoaded = keepKeyWallet?.features && (
-      <SubMenuContainer>
+      <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
           <Flex ml={3}>
@@ -125,7 +119,7 @@ export const KeepKeyMenuRoutes = () => {
           <ExpandedMenuItem
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPin)}
             label={translate('walletProvider.keepKey.settings.menuLabels.pin')}
-            value='********'
+            value='••••••'
             hasSubmenu={true}
           />
           <MenuDivider />
@@ -156,19 +150,13 @@ export const KeepKeyMenuRoutes = () => {
             {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
           </MenuItem>
         </MenuGroup>
-      </SubMenuContainer>
+      </>
     )
     return keepKeyStateLoaded || keepKeyStateLoading
   }
-
   return (
-    <>
-      <Route exact path={WalletConnectedRoutes.KeepKey} component={keepKeyMenu} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyLabel} component={ChangeLabel} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={ChangePin} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyTimeout} component={ChangeTimeout} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyPinCaching} component={ChangePinCaching} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyPassphrase} component={ChangePassphrase} />
-    </>
+    <SubMenuContainer>
+      <RenderMenu />
+    </SubMenuContainer>
   )
 }

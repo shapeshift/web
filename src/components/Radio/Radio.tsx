@@ -3,6 +3,7 @@ import {
   Button,
   ButtonGroup,
   ButtonGroupProps,
+  ButtonProps,
   useId,
   useRadio,
   useRadioGroup,
@@ -13,16 +14,19 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import Polyglot, { InterpolationOptions } from 'node-polyglot'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 
 interface RadioCardProps extends UseRadioProps {
   label: string | [string, number | Polyglot.InterpolationOptions]
   showCheck?: boolean
   checkColor?: string
+  radioProps?: ButtonProps
+  isLoading?: boolean
 }
 
 const RadioCard = memo((props: RadioCardProps) => {
-  const { id, label, showCheck, checkColor, isChecked } = props
+  const { id, label, showCheck, checkColor, isChecked, radioProps, isLoading } = props
   const contextualId = useId(id)
   const { getInputProps, getCheckboxProps } = useRadio({ id: contextualId, ...props })
   const input = getInputProps()
@@ -39,10 +43,18 @@ const RadioCard = memo((props: RadioCardProps) => {
         as='label'
         htmlFor={input.id}
         cursor='pointer'
+        isDisabled={isLoading}
         {...checkbox}
         {...buttonPadding}
+        {...radioProps}
       >
-        {showCheck && isChecked && <CheckIcon {...checkStyle} mr={3} />}
+        {showCheck &&
+          isChecked &&
+          (isLoading ? (
+            <CircularProgress size='14px' mr={3} />
+          ) : (
+            <CheckIcon {...checkStyle} mr={3} />
+          ))}
         <Text translation={label} />
       </Button>
       <input {...input} />
@@ -63,8 +75,10 @@ export interface RadioProps<T> {
   variant?: string
   colorScheme?: ThemeTypings['colorSchemes']
   buttonGroupProps?: ButtonGroupProps
+  radioProps?: ButtonProps
   showCheck?: boolean
   checkColor?: string
+  isLoading?: boolean
 }
 
 type RadioTypes = string | HistoryTimeframe
@@ -77,8 +91,10 @@ export const Radio = <T extends RadioTypes>({
   variant = 'ghost',
   colorScheme = 'blue',
   buttonGroupProps,
+  radioProps,
   showCheck = false,
-  checkColor
+  checkColor,
+  isLoading
 }: RadioProps<T>) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: name ?? 'radio',
@@ -104,6 +120,8 @@ export const Radio = <T extends RadioTypes>({
             showCheck={showCheck}
             checkColor={checkColor}
             label={option.label}
+            radioProps={radioProps}
+            isLoading={isLoading}
           />
         )
       })}

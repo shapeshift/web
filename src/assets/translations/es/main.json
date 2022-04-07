@@ -4,6 +4,7 @@
     "next": "Siguiente",
     "error": "Error",
     "cancel": "Cancelar",
+    "close": "Cerrar",
     "continue": "Continuar",
     "confirm": "Confirmar",
     "reject": "Rechazar",
@@ -11,28 +12,46 @@
     "created": "Creado %{date}",
     "noResultsFound": "No se han encontrado resultados.",
     "insufficientFunds": "Fondos Insuficientes",
+    "estimatedGas": "Tarifa Estimada de Gas",
+    "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
     "unresolvableEnsDomain": "No se puede resolver el dominio ENS",
     "deposit": "Depositar",
     "withdraw": "Retirar",
+    "withdrawal": "Retiro",
+    "overview": "Vista Rápida",
     "getStarted": "Iniciar",
     "connectWallet": "Conectar Billetera",
     "connectedWallet": "Billetera Conectada",
     "noWallet": "Sin billetera conectada",
     "seeAll": "Ver Todo",
     "darkMode": "Modo Oscuro",
+    "darkTheme": "Tema oscuro",
+    "lightTheme": "Tema claro",
     "rename": "Renombrar",
     "forget": "Olvidar?",
+    "pending": "Pendiente",
     "available": "Disponible",
+    "or": "ó",
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongBody": "Algo salió mal",
     "transactionFailed": "Transacción fallida",
     "transactionFailedBody": "Transacción fallida",
-    "submitFeedback": "Enviar comentarios",
+    "submitFeedback": "Enviar Comentarios",
     "send": "Enviar",
     "receive": "Recibir",
     "privacy": "Política de Privacidad",
-    "terms": "Términos de Servicio"
+    "terms": "Términos de Servicio",
+    "days": "Días",
+    "copied": "Copiado al portapapeles.",
+    "copyFailed": "Error al copiar al portapapeles",
+    "copyFailedDescription": "Por Favor copiar manualmente",
+    "viewAsset": "Ver activo",
+    "apy": "%{apy}% APY",
+    "settings": "Ajustes",
+    "legalDated": "Fecha: enero de 2022",
+    "approveOnWallet": "Aprobar en billetera",
+    "confirmOnWallet": "Confirmar en la Billetera"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -47,6 +66,7 @@
       "balance": "Balance",
       "price": "Precio",
       "value": "Valor",
+      "priceChange": "Cambio de precio",
       "allocation": "Asignación",
       "empty": {
         "title": "Ruido de grillos...",
@@ -56,6 +76,25 @@
     "recentTransactions": {
       "recentTransactions": "Transacciones Recientes"
     }
+  },
+  "fiatRamps": {
+    "routeTitle": "Comprar o Vender",
+    "routeTitleForGem": "Rampa de entrada Gem",
+    "title": "Compra o Vende criptomonedas",
+    "titleMessage": "ShapeShift se ha asociado con varios proveedores de rampas fiduciarias para comprar y vender criptomonedas.",
+    "gem": "GEM",
+    "gemMessage": "Compra o Vende criptomonedas con Gem",
+    "onJuno": "OnJuno",
+    "comingSoon": "Próximamente ...",
+    "buy": "Comprar",
+    "sell": "Vender",
+    "assetToBuy": "Activo a comprar",
+    "selectAnAssetToBuy": "Seleccione un activo para comprar",
+    "assetToSell": "Activo para vender",
+    "selectAnAssetToSell": "Seleccione un activo para vender",
+    "fundsTo": "Los fondos se enviarán a",
+    "fundsFrom": "Los fondos se enviarán desde",
+    "headerLabel": "Compra/Vende criptomonedas"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -75,9 +114,108 @@
     }
   },
   "defi": {
+    "modals": {
+      "learnMore": {
+        "next": "Siguiente",
+        "close": "Cerrar",
+        "headers": {
+          "aboutStakingRewards": "Acerca de las recompensas por Staking ",
+          "unstaking": "Retirar su %{assetName} de Staking",
+          "risks": "¿Existen riesgos?"
+        },
+        "bodies": {
+          "rateFluctuationInfo": "La tasa de %{assetName} que gana, el rendimiento porcentual anual (APR), normalmente fluctúa entre el 7 % y el 20 %.",
+          "amountStakingInfo": "Puede hacer staking en cualquier cantidad de %{assetName} e inmediatamente comenzará a ganar recompensas.",
+          "withdrawInfo": "Puede retirar sus recompensas en cualquier momento, lo que requiere una pequeña tarifa de gasolina alrededor de ~ $ 0,01.",
+          "unbondingInfo": "Cuando realice unstaking de sus activos, permanecerán bloqueados durante 14 días, sin generar recompensas. Después de los 14 días, su %{assetName} volverá a su billetera principal.",
+          "slashingInfo": "El staking se realiza a través de un validador. Es increíblemente raro, pero si el validador delegado se equivoca al permitir que se realicen transacciones falsas o incorrectas, podría perder parte de sus activos.",
+          "partnerInfo": "Hemos mitigado este riesgo al asociarnos con un validador acreditado, que tiene una infraestructura segura, confiable y auditada."
+        },
+        "userProtectionInfo": "*Los rendimientos son estimados y fluctúan con las condiciones del mercado.",
+        "cta": {
+          "startStaking": "Iniciar Staking",
+          "learnMore": "Aprende más"
+        }
+      },
+      "getStarted": {
+        "header": "Stake su %{assetName} para ganar hasta %{maxApr}% APR*",
+        "body": "El staking es el proceso de mantener fondos en una billetera de criptomonedas para respaldar las operaciones de una blockchain, a cambio, los titulares son recompensados por su contribución.",
+        "userProtectionInfo": "*Los rendimientos son estimados y fluctúan con las condiciones del mercado.",
+        "cta": {
+          "startStaking": "Iniciar Staking",
+          "learnMore": "Aprende más"
+        }
+      },
+      "staking": {
+        "estimateDisclaimer": "*Las estimaciones fluctúan con las condiciones del mercado.",
+        "byContinuing": "Al continuar, usted acepta el",
+        "risks": "riesgos",
+        "ofParticipating": "de participar en esta función y aceptar las",
+        "terms": "términos",
+        "tooltip": {
+          "validator": "El Validador es responsable de procesar transacciones, almacenar datos y agregar bloques a la cadena de bloques.",
+          "gasFees": "Las tarifas de gas en %{networkName} son mucho más bajas que las de Ethereum Mainnet. Esta tarifa se paga directamente a los validadores que aseguran y operan la red. No se paga a ShapeShift."
+        }
+      },
+      "foxyOverview": {
+        "header": "Deposite FOX para ganar FOXy",
+        "body": "FOXy es un token de rebase vinculado al precio de FOX. FOXy se pone a trabajar en diferentes protocolos DeFi para obtener el mejor rendimiento posible.",
+        "rewards": "Las recompensas que gane se acumularán automáticamente.",
+        "cta": "Deposite FOX ahora",
+        "foxyBalance": "Balance FOXy",
+        "withdrawals": "Retiros",
+        "emptyWithdraws": "Los retiros pendientes o activos se mostrarán aquí.",
+        "availableDate": "disponible %{date}"
+      },
+      "claim": {
+        "rewardDepositInfo": "Sus recompensas se depositarán en su billetera principal.",
+        "title": "Reclamar Recompensas de Staking",
+        "confirmAndClaim": "Confirmar y reclamar",
+        "rewardAmount": "Monto de la recompensa",
+        "claimingRewards": "Reclamar sus recompensas",
+        "claimAmount": "Cantidad a Reclamar",
+        "claimToAddress": "Reclamar a la Dirección",
+        "confirmClaim": "Confirmar Reclamo",
+        "claimNow": "Reclama ahora"
+      }
+    },
+    "amountToStake": "Cantidad a Stake",
+    "amountToUnstake": "Monto a Unstake",
+    "confirmDetails": "Confirmar Detalles",
+    "broadcastingTransaction": "Enviando Transacción",
+    "transactionComplete": "Transacción Completa",
+    "transactionFailed": "Transacción Fallida",
+    "validator": "Validador",
+    "stakedAmount": "Monto en Stake",
+    "unstakeFrom": "Unstake desde",
+    "gasFee": "Tarifa de Gas",
+    "unbondInfoItWillTake": "Mientras sus tokens estén en Staking, no podrá transferirlos ni gastarlos. Tomará %{unbondingDays} días desbloquearlos después de Unstaking.",
+    "unbondInfoItWillTakeShort": "Tardará %{unbondingDays} días en unstake sus tokens",
+    "confirmAndBroadcast": "Confirmar y transmitir",
+    "signAndBroadcast": "Firmar y Transmitir",
+    "averageApr": "APR media",
+    "estimatedYearlyRewards": "Recompensas Anuales Estimadas",
+    "staked": "Staked",
+    "amountStaked": "Cantidad Staked",
+    "assetStaking": "%{assetName} Staking",
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "stakeAsset": "Stake %{assetSymbol}",
+    "unstakeAsset": "Unstake %{assetSymbol}",
+    "claimAsset": "Reclamar Recompensas de Staking",
+    "claim": "Reclamar",
+    "rewards": "Recompensas",
+    "unstaking": "Unstaking",
+    "available": "Disponible %{unbondingEnd}",
     "earn": "Gane",
+    "asset": "Activo",
+    "category": "Categoría",
+    "tvl": "TVL",
+    "apy": "APY",
+    "apr": "APR",
+    "balance": "Balance",
     "defi": "DeFi",
-    "defiBody": "Explore un universo creciente de oportunidades de DeFi.",
+    "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
@@ -95,6 +233,7 @@
     "currentAPY": "APY Actual",
     "currentAPR": "APR Actual",
     "yearn": "Yearn Finance",
+    "emptyEarn": "Las oportunidades para Ganar recompensas aparecerán aquí.",
     "empty": {
       "farming": {
         "body": "Actualmente no estás farming.",
@@ -110,14 +249,27 @@
       }
     }
   },
+  "staking": {
+    "staking": "Staking",
+    "itWillTake": "Tomará",
+    "toUnlock": "para desbloquear tus Osmo después de unstake. Las recompensas de staking deberán retirarse por separado.",
+    "assetStakingBalance": "%{assetName} Balance de Staking"
+  },
   "navBar": {
     "dashboard": "Tablero de mandos",
     "assets": "Activos",
+    "assetDetails": "Detalles de activos",
     "accounts": "Cuentas",
+    "accountAsset": "Activo de la cuenta",
+    "accountDetails": "Detalles de la Cuenta",
     "earn": "Gane",
     "defi": "DeFi",
+    "transactionHistory": "Historial de Transacciones",
+    "overview": "Resúmenes",
+    "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
-    "foxToken": "FOX Token"
+    "foxToken": "FOX Token",
+    "featureFlags": "Indicadores de Funciones"
   },
   "transactionRow": {
     "send": "Enviado %{symbol}",
@@ -125,18 +277,34 @@
     "moreDetails": "Más Detalles",
     "date": "Fecha",
     "txid": "ID Transacción",
-    "fee": "Cargo",
+    "fee": "Tarifa",
     "status": "Estado",
     "confirmed": "Confirmado",
     "pending": "Pendiente",
     "failed": "Fallido",
     "network": "Red",
-    "blockHeight": "Altura del Block",
+    "blockHeight": "Altura del Bloque",
     "to": "A",
     "from": "De",
     "trade": "Intercambiar",
     "amount": "Cantidad",
-    "for": "para"
+    "for": "para",
+    "parser": {
+      "yearn": {
+        "deposit": "Depositar",
+        "approve": "Aprobar",
+        "withdraw": "Retirar",
+        "receive": "Recibir"
+      },
+      "uniV2": {
+        "addLiquidityETH": "Agregar liquidez",
+        "removeLiquidityETH": "Retirar liquidez"
+      },
+      "thor": {
+        "transferOut": "Transferencia afuera"
+      }
+    },
+    "unknown": "Transacción"
   },
   "trade": {
     "searchingRate": "Buscando la mejor tarifa...",
@@ -156,14 +324,14 @@
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
-      "shapeshiftFee": "ShapeShift no agrega tarifas en los intercambios 🎉"
+      "shapeshiftFee": "ShapeShift no agrega tarifas a los intercambios 🎉"
     },
     "errors": {
-      "title": "Something went wrong",
+      "title": "Algo salió mal",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountToSmall": "Cantidad demasiado pequeña. El monto mínimo de operación para este par es %{minLimit}.",
       "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
-      "invalidMax": "Monto invalido. La cantidad máxima de comercio para este par es %{maxLimit}.",
+      "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
       "insufficientFunds": "Fondos insuficientes para la tarifa y el monto del minero",
       "transactionRejected": "Usuario ha rechazado la transacción.",
       "broadcastFailed": "Ocurrió un error al transmitir la transacción",
@@ -214,17 +382,27 @@
         }
       }
     },
+    "stake": {
+      "txFees": {
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto"
+      }
+    },
     "send": {
       "getBalanceError": "Error al obtener saldos de billetera",
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
       "tokenAddress": "Dirección de token",
       "scanQrCode": "Escanear código QR",
+      "permissionsButton": "Intentar nuevamente",
       "sent": "%{asset} enviado",
       "errorTitle": "Tu envío de %{asset} falló",
       "errors": {
+        "generic": "Ocurrió un error.",
         "notEnoughNativeToken": "No hay suficiente %{asset} para cubrir gas",
-        "transactionRejected": "El usuario ha rechazado la transacción."
+        "transactionRejected": "El usuario ha rechazado la transacción.",
+        "qrPermissions": "Esta función necesita permisos de acceso a la cámara para funcionar. Por favor cambia la configuración de tu navegador."
       },
       "confirm": {
         "sendAsset": "Enviar %{asset}",
@@ -237,10 +415,14 @@
         "fees": "Tarifa %{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "Nota %{assetSymbol} opcional",
+        "assetMemo": "Nota %{assetSymbol}",
+        "charactersRemaining": "Quedan %{charactersRemaining} caracteres",
+        "memoExplainer": "Algunos destinatarios de %{assetSymbol} pueden requerir una nota para que la transacción se procese correctamente",
         "sendAsset": "Enviar %{asset}",
         "sendTo": "Enviar A",
         "sendAmount": "Enviar cantidad",
-        "max": "Max",
+        "max": "Máximo",
         "transactionFee": "Tarifa de transacción",
         "slow": "Lento",
         "average": "Promedio",
@@ -272,7 +454,22 @@
     "withdraw": {
       "amountToWithdraw": "Cantidad a retirar",
       "footerDisclaimer": "Esta transacción requerirá una tarifa de gas por transacción.",
-      "slippageSettings": "Ajustes de Deslizamiento"
+      "slippageSettings": "Ajustes de Deslizamiento",
+      "withdrawType": "Tipo de Retiro",
+      "instant": "iInstantáneo",
+      "delayed": "~7 días",
+      "fee": "%{fee}% %{símbolo} tarifa",
+      "noFee": "Sin cargo de %{symbol}",
+      "requestWithdraw": "Solicitar Retiro",
+      "withdrawFee": "Habrá una tarifa de gas por separado para retirar.",
+      "disclaimer": "Las solicitudes posteriores se combinarán y restablecerán el tiempo de retiro.",
+      "withDrawalFee": "Cargo por retiro",
+      "info": {
+        "delayed": "El retiro diferido tiene dos transacciones:",
+        "delayedOne": "Solicitar el retiro",
+        "delayedTwo": "Reclamar el retiro después de 7 días",
+        "instant": "El retiro instantáneo es una transacción y requiere que retire el monto total staked."
+      }
     },
     "approve": {
       "header": "Permita que el enrutador ShapeShift DAO gaste su %{asset}",
@@ -293,10 +490,14 @@
         "estimatedReturns": "Rendimientos anuales estimados*",
         "preFooter": "Las Recompensas se acumulan automáticamente"
       },
-      "withdrawFrom": "Retiro de",
       "withdrawTo": "Retirar A",
+      "withdrawFrom": "Retiro de",
       "depositTo": "Depositar A",
       "averageApy": "APY Promedio",
+      "withdrawTime": "Tiempo de Retiro",
+      "withdrawFee": "Tarifa de Retiro",
+      "withdrawInstantTime": "Instantáneo",
+      "withdrawDelayedTime": "~7 días",
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimatedGas": "Tarifa Estimada de Gas",
       "preFooter": "Las Recompensas se acumulan automáticamente",
@@ -318,10 +519,17 @@
       "continue": "Ver Transacción",
       "position": "Ver Posición",
       "viewAsset": "Ver Activo",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "viewExplorer": "Ver en Explorador"
     },
     "connect": {
       "loadingText": "Emparejando Billetera"
+    },
+    "settings": {
+      "settings": "Ajustes",
+      "language": "Idioma",
+      "balanceThreshold": "Umbral de saldo",
+      "balanceThresholdTooltip": "Ocultar saldos por debajo de este valor"
     }
   },
   "walletProvider": {
@@ -417,7 +625,8 @@
       "password": {
         "header": "Ingresa tu contraseña",
         "body": "Ingrese una contraseña para encriptar su billetera. Así es como accederá a su billetera. No olvides esta contraseña.",
-        "button": "Siguiente"
+        "button": "Siguiente",
+        "connect": "Conectarse a otra billetera"
       },
       "create": {
         "header": "Tu Frase Secreta de Recuperación",
@@ -456,17 +665,19 @@
     },
     "selectModal": {
       "header": "Conectar una billetera",
-      "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift."
+      "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift.",
+      "footer": "¿No tienes billetera?",
+      "create": "Crea una"
     }
   },
   "graph": {
     "timeControls": {
       "1H": "1H",
       "24H": "24H",
-      "1W": "1W",
+      "1W": "1S",
       "1M": "1M",
-      "1Y": "1Y",
-      "all": "All"
+      "1Y": "1A",
+      "all": "Todo"
     }
   },
   "assets": {
@@ -475,7 +686,7 @@
         "balance": "Balance",
         "price": "Precio",
         "marketCap": "Cap de Mercado",
-        "24HrVolume": "Volumen 24hr",
+        "24HrVolume": "Volumen de 24 hrs",
         "dayChange": "Cambio de día",
         "aboutAsset": "Acerca de %{asset}",
         "SegwitP2sh": "Segwit",
@@ -489,7 +700,9 @@
         "showLess": "Mostrar menos"
       },
       "assetHistory": {
-        "transactionHistory": "Historial de transacciones"
+        "transactionHistory": "Historial de transacciones",
+        "recentTransactions": "Transacciones Recientes",
+        "emptyTransactions": "Las transacciones aparecerán aquí."
       },
       "assetAccounts": {
         "account": "Cuenta",
@@ -526,5 +739,63 @@
   "accounts": {
     "accounts": "Cuentas"
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "Historial de transacciones",
+    "recentTransactions": "Transacciones Recientes",
+    "filter": "Filtrar",
+    "filters": {
+      "filters": "Filtros",
+      "resetFilters": "Restablecer filtros",
+      "to": "para",
+      "categories": "Categorías",
+      "dayRange": "Intervalo de días",
+      "10days": "10 días",
+      "30days": "30 dias",
+      "90days": "90 dias",
+      "send": "Enviar",
+      "trade": "Intercambiar",
+      "receive": "Recibir",
+      "custom": "Personalizado",
+      "apply": "Aplicar"
+    },
+    "downloadCSV": "Descargar CSV",
+    "csv": {
+      "fileName": "Historial de transacciones de ShapeShift",
+      "txid": "ID de TX",
+      "type": "tipo de TX",
+      "timestamp": "Marca de tiempo",
+      "status": "Estado",
+      "minerFee": "Tarifa de minero",
+      "minerFeeCurrency": "Moneda de la tarifa del minero",
+      "inputAmount": "Cantidad de entrada",
+      "inputCurrency": "Moneda de entrada",
+      "inputAddress": "Dirección de entrada",
+      "outputAmount": "Cantidad de salida",
+      "outputCurrency": "Moneda de salida",
+      "outputAddress": "Dirección de salida"
+    },
+    "transactionTypes": {
+      "send": "Enviar",
+      "receive": "Recibir",
+      "trade": "Intercambiar"
+    },
+    "assets": "Activos",
+    "viewOnChain": "Ver en cadena",
+    "txid": "ID de TX",
+    "fee": "Tarifa",
+    "youSent": "Enviaste",
+    "youReceived": "Usted Recibió",
+    "sentTo": "Enviado a",
+    "receivedFrom": "Recibido de",
+    "orderRoute": "Ruta de pedido",
+    "status": "Estado",
+    "transactionType": "Tipo de Transacción",
+    "minerFee": "Tarifa de Minero",
+    "unknownType": "Transacción",
+    "from": "Desde",
+    "to": "Para",
+    "for": "Para",
+    "transfers": "Transferencias"
+  }
 }

@@ -71,7 +71,8 @@
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
-      }
+      },
+      "stakedInfo": "You cannot send or trade the amount staked"
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"

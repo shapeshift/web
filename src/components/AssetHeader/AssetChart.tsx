@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertDescription,
   Box,
   Button,
   ButtonGroup,
@@ -27,6 +29,9 @@ import {
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
+import { useTranslate } from 'react-polyglot'
+
 enum View {
   Price = 'price',
   Balance = 'balance'
@@ -50,6 +55,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const translate = useTranslate()
 
   const fiatBalanceWithDelegations = useAppSelector(state =>
     selectTotalFiatBalanceWithDelegations(state, filter)
@@ -58,6 +64,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const cryptoBalanceWithDelegations = useAppSelector(state =>
     selectTotalCryptoBalanceWithDelegations(state, filter)
   )
+
+  const delegationBalance = '100' // TODO get from selector
 
   return (
     <Card>
@@ -114,6 +122,19 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
+          <Alert
+            alignItems='center'
+            justifyContent='center'
+            textAlign='center'
+            status='info'
+            variant='update-box'
+            borderRadius='lg'
+          >
+            <AlertDescription maxWidth='sm'>
+              {delegationBalance} {asset.symbol} Staked
+            </AlertDescription>
+            <HelperTooltip label={translate('dashboard.portfolio.stakedInfo')} />
+          </Alert>
         </Box>
       </Card.Header>
       {view === View.Balance ? (

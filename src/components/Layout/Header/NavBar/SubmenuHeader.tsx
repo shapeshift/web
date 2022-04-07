@@ -18,7 +18,7 @@ export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => 
   return (
     <Flex flexDir='column' mb={3}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>
-        <Button onClick={handleBackClick} size='sm'>
+        <Button onClick={handleBackClick} ml={2} size='sm'>
           <ArrowBackIcon color={backArrowColor} />
         </Button>
         <Center fontWeight='bold' color={headerColor} fontSize='sm' flex={1} pr={7}>

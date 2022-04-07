@@ -18,8 +18,9 @@ export const ChangePassphrase = () => {
   } = useWallet()
 
   const handleToggle = async () => {
+    const currentValue = !!hasPassphrase
     setHasPassphrase(!hasPassphrase)
-    await keepKeyWallet?.applySettings({ usePassphrase: hasPassphrase })
+    await keepKeyWallet?.applySettings({ usePassphrase: !currentValue })
   }
 
   const onCancel = () => {

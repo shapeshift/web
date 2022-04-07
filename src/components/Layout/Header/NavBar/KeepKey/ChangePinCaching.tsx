@@ -19,10 +19,11 @@ export const ChangePinCaching = () => {
   } = useWallet()
 
   const handleToggle = async () => {
+    const currentValue = !!hasPinCaching
     setHasPinCaching(!hasPinCaching)
     const newPinCachingPolicy: Required<Types.PolicyType.AsObject> = {
       policyName: 'Pin Caching',
-      enabled: hasPinCaching || false
+      enabled: !currentValue
     }
     await keepKeyWallet?.applyPolicy(newPinCachingPolicy)
   }

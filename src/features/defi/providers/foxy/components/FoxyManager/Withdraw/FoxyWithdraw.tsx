@@ -331,9 +331,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+  const handleCancel = browserHistory.goBack
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
@@ -448,7 +446,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       case WithdrawPath.Confirm:
         return (
           <Confirm
-            onCancel={handleCancel}
+            onCancel={() => history.push('/')}
             headerText='modals.confirm.withdraw.header'
             onConfirm={handleConfirm}
             loading={state.loading}

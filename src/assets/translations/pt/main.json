@@ -156,6 +156,8 @@
       "foxyOverview": {
         "header": "Deposit FOX to get FOXy to earn"
       },
+      "claim": {
+      }
     },
     "amountToStake": "Montante para depósito",
     "amountToUnstake": "Valor a retirar",

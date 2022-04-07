@@ -247,7 +247,8 @@
         "body": "No ha depositado en ningún pool de liquidez.",
         "cta": "Ver Oportunidades"
       }
-    }
+    },
+    "viewOnChain": "Ver en cadena"
   },
   "staking": {
     "staking": "Staking",
@@ -781,7 +782,6 @@
       "trade": "Intercambiar"
     },
     "assets": "Activos",
-    "viewOnChain": "Ver en cadena",
     "txid": "ID de TX",
     "fee": "Tarifa",
     "youSent": "Enviaste",

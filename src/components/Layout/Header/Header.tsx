@@ -11,11 +11,8 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
-import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
-import { ReduxState } from 'state/reducer'
-import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { FiatRamps } from './NavBar/FiatRamps'
@@ -45,10 +42,6 @@ export const Header = () => {
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
-
-  // TODO(gomes): There's currently a runtime error when using the typed useAppSelector here.
-  // Find out the root cause and use it instead
-  const gemRampFlag = useSelector((state: ReduxState) => selectFeatureFlag(state, 'GemRamp'))
 
   return (
     <>
@@ -85,15 +78,13 @@ export const Header = () => {
             <AutoCompleteSearch />
           </HStack>
           <Flex justifyContent='flex-end' flex={1}>
-            {gemRampFlag && (
-              <Box
-                display={{ base: 'none', md: 'block' }}
-                mr={{ base: 0, md: 4 }}
-                mb={{ base: 4, md: 0 }}
-              >
-                <FiatRamps />
-              </Box>
-            )}
+            <Box
+              display={{ base: 'none', md: 'block' }}
+              mr={{ base: 0, md: 4 }}
+              mb={{ base: 4, md: 0 }}
+            >
+              <FiatRamps />
+            </Box>
             <Box display={{ base: 'none', md: 'block' }}>
               <UserMenu />
             </Box>

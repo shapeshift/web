@@ -37,13 +37,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioLoading
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType, initialState, reducer } from './WithdrawReducer'
 
@@ -72,6 +73,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
+  const appDispatch = useAppDispatch()
   const alertText = useColorModeValue('blue.800', 'white')
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -96,6 +98,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
+  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
@@ -345,7 +348,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
 
   const validateFiatAmount = (value: string) => {
     const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
-    const fiat = crypto.times(bnOrZero(marketData?.price))
+    const fiat = crypto.times(marketData?.price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -353,7 +356,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
-  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
+  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(marketData?.price))
   const withdrawalFee = useMemo(() => {
     return state.withdraw.withdrawType === WithdrawType.INSTANT
       ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
@@ -622,7 +625,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     }
   }
 
-  if (loading || !asset || !feeMarketData)
+  if (loading || !asset || !marketData || !feeMarketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

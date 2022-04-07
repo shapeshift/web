@@ -125,7 +125,7 @@ const useTransformCosmosStaking = (
   cosmosActiveStakingArray: MergedActiveStakingOpportunity[],
   cosmosStakingArray: MergedStakingOpportunity[]
 ): EarnOpportunityType[] => {
-  const { translate } = useTranslate()
+  const translate = useTranslate()
   if (cosmosActiveStakingArray.length === 0) {
     if (cosmosStakingArray.length === 0) {
       return []

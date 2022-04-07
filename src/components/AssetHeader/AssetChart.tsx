@@ -19,13 +19,14 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter
+  selectPortfolioCryptoHumanBalanceByFilter
 } from 'state/slices/selectors'
+import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 enum View {
@@ -54,9 +55,19 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const cryptoBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByFilter(state, filter)
   )
-  const totalBalance = toFiat(
-    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
+
+  const delegationCryptoBalance = useAppSelector(state =>
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, accountId || '')
   )
+
+  const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
+    .plus(bnOrZero(delegationCryptoBalance).dividedBy(bnOrZero(10).exponentiatedBy(6)))
+    .toString()
+
+  const totalBalance = toFiat(
+    marketData ? bnOrZero(cryptoBalanceWithDelegations).times(marketData?.price).toString() : '0'
+  )
+
   return (
     <Card>
       <Card.Header>
@@ -107,7 +118,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {view === View.Balance && (
               <Stat size='sm' color='gray.500'>
                 <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>{`${cryptoBalance} ${asset.symbol}`}</StatNumber>
+                  <StatNumber>{`${cryptoBalanceWithDelegations} ${asset.symbol}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}

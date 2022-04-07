@@ -1,16 +1,22 @@
+import { CAIP2 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import React, { useEffect } from 'react'
+import isEmpty from 'lodash/isEmpty'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountIdByAddress,
+  selectAccountSpecifiers,
   selectAssets,
+  selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds
 } from 'state/slices/selectors'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -25,17 +31,29 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
+  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
+  const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
 
+  const getAccountSpecifiersByChainId = useCallback(
+    (chainId: CAIP2): AccountSpecifierMap[] => {
+      return accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
+        const [_chainId, accountSpecifier] = Object.entries(cur)[0]
+        if (_chainId !== chainId) return acc
+        return acc.concat({ [chainId]: accountSpecifier })
+      }, [])
+    },
+    [accountSpecifiers]
+  )
+
   useEffect(() => {
     if (!wallet) return
+    if (isEmpty(assets)) return
+    const supportedChains = chainAdapter.getSupportedChains()
     ;(async () => {
-      const supportedAdapters = chainAdapter.getSupportedAdapters()
-
-      for (const getAdapter of supportedAdapters) {
-        const adapter = getAdapter()
-        const chain = adapter.getType()
+      for (const chain of supportedChains) {
+        const adapter = chainAdapter.byChain(chain)
         const chainId = adapter.getCaip2()
         if (!walletSupportChain({ chainId, wallet })) continue
 
@@ -74,20 +92,54 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             )
           }
         }
+
+        // RESTfully fetch all tx and rebase history for this chain.
+        const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
+        if (isEmpty(chainAccountSpecifiers)) continue
+        chainAccountSpecifiers.forEach(accountSpecifierMap => {
+          const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+          const options = { forceRefetch: true }
+          dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
+
+          /**
+           * foxy rebase history is most closely linked to transactions.
+           * unfortunately, we have to call this for a specific asset here
+           * because we need it for the dashboard balance chart
+           *
+           * if you're reading this and are about to add another rebase token here,
+           * stop, and make a getRebaseHistoryByAccountId that takes
+           * an accountId and assetId[] in the txHistoryApi
+           */
+
+          // fetch all rebase history for FOXy
+          if (!portfolioAssetIds.length) return // can't fetch without portfolio assets
+          const payload = { accountSpecifierMap, portfolioAssetIds }
+          dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
+        })
       }
     })()
 
     return () => {
       dispatch(txHistory.actions.clear())
-      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+      supportedChains.forEach(chain => {
         try {
-          getAdapter().unsubscribeTxs()
+          const adapter = chainAdapter.byChain(chain)
+          adapter.unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
         }
       })
     }
-  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter])
+  }, [
+    assets,
+    dispatch,
+    walletInfo?.deviceId,
+    wallet,
+    chainAdapter,
+    accountSpecifiers,
+    getAccountSpecifiersByChainId,
+    portfolioAssetIds
+  ])
 
   /**
    * TODO(0xdef1cafe)
@@ -105,6 +157,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
    */
 
   useEffect(() => {
+    if (isEmpty(assets)) return
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
     if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
     const TX_DEBOUNCE_DELAY = 5000
@@ -113,7 +166,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       TX_DEBOUNCE_DELAY
     )
     return () => clearTimeout(timer) // clear if the input changes
-  }, [dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
+  }, [assets, dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
 
   return <>{children}</>
 }

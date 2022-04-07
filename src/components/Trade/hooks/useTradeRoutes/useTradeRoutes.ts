@@ -1,4 +1,6 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
@@ -8,7 +10,11 @@ import { selectAssets } from 'state/slices/selectors'
 import { TradeState } from '../../Trade'
 import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 
-export const useTradeRoutes = (): {
+const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
+
+export const useTradeRoutes = (
+  defaultBuyAssetId?: CAIP19
+): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
@@ -18,13 +24,30 @@ export const useTradeRoutes = (): {
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
-  const feeAsset = assets['eip155:1/slip44:60']
+  const feeAsset = assets[ETHEREUM_CAIP19]
 
   const setDefaultAssets = useCallback(async () => {
+    // wait for assets to be loaded
+    if (isEmpty(assets) || !feeAsset) return
+
+    // TODO: Create a real whitelist when we support more chains
+    const shouldUseDefaultAsset = () => {
+      return (
+        defaultBuyAssetId &&
+        assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
+        assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
+      )
+    }
+
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-      const buyAsset = assets[buyAssetId]
+
+      const buyAsset =
+        defaultBuyAssetId && shouldUseDefaultAsset()
+          ? assets[defaultBuyAssetId]
+          : assets[buyAssetId]
+
       if (sellAsset && buyAsset) {
         await getBestSwapper({
           sellAsset: { currency: sellAsset },
@@ -32,7 +55,7 @@ export const useTradeRoutes = (): {
         })
         setValue('sellAsset.currency', sellAsset)
         setValue('buyAsset.currency', buyAsset)
-        getQuote({
+        await getQuote({
           amount: '0',
           sellAsset: { currency: sellAsset },
           buyAsset: { currency: buyAsset },
@@ -42,11 +65,11 @@ export const useTradeRoutes = (): {
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper])
+  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper, defaultBuyAssetId])
 
   useEffect(() => {
     setDefaultAssets()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assets, feeAsset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
@@ -59,7 +82,7 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({
+        await getQuote({
           amount: sellAsset.amount ?? '0',
           sellAsset,
           buyAsset,
@@ -86,7 +109,7 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({
+        await getQuote({
           amount: buyAsset.amount ?? '0',
           sellAsset,
           buyAsset,

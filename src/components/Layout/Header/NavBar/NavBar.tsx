@@ -1,7 +1,7 @@
 import { Stack, StackProps } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
-import { routes } from 'Routes/Routes'
+import { routes } from 'Routes/RoutesCommon'
 
 import { MainNavLink } from './MainNavLink'
 

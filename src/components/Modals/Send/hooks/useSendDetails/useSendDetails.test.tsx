@@ -1,15 +1,15 @@
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
+import { mocked } from 'jest-mock'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
-import { mocked } from 'ts-jest/utils'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
 import { fromBaseUnit } from 'lib/math'
-import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
   selectMarketDataById,
@@ -31,7 +31,7 @@ jest.mock('@shapeshiftoss/market-service', () => ({
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('context/WalletProvider/WalletProvider')
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('lib/ens', () => ({ ensLookup: jest.fn() }))
 
 jest.mock('state/slices/selectors', () => ({
@@ -40,8 +40,7 @@ jest.mock('state/slices/selectors', () => ({
   selectPortfolioCryptoHumanBalanceByFilter: jest.fn(),
   selectPortfolioCryptoBalanceByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
-  selectMarketDataById: jest.fn(),
-  selectAssets: jest.fn()
+  selectMarketDataById: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -117,6 +116,13 @@ describe('useSendDetails', () => {
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: () => ({
+        getAddress: () => '0xMyWalletsAddress',
+        getFeeData: () => estimatedFees,
+        buildSendTransaction: () => ({
+          txToSign: {}
+        })
+      }),
+      byChainId: () => ({
         getAddress: () => '0xMyWalletsAddress',
         getFeeData: () => estimatedFees,
         buildSendTransaction: () => ({

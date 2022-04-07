@@ -1,6 +1,6 @@
 import { Box, BoxProps, useColorModeValue } from '@chakra-ui/react'
 import { Location } from 'history'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 
@@ -50,7 +50,13 @@ export const RouteSteps = ({
       {...styleProps}
     >
       {assetSymbol && action && (
-        <Text mb={30} fontWeight='bold' translation={[`defi.${action}Asset`, { assetSymbol }]} />
+        <Text
+          my={10}
+          fontSize='lg'
+          fontWeight='semibold'
+          textAlign='center'
+          translation={[`defi.${action}Asset`, { assetSymbol }]}
+        />
       )}
       <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
     </Box>

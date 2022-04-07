@@ -4,7 +4,7 @@ import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import { ReduxState } from 'state/reducer'
-import { selectMarketDataIds } from 'state/slices/selectors'
+import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
 export const selectAssetByCAIP19 = createSelector(
   (state: ReduxState) => state.assets.byId,

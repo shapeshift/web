@@ -6,19 +6,14 @@ import values from 'lodash/values'
 import { createSelector } from 'reselect'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
+import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
 
-export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId)
-export const selectTxs = (state: ReduxState) => state.txHistory.byId
-export const selectTxIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.ids,
-  ids => ids
-)
-export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.status
-
-export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId
+export const selectTxs = (state: ReduxState) => state.txHistory.txs.byId
+export const selectTxIds = (state: ReduxState) => state.txHistory.txs.ids
+export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
+export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs.byAccountId
 
 const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
 const selectTxIdsParam = (_state: ReduxState, txIds: TxId[]) => txIds
@@ -56,7 +51,7 @@ export const selectLastNTxIds = createSelector(
 )
 
 export const selectTxById = createSelector(
-  (state: ReduxState) => state.txHistory.byId,
+  (state: ReduxState) => state.txHistory.txs.byId,
   (_state: ReduxState, txId: string) => txId,
   (txsById, txId) => txsById[txId]
 )
@@ -130,7 +125,7 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
   }
 )
 
-export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAssetId
+export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byAssetId
 
 const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
 
@@ -178,4 +173,29 @@ export const selectLastTxStatusByAssetId = createSelector(
   selectTxIdsByAssetId,
   selectTxs,
   (txIdsByAssetId, txs): Tx['status'] | undefined => txs[last(txIdsByAssetId) ?? '']?.status
+)
+
+const selectRebasesById = (state: ReduxState) => state.txHistory.rebases.byId
+export const selectRebasesByAssetId = (state: ReduxState) => state.txHistory.rebases.byAssetId
+export const selectRebaseIdsByAccountId = (state: ReduxState) => state.txHistory.rebases.byAccountId
+
+export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
+  selectRebasesByAssetId,
+  selectRebaseIdsByAccountId,
+  selectAssetIdsParamFromFilter,
+  selectAccountIdsParamFromFilter,
+  (rebasesByAssetId, rebaseIdsByAccountId, assetIds, accountIds) => {
+    // all rebase ids by accountId, may include dupes
+    const rebaseIds = assetIds.map(assetId => rebasesByAssetId[assetId] ?? []).flat()
+    // if we're not filtering on account, return deduped rebase ids for given assets
+    if (!accountIds.length) return Array.from(new Set([...rebaseIds]))
+    const accountRebaseIds = accountIds.map(accountId => rebaseIdsByAccountId[accountId]).flat()
+    return intersection(accountRebaseIds, rebaseIds)
+  }
+)
+
+export const selectRebasesByFilter = createSelector(
+  selectRebasesById,
+  selectRebaseIdsByFilter,
+  (rebasesById, rebaseIds) => rebaseIds.map(rebaseId => rebasesById[rebaseId])
 )

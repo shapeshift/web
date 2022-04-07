@@ -5,7 +5,7 @@ import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
   selectAssetByCAIP19,
@@ -23,7 +23,7 @@ type AssetTransactionHistoryProps = {
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
   assetId,
   accountId,
-  useCompactMode = true,
+  useCompactMode = false,
   limit
 }) => {
   const translate = useTranslate()
@@ -35,7 +35,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   const chainId = asset.caip2
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const filter = useMemo(
-    // if we are passed an accountId, we're on an asset accoutn page, use that specifically.
+    // if we are passed an accountId, we're on an asset account page, use that specifically.
     // otherwise, we're on an asset page, use all accountIds related to this asset
     () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
     [assetId, accountId, accountIds]

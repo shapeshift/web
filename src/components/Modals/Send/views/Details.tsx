@@ -27,7 +27,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { SendFormFields, SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
-import { SendRoutes } from '../Send'
+import { SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {

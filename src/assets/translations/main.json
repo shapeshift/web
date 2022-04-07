@@ -188,6 +188,7 @@
     "transactionComplete": "Transaction Complete",
     "transactionFailed": "Transaction Failed",
     "validator": "Validator",
+    "validatorMoniker":"%{moniker} Validator",
     "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",

@@ -1,4 +1,7 @@
 import { Box } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities
@@ -9,8 +12,10 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -21,27 +26,60 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
+  const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
   const {
     state: { isConnected },
     dispatch
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
+  const { activeStakingOpportunities, stakingOpportunities } = useCosmosStakingBalances({
+    assetId: 'cosmos:cosmoshub-4/slip44:118'
+  })
+
+  const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
+  const cosmosActiveStakingArray = cosmosInvestorFlag ? activeStakingOpportunities : []
+  const cosmosStakingArray = cosmosInvestorFlag ? stakingOpportunities : []
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: foxyRows
+    foxyArray: foxyRows,
+    cosmosActiveStakingArray,
+    cosmosStakingArray
   })
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const { type, provider, contractAddress, chain, tokenAddress, rewardAddress } = opportunity
+      const {
+        type,
+        provider,
+        contractAddress,
+        chain,
+        tokenAddress,
+        rewardAddress,
+        assetId,
+        cryptoAmount
+      } = opportunity
       if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
+
+      if (type === DefiType.TokenStaking && chain === ChainTypes.Cosmos) {
+        if (bnOrZero(cryptoAmount).gt(0)) {
+          cosmosStaking.open({
+            assetId,
+            validatorAddress: contractAddress
+          })
+          return
+        }
+
+        cosmosGetStarted.open({ assetId })
+        return
+      }
+
       history.push({
         pathname: `/defi/${type}/${provider}/deposit`,
         search: qs.stringify({
@@ -53,7 +91,7 @@ export const AllEarnOpportunities = () => {
         state: { background: location }
       })
     },
-    [dispatch, history, isConnected, location]
+    [dispatch, history, isConnected, location, cosmosStaking, cosmosGetStarted]
   )
 
   return (

@@ -12,6 +12,7 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
+import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAssetByCAIP19, selectFeatureFlag } from 'state/slices/selectors'
@@ -35,14 +36,25 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
   } = useWallet()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
+  const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
   const vaults = useYearnVaults()
   const { opportunities } = useFoxyBalances()
   const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
+
+  const { activeStakingOpportunities, stakingOpportunities } = useCosmosStakingBalances({
+    assetId: caip19
+  })
+
+  const cosmosActiveStakingArray = cosmosInvestorFlag ? activeStakingOpportunities : []
+  const cosmosStakingArray = cosmosInvestorFlag ? stakingOpportunities : []
+
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
-    foxyArray: foxyRows
+    foxyArray: foxyRows,
+    cosmosActiveStakingArray: cosmosActiveStakingArray,
+    cosmosStakingArray: cosmosStakingArray
   }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {

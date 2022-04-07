@@ -11,7 +11,7 @@ import {
   useColorModeValue
 } from '@chakra-ui/react'
 import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
@@ -27,6 +27,27 @@ import { useAppSelector } from 'state/store'
 type OpportunityCardProps = {
   isLoaded?: boolean
 } & EarnOpportunityType
+
+const chainTypeToNetworkTypeMainNet = (chain: ChainTypes): NetworkTypes => {
+  switch (chain) {
+    case ChainTypes.Cosmos:
+      return NetworkTypes.COSMOSHUB_MAINNET
+    case ChainTypes.Osmosis:
+      return NetworkTypes.OSMOSIS_MAINNET
+    default:
+      return NetworkTypes.MAINNET
+  }
+}
+
+const chainTypeToAssetNamespace = (chain: ChainTypes): AssetNamespace => {
+  switch (chain) {
+    case ChainTypes.Cosmos:
+    case ChainTypes.Osmosis:
+      return AssetNamespace.Slip44
+    default:
+      return AssetNamespace.ERC20
+  }
+}
 
 export const OpportunityCard = ({
   type,
@@ -44,8 +65,8 @@ export const OpportunityCard = ({
   const history = useHistory()
   const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
-  const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const network = chainTypeToNetworkTypeMainNet(chain)
+  const assetNamespace = chainTypeToAssetNamespace(chain)
   const assetCAIP19 = caip19.toCAIP19({
     chain,
     network,

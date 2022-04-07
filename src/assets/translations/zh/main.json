@@ -66,6 +66,7 @@
       "balance": "余额",
       "price": "价格",
       "value": "价值",
+      "priceChange": "价格变化",
       "allocation": "投资组合配置",
       "empty": {
         "title": "蟋蟀声。。。",
@@ -115,6 +116,8 @@
   "defi": {
     "modals": {
       "learnMore": {
+        "next": "下一个",
+        "close": "关闭",
         "headers": {
           "aboutStakingRewards": "关于质押奖励",
           "unstaking": "取消您的 %{assetName}",

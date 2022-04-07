@@ -312,19 +312,16 @@ export const makeBalancesByChainBucketsFlattened = (
   accountBalances: string[],
   assets: { [k: CAIP19]: Asset }
 ) => {
-  const balancesByChainBuckets = accountBalances.reduce(
+
+  const initial: Record<ChainTypes, CAIP10[]> = {}
+  const balancesByChainBuckets = accountBalances.reduce<Record<ChainTypes, CAIP10[]>>(
     (acc: Record<ChainTypes, CAIP10[]>, accountId) => {
       const assetId = accountIdToFeeAssetId(accountId)
       const asset = assets[assetId]
-
-      if (!acc[asset.chain]) {
-        acc[asset.chain] = []
-      }
-
-      acc[asset.chain] = [...acc[asset.chain], accountId]
+      acc[asset.chain] = [...(acc[asset.chain] ?? []), accountId]
       return acc
     },
-    {} as Record<ChainTypes, CAIP10[]>
+    initial
   )
   return Object.values(balancesByChainBuckets).flat()
 }

@@ -2,70 +2,81 @@ import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalCloseButton, Text as CText, Tooltip } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
-import { useForm } from 'react-hook-form'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
+import { useState } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectSingleValidator
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+import { StakingAction, StakingValues } from '../StakingCommon'
 
 type UnstakeBroadcastProps = {
   assetId: CAIP19
-  cryptoUnstakeAmount: BigNumber
-  fiatRate: BigNumber
-  isLoading: boolean
-  validatorName: string
+  accountSpecifier: string
+  onClose: () => void
+  validatorAddress: string
 }
 
-export enum Field {
-  FeeType = 'feeType'
-}
-
-export type UnstakeBroadcastParams = {
-  [Field.FeeType]: chainAdapters.FeeDataKey
-}
-
-// TODO: Wire up the whole component with staked data
 export const UnstakeBroadcast = ({
   assetId,
-  cryptoUnstakeAmount,
-  fiatRate,
-  isLoading,
-  validatorName
+  accountSpecifier,
+  validatorAddress,
+  onClose
 }: UnstakeBroadcastProps) => {
-  const { cosmosStaking } = useModal()
+  const [loading, setLoading] = useState(false)
+  const [broadcasted, setBroadcasted] = useState(false)
+  const [txId, setTxId] = useState<string | null>(null)
+
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const validatorInfo = useAppSelector(state =>
+    selectSingleValidator(state, accountSpecifier, validatorAddress)
+  )
 
   const translate = useTranslate()
 
-  const methods = useForm<UnstakeBroadcastParams>({
-    defaultValues: {
-      [Field.FeeType]: chainAdapters.FeeDataKey.Average
+  const methods = useFormContext<StakingValues>()
+  const { handleSubmit, control } = methods
+  const { handleStakingAction } = useStakingAction()
+  const { txFee, fiatFee, cryptoAmount, gasLimit } = useWatch({ control })
+
+  if (!txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
+
+  // We will also need to listen to incoming Txs (which are currently not coming from the websocket) to determine broadcasted
+  // state and react on broadcast errors instead of being optimistic
+  const onSubmit = async () => {
+    if (broadcasted) {
+      return onClose()
     }
-  })
 
-  const { handleSubmit } = methods
+    setLoading(true)
+    const broadcastTx = await handleStakingAction({
+      asset,
+      validator: validatorAddress,
+      chainSpecific: {
+        gas: gasLimit,
+        fee: bnOrZero(txFee).times(`1e+${asset?.precision}`).toString()
+      },
+      value: bnOrZero(cryptoAmount).times(`1e+${asset?.precision}`).toString(),
+      action: StakingAction.Unstake
+    })
+    setLoading(false)
+    if (!broadcastTx) return
 
-  const onSubmit = (_: any) => {
-    // TODO: handle submit when wired up
+    setTxId(broadcastTx)
+    setBroadcasted(true)
   }
 
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId,
-    chain: 'osmosis'
-  }))(assetId) as Asset
-  const txDetails = {
-    explorerTxLink: 'https://etherscan.io/tx/',
-    tx: {
-      txid: '0xae1eab9a514e1c926ca249e93a89654e610b4aae8b40a4ac99a2a7a675ad15b0'
-    }
-  }
   return (
     <SlideTransition>
       <ModalCloseButton borderRadius='full' />
@@ -84,11 +95,11 @@ export const UnstakeBroadcast = ({
           <Flex flexDirection='column' alignItems='flex-end'>
             <Amount.Fiat
               fontWeight='semibold'
-              value={cryptoUnstakeAmount.times(fiatRate).toPrecision()}
+              value={bnOrZero(cryptoAmount).times(marketData.price).toPrecision()}
             />
             <Amount.Crypto
               color='gray.500'
-              value={cryptoUnstakeAmount.toPrecision()}
+              value={bnOrZero(cryptoAmount).toPrecision()}
               symbol={asset.symbol}
             />
           </Flex>
@@ -101,18 +112,16 @@ export const UnstakeBroadcast = ({
               <InfoOutlineIcon />
             </Tooltip>
           </CText>
-          <CText color='blue.300'>{validatorName}</CText>
+          <CText color='blue.300'>{validatorInfo?.moniker}</CText>
         </Flex>
 
         <Flex width='100%' mb='35px' justifyContent='space-between'>
           <Text translation={'transactionRow.txid'} color='gray.500' />
-          <Link
-            isExternal
-            color='blue.300'
-            href={`${txDetails.explorerTxLink}${txDetails.tx.txid}`}
-          >
-            <MiddleEllipsis address={txDetails.tx.txid} />
-          </Link>
+          {txId && asset && (
+            <Link isExternal color='blue.300' href={`${asset.explorerTxLink}${txId}`}>
+              <MiddleEllipsis address={txId} />
+            </Link>
+          )}
         </Flex>
 
         <Flex mb='6px' mt='6px' width='100%' justifyContent='space-between'>
@@ -128,16 +137,15 @@ export const UnstakeBroadcast = ({
             </Tooltip>
           </CText>
           <Flex flexDirection='column' alignItems='flex-end'>
-            <Amount.Fiat value={'0.01'} />
-            <Amount.Crypto value='0.0005' symbol={asset.symbol} color='gray.500' />
+            <Amount.Crypto value={bnOrZero(txFee).toString()} symbol={asset.symbol} />
+            <Amount.Fiat color='gray.500' value={bnOrZero(fiatFee).toString()} />
           </Flex>
         </Flex>
 
         <Flex width='100%' flexDirection='column' alignItems='flex-end'>
           <Button
-            isLoading={isLoading}
-            onClick={cosmosStaking.close}
-            loadingText={translate('defi.broadcastingTransaction')}
+            isLoading={loading}
+            loadingText={translate('defi.modals.staking.unstakingYourTokens')}
             colorScheme={'blue'}
             minWidth='150px'
             mb='10px'
@@ -146,7 +154,7 @@ export const UnstakeBroadcast = ({
             type='submit'
             fontWeight='normal'
           >
-            <Text translation={'modals.status.close'} />
+            <Text translation={broadcasted ? 'modals.status.close' : 'defi.confirmAndBroadcast'} />
           </Button>
         </Flex>
       </Flex>

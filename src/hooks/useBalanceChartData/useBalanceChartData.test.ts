@@ -110,7 +110,8 @@ describe('calculateBucketPrices', () => {
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal: '0'
     })
 
     expect(calculatedBuckets[0].balance.crypto[foxCaip19].toFixed(0)).toEqual(value)
@@ -140,7 +141,8 @@ describe('calculateBucketPrices', () => {
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal: '0'
     })
     expect(calculatedBuckets[0].balance.crypto[ethCaip19].toNumber()).toEqual(0)
   })

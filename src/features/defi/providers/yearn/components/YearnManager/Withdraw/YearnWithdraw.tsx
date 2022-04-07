@@ -20,9 +20,9 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RouteSteps, StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import {
@@ -439,9 +439,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     )
 
   return (
-    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+    <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
       <RouteSteps routes={routes} location={location} />
-      <Flex flexDir='column' width='full' minWidth='400px'>
+      <Flex flexDir='column' width='full'>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

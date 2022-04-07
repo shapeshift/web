@@ -11,7 +11,7 @@ import withdraw from 'assets/withdraw.svg'
 import { CarouselDots } from 'components/CarouselDots/CarouselDots'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {

@@ -2,9 +2,9 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import { ModalBody } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 import { useEffect } from 'react'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-
-import { Text } from '../../../components/Text'
+import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export type SuccessModalProps = {
   headerText: string

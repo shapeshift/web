@@ -60,7 +60,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const assetIds = useSelector(selectAssetIds)
 
   // keep track of pending tx ids, so we can refetch the portfolio when they confirm
-  const [pendingTxIds, setPendingTxIds] = useState<Set<string>>(new Set<string>())
+  const [pendingTxIds, setPendingTxIds] = useState<Set<TxId>>(new Set<TxId>())
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -223,7 +223,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     (txId: TxId) => {
       // the accountSpecifier the tx came from
       const { txAccountSpecifier } = deserializeUniqueTxId(txId)
-      // only refetch accounts for this tx
+      // only refetch the specific account for this tx
       const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
         const [chainId, accountSpecifier] = Object.entries(cur)[0]
         const accountId = chainId + ':' + accountSpecifier

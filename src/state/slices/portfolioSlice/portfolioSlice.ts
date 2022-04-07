@@ -35,11 +35,14 @@ export const portfolio = createSlice({
               state.accountBalances.byId[accountSpecifier]?.[caip19]
             )
             // diff could be both positive [tx type -> receive] and negative [tx type -> send]
-            const diff = bnOrZero(newAccountAssetBalance).minus(currentAccountBalance)
+            const differenceBetweenCurrentAndNew =
+              bnOrZero(newAccountAssetBalance).minus(currentAccountBalance)
             // get current asset balance from the state
             const currentAssetBalance = bnOrZero(state.assetBalances.byId?.[caip19])
             // update state.assetBalances with calculated diff
-            state.assetBalances.byId[caip19] = currentAssetBalance.plus(diff).toString()
+            state.assetBalances.byId[caip19] = currentAssetBalance
+              .plus(differenceBetweenCurrentAndNew)
+              .toString()
           }
         )
       })

@@ -11,7 +11,6 @@ Object {
         "apr": "0.1662979435",
         "commission": "0.000000000000000000",
         "moniker": "tokenpocket",
-        "tokens": "11115",
       },
     },
     Object {
@@ -22,7 +21,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
     Object {
@@ -33,7 +31,6 @@ Object {
         "apr": "0.1514974265",
         "commission": "0.089000000000000000",
         "moniker": "Cosmostation",
-        "tokens": "11115",
       },
     },
   ],
@@ -44,7 +41,6 @@ Object {
         "apr": "0.1662979435",
         "commission": "0.000000000000000000",
         "moniker": "tokenpocket",
-        "tokens": "11115",
       },
       "entries": Array [
         Object {
@@ -58,7 +54,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
   ],
@@ -70,7 +65,6 @@ Object {
         "apr": "0.1662979435",
         "commission": "0.000000000000000000",
         "moniker": "tokenpocket",
-        "tokens": "11115",
       },
     },
     Object {
@@ -85,7 +79,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
     Object {
@@ -100,7 +93,6 @@ Object {
         "apr": "0.1514974265",
         "commission": "0.089000000000000000",
         "moniker": "Cosmostation",
-        "tokens": "11115",
       },
     },
   ],
@@ -118,7 +110,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
   ],
@@ -132,49 +123,42 @@ Object {
     "apr": "0.1496681491",
     "commission": "0.100000000000000000",
     "moniker": "ShapeShift DAO",
-    "tokens": "11115",
   },
   "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn": Object {
     "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
     "apr": "0.1514974265",
     "commission": "0.089000000000000000",
     "moniker": "Cosmostation",
-    "tokens": "11115",
   },
   "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte": Object {
     "address": "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte",
     "apr": "0.1513311286",
     "commission": "0.090000000000000000",
     "moniker": "commercio.network",
-    "tokens": "11115",
   },
   "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2": Object {
     "address": "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2",
     "apr": "0.1496681491",
     "commission": "0.100000000000000000",
     "moniker": "Blockapsis",
-    "tokens": "11115",
   },
   "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s": Object {
     "address": "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s",
     "apr": "0.1662979435",
     "commission": "0.000000000000000000",
     "moniker": "UbikCapital(0%Commission)",
-    "tokens": "11115",
   },
   "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9": Object {
     "address": "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9",
     "apr": "0.1496681491",
     "commission": "0.100000000000000000",
     "moniker": "真本聪&IOSG",
-    "tokens": "11115",
   },
   "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs": Object {
     "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
     "apr": "0.1662979435",
     "commission": "0.000000000000000000",
     "moniker": "tokenpocket",
-    "tokens": "11115",
   },
 }
 `;
@@ -199,7 +183,6 @@ Object {
         "apr": "0.1662979435",
         "commission": "0.000000000000000000",
         "moniker": "tokenpocket",
-        "tokens": "11115",
       },
     },
     Object {
@@ -210,7 +193,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
     Object {
@@ -221,7 +203,6 @@ Object {
         "apr": "0.1514974265",
         "commission": "0.089000000000000000",
         "moniker": "Cosmostation",
-        "tokens": "11115",
       },
     },
   ],
@@ -232,7 +213,6 @@ Object {
         "apr": "0.1662979435",
         "commission": "0.000000000000000000",
         "moniker": "tokenpocket",
-        "tokens": "11115",
       },
       "entries": Array [
         Object {
@@ -246,7 +226,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
   ],
@@ -258,7 +237,6 @@ Object {
         "apr": "0.1662979435",
         "commission": "0.000000000000000000",
         "moniker": "tokenpocket",
-        "tokens": "11115",
       },
     },
     Object {
@@ -273,7 +251,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
     Object {
@@ -288,7 +265,6 @@ Object {
         "apr": "0.1514974265",
         "commission": "0.089000000000000000",
         "moniker": "Cosmostation",
-        "tokens": "11115",
       },
     },
   ],
@@ -306,7 +282,6 @@ Object {
         "apr": "0.1496681491",
         "commission": "0.100000000000000000",
         "moniker": "ShapeShift DAO",
-        "tokens": "11115",
       },
     },
   ],
@@ -320,49 +295,42 @@ Object {
     "apr": "0.1496681491",
     "commission": "0.100000000000000000",
     "moniker": "ShapeShift DAO",
-    "tokens": "11115",
   },
   "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn": Object {
     "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
     "apr": "0.1514974265",
     "commission": "0.089000000000000000",
     "moniker": "Cosmostation",
-    "tokens": "11115",
   },
   "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte": Object {
     "address": "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte",
     "apr": "0.1513311286",
     "commission": "0.090000000000000000",
     "moniker": "commercio.network",
-    "tokens": "11115",
   },
   "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2": Object {
     "address": "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2",
     "apr": "0.1496681491",
     "commission": "0.100000000000000000",
     "moniker": "Blockapsis",
-    "tokens": "11115",
   },
   "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s": Object {
     "address": "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s",
     "apr": "0.1662979435",
     "commission": "0.000000000000000000",
     "moniker": "UbikCapital(0%Commission)",
-    "tokens": "11115",
   },
   "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9": Object {
     "address": "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9",
     "apr": "0.1496681491",
     "commission": "0.100000000000000000",
     "moniker": "真本聪&IOSG",
-    "tokens": "11115",
   },
   "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs": Object {
     "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
     "apr": "0.1662979435",
     "commission": "0.000000000000000000",
     "moniker": "tokenpocket",
-    "tokens": "11115",
   },
 }
 `;

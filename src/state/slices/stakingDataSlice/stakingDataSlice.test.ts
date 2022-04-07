@@ -352,8 +352,7 @@ describe('stakingDataSlice', () => {
             address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
             apr: '0.1496681491',
             commission: '0.100000000000000000',
-            moniker: 'ShapeShift DAO',
-            tokens: '11115'
+            moniker: 'ShapeShift DAO'
           })
         })
       })

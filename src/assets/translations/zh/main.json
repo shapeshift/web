@@ -4,6 +4,7 @@
     "next": "下一页",
     "error": "错误",
     "cancel": "取消",
+    "close": "关闭",
     "continue": "继续",
     "confirm": "确认",
     "reject": "拒绝",
@@ -17,6 +18,8 @@
     "unresolvableEnsDomain": "无法解析ENS域名",
     "deposit": "存款",
     "withdraw": "提款",
+    "withdrawal": "退出",
+    "overview": "概述",
     "getStarted": "开始",
     "connectWallet": "连接钱包",
     "connectedWallet": "已连接钱包",
@@ -27,6 +30,7 @@
     "lightTheme": "光亮主题",
     "rename": "重命名",
     "forget": "忘记？",
+    "pending": "待办的",
     "available": "可用",
     "or": "或者",
     "somethingWentWrong": "出现问题",
@@ -38,7 +42,15 @@
     "receive": "接收",
     "privacy": "隐私政策",
     "terms": "服务条款",
+    "days": "天",
+    "copied": "复制到剪贴板。",
+    "copyFailed": "无法复制到剪贴板",
+    "copyFailedDescription": "请手动复制",
+    "viewAsset": "查看资产",
     "apy": "%{apy}% 年化收益率",
+    "settings": "设置",
+    "legalDated": "日期：2022 年 1 月",
+    "approveOnWallet": "在钱包上批准",
     "confirmOnWallet": "在钱包上确认"
   },
   "updateToast": {
@@ -66,10 +78,22 @@
   },
   "fiatRamps": {
     "routeTitle": "买入或卖出",
+    "routeTitleForGem": "斜坡上的宝石",
+    "title": "购买或出售加密货币",
+    "titleMessage": "ShapeShift 已与多家法定坡道供应商合作购买和销售加密货币。",
     "gem": "Gem",
+    "gemMessage": "使用 Gem 购买或出售加密货币",
+    "onJuno": "OnJuno",
     "comingSoon": "敬请期待 ...",
     "buy": "买入",
-    "sell": "卖出"
+    "sell": "卖出",
+    "assetToBuy": "购买资产",
+    "selectAnAssetToBuy": "选择要购买的资产",
+    "assetToSell": "出售资产",
+    "selectAnAssetToSell": "选择要出售的资产",
+    "fundsTo": "资金将发送至",
+    "fundsFrom": "资金将从",
+    "headerLabel": "购买/出售加密货币"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift 平台",
@@ -92,6 +116,9 @@
     "modals": {
       "learnMore": {
         "headers": {
+          "aboutStakingRewards": "关于质押奖励",
+          "unstaking": "取消您的 %{assetName}",
+          "risks": "有风险吗？"
         },
         "bodies": {
           "rateFluctuationInfo": "您赚取的 %{assetName} 比率，即年利率 (APR)，通常在 7% - 20% 之间波动。",
@@ -103,6 +130,8 @@
         },
         "userProtectionInfo": "*回报率是预估的，会随着市场情况而波动。",
         "cta": {
+          "startStaking": "开始质押",
+          "learnMore": "了解更多"
         }
       },
       "getStarted": {
@@ -110,12 +139,16 @@
         "body": "质押是在加密货币钱包中持有资金以支持区块链网络运营的过程，作为回报，质押者的贡献会得到回报。",
         "userProtectionInfo": "*回报率是预估的，会随着市场情况而波动。",
         "cta": {
+          "startStaking": "开始质押",
+          "learnMore": "了解更多"
         }
       },
       "staking": {
         "estimateDisclaimer": "*预估值会随着市场情况而波动。",
         "byContinuing": "继续操作，即表示您接受",
+        "risks": "风险",
         "ofParticipating": "使用此功能并同意",
+        "terms": "条款",
         "tooltip": {
           "validator": "验证者负责处理交易、存储数据并将区块添加到区块链网络之中。",
           "gasFees": "%{networkName} 上的 Gas 费用远低于以太坊主网上的 Gas 费用。这笔费用直接支付给保护和运营网络的验证者，而不是支付给 ShapeShift 平台。"
@@ -127,34 +160,56 @@
         "rewards": "您获得的收益将自动累积。",
         "cta": "立即存入 FOX",
         "foxyBalance": "FOXy 平衡",
+        "withdrawals": "提款",
+        "emptyWithdraws": "待处理或有效提款将在此处显示。",
         "availableDate": "有效 %{date}"
       },
       "claim": {
         "rewardDepositInfo": "您的收益将存入您的主钱包。",
         "title": "领取 Staking 奖励",
         "confirmAndClaim": "确认和领取",
+        "rewardAmount": "奖励金额",
+        "claimingRewards": "领取奖励",
         "claimAmount": "领取金额",
         "claimToAddress": "领取地址",
         "confirmClaim": "确认领取",
         "claimNow": "立即领取"
       }
     },
+    "amountToStake": "质押金额",
+    "amountToUnstake": "取消质押金额",
+    "confirmDetails": "确认详情",
+    "broadcastingTransaction": "广播交易",
+    "transactionComplete": "交易完成",
+    "transactionFailed": "交易失败",
     "validator": "验证程序",
+    "stakedAmount": "质押金额",
+    "unstakeFrom": "取消质押",
     "gasFee": "Gas 费用",
     "unbondInfoItWillTake": "当您的代币被质押时，您将无法转移或使用它们。解除质押后需要 %{unbondingDays} 天才能解锁。",
     "unbondInfoItWillTakeShort": "取消质押代币需要 %{unbondingDays} 天",
+    "confirmAndBroadcast": "确认和广播",
+    "signAndBroadcast": "签名和广播",
+    "averageApr": "平均年利率",
     "estimatedYearlyRewards": "预计年化奖励",
     "staked": "已质押",
     "amountStaked": "已质押金额",
+    "assetStaking": "%{assetName} 质押",
     "stake": "质押",
     "unstake": "取消质押",
     "stakeAsset": "质押 %{assetSymbol}",
+    "unstakeAsset": "取消质押 %{assetSymbol}",
     "claimAsset": "领取质押奖励",
     "claim": "领取",
+    "rewards": "奖励",
     "unstaking": "取消质押",
+    "available": "可用 %{unbondingEnd}",
     "earn": "赚取",
+    "asset": "资产",
+    "category": "类别",
     "tvl": "总锁仓量",
     "apy": "年化收益率",
+    "apr": "年利率",
     "balance": "余额",
     "defi": "去中心化金融",
     "defiBody": "探索成长中的去中心化金融宇宙。",
@@ -193,15 +248,22 @@
   },
   "staking": {
     "staking": "正在质押",
-    "toUnlock": "在您取消质押后解锁您的 Osmo。质押奖励需要单独提取。"
+    "itWillTake": "这将需要",
+    "toUnlock": "在您取消质押后解锁您的 Osmo。质押奖励需要单独提取。",
+    "assetStakingBalance": "%{assetName} 质押余额"
   },
   "navBar": {
     "dashboard": "仪表盘",
     "assets": "资产",
+    "assetDetails": "资产详情",
     "accounts": "账户",
+    "accountAsset": "账户资产",
     "accountDetails": "帐户详细信息",
     "earn": "获取收益",
     "defi": "去中心化金融",
+    "transactionHistory": "交易记录",
+    "overview": "概述",
+    "transactions": "交易",
     "tradeHistory": "交易记录",
     "foxToken": "FOX Token",
     "featureFlags": "功能开关标志"
@@ -227,15 +289,19 @@
     "parser": {
       "yearn": {
         "deposit": "存款",
-        "withdraw": "取款"
+        "approve": "批准",
+        "withdraw": "取款",
+        "receive": "收到"
       },
       "uniV2": {
         "addLiquidityETH": "添加流动性",
         "removeLiquidityETH": "移除流动性"
       },
       "thor": {
+        "transferOut": "转出"
       }
-    }
+    },
+    "unknown": "交易"
   },
   "trade": {
     "searchingRate": "搜索最优兑换率。。。",
@@ -315,6 +381,9 @@
     },
     "stake": {
       "txFees": {
+        "low": "低的",
+        "medium": "中等的",
+        "high": "高的"
       }
     },
     "send": {
@@ -323,9 +392,11 @@
       "youHaveSent": "您已成功发送%{amount} %{symbol}",
       "tokenAddress": "代币地址",
       "scanQrCode": "扫描二维码",
+      "permissionsButton": "再试一次",
       "sent": "%{asset} 已发送",
       "errorTitle": "发送%{asset}失败",
       "errors": {
+        "generic": "发生错误。",
         "notEnoughNativeToken": "%{asset}不足以覆盖 gas 费用",
         "transactionRejected": "用户拒绝交易",
         "qrPermissions": "此功能需要相机访问权限才能使用。请修改你的浏览器设置。"
@@ -341,6 +412,10 @@
         "fees": "交易费为%{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "可选 %{assetSymbol} 备注",
+        "assetMemo": "%{assetSymbol} 备注",
+        "charactersRemaining": "剩余 %{charactersRemaining} 个字符",
+        "memoExplainer": "一些 %{assetSymbol} 收件人可能需要备忘录才能正确处理交易",
         "sendAsset": "发送%{asset}",
         "sendTo": "发送至",
         "sendAmount": "发送金额",
@@ -377,12 +452,20 @@
       "amountToWithdraw": "提取金额",
       "footerDisclaimer": "此交易需消耗一笔 gas 费用。",
       "slippageSettings": "滑点设置",
+      "withdrawType": "提款类型",
+      "instant": "立即的",
+      "delayed": "~7 天",
+      "fee": "%{fee}% %{symbol} 费用",
+      "noFee": "没有 %{symbol} 费用",
       "requestWithdraw": "请求取款",
       "withdrawFee": "取款将有单独的 gas 费用。",
       "disclaimer": "随后的请求将被合并且重置提款时间。",
       "withDrawalFee": "提款费用",
       "info": {
-        "delayedOne": "请求取款"
+        "delayed": "延迟提款有两笔交易：",
+        "delayedOne": "请求取款",
+        "delayedTwo": "7天后申请提款",
+        "instant": "即时提款是一笔交易，需要您提取全部质押金额。"
       }
     },
     "approve": {
@@ -408,7 +491,10 @@
       "withdrawFrom": "提取自",
       "depositTo": "存款至",
       "averageApy": "平均年化收益率",
+      "withdrawTime": "提款时间",
       "withdrawFee": "提款费用",
+      "withdrawInstantTime": "立即的",
+      "withdrawDelayedTime": "~7 天",
       "estimatedReturns": "预估年回报*",
       "estimatedGas": "预估 Gas 费用",
       "preFooter": "奖励自动累积",
@@ -430,12 +516,17 @@
       "continue": "查看交易",
       "position": "查看头寸",
       "viewAsset": "查看资产",
-      "close": "关闭"
+      "close": "关闭",
+      "viewExplorer": "在资源管理器中查看"
     },
     "connect": {
       "loadingText": "钱包配对中"
     },
     "settings": {
+      "settings": "设置",
+      "language": "语言",
+      "balanceThreshold": "余额阈值",
+      "balanceThresholdTooltip": "隐藏低于此值的余额"
     }
   },
   "walletProvider": {
@@ -531,7 +622,8 @@
       "password": {
         "header": "输入密码",
         "body": "输入密码对钱包加密。登录钱包需要此密码。请勿忘记密码。",
-        "button": "下一步"
+        "button": "下一步",
+        "connect": "连接到另一个钱包"
       },
       "create": {
         "header": "您的助记词",
@@ -571,7 +663,8 @@
     "selectModal": {
       "header": "连接一个钱包",
       "body": "连接一个钱包代表您同意接受 ShapeShift 的服务条款并确认您已经阅读并理解 Shapeshift 的免责声明。",
-      "footer": "还没有钱包？"
+      "footer": "还没有钱包？",
+      "create": "创建一个"
     }
   },
   "graph": {
@@ -605,7 +698,8 @@
       },
       "assetHistory": {
         "transactionHistory": "交易记录",
-        "recentTransactions": "近期交易"
+        "recentTransactions": "近期交易",
+        "emptyTransactions": "交易将出现在这里。"
       },
       "assetAccounts": {
         "account": "账户",
@@ -644,24 +738,61 @@
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
+    "transactionHistory": "交易记录",
+    "recentTransactions": "最近的交易",
     "filter": "筛选器",
     "filters": {
       "filters": "筛选器",
       "resetFilters": "重置筛选器设置",
+      "to": "到",
+      "categories": "类别",
       "dayRange": "日期范围",
+      "10days": "10天",
+      "30days": "30天",
+      "90days": "90 天",
+      "send": "发送",
       "trade": "交易",
-      "custom": "习惯"
+      "receive": "收到",
+      "custom": "习惯",
+      "apply": "申请"
     },
+    "downloadCSV": "下载 CSV",
     "csv": {
+      "fileName": "ShapeShift 交易历史",
       "txid": "发送 ID",
-      "type": "交易类型"
+      "type": "交易类型",
+      "timestamp": "时间戳",
+      "status": "状态",
+      "minerFee": "矿工费",
+      "minerFeeCurrency": "矿工费币种",
+      "inputAmount": "输入金额",
+      "inputCurrency": "输入货币",
+      "inputAddress": "输入地址",
+      "outputAmount": "输出量",
+      "outputCurrency": "输出货币",
+      "outputAddress": "输出地址"
     },
     "transactionTypes": {
+      "send": "发送",
       "receive": "接收",
       "trade": "交易"
     },
+    "assets": "资产",
+    "viewOnChain": "链上查看",
     "txid": "交易 ID",
+    "fee": "费用",
     "youSent": "您发送",
-    "sentTo": "发送至"
+    "youReceived": "您收到",
+    "sentTo": "发送至",
+    "receivedFrom": "从......收到",
+    "orderRoute": "订购路线",
+    "status": "状态",
+    "transactionType": "交易类型",
+    "minerFee": "矿工费",
+    "unknownType": "交易",
+    "from": "从",
+    "to": "到",
+    "for": "为了",
+    "transfers": "转移"
   }
 }

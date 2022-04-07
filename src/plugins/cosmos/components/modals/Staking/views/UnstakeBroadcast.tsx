@@ -95,10 +95,7 @@ export const UnstakeBroadcast = ({
           <Flex flexDirection='column' alignItems='flex-end'>
             <Amount.Fiat
               fontWeight='semibold'
-              value={bnOrZero(cryptoAmount)
-                .div(`1e+${asset.precision}`)
-                .times(marketData.price)
-                .toPrecision()}
+              value={bnOrZero(cryptoAmount).times(marketData.price).toPrecision()}
             />
             <Amount.Crypto
               color='gray.500'

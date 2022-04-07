@@ -23,7 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
@@ -86,32 +86,50 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
   const translate = useTranslate()
 
   const handlePercentClick = (_percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoBalanceHuman).times(_percent)
-    const fiat = bnOrZero(cryptoAmount).times(marketData.price)
+    if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
+    }
+
+    const cryptoAmount = bnOrZero(cryptoBalanceHuman)
+      .times(_percent)
+      .dp(asset.precision, BigNumber.ROUND_DOWN)
+    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     } else {
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     }
     setPercent(_percent)
   }
 
   const handleInputChange = (value: string) => {
-    if (bnOrZero(value).gt(cryptoBalanceHuman)) {
-      setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
-    } else if (values.amountFieldError) {
-      setValue(Field.AmountFieldError, '', { shouldValidate: true })
-    }
-
     setPercent(null)
     if (activeField === InputType.Crypto) {
-      const fiat = bnOrZero(value).times(marketData.price)
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
+      const fiatAmount = bnOrZero(value).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+
+      if (cryptoAmount.gt(cryptoBalanceHuman)) {
+        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+        return
+      }
     } else {
-      const crypto = bnOrZero(value).div(marketData.price)
-      setValue(Field.CryptoAmount, crypto.toString(), { shouldValidate: true })
+      const cryptoAmount = bnOrZero(value)
+        .div(marketData.price)
+        .dp(asset.precision, BigNumber.ROUND_DOWN)
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+
+      if (bnOrZero(cryptoAmount).gt(bnOrZero(cryptoBalanceHuman))) {
+        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+        return
+      }
+    }
+
+    if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
     }
   }
 
@@ -140,6 +158,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
           py='8px'
           mb={6}
           assetSymbol={asset.symbol}
+          assetIcon={asset.icon}
           cryptoAmountAvailable={cryptoBalanceHuman.toString()}
           fiatAmountAvailable={fiatAmountAvailable}
         />

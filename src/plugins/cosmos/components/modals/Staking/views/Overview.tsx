@@ -88,6 +88,7 @@ export const Overview: React.FC<StakedProps> = ({
           >
             <StakedRow
               assetSymbol={asset.symbol}
+              assetIcon={asset.icon}
               fiatRate={bnOrZero(marketData.price)}
               cryptoStakedAmount={bnOrZero(totalBondings)
                 .div(`1e+${asset.precision}`)
@@ -100,7 +101,7 @@ export const Overview: React.FC<StakedProps> = ({
               <Text translation={'defi.rewards'} mb='12px' color='gray.500' />
               <AssetClaimCard
                 assetSymbol={asset.symbol}
-                assetName={asset.name}
+                assetIcon={asset.icon}
                 cryptoRewardsAmount={bnOrZero(rewardsAmount)
                   .div(`1e+${asset.precision}`)
                   .decimalPlaces(asset.precision)}

@@ -1,6 +1,7 @@
 import { extendTheme } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
 import { createBreakpoints } from '@chakra-ui/theme-tools'
+import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
 import { DrawerStyle as Drawer } from 'components/Drawer/Drawer.theme'
@@ -95,6 +96,7 @@ export const theme = extendTheme({
   },
   colors,
   components: {
+    Alert,
     Button,
     Menu,
     Spinner,

@@ -207,7 +207,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     } else {
       /**
        * the unchained getAccount call does not include pending txs in the portfolio
-       * add them to a set, and the two effects below monitor the set on pending txs
+       * add them to a set, and the two effects below monitor the set of pending txs
        */
       if (tx.status === 'pending') setPendingTxIds(new Set([...pendingTxIds, txId]))
     }

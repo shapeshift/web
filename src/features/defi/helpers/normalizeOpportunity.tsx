@@ -29,6 +29,7 @@ export type EarnOpportunityType = {
   cryptoAmount: string
   expired?: boolean
   chain: ChainTypes
+  moniker?: string
   showAssetSymbol?: boolean
 }
 
@@ -164,6 +165,7 @@ const useTransformCosmosStaking = (
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
         cryptoAmount: staking.cryptoAmount ?? '',
+        moniker: staking.moniker,
         showAssetSymbol: true
       }
     })

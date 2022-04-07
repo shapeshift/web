@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
@@ -20,6 +21,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -60,7 +62,8 @@ export const OpportunityCard = ({
   apy,
   cryptoAmount,
   fiatAmount,
-  expired
+  expired,
+  moniker
 }: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
@@ -74,6 +77,8 @@ export const OpportunityCard = ({
     assetReference: tokenAddress
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const { cosmosStaking } = useModal()
+  const isCosmosStaking = type === DefiType.TokenStaking && chain === ChainTypes.Cosmos
 
   const {
     state: { isConnected },
@@ -81,18 +86,28 @@ export const OpportunityCard = ({
   } = useWallet()
 
   const handleClick = () => {
-    isConnected
-      ? history.push({
-          pathname: `/defi/${type}/${provider}/withdraw`,
-          search: qs.stringify({
-            chain,
-            contractAddress,
-            tokenId: tokenAddress,
-            rewardId: rewardAddress
-          }),
-          state: { background: location }
+    if (isConnected) {
+      if (isCosmosStaking) {
+        cosmosStaking.open({
+          assetId: assetCAIP19,
+          validatorAddress: contractAddress
         })
-      : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
+      history.push({
+        pathname: `/defi/${type}/${provider}/withdraw`,
+        search: qs.stringify({
+          chain,
+          contractAddress,
+          tokenId: tokenAddress,
+          rewardId: rewardAddress
+        }),
+        state: { background: location }
+      })
+      return
+    }
+
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   if (!asset) return null
@@ -109,7 +124,8 @@ export const OpportunityCard = ({
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {`${asset.symbol} ${type?.replace('_', ' ')}`}
+                {!isCosmosStaking && `${asset.symbol} ${type?.replace('_', ' ')}`}
+                {isCosmosStaking && `${moniker}`}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

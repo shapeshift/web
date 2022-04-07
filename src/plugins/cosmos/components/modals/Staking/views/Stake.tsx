@@ -90,7 +90,9 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
       setValue(Field.AmountFieldError, '', { shouldValidate: true })
     }
 
-    const cryptoAmount = bnOrZero(cryptoBalanceHuman).times(_percent)
+    const cryptoAmount = bnOrZero(cryptoBalanceHuman)
+      .times(_percent)
+      .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })

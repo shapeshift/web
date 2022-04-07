@@ -1,5 +1,5 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { chainAdapters } from '@shapeshiftoss/types'
 
 export enum StakingAction {
   Stake = 'stake',
@@ -10,13 +10,7 @@ export enum StakingAction {
 
 export type StakingModalProps = {
   assetId: CAIP19
-}
-
-export type StakingModalLocation = {
-  cryptoAmount: BigNumber
-  assetId: CAIP19
-  fiatRate: BigNumber
-  apr: string
+  validatorAddress: string
 }
 
 export enum StakeRoutes {
@@ -59,13 +53,23 @@ export enum InputType {
 }
 
 export enum Field {
+  AmountFieldError = 'amountFieldError',
   FiatAmount = 'fiatAmount',
-  CryptoAmount = 'cryptoAmount'
+  CryptoAmount = 'cryptoAmount',
+  FeeType = 'feeType',
+  GasLimit = 'gasLimit',
+  TxFee = 'txFee',
+  FiatFee = 'fiatFee'
 }
 
 export type StakingValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
+  [Field.FeeType]: chainAdapters.FeeDataKey
+  [Field.GasLimit]: string
+  [Field.TxFee]: string
+  [Field.FiatFee]: string
+  [Field.AmountFieldError]: string | [string, { asset: string }]
 }
 
 export const stakeSteps = [

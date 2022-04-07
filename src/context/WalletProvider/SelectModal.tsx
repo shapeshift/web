@@ -1,9 +1,10 @@
 import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { KeyManager, SUPPORTED_WALLETS } from './config'
-import { useWallet } from './WalletProvider'
+import { SUPPORTED_WALLETS } from './config'
+import { KeyManager } from './KeyManager'
 
 export const SelectModal = () => {
   const {

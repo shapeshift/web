@@ -2,11 +2,10 @@ import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'
-import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
-import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
-import { ReceiveRoutes } from './ReceiveCommon'
+import { ReceiveRoutes } from './Receive'
 import { ReceiveInfo } from './ReceiveInfo'
 
 type ReceiveRouterProps = {

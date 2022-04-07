@@ -62,7 +62,6 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           color={textColor}
           value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
           symbol={asset.symbol}
-          maximumFractionDigits={4}
         />
         {isAvailable ? (
           <Stack direction='row' alignItems='center' color='blue.500'>

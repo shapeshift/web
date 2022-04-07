@@ -3,12 +3,9 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { TestProviders } from 'test/TestProviders'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { SUPPORTED_WALLETS } from './config'
-import { KeyManager } from './KeyManager'
-import { WalletProvider } from './WalletProvider'
+import { KeyManager, SUPPORTED_WALLETS } from './config'
+import { useWallet, WalletActions, WalletProvider } from './WalletProvider'
 
 jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
   WebUSBKeepKeyAdapter: {

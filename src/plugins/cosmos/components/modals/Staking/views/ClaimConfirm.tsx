@@ -9,105 +9,71 @@ import {
   Text as CText,
   Tooltip
 } from '@chakra-ui/react'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-// @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
-import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { chainAdapters } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
-import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { useEffect, useMemo, useState } from 'react'
-import { FormProvider, useFormContext } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  selectAssetByCAIP19,
-  selectMarketDataById,
-  selectRewardsAmountByAssetId
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { ClaimPath, Field, StakingValues } from '../StakingCommon'
+import { ClaimPath } from '../StakingCommon'
+
+export enum Field {
+  FeeType = 'feeType'
+}
+
+export type StakingValues = {
+  [Field.FeeType]: chainAdapters.FeeDataKey
+}
 
 type ClaimConfirmProps = {
   assetId: CAIP19
-  accountSpecifier: CAIP10
-  validatorAddress: string
+  cryptoStakeAmount: BigNumber
+  fiatAmountAvailable: string
 }
 
+// TODO: Wire up the whole component with staked data
 export const ClaimConfirm = ({
   assetId,
-  accountSpecifier,
-  validatorAddress
+  cryptoStakeAmount,
+  fiatAmountAvailable
 }: ClaimConfirmProps) => {
-  const [feeData, setFeeData] = useState<FeePrice | null>(null)
-
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-
-  const methods = useFormContext<StakingValues>()
+  const methods = useForm<StakingValues>({
+    mode: 'onChange',
+    defaultValues: {
+      [Field.FeeType]: chainAdapters.FeeDataKey.Average
+    }
+  })
 
   const { handleSubmit } = methods
 
-  const { cosmosStaking } = useModal()
-  const translate = useTranslate()
   const memoryHistory = useHistory()
-  const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
-
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-
-  useEffect(() => {
-    ;(async () => {
-      const feeData = await adapter.getFeeData({})
-
-      const txFees = getFormFees(feeData, asset.precision, marketData.price)
-
-      setFeeData(txFees)
-    })()
-  }, [adapter, asset.precision, marketData.price])
-
-  const {
-    state: { wallet }
-  } = useWallet()
-
-  const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, assetId)
-  )
-
-  const rewardsCryptoAmountPrecision = useMemo(
-    () => bnOrZero(rewardsCryptoAmount).div(`1e+${asset.precision}`).toString(),
-    [asset.precision, rewardsCryptoAmount]
-  )
-  const rewardsFiatAmountPrecision = useMemo(
-    () => bnOrZero(rewardsCryptoAmountPrecision).times(marketData.price).toString(),
-    [marketData, rewardsCryptoAmountPrecision]
-  )
-
-  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
-    if (!wallet || !feeData) return
-
-    const fees = feeData[feeType]
-    const gas = fees.chainSpecific.gasLimit
-
-    methods.setValue(Field.GasLimit, gas)
-    methods.setValue(Field.TxFee, fees.txFee)
-    methods.setValue(Field.FiatFee, fees.fiatFee)
-    methods.setValue(Field.CryptoAmount, rewardsCryptoAmount)
-
-    memoryHistory.push(ClaimPath.Broadcast)
+  const onSubmit = (result: any) => {
+    memoryHistory.push(ClaimPath.Broadcast, { cryptoAmount: cryptoStakeAmount })
   }
+
+  const translate = useTranslate()
+
+  const { cosmosStaking } = useModal()
 
   const handleCancel = () => {
     memoryHistory.goBack()
     cosmosStaking.close()
   }
 
+  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
+  const asset = (_ => ({
+    name: 'Osmosis',
+    symbol: 'OSMO',
+    caip19: assetId,
+    chain: 'osmosis'
+  }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
       <SlideTransition>
@@ -122,18 +88,13 @@ export const ClaimConfirm = ({
           justifyContent='space-between'
         >
           <ModalHeader textAlign='center'>
-            <Amount.Fiat
-              fontWeight='bold'
-              fontSize='4xl'
-              mb={-4}
-              value={rewardsFiatAmountPrecision}
-            />
+            <Amount.Fiat fontWeight='bold' fontSize='4xl' mb={-4} value={fiatAmountAvailable} />
           </ModalHeader>
           <Amount.Crypto
             color='gray.500'
             fontWeight='normal'
             fontSize='xl'
-            value={rewardsCryptoAmountPrecision}
+            value={cryptoStakeAmount.toPrecision()}
             symbol={asset.symbol}
           />
           <Flex mb='6px' mt='15px' width='100%'>
@@ -150,7 +111,24 @@ export const ClaimConfirm = ({
             </CText>
           </Flex>
           <FormControl>
-            <TxFeeRadioGroup asset={asset} mb='10px' fees={feeData} />
+            <TxFeeRadioGroup
+              asset={asset}
+              mb='10px'
+              fees={{
+                slow: {
+                  txFee: '0',
+                  fiatFee: '0'
+                },
+                average: {
+                  txFee: '0.01',
+                  fiatFee: '0.02'
+                },
+                fast: {
+                  txFee: '0.03',
+                  fiatFee: '0.04'
+                }
+              }}
+            />
           </FormControl>
           <Text
             mt={1}

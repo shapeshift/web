@@ -33,15 +33,15 @@ export function AppProviders({ children }: ProvidersProps) {
               <BrowserRouterProvider>
                 <I18nProvider>
                   <WalletProvider>
-                    <ModalProvider>
-                      <PortfolioProvider>
-                        <MarketDataProvider>
-                          <TransactionsProvider>
+                    <PortfolioProvider>
+                      <MarketDataProvider>
+                        <TransactionsProvider>
+                          <ModalProvider>
                             <DefiManagerProvider>{children}</DefiManagerProvider>
-                          </TransactionsProvider>
-                        </MarketDataProvider>
-                      </PortfolioProvider>
-                    </ModalProvider>
+                          </ModalProvider>
+                        </TransactionsProvider>
+                      </MarketDataProvider>
+                    </PortfolioProvider>
                   </WalletProvider>
                 </I18nProvider>
               </BrowserRouterProvider>

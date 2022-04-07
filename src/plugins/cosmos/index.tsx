@@ -5,8 +5,6 @@ import { getConfig } from 'config'
 import { Plugins } from 'plugins'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { CosmosAccount } from './CosmosAccount'
-import { CosmosAccountTxHistory } from './CosmosAccountTxHistory'
 import { CosmosAsset } from './CosmosAsset'
 import { CosmosAssetTxHistory } from './CosmostAssetTxHistory'
 
@@ -43,40 +41,40 @@ export function register(): Plugins {
         },
         routes: [
           {
-            path: '/assets/cosmos::chainRef/:assetSubId',
+            path: '/assets/cosmos\\:osmosis-1/:assetSubId',
             hide: true,
             label: '',
-            main: null,
+            main: () => <CosmosAsset chainId={'cosmos:osmosis-1'} />,
             icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
             routes: [
               {
                 path: '/',
                 label: 'navBar.overview',
-                main: () => <CosmosAsset />
+                main: () => <CosmosAsset chainId={'cosmos:osmosis-1'} />
               },
               {
                 path: '/transactions',
                 label: 'navBar.transactions',
-                main: () => <CosmosAssetTxHistory />
+                main: () => <CosmosAssetTxHistory chainId={'cosmos:osmosis-1'} />
               }
             ]
           },
           {
-            path: '/accounts/cosmos::accountSubId/:assetId',
+            path: '/assets/cosmos\\:cosmoshub-4/:assetSubId',
             label: '',
             hide: true,
-            main: null,
+            main: () => <CosmosAsset chainId={'cosmos:cosmoshub-4'} />,
             icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
             routes: [
               {
                 path: '/',
                 label: 'navBar.overview',
-                main: () => <CosmosAccount />
+                main: () => <CosmosAsset chainId={'cosmos:cosmoshub-4'} />
               },
               {
                 path: '/transactions',
                 label: 'navBar.transactions',
-                main: () => <CosmosAccountTxHistory />
+                main: () => <CosmosAssetTxHistory chainId={'cosmos:cosmoshub-4'} />
               }
             ]
           }

@@ -9,7 +9,7 @@ import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import {
   selectPortfolioAllocationPercent,
   selectPortfolioAssetBalancesSortedFiat,

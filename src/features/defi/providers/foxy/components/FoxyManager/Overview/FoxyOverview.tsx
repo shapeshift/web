@@ -15,8 +15,8 @@ export const FoxyOverview = ({ api }: FoxyOverViewProps) => {
   const location = useLocation()
 
   return (
-    <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
-      <Flex flexDir='column' width='full'>
+    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+      <Flex flexDir='column' width='full' minWidth='400px'>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             <Route exact path='/'>

@@ -1,9 +1,13 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { MemoryRouter, Route, Switch, useHistory } from 'react-router-dom'
-import { useModal } from 'hooks/useModal/useModal'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
-import { SettingsRoutes } from './SettingsCommon'
 import { SettingsRouter } from './SettingsRouter'
+
+export enum SettingsRoutes {
+  Index = '/settings/index',
+  Languages = '/receive/languages'
+}
 
 export const entries = [SettingsRoutes.Index, SettingsRoutes.Languages]
 

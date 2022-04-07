@@ -1,7 +1,8 @@
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes } from 'context/WalletProvider/actions'
+
+import { ActionTypes } from '../WalletProvider'
 
 export interface LocationState {
   vault: Vault

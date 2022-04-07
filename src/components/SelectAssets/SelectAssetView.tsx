@@ -14,8 +14,7 @@ import { selectPortfolioAccounts } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SelectAccount } from './SelectAccount'
-import { SelectAssetRoutes } from './SelectAssetCommon'
-import type { SelectAssetLocation } from './SelectAssetRouter'
+import { SelectAssetLocation, SelectAssetRoutes } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
 type SelectAssetViewProps = {

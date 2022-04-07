@@ -18,13 +18,13 @@ import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
-import { SettingsRoutes } from './SettingsCommon'
+import { SettingsRoutes } from './Settings'
 import { SettingsListItem } from './SettingsListItem'
 
 type SettingsListProps = {
@@ -60,19 +60,24 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             <Switch isChecked={isLightMode} pointerEvents='none' />
           </SettingsListItem>
           <Divider my={1} />
-          <SettingsListItem
-            label='modals.settings.language'
-            onClick={() => routeProps.history.push(SettingsRoutes.Languages)}
-            icon={<Icon as={MdLanguage} color='gray.500' />}
-          >
-            <Flex alignItems='center'>
-              <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
-                {getLocaleLabel(selectedLocale)}
-              </RawText>
-              <MdChevronRight color='gray.500' size='1.5em' />
-            </Flex>
-          </SettingsListItem>
-          <Divider my={1} />
+          {/* TODO: remove the following condition when fallback locale is ready */}
+          {false && (
+            <>
+              <SettingsListItem
+                label='modals.settings.language'
+                onClick={() => routeProps.history.push(SettingsRoutes.Languages)}
+                icon={<Icon as={MdLanguage} color='gray.500' />}
+              >
+                <Flex alignItems='center'>
+                  <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
+                    {getLocaleLabel(selectedLocale)}
+                  </RawText>
+                  <MdChevronRight color='gray.500' size='1.5em' />
+                </Flex>
+              </SettingsListItem>
+              <Divider my={1} />
+            </>
+          )}
           <SettingsListItem
             label='modals.settings.balanceThreshold'
             icon={<Icon as={FaGreaterThanEqual} color='gray.500' />}

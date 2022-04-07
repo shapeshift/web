@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -18,11 +18,7 @@ import {
   PortfolioAssets,
   PortfolioBalancesById
 } from './portfolioSliceCommon'
-import {
-  findAccountsByAssetId,
-  makeBalancesByChainBucketsFlattened,
-  makeSortedAccountBalances
-} from './utils'
+import { accountIdToFeeAssetId, findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = [
@@ -364,16 +360,32 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
   }
 )
 
-export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector(
+export const selectPortfolioAccountIdsSortedFiat = createSelector(
   selectPortfolioTotalFiatBalanceByAccount,
   selectAssets,
   (totalAccountBalances, assets) => {
-    const sortedAccountBalances = makeSortedAccountBalances(totalAccountBalances)
-    const sortedAccountBalancesByChainBuckets = makeBalancesByChainBucketsFlattened(
-      sortedAccountBalances,
-      assets
+    const sortedAccountBalances = Object.entries(totalAccountBalances)
+      .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
+        bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1
+      )
+      .map(([accountId, _]) => accountId)
+
+    const sortedAccountBalancesByChainBuckets = sortedAccountBalances.reduce(
+      (acc: Record<ChainTypes, CAIP10[]>, accountId) => {
+        const assetId = accountIdToFeeAssetId(accountId)
+        const asset = assets[assetId]
+
+        if (!acc[asset.chain]) {
+          acc[asset.chain] = []
+        }
+
+        acc[asset.chain] = [...acc[asset.chain], accountId]
+        return acc
+      },
+      {} as Record<ChainTypes, CAIP10[]>
     )
-    return sortedAccountBalancesByChainBuckets
+
+    return Object.values(sortedAccountBalancesByChainBuckets).flat()
   }
 )
 
@@ -514,10 +526,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
          * continue to the next asset balance by returning acc
          */
         if (fiatAmount.lt(bnOrZero(balanceThreshold))) return acc
-        const allocation = bnOrZero(fiatAmount.toFixed(2))
-          .div(bnOrZero(totalPortfolioFiatBalance))
-          .times(100)
-          .toNumber()
+        const allocation = fiatAmount.div(bnOrZero(totalPortfolioFiatBalance)).times(100).toNumber()
         const priceChange = marketData[assetId]?.changePercent24Hr
         const data = {
           assetId,

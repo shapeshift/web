@@ -11,18 +11,32 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
-import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
-import { SendFormFields, SendRoutes } from './SendCommon'
+import { SendRoutes } from './SendCommon'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { QrCodeScanner } from './views/QrCodeScanner'
+
+export enum SendFormFields {
+  Address = 'address',
+  EnsName = 'ensName',
+  AccountId = 'accountId',
+  Asset = 'asset',
+  FeeType = 'feeType',
+  EstimatedFees = 'estimatedFees',
+  CryptoAmount = 'cryptoAmount',
+  CryptoSymbol = 'cryptoSymbol',
+  FiatAmount = 'fiatAmount',
+  FiatSymbol = 'fiatSymbol',
+  AmountFieldError = 'amountFieldError',
+  SendMax = 'sendMax'
+}
 
 export type SendInput = {
   [SendFormFields.Address]: string

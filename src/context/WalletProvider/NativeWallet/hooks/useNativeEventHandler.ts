@@ -1,27 +1,27 @@
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import { NativeEvents } from '@shapeshiftoss/hdwallet-native'
 import { Dispatch, useEffect } from 'react'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
-import { InitialState } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { ActionTypes, InitialState } from 'context/WalletProvider/WalletProvider'
 
-type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
+type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 
 export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
-  const { keyring, modal } = state
+  const { nativePassword } = useModal()
+  const { keyring } = state
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       console.info('Native Wallet Event', e)
-      const deviceId = e[0]
       switch (e[1].message_type) {
         case NativeEvents.MNEMONIC_REQUIRED:
-          if (!deviceId) break
-          dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: true, deviceId } })
-
+          if (!nativePassword.isOpen) {
+            nativePassword.open({ deviceId: e[0] })
+          }
           break
         case NativeEvents.READY:
-          if (modal) {
-            dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          if (!nativePassword.isOpen) {
+            nativePassword.close()
           }
           break
         default:
@@ -38,5 +38,5 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
       keyring.off(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.off(['Native', '*', NativeEvents.READY], handleEvent)
     }
-  }, [dispatch, keyring, modal])
+  }, [dispatch, nativePassword, keyring])
 }

@@ -20,9 +20,23 @@ import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
-import { SendFormFields } from './SendCommon'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
+
+export enum SendFormFields {
+  Address = 'address',
+  Memo = 'memo',
+  AccountId = 'accountId',
+  Asset = 'asset',
+  FeeType = 'feeType',
+  EstimatedFees = 'estimatedFees',
+  CryptoAmount = 'cryptoAmount',
+  CryptoSymbol = 'cryptoSymbol',
+  FiatAmount = 'fiatAmount',
+  FiatSymbol = 'fiatSymbol',
+  AmountFieldError = 'amountFieldError',
+  SendMax = 'sendMax'
+}
 
 export type SendInput = {
   [SendFormFields.Address]: string

@@ -298,29 +298,3 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
   return portfolio
 }
-
-export const makeSortedAccountBalances = (totalAccountBalances: {
-  [k: AccountSpecifier]: string
-}) =>
-  Object.entries(totalAccountBalances)
-    .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
-      bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1
-    )
-    .map(([accountId, _]) => accountId)
-
-export const makeBalancesByChainBucketsFlattened = (
-  accountBalances: string[],
-  assets: { [k: CAIP19]: Asset }
-) => {
-  const initial = {} as Record<ChainTypes, CAIP10[]>
-  const balancesByChainBuckets = accountBalances.reduce<Record<ChainTypes, CAIP10[]>>(
-    (acc: Record<ChainTypes, CAIP10[]>, accountId) => {
-      const assetId = accountIdToFeeAssetId(accountId)
-      const asset = assets[assetId]
-      acc[asset.chain] = [...(acc[asset.chain] ?? []), accountId]
-      return acc
-    },
-    initial
-  )
-  return Object.values(balancesByChainBuckets).flat()
-}

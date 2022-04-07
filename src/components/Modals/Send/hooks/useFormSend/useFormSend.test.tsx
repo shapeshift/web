@@ -9,13 +9,12 @@ import {
 import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { EthSend } from 'test/mocks/txs'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
 
-import type { SendInput } from '../../Form'
-import { SendFormFields } from '../../SendCommon'
+import { SendFormFields, SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
 
 jest.mock('@chakra-ui/react', () => ({
@@ -28,8 +27,8 @@ jest.mock('react-polyglot', () => ({
 }))
 
 jest.mock('context/PluginProvider/PluginProvider')
-jest.mock('hooks/useModal/useModal')
-jest.mock('hooks/useWallet/useWallet')
+jest.mock('context/ModalProvider/ModalProvider')
+jest.mock('context/WalletProvider/WalletProvider')
 
 jest.mock('lib/ens')
 

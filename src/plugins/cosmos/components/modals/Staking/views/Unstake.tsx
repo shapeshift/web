@@ -10,64 +10,68 @@ import {
   VStack
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { Asset, MarketData } from '@shapeshiftoss/types'
+import get from 'lodash/get'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
 import { useRef, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetByCAIP19,
-  selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectMarketDataById
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
+import { UnstakingPath } from '../StakingCommon'
 
-// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
-const UNBONDING_DURATION = '21'
+const UNBONDING_DURATION = '14'
 
 export enum InputType {
   Crypto = 'crypto',
   Fiat = 'fiat'
 }
 
+export enum Field {
+  FiatAmount = 'fiatAmount',
+  CryptoAmount = 'cryptoAmount'
+}
+
+export type UnstakingValues = {
+  [Field.FiatAmount]: string
+  [Field.CryptoAmount]: string
+}
+
 type UnstakeProps = {
   apr: string
   assetId: CAIP19
-  accountSpecifier: string
-  validatorAddress: string
+  cryptoAmountStaked: string
+  marketData: MarketData
 }
 
-export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: UnstakeProps) => {
+// TODO: Wire up the whole component with staked data
+export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: UnstakeProps) => {
   const {
+    clearErrors,
     control,
-    formState: { isValid },
+    formState: { errors, isValid },
     handleSubmit,
+    setError,
     setValue
-  } = useFormContext<StakingValues>()
+  } = useForm<UnstakingValues>({
+    mode: 'onChange',
+    defaultValues: {
+      [Field.FiatAmount]: '',
+      [Field.CryptoAmount]: ''
+    }
+  })
 
   const values = useWatch({ control })
-
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const cryptoStakeBalance = useAppSelector(state =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(
-      state,
-      accountSpecifier,
-      validatorAddress,
-      assetId
-    )
-  )
-  const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
-
+  const cryptoError = get(errors, 'cryptoAmount.message', null)
+  const fiatError = get(errors, 'fiatAmount.message', null)
+  const fieldError = cryptoError || fiatError
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
 
@@ -82,7 +86,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
 
   const onSubmit = (_: any) => {
     memoryHistory.push(UnstakingPath.Confirm, {
-      cryptoAmount: bnOrZero(values.cryptoAmount).times(`1e+${asset?.precision}`).toString(),
+      cryptoAmount: bnOrZero(values.cryptoAmount),
       assetId,
       fiatRate: bnOrZero(marketData.price)
     })
@@ -95,17 +99,13 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
   }
 
   const handlePercentClick = (_percent: number) => {
-    if (values.amountFieldError) {
-      setValue(Field.AmountFieldError, '', { shouldValidate: true })
-    }
-
-    const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman).times(_percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+    const cryptoAmount = bnOrZero(cryptoAmountStaked).times(_percent)
+    const fiat = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     } else {
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     }
     setPercent(_percent)
@@ -114,37 +114,30 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
   const handleInputChange = (value: string) => {
     setPercent(null)
     if (activeField === InputType.Crypto) {
-      const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
-      const fiatAmount = bnOrZero(value).times(marketData.price)
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-
-      if (cryptoAmount.gt(cryptoStakeBalanceHuman)) {
-        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
-        return
-      }
+      const fiat = bnOrZero(value).times(marketData.price)
+      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
     } else {
-      const cryptoAmount = bnOrZero(value)
-        .div(marketData.price)
-        .dp(asset.precision, BigNumber.ROUND_DOWN)
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-
-      if (bnOrZero(cryptoAmount).gt(bnOrZero(cryptoStakeBalanceHuman))) {
-        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
-        return
-      }
-    }
-
-    if (values.amountFieldError) {
-      setValue(Field.AmountFieldError, '', { shouldValidate: true })
+      const crypto = bnOrZero(value).div(marketData.price)
+      setValue(Field.CryptoAmount, crypto.toString(), { shouldValidate: true })
     }
   }
 
   const handleInputToggle = () => {
     const field = activeField === InputType.Crypto ? InputType.Fiat : InputType.Crypto
+    if (fieldError) {
+      // Toggles an existing error to the other field if present
+      clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
+      setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
+        message: 'common.insufficientFunds'
+      })
+    }
     setActiveField(field)
   }
-
+  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
+  const asset = (_ => ({
+    name: 'Osmo',
+    symbol: 'OSMO'
+  }))(assetId) as Asset
   return (
     <SlideTransition>
       <Box
@@ -167,11 +160,11 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
             <Text
               lineHeight={1}
               color='gray.500'
-              translation={['staking.assetStakingBalance', { assetSymbol: asset.symbol }]}
+              translation={['staking.assetStakingBalance', { assetName: asset.name }]}
             />
             <Amount.Crypto
               fontWeight='bold'
-              value={bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`).toString()}
+              value={cryptoAmountStaked || ''}
               symbol={asset.symbol}
             />
           </Flex>
@@ -224,7 +217,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
               {`${UNBONDING_DURATION} ${translate('common.days')}`}
             </Box>
             <span> </span>
-            {translate('staking.toUnlock', { assetSymbol: asset.symbol })}
+            {translate('staking.toUnlock')}
           </CText>
 
           <Divider />
@@ -235,13 +228,13 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
                 <Text translation='common.cancel' />
               </Button>
               <Button
-                colorScheme={values.amountFieldError ? 'red' : 'blue'}
+                colorScheme={fieldError ? 'red' : 'blue'}
                 isDisabled={!isValid}
                 mb={2}
                 size='lg'
                 type='submit'
               >
-                <Text translation={values.amountFieldError || 'common.continue'} />
+                <Text translation={fieldError || 'common.continue'} />
               </Button>
             </Stack>
           </ModalFooter>

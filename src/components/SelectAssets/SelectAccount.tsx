@@ -10,7 +10,7 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import { selectAccountIdsByAssetId, selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { SelectAssetRoutes } from './SelectAssetCommon'
+import { SelectAssetRoutes } from './SelectAssetRouter'
 
 type SelectAccountProps = {
   onClick: (asset: Asset, accountId: AccountSpecifier) => void

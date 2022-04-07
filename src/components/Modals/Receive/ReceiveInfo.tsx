@@ -27,12 +27,12 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
-import { ReceiveRoutes } from './ReceiveCommon'
+import { ReceiveRoutes } from './Receive'
 
 type ReceivePropsType = {
   asset: Asset

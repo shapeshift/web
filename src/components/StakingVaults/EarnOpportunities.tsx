@@ -9,8 +9,7 @@ import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -63,8 +62,6 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       state: { background: location }
     })
   }
-
-  if (allRows.length === 0) return null
 
   return (
     <Card>

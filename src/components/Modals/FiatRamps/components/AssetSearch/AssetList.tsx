@@ -3,7 +3,7 @@ import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
 import { FiatRampAction } from '../../const'
-import { GemCurrency } from '../../FiatRampsCommon'
+import { GemCurrency } from '../../FiatRamps'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {

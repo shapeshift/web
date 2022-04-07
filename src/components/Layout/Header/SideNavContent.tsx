@@ -1,7 +1,10 @@
 import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { useModal } from 'hooks/useModal/useModal'
+import { useSelector } from 'react-redux'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { ReduxState } from 'state/reducer'
+import { selectFeatureFlag } from 'state/slices/selectors'
 import { breakpoints } from 'theme/theme'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -17,6 +20,7 @@ type HeaderContentProps = {
 export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const gemRampFlag = useSelector((state: ReduxState) => selectFeatureFlag(state, 'GemRamp'))
   const { settings } = useModal()
 
   return (
@@ -34,9 +38,11 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
           <Flex width='full'>
             <UserMenu />
           </Flex>
-          <Flex width='full' mt={4}>
-            <FiatRamps />
-          </Flex>
+          {gemRampFlag && (
+            <Flex width='full' mt={4}>
+              <FiatRamps />
+            </Flex>
+          )}
           <Box mt={12} width='full'>
             <AutoCompleteSearch />
           </Box>

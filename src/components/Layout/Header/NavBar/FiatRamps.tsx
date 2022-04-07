@@ -1,9 +1,8 @@
 import { Button } from '@chakra-ui/react'
 import { BuySellIcon } from 'components/Icons/BuySell'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 export const FiatRamps = () => {
   const { fiatRamps } = useModal()

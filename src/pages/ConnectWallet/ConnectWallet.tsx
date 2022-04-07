@@ -15,11 +15,9 @@ import OrbsStatic from 'assets/orbs-static.png'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { ActionTypes, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { colors } from 'theme/colors'
 
 async function connectCypressWallet(

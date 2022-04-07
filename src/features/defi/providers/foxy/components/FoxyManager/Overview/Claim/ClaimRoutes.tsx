@@ -5,7 +5,7 @@ import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { ClaimConfirm } from './ClaimConfirm'

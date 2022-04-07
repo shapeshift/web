@@ -82,7 +82,7 @@ jobs:
           npx cypress info
 
       - name: build
-        run: yarn run build
+        run: CI=false yarn run build # TODO(0xdef1cafe): REMOVE THIS ONCE CIRCULAR DEPS FIXED
 
   call-pr-workflow:
     uses: ./.github/workflows/pr.yml

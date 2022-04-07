@@ -16,10 +16,7 @@ export const Account = ({ route }: { route?: Route }) => {
   const parsedAccountId = decodeURIComponent(accountId)
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
-
-  return (
-    feeAsset && (
-      <AssetAccountDetails assetId={feeAsset.caip19} accountId={accountId} route={route} />
-    )
+  return !feeAsset ? null : (
+    <AssetAccountDetails assetId={feeAsset.caip19} accountId={accountId} route={route} />
   )
 }

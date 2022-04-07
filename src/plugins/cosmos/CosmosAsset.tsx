@@ -14,14 +14,13 @@ import { CosmosAssetAccountDetails } from './CosmosAssetAccountDetails'
 
 export type MatchParams = {
   assetSubId: string
-  chainRef: string
 }
 
-export const CosmosAsset = () => {
+export const CosmosAsset = (props: { chainId: string }) => {
   const dispatch = useAppDispatch()
 
-  const { chainRef, assetSubId } = useParams<MatchParams>()
-  const assetId = `cosmos:${chainRef}/${assetSubId}`
+  const { assetSubId } = useParams<MatchParams>()
+  const assetId = `${props.chainId}/${assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 

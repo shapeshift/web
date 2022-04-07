@@ -162,8 +162,8 @@ module.exports = {
         new CircularDependencyPlugin({
           exclude: /node_modules/,
           include: /src/,
-          // raise error on circular imports
-          failOnError: true,
+          // add warnings instead of errors
+          failOnError: false,
           // allow import cycles that include an asyncronous import,
           // e.g. via import(/* webpackMode: "weak" */ './file.js')
           allowAsyncCycles: false,

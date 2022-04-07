@@ -1,7 +1,7 @@
 import { chainAdapters } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

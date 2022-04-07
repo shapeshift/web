@@ -30,7 +30,6 @@ import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectAccountIdByAddress,
   selectPortfolioAccountIdsSortedFiat,
-  selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
@@ -726,49 +725,6 @@ describe('portfolioSlice', () => {
         const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, ethAccountId)
 
         expect(result).toEqual(expected)
-      })
-    })
-
-    describe('selectPortfolioAccountRows', () => {
-      const store = createStore()
-      const { ethAccount } = mockETHandBTCAccounts({
-        ethAccountObj: {
-          balance: '0',
-          chainSpecific: {
-            tokens: [
-              mockEthToken({ balance: '123456123456315537', caip19: foxCaip19 }),
-              mockEthToken({ balance: '0', caip19: usdcCaip19 })
-            ]
-          }
-        }
-      })
-
-      // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount], assetIds))
-      )
-
-      // dispatch market data
-      const ethMarketData = mockMarketData({ price: '1000' })
-      const foxMarketData = mockMarketData({ price: '31.39' })
-      const usdcMarketData = mockMarketData({ price: '1' })
-
-      store.dispatch(
-        marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData
-        })
-      )
-
-      // dispatch asset data
-      const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
-      const state = store.getState()
-
-      it('should return correct portfolio rows in case of 100% allocation on one asset', () => {
-        const result = selectPortfolioAccountRows(state)
-        expect(result).toMatchSnapshot()
       })
     })
   })

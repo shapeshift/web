@@ -2,16 +2,13 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import {
   setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId
 } from 'context/WalletProvider/local-wallet'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
-import { useWallet } from 'hooks/useWallet/useWallet'
-
-import { NativeConfig } from '../config'
 
 export type UseNativeSuccessPropTypes = { vault: Vault }
 
@@ -33,7 +30,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         )) as native.crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
         await wallet.loadDevice({ mnemonic, deviceId })
-        const { name, icon } = NativeConfig
+        const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
         const walletLabel = vault.meta.get('name') as string
         dispatch({
           type: WalletActions.SET_WALLET,

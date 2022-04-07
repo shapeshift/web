@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
-import { FiatRampAction } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRamps'
 
 export const FiatRampActionButtons = ({
   action,

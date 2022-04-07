@@ -1,4 +1,5 @@
-import { cssVar, mode } from '@chakra-ui/theme-tools'
+import { cssVar, getColor, mode } from '@chakra-ui/theme-tools'
+import { theme } from 'theme/theme'
 
 const $popperBg = cssVar('popper-bg')
 const $arrowBg = cssVar('popper-arrow-bg')
@@ -8,7 +9,7 @@ export const PopoverStyle = {
   // Styles for the base style
   baseStyle: (props: Record<string, any>) => ({
     content: {
-      [$popperBg.variable]: mode('white', 'gray.750')(props),
+      [$popperBg.variable]: mode(getColor(theme, 'white'), getColor(theme, 'gray.750'))(props),
       [$arrowBg.variable]: $popperBg.reference,
       borderRadius: 'xl',
       bg: $popperBg.reference,

@@ -1,20 +1,19 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Text as CText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
+import osmosis from 'assets/osmosis.svg'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card, CardProps } from 'components/Card/Card'
 
 type AssetHoldingsCardProps = {
   assetSymbol: string
-  assetIcon: string
   cryptoAmountAvailable: string
   fiatAmountAvailable: string
 } & CardProps
 
 export const AssetHoldingsCard = ({
   assetSymbol,
-  assetIcon,
   cryptoAmountAvailable,
   fiatAmountAvailable,
   ...styleProps
@@ -25,7 +24,7 @@ export const AssetHoldingsCard = ({
     <Card size='sm' width='full' variant='group' {...styleProps}>
       <Card.Body>
         <Flex alignItems='center'>
-          <AssetIcon src={assetIcon} boxSize='40px' />
+          <AssetIcon src={osmosis} boxSize='40px' />
           <Box ml={2}>
             <CText fontWeight='bold' lineHeight='1' mb={1}>
               {assetSymbol}

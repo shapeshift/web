@@ -1,25 +1,25 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Column, Row, TableState, useSortBy, useTable } from 'react-table'
+import { Column, TableState, useSortBy, useTable } from 'react-table'
 
-type ReactTableProps<T extends {}> = {
-  columns: Column<T>[]
-  data: T[]
+type ReactTableProps = {
+  columns: Column<any>[]
+  data: object[]
   displayHeaders?: boolean
-  onRowClick?: (row: Row<T>) => void
-  initialState?: Partial<TableState<{}>>
+  onRowClick?: () => void
+  initialState?: Partial<TableState<object>>
 }
 
-export const ReactTable = <T extends {}>({
+export const ReactTable = ({
   columns,
   data,
   displayHeaders = true,
   onRowClick,
   initialState
-}: ReactTableProps<T>) => {
+}: ReactTableProps) => {
   const hoverColor = useColorModeValue('black', 'white')
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable<T>(
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
       data,
@@ -31,7 +31,7 @@ export const ReactTable = <T extends {}>({
     return rows.map(row => {
       prepareRow(row)
       return (
-        <Tr {...row.getRowProps()} tabIndex={row.index} onClick={() => onRowClick?.(row)}>
+        <Tr {...row.getRowProps()} tabIndex={row.index} onClick={() => onRowClick && onRowClick()}>
           {row.cells.map(cell => (
             <Td {...cell.getCellProps()} display={cell.column.display}>
               {cell.render('Cell')}

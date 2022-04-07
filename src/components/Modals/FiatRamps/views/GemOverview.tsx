@@ -20,11 +20,11 @@ import { useParams } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { FiatRampAction, GemCurrency } from '../FiatRampsCommon'
+import { FiatRampAction, GemCurrency } from '../FiatRamps'
 import { getAssetLogoUrl, makeGemPartnerUrl, middleEllipsis } from '../utils'
 
 type GemOverviewProps = {

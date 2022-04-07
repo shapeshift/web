@@ -19,15 +19,13 @@ import { RouteComponentProps } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import {
   setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId
 } from 'context/WalletProvider/local-wallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
-import { NativeConfig } from '../config'
+import { KeyManager, SUPPORTED_WALLETS } from '../../config'
 
 type VaultInfo = {
   id: string
@@ -72,7 +70,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     const adapter = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
     if (adapter) {
-      const { name, icon } = NativeConfig
+      const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
       try {
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet.isInitialized())) {
@@ -87,9 +85,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
-        history.push('/native/enter-password', { deviceId })
         // Always close the modal after trying to pair the wallet
-        // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         setLocalNativeWalletName(item.name)
       } catch (e) {

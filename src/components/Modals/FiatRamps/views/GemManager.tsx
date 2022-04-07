@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react'
 import { matchPath, MemoryRouter, Redirect, Route, Switch } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
 
-import { FiatRampAction, GemCurrency } from '../FiatRampsCommon'
+import { FiatRampAction, GemCurrency } from '../FiatRamps'
 import { AssetSelect } from './AssetSelect'
 import { GemOverview } from './GemOverview'
 

@@ -14,26 +14,6 @@ import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
-export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
-  const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
-  const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
-  const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
-  let columns = '1fr'
-  let dateFormat = 'MM/DD/YYYY hh:mm A'
-
-  if (isLargerThanSm) {
-    columns = '1fr 2fr'
-    dateFormat = 'hh:mm A'
-  }
-  if (isLargerThanMd) {
-    columns = '1fr 2fr'
-  }
-  if (isLargerThanLg) {
-    columns = '1fr 2fr 1fr 1fr'
-  }
-  return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
-}
-
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
     case chainAdapters.TxType.Send:
@@ -88,11 +68,23 @@ export const TransactionGenericRow = ({
   isFirstAssetOutgoing = false,
   parentWidth
 }: TransactionGenericRowProps) => {
-  const {
-    columns,
-    dateFormat,
-    breakPoints: [isLargerThanLg]
-  } = GetTxLayoutFormats({ parentWidth })
+  const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
+  const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
+  const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
+
+  let columns = '1fr'
+  let dateFormat = 'MM/DD/YYYY hh:mm A'
+
+  if (isLargerThanSm) {
+    columns = '1fr 2fr'
+    dateFormat = 'hh:mm A'
+  }
+  if (isLargerThanMd) {
+    columns = '1fr 2fr'
+  }
+  if (isLargerThanLg) {
+    columns = '1fr 2fr 1fr 1fr'
+  }
   return (
     <Button
       height='auto'

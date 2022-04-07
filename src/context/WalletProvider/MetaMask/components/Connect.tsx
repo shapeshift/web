@@ -2,15 +2,13 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
-import { MetaMaskConfig } from '../config'
+import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 
 export interface MetaMaskSetupProps
   extends RouteComponentProps<
@@ -55,7 +53,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         throw new Error('Call to hdwallet-metamask::pairDevice returned null or undefined')
       }
 
-      const { name, icon } = MetaMaskConfig
+      const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
       try {
         const deviceId = await wallet.getDeviceID()
 

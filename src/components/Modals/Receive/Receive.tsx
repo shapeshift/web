@@ -1,11 +1,15 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
-import { useModal } from 'hooks/useModal/useModal'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
-import { ReceiveRoutes } from './ReceiveCommon'
 import { ReceiveRouter } from './ReceiveRouter'
+
+export enum ReceiveRoutes {
+  Info = '/receive/info',
+  Select = '/receive/select'
+}
 
 export const entries = [ReceiveRoutes.Info, ReceiveRoutes.Select]
 

@@ -23,11 +23,10 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { useModal } from 'hooks/useModal/useModal'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
-import type { SendInput } from '../Form'
+import { SendFormFields, SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
-import { SendFormFields } from '../SendCommon'
 import { SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 

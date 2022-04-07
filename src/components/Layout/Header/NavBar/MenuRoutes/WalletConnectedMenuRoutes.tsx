@@ -1,6 +1,7 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Flex } from '@chakra-ui/react'
+import { AnimatePresence } from 'framer-motion'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useLocation } from 'react-router-dom'
@@ -15,6 +16,8 @@ import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
+
+import { SubMenuContainer } from '../SubMenuContainer'
 
 export const WalletConnectedMenuRoutes = ({
   onDisconnect,
@@ -32,43 +35,47 @@ export const WalletConnectedMenuRoutes = ({
 
   const connectedMenu = () => {
     return (
-      <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
-        <MenuItem
-          closeOnSelect={!keepKeyWallet}
-          onClick={
-            keepKeySettingsFlag && keepKeyWallet
-              ? () => navigateToRoute(WalletConnectedRoutes.KeepKey)
-              : undefined
-          }
-          icon={<WalletImage walletInfo={walletInfo} />}
-        >
-          <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-            <RawText>{walletInfo?.name}</RawText>
-            {!isConnected && (
-              <Text
-                translation={'connectWallet.menu.disconnected'}
-                fontSize='sm'
-                color='yellow.500'
-              />
-            )}
-            {keepKeySettingsFlag && keepKeyWallet && <ChevronRightIcon />}
-          </Flex>
-        </MenuItem>
-        <MenuDivider ml={3} />
-        <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
-          {translate('connectWallet.menu.switchWallet')}
-        </MenuItem>
-        <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={onDisconnect} color='red.500'>
-          {translate('connectWallet.menu.disconnect')}
-        </MenuItem>
-      </MenuGroup>
+      <SubMenuContainer>
+        <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
+          <MenuItem
+            closeOnSelect={!keepKeyWallet}
+            onClick={
+              keepKeySettingsFlag && keepKeyWallet
+                ? () => navigateToRoute(WalletConnectedRoutes.KeepKey)
+                : undefined
+            }
+            icon={<WalletImage walletInfo={walletInfo} />}
+          >
+            <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
+              <RawText>{walletInfo?.name}</RawText>
+              {!isConnected && (
+                <Text
+                  translation={'connectWallet.menu.disconnected'}
+                  fontSize='sm'
+                  color='yellow.500'
+                />
+              )}
+              {keepKeySettingsFlag && keepKeyWallet && <ChevronRightIcon />}
+            </Flex>
+          </MenuItem>
+          <MenuDivider ml={3} />
+          <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
+            {translate('connectWallet.menu.switchWallet')}
+          </MenuItem>
+          <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={onDisconnect} color='red.500'>
+            {translate('connectWallet.menu.disconnect')}
+          </MenuItem>
+        </MenuGroup>
+      </SubMenuContainer>
     )
   }
 
   return (
-    <Switch location={location} key={location.key}>
-      <Route exact path={WalletConnectedRoutes.Connected} component={connectedMenu} />
-      <KeepKeyMenuRoutes />
-    </Switch>
+    <AnimatePresence exitBeforeEnter initial={false}>
+      <Switch location={location} key={location.key}>
+        <Route exact path={WalletConnectedRoutes.Connected} component={connectedMenu} />
+        <KeepKeyMenuRoutes />
+      </Switch>
+    </AnimatePresence>
   )
 }

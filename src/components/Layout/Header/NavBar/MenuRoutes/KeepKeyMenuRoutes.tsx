@@ -13,6 +13,7 @@ import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/Change
 import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
+import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
@@ -57,7 +58,7 @@ export const KeepKeyMenuRoutes = () => {
 
   const keepKeyMenu = () => {
     const keepKeyStateLoading = (
-      <>
+      <SubMenuContainer>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
           <Flex ml={3}>
@@ -74,11 +75,11 @@ export const KeepKeyMenuRoutes = () => {
             </Flex>
           </Flex>
         </MenuGroup>
-      </>
+      </SubMenuContainer>
     )
 
     const keepKeyStateLoaded = keepKeyWallet?.features && (
-      <>
+      <SubMenuContainer>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
           <Flex ml={3}>
@@ -155,7 +156,7 @@ export const KeepKeyMenuRoutes = () => {
             {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
           </MenuItem>
         </MenuGroup>
-      </>
+      </SubMenuContainer>
     )
     return keepKeyStateLoaded || keepKeyStateLoading
   }

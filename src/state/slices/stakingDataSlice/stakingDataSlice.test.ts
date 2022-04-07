@@ -32,7 +32,7 @@ describe('stakingDataSlice', () => {
     clearState()
   })
 
-  it('returns empty object for initialState', async () => {
+  it('returns uninitialized properties for initialState', async () => {
     expect(store.getState().stakingData).toEqual({
       byAccountSpecifier: {},
       byValidator: {},
@@ -133,6 +133,10 @@ describe('stakingDataSlice', () => {
           })
         )
 
+        expect(
+          store.getState().stakingData.byAccountSpecifier[cosmosAccountSpecifier]
+        ).toMatchSnapshot()
+        expect(store.getState().stakingData.byValidator).toMatchSnapshot()
         store.dispatch(stakingData.actions.clear())
 
         expect(store.getState().stakingData).toEqual({
@@ -147,7 +151,7 @@ describe('stakingDataSlice', () => {
 
   describe('selectors', () => {
     describe('selectActiveStakingOpportunityDataByAssetId', () => {
-      it('returns empty array when state is empty', async () => {
+      it('returns empty array on initial state', async () => {
         const selected = selectActiveStakingOpportunityDataByAssetId(
           store.getState(),
           cosmosAccountSpecifier,
@@ -183,7 +187,7 @@ describe('stakingDataSlice', () => {
           )
         })
 
-        it('returns correct array', async () => {
+        it('returns correct array with delegations, undelegations, redelegations and rewards', async () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
@@ -237,7 +241,7 @@ describe('stakingDataSlice', () => {
     })
 
     describe('selectNonloadedValidators', () => {
-      it('returns empty array when state is empty', async () => {
+      it('returns empty array on initial state', async () => {
         const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
         expect(selected).toEqual([])
       })
@@ -297,7 +301,7 @@ describe('stakingDataSlice', () => {
     })
 
     describe('selectSingleValidator', () => {
-      it('returns null when state is empty', async () => {
+      it('returns null on initial state', async () => {
         const selected = selectSingleValidator(
           store.getState(),
           cosmosAccountSpecifier,
@@ -315,7 +319,7 @@ describe('stakingDataSlice', () => {
           )
         })
 
-        it('returns null when validator address is unknown', async () => {
+        it('returns null when validator data is not present in state', async () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
@@ -331,7 +335,7 @@ describe('stakingDataSlice', () => {
           expect(selected).toBeNull()
         })
 
-        it('returns validator info when validator address is known', async () => {
+        it('returns validator info when validator data is present in state', async () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
@@ -348,14 +352,15 @@ describe('stakingDataSlice', () => {
             address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
             apr: '0.1496681491',
             commission: '0.100000000000000000',
-            moniker: 'ShapeShift DAO'
+            moniker: 'ShapeShift DAO',
+            tokens: '11115'
           })
         })
       })
     })
 
     describe('selectRewardsAmountByAssetId', () => {
-      it('returns empty string when state is empty', async () => {
+      it('returns empty string on initial state', async () => {
         const selected = selectRewardsAmountByAssetId(
           store.getState(),
           cosmosAccountSpecifier,
@@ -380,7 +385,7 @@ describe('stakingDataSlice', () => {
           )
         })
 
-        it('returns empty string when there is no reward', async () => {
+        it('returns empty string when there is no reward data', async () => {
           const selected = selectRewardsAmountByAssetId(
             store.getState(),
             cosmosAccountSpecifier,
@@ -411,7 +416,7 @@ describe('stakingDataSlice', () => {
     })
 
     describe('selectTotalBondingsBalanceByAssetId', () => {
-      it('returns 0 when state is empty', async () => {
+      it('returns \'0\' on initial state', async () => {
         const selected = selectTotalBondingsBalanceByAssetId(
           store.getState(),
           cosmosAccountSpecifier,
@@ -457,7 +462,7 @@ describe('stakingDataSlice', () => {
     })
 
     describe('selectTotalStakingDelegationCryptoByAccountSpecifier', () => {
-      it('returns 0 when state is empty', async () => {
+      it('returns 0 on initial state', async () => {
         const selected = selectTotalStakingDelegationCryptoByAccountSpecifier(
           store.getState(),
           cosmosAccountSpecifier

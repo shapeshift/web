@@ -18,7 +18,5 @@ export const CosmosAccount = () => {
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
 
-  return !feeAsset ? null : (
-    <CosmosAssetAccountDetails assetId={feeAsset.caip19} accountId={accountId} />
-  )
+  return feeAsset && <CosmosAssetAccountDetails assetId={feeAsset.caip19} accountId={accountId} />
 }

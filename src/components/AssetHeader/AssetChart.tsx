@@ -1,7 +1,6 @@
 import {
   Alert,
   AlertDescription,
-  AlertIcon,
   Box,
   Button,
   ButtonGroup,
@@ -34,7 +33,11 @@ import {
   selectTotalCryptoBalanceWithDelegations,
   selectTotalFiatBalanceWithDelegations
 } from 'state/slices/portfolioSlice/selectors'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectTotalStakingDelegationCryptoByFilter
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
@@ -73,7 +76,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectTotalCryptoBalanceWithDelegations(state, filter)
   )
 
-  const delegationBalance = '100' // TODO get from selector
+  const delegationBalance = useAppSelector(state =>
+    selectTotalStakingDelegationCryptoByFilter(state, filter)
+  )
 
   return (
     <Card>
@@ -102,7 +107,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
-                value={view === View.Price ? assetPrice : fiatBalanceWithDelegations}
+                value={view === View.Price ? assetPrice : toFiat(fiatBalanceWithDelegations)}
                 displayType={'text'}
                 thousandSeparator={true}
                 isNumericString={true}

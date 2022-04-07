@@ -104,16 +104,17 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   selectStakingDataByFilter,
   selectAssetIdParamFromFilterOptional,
   selectAccountIdParamFromFilterOptional,
+  (state: ReduxState) => state.assets.byId,
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  (stakingData, _, __) => {
+  (stakingData, assetId, _, assets) => {
     const amount = reduce(
       stakingData?.delegations,
       (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
       bn(0)
     )
 
-    return amount.toString()
+    return fromBaseUnit(amount, assets[assetId].precision ?? 0).toString()
   }
 )
 

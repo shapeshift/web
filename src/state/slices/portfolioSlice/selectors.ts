@@ -199,7 +199,7 @@ export const selectTotalFiatBalanceWithDelegations = createSelector(
   (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
     const price = marketData[assetId]?.price
     const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
-      .plus(bnOrZero(delegationCryptoBalance).dividedBy(bnOrZero(10).exponentiatedBy(6)))
+      .plus(delegationCryptoBalance)
       .toString()
 
     return bnOrZero(cryptoBalanceWithDelegations).times(price).toString()
@@ -211,7 +211,7 @@ export const selectTotalCryptoBalanceWithDelegations = createSelector(
   selectTotalStakingDelegationCryptoByFilter,
   (cryptoBalance, delegationCryptoBalance): string => {
     const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
-      .plus(bnOrZero(delegationCryptoBalance).dividedBy(bnOrZero(10).exponentiatedBy(6)))
+      .plus(delegationCryptoBalance)
       .toString()
 
     return bnOrZero(cryptoBalanceWithDelegations).toString()

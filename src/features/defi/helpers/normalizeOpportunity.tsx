@@ -182,8 +182,8 @@ type NormalizeOpportunitiesProps = {
 export const useNormalizeOpportunities = ({
   vaultArray,
   foxyArray,
-  cosmosActiveStakingArray,
-  cosmosStakingArray
+  cosmosActiveStakingArray = [],
+  cosmosStakingArray = []
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
     ...useTransformCosmosStaking(cosmosActiveStakingArray, cosmosStakingArray),

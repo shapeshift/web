@@ -1,5 +1,5 @@
 import { FlexProps } from '@chakra-ui/layout'
-import { Button } from '@chakra-ui/react'
+import { Button, ButtonProps } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { ClaimPath } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useHistory } from 'react-router-dom'
@@ -10,7 +10,11 @@ type ClaimButtonProps = {
   validatorAddress: string
 }
 
-export const ClaimButton = ({ assetId, validatorAddress }: ClaimButtonProps & FlexProps) => {
+export const ClaimButton = ({
+  assetId,
+  validatorAddress,
+  ...props
+}: ClaimButtonProps & FlexProps & ButtonProps) => {
   const history = useHistory()
 
   const handleClaimClick = () => {
@@ -27,6 +31,7 @@ export const ClaimButton = ({ assetId, validatorAddress }: ClaimButtonProps & Fl
       px='20px'
       colorScheme='green'
       variant='ghost-filled'
+      {...props}
     >
       <Text translation={'defi.claim'} fontWeight='bold' fontSize='16' />
     </Button>

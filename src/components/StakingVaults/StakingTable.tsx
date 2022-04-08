@@ -81,7 +81,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showTeaser]
+    [showTeaser, onClick]
   )
 
   return <ReactTable data={data} columns={columns} />

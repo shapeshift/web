@@ -415,7 +415,7 @@ describe('stakingDataSlice', () => {
     })
 
     describe('selectTotalBondingsBalanceByAssetId', () => {
-      it('returns \'0\' on initial state', async () => {
+      it("returns '0' on initial state", async () => {
         const selected = selectTotalBondingsBalanceByAssetId(
           store.getState(),
           cosmosAccountSpecifier,

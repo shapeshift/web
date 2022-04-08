@@ -35,7 +35,7 @@ export const Approve = ({
   loadingText,
   preFooter,
   onCancel,
-  onConfirm
+  onConfirm,
 }: ApproveProps) => {
   const translate = useTranslate()
   return (

@@ -5,7 +5,7 @@ import {
   Modal,
   ModalCloseButton,
   ModalContent,
-  ModalOverlay
+  ModalOverlay,
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'

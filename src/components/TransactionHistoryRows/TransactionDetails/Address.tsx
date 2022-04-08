@@ -4,7 +4,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 export const Address = ({
   explorerAddressLink,
   address,
-  ens
+  ens,
 }: {
   explorerAddressLink?: string
   address: string

@@ -13,13 +13,13 @@ export enum ContractMethod {
   Withdraw = 'withdraw',
   AddLiquidityEth = 'addLiquidityETH',
   RemoveLiquidityEth = 'removeLiquidityETH',
-  TransferOut = 'transferOut'
+  TransferOut = 'transferOut',
 }
 
 export enum Direction {
   InPlace = 'in-place',
   Outbound = 'outbound',
-  Inbound = 'inbound'
+  Inbound = 'inbound',
 }
 
 export interface TxDetails {
@@ -69,7 +69,7 @@ export const isSupportedContract = (tx: Tx) =>
  */
 export const isTradeContract = (
   buyTransfer: chainAdapters.TxTransfer,
-  sellTransfer: chainAdapters.TxTransfer
+  sellTransfer: chainAdapters.TxTransfer,
 ): boolean => {
   return sellTransfer.from === buyTransfer.to && sellTransfer.to !== buyTransfer.from
 }
@@ -101,7 +101,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   })()
 
   const standardAsset = useAppSelector((state: ReduxState) =>
-    selectAssetByCAIP19(state, standardTx?.caip19 ?? '')
+    selectAssetByCAIP19(state, standardTx?.caip19 ?? ''),
   )
 
   // stables need precision of eth (18) rather than 10
@@ -110,10 +110,10 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTransfer?.caip19 ?? ''))
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
   const sourceMarketData = useAppSelector(state =>
-    selectMarketDataById(state, sellTransfer?.caip19 ?? '')
+    selectMarketDataById(state, sellTransfer?.caip19 ?? ''),
   )
   const destinationMarketData = useAppSelector(state =>
-    selectMarketDataById(state, buyTransfer?.caip19 ?? '')
+    selectMarketDataById(state, buyTransfer?.caip19 ?? ''),
   )
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, tx.fee?.caip19 ?? ''))
 
@@ -170,6 +170,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     direction,
     sourceMarketData,
     destinationMarketData,
-    feeMarketData
+    feeMarketData,
   }
 }

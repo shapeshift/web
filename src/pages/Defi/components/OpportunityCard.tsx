@@ -8,7 +8,7 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes } from '@shapeshiftoss/types'
@@ -16,7 +16,7 @@ import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   chainTypeToAssetNamespace,
-  chainTypeToMainNetNetworkType
+  chainTypeToMainNetNetworkType,
 } from 'features/defi/helpers/utils'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
@@ -46,7 +46,7 @@ export const OpportunityCard = ({
   cryptoAmount,
   fiatAmount,
   expired,
-  moniker
+  moniker,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
@@ -57,7 +57,7 @@ export const OpportunityCard = ({
     chain,
     network,
     assetNamespace,
-    assetReference: tokenAddress
+    assetReference: tokenAddress,
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const { cosmosStaking } = useModal()
@@ -65,7 +65,7 @@ export const OpportunityCard = ({
 
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
 
   const handleClick = () => {
@@ -73,7 +73,7 @@ export const OpportunityCard = ({
       if (isCosmosStaking) {
         cosmosStaking.open({
           assetId: assetCAIP19,
-          validatorAddress: contractAddress
+          validatorAddress: contractAddress,
         })
         return
       }
@@ -83,9 +83,9 @@ export const OpportunityCard = ({
           chain,
           contractAddress,
           tokenId: tokenAddress,
-          rewardId: rewardAddress
+          rewardId: rewardAddress,
         }),
-        state: { background: location }
+        state: { background: location },
       })
       return
     }

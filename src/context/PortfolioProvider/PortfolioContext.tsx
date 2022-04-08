@@ -2,14 +2,14 @@ import { AssetNamespace, AssetReference, caip2, caip19 } from '@shapeshiftoss/ca
 import {
   convertXpubVersion,
   toRootDerivationPath,
-  utxoAccountParams
+  utxoAccountParams,
 } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
   supportsBTC,
   supportsCosmos,
   supportsETH,
-  supportsOsmosis
+  supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
@@ -19,7 +19,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   AccountSpecifierMap,
-  accountSpecifiers
+  accountSpecifiers,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -29,7 +29,7 @@ import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectAssets,
-  selectPortfolioAssetIds
+  selectPortfolioAssetIds,
 } from 'state/slices/selectors'
 
 /**
@@ -46,7 +46,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const dispatch = useDispatch()
   const chainAdapter = useChainAdapters()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
@@ -73,7 +73,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
       // forceRefetch is enabled here to make sure that we always have the latest wallet information
       // it also forces queryFn to run and that's needed for the wallet info to be dispatched
       dispatch(
-        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
+        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }),
       )
     })
   }, [dispatch, accountSpecifiersList])
@@ -116,7 +116,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
                 chain,
                 network: NetworkTypes.MAINNET,
                 assetNamespace: AssetNamespace.Slip44,
-                assetReference: AssetReference.Bitcoin
+                assetReference: AssetReference.Bitcoin,
               })
               const bitcoin = assetsById[CAIP19]
 
@@ -129,8 +129,8 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
                     coin: adapter.getType(),
                     addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                     curve: 'secp256k1',
-                    scriptType
-                  }
+                    scriptType,
+                  },
                 ])
                 if (!pubkeys?.[0]?.xpub) {
                   throw new Error(`usePubkeys: error getting bitcoin xpub`)

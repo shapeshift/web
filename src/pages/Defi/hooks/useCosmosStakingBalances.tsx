@@ -5,7 +5,7 @@ import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAccountSpecifier,
   selectAssetByCAIP19,
-  selectMarketDataById
+  selectMarketDataById,
 } from 'state/slices/selectors'
 import {
   ActiveStakingOpportunity,
@@ -13,7 +13,7 @@ import {
   selectNonloadedValidators,
   selectSingleValidator,
   selectStakingDataIsLoaded,
-  selectValidatorIsLoaded
+  selectValidatorIsLoaded,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -47,7 +47,7 @@ export type MergedStakingOpportunity = chainAdapters.cosmos.Validator & {
 }
 
 export function useCosmosStakingBalances({
-  assetId
+  assetId,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const isStakingDataLoaded = useAppSelector(selectStakingDataIsLoaded)
   const isValidatorDataLoaded = useAppSelector(selectValidatorIsLoaded)
@@ -64,23 +64,23 @@ export function useCosmosStakingBalances({
       state,
       accountSpecifier,
       SHAPESHIFT_VALIDATOR_ADDRESS,
-      asset.caip19
-    )
+      asset.caip19,
+    ),
   )
 
   const shapeshiftValidator = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
+    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS),
   )
   const stakingOpportunities = useMemo(() => {
     return [
       {
-        ...shapeshiftValidator
-      }
+        ...shapeshiftValidator,
+      },
     ]
   }, [shapeshiftValidator])
 
   const nonLoadedValidators = useAppSelector(state =>
-    selectNonloadedValidators(state, accountSpecifier)
+    selectNonloadedValidators(state, accountSpecifier),
   )
 
   const chainId = asset.caip2
@@ -106,7 +106,7 @@ export function useCosmosStakingBalances({
         fiatAmount,
         chain: asset.chain,
         assetId,
-        tokenAddress: asset.slip44.toString()
+        tokenAddress: asset.slip44.toString(),
       }
       return data
     })
@@ -123,7 +123,7 @@ export function useCosmosStakingBalances({
         tvl,
         chain: asset.chain,
         assetId,
-        tokenAddress: asset.slip44.toString()
+        tokenAddress: asset.slip44.toString(),
       }
       return data
     })
@@ -135,9 +135,9 @@ export function useCosmosStakingBalances({
         (acc: BigNumber, opportunity: MergedActiveStakingOpportunity) => {
           return acc.plus(bnOrZero(opportunity.fiatAmount))
         },
-        bnOrZero(0)
+        bnOrZero(0),
       ),
-    [mergedActiveStakingOpportunities]
+    [mergedActiveStakingOpportunities],
   )
 
   useEffect(() => {
@@ -147,8 +147,8 @@ export function useCosmosStakingBalances({
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
           { accountSpecifier },
-          { forceRefetch: true }
-        )
+          { forceRefetch: true },
+        ),
       )
     })()
   }, [accountSpecifier, isStakingDataLoaded, dispatch])
@@ -158,7 +158,7 @@ export function useCosmosStakingBalances({
       if (isValidatorDataLoaded) return
 
       dispatch(
-        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId }, { forceRefetch: true })
+        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId }, { forceRefetch: true }),
       )
     })()
   }, [isValidatorDataLoaded, dispatch, chainId])
@@ -171,8 +171,8 @@ export function useCosmosStakingBalances({
         dispatch(
           stakingDataApi.endpoints.getValidatorData.initiate(
             { chainId, validatorAddress },
-            { forceRefetch: true }
-          )
+            { forceRefetch: true },
+          ),
         )
       })
     })()
@@ -182,6 +182,6 @@ export function useCosmosStakingBalances({
     activeStakingOpportunities: mergedActiveStakingOpportunities,
     stakingOpportunities: mergedStakingOpportunities,
     isLoaded,
-    totalBalance: totalBalance.toString()
+    totalBalance: totalBalance.toString(),
   }
 }

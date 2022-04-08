@@ -19,7 +19,7 @@ export const UnbondingRow = ({
   assetSymbol,
   cryptoUnbondedAmount,
   fiatRate,
-  unbondingEnd
+  unbondingEnd,
 }: UnbondingRowProps) => {
   const bg = useColorModeValue('gray.50', 'gray.750')
   return (
@@ -33,7 +33,7 @@ export const UnbondingRow = ({
               <Text
                 translation={[
                   'defi.available',
-                  { unbondingEnd: dayjs().to(dayjs.unix(unbondingEnd)) }
+                  { unbondingEnd: dayjs().to(dayjs.unix(unbondingEnd)) },
                 ]}
                 lineHeight='1.2'
                 color='gray.500'

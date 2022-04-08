@@ -15,7 +15,7 @@ export const TransactionReceive = ({
   compactMode,
   toggleOpen,
   isOpen,
-  parentWidth
+  parentWidth,
 }: TransactionRowProps) => {
   return (
     <>

@@ -22,8 +22,8 @@ const cryptoInputValidation = {
     validateCryptoAmount: (_: string) => {
       // TODO: Implement when we have cosmos/osmosis balance data
       return true
-    }
-  }
+    },
+  },
 }
 const fiatInputValidation = {
   required: true,
@@ -31,8 +31,8 @@ const fiatInputValidation = {
     validateFiatAmount: (_: string) => {
       // TODO: Implement when we have cosmos/osmosis balance data
       return true
-    }
-  }
+    },
+  },
 }
 const CryptoInput = (props: any) => (
   <Input
@@ -60,7 +60,7 @@ export const StakingInput = ({
   ...styleProps
 }: StakingInputProps & FlexProps) => {
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const wrapperBgColor = useColorModeValue('gray.50', 'gray.850')
   const tagBgColor = useColorModeValue('gray.200', 'gray.750')

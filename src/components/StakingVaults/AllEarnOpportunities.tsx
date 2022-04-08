@@ -4,7 +4,7 @@ import { ChainTypes } from '@shapeshiftoss/types'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
-  useNormalizeOpportunities
+  useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback } from 'react'
@@ -29,12 +29,12 @@ export const AllEarnOpportunities = () => {
   const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
   const { activeStakingOpportunities, stakingOpportunities } = useCosmosStakingBalances({
-    assetId: 'cosmos:cosmoshub-4/slip44:118'
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
@@ -47,7 +47,7 @@ export const AllEarnOpportunities = () => {
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
     cosmosActiveStakingArray,
-    cosmosStakingArray
+    cosmosStakingArray,
   })
 
   const handleClick = useCallback(
@@ -60,7 +60,7 @@ export const AllEarnOpportunities = () => {
         tokenAddress,
         rewardAddress,
         assetId,
-        cryptoAmount
+        cryptoAmount,
       } = opportunity
       if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -71,7 +71,7 @@ export const AllEarnOpportunities = () => {
         if (bnOrZero(cryptoAmount).gt(0)) {
           cosmosStaking.open({
             assetId,
-            validatorAddress: contractAddress
+            validatorAddress: contractAddress,
           })
           return
         }
@@ -86,12 +86,12 @@ export const AllEarnOpportunities = () => {
           chain,
           contractAddress,
           tokenId: tokenAddress,
-          rewardId: rewardAddress
+          rewardId: rewardAddress,
         }),
-        state: { background: location }
+        state: { background: location },
       })
     },
-    [dispatch, history, isConnected, location, cosmosStaking, cosmosGetStarted]
+    [dispatch, history, isConnected, location, cosmosStaking, cosmosGetStarted],
   )
 
   return (

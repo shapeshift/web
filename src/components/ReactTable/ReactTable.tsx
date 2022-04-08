@@ -16,16 +16,16 @@ export const ReactTable = <T extends {}>({
   data,
   displayHeaders = true,
   onRowClick,
-  initialState
+  initialState,
 }: ReactTableProps<T>) => {
   const hoverColor = useColorModeValue('black', 'white')
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable<T>(
     {
       columns,
       data,
-      initialState
+      initialState,
     },
-    useSortBy
+    useSortBy,
   )
   const renderRows = useMemo(() => {
     return rows.map(row => {

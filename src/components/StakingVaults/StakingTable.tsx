@@ -24,7 +24,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: '#',
         Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
-        )
+        ),
       },
       {
         Header: 'Asset',
@@ -39,7 +39,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
             onClick={() => onClick(row.original)}
           />
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: 'Type',
@@ -47,7 +47,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value }: { value: string }) => (
           <Tag textTransform='capitalize'>{value.replace('_', ' ')}</Tag>
-        )
+        ),
       },
       {
         Header: 'APY',
@@ -60,13 +60,13 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           </Tag>
         ),
         sortType: (a: RowProps, b: RowProps): number =>
-          bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1
+          bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1,
       },
       {
         Header: 'TVL',
         accessor: 'tvl',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value }: { value: string }) => <Amount.Fiat value={value} />
+        Cell: ({ value }: { value: string }) => <Amount.Fiat value={value} />,
       },
       {
         Header: 'Balance',
@@ -76,13 +76,13 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
             <Amount.Fiat value={value} color='green.500' />
           ) : (
             <RawText>-</RawText>
-          )
-      }
+          ),
+      },
     ],
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showTeaser]
+    [showTeaser, onClick],
   )
 
   return <ReactTable data={data} columns={columns} />

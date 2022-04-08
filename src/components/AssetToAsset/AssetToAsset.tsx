@@ -24,7 +24,7 @@ export const AssetToAsset = ({
   boxSize = '32px',
   statusIcon = <ArrowForwardIcon />,
   bg,
-  loading
+  loading,
 }: AssetToAssetProps) => {
   const defaultBg = useColorModeValue('white', 'gray.750')
   const borderLine = useColorModeValue('gray.100', 'gray.700')

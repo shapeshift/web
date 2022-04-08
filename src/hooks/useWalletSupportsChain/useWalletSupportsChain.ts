@@ -4,7 +4,7 @@ import {
   supportsBTC,
   supportsCosmos,
   supportsETH,
-  supportsOsmosis
+  supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
@@ -18,12 +18,12 @@ export const walletSupportChain: UseWalletSupportsChain = ({ chainId, wallet }) 
   const btcCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
   const cosmosCaip2 = caip2.toCAIP2({
     chain: ChainTypes.Cosmos,
-    network: NetworkTypes.COSMOSHUB_MAINNET
+    network: NetworkTypes.COSMOSHUB_MAINNET,
   })
 
   const osmosisCaip2 = caip2.toCAIP2({
     chain: ChainTypes.Osmosis,
-    network: NetworkTypes.OSMOSIS_MAINNET
+    network: NetworkTypes.OSMOSIS_MAINNET,
   })
   switch (chainId) {
     case ethCAIP2: {

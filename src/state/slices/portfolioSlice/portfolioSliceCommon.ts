@@ -6,11 +6,11 @@ export const supportedAccountTypes = {
   [ChainTypes.Bitcoin]: [
     UtxoAccountType.SegwitNative,
     UtxoAccountType.SegwitP2sh,
-    UtxoAccountType.P2pkh
+    UtxoAccountType.P2pkh,
   ],
   [ChainTypes.Ethereum]: undefined,
   [ChainTypes.Cosmos]: undefined,
-  [ChainTypes.Osmosis]: undefined
+  [ChainTypes.Osmosis]: undefined,
 }
 
 /*
@@ -88,18 +88,18 @@ export type Portfolio = {
 export const initialState: Portfolio = {
   accounts: {
     byId: {},
-    ids: []
+    ids: [],
   },
   assetBalances: {
     byId: {},
-    ids: []
+    ids: [],
   },
   accountSpecifiers: {
     byId: {},
-    ids: []
+    ids: [],
   },
   accountBalances: {
     byId: {},
-    ids: []
-  }
+    ids: [],
+  },
 }

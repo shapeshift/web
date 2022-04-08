@@ -6,7 +6,7 @@ import {
   SkeletonCircle,
   SkeletonText,
   Stack,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
@@ -51,7 +51,7 @@ export const AssetCell = ({
   showTeaser,
   showAssetSymbol,
   postFix,
-  onClick
+  onClick,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -93,7 +93,7 @@ export const AssetCell = ({
                   content: 'attr(title)',
                   overflow: 'hidden',
                   height: 0,
-                  display: 'block'
+                  display: 'block',
                 }}
               >
                 <RawText

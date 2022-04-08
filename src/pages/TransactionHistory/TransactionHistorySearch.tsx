@@ -2,7 +2,7 @@ import { SearchIcon } from '@chakra-ui/icons'
 import { Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react'
 
 export const TransactionHistorySearch = ({
-  handleInputChange
+  handleInputChange,
 }: {
   handleInputChange: Function
 }) => {

@@ -29,8 +29,8 @@ export const StakeFormManager = ({ children }: StakeFormProps) => {
       [Field.FeeType]: chainAdapters.FeeDataKey.Average,
       [Field.GasLimit]: '',
       [Field.TxFee]: '',
-      [Field.FiatFee]: ''
-    }
+      [Field.FiatFee]: '',
+    },
   })
 
   const handleCancel = () => {

@@ -15,7 +15,7 @@ export const SelectAsset = ({ onClick, history }: SelectAssetProps) => {
   const ethCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
   const filterByCaip19 = (assets: Asset[]): Asset[] => {
     return assets.filter(
-      ({ chain, network }: Asset) => caip2.toCAIP2({ chain, network }) === ethCAIP2
+      ({ chain, network }: Asset) => caip2.toCAIP2({ chain, network }) === ethCAIP2,
     )
   }
 

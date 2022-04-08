@@ -14,14 +14,14 @@ const farming = [
     token0: 'ETH',
     token1: 'FOX',
     tokenAmount: '3.7124',
-    fiatAmount: '1588.88'
+    fiatAmount: '1588.88',
   },
   {
     token0: 'UNI',
     token1: 'ETH',
     tokenAmount: '3.7124',
-    fiatAmount: '348.28'
-  }
+    fiatAmount: '348.28',
+  },
 ]
 /*
 

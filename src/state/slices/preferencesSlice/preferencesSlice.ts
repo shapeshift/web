@@ -5,9 +5,7 @@ import { getConfig } from '../../../config'
 
 export type FeatureFlags = {
   CosmosInvestor: boolean
-  CosmosPlugin: boolean
   FoxyInvestor: boolean
-  GemRamp: boolean
   ReduxLogging: boolean
 }
 
@@ -20,13 +18,11 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     CosmosInvestor: getConfig().REACT_APP_FEATURE_COSMOS_INVESTOR,
-    CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS,
-    GemRamp: getConfig().REACT_APP_FEATURE_GEM_RAMP,
     FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR,
-    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING
+    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
   },
   selectedLocale: simpleLocale(),
-  balanceThreshold: '0'
+  balanceThreshold: '0',
 }
 
 export const preferences = createSlice({
@@ -44,6 +40,6 @@ export const preferences = createSlice({
     },
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold
-    }
-  }
+    },
+  },
 })

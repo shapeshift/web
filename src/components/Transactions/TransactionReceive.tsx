@@ -13,7 +13,7 @@ import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 
 export const TransactionReceive = ({
-  txDetails
+  txDetails,
 }: {
   txDetails: TxDetails
   activeAsset?: Asset
@@ -101,7 +101,7 @@ export const TransactionReceive = ({
               <Amount.Crypto
                 value={fromBaseUnit(
                   txDetails.sellTransfer?.value ?? '0',
-                  txDetails.sellAsset?.precision ?? 18
+                  txDetails.sellAsset?.precision ?? 18,
                 )}
                 symbol={txDetails.sellAsset?.symbol ?? ''}
                 maximumFractionDigits={6}
@@ -110,7 +110,7 @@ export const TransactionReceive = ({
               <Amount.Crypto
                 value={fromBaseUnit(
                   txDetails.buyTransfer?.value ?? '0',
-                  txDetails.buyAsset?.precision ?? 18
+                  txDetails.buyAsset?.precision ?? 18,
                 )}
                 symbol={txDetails.buyAsset?.symbol ?? ''}
                 maximumFractionDigits={6}
@@ -127,7 +127,7 @@ export const TransactionReceive = ({
                 <Amount.Crypto
                   value={fromBaseUnit(
                     txDetails.tx?.fee?.value ?? '0',
-                    txDetails.feeAsset?.precision ?? 18
+                    txDetails.feeAsset?.precision ?? 18,
                   )}
                   symbol={txDetails.feeAsset.symbol}
                   maximumFractionDigits={6}

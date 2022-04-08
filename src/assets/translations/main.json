@@ -71,7 +71,8 @@
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
-      }
+      },
+      "stakedInfo": "You cannot send or trade the amount staked"
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
@@ -161,7 +162,7 @@
       },
       "foxyOverview": {
         "header": "Deposit FOX to get FOXy to earn",
-        "body": "FOXy is a rebasing token pegged to the price of FOX. FOXy is put to work across different DeFi protocols to earn the best yield possible.",
+        "body": "FOXy is a rebasing token pegged to the price of FOX. Staked FOX is put to work across different DeFi protocols to earn the best yield possible.",
         "rewards": "The rewards you earn will accrue automatically.",
         "cta": "Deposit FOX Now",
         "foxyBalance": "FOXy Balance",

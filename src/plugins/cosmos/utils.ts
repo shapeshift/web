@@ -14,30 +14,30 @@ export type FeePrice = {
 export const getFormFees = (
   feeData: FeeDataEstimate<ChainTypes.Cosmos>,
   precision: number,
-  fiatRate: string
+  fiatRate: string,
 ) => {
   const initialFees = {
     slow: {
       fiatFee: '',
       txFee: '',
       chainSpecific: {
-        gasLimit: ''
-      }
+        gasLimit: '',
+      },
     },
     average: {
       fiatFee: '',
       txFee: '',
       chainSpecific: {
-        gasLimit: ''
-      }
+        gasLimit: '',
+      },
     },
     fast: {
       fiatFee: '',
       txFee: '',
       chainSpecific: {
-        gasLimit: ''
-      }
-    }
+        gasLimit: '',
+      },
+    },
   }
   return (Object.keys(feeData) as chainAdapters.FeeDataKey[]).reduce<FeePrice>(
     (acc: any, key: chainAdapters.FeeDataKey) => {
@@ -49,6 +49,6 @@ export const getFormFees = (
       acc[key] = { txFee, fiatFee, chainSpecific }
       return acc
     },
-    initialFees
+    initialFees,
   )
 }

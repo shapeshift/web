@@ -18,7 +18,7 @@ describe('useLocalStorage hook', () => {
     const [, setLocalValue] = result.current
     act(() => setLocalValue({ testValue: 'This is a test' }))
     expect(JSON.parse(localStorage.getItem('testString') || '{}')).toStrictEqual({
-      testValue: 'This is a test'
+      testValue: 'This is a test',
     })
   })
 })

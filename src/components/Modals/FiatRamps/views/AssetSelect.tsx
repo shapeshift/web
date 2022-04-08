@@ -14,7 +14,7 @@ import {
   fetchWyreSupportedCurrencies,
   isSupportedBitcoinAsset,
   parseGemBuyAssets,
-  parseGemSellAssets
+  parseGemSellAssets,
 } from '../utils'
 
 type AssetSelectProps = {
@@ -25,7 +25,7 @@ type AssetSelectProps = {
 export const AssetSelect = ({
   onAssetSelect,
   walletSupportsBTC,
-  selectAssetTranslation
+  selectAssetTranslation,
 }: AssetSelectProps) => {
   const history = useHistory()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()

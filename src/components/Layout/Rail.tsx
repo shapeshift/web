@@ -18,7 +18,7 @@ export const Rail = (props: BoxProps) => {
       className='scroll-container'
       willChange='transform, scroll-position'
       sx={{
-        overscrollBehavior: 'contain'
+        overscrollBehavior: 'contain',
       }}
       {...props}
     />

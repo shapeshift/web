@@ -20,8 +20,8 @@ export const AssetSearch = ({ onClick, type, assets, loading }: AssetSearchProps
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
-      search: ''
-    }
+      search: '',
+    },
   })
 
   const searchString = watch('search')

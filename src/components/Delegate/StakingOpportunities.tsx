@@ -7,7 +7,7 @@ import {
   Skeleton,
   SkeletonCircle,
   Tag,
-  TagLabel
+  TagLabel,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
@@ -65,7 +65,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const { activeStakingOpportunities, stakingOpportunities, isLoaded } = useCosmosStakingBalances({
-    assetId
+    assetId,
   })
 
   const hasActiveStakingOpportunities = activeStakingOpportunities.length !== 0
@@ -79,7 +79,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const handleStakedClick = (values: Row<ActiveStakingOpportunity>) => {
     cosmosStaking.open({
       assetId,
-      validatorAddress: values.original.address
+      validatorAddress: values.original.address,
     })
   }
 
@@ -92,7 +92,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Cell: ({ value }: { value: string }) => (
           <ValidatorName moniker={value} isStaking={hasActiveStakingOpportunities} />
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.apr' />,
@@ -103,7 +103,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             <AprTag percentage={value} showAprSuffix />
           </Skeleton>
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.stakedAmount' />,
@@ -122,7 +122,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             <Box minWidth={{ base: '0px', md: '200px' }} />
           )
         },
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.rewards' />,
@@ -162,13 +162,13 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             </Box>
           )
         },
-        disableSortBy: true
-      }
+        disableSortBy: true,
+      },
     ],
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoaded]
+    [isLoaded],
   )
   return (
     <Card>

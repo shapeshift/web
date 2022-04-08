@@ -18,6 +18,6 @@ export const makeEthFoxRateResponse = () => {
     sources,
     allowanceTarget: '0x0000000000000000000000000000000000000000',
     sellTokenToEthRate: '1',
-    buyTokenToEthRate: '7846.55087491411914402'
+    buyTokenToEthRate: '7846.55087491411914402',
   }
 }

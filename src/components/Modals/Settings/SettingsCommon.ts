@@ -1,4 +1,4 @@
 export enum SettingsRoutes {
   Index = '/settings/index',
-  Languages = '/receive/languages'
+  Languages = '/receive/languages',
 }

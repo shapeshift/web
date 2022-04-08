@@ -8,7 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   Tag,
-  Wrap
+  Wrap,
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
@@ -86,9 +86,9 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
                 <Code mr={2}>{index + 1}</Code>
                 {word}
               </Tag>,
-              revoker.addRevoker.bind(revocable)
-            )
-          )
+              revoker.addRevoker.bind(revocable),
+            ),
+          ),
         )
       } catch (e) {
         console.error('failed to get Secret Recovery Phrase:', e)

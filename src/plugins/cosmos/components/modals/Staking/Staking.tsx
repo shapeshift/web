@@ -6,7 +6,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
 import { useRef } from 'react'
@@ -26,7 +26,7 @@ import {
   StakingModalProps,
   StakingPath,
   unstakeSteps,
-  UnstakingPath
+  UnstakingPath,
 } from './StakingCommon'
 import { ClaimBroadcast } from './views/ClaimBroadcast'
 import { ClaimConfirm } from './views/ClaimConfirm'
@@ -44,22 +44,22 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
 
   const isOverview = matchPath(location.pathname, {
     path: StakeRoutes.Overview,
-    exact: true
+    exact: true,
   })
 
   const isClaim = matchPath(location.pathname, {
     path: [ClaimPath.Confirm, ClaimPath.Broadcast],
-    exact: true
+    exact: true,
   })
 
   const isStake = matchPath(location.pathname, {
     path: [StakeRoutes.Stake, StakingPath.Confirm, StakingPath.Broadcast],
-    exact: true
+    exact: true,
   })
 
   const isUnstake = matchPath(location.pathname, {
     path: [StakeRoutes.Unstake, UnstakingPath.Confirm, UnstakingPath.Broadcast],
-    exact: true
+    exact: true,
   })
 
   const getCurrentSteps = () => {
@@ -75,7 +75,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const accountSpecifiersForChainId = useAppSelector(state =>
-    selectAccountSpecifier(state, asset?.caip2)
+    selectAccountSpecifier(state, asset?.caip2),
   )
   const accountSpecifier = accountSpecifiersForChainId?.[0]
 

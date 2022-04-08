@@ -17,13 +17,13 @@ export const slices = {
   stakingData,
   portfolio,
   preferences,
-  accountSpecifiers
+  accountSpecifiers,
 }
 
 const preferencesPersistConfig = {
   key: 'preferences',
   storage: localforage,
-  blacklist: ['featureFlags']
+  blacklist: ['featureFlags'],
 }
 
 export const sliceReducers = {
@@ -33,7 +33,7 @@ export const sliceReducers = {
   stakingData: stakingData.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  accountSpecifiers: accountSpecifiers.reducer
+  accountSpecifiers: accountSpecifiers.reducer,
 }
 
 export const apiSlices = {
@@ -41,7 +41,7 @@ export const apiSlices = {
   portfolioApi,
   marketApi,
   txHistoryApi,
-  stakingDataApi
+  stakingDataApi,
 }
 
 export const apiReducers = {
@@ -49,7 +49,7 @@ export const apiReducers = {
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
-  [stakingDataApi.reducerPath]: stakingDataApi.reducer
+  [stakingDataApi.reducerPath]: stakingDataApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

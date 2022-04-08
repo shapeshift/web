@@ -13,7 +13,7 @@ import { Text } from 'components/Text'
 import {
   AccountRowData,
   selectPortfolioAccountRows,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 type RowProps = Row<AccountRowData>
@@ -42,7 +42,7 @@ export const AccountTable = () => {
               onClick={handleClick}
             />
           )
-        }
+        },
       },
       {
         Header: () => <Text translation='dashboard.portfolio.balance' />,
@@ -61,7 +61,7 @@ export const AccountTable = () => {
               symbol={row.original.symbol}
             />
           </Stack>
-        )
+        ),
       },
       {
         Header: () => <Text translation='dashboard.portfolio.price' />,
@@ -70,7 +70,7 @@ export const AccountTable = () => {
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Amount.Fiat color={textColor} value={value} lineHeight='tall' />
-        )
+        ),
       },
       {
         Header: () => <Text translation='dashboard.portfolio.priceChange' />,
@@ -91,7 +91,7 @@ export const AccountTable = () => {
               <Amount.Percent value={value * 0.01} />
             </StatNumber>
           </Stat>
-        )
+        ),
       },
       {
         Header: () => <Text textAlign='right' translation='dashboard.portfolio.allocation' />,
@@ -101,10 +101,10 @@ export const AccountTable = () => {
           <Amount.Percent fontWeight='medium' textColor='gray.500' value={value * 0.01} />
         ),
         sortType: (a: RowProps, b: RowProps): number =>
-          bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1
-      }
+          bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,
+      },
     ],
-    [history, textColor]
+    [history, textColor],
   )
   const loadingRows = useMemo(() => {
     return (

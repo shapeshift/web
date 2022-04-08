@@ -36,7 +36,7 @@ const PluginContext = createContext<PluginProviderContextProps>({
   plugins: [],
   chainAdapterManager: getChainAdapters(),
   supportedChains: [],
-  routes: []
+  routes: [],
 })
 
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
@@ -52,7 +52,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
   // a memoized version of the current version of the ref to be made available on the context
   const chainAdapterManager = useMemo(
     () => chainAdapterManagerRef.current,
-    [chainAdapterManagerRef]
+    [chainAdapterManagerRef],
   )
 
   useEffect(() => {
@@ -110,8 +110,8 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
         remove: chain => {
           getChainAdapters().byChain(chain).closeTxs()
           getChainAdapters().removeChain(chain)
-        }
-      }
+        },
+      },
     )
 
     setRoutes(pluginRoutes)
@@ -125,7 +125,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     pluginManager,
     chainAdapterManager,
     supportedChains,
-    routes
+    routes,
   }
 
   return <PluginContext.Provider value={values}>{children}</PluginContext.Provider>

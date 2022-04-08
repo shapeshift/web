@@ -1,6 +1,6 @@
 export enum FiatRampAction {
   Buy = 'buy',
-  Sell = 'sell'
+  Sell = 'sell',
 }
 
 export enum GemManagerAction {
@@ -19,5 +19,5 @@ export enum GemManagerAction {
   SELECT_ASSET,
   SET_IS_BTC,
   SET_IS_SELECTING_ASSET,
-  SHOW_ON_DISPLAY
+  SHOW_ON_DISPLAY,
 }

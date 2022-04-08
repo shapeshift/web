@@ -27,14 +27,14 @@ const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.WEEK]: {},
   [HistoryTimeframe.MONTH]: {},
   [HistoryTimeframe.YEAR]: {},
-  [HistoryTimeframe.ALL]: {}
+  [HistoryTimeframe.ALL]: {},
 }
 
 const initialState: MarketDataState = {
   byId: {},
   ids: [],
   priceHistory: initialPriceHistory,
-  loading: false
+  loading: false,
 }
 
 export const marketData = createSlice({
@@ -50,13 +50,13 @@ export const marketData = createSlice({
     setPriceHistory: (
       state,
       {
-        payload: { data, args }
-      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } }
+        payload: { data, args },
+      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } },
     ) => {
       const { assetId, timeframe } = args
       state.priceHistory[timeframe][assetId] = data
-    }
-  }
+    },
+  },
 })
 
 type FindPriceHistoryByCaip19Args = { assetId: CAIP19; timeframe: HistoryTimeframe }
@@ -75,7 +75,7 @@ export const marketApi = createApi({
         await cacheDataLoaded
         const data = getCacheEntry().data
         data && dispatch(marketData.actions.setMarketData(data))
-      }
+      },
     }),
     findByCaip19: build.query<MarketCapResult, CAIP19>({
       queryFn: async (caip19: CAIP19, baseQuery) => {
@@ -91,7 +91,7 @@ export const marketApi = createApi({
           const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
           return { error }
         }
-      }
+      },
     }),
     findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({
       queryFn: async ({ assetId, timeframe }) => {
@@ -101,7 +101,7 @@ export const marketApi = createApi({
         } catch (e) {
           const error = {
             data: `findPriceHistoryByCaip19: error fetching price history for ${assetId}`,
-            status: 400
+            status: 400,
           }
           return { error }
         }
@@ -119,9 +119,9 @@ export const marketApi = createApi({
         } finally {
           dispatch(marketData.actions.setPriceHistory(payload))
         }
-      }
-    })
-  })
+      },
+    }),
+  }),
 })
 
 export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi

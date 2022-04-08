@@ -5,19 +5,19 @@ export enum DefiType {
   Vault = 'vault',
   Staking = 'staking',
   Farming = 'farming',
-  TokenStaking = 'token_staking'
+  TokenStaking = 'token_staking',
 }
 
 export enum DefiProvider {
   Yearn = 'yearn',
-  ShapeShift = 'ShapeShift'
+  ShapeShift = 'ShapeShift',
 }
 
 export enum DefiAction {
   Overview = 'overview',
   Deposit = 'deposit',
   Withdraw = 'withdraw',
-  GetStarted = 'get-started'
+  GetStarted = 'get-started',
 }
 
 export type DefiParams = {

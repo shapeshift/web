@@ -58,7 +58,7 @@ const initialState: InitialState = {
   isLoadingLocalWallet: false,
   deviceId: '',
   noBackButton: false,
-  keepKeyPinRequestType: null
+  keepKeyPinRequestType: null,
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -75,9 +75,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           deviceId: action?.payload?.deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? ''
-          }
-        }
+            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? '',
+          },
+        },
       }
 
       return stateData
@@ -105,7 +105,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.Native,
         noBackButton: state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
-        initialRoute: '/native/enter-password'
+        initialRoute: '/native/enter-password',
       }
     case WalletActions.OPEN_KEEPKEY_PIN:
       return {
@@ -115,7 +115,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         noBackButton: true,
         deviceId: action.payload.deviceId,
         keepKeyPinRequestType: action.payload.pinRequestType ?? null,
-        initialRoute: '/keepkey/enter-pin'
+        initialRoute: '/keepkey/enter-pin',
       }
     case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
       return {
@@ -124,7 +124,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.KeepKey,
         noBackButton: true,
         deviceId: action.payload.deviceId,
-        initialRoute: '/keepkey/passphrase'
+        initialRoute: '/keepkey/passphrase',
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
@@ -138,7 +138,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         initialRoute: null,
         isLoadingLocalWallet: false,
         noBackButton: false,
-        keepKeyPinRequestType: null
+        keepKeyPinRequestType: null,
       }
     default:
       return state
@@ -154,7 +154,7 @@ const getInitialState = () => {
      */
     return {
       ...initialState,
-      isLoadingLocalWallet: true
+      isLoadingLocalWallet: true,
     }
   }
   return initialState
@@ -194,12 +194,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('connect')
+      String(path).endsWith('connect'),
     )
     if (routeIndex > -1) {
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
       })
     }
   }, [])
@@ -207,12 +207,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const create = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('create')
+      String(path).endsWith('create'),
     )
     if (routeIndex > -1) {
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
       })
     }
   }, [])
@@ -272,8 +272,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name: label,
                       icon,
                       deviceId,
-                      meta: { label }
-                    }
+                      meta: { label },
+                    },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } else {
@@ -303,8 +303,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       wallet: localPortisWallet,
                       name,
                       icon,
-                      deviceId
-                    }
+                      deviceId,
+                    },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
@@ -330,8 +330,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       wallet: localMetaMaskWallet,
                       name,
                       icon,
-                      deviceId
-                    }
+                      deviceId,
+                    },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
@@ -354,7 +354,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const value: IWalletContext = useMemo(
     () => ({ state, dispatch, connect, create, disconnect }),
-    [state, connect, create, disconnect]
+    [state, connect, create, disconnect],
   )
 
   return (

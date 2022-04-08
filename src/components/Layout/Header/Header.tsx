@@ -8,7 +8,7 @@ import {
   HStack,
   IconButton,
   useColorModeValue,
-  useDisclosure
+  useDisclosure,
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
@@ -35,7 +35,7 @@ export const Header = () => {
         history.push('/flags')
       }
     },
-    [history]
+    [history],
   )
 
   useEffect(() => {

@@ -56,10 +56,10 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
           {
             targetWordIndex,
             randomWords,
-            correctAnswerIndex
+            correctAnswerIndex,
           },
-          revoker.addRevoker.bind(revoker)
-        )
+          revoker.addRevoker.bind(revoker),
+        ),
       )
     } catch (e) {
       setError('walletProvider.shapeShift.create.error')
@@ -128,8 +128,8 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
                 >
                   {word}
                 </Button>,
-                revoker.addRevoker.bind(revoker)
-              )
+                revoker.addRevoker.bind(revoker),
+              ),
             )}
         </Wrap>
       </ModalBody>

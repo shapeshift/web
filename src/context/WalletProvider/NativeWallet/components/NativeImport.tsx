@@ -4,7 +4,7 @@ import {
   FormErrorMessage,
   ModalBody,
   ModalHeader,
-  Textarea
+  Textarea,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
@@ -29,7 +29,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     setError,
     handleSubmit,
     register,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm({ shouldUnregister: true })
 
   const translate = useTranslate()
@@ -50,19 +50,19 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
               autoCorrect='off'
               {...register('mnemonic', {
                 required: translate(
-                  'walletProvider.shapeShift.import.secretRecoveryPhraseRequired'
+                  'walletProvider.shapeShift.import.secretRecoveryPhraseRequired',
                 ),
                 minLength: {
                   value: 47,
                   message: translate(
-                    'walletProvider.shapeShift.import.secretRecoveryPhraseTooShort'
-                  )
+                    'walletProvider.shapeShift.import.secretRecoveryPhraseTooShort',
+                  ),
                 },
                 validate: {
                   validMnemonic: value =>
                     bip39.validateMnemonic(value) ||
-                    translate('walletProvider.shapeShift.import.secretRecoveryPhraseError')
-                }
+                    translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
+                },
               })}
               data-test='wallet-native-seed-input'
             />

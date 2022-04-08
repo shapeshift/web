@@ -10,7 +10,7 @@ import {
   Stack,
   Tag,
   useColorModeValue,
-  useToast
+  useToast,
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
@@ -44,7 +44,7 @@ import {
   selectAssetByCAIP19,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -56,7 +56,7 @@ enum DepositPath {
   ApproveSettings = '/approve/settings',
   Confirm = '/confirm',
   ConfirmSettings = '/confirm/settings',
-  Status = '/status'
+  Status = '/status',
 }
 
 export const routes = [
@@ -65,7 +65,7 @@ export const routes = [
   { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
   { step: 2, path: DepositPath.Confirm, label: 'Confirm' },
   { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: DepositPath.Status, label: 'Status' }
+  { step: 3, path: DepositPath.Status, label: 'Status' },
 ]
 
 export type YearnDepositProps = {
@@ -89,7 +89,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum
+    assetReference: AssetReference.Ethereum,
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
@@ -100,7 +100,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: vaultAddress
+    assetReference: vaultAddress,
   })
   const vaultAsset = useAppSelector(state => selectAssetByCAIP19(state, vaultCAIP19))
 
@@ -121,13 +121,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.findByDepositVaultAddress(vaultAddress),
-          api.pricePerShare({ vaultAddress })
+          api.pricePerShare({ vaultAddress }),
         ])
         dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: YearnDepositActionType.SET_VAULT, payload: vault })
         dispatch({
           type: YearnDepositActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString()
+          payload: pricePerShare.toString(),
         })
       } catch (error) {
         // TODO: handle client side errors
@@ -142,9 +142,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateApproveGas({
           tokenContractAddress: tokenId,
-          userAddress: state.userAddress
+          userAddress: state.userAddress,
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
@@ -153,7 +153,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
         title: translate('common.somethingWentWrong'),
-        status: 'error'
+        status: 'error',
       })
     }
   }
@@ -168,9 +168,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
           userAddress: state.userAddress,
-          vaultAddress
+          vaultAddress,
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
@@ -179,7 +179,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
         title: translate('common.somethingWentWrong'),
-        status: 'error'
+        status: 'error',
       })
     }
   }
@@ -192,7 +192,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
         tokenContractAddress: tokenId!,
-        userAddress: state.userAddress
+        userAddress: state.userAddress,
       })
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
@@ -202,7 +202,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         if (!estimatedGasCrypto) return
         dispatch({
           type: YearnDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto }
+          payload: { estimatedGasCrypto },
         })
         history.push(DepositPath.Confirm)
       } else {
@@ -210,7 +210,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         if (!estimatedGasCrypto) return
         dispatch({
           type: YearnDepositActionType.SET_APPROVE,
-          payload: { estimatedGasCrypto }
+          payload: { estimatedGasCrypto },
         })
         history.push(DepositPath.Approve)
       }
@@ -220,7 +220,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
         title: translate('common.somethingWentWrong'),
-        status: 'error'
+        status: 'error',
       })
     }
   }
@@ -232,27 +232,27 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       await api.approve({
         tokenContractAddress: tokenId,
         userAddress: state.userAddress,
-        wallet: walletState.wallet
+        wallet: walletState.wallet,
       })
       await poll({
         fn: () =>
           api.allowance({
             tokenContractAddress: tokenId!,
-            userAddress: state.userAddress!
+            userAddress: state.userAddress!,
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
         },
         interval: 15000,
-        maxAttempts: 30
+        maxAttempts: 30,
       })
       // Get deposit gas estimate
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
         type: YearnDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto }
+        payload: { estimatedGasCrypto },
       })
 
       history.push(DepositPath.Confirm)
@@ -262,7 +262,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
-        status: 'error'
+        status: 'error',
       })
     } finally {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
@@ -281,9 +281,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
           vaultAddress,
-          wallet: walletState.wallet
+          wallet: walletState.wallet,
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       history.push(DepositPath.Status)
@@ -292,14 +292,14 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         fn: () => api.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
-        maxAttempts: 30
+        maxAttempts: 30,
       })
       dispatch({
         type: YearnDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
-        }
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
+        },
       })
     } catch (error) {
       console.error('YearnDeposit:handleDeposit error', error)
@@ -307,7 +307,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
-        status: 'error'
+        status: 'error',
       })
     } finally {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
@@ -364,12 +364,12 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
             cryptoInputValidation={{
               required: true,
-              validate: { validateCryptoAmount }
+              validate: { validateCryptoAmount },
             }}
             fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
             fiatInputValidation={{
               required: true,
-              validate: { validateFiatAmount }
+              validate: { validateFiatAmount },
             }}
             marketData={marketData}
             onCancel={handleCancel}
@@ -419,7 +419,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 ...asset,
                 color: '#FF0000',
                 cryptoAmount: state.deposit.cryptoAmount,
-                fiatAmount: state.deposit.fiatAmount
+                fiatAmount: state.deposit.fiatAmount,
               },
               {
                 ...vaultAsset,
@@ -427,8 +427,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
                   .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
                   .toString(),
-                fiatAmount: state.deposit.fiatAmount
-              }
+                fiatAmount: state.deposit.fiatAmount,
+              },
             ]}
           >
             <Stack spacing={4}>
@@ -515,15 +515,15 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               {
                 ...asset,
                 cryptoAmount: state.deposit.cryptoAmount,
-                fiatAmount: state.deposit.fiatAmount
+                fiatAmount: state.deposit.fiatAmount,
               },
               {
                 ...vaultAsset,
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
                   .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
                   .toString(),
-                fiatAmount: state.deposit.fiatAmount
-              }
+                fiatAmount: state.deposit.fiatAmount,
+              },
             ]}
           >
             <Stack spacing={4}>
@@ -565,7 +565,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                       value={bnOrZero(
                         state.deposit.txStatus === 'pending'
                           ? state.deposit.estimatedGasCrypto
-                          : state.deposit.usedGasFee
+                          : state.deposit.usedGasFee,
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .times(feeMarketData.price)
@@ -576,7 +576,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                       value={bnOrZero(
                         state.deposit.txStatus === 'pending'
                           ? state.deposit.estimatedGasCrypto
-                          : state.deposit.usedGasFee
+                          : state.deposit.usedGasFee,
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .toFixed(5)}

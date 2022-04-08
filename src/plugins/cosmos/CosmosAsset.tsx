@@ -6,7 +6,7 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectMarketDataLoadingById
+  selectMarketDataLoadingById,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

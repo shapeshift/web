@@ -13,7 +13,7 @@ import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
 
 export const useTradeRoutes = (
-  defaultBuyAssetId?: CAIP19
+  defaultBuyAssetId?: CAIP19,
 ): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
@@ -51,7 +51,7 @@ export const useTradeRoutes = (
       if (sellAsset && buyAsset) {
         await getBestSwapper({
           sellAsset: { currency: sellAsset },
-          buyAsset: { currency: buyAsset }
+          buyAsset: { currency: buyAsset },
         })
         setValue('sellAsset.currency', sellAsset)
         setValue('buyAsset.currency', buyAsset)
@@ -59,7 +59,7 @@ export const useTradeRoutes = (
           amount: '0',
           sellAsset: { currency: sellAsset },
           buyAsset: { currency: buyAsset },
-          feeAsset
+          feeAsset,
         })
       }
     } catch (e) {
@@ -87,7 +87,7 @@ export const useTradeRoutes = (
           sellAsset,
           buyAsset,
           feeAsset,
-          action
+          action,
         })
       } catch (e) {
         console.warn(e)
@@ -95,7 +95,7 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote],
   )
 
   const handleBuyClick = useCallback(
@@ -114,7 +114,7 @@ export const useTradeRoutes = (
           sellAsset,
           buyAsset,
           feeAsset,
-          action
+          action,
         })
       } catch (e) {
         console.warn(e)
@@ -122,7 +122,7 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote],
   )
 
   return { handleSellClick, handleBuyClick }

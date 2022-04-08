@@ -36,7 +36,7 @@ interface ClaimStatusState {
 enum TxStatus {
   PENDING = 'pending',
   SUCCESS = 'success',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 type ClaimState = {
@@ -47,18 +47,18 @@ type ClaimState = {
 const StatusInfo = {
   [TxStatus.PENDING]: {
     text: 'defi.broadcastingTransaction',
-    color: 'blue.500'
+    color: 'blue.500',
   },
   [TxStatus.SUCCESS]: {
     text: 'defi.transactionComplete',
     color: 'green.500',
-    icon: <FaCheck />
+    icon: <FaCheck />,
   },
   [TxStatus.FAILED]: {
     text: 'defi.transactionFailed',
     color: 'red.500',
-    icon: <FaTimes />
-  }
+    icon: <FaTimes />,
+  },
 }
 
 export const ClaimStatus = () => {
@@ -66,10 +66,10 @@ export const ClaimStatus = () => {
   const { foxy } = useFoxy()
   const translate = useTranslate()
   const {
-    state: { txid, amount, assetId, userAddress, estimatedGas, chain }
+    state: { txid, amount, assetId, userAddress, estimatedGas, chain },
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
-    txStatus: TxStatus.PENDING
+    txStatus: TxStatus.PENDING,
   })
 
   // Asset Info
@@ -79,7 +79,7 @@ export const ClaimStatus = () => {
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum
+    assetReference: AssetReference.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
@@ -92,20 +92,20 @@ export const ClaimStatus = () => {
           fn: () => foxy.getTxReceipt({ txid }),
           validate: (result: TransactionReceipt) => !isNil(result),
           interval: 15000,
-          maxAttempts: 30
+          maxAttempts: 30,
         })
         const gasPrice = await foxy.getGasPrice()
         setState({
           ...state,
           txStatus: transactionReceipt.status === true ? TxStatus.SUCCESS : TxStatus.FAILED,
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
         })
       } catch (error) {
         console.error('FoxyClaim:useEffect error:', error)
         setState({
           ...state,
           txStatus: TxStatus.FAILED,
-          usedGasFee: estimatedGas
+          usedGasFee: estimatedGas,
         })
       }
     })()
@@ -136,7 +136,7 @@ export const ClaimStatus = () => {
             {translate(
               state.txStatus === TxStatus.PENDING
                 ? 'defi.broadcastingTransaction'
-                : 'defi.transactionComplete'
+                : 'defi.transactionComplete',
             )}
           </RawText>
         </Center>
@@ -178,7 +178,7 @@ export const ClaimStatus = () => {
               {translate(
                 state.txStatus === TxStatus.PENDING
                   ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
+                  : 'modals.status.gasUsed',
               )}
             </Row.Label>
             <Row.Value>
@@ -186,7 +186,7 @@ export const ClaimStatus = () => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee
+                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
                   )
                     .div(`1e+${feeAsset.precision}`)
                     .times(feeMarketData.price)
@@ -195,7 +195,7 @@ export const ClaimStatus = () => {
                 <Amount.Crypto
                   color='gray.500'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee
+                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
                   )
                     .div(`1e+${feeAsset.precision}`)
                     .toFixed(5)}

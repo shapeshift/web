@@ -11,7 +11,7 @@ function baseStyleList(props: Record<string, any>) {
     py: '2',
     zIndex: 1,
     borderRadius: 'lg',
-    borderWidth: '0px'
+    borderWidth: '0px',
   }
 }
 
@@ -23,18 +23,18 @@ function baseStyleItem(props: Record<string, any>) {
     transitionDuration: 'ultra-fast',
     transitionTimingFunction: 'ease-in',
     _focus: {
-      bg: mode(`gray.100`, `whiteAlpha.100`)(props)
+      bg: mode(`gray.100`, `whiteAlpha.100`)(props),
     },
     _active: {
-      bg: mode(`gray.200`, `whiteAlpha.200`)(props)
+      bg: mode(`gray.200`, `whiteAlpha.200`)(props),
     },
     _expanded: {
-      bg: mode(`gray.100`, `whiteAlpha.100`)(props)
+      bg: mode(`gray.100`, `whiteAlpha.100`)(props),
     },
     _disabled: {
       opacity: 0.4,
-      cursor: 'not-allowed'
-    }
+      cursor: 'not-allowed',
+    },
   }
 }
 
@@ -42,11 +42,11 @@ const baseStyleGroupTitle = {
   mx: 4,
   my: 2,
   fontWeight: 'semibold',
-  fontSize: 'sm'
+  fontSize: 'sm',
 }
 
 const baseStyleCommand = {
-  opacity: 0.6
+  opacity: 0.6,
 }
 
 const baseStyleDivider = {
@@ -54,12 +54,12 @@ const baseStyleDivider = {
   borderBottom: '1px solid',
   borderColor: 'inherit',
   my: '0.5rem',
-  opacity: 0.6
+  opacity: 0.6,
 }
 
 const baseStyleButton = {
   transitionProperty: 'common',
-  transitionDuration: 'normal'
+  transitionDuration: 'normal',
 }
 
 const baseStyle = (props: Record<string, any>) => ({
@@ -68,10 +68,10 @@ const baseStyle = (props: Record<string, any>) => ({
   item: baseStyleItem(props),
   groupTitle: baseStyleGroupTitle,
   command: baseStyleCommand,
-  divider: baseStyleDivider
+  divider: baseStyleDivider,
 })
 
 export const MenuStyle = {
   parts,
-  baseStyle
+  baseStyle,
 }

@@ -15,7 +15,7 @@ export const TimeControls = ({ onChange, defaultTime, buttonGroupProps }: TimeCo
     { value: HistoryTimeframe.WEEK, label: 'graph.timeControls.1W' },
     { value: HistoryTimeframe.MONTH, label: 'graph.timeControls.1M' },
     { value: HistoryTimeframe.YEAR, label: 'graph.timeControls.1Y' },
-    { value: HistoryTimeframe.ALL, label: 'graph.timeControls.all' }
+    { value: HistoryTimeframe.ALL, label: 'graph.timeControls.all' },
   ]
   return (
     <Radio

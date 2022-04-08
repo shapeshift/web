@@ -6,7 +6,7 @@ import {
   BIP44Params,
   chainAdapters,
   ChainTypes,
-  UtxoAccountType
+  UtxoAccountType,
 } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import last from 'lodash/last'
@@ -31,7 +31,7 @@ export const cosmosChainId = 'cosmos:cosmoshub-4'
 const caip2toCaip19: Record<string, string> = {
   [ethChainId]: 'eip155:1/slip44:60',
   [btcChainId]: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-  [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118'
+  [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118',
 }
 
 export const assetIdtoChainId = (caip19: CAIP19): string => {
@@ -110,7 +110,7 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
 export const accountIdToUtxoParams = (
   asset: Asset,
   accountId: AccountSpecifier,
-  accountIndex: number
+  accountIndex: number,
 ) => {
   const accountType = accountIdToAccountType(accountId)
   // for eth, we don't return a UtxoAccountType or utxoParams
@@ -121,21 +121,21 @@ export const accountIdToUtxoParams = (
 
 export const findAccountsByAssetId = (
   portfolioAccounts: { [k: string]: string[] },
-  assetId: CAIP19
+  assetId: CAIP19,
 ): AccountSpecifier[] => {
   const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
     (acc, [accountId, accountAssets]) => {
       if (accountAssets.includes(assetId)) acc.push(accountId)
       return acc
     },
-    []
+    [],
   )
 
   // If we don't find an account that has the given asset,
   // return the account(s) for that given assets chain
   if (result.length === 0) {
     return Object.keys(portfolioAccounts).filter(
-      accountId => assetIdtoChainId(assetId) === accountIdToChainId(accountId)
+      accountId => assetIdtoChainId(assetId) === accountIdToChainId(accountId),
     )
   }
   return result
@@ -180,14 +180,14 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         portfolio.assetBalances.byId[caip19] = sumBalance(
           portfolio.assetBalances.byId[caip19] ?? '0',
-          ethAccount.balance
+          ethAccount.balance,
         )
 
         // add assetId without dupes
         portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
 
         portfolio.accountBalances.byId[accountSpecifier] = {
-          [caip19]: ethAccount.balance
+          [caip19]: ethAccount.balance,
         }
 
         portfolio.accountSpecifiers.byId[accountSpecifier] = [CAIP10]
@@ -200,18 +200,18 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           portfolio.accounts.byId[CAIP10].push(token.caip19)
           // add assetId without dupes
           portfolio.assetBalances.ids = Array.from(
-            new Set([...portfolio.assetBalances.ids, token.caip19])
+            new Set([...portfolio.assetBalances.ids, token.caip19]),
           )
 
           // if token already exist inside assetBalances, add balance to existing balance
           portfolio.assetBalances.byId[token.caip19] = sumBalance(
             portfolio.assetBalances.byId[token.caip19] ?? '0',
-            token.balance
+            token.balance,
           )
 
           portfolio.accountBalances.byId[accountSpecifier] = {
             ...portfolio.accountBalances.byId[accountSpecifier],
-            [token.caip19]: token.balance
+            [token.caip19]: token.balance,
           }
         })
         break
@@ -241,7 +241,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountSpecifier]))
 
         portfolio.accounts.byId[accountSpecifier] = Array.from(
-          new Set([...portfolio.accounts.byId[accountSpecifier], caip19])
+          new Set([...portfolio.accounts.byId[accountSpecifier], caip19]),
         )
 
         portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
@@ -277,14 +277,14 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         portfolio.assetBalances.byId[caip19] = sumBalance(
           portfolio.assetBalances.byId[caip19] ?? '0',
-          account.balance
+          account.balance,
         )
 
         // add assetId without dupes
         portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
 
         portfolio.accountBalances.byId[accountSpecifier] = {
-          [caip19]: account.balance
+          [caip19]: account.balance,
         }
 
         portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
@@ -304,13 +304,13 @@ export const makeSortedAccountBalances = (totalAccountBalances: {
 }) =>
   Object.entries(totalAccountBalances)
     .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
-      bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1
+      bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1,
     )
     .map(([accountId, _]) => accountId)
 
 export const makeBalancesByChainBucketsFlattened = (
   accountBalances: string[],
-  assets: { [k: CAIP19]: Asset }
+  assets: { [k: CAIP19]: Asset },
 ) => {
   const initial = {} as Record<ChainTypes, CAIP10[]>
   const balancesByChainBuckets = accountBalances.reduce<Record<ChainTypes, CAIP10[]>>(
@@ -320,7 +320,7 @@ export const makeBalancesByChainBucketsFlattened = (
       acc[asset.chain] = [...(acc[asset.chain] ?? []), accountId]
       return acc
     },
-    initial
+    initial,
   )
   return Object.values(balancesByChainBuckets).flat()
 }

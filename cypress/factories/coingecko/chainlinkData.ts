@@ -36,8 +36,8 @@ export const makeChainlinkDataResponse = () => {
       total_supply: 1000000000.0,
       max_supply: 1000000000.0,
       circulating_supply: 467009549.5205637,
-      last_updated: '2022-02-03T06:27:51.909Z'
+      last_updated: '2022-02-03T06:27:51.909Z',
     },
-    last_updated: '2022-02-03T06:27:51.909Z'
+    last_updated: '2022-02-03T06:27:51.909Z',
   }
 }

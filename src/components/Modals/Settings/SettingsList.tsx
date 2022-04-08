@@ -9,7 +9,7 @@ import {
   Stack,
   Switch,
   useColorMode,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { FaGreaterThanEqual } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'

@@ -13,7 +13,7 @@ import {
   ModalFooter,
   ModalHeader,
   Stack,
-  Tooltip
+  Tooltip,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
@@ -46,7 +46,7 @@ export const Details = () => {
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError, memo } =
     useWatch({
-      control
+      control,
     })
 
   const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
@@ -62,7 +62,7 @@ export const Details = () => {
     handleNextClick,
     handleSendMax,
     loading,
-    toggleCurrency
+    toggleCurrency,
   } = useSendDetails()
 
   if (
@@ -150,7 +150,7 @@ export const Details = () => {
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-crypto-input'
             />
@@ -177,7 +177,7 @@ export const Details = () => {
                 <SendMaxButton onClick={handleSendMax} data-test='send-max-button' />
               }
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-fiat-input'
             />
@@ -192,7 +192,7 @@ export const Details = () => {
               <Tooltip
                 placement='right'
                 label={translate('modals.send.sendForm.memoExplainer', {
-                  assetSymbol: asset.symbol
+                  assetSymbol: asset.symbol,
                 })}
                 fontSize='md'
                 pr={4}
@@ -211,7 +211,7 @@ export const Details = () => {
               color={memoFieldError ? 'red.500' : 'gray.500'}
             >
               {translate('modals.send.sendForm.charactersRemaining', {
-                charactersRemaining: remainingMemoChars.toString()
+                charactersRemaining: remainingMemoChars.toString(),
               })}
             </FormHelperText>
           </Box>
@@ -225,7 +225,7 @@ export const Details = () => {
                 type='text'
                 variant='filled'
                 placeholder={translate('modals.send.sendForm.optionalAssetMemo', {
-                  assetSymbol: asset.symbol
+                  assetSymbol: asset.symbol,
                 })}
               />
             )}

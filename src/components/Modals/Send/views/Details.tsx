@@ -11,7 +11,7 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
-  Stack
+  Stack,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
@@ -37,7 +37,7 @@ export const Details = () => {
   const translate = useTranslate()
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
-    control
+    control,
   })
 
   const { send } = useModal()
@@ -50,7 +50,7 @@ export const Details = () => {
     handleNextClick,
     handleSendMax,
     loading,
-    toggleCurrency
+    toggleCurrency,
   } = useSendDetails()
 
   if (
@@ -138,7 +138,7 @@ export const Details = () => {
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-crypto-input'
             />
@@ -165,7 +165,7 @@ export const Details = () => {
                 <SendMaxButton onClick={handleSendMax} data-test='send-max-button' />
               }
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-fiat-input'
             />

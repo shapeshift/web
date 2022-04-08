@@ -14,26 +14,26 @@ const pools = [
     token0: 'ETH',
     token1: 'FOX',
     tokenAmount: '3.7124',
-    fiatAmount: '24.18'
+    fiatAmount: '24.18',
   },
   {
     token0: 'UNI',
     token1: 'ETH',
     tokenAmount: '3.7124',
-    fiatAmount: '1400.38'
+    fiatAmount: '1400.38',
   },
   {
     token0: 'WBTC',
     token1: 'ETH',
     tokenAmount: '25.7124',
-    fiatAmount: '4448.48'
+    fiatAmount: '4448.48',
   },
   {
     token0: 'SUSHI',
     token1: 'ETH',
     tokenAmount: '3.7124',
-    fiatAmount: '1400.38'
-  }
+    fiatAmount: '1400.38',
+  },
 ]
 
 /*

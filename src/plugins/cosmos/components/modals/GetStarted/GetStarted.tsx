@@ -13,14 +13,14 @@ type GetStartedModalProps = {
 
 export enum GetStartedModalRoutes {
   GetStarted = '/defi/modal/get-started',
-  LearnMore = '/defi/modal/learn-more'
+  LearnMore = '/defi/modal/learn-more',
 }
 
 export const entries = [GetStartedModalRoutes.GetStarted, GetStartedModalRoutes.LearnMore]
 
 const GetStartedModalRouter = ({
   assetId,
-  location
+  location,
 }: GetStartedModalProps & RouteComponentProps) => (
   <Switch location={location} key={location.key}>
     <Route path={GetStartedModalRoutes.GetStarted}>

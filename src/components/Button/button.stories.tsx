@@ -6,7 +6,7 @@ import {
   ChevronDownIcon,
   EmailIcon,
   PhoneIcon,
-  SearchIcon
+  SearchIcon,
 } from '@chakra-ui/icons'
 import {
   Button,
@@ -16,7 +16,7 @@ import {
   IconButton,
   Spinner,
   Stack,
-  Wrap
+  Wrap,
 } from '@chakra-ui/react'
 import { FaFacebook, FaTwitter } from 'react-icons/fa'
 
@@ -28,8 +28,8 @@ export default {
       <Container mt='40px'>
         <Story />
       </Container>
-    )
-  ]
+    ),
+  ],
 }
 
 export const basic = () => (

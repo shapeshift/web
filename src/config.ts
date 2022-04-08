@@ -25,9 +25,8 @@ const validators = {
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_COSMOS_INVESTOR: bool({ default: false }),
   REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
-  REACT_APP_FEATURE_PLUGIN_COSMOS: bool({ default: false }),
   REACT_APP_FEATURE_FOXY_INVESTOR: bool({ default: false }),
-  REACT_APP_REDUX_LOGGING: bool({ default: false })
+  REACT_APP_REDUX_LOGGING: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
@@ -36,7 +35,7 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
     console.error(err)
     console.error(
       envVar,
-      'missing from config. Check sample.env and add it to your local .env and add a validator in config.ts'
+      'missing from config. Check sample.env and add it to your local .env and add a validator in config.ts',
     )
   })
 }

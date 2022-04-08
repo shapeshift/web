@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { RawText } from 'components/Text'
 import {
   NumberFormatOptions,
-  useLocaleFormatter
+  useLocaleFormatter,
 } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 type AmountProps = {
@@ -20,7 +20,7 @@ export function Amount({
   ...props
 }: any): React.ReactElement {
   const {
-    number: { toString }
+    number: { toString },
   } = useLocaleFormatter({ fiatType: 'USD' })
 
   return (
@@ -59,7 +59,7 @@ const Crypto = ({
   ...props
 }: CryptoAmountProps) => {
   const {
-    number: { toCrypto, toParts }
+    number: { toCrypto, toParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
 
   const crypto = toCrypto(value, symbol, { maximumFractionDigits })
@@ -95,7 +95,7 @@ const Crypto = ({
 
 const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: FiatAmountProps) => {
   const {
-    number: { toFiat, toParts }
+    number: { toFiat, toParts },
   } = useLocaleFormatter({ fiatType: fiatType || 'USD' })
 
   const fiat = toFiat(value, { fiatType })
@@ -131,7 +131,7 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: Fi
 
 const Percent = ({ value, autoColor, options, ...props }: PercentAmountProps) => {
   const {
-    number: { toPercent }
+    number: { toPercent },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const formattedNumber = toPercent(value, options)
 

@@ -94,7 +94,7 @@ export const KeepKeyMenu = () => {
           <ExpandedMenuItem
             label={translate('walletProvider.keepKey.settings.menuLabels.bootloader')}
             value={getUpdateText(versions?.bootloader.updateAvailable)}
-            badge={versions?.bootloader.device}
+            badge={versions?.bootloader.device ?? 'Loading'}
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.bootloader.updateAvailable}
@@ -103,7 +103,7 @@ export const KeepKeyMenu = () => {
           <ExpandedMenuItem
             label={translate('walletProvider.keepKey.settings.menuLabels.firmware')}
             value={getUpdateText(versions?.firmware.updateAvailable)}
-            badge={versions?.firmware.device}
+            badge={versions?.firmware.device ?? 'Loading'}
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.firmware.updateAvailable}

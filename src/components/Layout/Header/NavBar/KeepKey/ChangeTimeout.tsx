@@ -20,7 +20,7 @@ export const ChangeTimeout = () => {
   const {
     state: { awaitingDeviceInteraction }
   } = useWallet()
-  const [radioTimeout, setRadioTimeout] = useState(DeviceTimeout.TenMinutes)
+  const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
 
   const handleChange = async (value: DeviceTimeout) => {
     const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)

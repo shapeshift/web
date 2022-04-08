@@ -43,9 +43,10 @@ export const WipedSuccessfully = () => {
           isFullWidth
           size='lg'
           onClick={handleRecoverWalletPress}
-          disabled={loading}
+          disabled={loading && true} // Un-disable when recover wallet is ready
           variant='outline'
           border='none'
+          title='Coming soon...'
         >
           <Text translation={'modals.keepKey.wiped.recoverButton'} />
         </Button>

@@ -7,6 +7,7 @@ import {
   ModalContent,
   ModalOverlay
 } from '@chakra-ui/react'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
@@ -28,12 +29,17 @@ export const WalletViewsSwitch = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }
 
-  const handleBack = () => {
+  const handleBack = async () => {
     history.goBack()
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
     if (history.location.pathname === '/') {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+    }
+
+    // If we are interacting with a KeepKey, cancel any active requests on back
+    if (state.wallet && isKeepKey(state.wallet)) {
+      await state.wallet.cancel()
     }
   }
 

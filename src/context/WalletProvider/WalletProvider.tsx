@@ -137,7 +137,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: true,
         type: KeyManager.KeepKey,
-        noBackButton: true,
         deviceId: action.payload.deviceId,
         initialRoute: '/keepkey/new'
       }

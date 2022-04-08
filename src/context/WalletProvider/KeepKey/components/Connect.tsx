@@ -4,7 +4,7 @@ import {
   AlertIcon,
   Button,
   ModalBody,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import React, { useState } from 'react'
@@ -97,7 +97,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name: label, icon, deviceId, meta: { label } }
+          payload: { wallet, name: label, icon, deviceId, meta: { label } },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         /**

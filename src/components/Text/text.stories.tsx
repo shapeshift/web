@@ -26,15 +26,15 @@ export default {
         '6xl',
         '7xl',
         '8xl',
-        '9xl'
+        '9xl',
       ],
       control: { type: 'select' },
       description: 'Size of text',
-      default: undefined
+      default: undefined,
     },
     translation: {
-      description: 'Takes a translation key'
-    }
+      description: 'Takes a translation key',
+    },
   },
   decorators: [
     (Story: any) => (
@@ -43,8 +43,8 @@ export default {
           <Story />
         </Container>
       </TestProviders>
-    )
-  ]
+    ),
+  ],
 }
 
 const Template: Story<TextPropTypes> = args => <Text {...args} />
@@ -52,7 +52,7 @@ const Template: Story<TextPropTypes> = args => <Text {...args} />
 export const Basic = Template.bind({})
 Basic.args = {
   fontSize: undefined,
-  translation: 'common.cancel'
+  translation: 'common.cancel',
 }
 
 export const Translations = () => <Text fontSize='6xl' translation='t.prop.takes.translation.key' />

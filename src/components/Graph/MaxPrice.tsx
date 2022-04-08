@@ -32,7 +32,7 @@ export const MaxPrice = ({
   width,
   xDate,
   xText,
-  margin
+  margin,
 }: LineChartProps) => {
   const handleTextPos = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
     const offsetWidth = width / 2

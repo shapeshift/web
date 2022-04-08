@@ -8,7 +8,7 @@ import {
   InputGroup,
   InputRightElement,
   Text as RawText,
-  useToast
+  useToast,
 } from '@chakra-ui/react'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC } from '@shapeshiftoss/hdwallet-core'
@@ -53,7 +53,7 @@ export const GemOverview = ({
   selectedAsset,
   setChainType,
   chainAdapter,
-  isBTC
+  isBTC,
 }: GemOverviewProps) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
@@ -62,7 +62,7 @@ export const GemOverview = ({
 
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const addressOrNameFull = isBTC ? btcAddress : ensName || ethAddress
   const addressFull = isBTC ? btcAddress : ethAddress
@@ -85,7 +85,7 @@ export const GemOverview = ({
       fiatRampAction === FiatRampAction.Buy
         ? ['fiatRamps.selectAnAssetToBuy', 'fiatRamps.assetToBuy', 'fiatRamps.fundsTo']
         : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.assetToSell', 'fiatRamps.fundsFrom'],
-    [fiatRampAction]
+    [fiatRampAction],
   )
 
   const handleCopyClick = async () => {
@@ -110,7 +110,7 @@ export const GemOverview = ({
     if (!wallet) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
-      showOnDevice: true
+      showOnDevice: true,
     })
     const shownOnDisplay =
       Boolean(deviceAddress) && (deviceAddress === ethAddress || deviceAddress === btcAddress)

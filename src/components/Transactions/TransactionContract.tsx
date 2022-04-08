@@ -66,7 +66,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
                 mb={2}
                 translation={[
                   `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`,
-                  { symbol: '' }
+                  { symbol: '' },
                 ]}
               />
               <RawText color='gray.500' fontSize='sm' lineHeight='1'>
@@ -121,7 +121,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
               <Amount.Crypto
                 value={fromBaseUnit(
                   txDetails.sellTransfer?.value ?? '0',
-                  txDetails.sellAsset?.precision ?? 18
+                  txDetails.sellAsset?.precision ?? 18,
                 )}
                 symbol={txDetails.sellAsset?.symbol ?? ''}
                 maximumFractionDigits={6}
@@ -130,7 +130,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
               <Amount.Crypto
                 value={fromBaseUnit(
                   txDetails.buyTransfer?.value ?? '0',
-                  txDetails.buyAsset?.precision ?? 18
+                  txDetails.buyAsset?.precision ?? 18,
                 )}
                 symbol={txDetails.buyAsset?.symbol ?? ''}
                 maximumFractionDigits={6}
@@ -147,7 +147,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
                 <Amount.Crypto
                   value={fromBaseUnit(
                     txDetails.tx?.fee?.value,
-                    txDetails.feeAsset?.precision ?? 18
+                    txDetails.feeAsset?.precision ?? 18,
                   )}
                   symbol={txDetails.feeAsset.symbol}
                   maximumFractionDigits={6}

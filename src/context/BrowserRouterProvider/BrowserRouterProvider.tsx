@@ -34,9 +34,9 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
       params,
       query,
       appRoutes,
-      currentRoute
+      currentRoute,
     }),
-    [history, location, params, query, appRoutes, currentRoute]
+    [history, location, params, query, appRoutes, currentRoute],
   )
 
   return <BrowserRouterContext.Provider value={router}>{children}</BrowserRouterContext.Provider>

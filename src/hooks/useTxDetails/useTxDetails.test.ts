@@ -7,7 +7,7 @@ import {
   getTransferByAsset,
   getTransferByType,
   isSupportedContract,
-  isTradeContract
+  isTradeContract,
 } from 'hooks/useTxDetails/useTxDetails'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
@@ -39,11 +39,11 @@ describe('isTradeContract', () => {
     const account = '0xfoxy'
     const buy = {
       from: '0xpoolA',
-      to: account
+      to: account,
     } as chainAdapters.TxTransfer
     const sell = {
       from: account,
-      to: '0xpoolB'
+      to: '0xpoolB',
     } as chainAdapters.TxTransfer
     expect(isTradeContract(buy, sell)).toEqual(true)
   })
@@ -51,11 +51,11 @@ describe('isTradeContract', () => {
   it('returns false when seller.from !== buyer.to', () => {
     const buy = {
       from: '0xpoolA',
-      to: '0xfoxy'
+      to: '0xfoxy',
     } as chainAdapters.TxTransfer
     const sell = {
       from: '0xzyzz',
-      to: '0xpoolB'
+      to: '0xpoolB',
     } as chainAdapters.TxTransfer
     expect(isTradeContract(buy, sell)).toEqual(false)
   })
@@ -65,11 +65,11 @@ describe('isTradeContract', () => {
     const pool = '0xpool'
     const buy = {
       from: pool,
-      to: account
+      to: account,
     } as chainAdapters.TxTransfer
     const sell = {
       from: account,
-      to: pool
+      to: pool,
     } as chainAdapters.TxTransfer
     expect(isTradeContract(buy, sell)).toEqual(false)
   })
@@ -106,7 +106,7 @@ describe('getTransferByType', () => {
 describe('getTransferByAsset', () => {
   it('finds transfer with asset', () => {
     const asset = {
-      caip19: 'eip155:1/slip44:60'
+      caip19: 'eip155:1/slip44:60',
     } as Asset
     const result = getTransferByAsset(EthSend, asset)
     const expected = EthSend.transfers[0]
@@ -114,7 +114,7 @@ describe('getTransferByAsset', () => {
   })
   it('returns undefined on failure', () => {
     const asset = {
-      caip19: 'eip999:1/0x:ZZ'
+      caip19: 'eip999:1/0x:ZZ',
     } as Asset
     const result = getTransferByAsset(EthSend, asset)
     expect(result).toBeUndefined()

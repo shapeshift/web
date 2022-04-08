@@ -25,7 +25,7 @@ import {
   PopoverTrigger,
   Stack,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
@@ -84,13 +84,13 @@ const CryptoInput = (props: InputProps) => (
 
 enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
-  Slippage = 'slippage'
+  Slippage = 'slippage',
 }
 
 export type DepositValues = {
@@ -116,10 +116,10 @@ export const Deposit = ({
   enableSlippage = true,
   onContinue,
   onCancel,
-  percentOptions
+  percentOptions,
 }: DepositProps) => {
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -135,14 +135,14 @@ export const Deposit = ({
     formState: { errors, isValid },
     handleSubmit,
     setError,
-    setValue
+    setValue,
   } = useForm<DepositValues>({
     mode: 'onChange',
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: DEFAULT_SLIPPAGE
-    }
+      [Field.Slippage]: DEFAULT_SLIPPAGE,
+    },
   })
 
   const values = useWatch({ control })
@@ -161,7 +161,7 @@ export const Deposit = ({
       // Toggles an existing error to the other field if present
       clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
       setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
-        message: 'common.insufficientFunds'
+        message: 'common.insufficientFunds',
       })
     }
     setActiveField(field)
@@ -284,7 +284,7 @@ export const Deposit = ({
                           value={option}
                           options={{
                             minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
+                            maximumFractionDigits: 0,
                           }}
                         />
                       )}

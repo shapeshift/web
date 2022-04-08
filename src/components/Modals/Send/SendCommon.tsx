@@ -3,7 +3,7 @@ export enum SendRoutes {
   Address = '/send/address',
   Details = '/send/details',
   Confirm = '/send/confirm',
-  Scan = '/send/scan'
+  Scan = '/send/scan',
 }
 
 export enum SendFormFields {
@@ -18,5 +18,5 @@ export enum SendFormFields {
   FiatAmount = 'fiatAmount',
   FiatSymbol = 'fiatSymbol',
   AmountFieldError = 'amountFieldError',
-  SendMax = 'sendMax'
+  SendMax = 'sendMax',
 }

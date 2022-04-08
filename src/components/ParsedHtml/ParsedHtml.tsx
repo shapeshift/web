@@ -29,7 +29,7 @@ export const ParsedHtml = ({ innerHtml, ...rest }: { innerHtml: string } & TextP
           )
         }
       }
-    }
+    },
   }
 
   return <RawText {...rest}>{parse(innerHtml, options)}</RawText>

@@ -2,7 +2,7 @@ import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import {
   getSupportedVaults,
   SupportedYearnVault,
-  YearnVaultApi
+  YearnVaultApi,
 } from '@shapeshiftoss/investor-yearn'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
@@ -15,7 +15,7 @@ import {
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
@@ -31,13 +31,13 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
-      assetReference: vault.vaultAddress
+      assetReference: vault.vaultAddress,
     })
     const tokenCaip19 = caip19.toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
-      assetReference: vault.tokenAddress
+      assetReference: vault.tokenAddress,
     })
     const balance = balances[vaultCaip19]
 
@@ -48,7 +48,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
         balance,
         vaultCaip19,
         tokenCaip19,
-        pricePerShare: bnOrZero(pricePerShare)
+        pricePerShare: bnOrZero(pricePerShare),
       }
     }
   }
@@ -71,7 +71,7 @@ export type UseVaultBalancesReturn = {
 export function useVaultBalances(): UseVaultBalancesReturn {
   const USDC_PRECISION = 6
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const [loading, setLoading] = useState(false)
   const [vaults, setVaults] = useState<Record<string, EarnVault>>({})
@@ -108,7 +108,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         .times(pricePerShare)
         .times(bnOrZero(marketPrice))
     },
-    [assets, marketData]
+    [assets, marketData],
   )
 
   const totalBalance = useMemo(
@@ -117,7 +117,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         const amount = makeVaultFiatAmount(vault)
         return acc.plus(bnOrZero(amount))
       }, bnOrZero(0)),
-    [makeVaultFiatAmount, vaults]
+    [makeVaultFiatAmount, vaults],
   )
 
   const mergedVaults = useMemo(() => {
@@ -133,17 +133,17 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           apy: yearnVault?.metadata?.apy?.net_apy,
           underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
             .div(`1e+${USDC_PRECISION}`)
-            .toString()
+            .toString(),
         }
         return acc
       },
-      {}
+      {},
     )
   }, [assets, makeVaultFiatAmount, vaults, yearn])
 
   return {
     vaults: mergedVaults,
     totalBalance: totalBalance.toString(),
-    loading: loading || yearnLoading || balancesLoading
+    loading: loading || yearnLoading || balancesLoading,
   }
 }

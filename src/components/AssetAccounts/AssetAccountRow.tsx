@@ -6,7 +6,7 @@ import {
   Stack,
   Tag,
   useColorModeValue,
-  useMediaQuery
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
@@ -21,7 +21,7 @@ import {
   selectAssetByCAIP19,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter
+  selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -53,14 +53,14 @@ export const AssetAccountRow = ({
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
   )
   const allocation = useAppSelector(state =>
-    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId })
+    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
   )
   const path = generatePath(
     assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
-    filter
+    filter,
   )
   const label = accountIdToLabel(accountId)
 
@@ -75,7 +75,7 @@ export const AssetAccountRow = ({
         md: '1fr repeat(2, 1fr)',
         lg: showAllocation
           ? 'minmax(0, 2fr) 150px repeat(2, 1fr)'
-          : `minmax(0, 2fr) repeat(${isCompact ? '1' : '2'}, 1fr)`
+          : `minmax(0, 2fr) repeat(${isCompact ? '1' : '2'}, 1fr)`,
       }}
       py={4}
       pl={4}

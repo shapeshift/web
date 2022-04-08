@@ -5,7 +5,7 @@ import {
   Center,
   CircularProgress as CCircularProgress,
   CircularProgressProps,
-  Container
+  Container,
 } from '@chakra-ui/react'
 import { Story } from '@storybook/react'
 import { TestProviders } from 'test/TestProviders'
@@ -20,8 +20,8 @@ export default {
     isIndeterminate: {
       control: { type: 'boolean' },
       description: 'makes it spin',
-      default: undefined
-    }
+      default: undefined,
+    },
   },
   decorators: [
     (Story: any) => (
@@ -30,8 +30,8 @@ export default {
           <Story />
         </Container>
       </TestProviders>
-    )
-  ]
+    ),
+  ],
 }
 
 const Template: Story<CircularProgressProps> = args => (

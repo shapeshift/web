@@ -31,5 +31,5 @@ export const sources = [
   { name: 'Uniswap_V3', proportion: '0' },
   { name: 'Curve_V2', proportion: '0' },
   { name: 'ShibaSwap', proportion: '0' },
-  { name: 'Synapse', proportion: '0' }
+  { name: 'Synapse', proportion: '0' },
 ]

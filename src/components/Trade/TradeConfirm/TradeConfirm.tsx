@@ -34,7 +34,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     getValues,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const toast = useToast()
   const translate = useTranslate()
@@ -43,10 +43,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
   const {
-    number: { toFiat }
+    number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const { chain, tokenId } = sellAsset.currency
   const network = NetworkTypes.MAINNET
@@ -64,17 +64,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     'ZrxExecuteQuote - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
     'ZrxExecuteQuote - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
     'ZrxExecuteQuote - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
-    'ZrxExecuteQuote - signTransaction error': TRADE_ERRORS.SIGNING_FAILED
+    'ZrxExecuteQuote - signTransaction error': TRADE_ERRORS.SIGNING_FAILED,
   } as const
 
   const getParametrizedErrorMessageOrDefault = (
-    errorMessage: string
+    errorMessage: string,
   ): ValueOf<typeof PARAMETRIZED_ERRORS_TO_TRADE_ERRORS> | TRADE_ERRORS.INSUFFICIENT_FUNDS => {
     // If no other error pattern is found, we assume the tx was rejected because of insufficient funds
     const defaultTradeError = TRADE_ERRORS.INSUFFICIENT_FUNDS
     return (
       Object.entries(PARAMETRIZED_ERRORS_TO_TRADE_ERRORS).find(([error]) =>
-        errorMessage.includes(error)
+        errorMessage.includes(error),
       )?.[1] || defaultTradeError
     )
   }
@@ -121,7 +121,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         status: 'error',
         duration: 9000,
         isClosable: true,
-        position: 'top-right'
+        position: 'top-right',
       })
     }
   }
@@ -172,7 +172,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Box textAlign='right'>
                   <RawText>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(
-                    bnOrZero(quote?.rate)
+                    bnOrZero(quote?.rate),
                   )} ${buyAsset?.currency?.symbol}`}</RawText>
                   <RawText color='gray.500'>@{trade?.name}</RawText>
                 </Box>

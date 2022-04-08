@@ -7,7 +7,7 @@ import {
   ModalFooter,
   Stack,
   Text as CText,
-  Tooltip
+  Tooltip,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 // @ts-ignore this will fail at 'file differs in casing' error
@@ -29,7 +29,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectSingleValidator
+  selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -37,7 +37,7 @@ import { Field, StakingPath, StakingValues } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 type StakeProps = {
@@ -56,14 +56,14 @@ export const StakeConfirm = ({
   assetId,
   accountSpecifier,
   validatorAddress,
-  onCancel
+  onCancel,
 }: StakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress)
+    selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
@@ -76,7 +76,7 @@ export const StakeConfirm = ({
 
   const fiatStakeAmount = useMemo(
     () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
-    [cryptoAmount, marketData.price]
+    [cryptoAmount, marketData.price],
   )
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export const StakeConfirm = ({
   }, [adapter, asset.precision, marketData.price])
 
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
@@ -164,7 +164,7 @@ export const StakeConfirm = ({
               &nbsp;
               <Tooltip
                 label={translate('defi.modals.staking.tooltip.gasFees', {
-                  networkName: asset.name
+                  networkName: asset.name,
                 })}
               >
                 <InfoOutlineIcon />

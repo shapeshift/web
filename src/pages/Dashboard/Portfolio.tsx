@@ -10,7 +10,7 @@ import { Text } from 'components/Text'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceWithDelegations
+  selectPortfolioTotalFiatBalanceWithDelegations,
 } from 'state/slices/selectors'
 
 import { AccountTable } from './components/AccountList/AccountTable'

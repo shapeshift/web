@@ -9,7 +9,7 @@ const commonColors = {
     600: '#2D4EC9',
     700: '#243EA1',
     800: '#1C317E',
-    900: '#15255F'
+    900: '#15255F',
   },
   gray: {
     900: '#171923',
@@ -26,7 +26,7 @@ const commonColors = {
     300: '#CBD5E0',
     200: '#E2E8F0',
     100: '#EDF2F7',
-    50: '#F7FAFC'
+    50: '#F7FAFC',
   },
   green: {
     900: '#004F3A',
@@ -38,7 +38,7 @@ const commonColors = {
     300: '#33D7AD',
     200: '#5CDFBD',
     100: '#A1ECD9',
-    50: '#E6FAF5'
+    50: '#E6FAF5',
   },
   red: {
     50: '#FFF5F5',
@@ -50,20 +50,20 @@ const commonColors = {
     600: '#DD4D4A',
     700: '#C74543',
     800: '#AE3C3B',
-    900: '#923231'
+    900: '#923231',
   },
   darkTeal: {
     500: '#144241',
-    300: '#3F6D6C'
-  }
+    300: '#3F6D6C',
+  },
 }
 
 export const brand = {
   primary: commonColors.blue[500],
-  altBg: `radial-gradient(94.32% 94.6% at 4.04% -44.6%,${commonColors.blue[600]}66 0%,${commonColors.gray[900]}00 100%),linear-gradient(0deg,${commonColors.gray[900]},${commonColors.gray[900]})`
+  altBg: `radial-gradient(94.32% 94.6% at 4.04% -44.6%,${commonColors.blue[600]}66 0%,${commonColors.gray[900]}00 100%),linear-gradient(0deg,${commonColors.gray[900]},${commonColors.gray[900]})`,
 }
 
 export const colors = {
   ...commonColors,
-  ...brand
+  ...brand,
 }

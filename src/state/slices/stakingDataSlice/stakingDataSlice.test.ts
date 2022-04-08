@@ -4,7 +4,7 @@ import {
   mockStakingDataWithOnlyRewards,
   mockStakingDataWithOnlyUndelegations,
   mockStakingWithUnknownValidators,
-  mockValidatorData
+  mockValidatorData,
 } from 'test/mocks/stakingData'
 import { clearState, store } from 'state/store'
 
@@ -16,7 +16,7 @@ import {
   selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAssetId,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
-  selectValidatorIsLoaded
+  selectValidatorIsLoaded,
 } from './selectors'
 import { stakingData } from './stakingDataSlice'
 
@@ -37,7 +37,7 @@ describe('stakingDataSlice', () => {
       byAccountSpecifier: {},
       byValidator: {},
       status: 'idle',
-      validatorStatus: 'idle'
+      validatorStatus: 'idle',
     })
   })
 
@@ -79,14 +79,14 @@ describe('stakingDataSlice', () => {
         store.dispatch(
           stakingData.actions.upsertStakingData({
             accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData
-          })
+            stakingData: mockStakingData,
+          }),
         )
         expect(
-          store.getState().stakingData.byAccountSpecifier[cosmosAccountSpecifier]
+          store.getState().stakingData.byAccountSpecifier[cosmosAccountSpecifier],
         ).toMatchSnapshot()
         expect(
-          store.getState().stakingData.byAccountSpecifier[otherCosmosAccountSpecifier]
+          store.getState().stakingData.byAccountSpecifier[otherCosmosAccountSpecifier],
         ).toBeUndefined()
       })
 
@@ -94,14 +94,14 @@ describe('stakingDataSlice', () => {
         store.dispatch(
           stakingData.actions.upsertStakingData({
             accountSpecifier: otherCosmosAccountSpecifier,
-            stakingData: emptyMockStakingData
-          })
+            stakingData: emptyMockStakingData,
+          }),
         )
         expect(
-          store.getState().stakingData.byAccountSpecifier[otherCosmosAccountSpecifier]
+          store.getState().stakingData.byAccountSpecifier[otherCosmosAccountSpecifier],
         ).toMatchSnapshot()
         expect(
-          store.getState().stakingData.byAccountSpecifier[cosmosAccountSpecifier]
+          store.getState().stakingData.byAccountSpecifier[cosmosAccountSpecifier],
         ).toBeUndefined()
       })
     })
@@ -110,8 +110,8 @@ describe('stakingDataSlice', () => {
       it('updates or inserts validator data in state', async () => {
         store.dispatch(
           stakingData.actions.upsertValidatorData({
-            validators: mockValidatorData
-          })
+            validators: mockValidatorData,
+          }),
         )
         expect(store.getState().stakingData.byValidator).toMatchSnapshot()
       })
@@ -124,17 +124,17 @@ describe('stakingDataSlice', () => {
         store.dispatch(
           stakingData.actions.upsertStakingData({
             accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData
-          })
+            stakingData: mockStakingData,
+          }),
         )
         store.dispatch(
           stakingData.actions.upsertValidatorData({
-            validators: mockValidatorData
-          })
+            validators: mockValidatorData,
+          }),
         )
 
         expect(
-          store.getState().stakingData.byAccountSpecifier[cosmosAccountSpecifier]
+          store.getState().stakingData.byAccountSpecifier[cosmosAccountSpecifier],
         ).toMatchSnapshot()
         expect(store.getState().stakingData.byValidator).toMatchSnapshot()
         store.dispatch(stakingData.actions.clear())
@@ -143,7 +143,7 @@ describe('stakingDataSlice', () => {
           byAccountSpecifier: {},
           byValidator: {},
           status: 'idle',
-          validatorStatus: 'idle'
+          validatorStatus: 'idle',
         })
       })
     })
@@ -156,7 +156,7 @@ describe('stakingDataSlice', () => {
           store.getState(),
           cosmosAccountSpecifier,
           SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId
+          cosmosAssetId,
         )
         expect(selected).toEqual([])
       })
@@ -165,15 +165,15 @@ describe('stakingDataSlice', () => {
         store.dispatch(
           stakingData.actions.upsertStakingData({
             accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData
-          })
+            stakingData: mockStakingData,
+          }),
         )
 
         const selected = selectActiveStakingOpportunityDataByAssetId(
           store.getState(),
           cosmosAccountSpecifier,
           SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId
+          cosmosAssetId,
         )
         expect(selected).toEqual([])
       })
@@ -182,8 +182,8 @@ describe('stakingDataSlice', () => {
         beforeEach(() => {
           store.dispatch(
             stakingData.actions.upsertValidatorData({
-              validators: mockValidatorData
-            })
+              validators: mockValidatorData,
+            }),
           )
         })
 
@@ -191,15 +191,15 @@ describe('stakingDataSlice', () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingData
-            })
+              stakingData: mockStakingData,
+            }),
           )
 
           const selected = selectActiveStakingOpportunityDataByAssetId(
             store.getState(),
             cosmosAccountSpecifier,
             SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected).toMatchSnapshot()
         })
@@ -208,15 +208,15 @@ describe('stakingDataSlice', () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingDataWithOnlyUndelegations
-            })
+              stakingData: mockStakingDataWithOnlyUndelegations,
+            }),
           )
 
           const selected = selectActiveStakingOpportunityDataByAssetId(
             store.getState(),
             cosmosAccountSpecifier,
             SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected).toMatchSnapshot()
         })
@@ -225,15 +225,15 @@ describe('stakingDataSlice', () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingDataWithOnlyRewards
-            })
+              stakingData: mockStakingDataWithOnlyRewards,
+            }),
           )
 
           const selected = selectActiveStakingOpportunityDataByAssetId(
             store.getState(),
             cosmosAccountSpecifier,
             SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected).toMatchSnapshot()
         })
@@ -250,15 +250,15 @@ describe('stakingDataSlice', () => {
         store.dispatch(
           stakingData.actions.upsertStakingData({
             accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData
-          })
+            stakingData: mockStakingData,
+          }),
         )
 
         const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
         expect(selected).toEqual([
           'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
           'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          'cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn'
+          'cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn',
         ])
       })
 
@@ -266,8 +266,8 @@ describe('stakingDataSlice', () => {
         beforeEach(() => {
           store.dispatch(
             stakingData.actions.upsertValidatorData({
-              validators: mockValidatorData
-            })
+              validators: mockValidatorData,
+            }),
           )
         })
 
@@ -275,8 +275,8 @@ describe('stakingDataSlice', () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingData
-            })
+              stakingData: mockStakingData,
+            }),
           )
 
           const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
@@ -287,14 +287,14 @@ describe('stakingDataSlice', () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingWithUnknownValidators
-            })
+              stakingData: mockStakingWithUnknownValidators,
+            }),
           )
 
           const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
           expect(selected).toEqual([
             'cosmosvaloper1r9lxkpqre6j4487ut882xchgr7rdtx3x76gtdp',
-            'cosmosvaloper1yvwqd5rdtuaw25mcqhz794dvgq9k9yeh8mjcdh'
+            'cosmosvaloper1yvwqd5rdtuaw25mcqhz794dvgq9k9yeh8mjcdh',
           ])
         })
       })
@@ -305,7 +305,7 @@ describe('stakingDataSlice', () => {
         const selected = selectSingleValidator(
           store.getState(),
           cosmosAccountSpecifier,
-          SHAPESHIFT_VALIDATOR_ADDRESS
+          SHAPESHIFT_VALIDATOR_ADDRESS,
         )
         expect(selected).toBeNull()
       })
@@ -314,8 +314,8 @@ describe('stakingDataSlice', () => {
         beforeEach(() => {
           store.dispatch(
             stakingData.actions.upsertValidatorData({
-              validators: mockValidatorData
-            })
+              validators: mockValidatorData,
+            }),
           )
         })
 
@@ -323,14 +323,14 @@ describe('stakingDataSlice', () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingData
-            })
+              stakingData: mockStakingData,
+            }),
           )
 
           const selected = selectSingleValidator(
             store.getState(),
             cosmosAccountSpecifier,
-            'cosmosvaloper1xxjvzwjpsf6ktuffkcpx29ut9qfrn0my8xdtqd'
+            'cosmosvaloper1xxjvzwjpsf6ktuffkcpx29ut9qfrn0my8xdtqd',
           )
           expect(selected).toBeNull()
         })
@@ -339,20 +339,20 @@ describe('stakingDataSlice', () => {
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingData
-            })
+              stakingData: mockStakingData,
+            }),
           )
 
           const selected = selectSingleValidator(
             store.getState(),
             cosmosAccountSpecifier,
-            SHAPESHIFT_VALIDATOR_ADDRESS
+            SHAPESHIFT_VALIDATOR_ADDRESS,
           )
           expect(selected).toEqual({
             address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
             apr: '0.1496681491',
             commission: '0.100000000000000000',
-            moniker: 'ShapeShift DAO'
+            moniker: 'ShapeShift DAO',
           })
         })
       })
@@ -364,7 +364,7 @@ describe('stakingDataSlice', () => {
           store.getState(),
           cosmosAccountSpecifier,
           SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId
+          cosmosAssetId,
         )
         expect(selected).toEqual('')
       })
@@ -373,14 +373,14 @@ describe('stakingDataSlice', () => {
         beforeEach(() => {
           store.dispatch(
             stakingData.actions.upsertValidatorData({
-              validators: mockValidatorData
-            })
+              validators: mockValidatorData,
+            }),
           )
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingData
-            })
+              stakingData: mockStakingData,
+            }),
           )
         })
 
@@ -389,7 +389,7 @@ describe('stakingDataSlice', () => {
             store.getState(),
             cosmosAccountSpecifier,
             'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected).toEqual('')
 
@@ -397,7 +397,7 @@ describe('stakingDataSlice', () => {
             store.getState(),
             cosmosAccountSpecifier,
             'cosmosvaloper1r9lxkpqre6j4487ut882xchgr7rdtx3x76gtdp',
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected2).toEqual('')
         })
@@ -407,7 +407,7 @@ describe('stakingDataSlice', () => {
             store.getState(),
             cosmosAccountSpecifier,
             SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected).toEqual('3.831752143667562385')
         })
@@ -420,7 +420,7 @@ describe('stakingDataSlice', () => {
           store.getState(),
           cosmosAccountSpecifier,
           SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId
+          cosmosAssetId,
         )
         expect(selected).toEqual('0')
       })
@@ -429,14 +429,14 @@ describe('stakingDataSlice', () => {
         beforeEach(() => {
           store.dispatch(
             stakingData.actions.upsertValidatorData({
-              validators: mockValidatorData
-            })
+              validators: mockValidatorData,
+            }),
           )
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingData
-            })
+              stakingData: mockStakingData,
+            }),
           )
         })
 
@@ -445,7 +445,7 @@ describe('stakingDataSlice', () => {
             store.getState(),
             cosmosAccountSpecifier,
             SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected).toEqual('10115')
 
@@ -453,7 +453,7 @@ describe('stakingDataSlice', () => {
             store.getState(),
             cosmosAccountSpecifier,
             'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
-            cosmosAssetId
+            cosmosAssetId,
           )
           expect(selected2).toEqual('4')
         })
@@ -464,7 +464,7 @@ describe('stakingDataSlice', () => {
       it('returns 0 on initial state', async () => {
         const selected = selectTotalStakingDelegationCryptoByAccountSpecifier(
           store.getState(),
-          cosmosAccountSpecifier
+          cosmosAccountSpecifier,
         )
         expect(selected).toEqual('0')
       })
@@ -473,21 +473,21 @@ describe('stakingDataSlice', () => {
         beforeEach(() => {
           store.dispatch(
             stakingData.actions.upsertValidatorData({
-              validators: mockValidatorData
-            })
+              validators: mockValidatorData,
+            }),
           )
           store.dispatch(
             stakingData.actions.upsertStakingData({
               accountSpecifier: cosmosAccountSpecifier,
-              stakingData: mockStakingData
-            })
+              stakingData: mockStakingData,
+            }),
           )
         })
 
         it('returns the total staking delegations amount for the account specifier', async () => {
           const selected = selectTotalStakingDelegationCryptoByAccountSpecifier(
             store.getState(),
-            cosmosAccountSpecifier
+            cosmosAccountSpecifier,
           )
           expect(selected).toEqual('15019')
         })

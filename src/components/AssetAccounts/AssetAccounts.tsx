@@ -17,7 +17,7 @@ type AssetAccountsProps = {
 export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   const translate = useTranslate()
   const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetIdAboveBalanceThreshold(state, assetId)
+    selectAccountIdsByAssetIdAboveBalanceThreshold(state, assetId),
   )
   if ((accountIds && accountIds.length === 0) || accountId) return null
   return (
@@ -33,7 +33,7 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
             templateColumns={{
               base: '1fr 1fr',
               md: '1fr 1fr 1fr',
-              lg: '2fr 150px repeat(2, 1fr)'
+              lg: '2fr 150px repeat(2, 1fr)',
             }}
             gap='1rem'
             pl={4}

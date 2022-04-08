@@ -24,21 +24,21 @@ export function register(): Plugins {
               () => {
                 const http = new unchained.cosmos.V1Api(
                   new unchained.cosmos.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL
-                  })
+                    basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+                  }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
+                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL,
                 )
 
                 return new cosmossdk.cosmos.ChainAdapter({
                   providers: { http, ws },
-                  coinName: 'Cosmos'
+                  coinName: 'Cosmos',
                 })
-              }
-            ]
-          ]
+              },
+            ],
+          ],
         },
         routes: [
           {
@@ -51,14 +51,14 @@ export function register(): Plugins {
               {
                 path: '/',
                 label: 'navBar.overview',
-                main: () => <CosmosAsset />
+                main: () => <CosmosAsset />,
               },
               {
                 path: '/transactions',
                 label: 'navBar.transactions',
-                main: () => <CosmosAssetTxHistory />
-              }
-            ]
+                main: () => <CosmosAssetTxHistory />,
+              },
+            ],
           },
           {
             path: '/accounts/cosmos::accountSubId/:assetId',
@@ -70,17 +70,17 @@ export function register(): Plugins {
               {
                 path: '/',
                 label: 'navBar.overview',
-                main: () => <CosmosAccount />
+                main: () => <CosmosAccount />,
               },
               {
                 path: '/transactions',
                 label: 'navBar.transactions',
-                main: () => <CosmosAccountTxHistory />
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                main: () => <CosmosAccountTxHistory />,
+              },
+            ],
+          },
+        ],
+      },
+    ],
   ]
 }

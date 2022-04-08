@@ -14,7 +14,7 @@ import {
   selectAssets,
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
-  selectTxIds
+  selectTxIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -27,7 +27,7 @@ type TransactionsProviderProps = {
 export const TransactionsProvider = ({ children }: TransactionsProviderProps): JSX.Element => {
   const dispatch = useDispatch()
   const {
-    state: { wallet, walletInfo }
+    state: { wallet, walletInfo },
   } = useWallet()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
@@ -44,7 +44,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         return acc.concat({ [chainId]: accountSpecifier })
       }, [])
     },
-    [accountSpecifiers]
+    [accountSpecifiers],
   )
 
   useEffect(() => {
@@ -79,16 +79,16 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 dispatch(
                   txHistory.actions.onMessage({
                     message: { ...msg, accountType },
-                    accountSpecifier: accountId
-                  })
+                    accountSpecifier: accountId,
+                  }),
                 )
               },
-              (err: any) => console.error(err)
+              (err: any) => console.error(err),
             )
           } catch (e) {
             console.error(
               `TransactionProvider: Error subscribing to transaction history for chain: ${chain}, accountType: ${accountType}`,
-              e
+              e,
             )
           }
         }
@@ -138,7 +138,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     chainAdapter,
     accountSpecifiers,
     getAccountSpecifiersByChainId,
-    portfolioAssetIds
+    portfolioAssetIds,
   ])
 
   /**
@@ -163,7 +163,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     const TX_DEBOUNCE_DELAY = 10000
     const timer = setTimeout(
       () => dispatch(txHistory.actions.setStatus('loaded')),
-      TX_DEBOUNCE_DELAY
+      TX_DEBOUNCE_DELAY,
     )
     return () => clearTimeout(timer) // clear if the input changes
   }, [assets, dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])

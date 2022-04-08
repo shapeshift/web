@@ -6,7 +6,7 @@ interface KeyringState {
 }
 
 export const useKeyringEventHandler = (
-  state: KeyringState /*, dispatch: Dispatch<ActionTypes>*/
+  state: KeyringState /*, dispatch: Dispatch<ActionTypes>*/,
 ) => {
   const { keyring } = state
 

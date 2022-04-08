@@ -10,7 +10,7 @@ import {
   Stack,
   Tag,
   useColorModeValue,
-  useToast
+  useToast,
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
@@ -44,7 +44,7 @@ import {
   selectAssetByCAIP19,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -56,7 +56,7 @@ enum DepositPath {
   ApproveSettings = '/approve/settings',
   Confirm = '/confirm',
   ConfirmSettings = '/confirm/settings',
-  Status = '/status'
+  Status = '/status',
 }
 
 export const routes = [
@@ -65,7 +65,7 @@ export const routes = [
   { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
   { step: 2, path: DepositPath.Confirm, label: 'Confirm' },
   { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: DepositPath.Status, label: 'Status' }
+  { step: 3, path: DepositPath.Status, label: 'Status' },
 ]
 
 export type FoxyDepositProps = {
@@ -89,7 +89,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum
+    assetReference: AssetReference.Ethereum,
   })
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -101,7 +101,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: rewardId
+    assetReference: rewardId,
   })
   const contractAsset = useAppSelector(state => selectAssetByCAIP19(state, contractAssetId))
 
@@ -121,7 +121,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.getFoxyOpportunityByStakingAddress(contractAddress)
+          api.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: FoxyDepositActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
@@ -139,9 +139,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         api.estimateApproveGas({
           tokenContractAddress: tokenId,
           contractAddress,
-          userAddress: state.userAddress
+          userAddress: state.userAddress,
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
@@ -150,7 +150,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
         title: translate('common.somethingWentWrong'),
-        status: 'error'
+        status: 'error',
       })
     }
   }
@@ -165,9 +165,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
-          userAddress: state.userAddress
+          userAddress: state.userAddress,
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
@@ -176,7 +176,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
         title: translate('common.somethingWentWrong'),
-        status: 'error'
+        status: 'error',
       })
     }
   }
@@ -190,7 +190,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
       const _allowance = await api.allowance({
         tokenContractAddress: tokenId,
         contractAddress,
-        userAddress: state.userAddress
+        userAddress: state.userAddress,
       })
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
@@ -200,7 +200,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         if (!estimatedGasCrypto) return
         dispatch({
           type: FoxyDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto }
+          payload: { estimatedGasCrypto },
         })
         history.push(DepositPath.Confirm)
       } else {
@@ -208,7 +208,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         if (!estimatedGasCrypto) return
         dispatch({
           type: FoxyDepositActionType.SET_APPROVE,
-          payload: { estimatedGasCrypto }
+          payload: { estimatedGasCrypto },
         })
         history.push(DepositPath.Approve)
       }
@@ -218,7 +218,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
         title: translate('common.somethingWentWrong'),
-        status: 'error'
+        status: 'error',
       })
     }
   }
@@ -231,28 +231,28 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         tokenContractAddress: tokenId,
         contractAddress,
         userAddress: state.userAddress,
-        wallet: walletState.wallet
+        wallet: walletState.wallet,
       })
       await poll({
         fn: () =>
           api.allowance({
             tokenContractAddress: tokenId,
             contractAddress,
-            userAddress: state.userAddress!
+            userAddress: state.userAddress!,
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
         },
         interval: 15000,
-        maxAttempts: 30
+        maxAttempts: 30,
       })
       // Get deposit gas estimate
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto }
+        payload: { estimatedGasCrypto },
       })
 
       history.push(DepositPath.Confirm)
@@ -262,7 +262,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
-        status: 'error'
+        status: 'error',
       })
     } finally {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
@@ -281,9 +281,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
           contractAddress,
-          wallet: walletState.wallet
+          wallet: walletState.wallet,
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
       history.push(DepositPath.Status)
@@ -292,14 +292,14 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         fn: () => api.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
-        maxAttempts: 30
+        maxAttempts: 30,
       })
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
-        }
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
+        },
       })
     } catch (error) {
       console.error('FoxyDeposit:handleDeposit error', error)
@@ -307,7 +307,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
-        status: 'error'
+        status: 'error',
       })
     } finally {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
@@ -368,12 +368,12 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
             cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
             cryptoInputValidation={{
               required: true,
-              validate: { validateCryptoAmount }
+              validate: { validateCryptoAmount },
             }}
             fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
             fiatInputValidation={{
               required: true,
-              validate: { validateFiatAmount }
+              validate: { validateFiatAmount },
             }}
             marketData={marketData}
             onCancel={handleCancel}
@@ -423,7 +423,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                 ...asset,
                 color: '#FF0000',
                 cryptoAmount: state.deposit.cryptoAmount,
-                fiatAmount: state.deposit.fiatAmount
+                fiatAmount: state.deposit.fiatAmount,
               },
               {
                 ...contractAsset,
@@ -431,8 +431,8 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
                   .div(bnOrZero(1).div(1))
                   .toString(),
-                fiatAmount: state.deposit.fiatAmount
-              }
+                fiatAmount: state.deposit.fiatAmount,
+              },
             ]}
           >
             <Stack spacing={4}>
@@ -522,15 +522,15 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
               {
                 ...asset,
                 cryptoAmount: state.deposit.cryptoAmount,
-                fiatAmount: state.deposit.fiatAmount
+                fiatAmount: state.deposit.fiatAmount,
               },
               {
                 ...contractAsset,
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
                   .div(bnOrZero(1).div(1))
                   .toString(),
-                fiatAmount: state.deposit.fiatAmount
-              }
+                fiatAmount: state.deposit.fiatAmount,
+              },
             ]}
           >
             <Stack spacing={4}>
@@ -572,7 +572,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                       value={bnOrZero(
                         state.deposit.txStatus === 'pending'
                           ? state.deposit.estimatedGasCrypto
-                          : state.deposit.usedGasFee
+                          : state.deposit.usedGasFee,
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .times(feeMarketData.price)
@@ -583,7 +583,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                       value={bnOrZero(
                         state.deposit.txStatus === 'pending'
                           ? state.deposit.estimatedGasCrypto
-                          : state.deposit.usedGasFee
+                          : state.deposit.usedGasFee,
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .toFixed(5)}

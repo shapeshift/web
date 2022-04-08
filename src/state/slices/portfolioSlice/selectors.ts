@@ -9,6 +9,10 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
+import {
+  selectTotalStakingDelegationCryptoByFilter,
+  selectTotalStakingDelegationFiat
+} from 'state/slices/stakingDataSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -128,6 +132,13 @@ export const selectPortfolioTotalFiatBalance = createSelector(
       .toFixed(2)
 )
 
+export const selectPortfolioTotalFiatBalanceWithDelegations = createSelector(
+  selectPortfolioTotalFiatBalance,
+  selectTotalStakingDelegationFiat,
+  (portfolioFiatBalance, delegationFiatBalance): string =>
+    bnOrZero(portfolioFiatBalance).plus(delegationFiatBalance).toString()
+)
+
 export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParam,
@@ -177,6 +188,33 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
     }
 
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId].precision ?? 0)
+  }
+)
+
+export const selectTotalFiatBalanceWithDelegations = createSelector(
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectTotalStakingDelegationCryptoByFilter,
+  selectMarketData,
+  selectAssetIdParamFromFilterOptional,
+  (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
+    const price = marketData[assetId]?.price
+    const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
+      .plus(delegationCryptoBalance)
+      .toString()
+
+    return bnOrZero(cryptoBalanceWithDelegations).times(price).toString()
+  }
+)
+
+export const selectTotalCryptoBalanceWithDelegations = createSelector(
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectTotalStakingDelegationCryptoByFilter,
+  (cryptoBalance, delegationCryptoBalance): string => {
+    const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
+      .plus(delegationCryptoBalance)
+      .toString()
+
+    return bnOrZero(cryptoBalanceWithDelegations).toString()
   }
 )
 

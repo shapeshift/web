@@ -17,7 +17,7 @@ export const LastDeviceInteractionStatus = ({ setting }: LastDeviceInteractionSt
 
   return lastDeviceInteractionStatus ? (
     <Alert
-      status={lastDeviceInteractionStatus === 'success' ? 'success' : 'error'}
+      status={lastDeviceInteractionStatus}
       borderRadius='lg'
       mb={3}
       fontWeight='semibold'

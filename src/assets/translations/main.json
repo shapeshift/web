@@ -637,13 +637,16 @@
           "wipeKeepKey": "Wipe Your KeepKey"
         },
         "descriptions": {
-          "wipeKeepKey": "Reset your KeepKey to factory defaults. This will erase all content and settings on your KeepKey."
+          "wipeKeepKey": "I understand that by wiping my KeepKey I will lose access to my funds if I don't have my recovery phrase."
         },
         "actions": {
           "wipeDevice": "Wipe Device"
         },
         "confirmations": {
-          "wipeDevice": "Press and hold the button on your KeepKey to confirm the reset to factory defaults."
+          "wipeKeepKey": "Press and hold the button on your KeepKey to confirm the reset to factory defaults."
+        },
+        "checkboxes": {
+          "wipeKeepKey": "I have backed up my recovery phrase and understand what I am doing"
         }
       }
     },

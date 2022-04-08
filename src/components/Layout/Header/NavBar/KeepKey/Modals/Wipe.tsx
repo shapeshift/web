@@ -1,6 +1,14 @@
 import { ModalCloseButton } from '@chakra-ui/modal'
-import { Button, Modal, ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react'
-import React from 'react'
+import {
+  Button,
+  Checkbox,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay
+} from '@chakra-ui/react'
+import React, { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
@@ -18,6 +26,7 @@ export const WipeModal = () => {
   const {
     state: { awaitingDeviceInteraction }
   } = useWallet()
+  const [wipeConfirmationChecked, setWipeConfirmationChecked] = useState(false)
 
   const onClose = () => {
     keepKeyWallet?.cancel()
@@ -44,18 +53,28 @@ export const WipeModal = () => {
             translation={'walletProvider.keepKey.modals.descriptions.wipeKeepKey'}
             mb={6}
           />
+          <Checkbox
+            isChecked={wipeConfirmationChecked}
+            onChange={e => setWipeConfirmationChecked(e.target.checked)}
+            mb={6}
+            spacing={3}
+            fontWeight='semibold'
+          >
+            {translate('walletProvider.keepKey.modals.checkboxes.wipeKeepKey')}
+          </Checkbox>
           <Button
             onClick={wipeDevice}
             colorScheme='red'
             isFullWidth
             mb={6}
             isLoading={awaitingDeviceInteraction}
+            disabled={!wipeConfirmationChecked}
           >
             {translate('walletProvider.keepKey.modals.actions.wipeDevice')}
           </Button>
         </ModalBody>
         <AwaitKeepKey
-          translation={'walletProvider.keepKey.modals.confirmations.wipeDevice'}
+          translation={'walletProvider.keepKey.modals.confirmations.wipeKeepKey'}
           pl={6}
           pr={6}
         />

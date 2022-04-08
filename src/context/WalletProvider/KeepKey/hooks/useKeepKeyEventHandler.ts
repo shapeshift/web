@@ -69,7 +69,7 @@ export const useKeepKeyEventHandler = (
               break
             default:
               console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
-              setLastDeviceInteractionStatus('failure')
+              setLastDeviceInteractionStatus('error')
               break
           }
           break

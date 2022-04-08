@@ -1,10 +1,10 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Button, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 import {
   useMenuRoutes,
   WalletConnectedRoutes
@@ -32,7 +32,6 @@ export const WalletConnectedMenuRoutes = ({
 }: WalletConnectedProps) => {
   const { navigateToRoute } = useMenuRoutes()
   const location = useLocation()
-  const history = useHistory()
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
   const keepKeySettingsFlag = useSelector((state: ReduxState) =>

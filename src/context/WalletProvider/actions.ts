@@ -22,7 +22,7 @@ export enum WalletActions {
   SET_LAST_DEVICE_INTERACTION_STATUS = 'SET_LAST_DEVICE_INTERACTION_STATUS'
 }
 
-export type Outcome = 'success' | 'failure' | undefined
+export type Outcome = 'success' | 'error' | undefined
 
 export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }

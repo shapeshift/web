@@ -1,4 +1,5 @@
 import { Stack } from '@chakra-ui/react'
+import React from 'react'
 
 export const SubMenuBody: React.FC = ({ children }) => {
   return (

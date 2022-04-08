@@ -10,10 +10,10 @@ import {
 } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import { chainTypeToLabel } from 'state/slices/portfolioSlice/utils'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
+import { chainTypeToLabel } from './utils'
 
 export type EarnOpportunityType = {
   type?: string

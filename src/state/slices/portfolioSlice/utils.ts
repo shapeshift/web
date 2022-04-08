@@ -95,18 +95,6 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
-export const chainTypeToLabel = (chain: ChainTypes): string => {
-  switch (chain) {
-    case ChainTypes.Cosmos:
-      return 'Cosmos'
-    case ChainTypes.Osmosis:
-      return 'Osmosis'
-    default: {
-      return ''
-    }
-  }
-}
-
 // note - this is not really a selector, more of a util
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier) =>
   caip2toCaip19[accountIdToChainId(accountId)]

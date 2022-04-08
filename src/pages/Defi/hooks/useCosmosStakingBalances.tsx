@@ -98,7 +98,10 @@ export function useCosmosStakingBalances({
         .toString()
       const data = {
         ...opportunity,
-        cryptoAmount: bnOrZero(opportunity.cryptoAmount).div(`1e+${asset?.precision}`).toString(),
+        cryptoAmount: bnOrZero(opportunity.cryptoAmount)
+          .div(`1e+${asset?.precision}`)
+          .decimalPlaces(asset.precision)
+          .toString(),
         tvl,
         fiatAmount,
         chain: asset.chain,

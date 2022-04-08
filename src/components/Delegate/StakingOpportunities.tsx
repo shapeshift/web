@@ -113,10 +113,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Cell: ({ value }: { value: string }) => {
           return hasActiveStakingOpportunities ? (
             <Amount.Crypto
-              value={bnOrZero(value)
-                .div(`1e+${asset.precision}`)
-                .decimalPlaces(asset.precision)
-                .toString()}
+              value={bnOrZero(value).toString()}
               symbol={asset.symbol}
               color='white'
               fontWeight={'normal'}

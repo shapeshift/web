@@ -154,9 +154,25 @@
         }
       },
       "foxyOverview": {
-        "header": "Deposite FOX e obtenha FOXy para começar a ganhar"
+        "header": "Deposite FOX e obtenha FOXy",
+        "body": "FOXy é um token desenhado para Staking e acompanha o preço de FOX. Depósitos em FOX serão alocados em diferentes protocolos DeFi para que você obtenha o melhor rendimento.",
+        "rewards": "As recompensas que você recebe são acumuladas automaticamente.",
+        "cta": "Depositar FOX",
+        "foxyBalance": "Saldo FOXy",
+        "withdrawals": "Saques",
+        "emptyWithdraws": "Saques pendentes ou em processo de pagamento serão exibidos aqui.",
+        "availableDate": "Disponível %{date}"
       },
       "claim": {
+        "rewardDepositInfo": "Suas recompensas serão depositadas em sua carteira principal.",
+        "title": "Resgatar Recompensas",
+        "confirmAndClaim": "Confirmar e Resgatar",
+        "rewardAmount": "Valor da recompensa",
+        "claimingRewards": "Resgatando recompensas",
+        "claimAmount": "Valor do resgate",
+        "claimToAddress": "Enviar para Endereço",
+        "confirmClaim": "Confirmar resgate de recompensas",
+        "claimNow": "Resgatar agora"
       }
     },
     "amountToStake": "Montante para depósito",

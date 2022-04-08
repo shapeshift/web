@@ -40,18 +40,18 @@ export const PrimaryChart = ({
   width = 10,
   height,
   color = 'green.500',
-  margin = { top: 0, right: 0, bottom: 0, left: 0 }
+  margin = { top: 0, right: 0, bottom: 0, left: 0 },
 }: PrimaryChartProps) => {
   const {
     showTooltip,
     hideTooltip,
     tooltipData,
     tooltipTop = 0,
-    tooltipLeft = 0
+    tooltipLeft = 0,
   } = useTooltip<HistoryData>()
 
   const {
-    number: { toFiat }
+    number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
 
   const [chartColor] = useToken('colors', [color])
@@ -74,24 +74,24 @@ export const PrimaryChart = ({
 
   const maxData = [
     { date: getDate(firstPoint).valueOf(), price: maxPrice },
-    { date: getDate(currentPoint).valueOf(), price: maxPrice }
+    { date: getDate(currentPoint).valueOf(), price: maxPrice },
   ]
   const minData = [
     { date: getDate(firstPoint).valueOf(), price: minPrice },
-    { date: getDate(currentPoint).valueOf(), price: minPrice }
+    { date: getDate(currentPoint).valueOf(), price: minPrice },
   ]
   // scales
   const dateScale = useMemo(() => {
     return scaleTime({
       range: [0, xMax],
-      domain: extent(data, getDate) as [Date, Date]
+      domain: extent(data, getDate) as [Date, Date],
     })
   }, [xMax, data])
   const priceScale = useMemo(() => {
     return scaleLinear({
       range: [yMax + margin.top, margin.top],
       domain: [min(data, getStockValue) || 0, max(data, getStockValue) || 0],
-      nice: true
+      nice: true,
     })
     //
   }, [margin.top, yMax, data])
@@ -115,10 +115,10 @@ export const PrimaryChart = ({
       showTooltip({
         tooltipData: d,
         tooltipLeft: x,
-        tooltipTop: priceScale(getStockValue(d))
+        tooltipTop: priceScale(getStockValue(d)),
       })
     },
-    [showTooltip, priceScale, dateScale, data, margin.left]
+    [showTooltip, priceScale, dateScale, data, margin.left],
   )
 
   return (
@@ -235,7 +235,7 @@ export const PrimaryChart = ({
               background: tooltipBg,
               padding: '0.5rem',
               border: `1px solid ${tooltipBorder}`,
-              color: tooltipColor
+              color: tooltipColor,
             }}
           >
             <ul style={{ padding: '0', margin: '0', listStyle: 'none' }}>

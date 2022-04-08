@@ -11,7 +11,7 @@ import {
   FiatRampAction,
   GemCurrency,
   SupportedCurrency,
-  TransactionDirection
+  TransactionDirection,
 } from './FiatRampsCommon'
 
 const ASSET_LOGO_BASE_URI = getConfig().REACT_APP_GEM_ASSET_LOGO
@@ -71,15 +71,15 @@ export const parseGemSellAssets = memoize(
     walletSupportsBTC: boolean,
     coinifyAssets: SupportedCurrency[],
     wyreAssets: SupportedCurrency[],
-    balances: MixedPortfolioAssetBalances
+    balances: MixedPortfolioAssetBalances,
   ): GemCurrency[] =>
     parseGemAssets(
       'source',
       walletSupportsBTC,
       coinifyAssets.filter(isSellAsset).map(coinifyList => coinifyList['source'].currencies),
       wyreAssets.filter(isSellAsset).map(wyreList => wyreList['source'].currencies),
-      balances
-    )
+      balances,
+    ),
 )
 
 export const parseGemBuyAssets = memoize(
@@ -87,15 +87,15 @@ export const parseGemBuyAssets = memoize(
     walletSupportsBTC: boolean,
     coinifyAssets: SupportedCurrency[],
     wyreAssets: SupportedCurrency[],
-    balances: MixedPortfolioAssetBalances
+    balances: MixedPortfolioAssetBalances,
   ): GemCurrency[] =>
     parseGemAssets(
       'destination',
       walletSupportsBTC,
       coinifyAssets.filter(isBuyAsset).map(coinifyList => coinifyList['destination'].currencies),
       wyreAssets.filter(isBuyAsset).map(wyreList => wyreList['destination'].currencies),
-      balances
-    )
+      balances,
+    ),
 )
 
 const parseGemAssets = (
@@ -103,7 +103,7 @@ const parseGemAssets = (
   walletSupportsBTC: boolean,
   filteredCoinifyList: GemCurrency[][],
   filteredWyreList: GemCurrency[][],
-  balances: MixedPortfolioAssetBalances
+  balances: MixedPortfolioAssetBalances,
 ): GemCurrency[] => {
   const results = uniqBy(flatten(concat(filteredCoinifyList, filteredWyreList)), 'gem_asset_id')
     .filter(asset => Boolean(adapters.gemAssetIdToCAIP19(asset.gem_asset_id)))
@@ -114,13 +114,13 @@ const parseGemAssets = (
         assetId,
         disabled: isSupportedBitcoinAsset(assetId) && !walletSupportsBTC,
         cryptoBalance: bnOrZero(balances?.[assetId]?.crypto),
-        fiatBalance: bnOrZero(balances?.[assetId]?.fiat)
+        fiatBalance: bnOrZero(balances?.[assetId]?.fiat),
       }
     })
     .sort((a, b) =>
       key === 'source' && (a.fiatBalance.gt(0) || b.fiatBalance.gt(0))
         ? b.fiatBalance.minus(a.fiatBalance).toNumber()
-        : a.name.localeCompare(b.name)
+        : a.name.localeCompare(b.name),
     )
   return results
 }
@@ -139,14 +139,14 @@ export const makeGemPartnerUrl = memoize(
       partnerName,
       environment,
       partnerIconUrl,
-      apiKey
+      apiKey,
     }
     const queryConfig = queryString.stringify({
       ...onrampConfig,
       intent,
-      wallets: JSON.stringify([{ address, asset: selectedAssetTicker }])
+      wallets: JSON.stringify([{ address, asset: selectedAssetTicker }]),
     })
     return `${GEM_URL}?${queryConfig}`
   },
-  memoizeAllArgsResolver
+  memoizeAllArgsResolver,
 )

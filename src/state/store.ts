@@ -16,7 +16,7 @@ import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 const persistConfig = {
   key: 'root',
   whitelist: [''],
-  storage: localforage
+  storage: localforage,
 }
 
 registerSelectors(selectors)
@@ -27,7 +27,7 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   stakingDataApi.middleware,
-  logging
+  logging,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
@@ -55,14 +55,14 @@ export const createStore = () =>
       getDefaultMiddleware({
         immutableCheck: {
           warnAfter: 128,
-          ignoredActions: [PERSIST]
+          ignoredActions: [PERSIST],
         },
         serializableCheck: {
           warnAfter: 128,
-          ignoredActions: [PERSIST]
-        }
+          ignoredActions: [PERSIST],
+        },
       }).concat(apiMiddleware),
-    devTools: true
+    devTools: true,
   })
 
 export const store = createStore()

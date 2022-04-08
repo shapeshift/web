@@ -6,24 +6,24 @@ export const TextareaStyle = {
   baseStyle: (props: Record<string, any>) => ({
     field: {
       _placeholder: {
-        color: mode('gray.300', 'gray.700')(props)
-      }
-    }
+        color: mode('gray.300', 'gray.700')(props),
+      },
+    },
   }),
   // Styles for the size variations
   sizes: {
     lg: {
       field: {
-        borderRadius: 'xl'
-      }
-    }
+        borderRadius: 'xl',
+      },
+    },
   },
   // Styles for the visual style variations
   variants: {
     filled: (props: Record<string, any>) => ({
-      ...InputStyle.variants.filled(props).field
-    })
+      ...InputStyle.variants.filled(props).field,
+    }),
   },
   // The default `size` or `variant` values
-  defaultProps: {}
+  defaultProps: {},
 }

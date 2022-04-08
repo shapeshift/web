@@ -14,7 +14,7 @@ import { Text } from 'components/Text'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectSingleValidator
+  selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -31,7 +31,7 @@ export const UnstakeBroadcast = ({
   assetId,
   accountSpecifier,
   validatorAddress,
-  onClose
+  onClose,
 }: UnstakeBroadcastProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
@@ -40,7 +40,7 @@ export const UnstakeBroadcast = ({
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress)
+    selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
 
   const translate = useTranslate()
@@ -65,10 +65,10 @@ export const UnstakeBroadcast = ({
       validator: validatorAddress,
       chainSpecific: {
         gas: gasLimit,
-        fee: bnOrZero(txFee).times(`1e+${asset?.precision}`).toString()
+        fee: bnOrZero(txFee).times(`1e+${asset?.precision}`).toString(),
       },
       value: bnOrZero(cryptoAmount).times(`1e+${asset?.precision}`).toString(),
-      action: StakingAction.Unstake
+      action: StakingAction.Unstake,
     })
     setLoading(false)
     if (!broadcastTx) return
@@ -130,7 +130,7 @@ export const UnstakeBroadcast = ({
             &nbsp;
             <Tooltip
               label={translate('defi.modals.staking.tooltip.gasFees', {
-                networkName: asset.name
+                networkName: asset.name,
               })}
             >
               <InfoOutlineIcon />

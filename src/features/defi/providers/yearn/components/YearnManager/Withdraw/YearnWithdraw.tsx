@@ -29,7 +29,7 @@ import {
   selectAssetByCAIP19,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,14 +39,14 @@ enum WithdrawPath {
   Withdraw = '/',
   Confirm = '/confirm',
   ConfirmSettings = '/confirm/settings',
-  Status = '/status'
+  Status = '/status',
 }
 
 export const routes = [
   { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
   { step: 1, path: WithdrawPath.Confirm, label: 'Confirm' },
   { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 2, path: WithdrawPath.Status, label: 'Status' }
+  { step: 2, path: WithdrawPath.Status, label: 'Status' },
 ]
 
 type YearnWithdrawProps = {
@@ -68,14 +68,14 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: tokenId
+    assetReference: tokenId,
   })
   const underlyingAsset = useAppSelector(state => selectAssetByCAIP19(state, underlyingAssetCAIP19))
   const assetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
-    assetReference: vaultAddress
+    assetReference: vaultAddress,
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
@@ -83,7 +83,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum
+    assetReference: AssetReference.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
@@ -102,13 +102,13 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.findByDepositVaultAddress(vaultAddress),
-          api.pricePerShare({ vaultAddress })
+          api.pricePerShare({ vaultAddress }),
         ])
         dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: YearnWithdrawActionType.SET_VAULT, payload: vault })
         dispatch({
           type: YearnWithdrawActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString()
+          payload: pricePerShare.toString(),
         })
       } catch (error) {
         // TODO: handle client side errors
@@ -127,9 +127,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
           amountDesired: bnOrZero(withdraw.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
-          userAddress: state.userAddress
+          userAddress: state.userAddress,
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       return returVal
@@ -148,7 +148,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     if (!estimatedGasCrypto) return
     dispatch({
       type: YearnWithdrawActionType.SET_WITHDRAW,
-      payload: { estimatedGasCrypto }
+      payload: { estimatedGasCrypto },
     })
     history.push(WithdrawPath.Confirm)
   }
@@ -165,9 +165,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
           wallet: walletState.wallet,
           amountDesired: bnOrZero(state.withdraw.cryptoAmount)
             .times(`1e+${asset.precision}`)
-            .decimalPlaces(0)
+            .decimalPlaces(0),
         }),
-        api.getGasPrice()
+        api.getGasPrice(),
       ])
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
       history.push(WithdrawPath.Status)
@@ -176,14 +176,14 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         fn: () => api.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
-        maxAttempts: 30
+        maxAttempts: 30,
       })
       dispatch({
         type: YearnWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
-        }
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
+        },
       })
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
@@ -241,12 +241,12 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
             cryptoInputValidation={{
               required: true,
-              validate: { validateCryptoAmount }
+              validate: { validateCryptoAmount },
             }}
             fiatAmountAvailable={fiatAmountAvailable.toString()}
             fiatInputValidation={{
               required: true,
-              validate: { validateFiatAmount }
+              validate: { validateFiatAmount },
             }}
             marketData={{
               // The vault asset doesnt have market data.
@@ -254,7 +254,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               price: vaultTokenPrice.toString(),
               marketCap: '0',
               volume: '0',
-              changePercent24Hr: 0
+              changePercent24Hr: 0,
             }}
             onCancel={handleCancel}
             onContinue={handleContinue}
@@ -276,7 +276,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                 ...asset,
                 color: '#FFFFFF',
                 cryptoAmount: state.withdraw.cryptoAmount,
-                fiatAmount: state.withdraw.fiatAmount
+                fiatAmount: state.withdraw.fiatAmount,
               },
               {
                 ...underlyingAsset,
@@ -284,8 +284,8 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                 cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
                   .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
                   .toString(),
-                fiatAmount: state.withdraw.fiatAmount
-              }
+                fiatAmount: state.withdraw.fiatAmount,
+              },
             ]}
           >
             <Stack spacing={6}>
@@ -345,15 +345,15 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               {
                 ...asset,
                 cryptoAmount: state.withdraw.cryptoAmount,
-                fiatAmount: state.withdraw.fiatAmount
+                fiatAmount: state.withdraw.fiatAmount,
               },
               {
                 ...underlyingAsset,
                 cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
                   .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
                   .toString(),
-                fiatAmount: state.withdraw.fiatAmount
-              }
+                fiatAmount: state.withdraw.fiatAmount,
+              },
             ]}
           >
             <Stack spacing={6}>
@@ -403,7 +403,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                       value={bnOrZero(
                         state.withdraw.txStatus === 'pending'
                           ? state.withdraw.estimatedGasCrypto
-                          : state.withdraw.usedGasFee
+                          : state.withdraw.usedGasFee,
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .times(feeMarketData.price)
@@ -414,7 +414,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                       value={bnOrZero(
                         state.withdraw.txStatus === 'pending'
                           ? state.withdraw.estimatedGasCrypto
-                          : state.withdraw.usedGasFee
+                          : state.withdraw.usedGasFee,
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .toFixed(5)}

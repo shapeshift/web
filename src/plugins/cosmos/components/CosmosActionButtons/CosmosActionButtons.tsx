@@ -4,7 +4,7 @@ import { Asset } from '@shapeshiftoss/types'
 import {
   StakeRoutes,
   StakingPath,
-  UnstakingPath
+  UnstakingPath,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { matchPath, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
@@ -32,17 +32,17 @@ export const CosmosActionButtons = ({
 
   const isOverview = matchPath(history.location.pathname, {
     path: [StakeRoutes.Overview],
-    exact: true
+    exact: true,
   })
 
   const isStake = matchPath(history.location.pathname, {
     path: [StakeRoutes.Stake, StakingPath.Confirm, StakingPath.Broadcast],
-    exact: true
+    exact: true,
   })
 
   const isUnstake = matchPath(history.location.pathname, {
     path: [StakeRoutes.Unstake, UnstakingPath.Confirm, UnstakingPath.Broadcast],
-    exact: true
+    exact: true,
   })
 
   return (

@@ -35,7 +35,7 @@ export const App = () => {
         id: updateId,
         duration: null,
         isClosable: false,
-        position: 'bottom-right'
+        position: 'bottom-right',
       })
       if (!toastId) return
       toastIdRef.current = toastId

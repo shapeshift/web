@@ -16,7 +16,7 @@ type GetStartedProps = {
 
 // TODO: Abstract me in a service when I start to get too big
 const ASSET_ID_TO_MAX_APR: Record<CAIP19, string> = {
-  'cosmos:cosmoshub-4/slip44:118': '12'
+  'cosmos:cosmoshub-4/slip44:118': '12',
 }
 
 const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
@@ -28,14 +28,14 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
   const handleLearnMoreClick = () => {
     history.push({
       pathname: `/defi/modal/learn-more`,
-      state: { background: location }
+      state: { background: location },
     })
   }
 
   const handleStartStakingClick = () => {
     cosmosStaking.open({
       assetId,
-      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS
+      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
     })
     cosmosGetStarted.close()
   }

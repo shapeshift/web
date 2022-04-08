@@ -4,5 +4,5 @@ import { PortisIcon } from 'components/Icons/PortisIcon'
 export const PortisConfig = {
   adapter: PortisAdapter,
   icon: PortisIcon,
-  name: 'Portis'
+  name: 'Portis',
 }

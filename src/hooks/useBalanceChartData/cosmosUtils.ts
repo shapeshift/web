@@ -9,7 +9,7 @@ const cosmosCaip19 = caip19.toCAIP19({
   chain: ChainTypes.Cosmos,
   network: NetworkTypes.COSMOSHUB_MAINNET,
   assetNamespace: AssetNamespace.Slip44,
-  assetReference: AssetReference.Cosmos
+  assetReference: AssetReference.Cosmos,
 })
 
 export const includeTransaction = (tx: Tx): boolean =>
@@ -19,7 +19,7 @@ export const includeTransaction = (tx: Tx): boolean =>
 export const includeStakedBalance = (
   startingBucket: Bucket,
   totalCosmosStaked: string,
-  assetIds: string[]
+  assetIds: string[],
 ) => {
   const newStartingBucket = { ...startingBucket }
 

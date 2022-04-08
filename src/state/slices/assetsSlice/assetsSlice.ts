@@ -29,7 +29,7 @@ export type AssetsState = {
 
 const initialState: AssetsState = {
   byId: {},
-  ids: []
+  ids: [],
 }
 
 export const assets = createSlice({
@@ -40,8 +40,8 @@ export const assets = createSlice({
     setAssets: (state, action: PayloadAction<AssetsState>) => {
       state.byId = { ...state.byId, ...action.payload.byId } // upsert
       state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
-    }
-  }
+    },
+  },
 })
 
 export const assetApi = createApi({
@@ -69,7 +69,7 @@ export const assetApi = createApi({
         await cacheDataLoaded
         const data = getCacheEntry().data
         data && dispatch(assets.actions.setAssets(data))
-      }
+      },
     }),
     getAssetDescription: build.query<AssetsState, CAIP19>({
       queryFn: async (assetId, { getState }) => {
@@ -94,9 +94,9 @@ export const assetApi = createApi({
         await cacheDataLoaded
         const data = getCacheEntry().data
         data && dispatch(assets.actions.setAssets(data))
-      }
-    })
-  })
+      },
+    }),
+  }),
 })
 
 export const { useGetAssetsQuery, useGetAssetDescriptionQuery } = assetApi

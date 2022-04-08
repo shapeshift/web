@@ -5,7 +5,7 @@ export const LoadingRow = () => (
     templateColumns={{
       base: '1fr repeat(1, 1fr)',
       md: '1fr repeat(2, 1fr)',
-      lg: '2fr repeat(3, 1fr) 150px'
+      lg: '2fr repeat(3, 1fr) 150px',
     }}
     py={4}
     pl={4}

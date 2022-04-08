@@ -3,7 +3,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
 export const TransactionLink = ({
   explorerTxLink,
-  txid
+  txid,
 }: {
   explorerTxLink: string
   txid: string

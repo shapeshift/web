@@ -8,7 +8,7 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
@@ -39,7 +39,7 @@ export const OpportunityCard = ({
   apy,
   cryptoAmount,
   fiatAmount,
-  expired
+  expired,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
@@ -50,13 +50,13 @@ export const OpportunityCard = ({
     chain,
     network,
     assetNamespace,
-    assetReference: tokenAddress
+    assetReference: tokenAddress,
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
 
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
 
   const handleClick = () => {
@@ -67,9 +67,9 @@ export const OpportunityCard = ({
             chain,
             contractAddress,
             tokenId: tokenAddress,
-            rewardId: rewardAddress
+            rewardId: rewardAddress,
           }),
-          state: { background: location }
+          state: { background: location },
         })
       : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }

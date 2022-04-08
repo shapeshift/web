@@ -17,7 +17,7 @@ import { TokenRow } from 'components/TokenRow/TokenRow'
 import {
   TRADE_ERRORS,
   TradeActions,
-  useSwapper
+  useSwapper,
 } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -27,7 +27,7 @@ import { firstNonZeroDecimal } from 'lib/math'
 import {
   selectAssetByCAIP19,
   selectFeeAssetById,
-  selectPortfolioCryptoHumanBalanceByAssetId
+  selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,31 +39,31 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isDirty, isValid, isSubmitting }
+    formState: { errors, isDirty, isValid, isSubmitting },
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
   const [quote, action, buyAsset, sellAsset, estimatedGasFees] = useWatch({
-    name: ['quote', 'action', 'buyAsset', 'sellAsset', 'estimatedGasFees']
+    name: ['quote', 'action', 'buyAsset', 'sellAsset', 'estimatedGasFees'],
   }) as Array<unknown> as [
     TS['quote'],
     TS['action'],
     TS['buyAsset'],
     TS['sellAsset'],
-    TS['estimatedGasFees']
+    TS['estimatedGasFees'],
   ]
   const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
     useSwapper()
   const toast = useToast()
   const translate = useTranslate()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.caip19)
+    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.caip19),
   )
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
@@ -71,10 +71,10 @@ export const TradeInput = ({ history }: RouterProps) => {
   const feeAsset = useAppSelector(state =>
     sellAsset
       ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
-      : selectAssetByCAIP19(state, 'eip155:1/slip44:60')
+      : selectAssetByCAIP19(state, 'eip155:1/slip44:60'),
   )
   const feeAssetBalance = useAppSelector(state =>
-    feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null
+    feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null,
   )
 
   // when trading from ETH, the value of TX in ETH is deducted
@@ -102,8 +102,8 @@ export const TradeInput = ({ history }: RouterProps) => {
           history.push({
             pathname: '/trade/approval',
             state: {
-              fiatRate
-            }
+              fiatRate,
+            },
           })
           return
         }
@@ -113,7 +113,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         wallet,
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
-        amount: sellAsset?.amount
+        amount: sellAsset?.amount,
       })
 
       if (!result?.success && result?.statusReason) {
@@ -142,7 +142,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: currentBuyAsset,
         feeAsset: feeAsset,
         action,
-        amount: maxSendAmount
+        amount: maxSendAmount,
       })
     } catch (err) {
       console.error(err)
@@ -158,7 +158,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       status: 'error',
       duration: 9000,
       isClosable: true,
-      position: 'top-right'
+      position: 'top-right',
     })
   }
 
@@ -175,7 +175,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,
       feeAsset: feeAsset,
-      action
+      action,
     })
   }
 
@@ -241,8 +241,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 control={control}
                 rules={{
                   validate: {
-                    validNumber: value => !isNaN(Number(value)) || 'Amount must be a number'
-                  }
+                    validNumber: value => !isNaN(Number(value)) || 'Amount must be a number',
+                  },
                 }}
               />
               <FormErrorMessage>{errors.fiatAmount && errors.fiatAmount.message}</FormErrorMessage>
@@ -365,7 +365,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               }
               style={{
                 whiteSpace: 'normal',
-                wordWrap: 'break-word'
+                wordWrap: 'break-word',
               }}
               data-test='trade-preview-button'
             >

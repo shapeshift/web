@@ -1,7 +1,7 @@
 import {
   CircularProgress as CKCircularProgress,
   CircularProgressProps,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 
 export const CircularProgress = (props: CircularProgressProps) => {

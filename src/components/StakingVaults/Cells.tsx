@@ -6,7 +6,7 @@ import {
   SkeletonCircle,
   SkeletonText,
   Stack,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
@@ -67,7 +67,7 @@ export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: As
                   content: 'attr(title)',
                   overflow: 'hidden',
                   height: 0,
-                  display: 'block'
+                  display: 'block',
                 }}
               >
                 <RawText

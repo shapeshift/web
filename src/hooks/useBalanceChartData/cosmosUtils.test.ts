@@ -8,10 +8,10 @@ const mockTx = (obj?: { parser?: string; method?: string }) =>
     data: merge(
       {
         parser: 'cosmos',
-        method: 'delegate'
+        method: 'delegate',
       },
-      obj
-    )
+      obj,
+    ),
   } as Tx)
 
 describe('cosmosUtils', () => {
@@ -24,7 +24,7 @@ describe('cosmosUtils', () => {
       'should return true for %O',
       args => {
         expect(includeTransaction(mockTx(args))).toBe(true)
-      }
+      },
     )
   })
 })

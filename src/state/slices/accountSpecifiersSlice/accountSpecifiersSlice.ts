@@ -12,7 +12,7 @@ type AccountSpecifierState = {
 }
 
 const getInitialState = (): AccountSpecifierState => ({
-  accountSpecifiers: []
+  accountSpecifiers: [],
 })
 
 export const accountSpecifiers = createSlice({
@@ -22,6 +22,6 @@ export const accountSpecifiers = createSlice({
     clear: getInitialState,
     setAccountSpecifiers(state, { payload }: { payload: AccountSpecifierMap[] }) {
       state.accountSpecifiers = payload
-    }
-  }
+    },
+  },
 })

@@ -24,8 +24,8 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
-      search: ''
-    }
+      search: '',
+    },
   })
 
   const searchString = watch('search')
@@ -33,7 +33,7 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
 
   useEffect(() => {
     setFilteredAssets(
-      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets
+      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets,
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])

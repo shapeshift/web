@@ -20,7 +20,7 @@ function setup({
   action = TradeActions.SELL,
   approvalNeededBoolean = false,
   quote = { rate: '1.2' },
-  minMax = MIN_MAX
+  minMax = MIN_MAX,
 } = {}) {
   const setValue = jest.fn()
   const setError = jest.fn()
@@ -35,10 +35,10 @@ function setup({
       getUsdRate: () => '1',
       approvalNeeded: () => ({ approvalNeeded: approvalNeededBoolean }),
       approveInfinite: () => '0x023423093248420937',
-      getQuote
+      getQuote,
     }),
     addSwapper: jest.fn(),
-    getBestSwapper
+    getBestSwapper,
   }))
   ;(debounce as jest.Mock<unknown>).mockImplementation(fn => fn)
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [quote, {}, action])
@@ -50,9 +50,9 @@ function setup({
       action,
       buyAsset: { amount: '20', currency: USDC },
       sellAsset: { amount: '20', currency: WETH },
-      fiatAmount: '20'
+      fiatAmount: '20',
     }),
-    clearErrors
+    clearErrors,
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
   const { result } = renderHook(() => useSwapper(), { wrapper })
@@ -64,7 +64,7 @@ describe('useSwapper', () => {
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: jest.fn(),
       addChain: jest.fn(),
-      getSupportedChains: jest.fn()
+      getSupportedChains: jest.fn(),
     }))
   })
   it('approves infinite', async () => {
@@ -101,12 +101,12 @@ describe('useSwapper', () => {
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.SELL
+        action: TradeActions.SELL,
       })
     })
     const buyAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.buyAmount || '0',
-      ETHCHAIN_QUOTE.buyAsset.precision
+      ETHCHAIN_QUOTE.buyAsset.precision,
     )
     expect(setValue).toHaveBeenNthCalledWith(1, 'trade', MIN_MAX)
     expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
@@ -124,12 +124,12 @@ describe('useSwapper', () => {
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.BUY
+        action: TradeActions.BUY,
       })
     })
     const sellAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.sellAmount || '0',
-      ETHCHAIN_QUOTE.sellAsset.precision
+      ETHCHAIN_QUOTE.sellAsset.precision,
     )
     expect(setValue).toHaveBeenNthCalledWith(1, 'trade', MIN_MAX)
     expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
@@ -147,7 +147,7 @@ describe('useSwapper', () => {
         //@ts-ignore
         sellAsset: { currency: undefined },
         //@ts-ignore
-        buyAsset: { currency: undefined }
+        buyAsset: { currency: undefined },
       })
     })
     expect(getQuote).not.toHaveBeenCalled()
@@ -160,16 +160,16 @@ describe('useSwapper', () => {
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.FIAT
+        action: TradeActions.FIAT,
       })
     })
     const buyAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.buyAmount || '0',
-      ETHCHAIN_QUOTE.buyAsset.precision
+      ETHCHAIN_QUOTE.buyAsset.precision,
     )
     const sellAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.sellAmount || '0',
-      ETHCHAIN_QUOTE.sellAsset.precision
+      ETHCHAIN_QUOTE.sellAsset.precision,
     )
     expect(setValue).toHaveBeenNthCalledWith(1, 'trade', MIN_MAX)
     expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
@@ -189,12 +189,12 @@ describe('useSwapper', () => {
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.SELL
+        action: TradeActions.SELL,
       })
     })
     const buyAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.buyAmount || '0',
-      ETHCHAIN_QUOTE.buyAsset.precision
+      ETHCHAIN_QUOTE.buyAsset.precision,
     )
     expect(setValue).toHaveBeenNthCalledWith(1, 'trade', minMax)
     expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
@@ -209,7 +209,7 @@ describe('useSwapper', () => {
     await act(async () => {
       await result.current.getBestSwapper({
         sellAsset: { currency: WETH },
-        buyAsset: { currency: FOX }
+        buyAsset: { currency: FOX },
       })
     })
     expect(getBestSwapper).toHaveBeenCalled()

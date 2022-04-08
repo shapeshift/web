@@ -23,10 +23,10 @@ export const SecondaryChart = ({
   data,
   width = 10,
   height,
-  margin = { top: 0, right: 0, bottom: 0, left: 0 }
+  margin = { top: 0, right: 0, bottom: 0, left: 0 },
 }: SecondaryChartProps) => {
   const {
-    filteredDataState: { setFilteredData }
+    filteredDataState: { setFilteredData },
   } = useContext(MarketDataContext)
   const brushRef = useRef<BaseBrush | null>(null)
 
@@ -42,14 +42,14 @@ export const SecondaryChart = ({
   const dateScale = React.useMemo(() => {
     return scaleTime({
       range: [0, xMax],
-      domain: extent(data, getDate) as [Date, Date]
+      domain: extent(data, getDate) as [Date, Date],
     })
   }, [xMax, data])
   const priceScale = React.useMemo(() => {
     return scaleLinear({
       range: [yMax + margin.top, margin.top],
       domain: [min(data, getStockValue) || 0, max(data, getStockValue) || 0],
-      nice: true
+      nice: true,
     })
     //
   }, [margin.top, yMax, data])
@@ -57,9 +57,9 @@ export const SecondaryChart = ({
   const initialBrushPosition = useMemo(
     () => ({
       start: { x: dateScale(getDate(data[0])) },
-      end: { x: dateScale(getDate(data[data.length - 1])) }
+      end: { x: dateScale(getDate(data[data.length - 1])) },
     }),
-    [dateScale, data]
+    [dateScale, data],
   )
 
   React.useEffect(() => {
@@ -118,7 +118,7 @@ export const SecondaryChart = ({
             }}
             selectedBoxStyle={{
               fill: `url(#brush-gradient)`,
-              stroke: colors.blue[500]
+              stroke: colors.blue[500],
             }}
           />
         </AreaChart>

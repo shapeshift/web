@@ -16,7 +16,7 @@ import { YearnWithdraw } from './Withdraw/YearnWithdraw'
 enum YearnPath {
   Deposit = '/defi/vault/yearn/deposit',
   Withdraw = '/defi/vault/yearn/withdraw',
-  Overview = `/defi/vault/yearn/overview`
+  Overview = `/defi/vault/yearn/overview`,
 }
 
 type YearnRouteProps = {

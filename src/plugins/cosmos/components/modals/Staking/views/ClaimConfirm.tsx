@@ -7,7 +7,7 @@ import {
   ModalHeader,
   Stack,
   Text as CText,
-  Tooltip
+  Tooltip,
 } from '@chakra-ui/react'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
@@ -29,7 +29,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectRewardsAmountByAssetId
+  selectRewardsAmountByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -44,7 +44,7 @@ type ClaimConfirmProps = {
 export const ClaimConfirm = ({
   assetId,
   accountSpecifier,
-  validatorAddress
+  validatorAddress,
 }: ClaimConfirmProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
 
@@ -73,20 +73,20 @@ export const ClaimConfirm = ({
   }, [adapter, asset.precision, marketData.price])
 
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, assetId)
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, assetId),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(
     () => bnOrZero(rewardsCryptoAmount).div(`1e+${asset.precision}`).toString(),
-    [asset.precision, rewardsCryptoAmount]
+    [asset.precision, rewardsCryptoAmount],
   )
   const rewardsFiatAmountPrecision = useMemo(
     () => bnOrZero(rewardsCryptoAmountPrecision).times(marketData.price).toString(),
-    [marketData, rewardsCryptoAmountPrecision]
+    [marketData, rewardsCryptoAmountPrecision],
   )
 
   const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
@@ -142,7 +142,7 @@ export const ClaimConfirm = ({
               &nbsp;
               <Tooltip
                 label={translate('defi.modals.staking.tooltip.gasFees', {
-                  networkName: asset.name
+                  networkName: asset.name,
                 })}
               >
                 <InfoOutlineIcon />

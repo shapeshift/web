@@ -38,7 +38,7 @@ export const Slippage = ({ onChange, value }: SlippageProps) => {
             isActive={value === rate}
             onClick={() => onChange(rate)}
           >{`${rate}%`}</Button>
-        )
+        ),
       )}
     </ButtonGroup>
   )

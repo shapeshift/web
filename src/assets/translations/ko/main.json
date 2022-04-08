@@ -4,6 +4,7 @@
     "next": "다음",
     "error": "오류 발생",
     "cancel": "취소",
+    "close": "닫기",
     "continue": "계속하기",
     "confirm": "확인",
     "reject": "거절",
@@ -11,11 +12,14 @@
     "created": "%{date}에 생성됨",
     "noResultsFound": "결과가 없습니다",
     "insufficientFunds": "자금이 부족합니다",
+    "estimatedGas": "예상 가스 요금",
     "insufficientAmountForGas": "지불해야 할 ETH 가스가 부족합니다.",
     "invalidAddress": "유효하지 않은 주소입니다",
     "unresolvableEnsDomain": "ENS 도메인 확인 중에 문제가 발생했습니다",
     "deposit": "입금",
     "withdraw": "출금",
+    "withdrawal": "출금",
+    "overview": "개요",
     "getStarted": "시작하기",
     "connectWallet": "지갑 연결하기",
     "connectedWallet": "지갑 연결됨",
@@ -26,6 +30,7 @@
     "lightTheme": "라이트 모드",
     "rename": "이름 바꾸기",
     "forget": "삭제하시겠습니까?",
+    "pending": "보류 중",
     "available": "이용 가능",
     "or": "혹은",
     "somethingWentWrong": "문제 발생",
@@ -42,7 +47,11 @@
     "copyFailed": "클립보드에 복사하지 못했습니다.",
     "copyFailedDescription": "클립보드에 복사하지 못했습니다. 직접 복사해주세요.",
     "viewAsset": "자산 보기",
-    "settings": "설정"
+    "apy": "%{apy}% APY",
+    "settings": "설정",
+    "legalDated": "날짜: 2022년 1월",
+    "approveOnWallet": "지갑에서 승인",
+    "confirmOnWallet": "지갑에서 확인"
   },
   "updateToast": {
     "body": "새로운 버전의 앱이 출시되었습니다.",
@@ -72,7 +81,7 @@
     "routeTitle": "구매하기",
     "routeTitleForGem": "Gem on Ramp",
     "title": "암호화폐 거래하기",
-    "titleMessage": "ShapeShift는 암호화폐 구매 및 판매를 위해 여러 Fiat ramp 서비스 업체들과 파트너쉽을 맺었습니다.",
+    "titleMessage": "ShapeShift는 암호화폐 구매 및 판매를 위해 여러 fiat ramp 서비스 업체들과 파트너쉽을 맺었습니다.",
     "gem": "GEM",
     "gemMessage": "Gem으로 암호화폐 거래하기",
     "onJuno": "OnJuno",
@@ -139,29 +148,61 @@
       },
       "staking": {
         "estimateDisclaimer": "*추정치는 시장 상황에 따라 변동될 수 있습니다.",
+        "byContinuing": "계속 진행하면 본 기능에 참여하고",
+        "risks": "약관에",
+        "ofParticipating": "동의하는",
+        "terms": "위험을 감수하게 됩니다.",
         "tooltip": {
           "validator": "검증자(Validator)는 트랜잭션의 처리와 데이터 저장 및 블록체인에 블록을 기록하는 역할을 합니다.",
           "gasFees": "%{networkName}의 가스 요금은 이더리움 메인넷의 가스 요금보다 훨씬 낮습니다. 이 수수료는 네트워크를 보호하고 운영하는 검증자에게 직접 지불되며 ShapeShift에는 지불되지 않습니다."
         }
+      },
+      "foxyOverview": {
+        "header": "FOXy를 적립하려면 FOX를 입금하세요.",
+        "body": "FOXy는 FOX 가격에 고정된 리베이스 토큰입니다. FOXy는 가능한 최고의 수익을 얻기 위해 다양한 DeFi 프로토콜에서 작동합니다.",
+        "rewards": "획득한 보상은 자동으로 적립됩니다.",
+        "cta": "FOX 입금하기",
+        "foxyBalance": "FOXy 밸런스",
+        "withdrawals": "출금",
+        "emptyWithdraws": "보류 중이거나 활성인 출금이 여기에 표시됩니다.",
+        "availableDate": "가능한 날짜 %{date}"
+      },
+      "claim": {
+        "rewardDepositInfo": "보상은 기본 지갑에 입금됩니다.",
+        "title": "스테이킹 보상 청구",
+        "confirmAndClaim": "확인 및 청구",
+        "rewardAmount": "보상 금액",
+        "claimingRewards": "보상 청구",
+        "claimAmount": "청구 금액",
+        "claimToAddress": "청구 대상 주소",
+        "confirmClaim": "청구 확인",
+        "claimNow": "지금 청구하기"
       }
     },
     "amountToStake": "스테이크할 금액",
     "amountToUnstake": "스테이킹을 해제 할 금액",
     "confirmDetails": "세부정보 확인",
+    "broadcastingTransaction": "거래 방송 중",
+    "transactionComplete": "거래 완료",
+    "transactionFailed": "거래 실패",
     "validator": "검증자 (Validator)",
+    "stakedAmount": "스테이킹 금액",
     "unstakeFrom": "스테이크 해제",
     "gasFee": "가스비",
     "unbondInfoItWillTake": "토큰이 스테이킹되는 동안에는 토큰을 전송하거나 사용할 수 없습니다. 언스테이킹 후 잠금을 해제하는 데 %{unbondingDays}일이 걸립니다.",
     "unbondInfoItWillTakeShort": "토큰을 언스테이킹하는 데 %{unbondingDays}일이 소요됩니다.",
     "confirmAndBroadcast": "확인",
+    "signAndBroadcast": "거래 사인하기",
     "averageApr": "평균 연이율(APR)",
     "estimatedYearlyRewards": "예상 연간 보상",
-    "staked": "스테이크 상태",
+    "staked": "스테이킹",
+    "amountStaked": "스테이킹된 금액",
     "assetStaking": "%{assetName} 스테이킹",
     "stake": "스테이크",
     "unstake": "언스테이킹",
     "stakeAsset": "%{assetSymbol} 스테이킹",
     "unstakeAsset": "%{assetSymbol} 스테이크 해제",
+    "claimAsset": "스테이킹 보상 청구",
     "claim": "보상 청구",
     "rewards": "보상",
     "unstaking": "스테이킹 상태 해제중",
@@ -210,6 +251,8 @@
   },
   "staking": {
     "staking": "스테이킹",
+    "itWillTake": "언스테이킹 시간이 ",
+    "toUnlock": "스테이킹 보상은 별도로 출금해야 합니다.",
     "assetStakingBalance": "%{assetName} 스테이킹 잔액"
   },
   "navBar": {
@@ -225,7 +268,8 @@
     "overview": "개요",
     "transactions": "트랜잭션 기록",
     "tradeHistory": "거래 내역",
-    "foxToken": "FOX 토큰"
+    "foxToken": "FOX 토큰",
+    "featureFlags": "Feature Flags"
   },
   "transactionRow": {
     "send": "%{symbol} 보냈습니다",
@@ -249,7 +293,8 @@
       "yearn": {
         "deposit": "자산 입금",
         "approve": "승인하기",
-        "withdraw": "자산 출금"
+        "withdraw": "자산 출금",
+        "receive": "받은"
       },
       "uniV2": {
         "addLiquidityETH": "유동성 추가",
@@ -370,6 +415,10 @@
         "fees": "수수료 %{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "%{assetSymbol} 메모 (선택적)",
+        "assetMemo": "%{assetSymbol} 메모 ",
+        "charactersRemaining": "%{charactersRemaining}자 남음",
+        "memoExplainer": "일부 %{assetSymbol} 수신자는 거래를 올바르게 처리하기 위해 메모가 필요할 수 있습니다.",
         "sendAsset": "%{asset} 전송",
         "sendTo": "받는 사람",
         "sendAmount": "보내는 금액",
@@ -416,11 +465,11 @@
       "disclaimer": "전체 인출을 위해 후속 요청을 합치는 것에 충분한 시간을 필요로 합니다.",
       "withDrawalFee": "전체 인출 수수료",
       "info": {
-        "delayed": "The delayed withdrawal has two transactions:",
+        "delayed": "지연된 출금에는 두 가지 거래가 있습니다:",
         "delayedOne": "전체 인출 요청",
         "delayedTwo": "7일 이후에 전체 인출을 요청합니다.",
         "instant": "즉시 전체 인출은 스테이크한 모든 비용을 총합하여 하나의 트랜잭션으로 만들 필요가 있습니다."
-      }      
+      }
     },
     "approve": {
       "header": "ShapeShift DAO 라우터가 %{asset} 에 사용할 수 있도록 허용하기",
@@ -441,10 +490,14 @@
         "estimatedReturns": "연간 예상 수익*",
         "preFooter": "보상은 자동으로 적립됩니다."
       },
-      "withdrawFrom": "인출 할곳",
       "withdrawTo": "인출 대상",
+      "withdrawFrom": "인출 할곳",
       "depositTo": "입금 대상",
       "averageApy": "연 평균 복리 수익률",
+      "withdrawTime": "출금 시간",
+      "withdrawFee": "출금 수수료",
+      "withdrawInstantTime": "바로",
+      "withdrawDelayedTime": "~7일",
       "estimatedReturns": "연간 예상 수익*",
       "estimatedGas": "예상 가스 요금",
       "preFooter": "보상은 자동으로 적립됩니다.",
@@ -729,6 +782,7 @@
     },
     "assets": "자산",
     "viewOnChain": "체인에서 확인하기",
+    "txid": "TX ID",
     "fee": "수수료",
     "youSent": "보낸 금액",
     "youReceived": "받은 금액",
@@ -738,6 +792,10 @@
     "status": "상태",
     "transactionType": "거래 유형",
     "minerFee": "채굴 수수료",
-    "unknownType": "거래"
+    "unknownType": "거래",
+    "from": "보낸 주소",
+    "to": "받은 주소",
+    "for": "For",
+    "transfers": "환승"
   }
 }

@@ -144,7 +144,11 @@ export const UserMenu = () => {
         isConnected={isConnected}
         isLoadingLocalWallet={state.isLoadingLocalWallet}
       />
-      <MenuList maxWidth={{ base: 'full', md: 'xs' }} minWidth={{ base: 0, md: 'xs' }}>
+      <MenuList
+        maxWidth={{ base: 'full', md: 'xs' }}
+        minWidth={{ base: 0, md: 'xs' }}
+        overflow='hidden'
+      >
         {hasWallet ? (
           <WalletConnected
             isConnected={isConnected}

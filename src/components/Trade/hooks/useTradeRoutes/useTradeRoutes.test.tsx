@@ -9,8 +9,8 @@ import { useTradeRoutes } from './useTradeRoutes'
 
 jest.mock('react-router-dom', () => ({
   useHistory: () => ({
-    push: jest.fn()
-  })
+    push: jest.fn(),
+  }),
 }))
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
@@ -18,8 +18,8 @@ jest.mock('../useSwapper/useSwapper')
 jest.mock('state/slices/selectors', () => ({
   selectAssets: () => ({
     'eip155:1/slip44:60': mockETH,
-    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': mockFOX
-  })
+    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': mockFOX,
+  }),
 }))
 
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
@@ -29,7 +29,7 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     getQuote: getQuote,
     getBestSwapper: () => SwapperType.Zrx,
-    getDefaultPair: () => [mockETH.caip19, mockFOX.caip19]
+    getDefaultPair: () => [mockETH.caip19, mockFOX.caip19],
   }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
@@ -37,16 +37,16 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
       const data = {
         buyAsset: {
           currency: mockFOX,
-          amount: buyAmount
+          amount: buyAmount,
         },
         sellAsset: {
           currency: WETH,
-          amount: sellAmount
-        }
+          amount: sellAmount,
+        },
       }
       //@ts-ignore
       return data[search]
-    })
+    }),
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
   const { result, waitFor } = renderHook(() => useTradeRoutes(), { wrapper })

@@ -6,7 +6,7 @@ import {
   FaTable,
   FaTractor,
   FaWallet,
-  FaWater
+  FaWater,
 } from 'react-icons/fa'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -33,7 +33,7 @@ export const routes: Array<NestedRoute> = [
     path: '/dashboard',
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
-    main: Dashboard
+    main: Dashboard,
   },
   {
     path: '/assets',
@@ -51,16 +51,16 @@ export const routes: Array<NestedRoute> = [
           {
             path: '/',
             label: 'navBar.overview',
-            main: Asset
+            main: Asset,
           },
           {
             path: '/transactions',
             label: 'navBar.transactions',
-            main: AssetTxHistory
-          }
-        ]
-      }
-    ]
+            main: AssetTxHistory,
+          },
+        ],
+      },
+    ],
   },
   {
     path: '/accounts',
@@ -77,12 +77,12 @@ export const routes: Array<NestedRoute> = [
           {
             path: '/',
             label: 'navBar.overview',
-            main: Account
+            main: Account,
           },
           {
             path: '/transactions',
             label: 'navBar.transactions',
-            main: AccountTxHistory
+            main: AccountTxHistory,
           },
           {
             path: '/:assetId',
@@ -93,18 +93,18 @@ export const routes: Array<NestedRoute> = [
               {
                 path: '/',
                 main: AccountToken,
-                label: 'navBar.overview'
+                label: 'navBar.overview',
               },
               {
                 path: '/transactions',
                 main: AccountTokenTxHistory,
-                label: 'navBar.transactions'
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                label: 'navBar.transactions',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     path: '/defi',
@@ -116,41 +116,41 @@ export const routes: Array<NestedRoute> = [
         path: '/',
         label: 'defi.overview',
         main: Overview,
-        icon: <FaTable />
+        icon: <FaTable />,
       },
       {
         path: '/liquidity-pools',
         label: 'defi.liquidityPools',
         main: LiquidityPools,
         icon: <FaWater />,
-        disable: true
+        disable: true,
       },
       {
         path: '/earn',
         label: 'defi.earn',
         main: StakingVaults,
-        icon: <FaLock />
+        icon: <FaLock />,
       },
       {
         path: '/farming',
         label: 'defi.farming',
         main: Farming,
         icon: <FaTractor />,
-        disable: true
-      }
-    ]
+        disable: true,
+      },
+    ],
   },
   {
     path: '/transaction-history',
     label: 'navBar.transactionHistory',
     icon: <FaHistory />,
-    main: TransactionHistory
+    main: TransactionHistory,
   },
   {
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
     hide: window.location.hostname !== 'localhost',
-    main: Flags
-  }
+    main: Flags,
+  },
 ]

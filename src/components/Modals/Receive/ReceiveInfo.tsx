@@ -16,7 +16,7 @@ import {
   SkeletonText,
   Tag,
   useColorModeValue,
-  useToast
+  useToast,
 } from '@chakra-ui/react'
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
@@ -60,7 +60,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       const selectedAccountAddress = await chainAdapter.getAddress({
         wallet,
         accountType,
-        ...accountParams
+        ...accountParams,
       })
       setReceiveAddress(selectedAccountAddress)
       if (asset.chain === ChainTypes.Ethereum) {
@@ -76,7 +76,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     asset,
     wallet,
     chainAdapter,
-    utxoParams
+    utxoParams,
   ])
 
   const handleVerify = async () => {
@@ -87,7 +87,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       wallet,
       showOnDevice: true,
       accountType,
-      ...accountParams
+      ...accountParams,
     })
 
     setVerified(Boolean(deviceAddress) && deviceAddress === receiveAddress)
@@ -150,7 +150,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 <Text
                   translation={[
                     'modals.receive.onlySend',
-                    { asset: name, symbol: symbol.toUpperCase() }
+                    { asset: name, symbol: symbol.toUpperCase() },
                   ]}
                   color='gray.500'
                   textAlign='center'

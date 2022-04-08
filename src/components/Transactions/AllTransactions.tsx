@@ -13,7 +13,7 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import {
   selectAccountIdsByAssetId,
   selectAssetByCAIP19,
-  selectTxIdsByFilter
+  selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -24,7 +24,7 @@ type AssetTransactionProps = {
 
 export const AllTransactions: React.FC<AssetTransactionProps> = ({ assetId, accountId }) => {
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const chainId = asset.caip2
@@ -33,7 +33,7 @@ export const AllTransactions: React.FC<AssetTransactionProps> = ({ assetId, acco
     // if we are passed an accountId, we're on an asset accoutn page, use that specifically.
     // otherwise, we're on an asset page, use all accountIds related to this asset
     () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
-    [assetId, accountId, accountIds]
+    [assetId, accountId, accountIds],
   )
 
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })

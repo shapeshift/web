@@ -72,10 +72,10 @@ export function createInitialState<S>(modalSetup: S): ModalState<S> {
       ...acc,
       [modalName]: {
         ...modalMethods,
-        Component: modalSetup[modalName]
-      }
+        Component: modalSetup[modalName],
+      },
     }),
-    {} as ModalState<S>
+    {} as ModalState<S>,
   )
   return result
 }
@@ -89,7 +89,7 @@ export function modalReducer<S>(state: S, action: ModalActions<S>): S {
     case OPEN_MODAL:
       return {
         ...state,
-        [action.name]: { ...state[action.name], isOpen: true, props: action.props }
+        [action.name]: { ...state[action.name], isOpen: true, props: action.props },
       }
     case CLOSE_MODAL:
       return { ...state, [action.name]: { ...state[action.name], isOpen: false } }
@@ -112,7 +112,7 @@ export type ModalStateType = typeof initialState
 export function createModalProvider<M>({
   instanceInitialState,
   instanceReducer,
-  InstanceModalContext
+  InstanceModalContext,
 }: CreateModalProviderProps<M>) {
   return ({ children }: ModalProviderProps) => {
     const [state, dispatch] = useReducer(instanceReducer, instanceInitialState)
@@ -120,12 +120,12 @@ export function createModalProvider<M>({
     const openFactory = useMemo(
       () => (name: keyof M) => (props: ModalProps<M>) =>
         dispatch({ type: OPEN_MODAL, name, props }),
-      []
+      [],
     )
 
     const closeFactory = useMemo(
       () => (name: keyof M) => () => dispatch({ type: CLOSE_MODAL, name }),
-      []
+      [],
     )
 
     const value = useMemo(() => {
@@ -153,5 +153,5 @@ export function createModalProvider<M>({
 export const ModalProvider = createModalProvider({
   instanceInitialState: initialState,
   instanceReducer: modalReducer,
-  InstanceModalContext: ModalContext
+  InstanceModalContext: ModalContext,
 })

@@ -35,7 +35,7 @@ export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
                   top: 16,
                   right: 0,
                   bottom: 60,
-                  left: 0
+                  left: 0,
                 }}
               />
             </SlideFade>
@@ -43,6 +43,6 @@ export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
         }
       </ParentSize>
     ),
-    [color, data, isLoaded, loading]
+    [color, data, isLoaded, loading],
   )
 }

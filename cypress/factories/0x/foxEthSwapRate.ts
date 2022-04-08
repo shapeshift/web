@@ -18,6 +18,6 @@ export const makeFoxEthSwapRateResponse = () => {
     sources,
     allowanceTarget: '0xdef1c0ded9bec7f1a1670819833240f027b25eff',
     sellTokenToEthRate: '8817.59565111642499705',
-    buyTokenToEthRate: '1'
+    buyTokenToEthRate: '1',
   }
 }

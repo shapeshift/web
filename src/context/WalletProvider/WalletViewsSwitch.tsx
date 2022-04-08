@@ -5,7 +5,7 @@ import {
   Modal,
   ModalCloseButton,
   ModalContent,
-  ModalOverlay
+  ModalOverlay,
 } from '@chakra-ui/react'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { AnimatePresence } from 'framer-motion'

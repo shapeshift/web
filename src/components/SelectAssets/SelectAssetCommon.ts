@@ -1,4 +1,4 @@
 export enum SelectAssetRoutes {
   Search = '/select/search',
-  Account = '/select/account'
+  Account = '/select/account',
 }

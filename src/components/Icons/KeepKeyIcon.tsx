@@ -9,5 +9,5 @@ export const KeepKeyIcon = createIcon({
       fillRule='evenodd'
     />
   ),
-  viewBox: '0 0 30 30'
+  viewBox: '0 0 30 30',
 })

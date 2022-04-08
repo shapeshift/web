@@ -17,20 +17,20 @@ export function register(): Plugins {
               () => {
                 const http = new unchained.ethereum.V1Api(
                   new unchained.ethereum.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
-                  })
+                    basePath: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+                  }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.ethereum.ParsedTx>(
-                  getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+                  getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
                 )
 
                 return new EthereumChainAdapter({ providers: { http, ws } })
-              }
-            ]
-          ]
-        }
-      }
-    ]
+              },
+            ],
+          ],
+        },
+      },
+    ],
   ]
 }

@@ -79,9 +79,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           deviceId: action?.payload?.deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? ''
-          }
-        }
+            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? '',
+          },
+        },
       }
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
@@ -111,7 +111,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.Native,
         noBackButton: state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
-        initialRoute: '/native/enter-password'
+        initialRoute: '/native/enter-password',
       }
     case WalletActions.OPEN_KEEPKEY_PIN:
       return {
@@ -121,7 +121,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         noBackButton: true,
         deviceId: action.payload.deviceId,
         keepKeyPinRequestType: action.payload.pinRequestType ?? null,
-        initialRoute: '/keepkey/enter-pin'
+        initialRoute: '/keepkey/enter-pin',
       }
     case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
       return {
@@ -130,7 +130,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.KeepKey,
         noBackButton: true,
         deviceId: action.payload.deviceId,
-        initialRoute: '/keepkey/passphrase'
+        initialRoute: '/keepkey/passphrase',
       }
     case WalletActions.OPEN_KEEPKEY_INITIALIZE:
       return {
@@ -170,7 +170,7 @@ const getInitialState = () => {
      */
     return {
       ...initialState,
-      isLoadingLocalWallet: true
+      isLoadingLocalWallet: true,
     }
   }
   return initialState
@@ -234,8 +234,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name: label,
                       icon,
                       deviceId,
-                      meta: { label }
-                    }
+                      meta: { label },
+                    },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } else {
@@ -265,8 +265,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       wallet: localPortisWallet,
                       name,
                       icon,
-                      deviceId
-                    }
+                      deviceId,
+                    },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
@@ -292,8 +292,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       wallet: localMetaMaskWallet,
                       name,
                       icon,
-                      deviceId
-                    }
+                      deviceId,
+                    },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {

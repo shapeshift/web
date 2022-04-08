@@ -26,7 +26,7 @@ async function connectCypressWallet(
   keyring: Keyring,
   dispatch: Dispatch<ActionTypes>,
   walletSeed: string,
-  walletPassword: string
+  walletPassword: string,
 ) {
   // Import wallet
   const vault = await Vault.create()
@@ -51,8 +51,8 @@ async function connectCypressWallet(
       name,
       icon,
       deviceId,
-      meta: { label: vault.meta.get('name') as string }
-    }
+      meta: { label: vault.meta.get('name') as string },
+    },
   })
   dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 }
@@ -130,7 +130,7 @@ export const ConnectWallet = () => {
           height: '100vh',
           backgroundImage: `url(${isFirefox ? OrbsStatic : Orbs})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center center'
+          backgroundPosition: 'center center',
         }}
       >
         <Circle size='100px' mb={6}>

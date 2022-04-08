@@ -4,7 +4,7 @@ import {
   AlertIcon,
   Button,
   ModalBody,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 import { Text } from 'components/Text'

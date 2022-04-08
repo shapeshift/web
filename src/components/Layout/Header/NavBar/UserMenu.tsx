@@ -62,7 +62,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   isConnected,
   walletInfo,
   onConnect,
-  isLoadingLocalWallet
+  isLoadingLocalWallet,
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)

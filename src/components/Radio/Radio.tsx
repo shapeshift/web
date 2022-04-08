@@ -7,7 +7,7 @@ import {
   useId,
   useRadio,
   useRadioGroup,
-  UseRadioProps
+  UseRadioProps,
 } from '@chakra-ui/react'
 import { ThemeTypings } from '@chakra-ui/styled-system'
 import { HistoryTimeframe } from '@shapeshiftoss/types'

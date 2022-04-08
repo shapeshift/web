@@ -1,7 +1,7 @@
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import {
   EarnOpportunityType,
-  useNormalizeOpportunities
+  useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -22,14 +22,14 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   const {
     opportunities: foxies,
     totalBalance: totalFoxyBalance,
-    loading: foxyLoading
+    loading: foxyLoading,
   } = useFoxyBalances()
   const foxyArray = foxyInvestorFeatureFlag ? foxies : []
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SupportedYearnVault[] = useMemo(() => Object.values(vaults), [vaults])
   const opportunities = useNormalizeOpportunities({
     vaultArray,
-    foxyArray
+    foxyArray,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance).plus(totalFoxyBalance).toString()

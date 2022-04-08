@@ -17,13 +17,13 @@ export enum GemManagerRoutes {
   Buy = '/buy',
   Sell = '/sell',
   BuySelect = '/buy/select',
-  SellSelect = '/sell/select'
+  SellSelect = '/sell/select',
 }
 const entries = [
   GemManagerRoutes.Buy,
   GemManagerRoutes.BuySelect,
   GemManagerRoutes.Sell,
-  GemManagerRoutes.SellSelect
+  GemManagerRoutes.SellSelect,
 ]
 
 const GemManagerRouter = (props: any) => {
@@ -42,24 +42,24 @@ const GemManagerRouter = (props: any) => {
   const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
 
   const [chainType, setChainType] = useState<ChainTypes.Bitcoin | ChainTypes.Ethereum>(
-    ChainTypes.Ethereum
+    ChainTypes.Ethereum,
   )
   const chainAdapter = chainAdapterManager.byChain(chainType)
 
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   useEffect(() => {
     ;(async () => {
       if (!wallet) return
       const ethAddress = await ethereumChainAdapter.getAddress({
-        wallet
+        wallet,
       })
       setEthAddress(ethAddress)
       if (supportsBTC(wallet)) {
         const btcAddress = await bitcoinChainAdapter.getAddress({
-          wallet
+          wallet,
         })
         setBtcAddress(btcAddress)
       }
@@ -76,7 +76,7 @@ const GemManagerRouter = (props: any) => {
   }, [ensName, ethAddress])
 
   const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
-    path: '/:fiatRampAction'
+    path: '/:fiatRampAction',
   })
   const handleFiatRampActionClick = (fiatRampAction: FiatRampAction) => {
     const route =

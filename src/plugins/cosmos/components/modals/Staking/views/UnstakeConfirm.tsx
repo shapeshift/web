@@ -1,5 +1,5 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
-import { Flex } from '@chakra-ui/layout'
+import { Flex, Link } from '@chakra-ui/layout'
 import {
   Button,
   FormControl,
@@ -7,7 +7,7 @@ import {
   ModalHeader,
   Stack,
   Text as CText,
-  Tooltip
+  Tooltip,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
@@ -29,7 +29,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectSingleValidator
+  selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,7 +46,7 @@ export const UnstakeConfirm = ({
   assetId,
   accountSpecifier,
   validatorAddress,
-  onCancel
+  onCancel,
 }: UnstakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
 
@@ -55,10 +55,10 @@ export const UnstakeConfirm = ({
   const { cryptoAmount } = useWatch({ control })
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress)
+    selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -68,7 +68,7 @@ export const UnstakeConfirm = ({
 
   const fiatUnstakeAmount = useMemo(
     () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
-    [cryptoAmount, marketData.price]
+    [cryptoAmount, marketData.price],
   )
 
   useEffect(() => {
@@ -128,7 +128,13 @@ export const UnstakeConfirm = ({
                 <InfoOutlineIcon />
               </Tooltip>
             </CText>
-            <CText>{validatorInfo?.moniker}</CText>
+            <Link
+              color={'blue.200'}
+              target='_blank'
+              href={`https://www.mintscan.io/cosmos/validators/${validatorAddress}`}
+            >
+              {validatorInfo.moniker}
+            </Link>
           </Flex>
           <Flex mb='6px' width='100%'>
             <CText display='inline-flex' alignItems='center' color='gray.500'>
@@ -136,7 +142,7 @@ export const UnstakeConfirm = ({
               &nbsp;
               <Tooltip
                 label={translate('defi.modals.staking.tooltip.gasFees', {
-                  networkName: asset.name
+                  networkName: asset.name,
                 })}
               >
                 <InfoOutlineIcon />

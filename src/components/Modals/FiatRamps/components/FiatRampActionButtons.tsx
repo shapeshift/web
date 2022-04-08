@@ -5,7 +5,7 @@ import { FiatRampAction } from '../FiatRampsCommon'
 
 export const FiatRampActionButtons = ({
   action,
-  setAction
+  setAction,
 }: {
   action: FiatRampAction
   setAction: (action: FiatRampAction) => void

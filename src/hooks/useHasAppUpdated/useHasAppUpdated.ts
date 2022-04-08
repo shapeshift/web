@@ -36,8 +36,8 @@ export const useHasAppUpdated = () => {
     if (!isSameAssetManifest) {
       console.info(
         `useHasAppUpdated: app updated, manifest: ${JSON.stringify(
-          manifestMainJs
-        )}, initial: ${JSON.stringify(initialManifestMainJs)}`
+          manifestMainJs,
+        )}, initial: ${JSON.stringify(initialManifestMainJs)}`,
       )
       setHasUpdated(true)
     }

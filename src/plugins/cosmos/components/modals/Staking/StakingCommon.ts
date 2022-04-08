@@ -5,7 +5,7 @@ export enum StakingAction {
   Stake = 'stake',
   Unstake = 'unstake',
   Overview = 'overview',
-  Claim = 'claim'
+  Claim = 'claim',
 }
 
 export type StakingModalProps = {
@@ -17,22 +17,22 @@ export enum StakeRoutes {
   Stake = '/stake',
   Unstake = '/unstake',
   Overview = '/stake/overview',
-  Claim = '/claim'
+  Claim = '/claim',
 }
 
 export enum UnstakingPath {
   Confirm = '/unstaking/confirm',
-  Broadcast = '/unstaking/broadcast'
+  Broadcast = '/unstaking/broadcast',
 }
 
 export enum StakingPath {
   Confirm = '/staking/confirm',
-  Broadcast = '/staking/broadcast'
+  Broadcast = '/staking/broadcast',
 }
 
 export enum ClaimPath {
   Confirm = '/claim/confirm',
-  Broadcast = '/claim/broadcast'
+  Broadcast = '/claim/broadcast',
 }
 
 export const entries = [
@@ -44,12 +44,12 @@ export const entries = [
   UnstakingPath.Confirm,
   UnstakingPath.Broadcast,
   ClaimPath.Confirm,
-  ClaimPath.Broadcast
+  ClaimPath.Broadcast,
 ]
 
 export enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 export enum Field {
@@ -59,7 +59,7 @@ export enum Field {
   FeeType = 'feeType',
   GasLimit = 'gasLimit',
   TxFee = 'txFee',
-  FiatFee = 'fiatFee'
+  FiatFee = 'fiatFee',
 }
 
 export type StakingValues = {
@@ -75,16 +75,16 @@ export type StakingValues = {
 export const stakeSteps = [
   { step: 0, path: StakeRoutes.Stake, label: 'Amount' },
   { step: 1, path: StakingPath.Confirm, label: 'Confirm' },
-  { step: 2, path: StakingPath.Broadcast, label: 'Broadcast' }
+  { step: 2, path: StakingPath.Broadcast, label: 'Broadcast' },
 ]
 
 export const unstakeSteps = [
   { step: 0, path: StakeRoutes.Unstake, label: 'Amount' },
   { step: 1, path: UnstakingPath.Confirm, label: 'Confirm' },
-  { step: 2, path: UnstakingPath.Broadcast, label: 'Broadcast' }
+  { step: 2, path: UnstakingPath.Broadcast, label: 'Broadcast' },
 ]
 
 export const claimSteps = [
   { step: 0, path: ClaimPath.Confirm, label: 'Confirm' },
-  { step: 1, path: ClaimPath.Broadcast, label: 'Broadcast' }
+  { step: 1, path: ClaimPath.Broadcast, label: 'Broadcast' },
 ]

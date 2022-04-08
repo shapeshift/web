@@ -18,7 +18,7 @@ export const TransactionTrade = ({
   compactMode,
   isOpen,
   toggleOpen,
-  parentWidth
+  parentWidth,
 }: TransactionRowProps) => {
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))

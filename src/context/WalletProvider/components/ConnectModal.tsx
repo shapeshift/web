@@ -5,7 +5,7 @@ import {
   Button,
   ModalBody,
   ModalHeader,
-  Spinner
+  Spinner,
 } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 import { Text } from 'components/Text'

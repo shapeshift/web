@@ -18,7 +18,7 @@ export const LeftSidebar: React.FC<LeftSidebarChildProps> = ({ route, children }
       {React.Children.map(children, child =>
         React.isValidElement(child)
           ? React.cloneElement(child, { onToggle, onClose, isOpen, route })
-          : null
+          : null,
       )}
     </Rail>
   ) : null

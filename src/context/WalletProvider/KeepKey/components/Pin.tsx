@@ -6,7 +6,7 @@ import {
   Input,
   ModalBody,
   ModalHeader,
-  SimpleGrid
+  SimpleGrid,
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useRef, useState } from 'react'
@@ -16,7 +16,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import {
   FailureType,
   MessageType,
-  PinMatrixRequestType
+  PinMatrixRequestType,
 } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 

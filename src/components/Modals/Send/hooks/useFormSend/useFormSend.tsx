@@ -19,7 +19,7 @@ export const useFormSend = () => {
   const chainAdapterManager = useChainAdapters()
   const { send } = useModal()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const handleSend = async (data: SendInput) => {
@@ -45,7 +45,7 @@ export const useFormSend = () => {
             value,
             wallet,
             chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit },
-            sendMax: data.sendMax
+            sendMax: data.sendMax,
           })
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
@@ -54,13 +54,13 @@ export const useFormSend = () => {
 
           if (!accountType) {
             throw new Error(
-              `useFormSend: could not get accountType from accountId: ${data.accountId}`
+              `useFormSend: could not get accountType from accountId: ${data.accountId}`,
             )
           }
 
           if (!utxoParams) {
             throw new Error(
-              `useFormSend: could not get utxoParams from accountId: ${data.accountId}`
+              `useFormSend: could not get utxoParams from accountId: ${data.accountId}`,
             )
           }
 
@@ -71,9 +71,9 @@ export const useFormSend = () => {
             bip44Params: utxoParams.bip44Params,
             chainSpecific: {
               satoshiPerByte: fees.chainSpecific.satoshiPerByte,
-              accountType
+              accountType,
             },
-            sendMax: data.sendMax
+            sendMax: data.sendMax,
           })
         } else {
           throw new Error('unsupported adapterType')
@@ -108,7 +108,7 @@ export const useFormSend = () => {
               <Text>
                 {translate('modals.send.youHaveSent', {
                   amount: data.cryptoAmount,
-                  symbol: data.cryptoSymbol
+                  symbol: data.cryptoSymbol,
                 })}
               </Text>
               {data.asset.explorerTxLink && (
@@ -121,18 +121,18 @@ export const useFormSend = () => {
           status: 'success',
           duration: 9000,
           isClosable: true,
-          position: 'top-right'
+          position: 'top-right',
         })
       } catch (error) {
         toast({
           title: translate('modals.send.errorTitle', {
-            asset: data.asset.name
+            asset: data.asset.name,
           }),
           description: translate('modals.send.errors.transactionRejected'),
           status: 'error',
           duration: 9000,
           isClosable: true,
-          position: 'top-right'
+          position: 'top-right',
         })
       } finally {
         send.close()
@@ -140,6 +140,6 @@ export const useFormSend = () => {
     }
   }
   return {
-    handleSend
+    handleSend,
   }
 }

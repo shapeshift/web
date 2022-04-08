@@ -21,16 +21,16 @@ export const useSearch = () => {
           },
           500,
           {
-            leading: true
-          }
+            leading: true,
+          },
         )()
       }
     },
-    [assets]
+    [assets],
   )
   return {
     searchTerm,
     matchingAssets,
-    handleInputChange
+    handleInputChange,
   }
 }

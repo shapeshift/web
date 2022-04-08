@@ -9,7 +9,7 @@ import {
   RouteComponentProps,
   Switch,
   useHistory,
-  useLocation
+  useLocation,
 } from 'react-router-dom'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
@@ -61,8 +61,8 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
       cryptoAmount: '',
       cryptoSymbol: initialAsset?.symbol,
       fiatAmount: '',
-      fiatSymbol: 'USD' // TODO: use user preferences to get default fiat currency
-    }
+      fiatSymbol: 'USD', // TODO: use user preferences to get default fiat currency
+    },
   })
 
   const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
@@ -84,7 +84,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     if (!accountId && initialAsset) {
       history.push(SendRoutes.Select, {
         toRoute: SelectAssetRoutes.Account,
-        assetId: initialAsset.caip19
+        assetId: initialAsset.caip19,
       })
     }
   }, [accountId, initialAsset, history])

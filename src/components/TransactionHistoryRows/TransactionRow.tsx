@@ -28,7 +28,7 @@ export const TransactionRow = ({
   activeAsset,
   showDateAndGuide = false,
   useCompactMode = false,
-  parentWidth
+  parentWidth,
 }: {
   txId: string
   activeAsset?: Asset
@@ -45,7 +45,7 @@ export const TransactionRow = ({
   const renderTransactionType = (
     txDetails: TxDetails,
     showDateAndGuide: boolean,
-    useCompactMode: boolean
+    useCompactMode: boolean,
   ): JSX.Element => {
     const props: TransactionRowProps = {
       txDetails,
@@ -53,7 +53,7 @@ export const TransactionRow = ({
       compactMode: useCompactMode,
       toggleOpen,
       isOpen,
-      parentWidth
+      parentWidth,
     }
     switch (txDetails.type || txDetails.direction) {
       case chainAdapters.TxType.Send:

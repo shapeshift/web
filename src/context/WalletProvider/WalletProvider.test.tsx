@@ -12,30 +12,30 @@ import { WalletProvider } from './WalletProvider'
 
 jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
   WebUSBKeepKeyAdapter: {
-    useKeyring: jest.fn()
-  }
+    useKeyring: jest.fn(),
+  },
 }))
 
 jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
   MetaMaskAdapter: {
-    useKeyring: jest.fn()
-  }
+    useKeyring: jest.fn(),
+  },
 }))
 
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,
   deviceId: '',
-  meta: { label: '', address: '' }
+  meta: { label: '', address: '' },
 }
 const setup = async () => {
   // @ts-ignore
   WebUSBKeepKeyAdapter.useKeyring.mockImplementation(() => ({
-    initialize: jest.fn(() => Promise.resolve())
+    initialize: jest.fn(() => Promise.resolve()),
   }))
   // @ts-ignore
   MetaMaskAdapter.useKeyring.mockImplementation(() => ({
-    initialize: jest.fn(() => Promise.resolve())
+    initialize: jest.fn(() => Promise.resolve()),
   }))
   const wrapper: React.FC = ({ children }) => (
     <TestProviders>
@@ -64,7 +64,7 @@ describe('WalletProvider', () => {
       act(() => {
         result.current.dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet: {} as unknown as HDWallet, ...walletInfoPayload }
+          payload: { wallet: {} as unknown as HDWallet, ...walletInfoPayload },
         })
       })
 
@@ -149,8 +149,8 @@ describe('WalletProvider', () => {
           type: WalletActions.SET_WALLET,
           payload: {
             wallet: { disconnect: walletDisconnect } as unknown as HDWallet,
-            ...walletInfoPayload
-          }
+            ...walletInfoPayload,
+          },
         })
         result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       })

@@ -15,7 +15,7 @@ import {
   selectRewardsAmountByAssetId,
   selectSingleValidator,
   selectStakingDataIsLoaded,
-  selectTotalBondingsBalanceByAssetId
+  selectTotalBondingsBalanceByAssetId,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -29,7 +29,7 @@ type StakedProps = {
 export const Overview: React.FC<StakedProps> = ({
   assetId,
   validatorAddress,
-  accountSpecifier
+  accountSpecifier,
 }) => {
   const isLoaded = useAppSelector(selectStakingDataIsLoaded)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -44,30 +44,30 @@ export const Overview: React.FC<StakedProps> = ({
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
           { accountSpecifier },
-          { forceRefetch: true }
-        )
+          { forceRefetch: true },
+        ),
       )
     })()
   }, [accountSpecifier, isLoaded, dispatch])
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress)
+    selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
 
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
+    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
   )
   const undelegationEntries = useAppSelector(state =>
     selectAllUnbondingsEntriesByAssetIdAndValidator(
       state,
       accountSpecifier,
       validatorAddress,
-      asset.caip19
-    )
+      asset.caip19,
+    ),
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
   )
 
   return (
@@ -101,7 +101,6 @@ export const Overview: React.FC<StakedProps> = ({
               <Text translation={'defi.rewards'} mb='12px' color='gray.500' />
               <AssetClaimCard
                 assetSymbol={asset.symbol}
-                assetName={asset.name}
                 assetIcon={asset.icon}
                 cryptoRewardsAmount={bnOrZero(rewardsAmount)
                   .div(`1e+${asset.precision}`)

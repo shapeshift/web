@@ -10,7 +10,7 @@ export const SelectModal = () => {
   const {
     state: { adapters, walletInfo },
     connect,
-    create
+    create,
   } = useWallet()
   const translate = useTranslate()
 

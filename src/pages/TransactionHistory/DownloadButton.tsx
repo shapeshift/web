@@ -9,7 +9,7 @@ import {
   getBuyTransfer,
   getSellTransfer,
   getStandardTx,
-  isSupportedContract
+  isSupportedContract,
 } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -52,7 +52,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     inputAddress: translate('transactionHistory.csv.inputAddress'),
     outputAmount: translate('transactionHistory.csv.outputAmount'),
     outputCurrency: translate('transactionHistory.csv.outputCurrency'),
-    outputAddress: translate('transactionHistory.csv.outputAddress')
+    outputAddress: translate('transactionHistory.csv.outputAddress'),
   }
 
   const generateCSV = () => {
@@ -81,7 +81,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
             ? `transactionHistory.transactionTypes.${txType}`
             : transaction.data
             ? `transactionRow.parser.${transaction.data?.parser}.${transaction.data?.method}`
-            : 'transactionRow.unknown'
+            : 'transactionRow.unknown',
         ),
         status: translate(`transactionRow.${transaction.status}`),
         timestamp: dayjs(transaction.blockTime * 1000).toISOString(),
@@ -101,7 +101,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
             ? bnOrZero(fromBaseUnit(output.value, outputAsset.precision)).toString()
             : '-',
         outputCurrency: outputAsset?.symbol ?? '-',
-        outputAddress: output?.to ?? '-'
+        outputAddress: output?.to ?? '-',
       })
     }
     try {
@@ -109,8 +109,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
         data: report,
         fields,
         filename: `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
-          'HH:mm A, MMMM DD, YYYY'
-        )}`
+          'HH:mm A, MMMM DD, YYYY',
+        )}`,
       })
     } catch (error) {
       console.error(error)

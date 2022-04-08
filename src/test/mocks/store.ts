@@ -15,8 +15,8 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
     middlewareRegistered: false,
     refetchOnFocus: false,
     refetchOnMountOrArgChange: false,
-    refetchOnReconnect: false
-  }
+    refetchOnReconnect: false,
+  },
 })
 
 export const mockStore: ReduxState = {
@@ -28,41 +28,41 @@ export const mockStore: ReduxState = {
   portfolio: {
     accounts: {
       byId: {},
-      ids: []
+      ids: [],
     },
     assetBalances: {
       byId: {},
-      ids: []
+      ids: [],
     },
     accountBalances: {
       byId: {},
-      ids: []
+      ids: [],
     },
     accountSpecifiers: {
       byId: {},
-      ids: []
-    }
+      ids: [],
+    },
   },
   accountSpecifiers: {
-    accountSpecifiers: []
+    accountSpecifiers: [],
   },
   preferences: {
     featureFlags: {
       CosmosInvestor: false,
       FoxyInvestor: false,
-      ReduxLogging: false
+      ReduxLogging: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
     // the following object is required by redux-persist
     _persist: {
       version: 0,
-      rehydrated: false
-    }
+      rehydrated: false,
+    },
   },
   assets: {
     byId: {},
-    ids: []
+    ids: [],
   },
   marketData: {
     byId: {},
@@ -73,9 +73,9 @@ export const mockStore: ReduxState = {
       [HistoryTimeframe.WEEK]: {},
       [HistoryTimeframe.MONTH]: {},
       [HistoryTimeframe.YEAR]: {},
-      [HistoryTimeframe.ALL]: {}
+      [HistoryTimeframe.ALL]: {},
     },
-    loading: false
+    loading: false,
   },
   txHistory: {
     txs: {
@@ -83,19 +83,19 @@ export const mockStore: ReduxState = {
       byAssetId: {},
       byAccountId: {},
       ids: [],
-      status: 'idle'
+      status: 'idle',
     },
     rebases: {
       byAssetId: {},
       byAccountId: {},
       ids: [],
-      byId: {}
-    }
+      byId: {},
+    },
   },
   stakingData: {
     byAccountSpecifier: {},
     status: 'idle',
     validatorStatus: 'idle',
-    byValidator: {}
-  }
+    byValidator: {},
+  },
 }

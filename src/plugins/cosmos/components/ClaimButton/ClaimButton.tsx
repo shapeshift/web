@@ -16,7 +16,7 @@ export const ClaimButton = ({ assetId, validatorAddress }: ClaimButtonProps & Fl
   const handleClaimClick = () => {
     history.push(ClaimPath.Confirm, {
       assetId,
-      validatorAddress
+      validatorAddress,
     })
   }
 

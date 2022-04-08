@@ -12,10 +12,10 @@ export const AlertStyle = {
       container: {
         bg: mode('white', 'gray.700')(props),
         color: mode('black', 'white')(props),
-        boxShadow: mode('md', 'dark-bg')(props)
-      }
-    })
+        boxShadow: mode('md', 'dark-bg')(props),
+      },
+    }),
   },
   // The default `size` or `variant` values
-  defaultProps: {}
+  defaultProps: {},
 }

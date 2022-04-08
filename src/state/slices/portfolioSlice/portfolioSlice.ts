@@ -35,31 +35,31 @@ export const portfolio = createSlice({
       state.assetBalances.byId = mergeWith(
         state.assetBalances.byId,
         payload.assetBalances.byId,
-        upsertAndSum
+        upsertAndSum,
       )
 
       state.accountBalances.byId = {
         ...state.accountBalances.byId,
-        ...payload.accountBalances.byId
+        ...payload.accountBalances.byId,
       }
       state.accountSpecifiers.byId = {
         ...state.accountSpecifiers.byId,
-        ...payload.accountSpecifiers.byId
+        ...payload.accountSpecifiers.byId,
       }
       const assetBalanceIds = Array.from(
-        new Set([...state.assetBalances.ids, ...payload.assetBalances.ids])
+        new Set([...state.assetBalances.ids, ...payload.assetBalances.ids]),
       )
       const accountBalanceIds = Array.from(
-        new Set([...state.accountBalances.ids, ...payload.accountBalances.ids])
+        new Set([...state.accountBalances.ids, ...payload.accountBalances.ids]),
       )
       const accountSpecifiers = Array.from(
-        new Set([...state.accountSpecifiers.ids, ...payload.accountSpecifiers.ids])
+        new Set([...state.accountSpecifiers.ids, ...payload.accountSpecifiers.ids]),
       )
       state.assetBalances.ids = assetBalanceIds
       state.accountBalances.ids = accountBalanceIds
       state.accountSpecifiers.ids = accountSpecifiers
-    }
-  }
+    },
+  },
 })
 
 type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap }
@@ -97,7 +97,7 @@ export const portfolioApi = createApi({
           const error = { status, data }
           return { error }
         }
-      }
-    })
-  })
+      },
+    }),
+  }),
 })

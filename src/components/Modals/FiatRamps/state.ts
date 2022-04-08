@@ -10,5 +10,5 @@ export type GemManagerState = {
 export const initialState: GemManagerState = {
   supportsAddressVerifying: false,
   chainAdapter: null,
-  shownOnDisplay: null
+  shownOnDisplay: null,
 }

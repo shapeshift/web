@@ -8,5 +8,5 @@ export const StakingUpArrowIcon = createIcon({
       fill='currentColor'
     />
   ),
-  viewBox: '0 0 24 24'
+  viewBox: '0 0 24 24',
 })

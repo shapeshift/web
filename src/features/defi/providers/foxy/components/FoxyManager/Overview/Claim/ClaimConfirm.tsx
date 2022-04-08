@@ -6,7 +6,7 @@ import {
   Skeleton,
   SkeletonText,
   Stack,
-  useToast
+  useToast,
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
@@ -39,7 +39,7 @@ export const ClaimConfirm = ({
   amount,
   contractAddress,
   chain,
-  onBack
+  onBack,
 }: ClaimConfirmProps) => {
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
@@ -58,7 +58,7 @@ export const ClaimConfirm = ({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum
+    assetReference: AssetReference.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
@@ -73,7 +73,7 @@ export const ClaimConfirm = ({
         claimAddress: userAddress,
         userAddress,
         wallet: walletState.wallet,
-        contractAddress
+        contractAddress,
       })
       history.push('/status', {
         txid,
@@ -81,7 +81,7 @@ export const ClaimConfirm = ({
         amount,
         userAddress,
         estimatedGas,
-        chain
+        chain,
       })
     } catch (error) {
       console.error('ClaimWithdraw:handleConfirm error', error)
@@ -89,7 +89,7 @@ export const ClaimConfirm = ({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
-        status: 'error'
+        status: 'error',
       })
     } finally {
       setLoading(false)
@@ -108,9 +108,9 @@ export const ClaimConfirm = ({
             claimAddress: userAddress,
             userAddress,
             contractAddress,
-            wallet: walletState.wallet
+            wallet: walletState.wallet,
           }),
-          foxy.getGasPrice()
+          foxy.getGasPrice(),
         ])
         const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         setEstimatedGas(gasEstimate)
@@ -125,7 +125,7 @@ export const ClaimConfirm = ({
     feeAsset.precision,
     feeMarketData.price,
     foxy,
-    walletState.wallet
+    walletState.wallet,
   ])
 
   return (

@@ -6,18 +6,18 @@ import { useEffect, useRef, useState } from 'react'
 const wrapperStyles: CSS.Properties = {
   position: 'relative',
   overflow: 'hidden',
-  maxWidth: 'calc(100vw - 48px)'
+  maxWidth: 'calc(100vw - 48px)',
 }
 
 const scaledStyles: CSS.Properties = {
   textAlign: 'center',
-  transformOrigin: 'left center'
+  transformOrigin: 'left center',
 }
 
 const inputStyles: CSS.Properties = {
   fontSize: 'inherit',
   fontFamily: 'inherit',
-  minWidth: '100%'
+  minWidth: '100%',
 }
 
 const referenceStyles: CSS.Properties = {
@@ -25,7 +25,7 @@ const referenceStyles: CSS.Properties = {
   visibility: 'hidden',
   height: 'auto',
   width: 'auto',
-  whiteSpace: 'nowrap'
+  whiteSpace: 'nowrap',
 }
 
 const getScale = (samplerWidth: number, containerWidth: number): number => {
@@ -42,7 +42,7 @@ export const FlexibleInputContainer: FC<InputProps> = props => {
     if (referenceContainer.current && scaledContainer.current) {
       const scale = getScale(
         referenceContainer.current.clientWidth,
-        scaledContainer.current.clientWidth
+        scaledContainer.current.clientWidth,
       )
       setTransform(`scale(${scale})`)
       setWidth(`${referenceContainer.current.clientWidth}px`)

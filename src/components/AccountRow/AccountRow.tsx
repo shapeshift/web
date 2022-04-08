@@ -9,7 +9,7 @@ import {
   selectAssetByCAIP19,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceByAssetId
+  selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,7 +28,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoValue = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
+    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId),
   )
   const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
 
@@ -42,7 +42,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
       templateColumns={{
         base: '1fr repeat(1, 1fr)',
         md: '1fr repeat(2, 1fr)',
-        lg: '2fr repeat(3, 1fr) 150px'
+        lg: '2fr repeat(3, 1fr) 150px',
       }}
       py={4}
       pl={4}

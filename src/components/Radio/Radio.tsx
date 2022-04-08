@@ -5,7 +5,7 @@ import {
   useId,
   useRadio,
   useRadioGroup,
-  UseRadioProps
+  UseRadioProps,
 } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { memo } from 'react'
@@ -49,12 +49,12 @@ export const Radio = <T extends RadioTypes>({
   defaultValue,
   variant = 'ghost',
   colorScheme = 'blue',
-  buttonGroupProps
+  buttonGroupProps,
 }: RadioProps<T>) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: name ?? 'radio',
     defaultValue: defaultValue ?? options[0]?.value,
-    onChange
+    onChange,
   })
 
   const group = getRootProps()

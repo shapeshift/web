@@ -44,5 +44,5 @@ Page.defaultProps = {
     <Center width='full' height='100%'>
       <Text translation='common.noResultsFound' />
     </Center>
-  )
+  ),
 }

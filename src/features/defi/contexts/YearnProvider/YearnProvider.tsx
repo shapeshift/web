@@ -30,7 +30,7 @@ export const YearnProvider: React.FC = ({ children }) => {
         setLoading(true)
         const api = new YearnVaultApi({
           adapter: adapters.byChain(ChainTypes.Ethereum),
-          providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL
+          providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
         })
         await api.initialize()
         setYearn(api)

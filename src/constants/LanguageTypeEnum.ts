@@ -28,5 +28,5 @@ export enum LanguageTypeEnum {
   /** Tiếng Việt */
   vi = 'vi',
   /** Italiano */
-  it = 'it'
+  it = 'it',
 }

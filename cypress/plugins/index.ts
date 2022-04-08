@@ -15,7 +15,7 @@ const findBrave = (): Cypress.Browser | undefined => {
       }
       case 'linux': {
         const braveLinuxOsPath = execSync(
-          resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh')
+          resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh'),
         )
         return braveLinuxOsPath ? braveLinuxOsPath.toString().trim() : undefined
       }
@@ -40,7 +40,7 @@ const findBrave = (): Cypress.Browser | undefined => {
               displayName: 'Brave',
               version,
               path: browserPath,
-              majorVersion
+              majorVersion,
             }
           : undefined
       })

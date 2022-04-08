@@ -75,7 +75,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
             lineHeight='shorter'
             translation={[
               'defi.modals.foxyOverview.availableDate',
-              { date: dayjs(releaseTime).fromNow() }
+              { date: dayjs(releaseTime).fromNow() },
             ]}
           />
         )}

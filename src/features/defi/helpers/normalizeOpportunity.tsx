@@ -43,7 +43,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       chain: vault.chain,
       network,
       assetNamespace,
-      assetReference: vault.tokenAddress
+      assetReference: vault.tokenAddress,
     })
     const data = {
       type: vault.type,
@@ -58,7 +58,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       chain: vault.chain,
       assetId: assetCAIP19,
       fiatAmount,
-      cryptoAmount
+      cryptoAmount,
     }
     // show vaults that are expired but have a balance
     // show vaults that don't have an APY but have a balance
@@ -95,7 +95,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chain,
       tokenCaip19: assetId,
       fiatAmount,
-      cryptoAmount
+      cryptoAmount,
     } = foxy
     return {
       type: DefiType.TokenStaking,
@@ -109,7 +109,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chain,
       assetId,
       fiatAmount,
-      cryptoAmount
+      cryptoAmount,
     }
   })
 }
@@ -121,7 +121,7 @@ type NormalizeOpportunitiesProps = {
 
 export const useNormalizeOpportunities = ({
   vaultArray,
-  foxyArray
+  foxyArray,
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [...transformFoxy(foxyArray), ...useTransformVault(vaultArray)]
 }

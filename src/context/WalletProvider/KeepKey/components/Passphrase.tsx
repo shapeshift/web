@@ -5,7 +5,7 @@ import {
   Button,
   Input,
   ModalBody,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
 import { Text } from 'components/Text'

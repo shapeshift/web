@@ -30,7 +30,7 @@ function EarnStat({ label, value }: EarnStatProps) {
 
 export const OverviewHeader = ({
   earnBalance,
-  walletBalance
+  walletBalance,
 }: {
   earnBalance: UseEarnBalancesReturn
   walletBalance: string

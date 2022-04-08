@@ -5,7 +5,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import {
   StakingAction,
-  StakingValues
+  StakingValues,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { useEffect, useState } from 'react'
@@ -26,7 +26,7 @@ type ClaimBroadcastProps = {
 }
 
 export enum Field {
-  FeeType = 'feeType'
+  FeeType = 'feeType',
 }
 
 export type ClaimBroadcastParams = {
@@ -58,9 +58,9 @@ export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroa
         validator: validatorAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(txFee).times(`1e+${asset?.precision}`).toString()
+          fee: bnOrZero(txFee).times(`1e+${asset?.precision}`).toString(),
         },
-        action: StakingAction.Claim
+        action: StakingAction.Claim,
       })
 
       if (!broadcastTx) return
@@ -119,7 +119,7 @@ export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroa
             &nbsp;
             <Tooltip
               label={translate('defi.modals.staking.tooltip.gasFees', {
-                networkName: asset.name
+                networkName: asset.name,
               })}
             >
               <InfoOutlineIcon />

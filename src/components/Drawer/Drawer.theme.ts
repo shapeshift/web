@@ -4,13 +4,13 @@ export const DrawerStyle = {
   // Styles for the base style
   baseStyle: (props: Record<string, any>) => ({
     dialog: {
-      bg: mode('white', 'gray.785')(props)
-    }
+      bg: mode('white', 'gray.785')(props),
+    },
   }),
   // Styles for the size variations
   sizes: {},
   // Styles for the visual style variations
   variants: {},
   // The default `size` or `variant` values
-  defaultProps: {}
+  defaultProps: {},
 }

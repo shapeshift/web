@@ -21,7 +21,7 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
-    receiveSupport: true
+    receiveSupport: true,
   },
   {
     caip2: 'eip155:1',
@@ -40,7 +40,7 @@ const assets: Asset[] = [
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     sendSupport: false,
-    receiveSupport: false
+    receiveSupport: false,
   },
   {
     caip2: 'eip155:1',
@@ -61,7 +61,7 @@ const assets: Asset[] = [
     explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'AAMMDAI'
+    symbol: 'AAMMDAI',
   },
   {
     caip2: 'eip155:1',
@@ -82,8 +82,8 @@ const assets: Asset[] = [
     explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'DAI'
-  }
+    symbol: 'DAI',
+  },
 ]
 
 describe('filterAssetsBySearchTerm', () => {

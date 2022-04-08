@@ -7,7 +7,7 @@ import {
   Stack,
   Text as CText,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
@@ -25,7 +25,7 @@ import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
   selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectMarketDataById
+  selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -36,7 +36,7 @@ const UNBONDING_DURATION = '21'
 
 export enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 type UnstakeProps = {
@@ -51,7 +51,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
     control,
     formState: { isValid },
     handleSubmit,
-    setValue
+    setValue,
   } = useFormContext<StakingValues>()
 
   const values = useWatch({ control })
@@ -63,8 +63,8 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
       state,
       accountSpecifier,
       validatorAddress,
-      assetId
-    )
+      assetId,
+    ),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
@@ -84,7 +84,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
     memoryHistory.push(UnstakingPath.Confirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount).times(`1e+${asset?.precision}`).toString(),
       assetId,
-      fiatRate: bnOrZero(marketData.price)
+      fiatRate: bnOrZero(marketData.price),
     })
   }
 

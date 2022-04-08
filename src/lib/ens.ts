@@ -12,21 +12,21 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
   const unchainedUrls = {
     ethereum: {
       httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-      wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
-    }
+      wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
+    },
   }
 
   const ethereumChainAdapter = new ChainAdapterManager(unchainedUrls).byChain(ChainTypes.Ethereum)
   const caip2 = await ethereumChainAdapter.getCaip2()
   const caip2Reference = caip2.match(
-    /^(?<caip2Namespace>[-a-z0-9]{3,8}):(?<caip2Reference>[-a-zA-Z0-9]{1,32})$/
+    /^(?<caip2Namespace>[-a-z0-9]{3,8}):(?<caip2Reference>[-a-zA-Z0-9]{1,32})$/,
   )?.groups?.caip2Reference
   return new ENS({ provider: await getWeb3Provider(), ensAddress: getEnsAddress(caip2Reference) })
 })
 
 export const ensLookup = memoize(
   async (
-    ensName: string
+    ensName: string,
   ): Promise<{ address: string; error: false } | { address: null; error: true }> => {
     makeEns()
     const ensInstance = await ens
@@ -35,12 +35,12 @@ export const ensLookup = memoize(
       return { address: null, error: true }
     }
     return { address: lookupAddress as string, error: false }
-  }
+  },
 )
 
 export const ensReverseLookup = memoize(
   async (
-    address: string
+    address: string,
   ): Promise<{ name: string; error: false } | { name: null; error: true }> => {
     makeEns()
     const ensInstance = await ens
@@ -49,5 +49,5 @@ export const ensReverseLookup = memoize(
       return { name: null, error: true }
     }
     return { name: lookupName.name as string, error: false }
-  }
+  },
 )

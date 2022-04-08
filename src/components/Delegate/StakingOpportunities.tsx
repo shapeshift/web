@@ -7,7 +7,7 @@ import {
   Skeleton,
   SkeletonCircle,
   Tag,
-  TagLabel
+  TagLabel,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
@@ -24,7 +24,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAccountSpecifier,
   selectAssetByCAIP19,
-  selectMarketDataById
+  selectMarketDataById,
 } from 'state/slices/selectors'
 import {
   ActiveStakingOpportunity,
@@ -32,7 +32,7 @@ import {
   selectNonloadedValidators,
   selectSingleValidator,
   selectStakingDataIsLoaded,
-  selectValidatorIsLoaded
+  selectValidatorIsLoaded,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -89,20 +89,20 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       state,
       accountSpecifier,
       SHAPESHIFT_VALIDATOR_ADDRESS,
-      asset.caip19
-    )
+      asset.caip19,
+    ),
   )
 
   const shapeshiftValidator = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
+    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS),
   )
   const stakingOpportunities = [
     {
-      ...shapeshiftValidator
-    }
+      ...shapeshiftValidator,
+    },
   ]
   const nonLoadedValidators = useAppSelector(state =>
-    selectNonloadedValidators(state, accountSpecifier)
+    selectNonloadedValidators(state, accountSpecifier),
   )
   const hasActiveStakingOpportunities = activeStakingOpportunities.length !== 0
   const chainId = asset.caip2
@@ -114,8 +114,8 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
           { accountSpecifier },
-          { forceRefetch: true }
-        )
+          { forceRefetch: true },
+        ),
       )
     })()
   }, [accountSpecifier, isStakingDataLoaded, dispatch])
@@ -125,7 +125,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       if (isValidatorDataLoaded) return
 
       dispatch(
-        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId }, { forceRefetch: true })
+        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId }, { forceRefetch: true }),
       )
     })()
   }, [isValidatorDataLoaded, dispatch, chainId])
@@ -138,8 +138,8 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         dispatch(
           stakingDataApi.endpoints.getValidatorData.initiate(
             { chainId, validatorAddress },
-            { forceRefetch: true }
-          )
+            { forceRefetch: true },
+          ),
         )
       })
     })()
@@ -155,7 +155,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const handleStakedClick = (values: Row<ActiveStakingOpportunity>) => {
     cosmosStaking.open({
       assetId,
-      validatorAddress: values.original.address
+      validatorAddress: values.original.address,
     })
   }
 
@@ -168,7 +168,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Cell: ({ value }: { value: string }) => (
           <ValidatorName moniker={value} isStaking={hasActiveStakingOpportunities} />
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.apr' />,
@@ -179,7 +179,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             <AprTag percentage={value} showAprSuffix />
           </Skeleton>
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.stakedAmount' />,
@@ -201,7 +201,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             <Box minWidth={{ base: '0px', md: '200px' }} />
           )
         },
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.rewards' />,
@@ -241,13 +241,13 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             </Box>
           )
         },
-        disableSortBy: true
-      }
+        disableSortBy: true,
+      },
     ],
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoaded]
+    [isLoaded],
   )
   return (
     <Card>

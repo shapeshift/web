@@ -11,7 +11,7 @@ import {
   StatArrow,
   StatGroup,
   StatNumber,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -31,12 +31,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectTotalCryptoBalanceWithDelegations,
-  selectTotalFiatBalanceWithDelegations
+  selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/portfolioSlice/selectors'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectTotalStakingDelegationCryptoByFilter
+  selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -44,7 +44,7 @@ import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
 
 enum View {
   Price = 'price',
-  Balance = 'balance'
+  Balance = 'balance',
 }
 
 type AssetChartProps = {
@@ -54,7 +54,7 @@ type AssetChartProps = {
 }
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
   const {
-    number: { toFiat }
+    number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
@@ -69,15 +69,15 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const translate = useTranslate()
 
   const fiatBalanceWithDelegations = useAppSelector(state =>
-    selectTotalFiatBalanceWithDelegations(state, filter)
+    selectTotalFiatBalanceWithDelegations(state, filter),
   )
 
   const cryptoBalanceWithDelegations = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, filter)
+    selectTotalCryptoBalanceWithDelegations(state, filter),
   )
 
   const delegationBalance = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByFilter(state, filter)
+    selectTotalStakingDelegationCryptoByFilter(state, filter),
   )
 
   return (
@@ -193,7 +193,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             width: 'full',
             justifyContent: 'space-between',
             px: 6,
-            py: 4
+            py: 4,
           }}
         />
       </Skeleton>

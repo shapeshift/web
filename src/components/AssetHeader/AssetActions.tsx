@@ -22,7 +22,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
   const translate = useTranslate()
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
 

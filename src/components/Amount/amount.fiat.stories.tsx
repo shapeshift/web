@@ -15,8 +15,8 @@ export default {
       <Container mt='40px'>
         <Story />
       </Container>
-    )
-  ]
+    ),
+  ],
 }
 
 export const Basic = () => (

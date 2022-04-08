@@ -8,8 +8,8 @@ describe('generateAppRoutes', () => {
       {
         path: '/',
         label: 'Home',
-        main: () => <TestComp />
-      }
+        main: () => <TestComp />,
+      },
     ]
     const flattenedRoutes = generateAppRoutes(routes)
     expect(flattenedRoutes[0]).toEqual({ ...routes[0] })
@@ -25,15 +25,15 @@ describe('generateAppRoutes', () => {
           {
             path: '/child',
             label: 'Child Route',
-            main: () => <TestComp />
+            main: () => <TestComp />,
           },
           {
             path: '/child',
             label: 'Child Route',
-            main: () => <TestComp />
-          }
-        ]
-      }
+            main: () => <TestComp />,
+          },
+        ],
+      },
     ]
     const flattenedRoutes = generateAppRoutes(routes)
     expect(flattenedRoutes.length).toEqual(3)
@@ -48,15 +48,15 @@ describe('generateAppRoutes', () => {
           {
             path: '/child1',
             label: 'Child Route',
-            main: () => <TestComp />
+            main: () => <TestComp />,
           },
           {
             path: '/child2',
             label: 'Child Route',
-            main: () => <TestComp />
-          }
-        ]
-      }
+            main: () => <TestComp />,
+          },
+        ],
+      },
     ]
     const flattenedRoutes = generateAppRoutes(routes)
     const parent = flattenedRoutes.find(route => route.path === '/')

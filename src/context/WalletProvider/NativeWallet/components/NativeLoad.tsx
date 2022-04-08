@@ -8,7 +8,7 @@ import {
   IconButton,
   ModalBody,
   ModalHeader,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
@@ -23,7 +23,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import {
   setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId
+  setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -56,7 +56,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
               const createdAt = Number(meta?.get('createdAt') ?? null)
               const name = String(meta?.get('name') ?? id)
               return { id, name, createdAt }
-            })
+            }),
           )
 
           setWallets(storedWallets)
@@ -83,7 +83,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId, meta: { label: item.name } }
+            payload: { wallet, name, icon, deviceId, meta: { label: item.name } },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
@@ -103,8 +103,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   const handleDelete = async (wallet: VaultInfo) => {
     const result = window.confirm(
       translate('walletProvider.shapeShift.load.confirmForget', {
-        wallet: wallet.name ?? wallet.id
-      })
+        wallet: wallet.name ?? wallet.id,
+      }),
     )
     if (result) {
       try {

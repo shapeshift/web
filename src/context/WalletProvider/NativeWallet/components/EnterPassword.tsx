@@ -9,7 +9,7 @@ import {
   InputGroup,
   InputRightElement,
   ModalBody,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
@@ -37,7 +37,7 @@ export const EnterPassword = () => {
     setError,
     handleSubmit,
     register,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm({ mode: 'onChange', shouldUnregister: true })
 
   const handleShowClick = () => setShowPw(!showPw)
@@ -48,12 +48,18 @@ export const EnterPassword = () => {
       mnemonic.addRevoker?.(() => vault.revoke())
       await wallet?.loadDevice({
         mnemonic,
-        deviceId
+        deviceId,
       })
       const { name, icon } = NativeConfig
       dispatch({
         type: WalletActions.SET_WALLET,
-        payload: { wallet, name, icon, deviceId, meta: { label: vault.meta.get('name') as string } }
+        payload: {
+          wallet,
+          name,
+          icon,
+          deviceId,
+          meta: { label: vault.meta.get('name') as string },
+        },
       })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
@@ -63,9 +69,9 @@ export const EnterPassword = () => {
         'password',
         {
           type: 'manual',
-          message: translate('modals.shapeShift.password.error.invalid')
+          message: translate('modals.shapeShift.password.error.invalid'),
         },
-        { shouldFocus: true }
+        { shouldFocus: true },
       )
     }
   }
@@ -114,8 +120,8 @@ export const EnterPassword = () => {
                   required: translate('modals.shapeShift.password.error.required'),
                   minLength: {
                     value: 8,
-                    message: translate('modals.shapeShift.password.error.length', { length: 8 })
-                  }
+                    message: translate('modals.shapeShift.password.error.length', { length: 8 }),
+                  },
                 })}
                 pr='4.5rem'
                 type={showPw ? 'text' : 'password'}

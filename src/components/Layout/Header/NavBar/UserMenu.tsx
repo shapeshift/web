@@ -6,7 +6,7 @@ import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { WalletConnectedMenuRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/WalletConnectedMenuRoutes'
+import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
@@ -39,7 +39,7 @@ export const WalletConnected = (props: WalletConnectedProps) => {
     <MemoryRouter initialEntries={entries}>
       <Switch>
         <Route path='/'>
-          <WalletConnectedMenuRoutes
+          <WalletConnectedMenu
             isConnected={props.isConnected}
             walletInfo={props.walletInfo}
             onDisconnect={props.onDisconnect}

@@ -18,7 +18,7 @@ export const AwaitKeepKey = ({ children, translation, onCancel, ...props }: Awai
   const {
     setAwaitingDeviceInteraction,
     state: { awaitingDeviceInteraction, wallet },
-    load
+    load,
   } = useWallet()
   const blueShade = useColorModeValue('blue.500', 'blue.200')
 

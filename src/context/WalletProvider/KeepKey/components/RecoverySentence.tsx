@@ -16,7 +16,7 @@ export const KeepKeyRecoverySentence = () => {
   const yellowShade = useColorModeValue('yellow.500', 'yellow.200')
   const {
     load,
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const history = useHistory()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])

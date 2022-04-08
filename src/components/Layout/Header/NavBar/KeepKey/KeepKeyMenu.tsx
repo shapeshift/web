@@ -5,7 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
   useMenuRoutes,
-  WalletConnectedRoutes
+  WalletConnectedRoutes,
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
@@ -21,11 +21,11 @@ export const KeepKeyMenu = () => {
   const translate = useTranslate()
   const {
     keepKeyWallet,
-    state: { hasPinCaching, deviceTimeout }
+    state: { hasPinCaching, deviceTimeout },
   } = useKeepKey()
   const versions = useKeepKeyVersions()
   const {
-    state: { isConnected, walletInfo }
+    state: { isConnected, walletInfo },
   } = useWallet()
   const { keepKeyWipe } = useModal()
 

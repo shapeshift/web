@@ -53,9 +53,9 @@ export const useKeepKeyVersions = () => {
         {
           headers: {
             Accept: 'application/json',
-            'Content-Type': 'application/json'
-          }
-        }
+            'Content-Type': 'application/json',
+          },
+        },
       )
 
       const bootloaderVersion = getBootloaderVersion(wallet, releases)
@@ -67,13 +67,13 @@ export const useKeepKeyVersions = () => {
         bootloader: {
           device: bootloaderVersion,
           latest: latestBootloader,
-          updateAvailable: bootloaderVersion !== latestBootloader
+          updateAvailable: bootloaderVersion !== latestBootloader,
         },
         firmware: {
           device: deviceFirmware,
           latest: latestFirmware,
-          updateAvailable: deviceFirmware !== latestFirmware
-        }
+          updateAvailable: deviceFirmware !== latestFirmware,
+        },
       }
       setVersions(versions)
     })()

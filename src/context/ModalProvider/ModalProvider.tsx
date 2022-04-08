@@ -21,7 +21,7 @@ const MODALS = {
   cosmosGetStarted: GetStartedModal,
   cosmosStaking: StakingModal,
   settings: SettingsModal,
-  keepKeyWipe: WipeModal
+  keepKeyWipe: WipeModal,
 }
 
 // state

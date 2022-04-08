@@ -6,7 +6,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
-  ModalOverlay
+  ModalOverlay,
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,10 +21,10 @@ export const WipeModal = () => {
   const { disconnect } = useWallet()
   const translate = useTranslate()
   const {
-    keepKeyWipe: { close, isOpen }
+    keepKeyWipe: { close, isOpen },
   } = useModal()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
   const [wipeConfirmationChecked, setWipeConfirmationChecked] = useState(false)
 

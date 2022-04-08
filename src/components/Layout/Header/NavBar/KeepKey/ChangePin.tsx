@@ -13,7 +13,7 @@ export const ChangePin = () => {
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
 
   const handleChangePin = async () => {
@@ -47,7 +47,7 @@ export const ChangePin = () => {
       <Flex flexDir='column'>
         <SubmenuHeader
           title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-            setting
+            setting,
           })}
           description={translate('walletProvider.keepKey.settings.descriptions.pin')}
         />

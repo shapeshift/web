@@ -14,10 +14,10 @@ export const ChangePassphrase = () => {
   const {
     keepKeyWallet,
     setHasPassphrase,
-    state: { hasPassphrase }
+    state: { hasPassphrase },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
 
   const handleToggle = async () => {
@@ -44,7 +44,7 @@ export const ChangePassphrase = () => {
           <Flex flexGrow={1}>
             <FormLabel htmlFor='pin-caching' mb='0'>
               {translate('walletProvider.keepKey.settings.actions.enable', {
-                setting
+                setting,
               })}
             </FormLabel>
             {awaitingDeviceInteraction && <Spinner thickness='4px' />}

@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import {
   useMenuRoutes,
-  WalletConnectedRoutes
+  WalletConnectedRoutes,
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
 import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
@@ -27,14 +27,14 @@ export const WalletConnectedMenu = ({
   onDisconnect,
   onSwitchProvider,
   walletInfo,
-  isConnected
+  isConnected,
 }: WalletConnectedProps) => {
   const { navigateToRoute } = useMenuRoutes()
   const location = useLocation()
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
   const keepKeySettingsFlag = useSelector((state: ReduxState) =>
-    selectFeatureFlag(state, 'KeepKeySettings')
+    selectFeatureFlag(state, 'KeepKeySettings'),
   )
 
   const ConnectedMenu = () => {

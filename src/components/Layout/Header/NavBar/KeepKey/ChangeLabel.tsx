@@ -16,7 +16,7 @@ export const ChangeLabel = () => {
   const { walletInfo } = state
   const { keepKeyWallet } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
@@ -32,7 +32,7 @@ export const ChangeLabel = () => {
       <Flex flexDir='column'>
         <SubmenuHeader
           title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-            setting
+            setting,
           })}
           description={translate('walletProvider.keepKey.settings.descriptions.label')}
         />

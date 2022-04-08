@@ -61,8 +61,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
       { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
-      { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence }
-    ]
+      { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
+    ],
   },
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,

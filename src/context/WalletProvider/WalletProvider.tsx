@@ -62,7 +62,7 @@ const initialState: InitialState = {
   noBackButton: false,
   keepKeyPinRequestType: null,
   awaitingDeviceInteraction: false,
-  lastDeviceInteractionStatus: undefined
+  lastDeviceInteractionStatus: undefined,
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -138,7 +138,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         modal: true,
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
-        initialRoute: '/keepkey/new'
+        initialRoute: '/keepkey/new',
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
@@ -154,7 +154,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         noBackButton: false,
         keepKeyPinRequestType: null,
         awaitingDeviceInteraction: false,
-        lastDeviceInteractionStatus: undefined
+        lastDeviceInteractionStatus: undefined,
       }
     default:
       return state
@@ -342,12 +342,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('connect')
+      String(path).endsWith('connect'),
     )
     if (routeIndex > -1) {
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
       })
     }
   }, [])
@@ -355,12 +355,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const create = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('create')
+      String(path).endsWith('create'),
     )
     if (routeIndex > -1) {
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
       })
     }
   }, [])
@@ -368,14 +368,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const setAwaitingDeviceInteraction = useCallback((awaitingDeviceInteraction: boolean) => {
     dispatch({
       type: WalletActions.SET_AWAITING_DEVICE_INTERACTION,
-      payload: awaitingDeviceInteraction
+      payload: awaitingDeviceInteraction,
     })
   }, [])
 
   const setLastDeviceInteractionStatus = useCallback((lastDeviceInteractionStatus: Outcome) => {
     dispatch({
       type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS,
-      payload: lastDeviceInteractionStatus
+      payload: lastDeviceInteractionStatus,
     })
   }, [])
 
@@ -388,7 +388,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     dispatch,
     load,
     setAwaitingDeviceInteraction,
-    setLastDeviceInteractionStatus
+    setLastDeviceInteractionStatus,
   )
 
   const value: IWalletContext = useMemo(
@@ -400,7 +400,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setAwaitingDeviceInteraction,
-      setLastDeviceInteractionStatus
+      setLastDeviceInteractionStatus,
     }),
     [
       state,
@@ -409,8 +409,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setAwaitingDeviceInteraction,
-      setLastDeviceInteractionStatus
-    ]
+      setLastDeviceInteractionStatus,
+    ],
   )
 
   return (

@@ -94,12 +94,12 @@ export const Radio = <T extends RadioTypes>({
   radioProps,
   showCheck = false,
   checkColor,
-  isLoading
+  isLoading,
 }: RadioProps<T>) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: name ?? 'radio',
     defaultValue,
-    onChange
+    onChange,
   })
 
   const group = getRootProps()

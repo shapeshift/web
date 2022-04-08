@@ -10,7 +10,7 @@ export type LastDeviceInteractionStatusProps = {
 export const LastDeviceInteractionStatus = ({ setting }: LastDeviceInteractionStatusProps) => {
   const translate = useTranslate()
   const {
-    state: { lastDeviceInteractionStatus }
+    state: { lastDeviceInteractionStatus },
   } = useWallet()
   const greenShade = useColorModeValue('green.700', 'green.200')
   const yellowShade = useColorModeValue('yellow.500', 'yellow.200')
@@ -27,10 +27,10 @@ export const LastDeviceInteractionStatus = ({ setting }: LastDeviceInteractionSt
       <AlertIcon color={lastDeviceInteractionStatus === 'success' ? greenShade : yellowShade} />
       {lastDeviceInteractionStatus === 'success'
         ? translate('walletProvider.keepKey.settings.descriptions.updateSuccess', {
-            setting: upperFirst(setting)
+            setting: upperFirst(setting),
           })
         : translate('walletProvider.keepKey.settings.descriptions.updateFailed', {
-            setting: setting
+            setting: setting,
           })}
     </Alert>
   ) : null

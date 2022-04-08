@@ -12,7 +12,7 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setAwaitingDeviceInteraction: (awaitingDeviceInteraction: boolean) => void,
-  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome) => void
+  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome) => void,
 ) => {
   const { keyring, modal } = state
 
@@ -63,8 +63,8 @@ export const useKeepKeyEventHandler = (
               dispatch({
                 type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
                 payload: {
-                  deviceId
-                }
+                  deviceId,
+                },
               })
               break
             default:
@@ -146,6 +146,6 @@ export const useKeepKeyEventHandler = (
     modal,
     setAwaitingDeviceInteraction,
     state.walletInfo,
-    setLastDeviceInteractionStatus
+    setLastDeviceInteractionStatus,
   ])
 }

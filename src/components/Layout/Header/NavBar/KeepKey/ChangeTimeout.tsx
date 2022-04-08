@@ -15,10 +15,10 @@ export const ChangeTimeout = () => {
   const translate = useTranslate()
   const {
     keepKeyWallet,
-    state: { deviceTimeout }
+    state: { deviceTimeout },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
   const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
 
@@ -42,7 +42,7 @@ export const ChangeTimeout = () => {
     <SubMenuContainer>
       <SubmenuHeader
         title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-          setting: 'Timeout'
+          setting: 'Timeout',
         })}
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
@@ -63,7 +63,7 @@ export const ChangeTimeout = () => {
             width: 'full',
             alignItems: 'flex-start',
             flex: 1,
-            spacing: '0'
+            spacing: '0',
           }}
         />
       </SubMenuBody>

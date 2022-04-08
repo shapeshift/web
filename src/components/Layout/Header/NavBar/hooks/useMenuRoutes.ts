@@ -10,7 +10,7 @@ export enum WalletConnectedRoutes {
   KeepKeyLabel = '/keepkey/label',
   KeepKeyTimeout = '/keepkey/timeout',
   KeepKeyPinCaching = '/keepkey/pin-caching',
-  KeepKeyPassphrase = '/keepkey/passphrase'
+  KeepKeyPassphrase = '/keepkey/passphrase',
 }
 
 export const useMenuRoutes = () => {
@@ -30,11 +30,11 @@ export const useMenuRoutes = () => {
       setLastDeviceInteractionStatus(undefined)
       history.push(route)
     },
-    [history, keepKeyWallet, setLastDeviceInteractionStatus]
+    [history, keepKeyWallet, setLastDeviceInteractionStatus],
   )
 
   return {
     handleBackClick,
-    navigateToRoute
+    navigateToRoute,
   }
 }

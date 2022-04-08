@@ -15,10 +15,10 @@ export const ChangePinCaching = () => {
   const {
     keepKeyWallet,
     setHasPinCaching,
-    state: { hasPinCaching }
+    state: { hasPinCaching },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
 
   const handleToggle = async () => {
@@ -26,7 +26,7 @@ export const ChangePinCaching = () => {
     setHasPinCaching(!hasPinCaching)
     const newPinCachingPolicy: Required<Types.PolicyType.AsObject> = {
       policyName: 'Pin Caching',
-      enabled: !currentValue
+      enabled: !currentValue,
     }
     await keepKeyWallet?.applyPolicy(newPinCachingPolicy)
   }
@@ -49,7 +49,7 @@ export const ChangePinCaching = () => {
           <Flex flexGrow={1}>
             <FormLabel htmlFor='pin-caching' mb='0'>
               {translate('walletProvider.keepKey.settings.actions.enable', {
-                setting
+                setting,
               })}
             </FormLabel>
             {awaitingDeviceInteraction && <Spinner thickness='4px' />}

@@ -81,7 +81,7 @@ export const UnstakeConfirm = ({
     [cryptoAmount, marketData.price],
   )
 
-  const isValid = useMemo(
+  const hasEnoughBalance = useMemo(
     () => feeData && cryptoBalanceHuman.gt(bnOrZero(feeData[activeFee].txFee)),
     [cryptoBalanceHuman, feeData, activeFee],
   )
@@ -180,14 +180,16 @@ export const UnstakeConfirm = ({
                 <Text translation='common.cancel' />
               </Button>
               <Button
-                colorScheme={!isValid ? 'red' : 'blue'}
-                isDisabled={!isValid}
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
                 mb={2}
                 size='lg'
                 type='submit'
               >
                 <Text
-                  translation={isValid ? 'defi.signAndBroadcast' : 'common.insufficientFunds'}
+                  translation={
+                    hasEnoughBalance ? 'defi.signAndBroadcast' : 'common.insufficientFunds'
+                  }
                 />
               </Button>
             </Stack>

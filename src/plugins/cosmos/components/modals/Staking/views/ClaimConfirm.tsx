@@ -111,7 +111,7 @@ export const ClaimConfirm = ({
     memoryHistory.push(ClaimPath.Broadcast)
   }
 
-  const isValid = useMemo(
+  const hasEnoughBalance = useMemo(
     () => feeData && cryptoBalanceHuman.gt(bnOrZero(feeData[activeFee].txFee)),
     [cryptoBalanceHuman, feeData, activeFee],
   )
@@ -184,8 +184,8 @@ export const ClaimConfirm = ({
                 <Text translation='common.cancel' mx={5} />
               </Button>
               <Button
-                colorScheme={!isValid ? 'red' : 'blue'}
-                isDisabled={!isValid}
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
                 mb={2}
                 size='lg'
                 type='submit'
@@ -193,7 +193,9 @@ export const ClaimConfirm = ({
               >
                 <Text
                   translation={
-                    isValid ? 'defi.modals.claim.confirmAndClaim' : 'common.insufficientFunds'
+                    hasEnoughBalance
+                      ? 'defi.modals.claim.confirmAndClaim'
+                      : 'common.insufficientFunds'
                   }
                 />
               </Button>

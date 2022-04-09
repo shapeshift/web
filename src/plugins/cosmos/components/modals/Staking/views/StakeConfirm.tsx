@@ -88,7 +88,7 @@ export const StakeConfirm = ({
     [cryptoAmount, marketData.price],
   )
 
-  const isValid = useMemo(
+  const hasEnoughBalance = useMemo(
     () =>
       feeData &&
       bnOrZero(cryptoAmount).plus(bnOrZero(feeData[activeFee].txFee)).lt(cryptoBalanceHuman),
@@ -203,13 +203,15 @@ export const StakeConfirm = ({
                 <Text translation='common.cancel' />
               </Button>
               <Button
-                colorScheme={!isValid ? 'red' : 'blue'}
-                isDisabled={!isValid}
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
                 size='lg'
                 type='submit'
               >
                 <Text
-                  translation={isValid ? 'defi.signAndBroadcast' : 'common.insufficientFunds'}
+                  translation={
+                    hasEnoughBalance ? 'defi.signAndBroadcast' : 'common.insufficientFunds'
+                  }
                 />
               </Button>
             </Stack>

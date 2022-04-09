@@ -70,6 +70,8 @@ export const Overview: React.FC<StakedProps> = ({
     selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
   )
 
+  // If it's loading, it will display the skeleton,
+  // overwise if there are some undelegationsEntries it will display it.
   const shouldDisplayUndelegationEntries = undelegationEntries?.length || !isLoaded
 
   return (

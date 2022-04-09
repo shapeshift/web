@@ -16,21 +16,25 @@ export enum WalletConnectedRoutes {
 export const useMenuRoutes = () => {
   const history = useHistory()
   const { keepKeyWallet } = useKeepKey()
-  const { setLastDeviceInteractionStatus } = useWallet()
+  const { setLastDeviceInteractionStatus, setAwaitingDeviceInteraction } = useWallet()
 
-  const handleBackClick = useCallback(async () => {
+  const resetKeepKeyState = useCallback(async () => {
     await keepKeyWallet?.cancel()
     setLastDeviceInteractionStatus(undefined)
+    setAwaitingDeviceInteraction(false)
+  }, [keepKeyWallet, setAwaitingDeviceInteraction, setLastDeviceInteractionStatus])
+
+  const handleBackClick = useCallback(async () => {
+    await resetKeepKeyState()
     history.goBack()
-  }, [history, keepKeyWallet, setLastDeviceInteractionStatus])
+  }, [history, resetKeepKeyState])
 
   const navigateToRoute = useCallback(
     async (route: WalletConnectedRoutes) => {
-      await keepKeyWallet?.cancel()
-      setLastDeviceInteractionStatus(undefined)
+      await resetKeepKeyState()
       history.push(route)
     },
-    [history, keepKeyWallet, setLastDeviceInteractionStatus],
+    [history, resetKeepKeyState],
   )
 
   return {

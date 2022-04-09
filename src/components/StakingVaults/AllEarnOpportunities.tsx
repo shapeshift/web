@@ -77,7 +77,6 @@ export const AllEarnOpportunities = () => {
         }
 
         cosmosGetStarted.open({ assetId })
-        return
       }
 
       history.push({

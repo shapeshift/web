@@ -113,7 +113,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Cell: ({ value }: { value: string }) => {
           return hasActiveStakingOpportunities ? (
             <Amount.Crypto
-              value={bnOrZero(value).toString()}
+              value={value}
               symbol={asset.symbol}
               color='white'
               fontWeight={'normal'}

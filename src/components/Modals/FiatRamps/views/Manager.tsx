@@ -3,35 +3,36 @@ import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { matchPath, MemoryRouter, Redirect, Route, Switch } from 'react-router'
+import { matchPath, MemoryRouter, Redirect, Route, RouteComponentProps, Switch } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
 
-import { FiatRampAction, GemCurrency } from '../FiatRampsCommon'
+import { FiatRamps } from '../config'
+import { FiatRampAction, FiatRampCurrency } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
-import { GemOverview } from './GemOverview'
+import { Overview } from './Overview'
 
-export enum GemManagerRoutes {
+export enum ManagerRoutes {
   Buy = '/buy',
   Sell = '/sell',
   BuySelect = '/buy/select',
   SellSelect = '/sell/select',
 }
 const entries = [
-  GemManagerRoutes.Buy,
-  GemManagerRoutes.BuySelect,
-  GemManagerRoutes.Sell,
-  GemManagerRoutes.SellSelect,
+  ManagerRoutes.Buy,
+  ManagerRoutes.BuySelect,
+  ManagerRoutes.Sell,
+  ManagerRoutes.SellSelect,
 ]
 
-const GemManagerRouter = (props: any) => {
+const ManagerRouter = (props: any) => {
   const { location, history } = props
 
-  const [selectedAsset, setSelectedAsset] = useState<GemCurrency | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrency | null>(null)
   const [isBTC, setIsBTC] = useState<boolean | null>(null)
-  // We addresses in manager so we don't have to on every <GemOverview /> mount
+  // We addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string | null>(null)
   const [ethAddress, setEthAddress] = useState<string | null>(null)
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean | null>(null)
@@ -79,16 +80,13 @@ const GemManagerRouter = (props: any) => {
     path: '/:fiatRampAction',
   })
   const handleFiatRampActionClick = (fiatRampAction: FiatRampAction) => {
-    const route =
-      fiatRampAction === FiatRampAction.Buy ? GemManagerRoutes.Buy : GemManagerRoutes.Sell
+    const route = fiatRampAction === FiatRampAction.Buy ? ManagerRoutes.Buy : ManagerRoutes.Sell
     setSelectedAsset(null)
     history.push(route)
   }
-  const handleAssetSelect = (asset: GemCurrency, isBTC: boolean) => {
+  const handleAssetSelect = (asset: FiatRampCurrency, isBTC: boolean) => {
     const route =
-      match?.params.fiatRampAction === FiatRampAction.Buy
-        ? GemManagerRoutes.Buy
-        : GemManagerRoutes.Sell
+      match?.params.fiatRampAction === FiatRampAction.Buy ? ManagerRoutes.Buy : ManagerRoutes.Sell
     setSelectedAsset(asset)
     setIsBTC(isBTC)
     history.push(route)
@@ -96,8 +94,8 @@ const GemManagerRouter = (props: any) => {
   const handleIsSelectingAsset = (walletSupportsBTC: Boolean, selectAssetTranslation: string) => {
     const route =
       match?.params.fiatRampAction === FiatRampAction.Buy
-        ? GemManagerRoutes.BuySelect
-        : GemManagerRoutes.SellSelect
+        ? ManagerRoutes.BuySelect
+        : ManagerRoutes.SellSelect
     history.push(route, { walletSupportsBTC, selectAssetTranslation })
   }
 
@@ -105,7 +103,7 @@ const GemManagerRouter = (props: any) => {
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
         <Route exact path='/:fiatRampAction'>
-          <GemOverview
+          <Overview
             {...props}
             selectedAsset={selectedAsset}
             onIsSelectingAsset={handleIsSelectingAsset}
@@ -120,21 +118,30 @@ const GemManagerRouter = (props: any) => {
           />
         </Route>
         <Route exact path='/:fiatRampAction/select'>
-          <AssetSelect {...location.state} onAssetSelect={handleAssetSelect} />
+          <AssetSelect
+            fiatRampProvider={props.fiatRampProvider}
+            {...location.state}
+            onAssetSelect={handleAssetSelect}
+          />
         </Route>
-        <Redirect from='/' to={GemManagerRoutes.Buy} />
+        <Redirect from='/' to={ManagerRoutes.Buy} />
       </Switch>
     </AnimatePresence>
   )
 }
 
-export const GemManager = () => {
+export const Manager = ({ fiatRampProvider }: { fiatRampProvider?: FiatRamps }) => {
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
         <Box m={4} width={'24rem'}>
           <Switch>
-            <Route path='/' component={GemManagerRouter} />
+            <Route
+              path='/'
+              component={(props: RouteComponentProps) => (
+                <ManagerRouter fiatRampProvider={fiatRampProvider} {...props} />
+              )}
+            />
           </Switch>
         </Box>
       </MemoryRouter>

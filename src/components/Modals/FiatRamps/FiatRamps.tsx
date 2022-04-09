@@ -5,7 +5,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { FiatRampsRoutes } from './FiatRampsCommon'
 import { FiatRampsRouter } from './FiatRampsRouter'
 
-const entries = [FiatRampsRoutes.Select, FiatRampsRoutes.Gem]
+const entries = [FiatRampsRoutes.Select, FiatRampsRoutes.Manager]
 
 export const FiatRampsModal = () => {
   const { fiatRamps } = useModal()

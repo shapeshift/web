@@ -1,71 +1,33 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Stack } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
 import { useHistory, useParams } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
-import { FiatRampAction, GemCurrency } from '../FiatRampsCommon'
-import {
-  fetchCoinifySupportedCurrencies,
-  fetchWyreSupportedCurrencies,
-  isSupportedBitcoinAsset,
-  parseGemBuyAssets,
-  parseGemSellAssets,
-} from '../utils'
+import { FiatRamps } from '../config'
+import { FiatRampAction, FiatRampCurrency } from '../FiatRampsCommon'
+import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
+import { isSupportedBitcoinAsset } from '../utils'
 
 type AssetSelectProps = {
-  onAssetSelect: (asset: GemCurrency, isBTC: boolean) => void
+  fiatRampProvider: FiatRamps
+  onAssetSelect: (asset: FiatRampCurrency, isBTC: boolean) => void
   walletSupportsBTC: boolean
   selectAssetTranslation: string
 }
 export const AssetSelect = ({
+  fiatRampProvider,
   onAssetSelect,
   walletSupportsBTC,
   selectAssetTranslation,
 }: AssetSelectProps) => {
-  const history = useHistory()
+  const { goBack } = useHistory()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
-  const [buyList, setBuyList] = useState<any>([])
-  const [sellList, setSellList] = useState<any>([])
-  const [coinifyAssets, setCoinifyAssets] = useState<any>([])
-  const [wyreAssets, setWyreAssets] = useState<any>([])
-  const [loading, setLoading] = useState(false)
-  const onArrowClick = () => {
-    history.goBack()
-  }
-
-  const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
-
-  useEffect(() => {
-    setLoading(true)
-    ;(async () => {
-      if (!coinifyAssets.length) {
-        const coinifyAssets = await fetchCoinifySupportedCurrencies()
-        setCoinifyAssets(coinifyAssets)
-      }
-      if (!wyreAssets.length) {
-        const wyreAssets = await fetchWyreSupportedCurrencies()
-        setWyreAssets(wyreAssets)
-      }
-
-      if (coinifyAssets.length && wyreAssets.length) {
-        const buyList = parseGemBuyAssets(walletSupportsBTC, coinifyAssets, wyreAssets, balances)
-
-        if (!buyList.length) return
-        setBuyList(buyList)
-
-        const sellList = parseGemSellAssets(walletSupportsBTC, coinifyAssets, wyreAssets, balances)
-        if (!sellList.length) return
-        setSellList(sellList)
-
-        setLoading(false)
-      }
-    })()
-  }, [walletSupportsBTC, coinifyAssets, wyreAssets, balances])
+  const { loading, sellList, buyList } = useFiatRampCurrencyList(
+    fiatRampProvider,
+    walletSupportsBTC,
+  )
 
   return (
     <SlideTransition>
@@ -75,7 +37,7 @@ export const AssetSelect = ({
             icon={<ArrowBackIcon />}
             aria-label={selectAssetTranslation}
             size='sm'
-            onClick={() => onArrowClick()}
+            onClick={() => goBack()}
             isRound
             variant='ghost'
             mr={2}
@@ -83,7 +45,7 @@ export const AssetSelect = ({
           <Text alignSelf='center' translation={selectAssetTranslation} />
         </Flex>
         <AssetSearch
-          onClick={(asset: GemCurrency) =>
+          onClick={(asset: FiatRampCurrency) =>
             onAssetSelect(asset, isSupportedBitcoinAsset(asset.assetId))
           }
           type={fiatRampAction}

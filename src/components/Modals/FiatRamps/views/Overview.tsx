@@ -13,7 +13,6 @@ import {
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { History } from 'history'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
@@ -24,12 +23,13 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { FiatRampAction, GemCurrency } from '../FiatRampsCommon'
-import { getAssetLogoUrl, makeGemPartnerUrl, middleEllipsis } from '../utils'
+import { FiatRamps, supportedFiatRamps } from '../config'
+import { FiatRampAction, FiatRampCurrency } from '../FiatRampsCommon'
+import { middleEllipsis } from '../utils'
 
-type GemOverviewProps = {
-  history: History
-  selectedAsset: GemCurrency | null
+type OverviewProps = {
+  selectedAsset: FiatRampCurrency | null
+  fiatRampProvider: FiatRamps
   isBTC: boolean
   btcAddress: string | null
   ethAddress: string | null
@@ -41,8 +41,8 @@ type GemOverviewProps = {
   setChainType: (chainType: ChainTypes) => void
   chainAdapter: ChainAdapter<ChainTypes.Bitcoin | ChainTypes.Ethereum>
 }
-export const GemOverview = ({
-  history,
+export const Overview = ({
+  fiatRampProvider,
   onIsSelectingAsset,
   onFiatRampActionClick,
   supportsAddressVerifying,
@@ -54,7 +54,7 @@ export const GemOverview = ({
   setChainType,
   chainAdapter,
   isBTC,
-}: GemOverviewProps) => {
+}: OverviewProps) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
@@ -140,11 +140,11 @@ export const GemOverview = ({
         >
           {selectedAsset ? (
             <Flex alignItems='center'>
-              <AssetIcon src={getAssetLogoUrl(selectedAsset)} mr={4} />
+              <AssetIcon src={selectedAsset.imageUrl} mr={4} />
               <Box textAlign='left'>
                 <RawText lineHeight={1}>{selectedAsset.name}</RawText>
                 <RawText fontWeight='normal' fontSize='sm' color='gray.500'>
-                  {selectedAsset?.ticker}
+                  {selectedAsset?.symbol}
                 </RawText>
               </Box>
             </Flex>
@@ -192,10 +192,14 @@ export const GemOverview = ({
           size='lg'
           colorScheme='blue'
           disabled={!selectedAsset}
-          as='a'
           mt='25px'
-          href={makeGemPartnerUrl(fiatRampAction, selectedAsset?.ticker || '', addressFull || '')}
-          target='_blank'
+          onClick={() =>
+            supportedFiatRamps[fiatRampProvider].onSubmit(
+              fiatRampAction,
+              selectedAsset?.symbol || '',
+              addressFull || '',
+            )
+          }
         >
           <Text translation='common.continue' />
         </Button>

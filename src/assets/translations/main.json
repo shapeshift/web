@@ -168,7 +168,9 @@
         "foxyBalance": "FOXy Balance",
         "withdrawals": "Withdrawals",
         "emptyWithdraws": "Pending or active withdrawals will show here.",
-        "availableDate": "available %{date}"
+        "availableDate": "available %{date}",
+        "approveToken": "Approve",
+        "confirm": "Confirm"
       },
       "claim": {
         "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
@@ -461,7 +463,7 @@
       "slippageSettings": "Slippage Settings",
       "withdrawType": "Withdraw Type",
       "instant": "Instant",
-      "delayed": "~7 days",
+      "delayed": "7 to 14 days",
       "fee": "%{fee}% %{symbol} fee",
       "noFee": "No %{symbol} fee",
       "requestWithdraw": "Request Withdraw",
@@ -471,7 +473,7 @@
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",
         "delayedOne": "Request the withdrawal",
-        "delayedTwo": "Claim the withdrawal after 7 days",
+        "delayedTwo": "Claim the withdrawal after 7 to 14 days",
         "instant": "The instant withdrawal is one transaction and requires you to withdraw the full amount staked."
       }
     },
@@ -501,7 +503,7 @@
       "withdrawTime": "Withdraw Time",
       "withdrawFee": "Withdraw Fee",
       "withdrawInstantTime": "Instant",
-      "withdrawDelayedTime": "~7 days",
+      "withdrawDelayedTime": "7 to 14 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "preFooter": "Rewards accrue automatically",
@@ -510,7 +512,7 @@
     },
     "status": {
       "header": {
-        "pending": "Waiting on Confirmation",
+        "pending": "Transaction Pending",
         "success": "Transaction Confirmed",
         "failed": "Transaction Execution Failed"
       },

@@ -226,7 +226,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
       // only refetch the specific account for this tx
       const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
         const [chainId, accountSpecifier] = Object.entries(cur)[0]
-        const accountId = chainId + ':' + accountSpecifier
+        const accountId = `${chainId}:${accountSpecifier}`
         if (accountId === txAccountSpecifier) acc[chainId] = accountSpecifier
         return acc
       }, {})

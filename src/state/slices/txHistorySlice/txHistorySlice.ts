@@ -9,7 +9,7 @@ import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import {
   AccountSpecifier,
-  AccountSpecifierMap
+  AccountSpecifierMap,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER } from './utils'
@@ -104,14 +104,14 @@ const initialState: TxHistory = {
     ids: [], // sorted, newest first
     byAssetId: {},
     byAccountId: {},
-    status: 'idle'
+    status: 'idle',
   },
   rebases: {
     byAssetId: {},
     byAccountId: {},
     ids: [],
-    byId: {}
-  }
+    byId: {},
+  },
 }
 
 /**
@@ -142,7 +142,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
     txs.byAssetId[relatedAssetId] = addToIndex(
       txs.ids,
       txs.byAssetId[relatedAssetId],
-      makeUniqueTxId(tx, accountSpecifier)
+      makeUniqueTxId(tx, accountSpecifier),
     )
   })
 
@@ -150,7 +150,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   txs.byAccountId[accountSpecifier] = addToIndex(
     txs.ids,
     txs.byAccountId[accountSpecifier],
-    makeUniqueTxId(tx, accountSpecifier)
+    makeUniqueTxId(tx, accountSpecifier),
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
@@ -172,7 +172,7 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
     if (isNew) {
       const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc'])
       const index = orderedRebases.findIndex(
-        rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId
+        rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId,
       )
       rebases.ids.splice(index, 0, rebaseId)
     }
@@ -180,14 +180,14 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
     rebases.byAssetId[assetId] = addToIndex(
       rebases.ids,
       rebases.byAssetId[assetId],
-      makeRebaseId({ accountId, assetId, rebase })
+      makeRebaseId({ accountId, assetId, rebase }),
     )
 
     // index the tx by the account that it belongs to
     rebases.byAccountId[accountId] = addToIndex(
       rebases.ids,
       rebases.byAccountId[accountId],
-      makeRebaseId({ accountId, assetId, rebase })
+      makeRebaseId({ accountId, assetId, rebase }),
     )
   })
 
@@ -232,8 +232,8 @@ export const txHistory = createSlice({
       }
     },
     upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
-      updateOrInsertRebase(txState, payload)
-  }
+      updateOrInsertRebase(txState, payload),
+  },
 })
 
 type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
@@ -262,7 +262,7 @@ export const txHistoryApi = createApi({
             portfolioAssetIds.some(id => id.includes(contractAddress)) && acc.push(contractAddress)
             return acc
           },
-          []
+          [],
         )
 
         // don't do anything below if we don't hold a version of foxy
@@ -309,7 +309,7 @@ export const txHistoryApi = createApi({
         // into another part of the portfolio above, we kind of abuse RTK query,
         // and we're always force refetching these anyway
         return { data: [] }
-      }
+      },
     }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
@@ -331,7 +331,7 @@ export const txHistoryApi = createApi({
             const { cursor: _cursor, transactions } = await adapter.getTxHistory({
               cursor: currentCursor,
               pubkey,
-              pageSize
+              pageSize,
             })
             currentCursor = _cursor
             txs = [...txs, ...transactions]
@@ -342,11 +342,11 @@ export const txHistoryApi = createApi({
           return {
             error: {
               data: `getAllTxHistory: An error occurred fetching all tx history for accountSpecifier: ${accountSpecifier}`,
-              status: 500
-            }
+              status: 500,
+            },
           }
         }
-      }
-    })
-  })
+      },
+    }),
+  }),
 })

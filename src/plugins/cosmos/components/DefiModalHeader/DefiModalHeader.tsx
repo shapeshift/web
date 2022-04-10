@@ -11,7 +11,7 @@ type DefiModalHeaderProps = {
 export const DefiModalHeader = ({
   headerImageSrc,
   headerText,
-  headerImageMaxWidth
+  headerImageMaxWidth,
 }: DefiModalHeaderProps) => (
   <>
     <Box textAlign='center'>

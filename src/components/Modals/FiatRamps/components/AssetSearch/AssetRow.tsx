@@ -23,7 +23,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       alignItems='center'
       style={style}
       _focus={{
-        shadow: 'outline-inset'
+        shadow: 'outline-inset',
       }}
     >
       <Box style={{ display: 'flex', flexDirection: 'row' }}>

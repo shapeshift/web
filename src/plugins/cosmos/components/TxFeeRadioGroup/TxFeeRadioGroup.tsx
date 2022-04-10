@@ -18,7 +18,7 @@ type TxFeeRadioGroupProps = {
 }
 
 export enum ConfirmFormFields {
-  FeeType = 'feeType'
+  FeeType = 'feeType',
 }
 
 export type ConfirmFormInput = {
@@ -52,7 +52,7 @@ function getFeeTranslation(key: chainAdapters.FeeDataKey): string {
 const feesOrder: chainAdapters.FeeDataKey[] = [
   chainAdapters.FeeDataKey.Slow,
   chainAdapters.FeeDataKey.Average,
-  chainAdapters.FeeDataKey.Fast
+  chainAdapters.FeeDataKey.Fast,
 ]
 
 export const TxFeeRadioGroup = ({
@@ -65,10 +65,10 @@ export const TxFeeRadioGroup = ({
     name: ConfirmFormFields.FeeType,
     control,
     rules: { required: true },
-    defaultValue: chainAdapters.FeeDataKey.Average
+    defaultValue: chainAdapters.FeeDataKey.Average,
   })
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
-    name: ConfirmFormFields.FeeType
+    name: ConfirmFormFields.FeeType,
   })
 
   // TODO: Uncomment when wired up

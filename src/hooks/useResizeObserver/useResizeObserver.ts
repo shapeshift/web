@@ -25,6 +25,6 @@ export const useResizeObserver = (): ResizeObserverReturn => {
 
   return {
     setNode,
-    entry: observerEntry
+    entry: observerEntry,
   }
 }

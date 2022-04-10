@@ -3,7 +3,7 @@ import { Box, Button, HStack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
-  useNormalizeOpportunities
+  useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
@@ -31,7 +31,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
   const location = useLocation()
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
@@ -42,7 +42,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
-    foxyArray: foxyRows
+    foxyArray: foxyRows,
   }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {
@@ -58,9 +58,9 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
         chain,
         contractAddress,
         tokenId: tokenAddress,
-        rewardId: rewardAddress
+        rewardId: rewardAddress,
       }),
-      state: { background: location }
+      state: { background: location },
     })
   }
 

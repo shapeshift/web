@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import {
   createInitialState,
   createModalProvider,
-  modalReducer as instanceReducer
+  modalReducer as instanceReducer,
 } from 'context/ModalProvider/ModalProvider'
 import { makeUseModal } from 'hooks/useModal/useModal'
 
@@ -14,7 +14,7 @@ function setup<M>(modals: M) {
   const ModalProvider = createModalProvider({
     instanceInitialState,
     instanceReducer,
-    InstanceModalContext
+    InstanceModalContext,
   })
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (

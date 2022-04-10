@@ -12,7 +12,7 @@ export const ListStyle = {
       container: {
         listStyleType: 'none',
         counterReset: 'numberlist-counter',
-        position: 'relative'
+        position: 'relative',
       },
       item: {
         counterIncrement: 'numberlist-counter',
@@ -32,11 +32,11 @@ export const ListStyle = {
           position: 'absolute',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
-        }
-      }
-    })
+          justifyContent: 'center',
+        },
+      },
+    }),
   },
   // The default `size` or `variant` values
-  defaultProps: {}
+  defaultProps: {},
 }

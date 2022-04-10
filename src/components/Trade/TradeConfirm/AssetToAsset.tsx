@@ -7,7 +7,7 @@ import {
   Flex,
   FlexProps,
   Text,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
@@ -32,7 +32,7 @@ export const AssetToAsset = ({
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const {
-    number: { toCrypto, toFiat }
+    number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const gray = useColorModeValue('white', 'gray.750')
   const red = useColorModeValue('white', 'red.500')
@@ -69,7 +69,7 @@ export const AssetToAsset = ({
             {toFiat(
               bn(sellAsset.amount || '0')
                 .times(sellAsset.fiatRate || '0')
-                .toNumber()
+                .toNumber(),
             )}
           </Text>
         </Box>
@@ -103,7 +103,7 @@ export const AssetToAsset = ({
             {toFiat(
               bn(sellAsset.amount || '0')
                 .times(sellAsset.fiatRate || '0')
-                .toNumber()
+                .toNumber(),
             )}
           </Text>
         </Flex>

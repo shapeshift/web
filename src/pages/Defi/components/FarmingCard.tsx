@@ -6,7 +6,7 @@ import {
   Stat,
   StatGroup,
   StatLabel,
-  StatNumber
+  StatNumber,
 } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'

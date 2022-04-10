@@ -7,7 +7,7 @@ import {
   Icon,
   Radio,
   RadioGroup,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { Fragment, ReactChild, useState } from 'react'
 import { Control, useController } from 'react-hook-form'
@@ -21,7 +21,7 @@ export const FilterGroup = ({
   options,
   allowMultipleOptions = false,
   name,
-  control
+  control,
 }: {
   title: string
   options: Option[]
@@ -32,7 +32,7 @@ export const FilterGroup = ({
   const [isOpen, setOpen] = useState(false)
   const toggleDayRange = () => setOpen(open => !open)
   const {
-    field: { onChange, value }
+    field: { onChange, value },
   } = useController({ control, name })
   const GroupComponent = allowMultipleOptions ? CheckboxGroup : RadioGroup
   const InputComponent = allowMultipleOptions ? Checkbox : Radio

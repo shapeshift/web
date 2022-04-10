@@ -6,7 +6,7 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import { lazy, Suspense, useState } from 'react'
 import { useFormContext } from 'react-hook-form'

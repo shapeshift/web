@@ -38,8 +38,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const methods = useForm<TradeState<ChainTypes, SwapperType>>({
     mode: 'onChange',
     defaultValues: {
-      fiatAmount: undefined
-    }
+      fiatAmount: undefined,
+    },
   })
 
   return (

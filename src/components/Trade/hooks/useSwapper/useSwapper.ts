@@ -7,7 +7,7 @@ import {
   ChainTypes,
   ExecQuoteOutput,
   Quote,
-  SwapperType
+  SwapperType,
 } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useState } from 'react'
@@ -25,7 +25,7 @@ const debounceTime = 1000
 export enum TradeActions {
   BUY = 'BUY',
   SELL = 'SELL',
-  FIAT = 'FIAT'
+  FIAT = 'FIAT',
 }
 
 type GetQuoteInput = {
@@ -62,7 +62,7 @@ export enum TRADE_ERRORS {
   SELL_ASSET_NETWORK_AND_SYMBOL_REQUIRED = 'trade.errors.sellAssetNetworkAndSymbolRequired',
   SIGNING_FAILED = 'trade.errors.signing.failed',
   SIGNING_REQUIRED = 'trade.errors.signing.required',
-  HDWALLET_INVALID_CONFIG = 'trade.errors.hdwalletInvalidConfig'
+  HDWALLET_INVALID_CONFIG = 'trade.errors.hdwalletInvalidConfig',
 }
 
 // TODO: (ryankk) revisit the logic inside useSwapper post bounty to see
@@ -72,7 +72,7 @@ export const useSwapper = () => {
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
   const [quote, trade] = useWatch({
-    name: ['quote', 'trade']
+    name: ['quote', 'trade'],
   })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
@@ -92,7 +92,7 @@ export const useSwapper = () => {
   const getSendMaxAmount = async ({
     wallet,
     sellAsset,
-    buyAsset
+    buyAsset,
   }: {
     wallet: HDWallet
     sellAsset: TradeAsset
@@ -101,7 +101,7 @@ export const useSwapper = () => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     const { minimum: minimumAmount } = await swapper?.getMinMax({
       sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency
+      buyAsset: buyAsset.currency,
     })
 
     const minimumQuote = await swapper?.buildQuoteTx({
@@ -110,9 +110,9 @@ export const useSwapper = () => {
         buyAsset: buyAsset.currency,
         sellAmount: toBaseUnit(minimumAmount, sellAsset.currency.precision),
         sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-        buyAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
+        buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
       },
-      wallet
+      wallet,
     })
 
     if (!minimumQuote) return
@@ -120,7 +120,7 @@ export const useSwapper = () => {
     const sendMaxAmount = await swapper.getSendMaxAmount({
       wallet,
       quote: minimumQuote,
-      sellAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
+      sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
     })
 
     const formattedMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
@@ -136,7 +136,7 @@ export const useSwapper = () => {
     wallet,
     sellAsset,
     buyAsset,
-    amount
+    amount,
   }: {
     wallet: HDWallet
     sellAsset: Asset
@@ -146,7 +146,7 @@ export const useSwapper = () => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     const { minimum } = await swapper.getMinMax({
       sellAsset,
-      buyAsset
+      buyAsset,
     })
     const sellAmount = toBaseUnit(amount, sellAsset.precision)
     const minSellAmount = toBaseUnit(minimum, sellAsset.precision)
@@ -156,7 +156,7 @@ export const useSwapper = () => {
         success: false,
         sellAsset,
         buyAsset,
-        statusReason: translate(TRADE_ERRORS.AMOUNT_TO_SMALL, { minLimit: minimum })
+        statusReason: translate(TRADE_ERRORS.AMOUNT_TO_SMALL, { minLimit: minimum }),
       }
     }
 
@@ -168,9 +168,9 @@ export const useSwapper = () => {
         sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
         buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
         slippage: trade?.slippage?.toString(),
-        priceImpact: quote?.priceImpact
+        priceImpact: quote?.priceImpact,
       },
-      wallet
+      wallet,
     })
 
     if (result?.success) {
@@ -185,7 +185,7 @@ export const useSwapper = () => {
             success: false,
             sellAsset,
             buyAsset,
-            statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS)
+            statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS),
           }
         case 'Insufficient funds for transaction':
           return {
@@ -193,22 +193,22 @@ export const useSwapper = () => {
             sellAsset,
             buyAsset,
             statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS_FOR_AMOUNT, {
-              symbol: sellAsset.symbol
-            })
+              symbol: sellAsset.symbol,
+            }),
           }
         default:
           return {
             success: false,
             sellAsset,
             buyAsset,
-            statusReason: translate(TRADE_ERRORS.QUOTE_FAILED)
+            statusReason: translate(TRADE_ERRORS.QUOTE_FAILED),
           }
       }
     }
   }
 
   const executeQuote = async ({
-    wallet
+    wallet,
   }: {
     wallet: HDWallet
   }): Promise<ExecQuoteOutput | undefined> => {
@@ -222,7 +222,7 @@ export const useSwapper = () => {
     sellAsset,
     buyAsset,
     action,
-    onFinish
+    onFinish,
   }: GetQuoteFromSwapper<C, S>) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
@@ -237,19 +237,19 @@ export const useSwapper = () => {
             const rate = bn(
               await swapper.getUsdRate({
                 symbol: sellAsset.symbol,
-                tokenId: sellAsset.tokenId
-              })
+                tokenId: sellAsset.tokenId,
+              }),
             )
             convertedAmount = {
               sellAmount: rate.gt(0)
                 ? toBaseUnit(bn(amount).div(rate).toString(), sellAsset.precision).toString()
-                : '0'
+                : '0',
             }
           }
           const quoteInput = {
             sellAsset: sellAsset,
             buyAsset: buyAsset,
-            ...convertedAmount
+            ...convertedAmount,
           }
 
           const { trade } = getValues()
@@ -271,8 +271,8 @@ export const useSwapper = () => {
           const sellAssetUsdRate = bnOrZero(
             await swapper.getUsdRate({
               symbol: sellAsset.symbol,
-              tokenId: sellAsset.tokenId
-            })
+              tokenId: sellAsset.tokenId,
+            }),
           )
           const newQuoteRate = bnOrZero(newQuote.rate)
           const buyAssetUsdRate = newQuoteRate.gt(0)
@@ -280,8 +280,8 @@ export const useSwapper = () => {
             : bnOrZero(
                 await swapper.getUsdRate({
                   symbol: buyAsset.symbol,
-                  tokenId: buyAsset.tokenId
-                })
+                  tokenId: buyAsset.tokenId,
+                }),
               )
           // TODO: Implement fiatPerUsd here
           setFees(newQuote, sellAsset)
@@ -303,7 +303,7 @@ export const useSwapper = () => {
     sellAsset,
     buyAsset,
     feeAsset,
-    action
+    action,
   }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset; feeAsset: Asset }) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
 
@@ -356,13 +356,13 @@ export const useSwapper = () => {
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
       action,
-      onFinish
+      onFinish,
     })
   }
 
   const getFiatRate = async ({
     symbol,
-    tokenId
+    tokenId,
   }: {
     symbol: string
     tokenId?: string
@@ -370,7 +370,7 @@ export const useSwapper = () => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     return swapper?.getUsdRate({
       symbol,
-      tokenId
+      tokenId,
     })
   }
 
@@ -400,11 +400,11 @@ export const useSwapper = () => {
               approvalFee,
               gasPrice,
               estimatedGas,
-              totalFee
+              totalFee,
             },
             swapperSpecific: {
-              receiveFee
-            }
+              receiveFee,
+            },
           }
           setValue('fees', fees)
         } else {
@@ -414,8 +414,8 @@ export const useSwapper = () => {
               approvalFee,
               gasPrice,
               estimatedGas,
-              totalFee
-            }
+              totalFee,
+            },
           }
           setValue('fees', fees)
         }
@@ -427,7 +427,7 @@ export const useSwapper = () => {
   }
 
   function isThorchainQuote(
-    result: Quote<ChainTypes, SwapperType>
+    result: Quote<ChainTypes, SwapperType>,
   ): result is Quote<ChainTypes, SwapperType.Thorchain> {
     return (
       (result as Quote<ChainTypes, SwapperType.Thorchain>)?.feeData?.swapperSpecific !== undefined
@@ -437,18 +437,18 @@ export const useSwapper = () => {
   const getBestSwapper = useCallback(
     async ({
       sellAsset,
-      buyAsset
+      buyAsset,
     }: Pick<TradeState<ChainTypes, SwapperType>, 'sellAsset' | 'buyAsset'>) => {
       if (!sellAsset.currency || !buyAsset.currency) return
       const input = {
         sellAsset: sellAsset.currency,
-        buyAsset: buyAsset.currency
+        buyAsset: buyAsset.currency,
       }
       const bestSwapperType = await swapperManager.getBestSwapper(input)
       setBestSwapperType(bestSwapperType)
       setValue('trade', { ...trade, name: bestSwapperType })
     },
-    [swapperManager, trade, setBestSwapperType, setValue]
+    [swapperManager, trade, setBestSwapperType, setValue],
   )
 
   const checkApprovalNeeded = async (wallet: HDWallet | NativeHDWallet): Promise<boolean> => {
@@ -481,6 +481,6 @@ export const useSwapper = () => {
     approveInfinite,
     getFiatRate,
     getSendMaxAmount,
-    reset
+    reset,
   }
 }

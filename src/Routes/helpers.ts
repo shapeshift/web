@@ -41,7 +41,7 @@ const buildPaths = (routes: Route[], parentPath = ''): Route[] =>
     return {
       ...route,
       path,
-      ...(route.routes && { routes: buildPaths(route.routes, path) })
+      ...(route.routes && { routes: buildPaths(route.routes, path) }),
     }
   })
 
@@ -56,14 +56,14 @@ const setupParents = (routes: Route[], Route?: Route): Route[] =>
   routes.map(route => {
     const withParent = {
       ...route,
-      ...(Route && { parent: Route })
+      ...(Route && { parent: Route }),
     }
 
     return {
       ...withParent,
       ...(withParent.routes && {
-        routes: setupParents(withParent.routes, withParent)
-      })
+        routes: setupParents(withParent.routes, withParent),
+      }),
     }
   })
 

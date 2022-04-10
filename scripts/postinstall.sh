@@ -17,3 +17,6 @@ if [ "$LOCK_HASH" != "$LOCK_HASH_AFTER" ]; then
 else
   echo "yarn-minify did not modify the yarn.lock file"
 fi
+
+# Add web's git config to the local path in an idempotent way
+git config --local include.path '../.gitconfig'

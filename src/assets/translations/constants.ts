@@ -1,34 +1,34 @@
 export const locales = [
   {
     key: 'en',
-    label: 'English'
+    label: 'English',
   },
   {
     key: 'es',
-    label: 'Español'
+    label: 'Español',
   },
   {
     key: 'fr',
-    label: 'Français'
+    label: 'Français',
   },
   {
     key: 'id',
-    label: 'Bahasa Indonesia'
+    label: 'Bahasa Indonesia',
   },
   {
     key: 'ko',
-    label: '한국어'
+    label: '한국어',
   },
   {
     key: 'pt',
-    label: 'Português'
+    label: 'Português',
   },
   {
     key: 'ru',
-    label: 'Русский'
+    label: 'Русский',
   },
   {
     key: 'zh',
-    label: '中文'
-  }
+    label: '中文',
+  },
 ]

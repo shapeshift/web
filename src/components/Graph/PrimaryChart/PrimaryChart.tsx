@@ -6,7 +6,7 @@ import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
 import { Bar, Line } from '@visx/shape'
-import { defaultStyles as defaultToopTipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
+import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
 import { bisector, extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
 import numeral from 'numeral'
@@ -40,24 +40,24 @@ export const PrimaryChart = ({
   width = 10,
   height,
   color = 'green.500',
-  margin = { top: 0, right: 0, bottom: 0, left: 0 }
+  margin = { top: 0, right: 0, bottom: 0, left: 0 },
 }: PrimaryChartProps) => {
   const {
     showTooltip,
     hideTooltip,
     tooltipData,
     tooltipTop = 0,
-    tooltipLeft = 0
+    tooltipLeft = 0,
   } = useTooltip<HistoryData>()
 
   const {
-    number: { toFiat }
+    number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
 
   const [chartColor] = useToken('colors', [color])
-  const toolTipBg = useColorModeValue('white', colors.gray[800])
-  const toolTipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
-  const toolTipColor = useColorModeValue(colors.gray[800], 'white')
+  const tooltipBg = useColorModeValue('white', colors.gray[800])
+  const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
+  const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
   // bounds
   const xMax = Math.max(width - margin.left - margin.right, 0)
@@ -74,24 +74,24 @@ export const PrimaryChart = ({
 
   const maxData = [
     { date: getDate(firstPoint).valueOf(), price: maxPrice },
-    { date: getDate(currentPoint).valueOf(), price: maxPrice }
+    { date: getDate(currentPoint).valueOf(), price: maxPrice },
   ]
   const minData = [
     { date: getDate(firstPoint).valueOf(), price: minPrice },
-    { date: getDate(currentPoint).valueOf(), price: minPrice }
+    { date: getDate(currentPoint).valueOf(), price: minPrice },
   ]
   // scales
   const dateScale = useMemo(() => {
     return scaleTime({
       range: [0, xMax],
-      domain: extent(data, getDate) as [Date, Date]
+      domain: extent(data, getDate) as [Date, Date],
     })
   }, [xMax, data])
   const priceScale = useMemo(() => {
     return scaleLinear({
       range: [yMax + margin.top, margin.top],
       domain: [min(data, getStockValue) || 0, max(data, getStockValue) || 0],
-      nice: true
+      nice: true,
     })
     //
   }, [margin.top, yMax, data])
@@ -115,10 +115,10 @@ export const PrimaryChart = ({
       showTooltip({
         tooltipData: d,
         tooltipLeft: x,
-        tooltipTop: priceScale(getStockValue(d))
+        tooltipTop: priceScale(getStockValue(d)),
       })
     },
-    [showTooltip, priceScale, dateScale, data, margin.left]
+    [showTooltip, priceScale, dateScale, data, margin.left],
   )
 
   return (
@@ -231,11 +231,11 @@ export const PrimaryChart = ({
             top={tooltipTop - 12}
             left={tooltipLeft}
             style={{
-              ...defaultToopTipStyles,
-              background: toolTipBg,
+              ...defaultTooltipStyles,
+              background: tooltipBg,
               padding: '0.5rem',
-              border: `1px solid ${toolTipBorder}`,
-              color: toolTipColor
+              border: `1px solid ${tooltipBorder}`,
+              color: tooltipColor,
             }}
           >
             <ul style={{ padding: '0', margin: '0', listStyle: 'none' }}>

@@ -3,7 +3,7 @@ import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { FeeDataEstimate } from '@shapeshiftoss/types/dist/chain-adapters'
 import { debounce } from 'lodash'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -17,7 +17,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter
+  selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -48,7 +48,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const accountId = useWatch<SendInput, SendFormFields.AccountId>({
-    name: SendFormFields.AccountId
+    name: SendFormFields.AccountId,
   })
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
 
@@ -57,28 +57,28 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.caip19, accountId })
-    )
+      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.caip19, accountId }),
+    ),
   )
 
   const fiatBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.caip19, accountId })
-    )
+      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.caip19, accountId }),
+    ),
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId })
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.caip19, accountId })
-    )
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.caip19, accountId }),
+    ),
   )
   const chainAdapterManager = useChainAdapters()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const { chain, tokenId } = asset
@@ -107,7 +107,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
       case ChainTypes.Ethereum: {
         const from = await adapter.getAddress({
-          wallet
+          wallet,
         })
         const ethereumChainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const to = isEthAddress(values.address)
@@ -117,7 +117,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to,
           value,
           chainSpecific: { from, contractAddress: values.asset.tokenId },
-          sendMax: values.sendMax
+          sendMax: values.sendMax,
         })
       }
       case ChainTypes.Bitcoin: {
@@ -132,20 +132,20 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             coin: adapter.getType(),
             addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
             curve: 'secp256k1',
-            scriptType
-          }
+            scriptType,
+          },
         ])
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         const bitcoinChainAdapter = await chainAdapterManager.byChainId(
-          'bip122:000000000019d6689c085ae165831e93'
+          'bip122:000000000019d6689c085ae165831e93',
         )
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
           chainSpecific: { pubkey },
-          sendMax: values.sendMax
+          sendMax: values.sendMax,
         })
       }
       default:
@@ -175,7 +175,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
         setValue(SendFormFields.AmountFieldError, [
           'modals.send.errors.notEnoughNativeToken',
-          { asset: feeAsset.symbol }
+          { asset: feeAsset.symbol },
         ])
       } else {
         setValue(SendFormFields.EstimatedFees, estimatedFees)
@@ -194,7 +194,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const from = await adapter.getAddress({
         wallet,
         accountType,
-        ...utxoParams
+        ...utxoParams,
       })
 
       // Assume fast fee for send max
@@ -216,7 +216,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             to,
             value,
             chainSpecific: { contractAddress, from },
-            sendMax: true
+            sendMax: true,
           })
           fastFee = adapterFees.fast.txFee
           break
@@ -233,21 +233,21 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               coin: adapter.getType(),
               addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
               curve: 'secp256k1',
-              scriptType
-            }
+              scriptType,
+            },
           ])
 
           if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
           const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
           const btcAdapter = await chainAdapterManager.byChainId(
-            'bip122:000000000019d6689c085ae165831e93'
+            'bip122:000000000019d6689c085ae165831e93',
           )
           const value = assetBalance
           adapterFees = await btcAdapter.getFeeData({
             to,
             value,
             chainSpecific: { pubkey },
-            sendMax: true
+            sendMax: true,
           })
           fastFee = adapterFees.fast.txFee
           break
@@ -271,7 +271,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       if (!hasEnoughNativeTokenForGas) {
         setValue(SendFormFields.AmountFieldError, [
           'modals.send.errors.notEnoughNativeToken',
-          { asset: feeAsset.symbol }
+          { asset: feeAsset.symbol },
         ])
       }
 
@@ -281,74 +281,75 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleInputChange = useCallback(
-    debounce(
-      async (inputValue: string) => {
-        setLoading(true)
-        setValue(SendFormFields.SendMax, false)
-        const key =
-          fieldName !== SendFormFields.FiatAmount
-            ? SendFormFields.FiatAmount
-            : SendFormFields.CryptoAmount
-        if (inputValue === '') {
-          // Don't show an error message when the input is empty
-          setValue(SendFormFields.AmountFieldError, '')
-          setLoading(false)
-          // Set value of the other input to an empty string as well
-          setValue(key, '')
-          return
-        }
-        const amount =
-          fieldName === SendFormFields.FiatAmount
-            ? bnOrZero(bn(inputValue).div(price)).toString()
-            : bnOrZero(bn(inputValue).times(price)).toString()
-
-        setValue(key, amount)
-
-        let estimatedFees
-
-        try {
-          estimatedFees = await estimateFormFees()
-          setValue(SendFormFields.EstimatedFees, estimatedFees)
-        } catch (e) {
-          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-          setLoading(false)
-
-          throw e
-        }
-
-        const values = getValues()
-
-        const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
-        const hasEnoughNativeTokenForGas = nativeAssetBalance
-          .minus(estimatedFees.fast.txFee)
-          .isPositive()
-
-        if (!hasValidBalance) {
-          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-        } else if (!hasEnoughNativeTokenForGas) {
-          setValue(SendFormFields.AmountFieldError, [
-            'modals.send.errors.notEnoughNativeToken',
-            { asset: feeAsset.symbol }
-          ])
-        } else {
-          // Remove existing error messages because the send amount is valid
-          setValue(SendFormFields.AmountFieldError, '')
-        }
+  const inputHandler = useCallback(
+    async (inputValue: string) => {
+      setLoading(true)
+      setValue(SendFormFields.SendMax, false)
+      const key =
+        fieldName !== SendFormFields.FiatAmount
+          ? SendFormFields.FiatAmount
+          : SendFormFields.CryptoAmount
+      if (inputValue === '') {
+        // Don't show an error message when the input is empty
+        setValue(SendFormFields.AmountFieldError, '')
         setLoading(false)
-      },
-      1000,
-      { leading: true }
-    ),
-    [asset, fieldName, setValue, estimateFormFees, getValues, cryptoHumanBalance, fiatBalance]
+        // Set value of the other input to an empty string as well
+        setValue(key, '')
+        return
+      }
+      const amount =
+        fieldName === SendFormFields.FiatAmount
+          ? bnOrZero(bn(inputValue).div(price)).toString()
+          : bnOrZero(bn(inputValue).times(price)).toString()
+
+      setValue(key, amount)
+
+      let estimatedFees
+
+      try {
+        estimatedFees = await estimateFormFees()
+        setValue(SendFormFields.EstimatedFees, estimatedFees)
+      } catch (e) {
+        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+        setLoading(false)
+
+        throw e
+      }
+
+      const values = getValues()
+
+      const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+      const hasEnoughNativeTokenForGas = nativeAssetBalance
+        .minus(estimatedFees.fast.txFee)
+        .isPositive()
+
+      if (!hasValidBalance) {
+        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+      } else if (!hasEnoughNativeTokenForGas) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol },
+        ])
+      } else {
+        // Remove existing error messages because the send amount is valid
+        setValue(SendFormFields.AmountFieldError, '')
+      }
+      setLoading(false)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
+  )
+
+  const handleInputChange = useMemo(
+    () => debounce(inputHandler, 1000, { leading: true }),
+    [inputHandler],
   )
 
   const toggleCurrency = () => {
     setFieldName(
       fieldName === SendFormFields.FiatAmount
         ? SendFormFields.CryptoAmount
-        : SendFormFields.FiatAmount
+        : SendFormFields.FiatAmount,
     )
   }
 
@@ -361,6 +362,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleNextClick,
     handleSendMax,
     loading,
-    toggleCurrency
+    toggleCurrency,
   }
 }

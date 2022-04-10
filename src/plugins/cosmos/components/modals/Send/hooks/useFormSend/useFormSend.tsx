@@ -16,7 +16,7 @@ export const useFormSend = () => {
   const chainAdapterManager = useChainAdapters()
   const { send } = useModal()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const handleSend = async (data: SendInput) => {
@@ -43,7 +43,7 @@ export const useFormSend = () => {
             value,
             wallet,
             chainSpecific: { gas, fee },
-            sendMax: data.sendMax
+            sendMax: data.sendMax,
           })
         } else if (adapterType === ChainTypes.Osmosis) {
           // TODO(gomes): implement this
@@ -68,7 +68,7 @@ export const useFormSend = () => {
               <Text>
                 {translate('modals.send.youHaveSent', {
                   amount: data.cryptoAmount,
-                  symbol: data.cryptoSymbol
+                  symbol: data.cryptoSymbol,
                 })}
               </Text>
               {data.asset.explorerTxLink && (
@@ -81,18 +81,18 @@ export const useFormSend = () => {
           status: 'success',
           duration: 9000,
           isClosable: true,
-          position: 'top-right'
+          position: 'top-right',
         })
       } catch (error) {
         toast({
           title: translate('modals.send.errorTitle', {
-            asset: data.asset.name
+            asset: data.asset.name,
           }),
           description: translate('modals.send.errors.transactionRejected'),
           status: 'error',
           duration: 9000,
           isClosable: true,
-          position: 'top-right'
+          position: 'top-right',
         })
       } finally {
         send.close()
@@ -100,6 +100,6 @@ export const useFormSend = () => {
     }
   }
   return {
-    handleSend
+    handleSend,
   }
 }

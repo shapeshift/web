@@ -21,8 +21,8 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
-      search: ''
-    }
+      search: '',
+    },
   })
 
   const searchString = watch('search')
@@ -30,7 +30,7 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
 
   useEffect(() => {
     setFilteredAssets(
-      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets
+      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets,
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])

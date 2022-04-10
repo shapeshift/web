@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import {
   EarnOpportunityType,
-  useNormalizeOpportunities
+  useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback } from 'react'
@@ -23,7 +23,7 @@ export const AllEarnOpportunities = () => {
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
@@ -32,7 +32,7 @@ export const AllEarnOpportunities = () => {
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: foxyRows
+    foxyArray: foxyRows,
   })
 
   const handleClick = useCallback(
@@ -48,12 +48,12 @@ export const AllEarnOpportunities = () => {
           chain,
           contractAddress,
           tokenId: tokenAddress,
-          rewardId: rewardAddress
+          rewardId: rewardAddress,
         }),
-        state: { background: location }
+        state: { background: location },
       })
     },
-    [dispatch, history, isConnected, location]
+    [dispatch, history, isConnected, location],
   )
 
   return (

@@ -6,7 +6,7 @@ import {
   RouteComponentProps,
   Switch,
   useHistory,
-  useLocation
+  useLocation,
 } from 'react-router-dom'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'

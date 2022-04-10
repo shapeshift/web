@@ -2,7 +2,7 @@ import { Dispatch, useCallback, useEffect, useState } from 'react'
 
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T | null
+  initialValue: T | null,
 ): [T | null, Dispatch<T | null>] {
   const [value, setValue] = useState<T | null>(initialValue)
   const [stringValue, setStringValue] = useState<string>('')
@@ -29,7 +29,7 @@ export function useLocalStorage<T>(
         setValue(event.newValue ? JSON.parse(event.newValue) : null)
       }
     },
-    [key, stringValue]
+    [key, stringValue],
   )
 
   useEffect(() => {

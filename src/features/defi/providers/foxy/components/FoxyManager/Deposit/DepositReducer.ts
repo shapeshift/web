@@ -48,7 +48,7 @@ export const initialState: FoxyDepositState = {
     version: '',
     rewardToken: '',
     tvl: bnOrZero(0),
-    apy: ''
+    apy: '',
   },
   userAddress: null,
   loading: false,
@@ -59,8 +59,8 @@ export const initialState: FoxyDepositState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: ''
-  }
+    usedGasFee: '',
+  },
 }
 
 export enum FoxyDepositActionType {
@@ -71,7 +71,7 @@ export enum FoxyDepositActionType {
   SET_LOADING = 'SET_LOADING',
   SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS'
+  SET_TX_STATUS = 'SET_TX_STATUS',
 }
 
 type SetFoxyOpportunitiesAction = {

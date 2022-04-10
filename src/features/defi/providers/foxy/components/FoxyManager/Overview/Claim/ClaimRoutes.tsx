@@ -13,12 +13,12 @@ import { ClaimStatus } from './ClaimStatus'
 
 enum OverviewPath {
   Claim = '/',
-  ClaimStatus = '/status'
+  ClaimStatus = '/status',
 }
 
 export const routes = [
   { step: 0, path: OverviewPath.Claim, label: 'Confirm' },
-  { step: 1, path: OverviewPath.ClaimStatus, label: 'Status' }
+  { step: 1, path: OverviewPath.ClaimStatus, label: 'Status' },
 ]
 
 type CliamRouteProps = {
@@ -34,7 +34,7 @@ export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: tokenId
+    assetReference: tokenId,
   })
   const { opportunities } = useFoxyBalances()
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)

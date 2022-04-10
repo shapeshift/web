@@ -21,7 +21,7 @@ describe('The Dashboard', () => {
     cy.getBySel('wallet-native-seed-submit-button').click()
     cy.getBySel('wallet-native-seed-validation-message').should(
       'have.text',
-      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseRequired
+      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseRequired,
     )
 
     // Test 'too-short` seed validation
@@ -29,18 +29,18 @@ describe('The Dashboard', () => {
     cy.getBySel('wallet-native-seed-submit-button').click()
     cy.getBySel('wallet-native-seed-validation-message').should(
       'have.text',
-      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseTooShort
+      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseTooShort,
     )
     cy.getBySel('wallet-native-seed-input').clear()
 
     // Test 'invalid bip39 mnemonic` seed validation
     cy.getBySel('wallet-native-seed-input').type(
-      'this-is-long-enough-but-is-not-a-valid-seed-phrase'
+      'this-is-long-enough-but-is-not-a-valid-seed-phrase',
     )
     cy.getBySel('wallet-native-seed-submit-button').click()
     cy.getBySel('wallet-native-seed-validation-message').should(
       'have.text',
-      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseError
+      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseError,
     )
 
     // Load wallet from seed and password

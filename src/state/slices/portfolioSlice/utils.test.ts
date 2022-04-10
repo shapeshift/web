@@ -1,3 +1,6 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
+
 import {
   accountIdToChainId,
   accountIdToLabel,
@@ -5,7 +8,9 @@ import {
   assetIdtoChainId,
   btcChainId,
   ethChainId,
-  findAccountsByAssetId
+  findAccountsByAssetId,
+  makeBalancesByChainBucketsFlattened,
+  makeSortedAccountBalances,
 } from './utils'
 
 describe('accountIdToChainId', () => {
@@ -93,7 +98,7 @@ describe('findAccountsByAssetId', () => {
   it('returns correct accountId for a given assetId', () => {
     const portolioAccounts = {
       [ethAccountId]: [ethAssetId],
-      [ethAccount2Id]: [ethAsset2Id]
+      [ethAccount2Id]: [ethAsset2Id],
     }
 
     const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
@@ -103,7 +108,7 @@ describe('findAccountsByAssetId', () => {
   it('returns correct accountIds for a given assetId', () => {
     const portolioAccounts = {
       [ethAccountId]: [ethAssetId, ethAsset2Id],
-      [ethAccount2Id]: [ethAsset2Id]
+      [ethAccount2Id]: [ethAsset2Id],
     }
 
     const result = findAccountsByAssetId(portolioAccounts, ethAsset2Id)
@@ -117,7 +122,7 @@ describe('findAccountsByAssetId', () => {
     const portolioAccounts = {
       [ethAccountId]: [ethAsset2Id],
       [ethAccount2Id]: [],
-      [btcAccountId]: []
+      [btcAccountId]: [],
     }
 
     const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
@@ -125,5 +130,76 @@ describe('findAccountsByAssetId', () => {
 
     const result2 = findAccountsByAssetId(portolioAccounts, btcAssetId)
     expect(result2).toEqual([btcAccountId])
+  })
+})
+
+describe('makeSortedAccountBalances', () => {
+  it('makes sorted account balances - mixed assets', () => {
+    const accountBalances = {
+      'bip122:000000000019d6689c085ae165831e93:someXpub': '8',
+      'bip122:000000000019d6689c085ae165831e93:someZpub': '7',
+      'eip155:1:someEthAccount': '0.00',
+      'bip122:someYpub': '3',
+      'cosmos:cosmoshub-4:someCosmosAccount': '10',
+    }
+
+    const result = makeSortedAccountBalances(accountBalances)
+    expect(result).toEqual([
+      'cosmos:cosmoshub-4:someCosmosAccount',
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:someYpub',
+      'eip155:1:someEthAccount',
+    ])
+  })
+})
+
+describe('makeBalancesByChainBucketsFlattened', () => {
+  const assets = {
+    'cosmos:cosmoshub-4/slip44:118': {
+      chain: 'cosmos',
+    },
+    'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+      chain: 'bitcoin',
+    },
+    'bip122:000000000933ea01ad0ee984209779ba/slip44:0': {
+      chain: 'bitcoin',
+    },
+    'eip155:1/slip44:60': {
+      chain: 'ethereum',
+    },
+  } as unknown as { [k: CAIP19]: Asset }
+
+  it('makes flattened balances by chain buckets - mixed assets', () => {
+    const accountBalances = [
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'eip155:1:someEthAccount',
+      'cosmos:cosmoshub-4:someCosmosAccount',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+    ]
+
+    const result = makeBalancesByChainBucketsFlattened(accountBalances, assets)
+    expect(result).toEqual([
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+      'eip155:1:someEthAccount',
+      'cosmos:cosmoshub-4:someCosmosAccount',
+    ])
+  })
+  it('makes flattened balances by chain buckets - Bitcoin assets only', () => {
+    const accountBalances = [
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+    ]
+
+    const result = makeBalancesByChainBucketsFlattened(accountBalances, assets)
+    expect(result).toEqual([
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+    ])
   })
 })

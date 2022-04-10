@@ -3,7 +3,7 @@ import {
   ChevronRightIcon,
   CloseIcon,
   RepeatIcon,
-  WarningTwoIcon
+  WarningTwoIcon,
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Button, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
@@ -48,7 +48,7 @@ const WalletConnected = ({
   walletInfo,
   isConnected,
   onDisconnect,
-  onSwitchProvider
+  onSwitchProvider,
 }: WalletConnectedProps) => {
   const translate = useTranslate()
   return (
@@ -86,7 +86,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   isConnected,
   walletInfo,
   onConnect,
-  isLoadingLocalWallet
+  isLoadingLocalWallet,
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)

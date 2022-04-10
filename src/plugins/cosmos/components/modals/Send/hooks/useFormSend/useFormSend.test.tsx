@@ -11,11 +11,11 @@ import { useFormSend } from './useFormSend'
 
 jest.mock('@chakra-ui/react', () => ({
   ...jest.requireActual('@chakra-ui/react'),
-  useToast: jest.fn()
+  useToast: jest.fn(),
 }))
 jest.mock('react-hook-form')
 jest.mock('react-polyglot', () => ({
-  useTranslate: () => jest.fn()
+  useTranslate: () => jest.fn(),
 }))
 
 jest.mock('context/PluginProvider/PluginProvider')
@@ -42,23 +42,23 @@ const formData: SendInput = {
     explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
     sendSupport: true,
     receiveSupport: true,
-    description: 'Cosmos Description'
+    description: 'Cosmos Description',
   },
   [SendFormFields.AmountFieldError]: '',
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
   [SendFormFields.EstimatedFees]: {
     [chainAdapters.FeeDataKey.Slow]: {
       txFee: '2500',
-      chainSpecific: { gasLimit: '250000' }
+      chainSpecific: { gasLimit: '250000' },
     },
     [chainAdapters.FeeDataKey.Average]: {
       txFee: '3500',
-      chainSpecific: { gasLimit: '250000' }
+      chainSpecific: { gasLimit: '250000' },
     },
     [chainAdapters.FeeDataKey.Fast]: {
       txFee: '5000',
-      chainSpecific: { gasLimit: '250000' }
-    }
+      chainSpecific: { gasLimit: '250000' },
+    },
   },
   [SendFormFields.CryptoAmount]: '1',
   [SendFormFields.CryptoSymbol]: 'ATOM',
@@ -66,7 +66,7 @@ const formData: SendInput = {
   [SendFormFields.FiatSymbol]: 'USD',
   [SendFormFields.SendMax]: false,
   [SendFormFields.AccountId]: 'cosmos:cosmoshub-4:cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669',
-  [SendFormFields.Memo]: ''
+  [SendFormFields.Memo]: '',
 }
 
 const textTxToSign = {
@@ -76,10 +76,10 @@ const textTxToSign = {
       amount: [
         {
           amount: '1000000',
-          denom: 'uatom'
-        }
+          denom: 'uatom',
+        },
       ],
-      gas: '250000'
+      gas: '250000',
     },
     msg: [
       {
@@ -88,20 +88,20 @@ const textTxToSign = {
           amount: [
             {
               amount: '1000',
-              denom: 'uatom'
-            }
+              denom: 'uatom',
+            },
           ],
           from_address: 'cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669',
-          to_address: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner'
-        }
-      }
+          to_address: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner',
+        },
+      },
     ],
     signatures: [],
-    memo: ''
+    memo: '',
   },
   chain_id: 'cosmoshub-4',
   account_number: '424242',
-  sequence: '12'
+  sequence: '12',
 }
 
 const testSignedTx = 'someFakeTxHash'
@@ -114,9 +114,9 @@ describe('useFormSend', () => {
       state: {
         wallet: {
           supportsOfflineSigning: jest.fn().mockReturnValue(true),
-          supportsCosmos: jest.fn().mockReturnValue(true)
-        }
-      }
+          supportsCosmos: jest.fn().mockReturnValue(true),
+        },
+      },
     }))
 
     const sendClose = jest.fn()
@@ -125,8 +125,8 @@ describe('useFormSend', () => {
       byChain: () => ({
         buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
         signTransaction: () => Promise.resolve(testSignedTx),
-        getType: () => ChainTypes.Cosmos
-      })
+        getType: () => ChainTypes.Cosmos,
+      }),
     }))
 
     const { result } = renderHook(() => useFormSend())
@@ -139,7 +139,7 @@ describe('useFormSend', () => {
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-      state: { wallet: {} }
+      state: { wallet: {} },
     }))
 
     const sendClose = jest.fn()
@@ -149,8 +149,8 @@ describe('useFormSend', () => {
         buildSendTransaction: () => Promise.reject('All these calls failed'),
         signTransaction: () => Promise.reject('All these calls failed'),
         broadcastTransaction: () => Promise.reject('All these calls failed'),
-        getType: () => ChainTypes.Cosmos
-      })
+        getType: () => ChainTypes.Cosmos,
+      }),
     }))
 
     const { result } = renderHook(() => useFormSend())

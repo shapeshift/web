@@ -14,7 +14,7 @@ export const entries = [
   SendRoutes.Details,
   SendRoutes.Confirm,
   SendRoutes.Scan,
-  SendRoutes.Select
+  SendRoutes.Select,
 ]
 
 type SendModalProps = {

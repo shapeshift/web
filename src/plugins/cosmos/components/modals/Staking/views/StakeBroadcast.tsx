@@ -15,7 +15,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectSingleValidator
+  selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -23,7 +23,7 @@ import { StakingAction, StakingValues } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 type StakeProps = {
@@ -46,7 +46,7 @@ export const StakeBroadcast = ({
   accountSpecifier,
   validatorAddress,
   onClose,
-  onCancel
+  onCancel,
 }: StakeProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
@@ -57,7 +57,7 @@ export const StakeBroadcast = ({
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress)
+    selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()
@@ -80,10 +80,10 @@ export const StakeBroadcast = ({
       validator: validatorAddress,
       chainSpecific: {
         gas: gasLimit,
-        fee: bnOrZero(txFee).times(`1e+${asset?.precision}`).toString()
+        fee: bnOrZero(txFee).times(`1e+${asset?.precision}`).toString(),
       },
       value: bnOrZero(cryptoAmount).times(`1e+${asset.precision}`).toString(),
-      action: StakingAction.Stake
+      action: StakingAction.Stake,
     })
     setLoading(false)
 
@@ -164,7 +164,7 @@ export const StakeBroadcast = ({
             &nbsp;
             <Tooltip
               label={translate('defi.modals.staking.tooltip.gasFees', {
-                networkName: asset.name
+                networkName: asset.name,
               })}
             >
               <InfoOutlineIcon />

@@ -13,5 +13,5 @@ export const AssetsIcon = createIcon({
 	C17,2.18,13.866,1,10,1z'
     />
   ),
-  viewBox: '0 0 20 20'
+  viewBox: '0 0 20 20',
 })

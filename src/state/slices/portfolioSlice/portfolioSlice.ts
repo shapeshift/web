@@ -21,6 +21,7 @@ export const portfolio = createSlice({
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
+
       /**
        * when fetching an account we got to calculate the difference between the
        * state accountBalance and the payload accountBalance for each of account assets
@@ -32,7 +33,7 @@ export const portfolio = createSlice({
           ([caip19, newAccountAssetBalance]) => {
             // in case if getting accounts for the first time
             const currentAccountBalance = bnOrZero(
-              state.accountBalances.byId[accountSpecifier]?.[caip19]
+              state.accountBalances.byId[accountSpecifier]?.[caip19],
             )
             // diff could be both positive [tx type -> receive] and negative [tx type -> send]
             const differenceBetweenCurrentAndNew =
@@ -43,31 +44,32 @@ export const portfolio = createSlice({
             state.assetBalances.byId[caip19] = currentAssetBalance
               .plus(differenceBetweenCurrentAndNew)
               .toString()
-          }
+          },
         )
       })
+
       state.accountBalances.byId = {
         ...state.accountBalances.byId,
-        ...payload.accountBalances.byId
+        ...payload.accountBalances.byId,
       }
       state.accountSpecifiers.byId = {
         ...state.accountSpecifiers.byId,
-        ...payload.accountSpecifiers.byId
+        ...payload.accountSpecifiers.byId,
       }
       const assetBalanceIds = Array.from(
-        new Set([...state.assetBalances.ids, ...payload.assetBalances.ids])
+        new Set([...state.assetBalances.ids, ...payload.assetBalances.ids]),
       )
       const accountBalanceIds = Array.from(
-        new Set([...state.accountBalances.ids, ...payload.accountBalances.ids])
+        new Set([...state.accountBalances.ids, ...payload.accountBalances.ids]),
       )
       const accountSpecifiers = Array.from(
-        new Set([...state.accountSpecifiers.ids, ...payload.accountSpecifiers.ids])
+        new Set([...state.accountSpecifiers.ids, ...payload.accountSpecifiers.ids]),
       )
       state.assetBalances.ids = assetBalanceIds
       state.accountBalances.ids = accountBalanceIds
       state.accountSpecifiers.ids = accountSpecifiers
-    }
-  }
+    },
+  },
 })
 
 type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap }
@@ -105,7 +107,7 @@ export const portfolioApi = createApi({
           const error = { status, data }
           return { error }
         }
-      }
-    })
-  })
+      },
+    }),
+  }),
 })

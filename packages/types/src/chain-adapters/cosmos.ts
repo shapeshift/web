@@ -11,6 +11,7 @@ export type Info = {
 export type Validator = {
   address: string
   moniker: string
+  tokens: string
   apr: string
   commission: string
 }

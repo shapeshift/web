@@ -29,6 +29,7 @@ const transformValidator = (
 ): chainAdapters.cosmos.Validator => ({
   address: validator.address,
   moniker: validator.moniker,
+  tokens: validator.tokens,
   commission: validator.commission.rate,
   apr: validator.apr
 })

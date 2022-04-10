@@ -4,7 +4,7 @@ import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import {
   DefiAction,
   DefiParams,
-  DefiQueryParams
+  DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { AnimatePresence } from 'framer-motion'
@@ -34,7 +34,7 @@ const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) =>
   const { location, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const match = matchPath<DefiParams>(location.pathname, {
     path: '/defi/:earnType/:provider/:action',
-    exact: true
+    exact: true,
   })
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) =>
         const { earnType, provider } = match.params
         history.replace({
           ...location,
-          pathname: `/defi/${earnType}/${provider}/${DefiAction.Deposit}/`
+          pathname: `/defi/${earnType}/${provider}/${DefiAction.Deposit}/`,
         })
       }
     }

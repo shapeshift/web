@@ -26,7 +26,7 @@ type FoxyWithdrawValues = WithdrawValues &
     usedGasFee: string
   }
 
-type FoxyWithdrawState = {
+export type FoxyWithdrawState = {
   foxyOpportunity: SupportedFoxyOpportunity
   userAddress: string | null
   approve: EstimatedGas
@@ -110,7 +110,7 @@ type SetFoxyFee = {
   payload: string
 }
 
-type FoxyWithdrawActions =
+export type FoxyWithdrawActions =
   | SetVaultAction
   | SetApprove
   | SetWithdraw

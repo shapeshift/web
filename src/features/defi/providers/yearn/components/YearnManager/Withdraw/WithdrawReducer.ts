@@ -12,7 +12,7 @@ type YearnWithdrawValues = WithdrawValues &
     usedGasFee: string
   }
 
-type YearnWithdrawState = {
+export type YearnWithdrawState = {
   vault: SupportedYearnVault
   userAddress: string | null
   approve: EstimatedGas
@@ -113,7 +113,7 @@ type SetTxid = {
   payload: string
 }
 
-type YearnWithdrawActions =
+export type YearnWithdrawActions =
   | SetVaultAction
   | SetWithdraw
   | SetUserAddress

@@ -26,7 +26,7 @@ type FoxyDepositValues = DepositValues &
     usedGasFee: string
   }
 
-type FoxyDepositState = {
+export type FoxyDepositState = {
   foxyOpportunity: SupportedFoxyOpportunity
   userAddress: string | null
   approve: EstimatedGas
@@ -104,7 +104,7 @@ type SetTxid = {
   payload: string
 }
 
-type FoxyDepositActions =
+export type FoxyDepositActions =
   | SetFoxyOpportunitiesAction
   | SetApprove
   | SetDeposit

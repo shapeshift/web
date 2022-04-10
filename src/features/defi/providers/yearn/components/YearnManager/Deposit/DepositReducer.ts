@@ -12,7 +12,7 @@ type YearnDepositValues = DepositValues &
     usedGasFee: string
   }
 
-type YearnDepositState = {
+export type YearnDepositState = {
   vault: SupportedYearnVault
   userAddress: string | null
   approve: EstimatedGas
@@ -118,7 +118,7 @@ type SetTxid = {
   payload: string
 }
 
-type YearnDepositActions =
+export type YearnDepositActions =
   | SetVaultAction
   | SetApprove
   | SetDeposit

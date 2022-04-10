@@ -71,7 +71,7 @@ export const Overview: React.FC<StakedProps> = ({
   )
 
   // If it's loading, it will display the skeleton,
-  // overwise if there are some undelegationsEntries it will display it.
+  // overwise if there are some undelegationEntries it will display it.
   const shouldDisplayUndelegationEntries = undelegationEntries?.length || !isLoaded
 
   return (

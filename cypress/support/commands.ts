@@ -112,9 +112,11 @@ Cypress.Commands.add('mockExternalRequests', () => {
 
 // @ts-ignore
 Cypress.Commands.add('mockInternalRequests', () => {
-  cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, makeEthAccount()).as(
-    'getEthAccount',
-  )
+  cy.intercept(
+    'GET',
+    `${ethereumApi}/api/v1/account/${publicKey.toLowerCase()}`,
+    makeEthAccount(),
+  ).as('getEthAccount')
   cy.intercept('GET', `${bitcoinApi}/api/v1/account/${publicKey}`, makeBtcAccount()).as(
     'getBtcAccount',
   )

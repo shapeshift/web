@@ -44,7 +44,7 @@ describe('The Dashboard', () => {
     cy.getBySel('trade-preview-button').should('be.disabled')
     cy.getBySel('token-row-sell-max-button').click()
     // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
-    cy.getBySel('trade-preview-button').should('have.text', 'Not enough ETH to cover gas', {
+    cy.getBySel('trade-preview-button').should('have.text', 'Insufficient Funds', {
       timeout: 30000,
     })
     // TODO - We are now at the approval screen - test the rest of the flow

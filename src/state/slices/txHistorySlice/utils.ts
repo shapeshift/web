@@ -28,7 +28,7 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
 /**
  * now we support accounts, we have a new problem
  * the same tx id can have multiple representations, depending on the
- * account's persective, especially utxos.
+ * account's perspective, especially utxos.
  *
  * i.e. a bitcoin send will have a send component, and a receive component for
  * the change, to a new address, but the same tx id.

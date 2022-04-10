@@ -187,6 +187,26 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   /**
+   * refetch an account given a newly confirmed txid
+   */
+  const refetchAccountByTxId = useCallback(
+    (txId: TxId) => {
+      // the accountSpecifier the tx came from
+      const { txAccountSpecifier } = deserializeUniqueTxId(txId)
+      // only refetch the specific account for this tx
+      const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
+        const [chainId, accountSpecifier] = Object.entries(cur)[0]
+        const accountId = `${chainId}:${accountSpecifier}`
+        if (accountId === txAccountSpecifier) acc[chainId] = accountSpecifier
+        return acc
+      }, {})
+      const { getAccount } = portfolioApi.endpoints
+      dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
+    },
+    [accountSpecifiersList, dispatch],
+  )
+
+  /**
    * monitor for new pending txs, add them to a set, so we can monitor when they're confirmed
    */
   useEffect(() => {
@@ -213,28 +233,9 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     }
 
     // txsById changes on each tx - as txs have more confirmations
+    // pendingTxIds is changed by this effect, so don't create an infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, txIds])
-
-  /**
-   * refetch an account given a newly confirmed txid
-   */
-  const refetchAccountByTxId = useCallback(
-    (txId: TxId) => {
-      // the accountSpecifier the tx came from
-      const { txAccountSpecifier } = deserializeUniqueTxId(txId)
-      // only refetch the specific account for this tx
-      const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
-        const [chainId, accountSpecifier] = Object.entries(cur)[0]
-        const accountId = `${chainId}:${accountSpecifier}`
-        if (accountId === txAccountSpecifier) acc[chainId] = accountSpecifier
-        return acc
-      }, {})
-      const { getAccount } = portfolioApi.endpoints
-      dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
-    },
-    [accountSpecifiersList, dispatch],
-  )
+  }, [txIds, txHistoryStatus, refetchAccountByTxId])
 
   /**
    * monitor the pending tx ids for when they change to confirmed.

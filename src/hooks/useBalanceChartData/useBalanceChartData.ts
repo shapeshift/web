@@ -256,6 +256,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
         if (!assetIds.includes(asset)) return
         if (!includeTx) return
+        if (tx.status === chainAdapters.TxStatus.Failed) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)

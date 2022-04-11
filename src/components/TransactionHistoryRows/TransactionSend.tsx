@@ -15,7 +15,7 @@ export const TransactionSend = ({
   compactMode,
   isOpen,
   toggleOpen,
-  parentWidth
+  parentWidth,
 }: TransactionRowProps) => {
   return (
     <>

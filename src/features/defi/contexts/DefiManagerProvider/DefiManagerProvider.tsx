@@ -13,7 +13,7 @@ const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(n
 
 const DefiModules = {
   [DefiProvider.Yearn]: YearnManager,
-  [DefiProvider.ShapeShift]: FoxyManager
+  [DefiProvider.ShapeShift]: FoxyManager,
 }
 
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {

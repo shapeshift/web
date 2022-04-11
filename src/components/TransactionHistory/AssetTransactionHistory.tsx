@@ -9,7 +9,7 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import {
   selectAccountIdsByAssetId,
   selectAssetByCAIP19,
-  selectTxIdsByFilter
+  selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -24,11 +24,11 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   assetId,
   accountId,
   useCompactMode = false,
-  limit
+  limit,
 }) => {
   const translate = useTranslate()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -38,7 +38,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
     // if we are passed an accountId, we're on an asset account page, use that specifically.
     // otherwise, we're on an asset page, use all accountIds related to this asset
     () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
-    [assetId, accountId, accountIds]
+    [assetId, accountId, accountIds],
   )
 
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
@@ -54,7 +54,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
           {translate(
             useCompactMode
               ? 'transactionHistory.recentTransactions'
-              : 'transactionHistory.transactionHistory'
+              : 'transactionHistory.transactionHistory',
           )}
         </Card.Heading>
       </Card.Header>

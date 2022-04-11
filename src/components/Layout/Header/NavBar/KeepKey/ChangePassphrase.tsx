@@ -1,4 +1,5 @@
 import { Flex, FormControl, FormLabel, Spinner, Switch } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
@@ -11,19 +12,28 @@ import { SubMenuContainer } from '../SubMenuContainer'
 
 export const ChangePassphrase = () => {
   const translate = useTranslate()
+  const toast = useToast()
   const {
     keepKeyWallet,
     setHasPassphrase,
-    state: { hasPassphrase }
+    state: { hasPassphrase },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
 
   const handleToggle = async () => {
     const currentValue = !!hasPassphrase
     setHasPassphrase(!hasPassphrase)
-    await keepKeyWallet?.applySettings({ usePassphrase: !currentValue })
+    await keepKeyWallet?.applySettings({ usePassphrase: !currentValue }).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
 
   const onCancel = () => {
@@ -44,7 +54,7 @@ export const ChangePassphrase = () => {
           <Flex flexGrow={1}>
             <FormLabel htmlFor='pin-caching' mb='0'>
               {translate('walletProvider.keepKey.settings.actions.enable', {
-                setting
+                setting,
               })}
             </FormLabel>
             {awaitingDeviceInteraction && <Spinner thickness='4px' />}

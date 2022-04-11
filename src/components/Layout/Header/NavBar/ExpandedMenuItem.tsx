@@ -5,11 +5,12 @@ import { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
 import { Link, useColorModeValue } from '@chakra-ui/react'
 import { ThemeTypings } from '@chakra-ui/styled-system'
 import { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
+import { InterpolationOptions } from 'node-polyglot'
 import { CSSProperties } from 'react'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 
 type ExpandedMenuItemProps = {
-  label: string | undefined
+  label: string | null | [string, number | InterpolationOptions]
   value?: string
   valueDisposition?: 'positive' | 'neutral' | 'negative' | 'info'
   badge?: string
@@ -63,7 +64,7 @@ export const ExpandedMenuItem = ({
       style={isDisabled ? disabledStyleOverride : undefined}
       {...props}
     >
-      <RawText flex={1}>{label}</RawText>
+      <Text flex={1} translation={label} />
       <RawText ml={3} color={valueColor}>
         {value}
       </RawText>

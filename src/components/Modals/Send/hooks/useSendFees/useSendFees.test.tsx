@@ -14,7 +14,7 @@ jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
   selectFeeAssetById: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
-  selectMarketDataById: () => mockEthAsset
+  selectMarketDataById: () => mockEthAsset,
 }))
 
 const fees = {
@@ -22,23 +22,23 @@ const fees = {
     txFee: '42000000000',
     chainSpecific: {
       gasPrice: '123456700',
-      gasLimit: '123456700'
-    }
+      gasLimit: '123456700',
+    },
   },
   [chainAdapters.FeeDataKey.Average]: {
     txFee: '42000000000',
     chainSpecific: {
       gasPrice: '123456700',
-      gasLimit: '123456700'
-    }
+      gasLimit: '123456700',
+    },
   },
   [chainAdapters.FeeDataKey.Fast]: {
     txFee: '42000000000',
     chainSpecific: {
       gasPrice: '123456700',
-      gasLimit: '123456700'
-    }
-  }
+      gasLimit: '123456700',
+    },
+  },
 }
 
 const mockEthAsset = {
@@ -46,12 +46,12 @@ const mockEthAsset = {
   network: 'ethereum',
   price: 3500,
   symbol: 'eth',
-  precision: 18
+  precision: 18,
 }
 
 const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-    state: { wallet }
+    state: { wallet },
   }))
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
 
@@ -69,7 +69,7 @@ describe('useSendFees', () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
         asset: mockEthAsset,
-        estimatedFees: fees
+        estimatedFees: fees,
       })
       await waitForValueToChange(() => result.current.fees)
       expect(result.current.fees?.slow.fiatFee).toBe('0.000147')
@@ -83,7 +83,7 @@ describe('useSendFees', () => {
       const { result } = setup({
         asset: mockEthAsset,
         estimatedFees: fees,
-        wallet: {}
+        wallet: {},
       })
       expect(result.current.fees).toBe(null)
     })

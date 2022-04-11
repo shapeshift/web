@@ -24,7 +24,7 @@ export const SplashScreen = () => {
           height: '100vh',
           backgroundImage: `url(${isFirefox ? OrbsStatic : Orbs})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center center'
+          backgroundPosition: 'center center',
         }}
       >
         <Circle size='100px' mb={6}>

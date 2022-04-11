@@ -7,11 +7,11 @@ export const ModalStyle = {
       bg: mode('white', 'gray.785')(props),
       borderRadius: 'xl',
       borderColor: mode('gray.50', 'gray.750')(props),
-      borderWidth: 1
+      borderWidth: 1,
     },
     closeButton: {
-      borderRadius: '100%'
-    }
+      borderRadius: '100%',
+    },
   }),
   // Styles for the size variations
   sizes: {},
@@ -20,20 +20,20 @@ export const ModalStyle = {
     fluid: {
       dialog: {
         maxWidth: '100%',
-        width: 'auto'
-      }
+        width: 'auto',
+      },
     },
     'fluid-footer': (props: Record<string, any>) => ({
       dialog: {
         maxWidth: '100%',
-        width: 'auto'
+        width: 'auto',
       },
       footer: {
         borderTopWidth: 1,
-        borderColor: mode('gray.100', 'gray.750')(props)
-      }
-    })
+        borderColor: mode('gray.100', 'gray.750')(props),
+      },
+    }),
   },
   // The default `size` or `variant` values
-  defaultProps: {}
+  defaultProps: {},
 }

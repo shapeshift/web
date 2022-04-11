@@ -5,7 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
   useMenuRoutes,
-  WalletConnectedRoutes
+  WalletConnectedRoutes,
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
@@ -21,12 +21,11 @@ export const KeepKeyMenu = () => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
   const {
-    keepKeyWallet,
-    state: { hasPinCaching, deviceTimeout }
+    state: { hasPinCaching, deviceTimeout, features },
   } = useKeepKey()
   const versions = useKeepKeyVersions()
   const {
-    state: { isConnected, walletInfo }
+    state: { isConnected, walletInfo },
   } = useWallet()
   const { keepKeyWipe } = useModal()
 
@@ -73,7 +72,7 @@ export const KeepKeyMenu = () => {
       </>
     )
 
-    const keepKeyStateLoaded = keepKeyWallet?.features && (
+    const keepKeyStateLoaded = (
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
@@ -93,18 +92,18 @@ export const KeepKeyMenu = () => {
           </Flex>
           <MenuDivider />
           <ExpandedMenuItem
-            label={translate('walletProvider.keepKey.settings.menuLabels.bootloader')}
+            label='walletProvider.keepKey.settings.menuLabels.bootloader'
             value={getUpdateText(versions?.bootloader.updateAvailable)}
-            badge={versions?.bootloader.device}
+            badge={versions?.bootloader.device ?? 'Loading'}
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.bootloader.updateAvailable}
             externalUrl='https://beta.shapeshift.com/updater-download'
           />
           <ExpandedMenuItem
-            label={translate('walletProvider.keepKey.settings.menuLabels.firmware')}
+            label='walletProvider.keepKey.settings.menuLabels.firmware'
             value={getUpdateText(versions?.firmware.updateAvailable)}
-            badge={versions?.firmware.device}
+            badge={versions?.firmware.device ?? 'Loading'}
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.firmware.updateAvailable}
@@ -113,13 +112,13 @@ export const KeepKeyMenu = () => {
           <MenuDivider />
           <ExpandedMenuItem
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyLabel)}
-            label='Label'
+            label='walletProvider.keepKey.settings.menuLabels.label'
             value={walletInfo?.name}
             hasSubmenu={true}
           />
           <ExpandedMenuItem
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPin)}
-            label={translate('walletProvider.keepKey.settings.menuLabels.pin')}
+            label='walletProvider.keepKey.settings.menuLabels.pin'
             value='••••••'
             hasSubmenu={true}
           />
@@ -137,24 +136,22 @@ export const KeepKeyMenu = () => {
             <Box>
               <ExpandedMenuItem
                 onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyTimeout)}
-                label={translate('walletProvider.keepKey.settings.menuLabels.deviceTimeout')}
+                label='walletProvider.keepKey.settings.menuLabels.deviceTimeout'
                 value={deviceTimeoutTranslation}
                 hasSubmenu={true}
               />
               <ExpandedMenuItem
                 onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPinCaching)}
-                label={translate('walletProvider.keepKey.settings.menuLabels.pinCaching')}
+                label='walletProvider.keepKey.settings.menuLabels.pinCaching'
                 hasSubmenu={true}
                 value={getBooleanLabel(hasPinCaching)}
                 valueDisposition={hasPinCaching ? 'positive' : 'neutral'}
               />
               <ExpandedMenuItem
                 onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}
-                label={translate('walletProvider.keepKey.settings.menuLabels.passphrase')}
-                value={getBooleanLabel(keepKeyWallet.features.passphraseProtection)}
-                valueDisposition={
-                  keepKeyWallet.features.passphraseProtection ? 'positive' : 'neutral'
-                }
+                label='walletProvider.keepKey.settings.menuLabels.passphrase'
+                value={getBooleanLabel(features?.passphraseProtection)}
+                valueDisposition={features?.passphraseProtection ? 'positive' : 'neutral'}
                 hasSubmenu={true}
               />
               <MenuDivider />
@@ -166,7 +163,7 @@ export const KeepKeyMenu = () => {
         </MenuGroup>
       </>
     )
-    return keepKeyStateLoaded || keepKeyStateLoading
+    return features ? keepKeyStateLoaded : keepKeyStateLoading
   }
   return (
     <SubMenuContainer>

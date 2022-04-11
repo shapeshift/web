@@ -2,7 +2,7 @@ import { Button, ButtonGroup } from '@chakra-ui/react'
 import {
   DefiAction,
   DefiParams,
-  DefiQueryParams
+  DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
@@ -18,7 +18,7 @@ export const DefiActionButtons = ({ vaultExpired, showOverview }: DefiActionButt
   const { location, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const match = matchPath<DefiParams>(location.pathname, {
     path: '/defi/:earnType/:provider/:action',
-    exact: true
+    exact: true,
   })
 
   const handleClick = (action: DefiAction) => {
@@ -26,7 +26,7 @@ export const DefiActionButtons = ({ vaultExpired, showOverview }: DefiActionButt
       const { earnType, provider } = match.params
       history.replace({
         ...location,
-        pathname: `/defi/${earnType}/${provider}/${action}/`
+        pathname: `/defi/${earnType}/${provider}/${action}/`,
       })
     }
   }

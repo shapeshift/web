@@ -35,14 +35,14 @@ export const Approval = () => {
   const {
     getValues,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const { approveInfinite, checkApprovalNeeded, buildQuoteTx } = useSwapper()
   const {
-    number: { toCrypto, toFiat }
+    number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const { quote, sellAsset, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
@@ -84,7 +84,7 @@ export const Approval = () => {
           wallet,
           sellAsset: quote?.sellAsset,
           buyAsset: quote?.buyAsset,
-          amount: sellAsset?.amount
+          amount: sellAsset?.amount,
         })
       } catch (e) {
         console.error(`Approval:approve:buildQuoteTx - ${e}`)
@@ -110,7 +110,7 @@ export const Approval = () => {
       status: 'error',
       duration: 9000,
       isClosable: true,
-      position: 'top-right'
+      position: 'top-right',
     })
   }
 
@@ -145,7 +145,7 @@ export const Approval = () => {
               duration={60}
               colors={[
                 [theme.colors.blue[500], 0.4],
-                [theme.colors.blue[500], 0.4]
+                [theme.colors.blue[500], 0.4],
               ]}
               onComplete={() => {
                 return [true, 0]

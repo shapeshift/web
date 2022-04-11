@@ -8,7 +8,7 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
-  Stack
+  Stack,
 } from '@chakra-ui/react'
 import { cosmossdk, ethereum } from '@shapeshiftoss/chain-adapters'
 import get from 'lodash/get'
@@ -35,7 +35,7 @@ export const Address = () => {
   const translate = useTranslate()
   const {
     setValue,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
@@ -66,7 +66,7 @@ export const Address = () => {
         onClick={() =>
           history.push(SendRoutes.Select, {
             toRoute: SelectAssetRoutes.Account,
-            assetId: asset.caip19
+            assetId: asset.caip19,
           })
         }
       />
@@ -112,8 +112,8 @@ export const Address = () => {
                       setValue(SendFormFields.EnsName, reverseValueLookup.name)
                   }
                   return validAddress.valid || 'common.invalidAddress'
-                }
-              }
+                },
+              },
             }}
           />
         </FormControl>

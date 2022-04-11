@@ -15,6 +15,13 @@ const validators = {
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
+  // TODO:
+  //  Version control data and use a persistent URL
+  //  so we don't need to update whenever new KeepKey firmware/bootloader is released.
+  REACT_APP_KEEPKEY_VERSIONS_URL: url({
+    default:
+      'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
+  }),
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),
   REACT_APP_HIDE_SPLASH: bool({ default: false }),
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
@@ -25,11 +32,9 @@ const validators = {
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_COSMOS_INVESTOR: bool({ default: false }),
   REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
-  REACT_APP_FEATURE_PLUGIN_COSMOS: bool({ default: false }),
-  REACT_APP_FEATURE_GEM_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_FOXY_INVESTOR: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
-  REACT_APP_KEEP_KEY_SETTINGS: bool({ default: false })
+  REACT_APP_FEATURE_KEEPKEY_SETTINGS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
@@ -38,7 +43,7 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
     console.error(err)
     console.error(
       envVar,
-      'missing from config. Check sample.env and add it to your local .env and add a validator in config.ts'
+      'missing from config. Check sample.env and add it to your local .env and add a validator in config.ts',
     )
   })
 }

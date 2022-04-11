@@ -1,6 +1,6 @@
 import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from 'test/mocks/txs'
 
-import { addToIndex, getRelatedAssetIds } from './utils'
+import { addToIndex, deserializeUniqueTxId, getRelatedAssetIds, makeUniqueTxId } from './utils'
 
 describe('txHistorySlice:utils', () => {
   describe('getRelatedAssetIds', () => {
@@ -59,6 +59,20 @@ describe('txHistorySlice:utils', () => {
 
     it('should maintain the sort order from the parent', () => {
       expect(addToIndex([2, 1, 3], [3], 1)).toStrictEqual([1, 3])
+    })
+  })
+
+  describe('deserializeUniqueTxId', () => {
+    it('can deserialize a txId', () => {
+      const ethCAIP2 = EthSend.caip2
+      const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
+      const txId = makeUniqueTxId(EthSend, accountSpecifier)
+
+      const { txAccountSpecifier, txid, txAddress } = deserializeUniqueTxId(txId)
+
+      expect(txAccountSpecifier).toEqual(accountSpecifier)
+      expect(txid).toEqual(EthSend.txid)
+      expect(txAddress).toEqual(EthSend.address)
     })
   })
 })

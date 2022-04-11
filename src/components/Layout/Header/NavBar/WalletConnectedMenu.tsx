@@ -1,15 +1,21 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Button, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 import {
   useMenuRoutes,
-  WalletConnectedRoutes
+  WalletConnectedRoutes,
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { KeepKeyMenu } from 'components/Layout/Header/NavBar/MenuRoutes/KeepKeyMenuRoutes'
+import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
+import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
+import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
+import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
+import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
+import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
+import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
 import { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
@@ -17,26 +23,18 @@ import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
-import { ChangeLabel } from '../KeepKey/ChangeLabel'
-import { ChangePassphrase } from '../KeepKey/ChangePassphrase'
-import { ChangePin } from '../KeepKey/ChangePin'
-import { ChangePinCaching } from '../KeepKey/ChangePinCaching'
-import { ChangeTimeout } from '../KeepKey/ChangeTimeout'
-import { SubMenuContainer } from '../SubMenuContainer'
-
-export const WalletConnectedMenuRoutes = ({
+export const WalletConnectedMenu = ({
   onDisconnect,
   onSwitchProvider,
   walletInfo,
-  isConnected
+  isConnected,
 }: WalletConnectedProps) => {
   const { navigateToRoute } = useMenuRoutes()
   const location = useLocation()
-  const history = useHistory()
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
   const keepKeySettingsFlag = useSelector((state: ReduxState) =>
-    selectFeatureFlag(state, 'KeepKeySettings')
+    selectFeatureFlag(state, 'KeepKeySettings'),
   )
 
   const ConnectedMenu = () => {

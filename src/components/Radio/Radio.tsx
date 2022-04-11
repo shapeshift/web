@@ -7,7 +7,7 @@ import {
   useId,
   useRadio,
   useRadioGroup,
-  UseRadioProps
+  UseRadioProps,
 } from '@chakra-ui/react'
 import { ThemeTypings } from '@chakra-ui/styled-system'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -70,7 +70,7 @@ export interface RadioOption<T> {
 export interface RadioProps<T> {
   name?: string
   defaultValue?: T
-  options: RadioOption<T>[]
+  options: readonly RadioOption<T>[]
   onChange: (value: T) => void
   variant?: string
   colorScheme?: ThemeTypings['colorSchemes']
@@ -94,12 +94,12 @@ export const Radio = <T extends RadioTypes>({
   radioProps,
   showCheck = false,
   checkColor,
-  isLoading
+  isLoading,
 }: RadioProps<T>) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: name ?? 'radio',
     defaultValue,
-    onChange
+    onChange,
   })
 
   const group = getRootProps()

@@ -4,8 +4,8 @@ export const ProgressStyle = {
   baseStyle: {
     track: {},
     filledTrack: {
-      borderRadius: 'full'
-    }
+      borderRadius: 'full',
+    },
   },
   // Styles for the size variations
   sizes: {},
@@ -13,10 +13,10 @@ export const ProgressStyle = {
   variants: {
     'right-aligned': {
       filledTrack: {
-        marginLeft: 'auto'
-      }
-    }
+        marginLeft: 'auto',
+      },
+    },
   },
   // The default `size` or `variant` values
-  defaultProps: {}
+  defaultProps: {},
 }

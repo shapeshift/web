@@ -5,7 +5,7 @@ import { getColor, mode } from '@chakra-ui/theme-tools'
 const fade = (startColor: string, endColor: string) =>
   keyframes({
     from: { borderColor: startColor, background: startColor },
-    to: { borderColor: endColor, background: endColor }
+    to: { borderColor: endColor, background: endColor },
   })
 
 const baseStyle: SystemStyleFunction = props => {
@@ -22,30 +22,30 @@ const baseStyle: SystemStyleFunction = props => {
     borderRadius: 'md',
     borderColor: start,
     background: end,
-    animation: `${speed}s linear infinite alternate ${fade(start, end)}`
+    animation: `${speed}s linear infinite alternate ${fade(start, end)}`,
   }
 }
 
 const sizes = {
   sm: {
     maxWidth: '80px',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
   },
   md: {
     maxWidth: '200px',
-    whiteSpace: 'nowrap'
-  }
+    whiteSpace: 'nowrap',
+  },
 }
 
 const variants = {
   center: {
     marginLeft: 'auto',
-    marginRight: 'auto'
-  }
+    marginRight: 'auto',
+  },
 }
 
 export const SkeletonStyle = {
   baseStyle,
   sizes,
-  variants
+  variants,
 }

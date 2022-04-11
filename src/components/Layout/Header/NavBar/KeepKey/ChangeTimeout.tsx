@@ -1,4 +1,5 @@
 import { useColorModeValue } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -15,17 +16,26 @@ export const ChangeTimeout = () => {
   const translate = useTranslate()
   const {
     keepKeyWallet,
-    state: { deviceTimeout }
+    state: { deviceTimeout },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction }
+    state: { awaitingDeviceInteraction },
   } = useWallet()
-  const [radioTimeout, setRadioTimeout] = useState(DeviceTimeout.TenMinutes)
+  const toast = useToast()
+  const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
 
   const handleChange = async (value: DeviceTimeout) => {
     const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)
     value && setRadioTimeout(value)
-    await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout })
+    await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout }).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
 
   const setting = 'timeout'
@@ -42,7 +52,7 @@ export const ChangeTimeout = () => {
     <SubMenuContainer>
       <SubmenuHeader
         title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-          setting: 'Timeout'
+          setting: 'Timeout',
         })}
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
@@ -63,7 +73,7 @@ export const ChangeTimeout = () => {
             width: 'full',
             alignItems: 'flex-start',
             flex: 1,
-            spacing: '0'
+            spacing: '0',
           }}
         />
       </SubMenuBody>

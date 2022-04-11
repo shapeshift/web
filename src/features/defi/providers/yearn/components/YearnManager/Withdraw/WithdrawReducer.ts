@@ -41,7 +41,7 @@ export const initialState: YearnWithdrawState = {
     tokenId: '',
     underlyingTokenBalance: {
       amount: '0',
-      amountUsdc: '0'
+      amountUsdc: '0',
     },
     metadata: {
       symbol: '',
@@ -56,8 +56,8 @@ export const initialState: YearnWithdrawState = {
       displayName: '',
       displayIcon: '',
       defaultDisplayToken: '',
-      hideIfNoDeposits: false
-    }
+      hideIfNoDeposits: false,
+    },
   },
   userAddress: null,
   loading: false,
@@ -69,8 +69,8 @@ export const initialState: YearnWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: WithdrawType.INSTANT
-  }
+    withdrawType: WithdrawType.INSTANT,
+  },
 }
 
 export enum YearnWithdrawActionType {
@@ -80,7 +80,7 @@ export enum YearnWithdrawActionType {
   SET_LOADING = 'SET_LOADING',
   SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS'
+  SET_TX_STATUS = 'SET_TX_STATUS',
 }
 
 type SetVaultAction = {

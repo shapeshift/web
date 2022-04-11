@@ -49,8 +49,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/create', component: NativeCreate },
       { path: '/native/create-test', component: NativeTestPhrase },
       { path: '/native/success', component: NativeSuccess },
-      { path: '/native/enter-password', component: EnterPassword }
-    ]
+      { path: '/native/enter-password', component: EnterPassword },
+    ],
   },
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,
@@ -61,23 +61,23 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
       { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
-      { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence }
-    ]
+      { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
+    ],
   },
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,
     routes: [
       { path: '/metamask/connect', component: MetaMaskConnect },
       { path: '/metamask/success', component: MetaMaskSuccess },
-      { path: '/metamask/failure', component: MetaMaskFailure }
-    ]
+      { path: '/metamask/failure', component: MetaMaskFailure },
+    ],
   },
   [KeyManager.Portis]: {
     ...PortisConfig,
     routes: [
       { path: '/portis/connect', component: PortisConnect },
       { path: '/portis/success', component: PortisSuccess },
-      { path: '/portis/failure', component: PortisFailure }
-    ]
-  }
+      { path: '/portis/failure', component: PortisFailure },
+    ],
+  },
 }

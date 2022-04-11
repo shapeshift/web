@@ -41,7 +41,7 @@ export const initialState: YearnDepositState = {
     tokenId: '',
     underlyingTokenBalance: {
       amount: '0',
-      amountUsdc: '0'
+      amountUsdc: '0',
     },
     metadata: {
       symbol: '',
@@ -56,8 +56,8 @@ export const initialState: YearnDepositState = {
       displayName: '',
       displayIcon: '',
       defaultDisplayToken: '',
-      hideIfNoDeposits: false
-    }
+      hideIfNoDeposits: false,
+    },
   },
   userAddress: null,
   loading: false,
@@ -68,8 +68,8 @@ export const initialState: YearnDepositState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: ''
-  }
+    usedGasFee: '',
+  },
 }
 
 export enum YearnDepositActionType {
@@ -80,7 +80,7 @@ export enum YearnDepositActionType {
   SET_LOADING = 'SET_LOADING',
   SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS'
+  SET_TX_STATUS = 'SET_TX_STATUS',
 }
 
 type SetVaultAction = {

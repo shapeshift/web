@@ -16,10 +16,10 @@ export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timef
   useEffect(
     () =>
       assetIds.forEach(assetId =>
-        dispatch(marketApi.endpoints.findPriceHistoryByCaip19.initiate({ assetId, timeframe }))
+        dispatch(marketApi.endpoints.findPriceHistoryByCaip19.initiate({ assetId, timeframe })),
       ),
     // assetIds ref changes, prevent infinite render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(assetIds), dispatch, timeframe]
+    [JSON.stringify(assetIds), dispatch, timeframe],
   )
 }

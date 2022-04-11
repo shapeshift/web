@@ -25,7 +25,7 @@ type StakingInput =
 export const useStakingAction = () => {
   const chainAdapterManager = useChainAdapters()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const handleStakingAction = async (data: StakingInput) => {
@@ -43,7 +43,7 @@ export const useStakingAction = () => {
               result = await (adapter as CosmosChainAdapter).buildClaimRewardsTransaction({
                 wallet,
                 validator,
-                chainSpecific
+                chainSpecific,
               })
               break
             }
@@ -52,7 +52,7 @@ export const useStakingAction = () => {
                 wallet,
                 validator,
                 value,
-                chainSpecific
+                chainSpecific,
               })
               break
             }
@@ -61,7 +61,7 @@ export const useStakingAction = () => {
                 wallet,
                 validator,
                 value,
-                chainSpecific
+                chainSpecific,
               })
               break
             }
@@ -89,6 +89,6 @@ export const useStakingAction = () => {
     }
   }
   return {
-    handleStakingAction
+    handleStakingAction,
   }
 }

@@ -13,16 +13,16 @@ export const PopoverStyle = {
       borderRadius: 'xl',
       bg: $popperBg.reference,
       borderColor: mode('gray.200', 'gray.700')(props),
-      boxShadow: mode('lg', 'dark-lg')(props)
+      boxShadow: mode('lg', 'dark-lg')(props),
     },
     header: {
-      borderColor: mode('gray.200', 'gray.700')(props)
-    }
+      borderColor: mode('gray.200', 'gray.700')(props),
+    },
   }),
   // Styles for the size variations
   sizes: {},
   // Styles for the visual style variations
   variants: {},
   // The default `size` or `variant` values
-  defaultProps: {}
+  defaultProps: {},
 }

@@ -20,17 +20,17 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   accountId,
   timeframe,
   percentChange,
-  setPercentChange
+  setPercentChange,
 }) => {
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assetIds,
     accountId,
-    timeframe
+    timeframe,
   })
 
   useEffect(
     () => setPercentChange(calculatePercentChange(balanceChartData)),
-    [balanceChartData, setPercentChange]
+    [balanceChartData, setPercentChange],
   )
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'

@@ -6,7 +6,7 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectMarketDataLoadingById
+  selectMarketDataLoadingById,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -14,13 +14,14 @@ import { CosmosAssetAccountDetails } from './CosmosAssetAccountDetails'
 
 export type MatchParams = {
   assetSubId: string
+  chainRef: string
 }
 
-export const CosmosAsset = (props: { chainId: string }) => {
+export const CosmosAsset = () => {
   const dispatch = useAppDispatch()
 
-  const { assetSubId } = useParams<MatchParams>()
-  const assetId = `${props.chainId}/${assetSubId}`
+  const { chainRef, assetSubId } = useParams<MatchParams>()
+  const assetId = `cosmos:${chainRef}/${assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 

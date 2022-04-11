@@ -5,5 +5,5 @@ export enum KeepKeyRoutes {
   Passphrase = '/keepkey/passphrase',
   NewLabel = '/keepkey/label',
   Pin = '/keepkey/enter-pin',
-  NewRecoverySentence = '/keepkey/recovery-sentence'
+  NewRecoverySentence = '/keepkey/recovery-sentence',
 }

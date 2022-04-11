@@ -19,13 +19,13 @@ export const TransactionHistory = () => {
   const selectorFilters = useMemo(
     () => ({
       matchingAssets: matchingAssets?.map(asset => asset.caip19) ?? null,
-      ...filters
+      ...filters,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchTerm, filters]
+    [searchTerm, filters],
   )
   const txIds = useAppSelector(state =>
-    selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters)
+    selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters),
   )
   return (
     <Main>

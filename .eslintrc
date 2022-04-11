@@ -41,7 +41,7 @@
         "semi": false,
         "arrowParens": "avoid",
         "jsxSingleQuote": true,
-        "trailingComma": "none"
+        "trailingComma": "all"
       }
     ],
     "default-case": "error",

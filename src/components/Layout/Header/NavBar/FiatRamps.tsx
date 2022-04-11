@@ -9,7 +9,7 @@ export const FiatRamps = () => {
   const { fiatRamps } = useModal()
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

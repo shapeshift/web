@@ -23,7 +23,7 @@ export const AssetList = ({ assets, type, handleClick }: AssetListProps) => {
       itemData={{
         items: assets,
         type: type,
-        handleClick
+        handleClick,
       }}
       itemCount={assets.length}
       className='token-list scroll-container'

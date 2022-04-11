@@ -29,7 +29,7 @@ import {
   PopoverTrigger,
   Stack,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData, WithdrawType } from '@shapeshiftoss/types'
 import { useRef, useState } from 'react'
@@ -88,14 +88,14 @@ const CryptoInput = (props: InputProps) => (
 
 enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 export enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
   Slippage = 'slippage',
-  WithdrawType = 'withdrawType'
+  WithdrawType = 'withdrawType',
 }
 
 export type WithdrawValues = {
@@ -121,10 +121,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onCancel,
   percentOptions,
   feePercentage,
-  children
+  children,
 }) => {
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -137,15 +137,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     formState: { errors, isValid },
     handleSubmit,
     setError,
-    setValue
+    setValue,
   } = useForm<WithdrawValues>({
     mode: 'onChange',
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
       [Field.Slippage]: DEFAULT_SLIPPAGE,
-      [Field.WithdrawType]: WithdrawType.DELAYED
-    }
+      [Field.WithdrawType]: WithdrawType.DELAYED,
+    },
   })
 
   const values = useWatch({ control })
@@ -161,7 +161,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       // Toggles an existing error to the other field if present
       clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
       setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
-        message: 'common.insufficientFunds'
+        message: 'common.insufficientFunds',
       })
     }
     setActiveField(field)
@@ -183,7 +183,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     const fiat = bnOrZero(cryptoAmount).times(marketData.price)
     setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount.toString(), {
-      shouldValidate: true
+      shouldValidate: true,
     })
   }
 
@@ -195,7 +195,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
       setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), {
-        shouldValidate: true
+        shouldValidate: true,
       })
       setPercent(1)
       setValue(Field.WithdrawType, WithdrawType.INSTANT)
@@ -265,7 +265,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                     <RawText color='gray.500' fontSize='sm'>
                       {translate('modals.withdraw.fee', {
                         fee: feePercentage ?? '0',
-                        symbol: asset.symbol
+                        symbol: asset.symbol,
                       })}
                     </RawText>
                   </Stack>
@@ -282,7 +282,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                     <RawText>{translate('modals.withdraw.delayed')}</RawText>
                     <RawText color='gray.500' fontSize='sm'>
                       {translate('modals.withdraw.noFee', {
-                        symbol: asset.symbol
+                        symbol: asset.symbol,
                       })}
                     </RawText>
                   </Stack>
@@ -357,7 +357,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                         value={option}
                         options={{
                           minimumFractionDigits: 0,
-                          maximumFractionDigits: 0
+                          maximumFractionDigits: 0,
                         }}
                       />
                     )}

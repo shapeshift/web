@@ -12,7 +12,7 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setAwaitingDeviceInteraction: (awaitingDeviceInteraction: boolean) => void,
-  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome) => void
+  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome) => void,
 ) => {
   const { keyring, modal } = state
 
@@ -41,8 +41,8 @@ export const useKeepKeyEventHandler = (
             type: WalletActions.OPEN_KEEPKEY_PIN,
             payload: {
               deviceId,
-              pinRequestType: e[1].message?.type
-            }
+              pinRequestType: e[1].message?.type,
+            },
           })
           break
         // ACK just means we sent it, doesn't mean it was successful
@@ -63,13 +63,13 @@ export const useKeepKeyEventHandler = (
               dispatch({
                 type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
                 payload: {
-                  deviceId
-                }
+                  deviceId,
+                },
               })
               break
             default:
               console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
-              setLastDeviceInteractionStatus('failure')
+              setLastDeviceInteractionStatus('error')
               break
           }
           break
@@ -106,8 +106,8 @@ export const useKeepKeyEventHandler = (
               name,
               deviceId: id,
               meta: { label: name },
-              icon: state.walletInfo.icon // We're reconnecting the same wallet so we can reuse the walletInfo
-            }
+              icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
+            },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
@@ -146,6 +146,6 @@ export const useKeepKeyEventHandler = (
     modal,
     setAwaitingDeviceInteraction,
     state.walletInfo,
-    setLastDeviceInteractionStatus
+    setLastDeviceInteractionStatus,
   ])
 }

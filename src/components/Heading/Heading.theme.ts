@@ -7,6 +7,6 @@ export const HeadingStyle = {
   variants: {},
   // The default `size` or `variant` values
   defaultProps: {
-    size: 'inherit'
-  }
+    size: 'inherit',
+  },
 }

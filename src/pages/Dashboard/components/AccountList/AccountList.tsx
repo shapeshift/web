@@ -14,7 +14,7 @@ import {
   selectPortfolioAllocationPercent,
   selectPortfolioAssetBalancesSortedFiat,
   selectPortfolioIsEmpty,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 const AccountHeader = () => (
@@ -22,7 +22,7 @@ const AccountHeader = () => (
     templateColumns={{
       base: '1fr repeat(1, 1fr)',
       md: '1fr repeat(2, 1fr)',
-      lg: '2fr repeat(3, 1fr) 150px'
+      lg: '2fr repeat(3, 1fr) 150px',
     }}
     gap='1rem'
     py={4}

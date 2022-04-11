@@ -8,7 +8,7 @@ import {
   selectAccountIdsByAssetId,
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,14 +29,14 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const { name, symbol, icon } = asset || {}
 
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
   )
 
   if (!chainId) return null

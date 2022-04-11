@@ -18,7 +18,7 @@ type TransactionHistoryListProps = {
 
 export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
   txIds,
-  useCompactMode = false
+  useCompactMode = false,
 }) => {
   const { next, data, hasMore } = useInfiniteScroll(txIds)
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)

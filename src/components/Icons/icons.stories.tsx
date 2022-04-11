@@ -35,7 +35,7 @@ const icons = [
   ShapeShiftVertical,
   TelegramIcon,
   TwitterIcon,
-  YouTubeIcon
+  YouTubeIcon,
 ]
 
 export default {
@@ -45,8 +45,8 @@ export default {
       <Container mt='40px' maxW='100%'>
         <Story />
       </Container>
-    )
-  ]
+    ),
+  ],
 }
 
 export const Basic = () => (

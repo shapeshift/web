@@ -26,7 +26,7 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
    */
   const accountSpecifierStrings = useSelector(selectAccountSpecifierStrings)
   const isCurrentAccountIdOwner = Boolean(
-    accountSpecifierStrings.map(toLower).includes(toLower(accountId))
+    accountSpecifierStrings.map(toLower).includes(toLower(accountId)),
   )
   if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
 

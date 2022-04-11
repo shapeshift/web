@@ -77,7 +77,7 @@ export const AccountAssetsList = ({ assetIds, accountId, limit }: AccountAssetLi
               rightIcon={isOpen ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
             >
               {translate(`assets.assetCards.${isOpen ? 'hideTokens' : 'showTokens'}`, {
-                amount: moreAssetIds.length
+                amount: moreAssetIds.length,
               })}
             </Button>
           </Box>

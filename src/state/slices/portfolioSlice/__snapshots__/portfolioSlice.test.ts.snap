@@ -373,3 +373,41 @@ Object {
   },
 }
 `;
+
+exports[`portfolioSlice selectors selectPortfolioAccountRows should return correct portfolio rows in case of 100% allocation on one asset 1`] = `
+Array [
+  Object {
+    "allocation": 0,
+    "assetId": "eip155:1/slip44:60",
+    "cryptoAmount": "0",
+    "fiatAmount": "0.00",
+    "icon": "https://assets.coincap.io/assets/icons/eth@2x.png",
+    "name": "Ethereum",
+    "price": "1000",
+    "priceChange": 2,
+    "symbol": "ETH",
+  },
+  Object {
+    "allocation": 100,
+    "assetId": "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+    "cryptoAmount": "0.123456",
+    "fiatAmount": "3.88",
+    "icon": "https://assets.coincap.io/assets/icons/fox@2x.png",
+    "name": "Fox",
+    "price": "31.39",
+    "priceChange": 2,
+    "symbol": "FOX",
+  },
+  Object {
+    "allocation": 0,
+    "assetId": "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "cryptoAmount": "0",
+    "fiatAmount": "0.00",
+    "icon": "https://assets.coingecko.com/coins/images/12367/thumb/oF1_9R1K_400x400.jpg?1599345463",
+    "name": "USD Coin",
+    "price": "1",
+    "priceChange": 2,
+    "symbol": "ETH",
+  },
+]
+`;

@@ -22,7 +22,7 @@ type TransactionGroup = {
 
 export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = ({
   txIds,
-  useCompactMode = false
+  useCompactMode = false,
 }) => {
   const params = useParams<MatchParams>()
   const assetId = `${params.chainId}/${params.assetSubId}`

@@ -13,7 +13,7 @@ export const makeEthAccount = (): ethereum.EthereumAccount => {
         decimals: 6,
         name: 'FOX',
         symbol: 'FOX',
-        type: 'ERC20'
+        type: 'ERC20',
       },
       {
         balance: '3100360020270000000000',
@@ -21,7 +21,7 @@ export const makeEthAccount = (): ethereum.EthereumAccount => {
         decimals: 18,
         name: 'SushiToken',
         symbol: 'SUSHI',
-        type: 'ERC20'
+        type: 'ERC20',
       },
       {
         balance: '1916203151620000000000',
@@ -29,7 +29,7 @@ export const makeEthAccount = (): ethereum.EthereumAccount => {
         decimals: 18,
         name: 'ChainLink Token',
         symbol: 'LINK',
-        type: 'ERC20'
+        type: 'ERC20',
       },
       {
         balance: '17487380790000000000',
@@ -37,7 +37,7 @@ export const makeEthAccount = (): ethereum.EthereumAccount => {
         decimals: 18,
         name: 'Compound',
         symbol: 'COMP',
-        type: 'ERC20'
+        type: 'ERC20',
       },
       {
         balance: '37039555080000000000',
@@ -45,8 +45,8 @@ export const makeEthAccount = (): ethereum.EthereumAccount => {
         decimals: 18,
         name: 'BandToken',
         symbol: 'BAND',
-        type: 'ERC20'
-      }
-    ]
+        type: 'ERC20',
+      },
+    ],
   }
 }

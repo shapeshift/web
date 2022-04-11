@@ -72,7 +72,8 @@
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
-      }
+      },
+      "stakedInfo": "You cannot send or trade the amount staked"
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
@@ -162,7 +163,7 @@
       },
       "foxyOverview": {
         "header": "Deposit FOX to get FOXy to earn",
-        "body": "FOXy is a rebasing token pegged to the price of FOX. FOXy is put to work across different DeFi protocols to earn the best yield possible.",
+        "body": "FOXy is a rebasing token pegged to the price of FOX. Staked FOX is put to work across different DeFi protocols to earn the best yield possible.",
         "rewards": "The rewards you earn will accrue automatically.",
         "cta": "Deposit FOX Now",
         "foxyBalance": "FOXy Balance",
@@ -255,8 +256,8 @@
   "staking": {
     "staking": "Staking",
     "itWillTake": "It will take",
-    "toUnlock": "to unlock your Osmo after you unstake. Staking rewards will need to withdrawn separately.",
-    "assetStakingBalance": "%{assetName} Staking Balance"
+    "toUnlock": "to unlock your %{assetSymbol} after you unstake. Staking rewards will need to be withdrawn separately.",
+    "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
     "dashboard": "Dashboard",
@@ -596,7 +597,8 @@
           "advanced": "Advanced",
           "deviceTimeout": "Device Timeout",
           "passphrase": "Passphrase",
-          "wipeDevice": "Wipe Device"
+          "wipeDevice": "Wipe Device",
+          "label":  "Label"
         },
         "status": {
           "enabled": "Enabled",
@@ -637,13 +639,16 @@
           "wipeKeepKey": "Wipe Your KeepKey"
         },
         "descriptions": {
-          "wipeKeepKey": "Reset your KeepKey to factory defaults. This will erase all content and settings on your KeepKey."
+          "wipeKeepKey": "I understand that by wiping my KeepKey I will lose access to my funds if I don't have my recovery phrase."
         },
         "actions": {
           "wipeDevice": "Wipe Device"
         },
         "confirmations": {
-          "wipeDevice": "Press and hold the button on your KeepKey to confirm the reset to factory defaults."
+          "wipeKeepKey": "Press and hold the button on your KeepKey to confirm the reset to factory defaults."
+        },
+        "checkboxes": {
+          "wipeKeepKey": "I have backed up my recovery phrase and understand what I am doing"
         }
       }
     },

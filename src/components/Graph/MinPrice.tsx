@@ -29,7 +29,7 @@ export const MinPrice = ({
   xScale,
   stroke,
   width,
-  xDate
+  xDate,
 }: LineChartProps) => {
   const xPos = xScale(xDate)
   const handleTextPos = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {

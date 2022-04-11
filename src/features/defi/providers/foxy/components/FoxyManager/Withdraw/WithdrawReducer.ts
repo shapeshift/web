@@ -48,7 +48,7 @@ export const initialState: FoxyWithdrawState = {
     version: '',
     rewardToken: '',
     tvl: bnOrZero(0),
-    apy: ''
+    apy: '',
   },
   userAddress: null,
   loading: false,
@@ -59,9 +59,9 @@ export const initialState: FoxyWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: WithdrawType.DELAYED
+    withdrawType: WithdrawType.DELAYED,
   },
-  foxyFeePercentage: ''
+  foxyFeePercentage: '',
 }
 
 export enum FoxyWithdrawActionType {
@@ -72,7 +72,7 @@ export enum FoxyWithdrawActionType {
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
   SET_TX_STATUS = 'SET_TX_STATUS',
-  SET_FOXY_FEE = 'SET_FOXY_FEE'
+  SET_FOXY_FEE = 'SET_FOXY_FEE',
 }
 
 type SetVaultAction = {

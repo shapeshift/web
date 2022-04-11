@@ -9,11 +9,11 @@ import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 export const selectAssetByCAIP19 = createSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
-  (byId, CAIP19) => byId[CAIP19] || undefined
+  (byId, CAIP19) => byId[CAIP19] || undefined,
 )
 
 export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
-  asset ? asset.name : undefined
+  asset ? asset.name : undefined,
 )
 
 export const selectAssets = (state: ReduxState) => state.assets.byId
@@ -36,7 +36,7 @@ export const selectAssetsByMarketCap = createSelector(
     }, [])
     const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
     return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
-  }
+  },
 )
 
 // @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById
@@ -61,8 +61,8 @@ export const selectFeeAssetById = createSelector(
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,
-      assetReference: chainIdFeeAssetReferenceMap(chain, network)
+      assetReference: chainIdFeeAssetReferenceMap(chain, network),
     })
     return assetsById[feeAssetId]
-  }
+  },
 )

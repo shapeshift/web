@@ -12,8 +12,8 @@ export default {
       <Container mt='40px' maxW='unset'>
         <Story />
       </Container>
-    )
-  ]
+    ),
+  ],
 }
 
 export const Colors = () => {

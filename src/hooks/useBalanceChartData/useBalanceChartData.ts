@@ -360,6 +360,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
         ),
       )
     })()
+    // dispatch from useAppDispatch() is referentially stable and not needed as a dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cosmosCaip10])
 

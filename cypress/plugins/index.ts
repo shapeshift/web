@@ -68,7 +68,6 @@ module.exports = async (on: any, config: any) => {
   config.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL = process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL
   config.env.REACT_APP_PORTIS_DAPP_ID = process.env.REACT_APP_PORTIS_DAPP_ID
   config.env.REACT_APP_ETHEREUM_NODE_URL = process.env.REACT_APP_ETHEREUM_NODE_URL
-  config.env.REACT_APP_METAMASK_DEEPLINK_URL = process.env.REACT_APP_METAMASK_DEEPLINK_URL
 
   return config
 }

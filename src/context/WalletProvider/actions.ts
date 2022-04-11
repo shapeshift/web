@@ -17,7 +17,12 @@ export enum WalletActions {
   NATIVE_PASSWORD_OPEN = 'NATIVE_PASSWORD_OPEN',
   OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN',
   OPEN_KEEPKEY_PASSPHRASE = 'OPEN_KEEPKEY_PASSPHRASE',
+  OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
+  SET_AWAITING_DEVICE_INTERACTION = 'SET_AWAITING_DEVICE_INTERACTION',
+  SET_LAST_DEVICE_INTERACTION_STATUS = 'SET_LAST_DEVICE_INTERACTION_STATUS',
 }
+
+export type Outcome = 'success' | 'error' | undefined
 
 export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
@@ -36,6 +41,8 @@ export type ActionTypes =
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
+  | { type: WalletActions.SET_AWAITING_DEVICE_INTERACTION; payload: boolean }
+  | { type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS; payload: Outcome }
   | {
       type: WalletActions.NATIVE_PASSWORD_OPEN
       payload: {
@@ -57,3 +64,9 @@ export type ActionTypes =
       }
     }
   | { type: WalletActions.RESET_STATE }
+  | {
+      type: WalletActions.OPEN_KEEPKEY_INITIALIZE
+      payload: {
+        deviceId: string
+      }
+    }

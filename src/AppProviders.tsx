@@ -12,6 +12,7 @@ import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
+import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
@@ -33,15 +34,17 @@ export function AppProviders({ children }: ProvidersProps) {
               <BrowserRouterProvider>
                 <I18nProvider>
                   <WalletProvider>
-                    <ModalProvider>
-                      <PortfolioProvider>
-                        <MarketDataProvider>
-                          <TransactionsProvider>
-                            <DefiManagerProvider>{children}</DefiManagerProvider>
-                          </TransactionsProvider>
-                        </MarketDataProvider>
-                      </PortfolioProvider>
-                    </ModalProvider>
+                    <KeepKeyProvider>
+                      <ModalProvider>
+                        <PortfolioProvider>
+                          <MarketDataProvider>
+                            <TransactionsProvider>
+                              <DefiManagerProvider>{children}</DefiManagerProvider>
+                            </TransactionsProvider>
+                          </MarketDataProvider>
+                        </PortfolioProvider>
+                      </ModalProvider>
+                    </KeepKeyProvider>
                   </WalletProvider>
                 </I18nProvider>
               </BrowserRouterProvider>

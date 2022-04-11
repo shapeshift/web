@@ -18,7 +18,7 @@
     "@shapeshiftoss/caip": "^2.1.2",
     "@shapeshiftoss/chain-adapters": "^2.12.0",
     "@shapeshiftoss/hdwallet-core": "^1.19.0",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.19.0",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.19.1",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.19.0",
     "@shapeshiftoss/hdwallet-metamask": "^1.19.0",
     "@shapeshiftoss/hdwallet-native": "^1.19.0",

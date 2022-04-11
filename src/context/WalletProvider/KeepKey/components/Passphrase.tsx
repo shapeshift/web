@@ -30,8 +30,9 @@ export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {
       setError('modals.keepKey.passphrase.error')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

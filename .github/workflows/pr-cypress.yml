@@ -8,7 +8,6 @@ env:
   TSC_COMPILE_ON_ERROR: true
   IMAGE_INLINE_SIZE_LIMIT: 0
   INLINE_RUNTIME_CHUNK: false
-  REACT_APP_HIDE_SPLASH: false
   REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: https://dev-api.ethereum.shapeshift.com
   REACT_APP_UNCHAINED_ETHEREUM_WS_URL: wss://dev-api.ethereum.shapeshift.com
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: https://dev-api.bitcoin.shapeshift.com
@@ -17,7 +16,6 @@ env:
   REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
   REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
-  REACT_APP_METAMASK_DEEPLINK_URL: https://metamask.app.link/dapp/app.shapeshift.com
 
   REACT_APP_FEATURE_COSMOS_INVESTOR: true
 

@@ -1,8 +1,7 @@
-import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 interface VersionUrl {
   version: string
@@ -35,24 +34,21 @@ interface Versions {
 
 export const useKeepKeyVersions = () => {
   const [versions, setVersions] = useState<Versions>()
-  const { state } = useWallet()
-  const { wallet } = state
-
-  const getBootloaderVersion = async (
-    keepKey: KeepKeyHDWallet,
-    releases: FirmwareReleases,
-  ): Promise<string> => {
-    if (!keepKey.features) {
-      await keepKey.getFeatures()
-    }
-    const hash = keepKey.features?.bootloaderHash.toString() ?? ''
-    const buffer = Buffer.from(hash, 'base64')
-    const hex = buffer.toString('hex')
-    return releases.hashes.bootloader[hex.toLowerCase()]
-  }
+  const {
+    keepKeyWallet,
+    state: { features },
+  } = useKeepKey()
 
   useEffect(() => {
-    if (!wallet || !isKeepKey(wallet)) return
+    if (!keepKeyWallet) return
+
+    const getBootloaderVersion = (releases: FirmwareReleases): string => {
+      const hash = features?.bootloaderHash.toString() ?? ''
+      const buffer = Buffer.from(hash, 'base64')
+      const hex = buffer.toString('hex')
+      return releases.hashes.bootloader[hex.toLowerCase()]
+    }
+
     ;(async () => {
       const { data: releases } = await axios.get<FirmwareReleases>(
         getConfig().REACT_APP_KEEPKEY_VERSIONS_URL,
@@ -64,9 +60,9 @@ export const useKeepKeyVersions = () => {
         },
       )
 
-      const bootloaderVersion = await getBootloaderVersion(wallet, releases)
+      const bootloaderVersion = getBootloaderVersion(releases)
       const latestBootloader = releases.latest.bootloader.version
-      const deviceFirmware = await wallet.getFirmwareVersion()
+      const deviceFirmware = await keepKeyWallet.getFirmwareVersion()
       const latestFirmware = releases.latest.firmware.version
 
       const versions: Versions = {
@@ -83,7 +79,7 @@ export const useKeepKeyVersions = () => {
       }
       setVersions(versions)
     })()
-  }, [wallet])
+  }, [features?.bootloaderHash, keepKeyWallet])
 
   return versions
 }

@@ -1,3 +1,4 @@
+import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
   createContext,
@@ -50,12 +51,14 @@ export enum KeepKeyActions {
   SET_HAS_PIN_CACHING = 'SET_HAS_PIN_CACHING',
   SET_HAS_PASSPHRASE = 'SET_HAS_PASSPHRASE',
   SET_DEVICE_TIMEOUT = 'SET_DEVICE_TIMEOUT',
+  SET_FEATURES = 'SET_FEATURES',
   RESET_STATE = 'RESET_STATE',
 }
 
 export interface InitialState {
   hasPinCaching: boolean | undefined
   hasPassphrase: boolean | undefined
+  features: Features.AsObject | undefined
   keepKeyWallet: KeepKeyHDWallet | undefined
   deviceTimeout: RadioOption<DeviceTimeout> | undefined
 }
@@ -63,6 +66,7 @@ export interface InitialState {
 const initialState: InitialState = {
   hasPinCaching: undefined,
   hasPassphrase: undefined,
+  features: undefined,
   keepKeyWallet: undefined,
   deviceTimeout: timeoutOptions[0],
 }
@@ -77,6 +81,7 @@ export interface IKeepKeyContext {
 export type KeepKeyActionTypes =
   | { type: KeepKeyActions.SET_HAS_PIN_CACHING; payload: boolean | undefined }
   | { type: KeepKeyActions.SET_HAS_PASSPHRASE; payload: boolean | undefined }
+  | { type: KeepKeyActions.SET_FEATURES; payload: Features.AsObject | undefined }
   | { type: KeepKeyActions.SET_DEVICE_TIMEOUT; payload: RadioOption<DeviceTimeout> | undefined }
   | { type: KeepKeyActions.RESET_STATE }
 
@@ -86,6 +91,8 @@ const reducer = (state: InitialState, action: KeepKeyActionTypes) => {
       return { ...state, hasPassphrase: action.payload }
     case KeepKeyActions.SET_HAS_PIN_CACHING:
       return { ...state, hasPinCaching: action.payload }
+    case KeepKeyActions.SET_FEATURES:
+      return { ...state, features: action.payload }
     case KeepKeyActions.SET_DEVICE_TIMEOUT:
       return { ...state, deviceTimeout: action.payload }
     case KeepKeyActions.RESET_STATE:
@@ -128,17 +135,15 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   useEffect(() => {
     if (!keepKeyWallet) return
     ;(async () => {
-      setHasPassphrase(keepKeyWallet?.features?.passphraseProtection)
-      setHasPinCaching(
-        keepKeyWallet?.features?.policiesList.find(p => p.policyName === 'Pin Caching')?.enabled,
-      )
+      const features = await keepKeyWallet.getFeatures()
+      dispatch({ type: KeepKeyActions.SET_FEATURES, payload: features })
+      setHasPassphrase(features?.passphraseProtection)
+      setHasPinCaching(features?.policiesList.find(p => p.policyName === 'Pin Caching')?.enabled)
       setDeviceTimeout(
-        Object.values(timeoutOptions).find(
-          t => Number(t.value) === keepKeyWallet?.features?.autoLockDelayMs,
-        ),
+        Object.values(timeoutOptions).find(t => Number(t.value) === features?.autoLockDelayMs),
       )
     })()
-  }, [keepKeyWallet, setDeviceTimeout, setHasPassphrase, setHasPinCaching])
+  }, [keepKeyWallet, keepKeyWallet?.features, setDeviceTimeout, setHasPassphrase, setHasPinCaching])
 
   const value: IKeepKeyContext = useMemo(
     () => ({

@@ -20,8 +20,7 @@ export const KeepKeyMenu = () => {
   const { navigateToRoute } = useMenuRoutes()
   const translate = useTranslate()
   const {
-    keepKeyWallet,
-    state: { hasPinCaching, deviceTimeout },
+    state: { hasPinCaching, deviceTimeout, features },
   } = useKeepKey()
   const versions = useKeepKeyVersions()
   const {
@@ -72,7 +71,7 @@ export const KeepKeyMenu = () => {
       </>
     )
 
-    const keepKeyStateLoaded = keepKeyWallet?.features && (
+    const keepKeyStateLoaded = (
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
@@ -141,8 +140,8 @@ export const KeepKeyMenu = () => {
           <ExpandedMenuItem
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}
             label='walletProvider.keepKey.settings.menuLabels.passphrase'
-            value={getBooleanLabel(keepKeyWallet.features.passphraseProtection)}
-            valueDisposition={keepKeyWallet.features.passphraseProtection ? 'positive' : 'neutral'}
+            value={getBooleanLabel(features?.passphraseProtection)}
+            valueDisposition={features?.passphraseProtection ? 'positive' : 'neutral'}
             hasSubmenu={true}
           />
           <MenuDivider />
@@ -152,7 +151,7 @@ export const KeepKeyMenu = () => {
         </MenuGroup>
       </>
     )
-    return keepKeyStateLoaded || keepKeyStateLoading
+    return features ? keepKeyStateLoaded : keepKeyStateLoading
   }
   return (
     <SubMenuContainer>

@@ -17,11 +17,10 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { DepositPath } from '../DepositCommon'
+import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-import { YearnDepositActionType } from '../DepositReducer'
 
-export type YearnApproveProps = {
+type YearnApproveProps = {
   api: YearnVaultApi
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
 }

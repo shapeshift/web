@@ -27,17 +27,9 @@ import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
-import { WithdrawPath } from './WithdrawCommon'
+import { FoxyWithdrawActionType, routes, WithdrawPath } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
-import { FoxyWithdrawActionType, initialState, reducer } from './WithdrawReducer'
-
-export const routes = [
-  { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
-  { step: 1, path: WithdrawPath.Approve, label: 'Approve' },
-  { step: 2, path: WithdrawPath.Confirm, label: 'Confirm' },
-  { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: WithdrawPath.Status, label: 'Status' },
-]
+import { initialState, reducer } from './WithdrawReducer'
 
 type FoxyWithdrawProps = {
   api: FoxyApi

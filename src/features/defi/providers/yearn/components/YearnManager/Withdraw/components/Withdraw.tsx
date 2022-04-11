@@ -17,9 +17,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { WithdrawPath } from '../WithdrawCommon'
+import { WithdrawPath, YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-import { YearnWithdrawActionType } from '../WithdrawReducer'
 
 type YearnWithdrawProps = {
   api: YearnVaultApi

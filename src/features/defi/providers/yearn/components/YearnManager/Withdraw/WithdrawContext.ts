@@ -1,8 +1,8 @@
 import { createContext } from 'react'
 
-import { YearnWithdrawActions, YearnWithdrawState } from './WithdrawReducer'
+import { YearnWithdrawActions, YearnWithdrawState } from './WithdrawCommon'
 
-export interface IWithdrawContext {
+interface IWithdrawContext {
   state: YearnWithdrawState | null
   dispatch: React.Dispatch<YearnWithdrawActions> | null
 }

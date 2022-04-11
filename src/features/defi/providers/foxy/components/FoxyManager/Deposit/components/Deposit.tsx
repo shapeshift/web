@@ -18,10 +18,10 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositPath } from '../DepositCommon'
+import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-import { FoxyDepositActionType } from '../DepositReducer'
 
-export type FoxyDepositProps = {
+type FoxyDepositProps = {
   api: FoxyApi
   apy: string
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>

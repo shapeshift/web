@@ -18,8 +18,8 @@ import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selector
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { WithdrawPath } from '../WithdrawCommon'
+import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-import { FoxyWithdrawActionType } from '../WithdrawReducer'
 
 type FoxyApproveProps = {
   api: FoxyApi

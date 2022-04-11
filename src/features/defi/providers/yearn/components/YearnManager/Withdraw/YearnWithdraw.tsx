@@ -22,16 +22,9 @@ import { useAppSelector } from 'state/store'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
-import { WithdrawPath } from './WithdrawCommon'
+import { routes, WithdrawPath, YearnWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
-import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
-
-export const routes = [
-  { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
-  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm' },
-  { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 2, path: WithdrawPath.Status, label: 'Status' },
-]
+import { initialState, reducer } from './WithdrawReducer'
 
 type YearnWithdrawProps = {
   api: YearnVaultApi

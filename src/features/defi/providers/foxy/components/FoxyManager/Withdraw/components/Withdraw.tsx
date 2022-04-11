@@ -24,9 +24,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { WithdrawPath } from '../WithdrawCommon'
+import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-import { FoxyWithdrawActionType } from '../WithdrawReducer'
 
 type FoxyWithdrawProps = {
   api: FoxyApi

@@ -22,10 +22,10 @@ import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selector
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositPath } from '../DepositCommon'
+import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-import { FoxyDepositActionType } from '../DepositReducer'
 
-export type FoxyConfirmProps = {
+type FoxyConfirmProps = {
   api: FoxyApi
   apy: string
 }

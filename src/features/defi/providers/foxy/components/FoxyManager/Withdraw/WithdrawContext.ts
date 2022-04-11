@@ -1,8 +1,8 @@
 import { createContext } from 'react'
 
-import { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawReducer'
+import { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawCommon'
 
-export interface IWithdrawContext {
+interface IWithdrawContext {
   state: FoxyWithdrawState | null
   dispatch: React.Dispatch<FoxyWithdrawActions> | null
 }

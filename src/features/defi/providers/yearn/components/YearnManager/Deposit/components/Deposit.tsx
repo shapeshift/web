@@ -17,11 +17,10 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { DepositPath } from '../DepositCommon'
+import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-import { YearnDepositActionType } from '../DepositReducer'
 
-export type YearnDepositProps = {
+type YearnDepositProps = {
   api: YearnVaultApi
   apy: number | undefined
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>

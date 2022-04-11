@@ -27,20 +27,11 @@ import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { DepositPath } from './DepositCommon'
+import { DepositPath, routes, YearnDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
-import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
+import { initialState, reducer } from './DepositReducer'
 
-export const routes = [
-  { step: 0, path: DepositPath.Deposit, label: 'Deposit' },
-  { step: 1, path: DepositPath.Approve, label: 'Approve' },
-  { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
-  { step: 2, path: DepositPath.Confirm, label: 'Confirm' },
-  { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: DepositPath.Status, label: 'Status' },
-]
-
-export type YearnDepositProps = {
+type YearnDepositProps = {
   api: YearnVaultApi
 }
 

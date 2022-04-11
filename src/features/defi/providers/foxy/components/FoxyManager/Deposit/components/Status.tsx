@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
 
-export type FoxyStatusProps = {
+type FoxyStatusProps = {
   api: FoxyApi
   apy: string
 }

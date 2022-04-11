@@ -112,10 +112,7 @@ export const stakingDataApi = createApi({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
         if (!accountSpecifier?.length) {
-          const isEmpty = accountSpecifier === ''
-          const error = `Invalid accountSpecifier in getStakingData query. Expected an accountSpecifier string but got: ${
-            isEmpty ? "''" : accountSpecifier
-          }.`
+          const error = `Missing accountSpecifier in getStakingData query. Expected an accountSpecifier string but got: ${accountSpecifier}`
           console.error(error)
           return {
             error: {

@@ -238,7 +238,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
               </Button>
               <Button
                 colorScheme={values.amountFieldError ? 'red' : 'blue'}
-                isDisabled={!isValid}
+                isDisabled={Boolean(!isValid || values.amountFieldError)}
                 mb={2}
                 size='lg'
                 type='submit'

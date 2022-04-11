@@ -46,13 +46,14 @@ type StakingOpportunitiesProps = {
 type ValidatorNameProps = {
   moniker: string
   isStaking: boolean
+  validatorAddress: string
 }
 
-export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
+export const ValidatorName = ({ moniker, isStaking, validatorAddress }: ValidatorNameProps) => {
   const isLoaded = true
   const assetIcon = isStaking
-    ? 'https://assets.coincap.io/assets/icons/eth@2x.png'
-    : 'https://assets.coingecko.com/coins/images/16724/small/osmo.png?1632763885'
+    ? `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/cosmoshub/${validatorAddress}.png`
+    : 'https://assets.coincap.io/assets/icons/256/atom.png'
 
   return (
     <Box cursor='pointer'>
@@ -163,10 +164,14 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     () => [
       {
         Header: <Text translation='defi.validator' />,
-        accessor: 'moniker',
+        id: 'moniker',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => (
-          <ValidatorName moniker={value} isStaking={hasActiveStakingOpportunities} />
+        Cell: ({ row }: { row: { original: ActiveStakingOpportunity } }) => (
+          <ValidatorName
+            validatorAddress={row.original.address}
+            moniker={row.original.moniker}
+            isStaking={hasActiveStakingOpportunities}
+          />
         ),
         disableSortBy: true,
       },

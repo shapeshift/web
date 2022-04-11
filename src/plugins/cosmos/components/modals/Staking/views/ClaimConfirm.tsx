@@ -13,11 +13,14 @@ import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
-import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
-import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
+import {
+  ConfirmFormFields,
+  ConfirmFormInput,
+  TxFeeRadioGroup,
+} from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
 import { useEffect, useMemo, useState } from 'react'
-import { FormProvider, useFormContext } from 'react-hook-form'
+import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -29,6 +32,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId,
   selectRewardsAmountByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -47,8 +51,12 @@ export const ClaimConfirm = ({
   validatorAddress,
 }: ClaimConfirmProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
-
+  const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
+    name: ConfirmFormFields.FeeType,
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()
 
@@ -89,10 +97,10 @@ export const ClaimConfirm = ({
     [marketData, rewardsCryptoAmountPrecision],
   )
 
-  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
+  const onSubmit = async () => {
     if (!wallet || !feeData) return
 
-    const fees = feeData[feeType]
+    const fees = feeData[activeFee]
     const gas = fees.chainSpecific.gasLimit
 
     methods.setValue(Field.GasLimit, gas)
@@ -102,6 +110,11 @@ export const ClaimConfirm = ({
 
     memoryHistory.push(ClaimPath.Broadcast)
   }
+
+  const hasEnoughBalance = useMemo(
+    () => feeData && cryptoBalanceHuman.gt(bnOrZero(feeData[activeFee].txFee)),
+    [cryptoBalanceHuman, feeData, activeFee],
+  )
 
   const handleCancel = () => {
     memoryHistory.goBack()
@@ -170,8 +183,21 @@ export const ClaimConfirm = ({
               >
                 <Text translation='common.cancel' mx={5} />
               </Button>
-              <Button colorScheme={'blue'} mb={2} size='lg' type='submit' fontWeight='normal'>
-                <Text translation={'defi.modals.claim.confirmAndClaim'} />
+              <Button
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
+                mb={2}
+                size='lg'
+                type='submit'
+                fontWeight='normal'
+              >
+                <Text
+                  translation={
+                    hasEnoughBalance
+                      ? 'defi.modals.claim.confirmAndClaim'
+                      : 'common.insufficientFunds'
+                  }
+                />
               </Button>
             </Stack>
           </ModalFooter>

@@ -138,6 +138,7 @@ export const stakingDataApi = createApi({
           return { data: currentStakingData }
         } catch (e) {
           console.error('Error fetching staking data for ', accountSpecifier)
+          console.error(e)
           return {
             error: {
               data: `Error fetching staking data for ${accountSpecifier}`,

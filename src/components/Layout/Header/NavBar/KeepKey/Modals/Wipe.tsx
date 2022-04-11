@@ -9,7 +9,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
@@ -18,6 +18,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const WipeModal = () => {
+  const initRef = useRef<HTMLInputElement | null>(null)
+  const finalRef = useRef<HTMLDivElement | null>(null)
   const { keepKeyWallet } = useKeepKey()
   const { disconnect } = useWallet()
   const translate = useTranslate()
@@ -60,7 +62,15 @@ export const WipeModal = () => {
   }
 
   return (
-    <Modal isCentered closeOnOverlayClick closeOnEsc isOpen={isOpen} onClose={onClose}>
+    <Modal
+      initialFocusRef={initRef}
+      finalFocusRef={finalRef}
+      isCentered
+      closeOnOverlayClick
+      closeOnEsc
+      isOpen={isOpen}
+      onClose={onClose}
+    >
       <ModalOverlay />
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalHeader>
@@ -78,6 +88,7 @@ export const WipeModal = () => {
             onChange={e => setWipeConfirmationChecked(e.target.checked)}
             mb={6}
             spacing={3}
+            ref={initRef}
             fontWeight='semibold'
           >
             {translate('walletProvider.keepKey.modals.checkboxes.wipeKeepKey')}

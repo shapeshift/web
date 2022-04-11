@@ -1,6 +1,6 @@
-import { ChevronDownIcon, ChevronRightIcon, CloseIcon } from '@chakra-ui/icons'
+import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Box, Button, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
+import { Box, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
@@ -126,14 +126,14 @@ export const KeepKeyMenu = () => {
         </MenuGroup>
         <MenuGroup>
           <ExpandedMenuItem
-            label={translate('walletProvider.keepKey.settings.menuLabels.advanced')}
+            label='walletProvider.keepKey.settings.menuLabels.advanced'
             onClick={onToggle}
             isOpen={isOpen}
             closeOnSelect={false}
             hasSubmenu
           />
-          <Collapse in={isOpen} animateOpacity>
-            <Box>
+          <Collapse in={isOpen}>
+            <Box ml={3}>
               <ExpandedMenuItem
                 onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyTimeout)}
                 label='walletProvider.keepKey.settings.menuLabels.deviceTimeout'

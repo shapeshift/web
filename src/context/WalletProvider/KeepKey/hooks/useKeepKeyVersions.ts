@@ -38,7 +38,13 @@ export const useKeepKeyVersions = () => {
   const { state } = useWallet()
   const { wallet } = state
 
-  const getBootloaderVersion = (keepKey: KeepKeyHDWallet, releases: FirmwareReleases): string => {
+  const getBootloaderVersion = async (
+    keepKey: KeepKeyHDWallet,
+    releases: FirmwareReleases,
+  ): Promise<string> => {
+    if (!keepKey.features) {
+      await keepKey.getFeatures()
+    }
     const hash = keepKey.features?.bootloaderHash.toString() ?? ''
     const buffer = Buffer.from(hash, 'base64')
     const hex = buffer.toString('hex')
@@ -58,7 +64,7 @@ export const useKeepKeyVersions = () => {
         },
       )
 
-      const bootloaderVersion = getBootloaderVersion(wallet, releases)
+      const bootloaderVersion = await getBootloaderVersion(wallet, releases)
       const latestBootloader = releases.latest.bootloader.version
       const deviceFirmware = await wallet.getFirmwareVersion()
       const latestFirmware = releases.latest.firmware.version

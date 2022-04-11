@@ -19,7 +19,7 @@ export enum DeviceTimeout {
   SixtyMinutes = '3600000',
 }
 
-export const timeoutOptions: RadioOption<DeviceTimeout>[] = [
+export const timeoutOptions: readonly RadioOption<DeviceTimeout>[] = Object.freeze([
   {
     value: DeviceTimeout.TenMinutes,
     label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '10' }],
@@ -44,7 +44,7 @@ export const timeoutOptions: RadioOption<DeviceTimeout>[] = [
     value: DeviceTimeout.SixtyMinutes,
     label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '60' }],
   },
-]
+])
 
 export enum KeepKeyActions {
   SET_HAS_PIN_CACHING = 'SET_HAS_PIN_CACHING',

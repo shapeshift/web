@@ -318,7 +318,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = history.goBack
+  const handleCancel = browserHistory.goBack
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
@@ -413,7 +413,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
       case DepositPath.Confirm:
         return (
           <Confirm
-            onCancel={handleCancel}
+            onCancel={() => history.push('/')}
             onConfirm={handleDeposit}
             loading={state.loading}
             loadingText={translate('common.confirmOnWallet')}

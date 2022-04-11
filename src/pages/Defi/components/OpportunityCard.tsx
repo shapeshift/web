@@ -62,7 +62,7 @@ export const OpportunityCard = ({
   const handleClick = () => {
     isConnected
       ? history.push({
-          pathname: `/defi/${type}/${provider}/withdraw`,
+          pathname: `/defi/${type}/${provider}/overview`,
           search: qs.stringify({
             chain,
             contractAddress,

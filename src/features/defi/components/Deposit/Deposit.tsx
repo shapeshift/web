@@ -41,7 +41,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -127,7 +126,6 @@ export const Deposit = ({
   const amountRef = useRef<string | null>(null)
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const { history: browserHistory } = useBrowserRouter()
 
   const {
     clearErrors,
@@ -152,7 +150,7 @@ export const Deposit = ({
   const fieldError = cryptoError || fiatError
 
   const handleTosLink = () => {
-    browserHistory.push('/legal/terms-of-service')
+    window.open('/legal/terms-of-service')
   }
 
   const handleInputToggle = () => {

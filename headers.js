@@ -7,6 +7,7 @@ const cspMeta = Object.entries({
     "'self'",
     'data:',
     // Explicitly whitelist our KeepKey versions file
+    // TODO: File manually added to IPFS - we need to instead add it to version control and use a persistent URL.
     'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
     // @shapeshiftoss/swapper@1.15.0: https://github.com/shapeshift/lib/blob/f833ac7f8c70dee801eaa24525336ca6992e5903/packages/swapper/src/swappers/zrx/utils/zrxService.ts#L4
     'https://api.0x.org',

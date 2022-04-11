@@ -1,5 +1,6 @@
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
+import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -48,8 +49,7 @@ export const useKeepKeyVersions = () => {
     if (!wallet || !isKeepKey(wallet)) return
     ;(async () => {
       const { data: releases } = await axios.get<FirmwareReleases>(
-        // We'll need to update this whenever new firmware/bootloader is released.
-        'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
+        getConfig().REACT_APP_KEEPKEY_VERSIONS_URL,
         {
           headers: {
             Accept: 'application/json',

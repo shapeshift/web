@@ -179,8 +179,8 @@ export function useCosmosStakingBalances({
   }, [isValidatorDataLoaded, nonLoadedValidators, dispatch, chainId])
 
   return {
-    activeStakingOpportunities: mergedActiveStakingOpportunities,
-    stakingOpportunities: mergedStakingOpportunities,
+    activeStakingOpportunities: isLoaded ? mergedActiveStakingOpportunities : [],
+    stakingOpportunities: isLoaded ? mergedStakingOpportunities : [],
     isLoaded,
     totalBalance: totalBalance.toString(),
   }

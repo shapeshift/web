@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -40,14 +39,14 @@ export const AllEarnOpportunities = () => {
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
-  const cosmosActiveStakingArray = cosmosInvestorFlag ? activeStakingOpportunities : []
-  const cosmosStakingArray = cosmosInvestorFlag ? stakingOpportunities : []
+  const cosmosActiveStakingOpportunities = cosmosInvestorFlag ? activeStakingOpportunities : []
+  const cosmosStakingOpportunities = cosmosInvestorFlag ? stakingOpportunities : []
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosActiveStakingArray,
-    cosmosStakingArray,
+    cosmosActiveStakingOpportunities,
+    cosmosStakingOpportunities,
   })
 
   const handleClick = useCallback(
@@ -67,7 +66,7 @@ export const AllEarnOpportunities = () => {
         return
       }
 
-      if (type === DefiType.TokenStaking && chain === ChainTypes.Cosmos) {
+      if (chain === ChainTypes.Cosmos) {
         if (bnOrZero(cryptoAmount).gt(0)) {
           cosmosStaking.open({
             assetId,
@@ -77,6 +76,7 @@ export const AllEarnOpportunities = () => {
         }
 
         cosmosGetStarted.open({ assetId })
+        return
       }
 
       history.push({
@@ -90,7 +90,8 @@ export const AllEarnOpportunities = () => {
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, location, cosmosStaking, cosmosGetStarted],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, history, isConnected, location],
   )
 
   return (

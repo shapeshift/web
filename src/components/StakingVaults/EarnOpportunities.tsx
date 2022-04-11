@@ -43,8 +43,8 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
     foxyArray: foxyRows,
-    cosmosActiveStakingArray: [],
-    cosmosStakingArray: [],
+    cosmosActiveStakingOpportunities: [],
+    cosmosStakingOpportunities: [],
   }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {

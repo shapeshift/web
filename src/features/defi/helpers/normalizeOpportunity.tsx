@@ -123,16 +123,16 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
 }
 
 const useTransformCosmosStaking = (
-  cosmosActiveStakingArray: MergedActiveStakingOpportunity[],
-  cosmosStakingArray: MergedStakingOpportunity[],
+  cosmosActiveStakingOpportunities: MergedActiveStakingOpportunity[],
+  cosmosStakingOpportunities: MergedStakingOpportunity[],
 ): EarnOpportunityType[] => {
   const translate = useTranslate()
-  if (cosmosActiveStakingArray.length === 0) {
-    if (cosmosStakingArray.length === 0) {
+  if (cosmosActiveStakingOpportunities.length === 0) {
+    if (cosmosStakingOpportunities.length === 0) {
       return []
     }
 
-    return cosmosStakingArray.map(staking => {
+    return cosmosStakingOpportunities.map(staking => {
       return {
         type: DefiType.TokenStaking,
         assetId: staking.assetId,
@@ -150,7 +150,7 @@ const useTransformCosmosStaking = (
     })
   }
 
-  return cosmosActiveStakingArray
+  return cosmosActiveStakingOpportunities
     .map(staking => {
       return {
         type: DefiType.TokenStaking,
@@ -177,18 +177,18 @@ const useTransformCosmosStaking = (
 type NormalizeOpportunitiesProps = {
   vaultArray: SupportedYearnVault[]
   foxyArray: MergedFoxyOpportunity[]
-  cosmosActiveStakingArray: MergedActiveStakingOpportunity[]
-  cosmosStakingArray: MergedStakingOpportunity[]
+  cosmosActiveStakingOpportunities: MergedActiveStakingOpportunity[]
+  cosmosStakingOpportunities: MergedStakingOpportunity[]
 }
 
 export const useNormalizeOpportunities = ({
   vaultArray,
   foxyArray,
-  cosmosActiveStakingArray = [],
-  cosmosStakingArray = [],
+  cosmosActiveStakingOpportunities = [],
+  cosmosStakingOpportunities = [],
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
-    ...useTransformCosmosStaking(cosmosActiveStakingArray, cosmosStakingArray),
+    ...useTransformCosmosStaking(cosmosActiveStakingOpportunities, cosmosStakingOpportunities),
     ...transformFoxy(foxyArray),
     ...useTransformVault(vaultArray),
   ]

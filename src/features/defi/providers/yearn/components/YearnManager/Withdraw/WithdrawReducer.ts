@@ -1,26 +1,6 @@
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, WithdrawType } from '@shapeshiftoss/types'
-import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 
-type EstimatedGas = {
-  estimatedGasCrypto?: string
-}
-
-type YearnWithdrawValues = WithdrawValues &
-  EstimatedGas & {
-    txStatus: string
-    usedGasFee: string
-  }
-
-type YearnWithdrawState = {
-  vault: SupportedYearnVault
-  userAddress: string | null
-  approve: EstimatedGas
-  withdraw: YearnWithdrawValues
-  loading: boolean
-  pricePerShare: string
-  txid: string | null
-}
+import { YearnWithdrawActions, YearnWithdrawActionType, YearnWithdrawState } from './WithdrawCommon'
 
 export const initialState: YearnWithdrawState = {
   txid: null,
@@ -72,54 +52,6 @@ export const initialState: YearnWithdrawState = {
     withdrawType: WithdrawType.INSTANT,
   },
 }
-
-export enum YearnWithdrawActionType {
-  SET_VAULT = 'SET_VAULT',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
-  SET_WITHDRAW = 'SET_WITHDRAW',
-  SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
-  SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS',
-}
-
-type SetVaultAction = {
-  type: YearnWithdrawActionType.SET_VAULT
-  payload: YearnVault | null
-}
-
-type SetWithdraw = {
-  type: YearnWithdrawActionType.SET_WITHDRAW
-  payload: Partial<YearnWithdrawValues>
-}
-
-type SetUserAddress = {
-  type: YearnWithdrawActionType.SET_USER_ADDRESS
-  payload: string
-}
-
-type SetLoading = {
-  type: YearnWithdrawActionType.SET_LOADING
-  payload: boolean
-}
-
-type SetPricePerShare = {
-  type: YearnWithdrawActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
-type SetTxid = {
-  type: YearnWithdrawActionType.SET_TXID
-  payload: string
-}
-
-type YearnWithdrawActions =
-  | SetVaultAction
-  | SetWithdraw
-  | SetUserAddress
-  | SetLoading
-  | SetPricePerShare
-  | SetTxid
 
 export const reducer = (state: YearnWithdrawState, action: YearnWithdrawActions) => {
   switch (action.type) {

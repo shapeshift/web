@@ -597,7 +597,8 @@
           "advanced": "Advanced",
           "deviceTimeout": "Device Timeout",
           "passphrase": "Passphrase",
-          "wipeDevice": "Wipe Device"
+          "wipeDevice": "Wipe Device",
+          "label":  "Label"
         },
         "status": {
           "enabled": "Enabled",

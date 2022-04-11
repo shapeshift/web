@@ -213,5 +213,3 @@ export const stakingDataApi = createApi({
     }),
   }),
 })
-
-export const { useGetStakingDataQuery } = stakingDataApi

@@ -1,9 +1,10 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { bnOrZero, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
+import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   MergedActiveStakingOpportunity,
   MergedStakingOpportunity,

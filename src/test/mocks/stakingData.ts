@@ -1,4 +1,8 @@
-import { chainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import {
+  MergedActiveStakingOpportunity,
+  MergedStakingOpportunity,
+} from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { Staking } from 'state/slices/stakingDataSlice/stakingDataSlice'
 
 export const mockStakingData: Staking = {
@@ -376,5 +380,72 @@ export const mockValidatorData: chainAdapters.cosmos.Validator[] = [
     apr: '0.1513311286',
     commission: '0.090000000000000000',
     moniker: 'commercio.network',
+  },
+]
+
+export const mockCosmosActiveStakingOpportunities: MergedActiveStakingOpportunity[] = [
+  {
+    address: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
+    apr: '0.158177284',
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
+    chain: ChainTypes.Cosmos,
+    cryptoAmount: '0.000004',
+    fiatAmount: '0.00',
+    moniker: 'tokenpocket',
+    rewards: '0',
+    tokenAddress: '118',
+    tokens: '892742165',
+    tvl: '22345.33638995',
+  },
+  {
+    address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+    apr: '0.1423595556',
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
+    chain: ChainTypes.Cosmos,
+    cryptoAmount: '0.010115',
+    fiatAmount: '0.25',
+    moniker: 'ShapeShift DAO',
+    rewards: '24.51234664612960265',
+    tokenAddress: '118',
+    tokens: '1205173215485',
+    tvl: '30165485.58358955',
+  },
+  {
+    address: 'cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn',
+    apr: '0.1440995057',
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
+    chain: ChainTypes.Cosmos,
+    cryptoAmount: '0.005',
+    fiatAmount: '0.13',
+    moniker: 'Cosmostation',
+    rewards: '23.13725890339719',
+    tokenAddress: '118',
+    tokens: '3876071630085',
+    tvl: '97018072.90102755',
+  },
+]
+
+export const mockCosmosStakingOpportunities: MergedStakingOpportunity[] = [
+  {
+    address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+    apr: '0.1423595556',
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
+    chain: ChainTypes.Cosmos,
+    commission: '0.100000000000000000',
+    moniker: 'ShapeShift DAO',
+    tokenAddress: '118',
+    tokens: '1205173215485',
+    tvl: '30165485.58358955',
+  },
+  {
+    address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxg',
+    apr: '0.1423595557',
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
+    chain: ChainTypes.Cosmos,
+    commission: '0.110000000000000000',
+    moniker: 'ShapeShift DAO 2',
+    tokenAddress: '118',
+    tokens: '1205173215486',
+    tvl: '30165486.58358955',
   },
 ]

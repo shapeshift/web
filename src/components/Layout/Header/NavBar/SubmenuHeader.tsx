@@ -1,21 +1,22 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/layout'
-import { Flex, IconButton, Text, useColorModeValue } from '@chakra-ui/react'
+import { Flex, IconButton, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { upperFirst } from 'lodash'
 import { useMenuRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 
 type ExpandedMenuItemProps = {
   title?: string
   description?: string
+  alert?: string
 }
 
-export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => {
+export const SubmenuHeader = ({ title, description, alert }: ExpandedMenuItemProps) => {
   const { handleBackClick } = useMenuRoutes()
   const headerColor = useColorModeValue('black', 'white')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
 
   return (
-    <Flex flexDir='column' mb={3} px={2}>
+    <Stack flexDir='column' mb={3} px={2}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>
         <IconButton
           isRound
@@ -33,6 +34,6 @@ export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => 
           {description}
         </Text>
       )}
-    </Flex>
+    </Stack>
   )
 }

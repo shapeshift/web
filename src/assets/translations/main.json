@@ -587,7 +587,7 @@
         "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
         "button": "Save PIN"
       },
-      "settings":  {
+      "settings": {
         "loadingText": "Loading...",
         "menuLabels": {
           "bootloader": "Bootloader",
@@ -598,7 +598,7 @@
           "deviceTimeout": "Device Timeout",
           "passphrase": "Passphrase",
           "wipeDevice": "Wipe Device",
-          "label":  "Label"
+          "label": "Label"
         },
         "status": {
           "enabled": "Enabled",
@@ -624,6 +624,13 @@
           "updateSuccess": "%{setting} successfully updated!",
           "updateFailed": "An error occurred whilst updating the %{setting}.",
           "timeoutDuration": "%{minutes} minutes"
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "Use with caution",
+            "body": "If you forget your passphrase, you will lose access to your funds.",
+            "link": "Learn more"
+          }
         },
         "placeholders": {
           "label": "Enter a device label"

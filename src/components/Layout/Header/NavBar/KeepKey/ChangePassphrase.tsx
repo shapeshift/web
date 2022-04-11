@@ -1,4 +1,16 @@
-import { Flex, FormControl, FormLabel, Spinner, Switch } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Flex,
+  FormControl,
+  FormLabel,
+  Link,
+  Spinner,
+  Stack,
+  Switch,
+} from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -47,7 +59,26 @@ export const ChangePassphrase = () => {
       <SubmenuHeader
         title={translate('walletProvider.keepKey.settings.headings.passphrase')}
         description={translate('walletProvider.keepKey.settings.descriptions.passphrase')}
+        alert={translate('walletProvider.keepKey.settings.alerts.passphrase')}
       />
+      <Alert status='warning' mx={3} width='auto' mb={3} fontSize='sm'>
+        <AlertIcon />
+        <Stack spacing={0}>
+          <AlertTitle>
+            {translate('walletProvider.keepKey.settings.alerts.passphrase.title')}
+          </AlertTitle>
+          <AlertDescription lineHeight='short'>
+            {translate('walletProvider.keepKey.settings.alerts.passphrase.body')}
+            <Link
+              isExternal
+              ml={1}
+              href='https://vault12.com/securemycrypto/crypto-security-basics/what-is-a-passphrase/by-default-wallets-use-a-blank-passphrase'
+            >
+              {translate('walletProvider.keepKey.settings.alerts.passphrase.link')}
+            </Link>
+          </AlertDescription>
+        </Stack>
+      </Alert>
       <LastDeviceInteractionStatus setting={setting} />
       <SubMenuBody>
         <FormControl display='flex' alignItems='center'>

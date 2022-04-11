@@ -111,6 +111,17 @@ export const stakingDataApi = createApi({
   endpoints: build => ({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
+        if (!accountSpecifier?.length) {
+          const error = `Missing accountSpecifier in getStakingData query. Expected an accountSpecifier string but got: ${accountSpecifier}`
+          console.error(error)
+          return {
+            error: {
+              data: error,
+              status: 400,
+            },
+          }
+        }
+
         try {
           const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
           const chainAdapters = getChainAdapters()
@@ -213,5 +224,3 @@ export const stakingDataApi = createApi({
     }),
   }),
 })
-
-export const { useGetStakingDataQuery } = stakingDataApi

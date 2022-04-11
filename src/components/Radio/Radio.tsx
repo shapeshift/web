@@ -70,7 +70,7 @@ export interface RadioOption<T> {
 export interface RadioProps<T> {
   name?: string
   defaultValue?: T
-  options: RadioOption<T>[]
+  options: readonly RadioOption<T>[]
   onChange: (value: T) => void
   variant?: string
   colorScheme?: ThemeTypings['colorSchemes']

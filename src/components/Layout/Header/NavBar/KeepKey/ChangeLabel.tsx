@@ -1,4 +1,4 @@
-import { Button, Flex, Input, useColorModeValue } from '@chakra-ui/react'
+import { Button, Flex, Input, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -12,6 +12,7 @@ import { SubMenuContainer } from '../SubMenuContainer'
 
 export const ChangeLabel = () => {
   const translate = useTranslate()
+  const toast = useToast()
   const { state } = useWallet()
   const { walletInfo } = state
   const { keepKeyWallet } = useKeepKey()
@@ -21,7 +22,15 @@ export const ChangeLabel = () => {
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
   const handleChangeLabelInitializeEvent = async () => {
-    await keepKeyWallet?.applySettings({ label: keepKeyLabel })
+    await keepKeyWallet?.applySettings({ label: keepKeyLabel }).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e.message,
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
   const setting = 'label'
   const inputBackground = useColorModeValue('white', 'gray.800')

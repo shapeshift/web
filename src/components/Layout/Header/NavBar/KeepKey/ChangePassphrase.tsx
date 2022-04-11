@@ -1,4 +1,5 @@
 import { Flex, FormControl, FormLabel, Spinner, Switch } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
@@ -11,6 +12,7 @@ import { SubMenuContainer } from '../SubMenuContainer'
 
 export const ChangePassphrase = () => {
   const translate = useTranslate()
+  const toast = useToast()
   const {
     keepKeyWallet,
     setHasPassphrase,
@@ -23,7 +25,15 @@ export const ChangePassphrase = () => {
   const handleToggle = async () => {
     const currentValue = !!hasPassphrase
     setHasPassphrase(!hasPassphrase)
-    await keepKeyWallet?.applySettings({ usePassphrase: !currentValue })
+    await keepKeyWallet?.applySettings({ usePassphrase: !currentValue }).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e.message,
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
 
   const onCancel = () => {

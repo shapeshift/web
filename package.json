@@ -113,8 +113,8 @@
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh",
-    "create-release": "./scripts/release.sh release",
-    "merge-release": "./scripts/release.sh main"
+    "create-release": "./scripts/release.sh create",
+    "merge-release": "./scripts/release.sh merge"
   },
   "eslintConfig": {
     "extends": "react-app",

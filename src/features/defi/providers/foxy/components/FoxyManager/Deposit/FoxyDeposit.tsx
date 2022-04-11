@@ -396,7 +396,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
               .times(feeMarketData.price)
               .toFixed(2)}
             loading={state.loading}
-            loadingText={translate('defi.modals.foxyOverview.approveToken')}
+            loadingText={translate('common.approve')}
             learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
             preFooter={
               <Alert status='info' borderRadius='lg' color='blue.500'>
@@ -416,7 +416,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
             onCancel={handleCancel}
             onConfirm={handleDeposit}
             loading={state.loading}
-            loadingText={translate('defi.modals.foxyOverview.confirm')}
+            loadingText={translate('common.confirm')}
             headerText='modals.confirm.deposit.header'
             assets={[
               {

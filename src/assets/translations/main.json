@@ -50,8 +50,7 @@
     "apy": "%{apy}% APY",
     "settings": "Settings",
     "legalDated": "Dated: January 2022",
-    "approveOnWallet": "Approve On Wallet",
-    "confirmOnWallet": "Confirm On Wallet"
+    "approve": "Approve",
   },
   "updateToast": {
     "body": "A new version of the app is available",

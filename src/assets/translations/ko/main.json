@@ -247,7 +247,8 @@
         "body": "예치한 유동성 풀이 없습니다",
         "cta": "유동성 풀 찾아보기"
       }
-    }
+    },
+    "viewOnChain": "체인에서 확인하기"
   },
   "staking": {
     "staking": "스테이킹",
@@ -781,7 +782,6 @@
       "trade": "거래"
     },
     "assets": "자산",
-    "viewOnChain": "체인에서 확인하기",
     "txid": "TX ID",
     "fee": "수수료",
     "youSent": "보낸 금액",

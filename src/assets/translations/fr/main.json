@@ -246,7 +246,8 @@
         "body": "Vous n'avez pas encore fait de dépôt dans les pools de liquidité.",
         "cta": "Voir les opportunités"
       }
-    }
+    },
+    "viewOnChain": "Vue sur la chaîne"
   },
   "staking": {
     "staking": "Placements",
@@ -780,7 +781,6 @@
       "trade": "Échange"
     },
     "assets": "Actifs",
-    "viewOnChain": "Vue sur la chaîne",
     "txid": "ID TX",
     "fee": "Frais",
     "youSent": "Vous avez envoyé",

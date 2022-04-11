@@ -250,7 +250,8 @@
         "body": "You have not deposited into any liquidity pools.",
         "cta": "View Opportunities"
       }
-    }
+    },
+    "viewOnChain": "View on chain"
   },
   "staking": {
     "staking": "Staking",
@@ -785,7 +786,6 @@
       "trade": "Trade"
     },
     "assets": "Assets",
-    "viewOnChain": "View on chain",
     "txid": "TX ID",
     "fee": "Fee",
     "youSent": "You Sent",

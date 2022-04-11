@@ -1,4 +1,4 @@
-import { ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Badge } from '@chakra-ui/layout'
 import { MenuItem } from '@chakra-ui/menu'
 import { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
@@ -17,6 +17,7 @@ type ExpandedMenuItemProps = {
   hasSubmenu?: boolean
   isDisabled?: boolean
   externalUrl?: string
+  isOpen?: boolean
 } & MenuItemProps
 
 export const ExpandedMenuItem = ({
@@ -28,6 +29,7 @@ export const ExpandedMenuItem = ({
   valueDisposition = 'neutral',
   isDisabled = false,
   externalUrl = undefined,
+  isOpen = false,
   ...props
 }: ExpandedMenuItemProps) => {
   const blackShade = useColorModeValue('blackAlpha.600', 'whiteAlpha.600')
@@ -56,10 +58,10 @@ export const ExpandedMenuItem = ({
       display='flex'
       alignItems='center'
       px={3}
-      {...props}
       closeOnSelect={!hasSubmenu}
       isDisabled={isDisabled}
       style={isDisabled ? disabledStyleOverride : undefined}
+      {...props}
     >
       <RawText flex={1}>{label}</RawText>
       <RawText ml={3} color={valueColor}>
@@ -70,7 +72,12 @@ export const ExpandedMenuItem = ({
           {badge}
         </Badge>
       )}
-      {hasSubmenu && <ChevronRightIcon color='whiteAlpha.600' ml={3} />}
+      {hasSubmenu &&
+        (isOpen ? (
+          <ChevronDownIcon color='whiteAlpha.600' ml={3} />
+        ) : (
+          <ChevronRightIcon color='whiteAlpha.600' ml={3} />
+        ))}
       {externalUrl && !isDisabled && <ExternalLinkIcon color='whiteAlpha.600' ml={3} />}
     </MenuItem>
   )

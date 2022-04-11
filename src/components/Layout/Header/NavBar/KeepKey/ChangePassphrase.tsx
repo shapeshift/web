@@ -29,7 +29,7 @@ export const ChangePassphrase = () => {
       console.error(e)
       toast({
         title: translate('common.error'),
-        description: e.message,
+        description: e?.message ?? translate('common.somethingWentWrong'),
         status: 'error',
         isClosable: true,
       })

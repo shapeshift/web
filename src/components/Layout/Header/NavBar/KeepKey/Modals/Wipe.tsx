@@ -8,6 +8,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
 import React, { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -26,17 +27,36 @@ export const WipeModal = () => {
   const {
     state: { awaitingDeviceInteraction },
   } = useWallet()
+  const toast = useToast()
   const [wipeConfirmationChecked, setWipeConfirmationChecked] = useState(false)
 
   const onClose = () => {
-    keepKeyWallet?.cancel()
+    keepKeyWallet?.cancel().catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
     close()
   }
 
   const wipeDevice = async () => {
-    await keepKeyWallet?.wipe()
-    disconnect()
-    close()
+    try {
+      await keepKeyWallet?.wipe()
+      disconnect()
+      close()
+    } catch (e) {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: (e as { message: string })?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    }
   }
 
   return (

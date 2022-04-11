@@ -1,4 +1,5 @@
 import { Flex, FormControl, FormLabel, Spinner, Switch } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
 import * as Types from '@keepkey/device-protocol/lib/types_pb'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -20,6 +21,7 @@ export const ChangePinCaching = () => {
   const {
     state: { awaitingDeviceInteraction },
   } = useWallet()
+  const toast = useToast()
 
   const handleToggle = async () => {
     const currentValue = !!hasPinCaching
@@ -28,7 +30,15 @@ export const ChangePinCaching = () => {
       policyName: 'Pin Caching',
       enabled: !currentValue,
     }
-    await keepKeyWallet?.applyPolicy(newPinCachingPolicy)
+    await keepKeyWallet?.applyPolicy(newPinCachingPolicy).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
 
   const onCancel = () => {

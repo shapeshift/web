@@ -432,7 +432,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
               .times(feeMarketData.price)
               .toFixed(2)}
             loading={state.loading}
-            loadingText={translate('common.approveOnWallet')}
+            loadingText={translate('defi.modals.foxyOverview.approveToken')}
             learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
             preFooter={
               <Alert status='info' borderRadius='lg' color='blue.500'>
@@ -453,7 +453,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             headerText='modals.confirm.withdraw.header'
             onConfirm={handleConfirm}
             loading={state.loading}
-            loadingText={translate('common.confirmOnWallet')}
+            loadingText={translate('defi.modals.foxyOverview.confirm')}
             assets={[
               {
                 ...asset,

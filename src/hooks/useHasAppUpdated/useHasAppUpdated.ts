@@ -8,39 +8,45 @@ const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 export const useHasAppUpdated = () => {
   const [hasUpdated, setHasUpdated] = useState(false)
   const [initialManifestMainJs, setManifestMainJs] = useState(null)
-  // asset-manifest tells us the latest minified built files
-  const url = '/asset-manifest.json'
+  const [initialEnvMainJs, setEnvMainJs] = useState(null)
+
+  const fetchData = async (url: string) => {
+    try {
+      const { data } = await axios.get(url)
+      return data
+    } catch (e) {
+      return console.error(`useHasAppUpdated: error fetching data from URL: ${url}`, e)
+    }
+  }
+
+  // 'asset-manifest.json' keeps track of latest minified built files.
+  // interpolated with a dummy query param to bypass the browser cache.
+  const assetManifestUrl = `/asset-manifest.json?${new Date().valueOf()}`
   const storeMainManifestJs = async () => {
-    // dummy query param bypasses browser cache
-    const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
-    setManifestMainJs(data)
+    const manifestMainJs = await fetchData(assetManifestUrl)
+    setManifestMainJs(manifestMainJs)
   }
   useMemo(storeMainManifestJs, [])
-  useInterval(async () => {
-    // we don't care about updates locally obv
-    if (window.location.hostname === 'localhost') return
 
-    let manifestMainJs
-    try {
-      const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
-      manifestMainJs = data
-    } catch (e) {
-      console.error(`useHasAppUpdated: error fetching asset-manifest.json`, e)
-    }
-    if (!manifestMainJs) {
-      console.error(`useHasAppUpdated: can't find main.js in asset-manifest.json`)
-      return
-    }
-    //deep equality check
-    let isSameAssetManifest = isEqual(initialManifestMainJs, manifestMainJs)
-    if (!isSameAssetManifest) {
-      console.info(
-        `useHasAppUpdated: app updated, manifest: ${JSON.stringify(
-          manifestMainJs,
-        )}, initial: ${JSON.stringify(initialManifestMainJs)}`,
-      )
-      setHasUpdated(true)
-    }
+  // interpolated with a dummy query param to bypass the browser cache.
+  const envUrl = `/env.json?${new Date().valueOf()}`
+  const storeMainEnvJs = async () => {
+    const envMainJs = await fetchData(envUrl)
+    setEnvMainJs(envMainJs)
+  }
+  useMemo(storeMainEnvJs, [])
+
+  useInterval(async () => {
+    const [currentManifestJs, currentEnvJs] = await Promise.all([
+      fetchData(assetManifestUrl),
+      fetchData(envUrl),
+    ])
+
+    const isExactAssetManifest = isEqual(initialManifestMainJs, currentManifestJs)
+    const isExactEnv = isEqual(initialEnvMainJs, currentEnvJs)
+
+    const eitherhasChanged = !isExactAssetManifest || !isExactEnv
+    eitherhasChanged ? setHasUpdated(true) : setHasUpdated(false)
   }, APP_UPDATE_CHECK_INTERVAL)
 
   return hasUpdated

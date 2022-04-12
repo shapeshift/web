@@ -35,7 +35,7 @@ export const selectTxsByAccountIds = createSelector(
     }
   },
   // deep equality check on output as we're mapping
-  { memoizeOptions: { resultEqualityCheck: isEqual } }
+  { memoizeOptions: { resultEqualityCheck: isEqual } },
 )
 
 export const selectLastNTxIds = createSelector(
@@ -47,20 +47,22 @@ export const selectLastNTxIds = createSelector(
   // we're doing a deel equality check on the output
   // meaning the selector returns the same array ref
   // regardless of if the input has changed
-  { memoizeOptions: { resultEqualityCheck: isEqual } }
+  { memoizeOptions: { resultEqualityCheck: isEqual } },
 )
 
 export const selectTxById = createSelector(
   (state: ReduxState) => state.txHistory.txs.byId,
   (_state: ReduxState, txId: string) => txId,
-  (txsById, txId) => txsById[txId]
+  (txsById, txId) => txsById[txId],
 )
 
 export const selectTxDateByIds = createDeepEqualOutputSelector(
   selectTxIdsParam,
   selectTxs,
   (txIds: TxId[], txs) =>
-    txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime })).sort((a, b) => b.date - a.date)
+    txIds
+      .map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
+      .sort((a, b) => b.date - a.date),
 )
 
 type TxHistoryPageFilter = {
@@ -72,17 +74,17 @@ type TxHistoryPageFilter = {
 
 const selectDateParamFromFilter = (
   _state: ReduxState,
-  { fromDate, toDate }: TxHistoryPageFilter
+  { fromDate, toDate }: TxHistoryPageFilter,
 ) => ({ fromDate, toDate })
 
 const selectTransactionTypesParamFromFilter = (
   _state: ReduxState,
-  { types }: TxHistoryPageFilter
+  { types }: TxHistoryPageFilter,
 ) => types ?? []
 
 const selectMatchingAssetsParamFromFilter = (
   _state: ReduxState,
-  { matchingAssets }: TxHistoryPageFilter
+  { matchingAssets }: TxHistoryPageFilter,
 ) => matchingAssets
 
 export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelector(
@@ -103,7 +105,7 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
     const filteredBasedOnMatchingAssets = matchingAssets
       ? transactions
           .filter(([, tx]) =>
-            tx.transfers.find(transfer => matchingAssets.includes(transfer.caip19))
+            tx.transfers.find(transfer => matchingAssets.includes(transfer.caip19)),
           )
           .map(([txId]) => txId)
       : txIds
@@ -120,9 +122,9 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
       filteredBasedOnFromDate,
       filteredBasedOnToDate,
       filteredBasedOnMatchingAssets,
-      filteredBasedOnType
+      filteredBasedOnType,
     )
-  }
+  },
 )
 
 export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byAssetId
@@ -132,7 +134,7 @@ const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
 const selectTxIdsByAssetId = createSelector(
   selectTxsByAssetId,
   selectAssetIdParam,
-  (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
+  (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? [],
 )
 
 type TxHistoryFilter = {
@@ -158,11 +160,11 @@ export const selectTxIdsByFilter = createSelector(
     const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
     return intersection(accountsTxIds, assetTxIds)
   },
-  { memoizeOptions: { resultEqualityCheck: isEqual } }
+  { memoizeOptions: { resultEqualityCheck: isEqual } },
 )
 
 export const selectTxsByFilter = createSelector(selectTxs, selectTxIdsByFilter, (txs, txIds) =>
-  txIds.map(txId => txs[txId])
+  txIds.map(txId => txs[txId]),
 )
 
 // this is only used on trade confirm - new txs will be pushed
@@ -172,7 +174,7 @@ export const selectTxsByFilter = createSelector(selectTxs, selectTxIdsByFilter, 
 export const selectLastTxStatusByAssetId = createSelector(
   selectTxIdsByAssetId,
   selectTxs,
-  (txIdsByAssetId, txs): Tx['status'] | undefined => txs[last(txIdsByAssetId) ?? '']?.status
+  (txIdsByAssetId, txs): Tx['status'] | undefined => txs[last(txIdsByAssetId) ?? '']?.status,
 )
 
 const selectRebasesById = (state: ReduxState) => state.txHistory.rebases.byId
@@ -191,11 +193,11 @@ export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
     if (!accountIds.length) return Array.from(new Set([...rebaseIds]))
     const accountRebaseIds = accountIds.map(accountId => rebaseIdsByAccountId[accountId]).flat()
     return intersection(accountRebaseIds, rebaseIds)
-  }
+  },
 )
 
 export const selectRebasesByFilter = createSelector(
   selectRebasesById,
   selectRebaseIdsByFilter,
-  (rebasesById, rebaseIds) => rebaseIds.map(rebaseId => rebasesById[rebaseId])
+  (rebasesById, rebaseIds) => rebaseIds.map(rebaseId => rebasesById[rebaseId]),
 )

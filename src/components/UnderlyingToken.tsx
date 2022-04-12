@@ -30,7 +30,7 @@ export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) =>
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
 
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const vault = useMemo(() => {

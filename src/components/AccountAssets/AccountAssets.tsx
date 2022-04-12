@@ -3,7 +3,7 @@ import { Text } from 'components/Text'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetByCAIP19,
-  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset
+  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,7 +17,7 @@ type AccountAssetsProps = {
 
 export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const assetIds = useAppSelector(state =>
-    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId)
+    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId),
   )
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
 

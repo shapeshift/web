@@ -4,5 +4,5 @@ import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 export const MetaMaskConfig = {
   adapter: MetaMaskAdapter,
   icon: MetaMaskIcon,
-  name: 'MetaMask'
+  name: 'MetaMask',
 }

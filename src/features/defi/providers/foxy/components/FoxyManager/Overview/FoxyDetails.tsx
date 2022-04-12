@@ -26,11 +26,11 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
   const {
     query,
     history: browserHistory,
-    location: browserLocation
+    location: browserLocation,
   } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const match = matchPath<DefiParams>(browserLocation.pathname, {
     path: '/defi/:earnType/:provider/:action',
-    exact: true
+    exact: true,
   })
   const { chain, contractAddress, tokenId, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
@@ -42,14 +42,14 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: tokenId
+    assetReference: tokenId,
   })
   const stakingAsset = useAppSelector(state => selectAssetByCAIP19(state, stakingAssetCAIP19))
   const rewardAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
-    assetReference: rewardId
+    assetReference: rewardId,
   })
   const rewardAsset = useAppSelector(state => selectAssetByCAIP19(state, rewardAssetCAIP19))
   const apy = bnOrZero(opportunity?.apy).times(100).toString()
@@ -68,7 +68,7 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
         onClick={() =>
           browserHistory.push({
             ...browserLocation,
-            pathname: `/defi/${match?.params.earnType}/${match?.params.provider}/deposit/`
+            pathname: `/defi/${match?.params.earnType}/${match?.params.provider}/deposit/`,
           })
         }
       />

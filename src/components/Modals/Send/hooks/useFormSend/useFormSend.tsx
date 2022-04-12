@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -19,7 +20,7 @@ export const useFormSend = () => {
   const chainAdapterManager = useChainAdapters()
   const { send } = useModal()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const handleSend = async (data: SendInput) => {
@@ -36,16 +37,29 @@ export const useFormSend = () => {
 
         const { estimatedFees, feeType, address: to } = data
         if (adapterType === ChainTypes.Ethereum) {
+          if (!supportsETH(wallet)) throw new Error(`useFormSend: wallet does not support ethereum`)
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
-          const gasPrice = fees.chainSpecific.gasPrice
-          const gasLimit = fees.chainSpecific.gasLimit
+          const {
+            chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+          } = fees
           const address = isEthAddress(to) ? to : ((await ensLookup(to)).address as string)
+          const shouldUseEIP1559Fees =
+            (await wallet.ethSupportsEIP1559()) &&
+            maxFeePerGas !== undefined &&
+            maxPriorityFeePerGas !== undefined
+          if (!shouldUseEIP1559Fees && gasPrice === undefined) {
+            throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
+          }
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to: address,
             value,
             wallet,
-            chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit },
-            sendMax: data.sendMax
+            chainSpecific: {
+              erc20ContractAddress: data.asset.tokenId,
+              gasLimit,
+              ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
+            },
+            sendMax: data.sendMax,
           })
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
@@ -54,13 +68,13 @@ export const useFormSend = () => {
 
           if (!accountType) {
             throw new Error(
-              `useFormSend: could not get accountType from accountId: ${data.accountId}`
+              `useFormSend: could not get accountType from accountId: ${data.accountId}`,
             )
           }
 
           if (!utxoParams) {
             throw new Error(
-              `useFormSend: could not get utxoParams from accountId: ${data.accountId}`
+              `useFormSend: could not get utxoParams from accountId: ${data.accountId}`,
             )
           }
 
@@ -71,9 +85,9 @@ export const useFormSend = () => {
             bip44Params: utxoParams.bip44Params,
             chainSpecific: {
               satoshiPerByte: fees.chainSpecific.satoshiPerByte,
-              accountType
+              accountType,
             },
-            sendMax: data.sendMax
+            sendMax: data.sendMax,
           })
         } else {
           throw new Error('unsupported adapterType')
@@ -108,7 +122,7 @@ export const useFormSend = () => {
               <Text>
                 {translate('modals.send.youHaveSent', {
                   amount: data.cryptoAmount,
-                  symbol: data.cryptoSymbol
+                  symbol: data.cryptoSymbol,
                 })}
               </Text>
               {data.asset.explorerTxLink && (
@@ -121,18 +135,18 @@ export const useFormSend = () => {
           status: 'success',
           duration: 9000,
           isClosable: true,
-          position: 'top-right'
+          position: 'top-right',
         })
       } catch (error) {
         toast({
           title: translate('modals.send.errorTitle', {
-            asset: data.asset.name
+            asset: data.asset.name,
           }),
           description: translate('modals.send.errors.transactionRejected'),
           status: 'error',
           duration: 9000,
           isClosable: true,
-          position: 'top-right'
+          position: 'top-right',
         })
       } finally {
         send.close()
@@ -140,6 +154,6 @@ export const useFormSend = () => {
     }
   }
   return {
-    handleSend
+    handleSend,
   }
 }

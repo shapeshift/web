@@ -1,43 +1,84 @@
+import { CheckIcon } from '@chakra-ui/icons'
 import {
   Button,
   ButtonGroup,
   ButtonGroupProps,
+  ButtonProps,
   useId,
   useRadio,
   useRadioGroup,
-  UseRadioProps
+  UseRadioProps,
 } from '@chakra-ui/react'
+import { ThemeTypings } from '@chakra-ui/styled-system'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import Polyglot, { InterpolationOptions } from 'node-polyglot'
 import { memo } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 
 interface RadioCardProps extends UseRadioProps {
-  label: string
+  label: string | [string, number | Polyglot.InterpolationOptions]
+  showCheck?: boolean
+  checkColor?: string
+  radioProps?: ButtonProps
+  isLoading?: boolean
 }
 
 const RadioCard = memo((props: RadioCardProps) => {
-  const id = useId(props.id)
-  const { getInputProps, getCheckboxProps } = useRadio({ id, ...props })
+  const { id, label, showCheck, checkColor, isChecked, radioProps, isLoading } = props
+  const contextualId = useId(id)
+  const { getInputProps, getCheckboxProps } = useRadio({ id: contextualId, ...props })
   const input = getInputProps()
   const checkbox = getCheckboxProps()
+  const translate: (phrase: string, options?: number | InterpolationOptions) => string =
+    useTranslate()
+  const ariaLabel = typeof label === 'string' ? label : translate(...label)
+  const checkStyle = checkColor ? { color: checkColor } : undefined
+  const buttonPadding = showCheck && !isChecked ? { paddingLeft: 38 } : undefined
   return (
     <>
-      <Button aria-label={props.label} as='label' htmlFor={input.id} cursor='pointer' {...checkbox}>
-        <Text translation={props.label} />
+      <Button
+        aria-label={ariaLabel}
+        as='label'
+        htmlFor={input.id}
+        cursor='pointer'
+        isDisabled={isLoading}
+        {...checkbox}
+        {...buttonPadding}
+        {...radioProps}
+      >
+        {showCheck &&
+          isChecked &&
+          (isLoading ? (
+            <CircularProgress size='14px' mr={3} />
+          ) : (
+            <CheckIcon {...checkStyle} mr={3} />
+          ))}
+        <Text translation={label} />
       </Button>
       <input {...input} />
     </>
   )
 })
 
+export interface RadioOption<T> {
+  label: string | [string, number | Polyglot.InterpolationOptions]
+  value: T
+}
+
 export interface RadioProps<T> {
   name?: string
   defaultValue?: T
-  options: { label: string; value: T }[]
+  options: readonly RadioOption<T>[]
   onChange: (value: T) => void
   variant?: string
-  colorScheme?: string
+  colorScheme?: ThemeTypings['colorSchemes']
   buttonGroupProps?: ButtonGroupProps
+  radioProps?: ButtonProps
+  showCheck?: boolean
+  checkColor?: string
+  isLoading?: boolean
 }
 
 type RadioTypes = string | HistoryTimeframe
@@ -49,12 +90,16 @@ export const Radio = <T extends RadioTypes>({
   defaultValue,
   variant = 'ghost',
   colorScheme = 'blue',
-  buttonGroupProps
+  buttonGroupProps,
+  radioProps,
+  showCheck = false,
+  checkColor,
+  isLoading,
 }: RadioProps<T>) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: name ?? 'radio',
-    defaultValue: defaultValue ?? options[0]?.value,
-    onChange
+    defaultValue,
+    onChange,
   })
 
   const group = getRootProps()
@@ -70,9 +115,13 @@ export const Radio = <T extends RadioTypes>({
       {options.map(option => {
         return (
           <RadioCard
-            {...getRadioProps({ value: option.value })}
             key={option.value}
+            {...getRadioProps({ value: option.value })}
+            showCheck={showCheck}
+            checkColor={checkColor}
             label={option.label}
+            radioProps={radioProps}
+            isLoading={isLoading}
           />
         )
       })}

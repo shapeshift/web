@@ -1,0 +1,431 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`stakingDataSlice reducers clear clears state back to initial state 1`] = `
+Object {
+  "delegations": Array [
+    Object {
+      "amount": "4",
+      "assetId": "cosmos:cosmoshub-4/slip44:118",
+      "validator": Object {
+        "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+        "apr": "0.1662979435",
+        "commission": "0.000000000000000000",
+        "moniker": "tokenpocket",
+        "tokens": "111115",
+      },
+    },
+    Object {
+      "amount": "10015",
+      "assetId": "cosmos:cosmoshub-4/slip44:118",
+      "validator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+    Object {
+      "amount": "5000",
+      "assetId": "cosmos:cosmoshub-4/slip44:118",
+      "validator": Object {
+        "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+        "apr": "0.1514974265",
+        "commission": "0.089000000000000000",
+        "moniker": "Cosmostation",
+        "tokens": "111117",
+      },
+    },
+  ],
+  "redelegations": Array [
+    Object {
+      "destinationValidator": Object {
+        "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+        "apr": "0.1662979435",
+        "commission": "0.000000000000000000",
+        "moniker": "tokenpocket",
+        "tokens": "111115",
+      },
+      "entries": Array [
+        Object {
+          "amount": "4",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+          "completionTime": 1650470407,
+        },
+      ],
+      "sourceValidator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+  ],
+  "rewards": Array [
+    Object {
+      "rewards": Array [],
+      "validator": Object {
+        "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+        "apr": "0.1662979435",
+        "commission": "0.000000000000000000",
+        "moniker": "tokenpocket",
+        "tokens": "111115",
+      },
+    },
+    Object {
+      "rewards": Array [
+        Object {
+          "amount": "3.831752143667562385",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+        },
+      ],
+      "validator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+    Object {
+      "rewards": Array [
+        Object {
+          "amount": "12.688084635379675000",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+        },
+      ],
+      "validator": Object {
+        "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+        "apr": "0.1514974265",
+        "commission": "0.089000000000000000",
+        "moniker": "Cosmostation",
+        "tokens": "111117",
+      },
+    },
+  ],
+  "undelegations": Array [
+    Object {
+      "entries": Array [
+        Object {
+          "amount": "100",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+          "completionTime": 1650472940,
+        },
+      ],
+      "validator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+  ],
+}
+`;
+
+exports[`stakingDataSlice reducers clear clears state back to initial state 2`] = `
+Object {
+  "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf": Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.1496681491",
+    "commission": "0.100000000000000000",
+    "moniker": "ShapeShift DAO",
+    "tokens": "111116",
+  },
+  "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn": Object {
+    "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+    "apr": "0.1514974265",
+    "commission": "0.089000000000000000",
+    "moniker": "Cosmostation",
+    "tokens": "111117",
+  },
+  "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte": Object {
+    "address": "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte",
+    "apr": "0.1513311286",
+    "commission": "0.090000000000000000",
+    "moniker": "commercio.network",
+    "tokens": "11116",
+  },
+  "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2": Object {
+    "address": "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2",
+    "apr": "0.1496681491",
+    "commission": "0.100000000000000000",
+    "moniker": "Blockapsis",
+    "tokens": "11115",
+  },
+  "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s": Object {
+    "address": "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s",
+    "apr": "0.1662979435",
+    "commission": "0.000000000000000000",
+    "moniker": "UbikCapital(0%Commission)",
+    "tokens": "11114",
+  },
+  "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9": Object {
+    "address": "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9",
+    "apr": "0.1496681491",
+    "commission": "0.100000000000000000",
+    "moniker": "真本聪&IOSG",
+    "tokens": "11113",
+  },
+  "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs": Object {
+    "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+    "apr": "0.1662979435",
+    "commission": "0.000000000000000000",
+    "moniker": "tokenpocket",
+    "tokens": "111115",
+  },
+}
+`;
+
+exports[`stakingDataSlice reducers upsertStakingData updates or inserts empty staking data in state 1`] = `
+Object {
+  "delegations": Array [],
+  "redelegations": Array [],
+  "rewards": Array [],
+  "undelegations": Array [],
+}
+`;
+
+exports[`stakingDataSlice reducers upsertStakingData updates or inserts staking data in state 1`] = `
+Object {
+  "delegations": Array [
+    Object {
+      "amount": "4",
+      "assetId": "cosmos:cosmoshub-4/slip44:118",
+      "validator": Object {
+        "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+        "apr": "0.1662979435",
+        "commission": "0.000000000000000000",
+        "moniker": "tokenpocket",
+        "tokens": "111115",
+      },
+    },
+    Object {
+      "amount": "10015",
+      "assetId": "cosmos:cosmoshub-4/slip44:118",
+      "validator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+    Object {
+      "amount": "5000",
+      "assetId": "cosmos:cosmoshub-4/slip44:118",
+      "validator": Object {
+        "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+        "apr": "0.1514974265",
+        "commission": "0.089000000000000000",
+        "moniker": "Cosmostation",
+        "tokens": "111117",
+      },
+    },
+  ],
+  "redelegations": Array [
+    Object {
+      "destinationValidator": Object {
+        "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+        "apr": "0.1662979435",
+        "commission": "0.000000000000000000",
+        "moniker": "tokenpocket",
+        "tokens": "111115",
+      },
+      "entries": Array [
+        Object {
+          "amount": "4",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+          "completionTime": 1650470407,
+        },
+      ],
+      "sourceValidator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+  ],
+  "rewards": Array [
+    Object {
+      "rewards": Array [],
+      "validator": Object {
+        "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+        "apr": "0.1662979435",
+        "commission": "0.000000000000000000",
+        "moniker": "tokenpocket",
+        "tokens": "111115",
+      },
+    },
+    Object {
+      "rewards": Array [
+        Object {
+          "amount": "3.831752143667562385",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+        },
+      ],
+      "validator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+    Object {
+      "rewards": Array [
+        Object {
+          "amount": "12.688084635379675000",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+        },
+      ],
+      "validator": Object {
+        "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+        "apr": "0.1514974265",
+        "commission": "0.089000000000000000",
+        "moniker": "Cosmostation",
+        "tokens": "111117",
+      },
+    },
+  ],
+  "undelegations": Array [
+    Object {
+      "entries": Array [
+        Object {
+          "amount": "100",
+          "assetId": "cosmos:cosmoshub-4/slip44:118",
+          "completionTime": 1650472940,
+        },
+      ],
+      "validator": Object {
+        "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "apr": "0.1496681491",
+        "commission": "0.100000000000000000",
+        "moniker": "ShapeShift DAO",
+        "tokens": "111116",
+      },
+    },
+  ],
+}
+`;
+
+exports[`stakingDataSlice reducers upsertValidatorData updates or inserts validator data in state 1`] = `
+Object {
+  "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf": Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.1496681491",
+    "commission": "0.100000000000000000",
+    "moniker": "ShapeShift DAO",
+    "tokens": "111116",
+  },
+  "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn": Object {
+    "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+    "apr": "0.1514974265",
+    "commission": "0.089000000000000000",
+    "moniker": "Cosmostation",
+    "tokens": "111117",
+  },
+  "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte": Object {
+    "address": "cosmosvaloper1fqzqejwkk898fcslw4z4eeqjzesynvrdfr5hte",
+    "apr": "0.1513311286",
+    "commission": "0.090000000000000000",
+    "moniker": "commercio.network",
+    "tokens": "11116",
+  },
+  "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2": Object {
+    "address": "cosmosvaloper1gf3dm2mvqhymts6ksrstlyuu2m8pw6dhfp9md2",
+    "apr": "0.1496681491",
+    "commission": "0.100000000000000000",
+    "moniker": "Blockapsis",
+    "tokens": "11115",
+  },
+  "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s": Object {
+    "address": "cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s",
+    "apr": "0.1662979435",
+    "commission": "0.000000000000000000",
+    "moniker": "UbikCapital(0%Commission)",
+    "tokens": "11114",
+  },
+  "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9": Object {
+    "address": "cosmosvaloper1qdxmyqkvt8jsxpn5pp45a38ngs36mn2604cqk9",
+    "apr": "0.1496681491",
+    "commission": "0.100000000000000000",
+    "moniker": "真本聪&IOSG",
+    "tokens": "11113",
+  },
+  "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs": Object {
+    "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+    "apr": "0.1662979435",
+    "commission": "0.000000000000000000",
+    "moniker": "tokenpocket",
+    "tokens": "111115",
+  },
+}
+`;
+
+exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId validators and staking data are loaded returns correct array with delegations, undelegations, redelegations and rewards 1`] = `
+Array [
+  Object {
+    "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+    "apr": "0.1662979435",
+    "cryptoAmount": "4",
+    "moniker": "tokenpocket",
+    "rewards": "0",
+    "tokens": "111115",
+  },
+  Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.1496681491",
+    "cryptoAmount": "10115",
+    "moniker": "ShapeShift DAO",
+    "rewards": "3.831752143667562385",
+    "tokens": "111116",
+  },
+  Object {
+    "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+    "apr": "0.1514974265",
+    "cryptoAmount": "5000",
+    "moniker": "Cosmostation",
+    "rewards": "12.688084635379675",
+    "tokens": "111117",
+  },
+]
+`;
+
+exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId validators and staking data are loaded returns correct array with only rewards 1`] = `
+Array [
+  Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.1496681491",
+    "cryptoAmount": "0",
+    "moniker": "ShapeShift DAO",
+    "rewards": "4.831752143667562385",
+    "tokens": "111116",
+  },
+  Object {
+    "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+    "apr": "0.1514974265",
+    "cryptoAmount": "0",
+    "moniker": "Cosmostation",
+    "rewards": "12.688084635379675",
+    "tokens": "111117",
+  },
+]
+`;
+
+exports[`stakingDataSlice selectors selectActiveStakingOpportunityDataByAssetId validators and staking data are loaded returns correct array with only undelegations 1`] = `
+Array [
+  Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.1496681491",
+    "cryptoAmount": "350",
+    "moniker": "ShapeShift DAO",
+    "rewards": "0",
+    "tokens": "111116",
+  },
+]
+`;

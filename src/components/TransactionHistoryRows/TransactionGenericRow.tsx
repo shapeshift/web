@@ -56,6 +56,7 @@ type TransactionRowAsset = {
   amount: string
   precision: number
   currentPrice?: string
+  icon?: string
 }
 
 type TransactionGenericRowProps = {
@@ -86,12 +87,12 @@ export const TransactionGenericRow = ({
   compactMode = false,
   toggleOpen,
   isFirstAssetOutgoing = false,
-  parentWidth
+  parentWidth,
 }: TransactionGenericRowProps) => {
   const {
     columns,
     dateFormat,
-    breakPoints: [isLargerThanLg]
+    breakPoints: [isLargerThanLg],
   } = GetTxLayoutFormats({ parentWidth })
   return (
     <Button
@@ -139,7 +140,7 @@ export const TransactionGenericRow = ({
             spacing={{ base: 0, md: compactMode ? 0 : 4 }}
             justifyContent={{
               base: 'space-between',
-              md: compactMode ? 'space-between' : 'flex-start'
+              md: compactMode ? 'space-between' : 'flex-start',
             }}
             fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
             divider={
@@ -155,15 +156,15 @@ export const TransactionGenericRow = ({
                 mt={{ base: 2, md: compactMode ? 2 : 0 }}
                 direction={{
                   base: index === 0 ? 'row' : 'row-reverse',
-                  md: compactMode ? (index === 0 ? 'row' : 'row-reverse') : 'row'
+                  md: compactMode ? (index === 0 ? 'row' : 'row-reverse') : 'row',
                 }}
                 textAlign={{
                   base: index === 0 ? 'left' : 'right',
-                  md: compactMode ? (index === 0 ? 'left' : 'right') : 'left'
+                  md: compactMode ? (index === 0 ? 'left' : 'right') : 'left',
                 }}
               >
                 <AssetIcon
-                  symbol={asset.symbol.toLowerCase()}
+                  src={asset.icon}
                   boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
                 />
                 <Box flex={1}>

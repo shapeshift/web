@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import React, { useContext } from 'react'
 import { IWalletContext, WalletContext } from 'context/WalletProvider/WalletContext'
 
 export const useWallet = (): IWalletContext =>

@@ -18,7 +18,7 @@ export const mockVault = (obj?: {
   expired: false,
   underlyingTokenBalance: {
     amount: '0',
-    amountUsdc: '0'
+    amountUsdc: '0',
   },
   metadata: {
     symbol: '',
@@ -33,7 +33,7 @@ export const mockVault = (obj?: {
     displayName: '',
     displayIcon: '',
     defaultDisplayToken: '',
-    hideIfNoDeposits: false
+    hideIfNoDeposits: false,
   },
   underlyingTokenBalanceUsdc: '',
   apy: 0,
@@ -43,7 +43,7 @@ export const mockVault = (obj?: {
   tokenAddress: '',
   provider: '',
   type: '',
-  ...obj
+  ...obj,
 })
 
 export const mockVaultWithBalance = (obj?: {
@@ -65,7 +65,7 @@ export const mockVaultWithBalance = (obj?: {
   expired: false,
   underlyingTokenBalance: {
     amount: '0',
-    amountUsdc: '0'
+    amountUsdc: '0',
   },
   metadata: {
     symbol: '',
@@ -80,7 +80,7 @@ export const mockVaultWithBalance = (obj?: {
     displayName: '',
     displayIcon: '',
     defaultDisplayToken: '',
-    hideIfNoDeposits: false
+    hideIfNoDeposits: false,
   },
   name: '',
   symbol: '',
@@ -90,5 +90,5 @@ export const mockVaultWithBalance = (obj?: {
   vaultCaip19: '',
   tokenCaip19: '',
   pricePerShare: bnOrZero(0),
-  ...obj
+  ...obj,
 })

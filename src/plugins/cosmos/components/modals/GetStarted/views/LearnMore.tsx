@@ -18,24 +18,24 @@ const STEP_TO_ELEMENTS_MAPPING = [
     bodies: [
       'defi.modals.learnMore.bodies.rateFluctuationInfo',
       'defi.modals.learnMore.bodies.amountStakingInfo',
-      'defi.modals.learnMore.bodies.withdrawInfo'
+      'defi.modals.learnMore.bodies.withdrawInfo',
     ],
     header: 'defi.modals.learnMore.headers.aboutStakingRewards',
-    headerImageSrc: rewards
+    headerImageSrc: rewards,
   },
   {
     bodies: ['defi.modals.learnMore.bodies.unbondingInfo'],
     header: 'defi.modals.learnMore.headers.unstaking',
-    headerImageSrc: withdraw
+    headerImageSrc: withdraw,
   },
   {
     bodies: [
       'defi.modals.learnMore.bodies.slashingInfo',
-      'defi.modals.learnMore.bodies.partnerInfo'
+      'defi.modals.learnMore.bodies.partnerInfo',
     ],
     header: 'defi.modals.learnMore.headers.risks',
-    headerImageSrc: risk
-  }
+    headerImageSrc: risk,
+  },
 ]
 
 type LearnMoreProps = {
@@ -47,11 +47,11 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
   const { cosmosGetStarted } = useModal()
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
-    name: 'Osmo'
+    name: 'Osmo',
   }))(assetId)
 
   const { nextStep, prevStep, setStep, activeStep } = useSteps({
-    initialStep: 1
+    initialStep: 1,
   })
 
   const stepsLength = Object.keys(STEP_TO_ELEMENTS_MAPPING).length

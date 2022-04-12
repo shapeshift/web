@@ -25,7 +25,7 @@ import {
   PopoverTrigger,
   Stack,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
@@ -41,7 +41,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -84,13 +83,13 @@ const CryptoInput = (props: InputProps) => (
 
 enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
-  Slippage = 'slippage'
+  Slippage = 'slippage',
 }
 
 export type DepositValues = {
@@ -116,10 +115,10 @@ export const Deposit = ({
   enableSlippage = true,
   onContinue,
   onCancel,
-  percentOptions
+  percentOptions,
 }: DepositProps) => {
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -127,7 +126,6 @@ export const Deposit = ({
   const amountRef = useRef<string | null>(null)
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const { history: browserHistory } = useBrowserRouter()
 
   const {
     clearErrors,
@@ -135,14 +133,14 @@ export const Deposit = ({
     formState: { errors, isValid },
     handleSubmit,
     setError,
-    setValue
+    setValue,
   } = useForm<DepositValues>({
     mode: 'onChange',
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: DEFAULT_SLIPPAGE
-    }
+      [Field.Slippage]: DEFAULT_SLIPPAGE,
+    },
   })
 
   const values = useWatch({ control })
@@ -152,7 +150,7 @@ export const Deposit = ({
   const fieldError = cryptoError || fiatError
 
   const handleTosLink = () => {
-    browserHistory.push('/legal/terms-of-service')
+    window.open('/legal/terms-of-service')
   }
 
   const handleInputToggle = () => {
@@ -161,7 +159,7 @@ export const Deposit = ({
       // Toggles an existing error to the other field if present
       clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
       setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
-        message: 'common.insufficientFunds'
+        message: 'common.insufficientFunds',
       })
     }
     setActiveField(field)
@@ -284,7 +282,7 @@ export const Deposit = ({
                           value={option}
                           options={{
                             minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
+                            maximumFractionDigits: 0,
                           }}
                         />
                       )}

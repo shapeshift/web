@@ -9,7 +9,7 @@ import {
   Stack,
   Text as CText,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
@@ -27,7 +27,7 @@ import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId
+  selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -49,7 +49,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
     control,
     formState: { isValid },
     handleSubmit,
-    setValue
+    setValue,
   } = useFormContext<StakingValues>()
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -68,7 +68,6 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const holderBg = useColorModeValue('gray.100', 'gray.800')
 
   const memoryHistory = useHistory()
 
@@ -76,7 +75,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
     memoryHistory.push(StakingPath.Confirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount),
       fiatRate: bnOrZero(marketData.price),
-      apr
+      apr,
     })
   }
 
@@ -154,11 +153,8 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
         justifyContent='space-between'
       >
         <AssetHoldingsCard
-          bg={holderBg}
-          py='8px'
           mb={6}
-          assetSymbol={asset.symbol}
-          assetIcon={asset.icon}
+          asset={asset}
           cryptoAmountAvailable={cryptoBalanceHuman.toString()}
           fiatAmountAvailable={fiatAmountAvailable}
         />

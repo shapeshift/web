@@ -4,5 +4,5 @@ import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 export const KeepKeyConfig = {
   adapter: WebUSBKeepKeyAdapter,
   icon: KeepKeyIcon,
-  name: 'KeepKey'
+  name: 'KeepKey',
 }

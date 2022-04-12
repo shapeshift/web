@@ -7,14 +7,18 @@ import {
   ModalHeader,
   Stack,
   Text as CText,
-  Tooltip
+  Tooltip,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
-import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
+import {
+  ConfirmFormFields,
+  ConfirmFormInput,
+  TxFeeRadioGroup,
+} from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { FeePrice } from 'plugins/cosmos/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -29,7 +33,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectSingleValidator
+  selectPortfolioCryptoBalanceByAssetId,
+  selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,29 +51,39 @@ export const UnstakeConfirm = ({
   assetId,
   accountSpecifier,
   validatorAddress,
-  onCancel
+  onCancel,
 }: UnstakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
+  const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
+    name: ConfirmFormFields.FeeType,
+  })
 
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods
   const { cryptoAmount } = useWatch({ control })
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress)
+    selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatUnstakeAmount = useMemo(
     () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
-    [cryptoAmount, marketData.price]
+    [cryptoAmount, marketData.price],
+  )
+
+  const hasEnoughBalance = useMemo(
+    () => feeData && cryptoBalanceHuman.gt(bnOrZero(feeData[activeFee].txFee)),
+    [cryptoBalanceHuman, feeData, activeFee],
   )
 
   useEffect(() => {
@@ -142,7 +157,7 @@ export const UnstakeConfirm = ({
               &nbsp;
               <Tooltip
                 label={translate('defi.modals.staking.tooltip.gasFees', {
-                  networkName: asset.name
+                  networkName: asset.name,
                 })}
               >
                 <InfoOutlineIcon />
@@ -164,8 +179,18 @@ export const UnstakeConfirm = ({
               <Button onClick={onCancel} size='lg' variant='ghost'>
                 <Text translation='common.cancel' />
               </Button>
-              <Button colorScheme={'blue'} mb={2} size='lg' type='submit'>
-                <Text translation={'defi.signAndBroadcast'} />
+              <Button
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
+                mb={2}
+                size='lg'
+                type='submit'
+              >
+                <Text
+                  translation={
+                    hasEnoughBalance ? 'defi.signAndBroadcast' : 'common.insufficientFunds'
+                  }
+                />
               </Button>
             </Stack>
           </ModalFooter>

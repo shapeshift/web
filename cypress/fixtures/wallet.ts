@@ -14,6 +14,6 @@ export const wallet: NativeWallet = {
     iv: 'daAIhGxie9gyrEC5',
     protected:
       'eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMjU2R0NNIiwiYXJnb24iOnsicGFyYWxsZWxpc20iOjEsIm1lbW9yeVNpemUiOjMyNzY4LCJpdGVyYXRpb25zIjozNH0sIm1ldGEiOnsiY3JlYXRlZEF0IjoxNjQzODQwODQ1NDY5LCJuYW1lIjoiY3lwcmVzcy10ZXN0In19',
-    tag: 'Su-T0Lwx420jr_F6_yruYw'
-  }
+    tag: 'Su-T0Lwx420jr_F6_yruYw',
+  },
 }

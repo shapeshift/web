@@ -10,7 +10,7 @@ import {
   ModalFooter,
   ModalHeader,
   Stack,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
@@ -39,12 +39,12 @@ export type FeePrice = {
 export const Confirm = () => {
   const {
     control,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
   const { ensName, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
-    control
+    control,
   })
   const { fees } = useSendFees()
 

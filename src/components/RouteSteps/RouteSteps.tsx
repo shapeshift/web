@@ -13,7 +13,7 @@ export type RouteConfig = {
 export enum StatusTextEnum {
   pending = 'modals.status.header.pending',
   success = 'modals.status.header.success',
-  failed = 'modals.status.header.failed'
+  failed = 'modals.status.header.failed',
 }
 
 type RouteStepsProps = {

@@ -13,9 +13,13 @@ const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(n
 
 const DefiModules = {
   [DefiProvider.Yearn]: YearnManager,
-  [DefiProvider.ShapeShift]: FoxyManager
+  [DefiProvider.ShapeShift]: FoxyManager,
 }
 
+/*
+Cosmos modals are not part of this provider, those can be found under plugins/cosmos/components/modals.
+Cosmos modals are opened via AllEarnOpportunities component (TODO : refactor the modals in order to use them in this file)
+*/
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   const location = useLocation<{ background: any }>()
   const background = location.state && location.state.background

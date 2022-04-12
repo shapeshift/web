@@ -7,17 +7,17 @@ import {
   Stack,
   Text as CText,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
+import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
 import { useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
@@ -25,7 +25,7 @@ import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
   selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectMarketDataById
+  selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -36,7 +36,7 @@ const UNBONDING_DURATION = '21'
 
 export enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 type UnstakeProps = {
@@ -51,7 +51,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
     control,
     formState: { isValid },
     handleSubmit,
-    setValue
+    setValue,
   } = useFormContext<StakingValues>()
 
   const values = useWatch({ control })
@@ -63,10 +63,12 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
       state,
       accountSpecifier,
       validatorAddress,
-      assetId
-    )
+      assetId,
+    ),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
+
+  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
 
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -84,7 +86,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
     memoryHistory.push(UnstakingPath.Confirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount).times(`1e+${asset?.precision}`).toString(),
       assetId,
-      fiatRate: bnOrZero(marketData.price)
+      fiatRate: bnOrZero(marketData.price),
     })
   }
 
@@ -165,18 +167,11 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
           alignItems='center'
           justifyContent='space-between'
         >
-          <Flex width='100%' mb='6px' justifyContent='space-between' alignItems='center'>
-            <Text
-              lineHeight={1}
-              color='gray.500'
-              translation={['staking.assetStakingBalance', { assetSymbol: asset.symbol }]}
-            />
-            <Amount.Crypto
-              fontWeight='bold'
-              value={bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`).toString()}
-              symbol={asset.symbol}
-            />
-          </Flex>
+          <AssetHoldingsCard
+            asset={asset}
+            cryptoAmountAvailable={cryptoStakeBalanceHuman.toString()}
+            fiatAmountAvailable={fiatStakeAmountHuman}
+          />
           <FormControl>
             <AmountToStake
               width='100%'
@@ -238,7 +233,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
               </Button>
               <Button
                 colorScheme={values.amountFieldError ? 'red' : 'blue'}
-                isDisabled={!isValid}
+                isDisabled={Boolean(!isValid || values.amountFieldError)}
                 mb={2}
                 size='lg'
                 type='submit'

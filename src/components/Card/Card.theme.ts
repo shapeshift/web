@@ -6,49 +6,49 @@ export const CardStyle = {
     card: {
       rounded: {
         base: 0,
-        xl: 'xl'
-      }
+        xl: 'xl',
+      },
     },
     heading: {
-      fontWeight: 'bold'
-    }
+      fontWeight: 'bold',
+    },
   }),
   sizes: {
     md: {
       header: {
         px: 6,
-        py: 4
+        py: 4,
       },
       heading: {
         fontSize: 'md',
-        as: 'h5'
+        as: 'h5',
       },
       body: {
         py: 4,
-        px: 6
+        px: 6,
       },
       footer: {
         py: 4,
-        px: 6
-      }
+        px: 6,
+      },
     },
     sm: {
       header: {
         py: 2,
-        px: 4
+        px: 4,
       },
       heading: {
-        fontSize: 'md'
+        fontSize: 'md',
       },
       body: {
         py: 2,
-        px: 4
+        px: 4,
       },
       footer: {
         py: 2,
-        px: 4
-      }
-    }
+        px: 4,
+      },
+    },
   },
   variants: {
     solid: (props: Record<string, any>) => ({
@@ -56,55 +56,55 @@ export const CardStyle = {
         bg: mode('white', 'gray.785')(props),
         borderWidth: 1,
         borderColor: mode('blackAlpha.50', 'gray.750')(props),
-        shadow: mode('base', 'lg')(props)
-      }
+        shadow: mode('base', 'lg')(props),
+      },
     }),
     group: (props: Record<string, any>) => ({
       card: {
         bg: mode('gray.50', 'gray.850')(props),
         borderWidth: 1,
         borderColor: mode('gray.100', 'gray.750')(props),
-        borderRadius: 'xl'
-      }
+        borderRadius: 'xl',
+      },
     }),
     outline: (props: Record<string, any>) => ({
       card: {
         bg: mode('white', 'gray.785')(props),
         borderWidth: 1,
         borderColor: mode('blackAlpha.50', 'gray.750')(props),
-        shadow: mode('base', 'lg')(props)
+        shadow: mode('base', 'lg')(props),
       },
       header: {
         borderBottomWidth: 1,
-        borderColor: mode('gray.200', 'gray.750')(props)
+        borderColor: mode('gray.200', 'gray.750')(props),
       },
       footer: {
         borderTopWidth: 1,
-        borderColor: mode('gray.200', 'gray.750')(props)
-      }
+        borderColor: mode('gray.200', 'gray.750')(props),
+      },
     }),
     'footer-stub': (props: Record<string, any>) => ({
       card: {
         bg: mode('white', 'gray.785')(props),
         borderWidth: 1,
         borderColor: mode('blackAlpha.50', 'gray.750')(props),
-        shadow: mode('base', 'lg')(props)
+        shadow: mode('base', 'lg')(props),
       },
       footer: {
         borderTopWidth: 1,
-        borderColor: mode('gray.200', 'gray.750')(props)
-      }
+        borderColor: mode('gray.200', 'gray.750')(props),
+      },
     }),
     inverted: {
       card: {
         borderColor: 'blackAlpha.50',
         bg: 'white',
-        color: 'gray.500'
-      }
-    }
+        color: 'gray.500',
+      },
+    },
   },
   defaultProps: {
     size: 'md',
-    variant: 'solid'
-  }
+    variant: 'solid',
+  },
 }

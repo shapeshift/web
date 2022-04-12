@@ -1,13 +1,20 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { bnOrZero, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
+import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  MergedActiveStakingOpportunity,
+  MergedStakingOpportunity,
+} from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
+import { chainTypeToLabel } from './utils'
 
 export type EarnOpportunityType = {
   type?: string
@@ -23,6 +30,8 @@ export type EarnOpportunityType = {
   cryptoAmount: string
   expired?: boolean
   chain: ChainTypes
+  moniker?: string
+  showAssetSymbol?: boolean
 }
 
 const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[] => {
@@ -43,7 +52,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       chain: vault.chain,
       network,
       assetNamespace,
-      assetReference: vault.tokenAddress
+      assetReference: vault.tokenAddress,
     })
     const data = {
       type: vault.type,
@@ -58,7 +67,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       chain: vault.chain,
       assetId: assetCAIP19,
       fiatAmount,
-      cryptoAmount
+      cryptoAmount,
     }
     // show vaults that are expired but have a balance
     // show vaults that don't have an APY but have a balance
@@ -95,7 +104,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chain,
       tokenCaip19: assetId,
       fiatAmount,
-      cryptoAmount
+      cryptoAmount,
     } = foxy
     return {
       type: DefiType.TokenStaking,
@@ -109,19 +118,79 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chain,
       assetId,
       fiatAmount,
-      cryptoAmount
+      cryptoAmount,
     }
   })
+}
+
+const useTransformCosmosStaking = (
+  cosmosActiveStakingOpportunities: MergedActiveStakingOpportunity[],
+  cosmosStakingOpportunities: MergedStakingOpportunity[],
+): EarnOpportunityType[] => {
+  const translate = useTranslate()
+  if (cosmosActiveStakingOpportunities.length === 0) {
+    if (cosmosStakingOpportunities.length === 0) {
+      return []
+    }
+
+    return cosmosStakingOpportunities.map(staking => {
+      return {
+        type: DefiType.TokenStaking,
+        assetId: staking.assetId,
+        provider: chainTypeToLabel(staking.chain),
+        contractAddress: staking.address,
+        tokenAddress: staking.tokenAddress,
+        rewardAddress: '',
+        tvl: staking.tvl,
+        apy: staking.apr,
+        chain: staking.chain,
+        cryptoAmount: '',
+        fiatAmount: '',
+        showAssetSymbol: true,
+      }
+    })
+  }
+
+  return cosmosActiveStakingOpportunities
+    .map(staking => {
+      return {
+        type: DefiType.TokenStaking,
+        provider: chainTypeToLabel(staking.chain),
+        version: translate('defi.validatorMoniker', { moniker: staking.moniker }),
+        contractAddress: staking.address,
+        tokenAddress: staking.tokenAddress,
+        rewardAddress: '',
+        tvl: staking.tvl,
+        apy: staking.apr,
+        chain: staking.chain,
+        assetId: staking.assetId,
+        fiatAmount: staking.fiatAmount ?? '',
+        cryptoAmount: staking.cryptoAmount ?? '',
+        moniker: staking.moniker,
+        showAssetSymbol: true,
+      }
+    })
+    .sort((opportunityA, opportunityB) => {
+      return bnOrZero(opportunityA.cryptoAmount).gt(bnOrZero(opportunityB.cryptoAmount)) ? -1 : 1
+    })
 }
 
 type NormalizeOpportunitiesProps = {
   vaultArray: SupportedYearnVault[]
   foxyArray: MergedFoxyOpportunity[]
+  cosmosActiveStakingOpportunities: MergedActiveStakingOpportunity[]
+  cosmosStakingOpportunities: MergedStakingOpportunity[]
 }
 
 export const useNormalizeOpportunities = ({
   vaultArray,
-  foxyArray
+  foxyArray,
+  cosmosActiveStakingOpportunities = [],
+  cosmosStakingOpportunities = [],
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
-  return [...transformFoxy(foxyArray), ...useTransformVault(vaultArray)]
+  return [
+    ...transformFoxy(foxyArray),
+    ...useTransformCosmosStaking(cosmosActiveStakingOpportunities, cosmosStakingOpportunities),
+    ...useTransformVault(vaultArray),
+  ]
 }

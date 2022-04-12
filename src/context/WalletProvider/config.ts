@@ -1,5 +1,9 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
+import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
+import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
+import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
+import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
@@ -45,32 +49,35 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/create', component: NativeCreate },
       { path: '/native/create-test', component: NativeTestPhrase },
       { path: '/native/success', component: NativeSuccess },
-      { path: '/native/enter-password', component: EnterPassword }
-    ]
+      { path: '/native/enter-password', component: EnterPassword },
+    ],
   },
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,
     routes: [
-      { path: '/keepkey/connect', component: KeepKeyConnect },
-      { path: '/keepkey/success', component: KeepKeySuccess },
-      { path: '/keepkey/enter-pin', component: KeepKeyPin },
-      { path: '/keepkey/passphrase', component: KeepKeyPassphrase }
-    ]
+      { path: KeepKeyRoutes.Connect, component: KeepKeyConnect },
+      { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
+      { path: KeepKeyRoutes.Pin, component: KeepKeyPin },
+      { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
+      { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
+      { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
+      { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
+    ],
   },
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,
     routes: [
       { path: '/metamask/connect', component: MetaMaskConnect },
       { path: '/metamask/success', component: MetaMaskSuccess },
-      { path: '/metamask/failure', component: MetaMaskFailure }
-    ]
+      { path: '/metamask/failure', component: MetaMaskFailure },
+    ],
   },
   [KeyManager.Portis]: {
     ...PortisConfig,
     routes: [
       { path: '/portis/connect', component: PortisConnect },
       { path: '/portis/success', component: PortisSuccess },
-      { path: '/portis/failure', component: PortisFailure }
-    ]
-  }
+      { path: '/portis/failure', component: PortisFailure },
+    ],
+  },
 }

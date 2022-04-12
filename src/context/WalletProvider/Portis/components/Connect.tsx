@@ -40,7 +40,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId: 'test' }
+          payload: { wallet, name, icon, deviceId: 'test' },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.Portis, 'test')

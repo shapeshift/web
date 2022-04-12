@@ -6,9 +6,10 @@ import {
   SkeletonCircle,
   SkeletonText,
   Stack,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -24,9 +25,34 @@ type AssetCellProps = {
   subText?: string
   postFix?: string
   showTeaser?: boolean
+  showAssetSymbol?: boolean
   onClick: () => void
 }
-export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: AssetCellProps) => {
+
+const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
+  if (showAssetSymbol && postFix) {
+    return `${asset.symbol} ${postFix}`
+  }
+
+  if (showAssetSymbol) {
+    return asset.symbol
+  }
+
+  if (postFix) {
+    return `${asset.name} ${postFix}`
+  }
+
+  return asset.name
+}
+
+export const AssetCell = ({
+  assetId,
+  subText,
+  showTeaser,
+  showAssetSymbol,
+  postFix,
+  onClick,
+}: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
@@ -35,7 +61,7 @@ export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: As
 
   if (!asset) return null
 
-  const rowTitle = postFix ? `${asset.name} ${postFix}` : asset.name
+  const rowTitle = buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
     <HStack width='full' data-test='account-row'>
@@ -67,7 +93,7 @@ export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: As
                   content: 'attr(title)',
                   overflow: 'hidden',
                   height: 0,
-                  display: 'block'
+                  display: 'block',
                 }}
               >
                 <RawText

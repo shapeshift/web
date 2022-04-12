@@ -15,7 +15,7 @@ import {
   selectRewardsAmountByAssetId,
   selectSingleValidator,
   selectStakingDataIsLoaded,
-  selectTotalBondingsBalanceByAssetId
+  selectTotalBondingsBalanceByAssetId,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -29,7 +29,7 @@ type StakedProps = {
 export const Overview: React.FC<StakedProps> = ({
   assetId,
   validatorAddress,
-  accountSpecifier
+  accountSpecifier,
 }) => {
   const isLoaded = useAppSelector(selectStakingDataIsLoaded)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -44,31 +44,35 @@ export const Overview: React.FC<StakedProps> = ({
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
           { accountSpecifier },
-          { forceRefetch: true }
-        )
+          { forceRefetch: true },
+        ),
       )
     })()
   }, [accountSpecifier, isLoaded, dispatch])
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress)
+    selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
 
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
+    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
   )
   const undelegationEntries = useAppSelector(state =>
     selectAllUnbondingsEntriesByAssetIdAndValidator(
       state,
       accountSpecifier,
       validatorAddress,
-      asset.caip19
-    )
+      asset.caip19,
+    ),
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
   )
+
+  // If it's loading, it will display the skeleton,
+  // overwise if there are some undelegationEntries it will display it.
+  const shouldDisplayUndelegationEntries = undelegationEntries?.length || !isLoaded
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -107,25 +111,35 @@ export const Overview: React.FC<StakedProps> = ({
                   .decimalPlaces(asset.precision)}
                 fiatRate={bnOrZero(marketData.price)}
                 renderButton={() => (
-                  <ClaimButton assetId={assetId} validatorAddress={validatorAddress} />
+                  <ClaimButton
+                    assetId={assetId}
+                    validatorAddress={validatorAddress}
+                    isDisabled={bnOrZero(rewardsAmount).isZero()}
+                  />
                 )}
               />
             </Box>
           </Skeleton>
-          <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mb='20px'>
-            <Text translation={'defi.unstaking'} color='gray.500' />
-            <Box width='100%'>
-              {undelegationEntries?.map((undelegation, i) => (
-                <UnbondingRow
-                  key={i}
-                  assetSymbol={asset.symbol}
-                  fiatRate={bnOrZero(marketData.price)}
-                  cryptoUnbondedAmount={bnOrZero(undelegation.amount).div(`1e+${asset.precision}`)}
-                  unbondingEnd={undelegation.completionTime}
-                />
-              ))}
-            </Box>
-          </Skeleton>
+          {shouldDisplayUndelegationEntries && (
+            <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mb='20px'>
+              <>
+                <Text translation={'defi.unstaking'} color='gray.500' />
+                <Box width='100%'>
+                  {undelegationEntries?.map((undelegation, i) => (
+                    <UnbondingRow
+                      key={i}
+                      assetSymbol={asset.symbol}
+                      fiatRate={bnOrZero(marketData.price)}
+                      cryptoUnbondedAmount={bnOrZero(undelegation.amount).div(
+                        `1e+${asset.precision}`,
+                      )}
+                      unbondingEnd={undelegation.completionTime}
+                    />
+                  ))}
+                </Box>
+              </>
+            </Skeleton>
+          )}
         </Flex>
       </Box>
     </AnimatePresence>

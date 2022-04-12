@@ -16,9 +16,9 @@
     "@reduxjs/toolkit": "^1.8.0",
     "@shapeshiftoss/asset-service": "^2.2.3",
     "@shapeshiftoss/caip": "^2.1.2",
-    "@shapeshiftoss/chain-adapters": "^2.11.0",
+    "@shapeshiftoss/chain-adapters": "^2.13.0",
     "@shapeshiftoss/hdwallet-core": "^1.19.0",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.19.0",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.19.1",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.19.0",
     "@shapeshiftoss/hdwallet-metamask": "^1.19.0",
     "@shapeshiftoss/hdwallet-native": "^1.19.0",
@@ -28,7 +28,7 @@
     "@shapeshiftoss/investor-yearn": "^1.4.4",
     "@shapeshiftoss/market-service": "^2.1.2",
     "@shapeshiftoss/swapper": "^2.0.2",
-    "@shapeshiftoss/types": "^2.7.0",
+    "@shapeshiftoss/types": "^2.9.0",
     "@shapeshiftoss/unchained-client": "^6.7.0",
     "@visx/axis": "^2.6.0",
     "@visx/brush": "^2.6.0",
@@ -113,8 +113,8 @@
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh",
-    "create-release": "./scripts/release.sh release",
-    "merge-release": "./scripts/release.sh main"
+    "create-release": "./scripts/release.sh create",
+    "merge-release": "./scripts/release.sh merge"
   },
   "eslintConfig": {
     "extends": "react-app",

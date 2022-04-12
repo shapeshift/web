@@ -7,11 +7,11 @@ import {
   Skeleton,
   SkeletonCircle,
   Tag,
-  TagLabel
+  TagLabel,
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { MouseEvent, useEffect, useMemo } from 'react'
+import { MouseEvent, useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -21,23 +21,10 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAccountSpecifier,
-  selectAssetByCAIP19,
-  selectMarketDataById
-} from 'state/slices/selectors'
-import {
-  ActiveStakingOpportunity,
-  selectActiveStakingOpportunityDataByAssetId,
-  selectNonloadedValidators,
-  selectSingleValidator,
-  selectStakingDataIsLoaded,
-  selectValidatorIsLoaded
-} from 'state/slices/stakingDataSlice/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
-
-const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { ActiveStakingOpportunity } from 'state/slices/stakingDataSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
   assetId: CAIP19
@@ -46,13 +33,14 @@ type StakingOpportunitiesProps = {
 type ValidatorNameProps = {
   moniker: string
   isStaking: boolean
+  validatorAddress: string
 }
 
-export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
+export const ValidatorName = ({ moniker, isStaking, validatorAddress }: ValidatorNameProps) => {
   const isLoaded = true
   const assetIcon = isStaking
-    ? 'https://assets.coincap.io/assets/icons/eth@2x.png'
-    : 'https://assets.coingecko.com/coins/images/16724/small/osmo.png?1632763885'
+    ? `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/cosmoshub/${validatorAddress}.png`
+    : 'https://assets.coincap.io/assets/icons/256/atom.png'
 
   return (
     <Box cursor='pointer'>
@@ -74,77 +62,14 @@ export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
 }
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
-  const isStakingDataLoaded = useAppSelector(selectStakingDataIsLoaded)
-  const isValidatorDataLoaded = useAppSelector(selectValidatorIsLoaded)
-  const isLoaded = isStakingDataLoaded && isValidatorDataLoaded
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const dispatch = useAppDispatch()
 
-  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.caip2))
-  const accountSpecifier = accountSpecifiers?.[0]
+  const { activeStakingOpportunities, stakingOpportunities, isLoaded } = useCosmosStakingBalances({
+    assetId,
+  })
 
-  const activeStakingOpportunities = useAppSelector(state =>
-    selectActiveStakingOpportunityDataByAssetId(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS,
-      asset.caip19
-    )
-  )
-
-  const shapeshiftValidator = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
-  )
-  const stakingOpportunities = [
-    {
-      ...shapeshiftValidator
-    }
-  ]
-  const nonLoadedValidators = useAppSelector(state =>
-    selectNonloadedValidators(state, accountSpecifier)
-  )
   const hasActiveStakingOpportunities = activeStakingOpportunities.length !== 0
-  const chainId = asset.caip2
-
-  useEffect(() => {
-    ;(async () => {
-      if (!accountSpecifier?.length || isStakingDataLoaded) return
-
-      dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier },
-          { forceRefetch: true }
-        )
-      )
-    })()
-  }, [accountSpecifier, isStakingDataLoaded, dispatch])
-
-  useEffect(() => {
-    ;(async () => {
-      if (isValidatorDataLoaded) return
-
-      dispatch(
-        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId }, { forceRefetch: true })
-      )
-    })()
-  }, [isValidatorDataLoaded, dispatch, chainId])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!isValidatorDataLoaded || !nonLoadedValidators?.length) return
-
-      nonLoadedValidators.forEach(validatorAddress => {
-        dispatch(
-          stakingDataApi.endpoints.getValidatorData.initiate(
-            { chainId, validatorAddress },
-            { forceRefetch: true }
-          )
-        )
-      })
-    })()
-  }, [isValidatorDataLoaded, nonLoadedValidators, dispatch, chainId])
-
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const handleGetStartedClick = (e: MouseEvent<HTMLButtonElement>) => {
@@ -155,7 +80,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const handleStakedClick = (values: Row<ActiveStakingOpportunity>) => {
     cosmosStaking.open({
       assetId,
-      validatorAddress: values.original.address
+      validatorAddress: values.original.address,
     })
   }
 
@@ -163,12 +88,16 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     () => [
       {
         Header: <Text translation='defi.validator' />,
-        accessor: 'moniker',
+        id: 'moniker',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => (
-          <ValidatorName moniker={value} isStaking={hasActiveStakingOpportunities} />
+        Cell: ({ row }: { row: { original: ActiveStakingOpportunity } }) => (
+          <ValidatorName
+            validatorAddress={row.original.address}
+            moniker={row.original.moniker}
+            isStaking={hasActiveStakingOpportunities}
+          />
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.apr' />,
@@ -179,7 +108,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             <AprTag percentage={value} showAprSuffix />
           </Skeleton>
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.stakedAmount' />,
@@ -189,10 +118,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Cell: ({ value }: { value: string }) => {
           return hasActiveStakingOpportunities ? (
             <Amount.Crypto
-              value={bnOrZero(value)
-                .div(`1e+${asset.precision}`)
-                .decimalPlaces(asset.precision)
-                .toString()}
+              value={value}
               symbol={asset.symbol}
               color='white'
               fontWeight={'normal'}
@@ -201,7 +127,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             <Box minWidth={{ base: '0px', md: '200px' }} />
           )
         },
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: <Text translation='defi.rewards' />,
@@ -241,13 +167,13 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
             </Box>
           )
         },
-        disableSortBy: true
-      }
+        disableSortBy: true,
+      },
     ],
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoaded]
+    [isLoaded],
   )
   return (
     <Card>

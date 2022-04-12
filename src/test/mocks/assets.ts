@@ -21,7 +21,7 @@ export const rune: Asset = {
   symbol: 'RUNE',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
-  slip44: 60
+  slip44: 60,
 }
 
 export const ethereum: Asset = {
@@ -41,7 +41,7 @@ export const ethereum: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   sendSupport: true,
-  receiveSupport: true
+  receiveSupport: true,
 }
 
 export const usdc: Asset = {
@@ -61,7 +61,7 @@ export const usdc: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   sendSupport: true,
-  receiveSupport: true
+  receiveSupport: true,
 }
 
 export const aapl: Asset = {
@@ -83,7 +83,7 @@ export const aapl: Asset = {
   sendSupport: true,
   slip44: 60,
   symbol: 'AAPL',
-  tokenId: '0x41efc0253ee7ea44400abb5f907fdbfdebc82bec'
+  tokenId: '0x41efc0253ee7ea44400abb5f907fdbfdebc82bec',
 }
 
 export const zero: Asset = {
@@ -105,7 +105,7 @@ export const zero: Asset = {
   sendSupport: true,
   slip44: 60,
   symbol: 'ZERO',
-  tokenId: '0xf0939011a9bb95c3b791f0cb546377ed2693a574'
+  tokenId: '0xf0939011a9bb95c3b791f0cb546377ed2693a574',
 }
 
 export const fox: Asset = {
@@ -127,7 +127,28 @@ export const fox: Asset = {
   sendSupport: true,
   slip44: 60,
   symbol: 'FOX',
-  tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+  tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+}
+
+export const cosmos: Asset = {
+  caip2: 'cosmos:cosmoshub-4',
+  caip19: 'cosmos:cosmoshub-4/slip44:118',
+  chain: ChainTypes.Cosmos,
+  dataSource: AssetDataSource.CoinGecko,
+  network: NetworkTypes.COSMOSHUB_MAINNET,
+  color: '#FFFFFF',
+  contractType: AssetNamespace.ERC20,
+  explorer: 'https://www.mintscan.io/cosmos',
+  explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
+  explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
+  icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
+  name: 'Cosmos',
+  precision: 6,
+  receiveSupport: true,
+  secondaryColor: '#FFFFFF',
+  sendSupport: true,
+  slip44: 118,
+  symbol: 'ATOM',
 }
 
 export const mockAssetState = (obj?: Record<string, any>) =>
@@ -137,9 +158,9 @@ export const mockAssetState = (obj?: Record<string, any>) =>
         [ethereum.caip19]: ethereum,
         [fox.caip19]: fox,
         [usdc.caip19]: usdc,
-        [zero.caip19]: zero
+        [zero.caip19]: zero,
       },
-      ids: [ethereum.caip19, fox.caip19, usdc.caip19]
+      ids: [ethereum.caip19, fox.caip19, usdc.caip19],
     },
-    obj
+    obj,
   )

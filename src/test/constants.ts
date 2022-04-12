@@ -19,7 +19,7 @@ export const BTC: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
   sendSupport: false,
   receiveSupport: false,
-  symbol: 'BTC'
+  symbol: 'BTC',
 }
 export const WETH: Asset = {
   caip2: 'eip155:1',
@@ -40,7 +40,7 @@ export const WETH: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
   sendSupport: true,
   receiveSupport: true,
-  symbol: 'WETH'
+  symbol: 'WETH',
 }
 
 export const ETH: Asset = {
@@ -60,7 +60,7 @@ export const ETH: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   sendSupport: true,
-  receiveSupport: true
+  receiveSupport: true,
 }
 
 export const FOX: Asset = {
@@ -82,7 +82,7 @@ export const FOX: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   receiveSupport: true,
-  symbol: 'FOX'
+  symbol: 'FOX',
 }
 export const USDC: Asset = {
   caip2: 'eip155:1',
@@ -103,7 +103,7 @@ export const USDC: Asset = {
   sendSupport: true,
   receiveSupport: true,
   symbol: 'USDC',
-  slip44: 60
+  slip44: 60,
 }
 
 export const ETHCHAIN_QUOTE = {
@@ -119,17 +119,17 @@ export const ETHCHAIN_QUOTE = {
     fee: '153244500000000000',
     chainSpecific: {
       estimatedGas: '424500',
-      gasPrice: '361000000000'
-    }
+      gasPrice: '361000000000',
+    },
   },
   sellAmount: '324000000000000000000',
   buyAmount: '1243923191084',
   sources: [
     {
       name: 'Uniswap_V3',
-      proportion: '1'
-    }
-  ]
+      proportion: '1',
+    },
+  ],
 }
 
 export const ETHCHAIN_QUOTE_FEES = {
@@ -137,9 +137,9 @@ export const ETHCHAIN_QUOTE_FEES = {
     approvalFee: '0',
     estimatedGas: '424500',
     gasPrice: '361000000000',
-    totalFee: '0.1532445'
+    totalFee: '0.1532445',
   },
-  fee: '0.1532445'
+  fee: '0.1532445',
 }
 
 export const MIN_MAX = { minimum: '1000000', minimumPrice: '5000' }

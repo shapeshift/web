@@ -37,7 +37,7 @@ describe('lib/utils', () => {
       expect(partitionCompare(first, second)).toStrictEqual({
         remove: [1, 2, 3],
         keep: [],
-        add: []
+        add: [],
       })
     })
 
@@ -60,7 +60,7 @@ describe('lib/utils', () => {
       expect(partitionCompareWith(first, second, { add, remove })).toStrictEqual({
         remove: [1, 2],
         keep: [3],
-        add: [4, 5]
+        add: [4, 5],
       })
       expect(add).toHaveBeenNthCalledWith(1, 4)
       expect(add).toHaveBeenNthCalledWith(2, 5)

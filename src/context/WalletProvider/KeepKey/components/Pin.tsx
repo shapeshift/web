@@ -6,7 +6,7 @@ import {
   Input,
   ModalBody,
   ModalHeader,
-  SimpleGrid
+  SimpleGrid,
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useRef, useState } from 'react'
@@ -16,7 +16,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import {
   FailureType,
   MessageType,
-  PinMatrixRequestType
+  PinMatrixRequestType,
 } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -45,9 +45,13 @@ export const KeepKeyPin = () => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
         console.error('KeepKey PIN Submit error: ', e)
+      } finally {
+        if (pinFieldRef?.current) {
+          pinFieldRef.current.value = ''
+        }
+        setLoading(false)
       }
     }
-    setLoading(false)
   }
 
   // Use different translation text based on which type of PIN request we received

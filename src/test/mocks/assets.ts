@@ -130,6 +130,27 @@ export const fox: Asset = {
   tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
 }
 
+export const cosmos: Asset = {
+  caip2: 'cosmos:cosmoshub-4',
+  caip19: 'cosmos:cosmoshub-4/slip44:118',
+  chain: ChainTypes.Cosmos,
+  dataSource: AssetDataSource.CoinGecko,
+  network: NetworkTypes.COSMOSHUB_MAINNET,
+  color: '#FFFFFF',
+  contractType: AssetNamespace.ERC20,
+  explorer: 'https://www.mintscan.io/cosmos',
+  explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
+  explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
+  icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
+  name: 'Cosmos',
+  precision: 6,
+  receiveSupport: true,
+  secondaryColor: '#FFFFFF',
+  sendSupport: true,
+  slip44: 118,
+  symbol: 'ATOM',
+}
+
 export const mockAssetState = (obj?: Record<string, any>) =>
   merge(
     {

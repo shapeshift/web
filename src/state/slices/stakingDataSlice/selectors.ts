@@ -19,6 +19,7 @@ export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
   apr: string
+  tokens: string
   cryptoAmount?: string
   rewards?: string
 }
@@ -425,7 +426,7 @@ export const selectActiveStakingOpportunityDataByAssetId = createDeepEqualOutput
     allValidators,
   ): ActiveStakingOpportunity[] => {
     return Object.entries(allValidators).reduce(
-      (acc: ActiveStakingOpportunity[], [validatorAddress, { apr, moniker }]) => {
+      (acc: ActiveStakingOpportunity[], [validatorAddress, { apr, moniker, tokens }]) => {
         const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
 
         const undelegationsAmount = getUndelegationsAmountByValidatorAddress(
@@ -442,6 +443,7 @@ export const selectActiveStakingOpportunityDataByAssetId = createDeepEqualOutput
             address: validatorAddress,
             apr,
             moniker,
+            tokens,
             cryptoAmount,
             rewards,
           })

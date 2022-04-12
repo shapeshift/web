@@ -8,11 +8,11 @@ import { useAppSelector } from 'state/store'
 const GetAccountName = (props: any) => {
   const {
     match: {
-      params: { accountId, tab },
+      params: { accountId },
     },
   } = props
 
-  return tab ? <>{tab}</> : <AccountLabel accountId={accountId} />
+  return <AccountLabel accountId={accountId} />
 }
 
 const GetAssetName = (props: any) => {
@@ -21,6 +21,7 @@ const GetAssetName = (props: any) => {
       params: { chainId, assetSubId, assetId: assetIdParam },
     },
   } = props
+
   const assetId = assetIdParam ? decodeURIComponent(assetIdParam) : `${chainId}/${assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   return <>{asset?.name}</>
@@ -28,7 +29,6 @@ const GetAssetName = (props: any) => {
 
 const routes: BreadcrumbsRoute[] = [
   { path: '/accounts/:accountId', breadcrumb: GetAccountName },
-  { path: '/accounts/:accountId/:tab', breadcrumb: GetAccountName },
   { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
   { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
 ]

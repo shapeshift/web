@@ -101,7 +101,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    const apy = state.foxyOpportunity.apy
+    const apy = process.env.REACT_APP_FOXY_APY
 
     switch (route.path) {
       case DepositPath.Deposit:

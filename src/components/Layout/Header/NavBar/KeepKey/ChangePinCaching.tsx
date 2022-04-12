@@ -19,7 +19,9 @@ export const ChangePinCaching = () => {
     state: { hasPinCaching },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction },
+    state: {
+      deviceState: { awaitingDeviceInteraction },
+    },
   } = useWallet()
   const toast = useToast()
 

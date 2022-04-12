@@ -3,7 +3,7 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
-import type { Adapters } from './WalletProvider'
+import type { Adapters, Outcome } from './WalletProvider'
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -21,8 +21,6 @@ export enum WalletActions {
   SET_AWAITING_DEVICE_INTERACTION = 'SET_AWAITING_DEVICE_INTERACTION',
   SET_LAST_DEVICE_INTERACTION_STATUS = 'SET_LAST_DEVICE_INTERACTION_STATUS',
 }
-
-export type Outcome = 'success' | 'error' | undefined
 
 export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
@@ -42,7 +40,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
   | { type: WalletActions.SET_AWAITING_DEVICE_INTERACTION; payload: boolean }
-  | { type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS; payload: Outcome }
+  | { type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS; payload: Outcome | undefined }
   | {
       type: WalletActions.NATIVE_PASSWORD_OPEN
       payload: {

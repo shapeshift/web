@@ -7,7 +7,7 @@ import findIndex from 'lodash/findIndex'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 
-import { ActionTypes, Outcome, WalletActions } from './actions'
+import { ActionTypes, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
@@ -31,6 +31,16 @@ export type WalletInfo = {
   meta?: { label?: string; address?: string }
 }
 
+export type Outcome = 'success' | 'error'
+export type DeviceDisposition = 'initialized' | 'recovering' | 'initializing'
+
+export type DeviceState = {
+  awaitingDeviceInteraction: boolean
+  lastDeviceInteractionStatus: Outcome | undefined
+  disposition: DeviceDisposition | undefined
+  stagedLabel: string | undefined
+}
+
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
@@ -44,8 +54,7 @@ export interface InitialState {
   deviceId: string
   noBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
-  awaitingDeviceInteraction: boolean
-  lastDeviceInteractionStatus: Outcome
+  deviceState: DeviceState
 }
 
 const initialState: InitialState = {
@@ -61,8 +70,12 @@ const initialState: InitialState = {
   deviceId: '',
   noBackButton: false,
   keepKeyPinRequestType: null,
-  awaitingDeviceInteraction: false,
-  lastDeviceInteractionStatus: undefined,
+  deviceState: {
+    awaitingDeviceInteraction: false,
+    lastDeviceInteractionStatus: undefined,
+    disposition: undefined,
+    stagedLabel: undefined,
+  },
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -90,9 +103,15 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
     case WalletActions.SET_AWAITING_DEVICE_INTERACTION:
-      return { ...state, awaitingDeviceInteraction: action.payload }
+      return {
+        ...state,
+        deviceState: { ...state.deviceState, awaitingDeviceInteraction: action.payload },
+      }
     case WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS:
-      return { ...state, lastDeviceInteractionStatus: action.payload }
+      return {
+        ...state,
+        deviceState: { ...state.deviceState, lastDeviceInteractionStatus: action.payload },
+      }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
@@ -153,8 +172,12 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         isLoadingLocalWallet: false,
         noBackButton: false,
         keepKeyPinRequestType: null,
-        awaitingDeviceInteraction: false,
-        lastDeviceInteractionStatus: undefined,
+        deviceState: {
+          awaitingDeviceInteraction: false,
+          lastDeviceInteractionStatus: undefined,
+          disposition: undefined,
+          stagedLabel: undefined,
+        },
       }
     default:
       return state
@@ -372,12 +395,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
   }, [])
 
-  const setLastDeviceInteractionStatus = useCallback((lastDeviceInteractionStatus: Outcome) => {
-    dispatch({
-      type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS,
-      payload: lastDeviceInteractionStatus,
-    })
-  }, [])
+  const setLastDeviceInteractionStatus = useCallback(
+    (lastDeviceInteractionStatus: Outcome | undefined) => {
+      dispatch({
+        type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS,
+        payload: lastDeviceInteractionStatus,
+      })
+    },
+    [],
+  )
 
   useEffect(() => load(), [load, state.adapters, state.keyring])
 

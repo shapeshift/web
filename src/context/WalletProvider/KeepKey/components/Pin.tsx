@@ -23,8 +23,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 export const KeepKeyPin = () => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { state, dispatch } = useWallet()
-  const wallet = state.keyring.get(state.deviceId)
+  const {
+    state: { keyring, deviceId, keepKeyPinRequestType },
+    dispatch,
+  } = useWallet()
+  const wallet = keyring.get(deviceId)
 
   const pinFieldRef = useRef<HTMLInputElement | null>(null)
 
@@ -55,17 +58,16 @@ export const KeepKeyPin = () => {
   }
 
   // Use different translation text based on which type of PIN request we received
-  let translationType: 'pin' | 'newPin' | 'newPinConfirm'
-  switch (state.keepKeyPinRequestType) {
-    case PinMatrixRequestType.NEWFIRST:
-      translationType = 'newPin'
-      break
-    case PinMatrixRequestType.NEWSECOND:
-      translationType = 'newPinConfirm'
-      break
-    default:
-      translationType = 'pin'
-  }
+  const translationType = (() => {
+    switch (keepKeyPinRequestType) {
+      case PinMatrixRequestType.NEWFIRST:
+        return 'newPin'
+      case PinMatrixRequestType.NEWSECOND:
+        return 'newPinConfirm'
+      default:
+        return 'pin'
+    }
+  })()
 
   const pinNumbers = [7, 8, 9, 4, 5, 6, 1, 2, 3]
 
@@ -95,12 +97,12 @@ export const KeepKeyPin = () => {
       }
     }
 
-    state.keyring.on(['KeepKey', state.deviceId, String(MessageType.FAILURE)], handleError)
+    keyring.on(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
 
     return () => {
-      state.keyring.off(['KeepKey', state.deviceId, String(MessageType.FAILURE)], handleError)
+      keyring.off(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
     }
-  }, [state.deviceId, state.keyring])
+  }, [deviceId, keyring])
 
   return (
     <>

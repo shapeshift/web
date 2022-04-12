@@ -1,7 +1,7 @@
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
-import { ActionTypes, Outcome, WalletActions } from 'context/WalletProvider/actions'
-import { InitialState } from 'context/WalletProvider/WalletProvider'
+import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { InitialState, Outcome } from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
 

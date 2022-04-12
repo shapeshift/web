@@ -3,7 +3,8 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
-import type { Adapters, Outcome } from './WalletProvider'
+import type { Adapters } from './WalletProvider'
+import { DeviceState } from './WalletProvider'
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -18,8 +19,7 @@ export enum WalletActions {
   OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN',
   OPEN_KEEPKEY_PASSPHRASE = 'OPEN_KEEPKEY_PASSPHRASE',
   OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
-  SET_AWAITING_DEVICE_INTERACTION = 'SET_AWAITING_DEVICE_INTERACTION',
-  SET_LAST_DEVICE_INTERACTION_STATUS = 'SET_LAST_DEVICE_INTERACTION_STATUS',
+  SET_DEVICE_STATE = 'SET_DEVICE_STATE',
 }
 
 export type ActionTypes =
@@ -39,8 +39,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
-  | { type: WalletActions.SET_AWAITING_DEVICE_INTERACTION; payload: boolean }
-  | { type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS; payload: Outcome | undefined }
+  | { type: WalletActions.SET_DEVICE_STATE; payload: Partial<DeviceState> }
   | {
       type: WalletActions.NATIVE_PASSWORD_OPEN
       payload: {

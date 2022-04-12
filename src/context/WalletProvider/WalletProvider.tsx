@@ -4,6 +4,7 @@ import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import findIndex from 'lodash/findIndex'
+import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 
@@ -102,15 +103,23 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
-    case WalletActions.SET_AWAITING_DEVICE_INTERACTION:
+    case WalletActions.SET_DEVICE_STATE:
+      const { deviceState } = state
+      const {
+        awaitingDeviceInteraction = deviceState.awaitingDeviceInteraction,
+        lastDeviceInteractionStatus = deviceState.lastDeviceInteractionStatus,
+        disposition = deviceState.disposition,
+        stagedLabel = deviceState.stagedLabel,
+      } = action.payload
       return {
         ...state,
-        deviceState: { ...state.deviceState, awaitingDeviceInteraction: action.payload },
-      }
-    case WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS:
-      return {
-        ...state,
-        deviceState: { ...state.deviceState, lastDeviceInteractionStatus: action.payload },
+        deviceState: {
+          ...deviceState,
+          awaitingDeviceInteraction,
+          lastDeviceInteractionStatus,
+          disposition,
+          stagedLabel,
+        },
       }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
@@ -162,23 +171,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
-      return {
-        ...state,
-        wallet: null,
-        walletInfo: null,
-        isConnected: false,
-        type: null,
-        initialRoute: null,
-        isLoadingLocalWallet: false,
-        noBackButton: false,
-        keepKeyPinRequestType: null,
-        deviceState: {
-          awaitingDeviceInteraction: false,
-          lastDeviceInteractionStatus: undefined,
-          disposition: undefined,
-          stagedLabel: undefined,
-        },
-      }
+      const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
+      return { ...state, ...resetProperties }
     default:
       return state
   }
@@ -388,34 +382,18 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
-  const setAwaitingDeviceInteraction = useCallback((awaitingDeviceInteraction: boolean) => {
+  const setDeviceState = useCallback((deviceState: Partial<DeviceState>) => {
     dispatch({
-      type: WalletActions.SET_AWAITING_DEVICE_INTERACTION,
-      payload: awaitingDeviceInteraction,
+      type: WalletActions.SET_DEVICE_STATE,
+      payload: deviceState,
     })
   }, [])
-
-  const setLastDeviceInteractionStatus = useCallback(
-    (lastDeviceInteractionStatus: Outcome | undefined) => {
-      dispatch({
-        type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS,
-        payload: lastDeviceInteractionStatus,
-      })
-    },
-    [],
-  )
 
   useEffect(() => load(), [load, state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
   useNativeEventHandler(state, dispatch)
-  useKeepKeyEventHandler(
-    state,
-    dispatch,
-    load,
-    setAwaitingDeviceInteraction,
-    setLastDeviceInteractionStatus,
-  )
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
 
   const value: IWalletContext = useMemo(
     () => ({
@@ -425,18 +403,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       create,
       disconnect,
       load,
-      setAwaitingDeviceInteraction,
-      setLastDeviceInteractionStatus,
+      setDeviceState,
     }),
-    [
-      state,
-      connect,
-      create,
-      disconnect,
-      load,
-      setAwaitingDeviceInteraction,
-      setLastDeviceInteractionStatus,
-    ],
+    [state, connect, create, disconnect, load, setDeviceState],
   )
 
   return (

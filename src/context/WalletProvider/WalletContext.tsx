@@ -2,7 +2,7 @@ import React, { createContext } from 'react'
 
 import { ActionTypes } from './actions'
 import { KeyManager } from './KeyManager'
-import type { InitialState, Outcome } from './WalletProvider'
+import type { DeviceState, InitialState } from './WalletProvider'
 
 export interface IWalletContext {
   state: InitialState
@@ -11,8 +11,7 @@ export interface IWalletContext {
   create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
   load: () => void
-  setAwaitingDeviceInteraction: (awaitingDeviceInteraction: boolean) => void
-  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome | undefined) => void
+  setDeviceState: (deviceState: Partial<DeviceState>) => void
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

@@ -1,19 +1,37 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
+import { WipedParams } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+
+export interface LabelParams {
+  intent: 'create' | 'recover'
+  label: string | undefined
+}
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory()
+  const history = useHistory<LabelParams>()
+  const {
+    state: { intent },
+  } = useLocation<WipedParams>()
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
-  const handleSubmit = async () => {
+  const handleCreateSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
-    history.push({ pathname: KeepKeyRoutes.NewRecoverySentence, state: { label } })
+    history.push({
+      pathname: KeepKeyRoutes.NewRecoverySentence,
+      state: { label, intent: 'create' },
+    })
+  }
+
+  const handleRecoverSubmit = async () => {
+    setLoading(true)
+    const label = inputRef.current?.value
+    history.push({ pathname: KeepKeyRoutes.Pin, state: { label, intent: 'recover' } })
   }
 
   return (
@@ -28,7 +46,7 @@ export const KeepKeyLabel = () => {
           isFullWidth
           size='lg'
           colorScheme='blue'
-          onClick={handleSubmit}
+          onClick={intent === 'create' ? handleCreateSubmit : handleRecoverSubmit}
           disabled={loading}
           mb={3}
         >

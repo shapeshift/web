@@ -5,18 +5,22 @@ import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
+export interface WipedParams {
+  intent: 'create' | 'recover'
+}
+
 export const WipedSuccessfully = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory()
+  const history = useHistory<WipedParams>()
 
   const handleCreateWalletPress = async () => {
     setLoading(true)
-    history.push(KeepKeyRoutes.NewLabel)
+    history.push(KeepKeyRoutes.NewLabel, { intent: 'create' })
   }
 
   const handleRecoverWalletPress = async () => {
     setLoading(true)
-    history.push(KeepKeyRoutes.NewLabel)
+    history.push(KeepKeyRoutes.NewLabel, { intent: 'recover' })
   }
 
   return (

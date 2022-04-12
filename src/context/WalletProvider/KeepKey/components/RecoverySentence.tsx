@@ -8,11 +8,8 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
+import { LabelParams } from 'context/WalletProvider/KeepKey/components/Label'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
-interface RecoverySentenceParams {
-  label: string
-}
 
 export const KeepKeyRecoverySentence = () => {
   const yellowShade = useColorModeValue('yellow.500', 'yellow.200')
@@ -22,14 +19,15 @@ export const KeepKeyRecoverySentence = () => {
   } = useWallet()
   const history = useHistory()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
-  const location = useLocation<RecoverySentenceParams>()
+  const {
+    state: { label },
+  } = useLocation<LabelParams>()
   const toast = useToast()
   const translate = useTranslate()
 
   useEffect(() => {
     ;(async () => {
-      const { label } = location.state
-      const resetMessage: ResetDevice = { label }
+      const resetMessage: ResetDevice = { label: label ?? '' }
       await keepKeyWallet?.reset(resetMessage).catch(e => {
         console.error(e)
         toast({
@@ -42,7 +40,7 @@ export const KeepKeyRecoverySentence = () => {
       load()
       history.push('/keepkey/success')
     })()
-  }, [history, keepKeyWallet, load, location.state, toast, translate])
+  }, [history, keepKeyWallet, label, load, toast, translate])
   return (
     <>
       <ModalHeader>

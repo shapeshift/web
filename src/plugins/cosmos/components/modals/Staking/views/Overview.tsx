@@ -17,7 +17,7 @@ import {
   selectTotalBondingsBalanceByAssetId,
 } from 'state/slices/stakingDataSlice/selectors'
 import { useGetStakingDataQuery } from 'state/slices/stakingDataSlice/stakingDataSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 type StakedProps = {
   assetId: CAIP19

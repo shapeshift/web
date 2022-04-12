@@ -50,7 +50,7 @@
     "apy": "%{apy}% APY",
     "settings": "Settings",
     "legalDated": "Dated: January 2022",
-    "approve": "Approve",
+    "approve": "Approve"
   },
   "updateToast": {
     "body": "A new version of the app is available",

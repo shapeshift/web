@@ -36,7 +36,10 @@ import {
   selectPriceHistoryTimeframe,
   selectTxsByFilter,
 } from 'state/slices/selectors'
-import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
+import {
+  selectStakingDataIsLoaded,
+  selectTotalStakingDelegationCryptoByAccountSpecifier,
+} from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -322,6 +325,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
+  const isStakingDataLoaded = useAppSelector(selectStakingDataIsLoaded)
   const dispatch = useAppDispatch()
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
@@ -352,7 +356,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // load staking data to redux state
   useEffect(() => {
     ;(async () => {
-      if (!cosmosCaip10?.length) return
+      if (!cosmosCaip10?.length || isStakingDataLoaded) return
 
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
@@ -361,7 +365,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
         ),
       )
     })()
-  }, [dispatch, cosmosCaip10])
+  }, [dispatch, cosmosCaip10, isStakingDataLoaded])
 
   const delegationTotal = useAppSelector(state =>
     selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10),

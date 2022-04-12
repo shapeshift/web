@@ -6,7 +6,6 @@ import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetCl
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
@@ -17,7 +16,7 @@ import {
   selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAssetId,
 } from 'state/slices/stakingDataSlice/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
+import { useGetStakingDataQuery } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type StakedProps = {
@@ -35,20 +34,7 @@ export const Overview: React.FC<StakedProps> = ({
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    ;(async () => {
-      if (!accountSpecifier.length || isLoaded) return
-
-      dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier },
-          { forceRefetch: true },
-        ),
-      )
-    })()
-  }, [accountSpecifier, isLoaded, dispatch])
+  useGetStakingDataQuery({ accountSpecifier }, { skip: !accountSpecifier.length || isLoaded })
 
   const validatorInfo = useAppSelector(state =>
     selectSingleValidator(state, accountSpecifier, validatorAddress),

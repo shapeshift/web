@@ -108,6 +108,7 @@ export const stakingDataApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
+  refetchOnMountOrArgChange: true,
   endpoints: build => ({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
@@ -224,3 +225,5 @@ export const stakingDataApi = createApi({
     }),
   }),
 })
+
+export const { useGetStakingDataQuery, useGetAllValidatorsDataQuery } = stakingDataApi

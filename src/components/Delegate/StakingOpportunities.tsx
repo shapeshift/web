@@ -34,7 +34,11 @@ import {
   selectStakingDataIsLoaded,
   selectValidatorIsLoaded,
 } from 'state/slices/stakingDataSlice/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
+import {
+  stakingDataApi,
+  useGetAllValidatorsDataQuery,
+  useGetStakingDataQuery,
+} from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
@@ -108,40 +112,18 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const hasActiveStakingOpportunities = activeStakingOpportunities.length !== 0
   const chainId = asset.caip2
 
-  useEffect(() => {
-    ;(async () => {
-      if (!accountSpecifier?.length || isStakingDataLoaded) return
-
-      dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier },
-          { forceRefetch: true },
-        ),
-      )
-    })()
-  }, [accountSpecifier, isStakingDataLoaded, dispatch])
-
-  useEffect(() => {
-    ;(async () => {
-      if (isValidatorDataLoaded) return
-
-      dispatch(
-        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId }, { forceRefetch: true }),
-      )
-    })()
-  }, [isValidatorDataLoaded, dispatch, chainId])
+  useGetStakingDataQuery(
+    { accountSpecifier },
+    { skip: !accountSpecifier?.length || isStakingDataLoaded },
+  )
+  useGetAllValidatorsDataQuery({ chainId }, { skip: !chainId?.length || isValidatorDataLoaded })
 
   useEffect(() => {
     ;(async () => {
       if (!isValidatorDataLoaded || !nonLoadedValidators?.length) return
 
       nonLoadedValidators.forEach(validatorAddress => {
-        dispatch(
-          stakingDataApi.endpoints.getValidatorData.initiate(
-            { chainId, validatorAddress },
-            { forceRefetch: true },
-          ),
-        )
+        dispatch(stakingDataApi.endpoints.getValidatorData.initiate({ chainId, validatorAddress }))
       })
     })()
   }, [isValidatorDataLoaded, nonLoadedValidators, dispatch, chainId])
@@ -192,18 +174,22 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         isNumeric: true,
         display: { base: 'table-cell' },
         Cell: ({ value }: { value: string }) => {
-          return hasActiveStakingOpportunities ? (
-            <Amount.Crypto
-              value={bnOrZero(value)
-                .div(`1e+${asset.precision}`)
-                .decimalPlaces(asset.precision)
-                .toString()}
-              symbol={asset.symbol}
-              color='white'
-              fontWeight={'normal'}
-            />
-          ) : (
-            <Box minWidth={{ base: '0px', md: '200px' }} />
+          return (
+            <Skeleton isLoaded={isStakingDataLoaded}>
+              {hasActiveStakingOpportunities ? (
+                <Amount.Crypto
+                  value={bnOrZero(value)
+                    .div(`1e+${asset.precision}`)
+                    .decimalPlaces(asset.precision)
+                    .toString()}
+                  symbol={asset.symbol}
+                  color='white'
+                  fontWeight={'normal'}
+                />
+              ) : (
+                <Box minWidth={{ base: '0px', md: '200px' }} />
+              )}
+            </Skeleton>
           )
         },
         disableSortBy: true,
@@ -213,37 +199,41 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         accessor: 'rewards',
         display: { base: 'table-cell' },
         Cell: ({ value }: { value: string }) => {
-          return hasActiveStakingOpportunities ? (
-            <HStack fontWeight={'normal'}>
-              <Amount.Crypto
-                value={bnOrZero(value)
-                  .div(`1e+${asset.precision}`)
-                  .decimalPlaces(asset.precision)
-                  .toString()}
-                symbol={asset.symbol}
-              />
-              <Amount.Fiat
-                value={bnOrZero(value)
-                  .div(`1e+${asset.precision}`)
-                  .times(bnOrZero(marketData.price))
-                  .toPrecision()}
-                color='green.500'
-                prefix='≈'
-              />
-            </HStack>
-          ) : (
-            <Box width='100%' textAlign={'right'}>
-              <Button
-                onClick={handleGetStartedClick}
-                as='span'
-                colorScheme='blue'
-                variant='ghost-filled'
-                size='sm'
-                cursor='pointer'
-              >
-                <Text translation='common.getStarted' />
-              </Button>
-            </Box>
+          return (
+            <Skeleton isLoaded={isLoaded}>
+              {hasActiveStakingOpportunities ? (
+                <HStack fontWeight={'normal'}>
+                  <Amount.Crypto
+                    value={bnOrZero(value)
+                      .div(`1e+${asset.precision}`)
+                      .decimalPlaces(asset.precision)
+                      .toString()}
+                    symbol={asset.symbol}
+                  />
+                  <Amount.Fiat
+                    value={bnOrZero(value)
+                      .div(`1e+${asset.precision}`)
+                      .times(bnOrZero(marketData.price))
+                      .toPrecision()}
+                    color='green.500'
+                    prefix='≈'
+                  />
+                </HStack>
+              ) : (
+                <Box width='100%' textAlign={'right'}>
+                  <Button
+                    onClick={handleGetStartedClick}
+                    as='span'
+                    colorScheme='blue'
+                    variant='ghost-filled'
+                    size='sm'
+                    cursor='pointer'
+                  >
+                    <Text translation='common.getStarted' />
+                  </Button>
+                </Box>
+              )}
+            </Skeleton>
           )
         },
         disableSortBy: true,

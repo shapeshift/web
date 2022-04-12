@@ -217,10 +217,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
       if (!txAccountSpecifier.length) return
 
       dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier: txAccountSpecifier },
-          { forceRefetch: true },
-        ),
+        stakingDataApi.endpoints.getStakingData.initiate({ accountSpecifier: txAccountSpecifier }),
       )
     },
     [dispatch],

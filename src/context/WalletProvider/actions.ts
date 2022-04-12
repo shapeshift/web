@@ -52,7 +52,7 @@ export type ActionTypes =
       payload: {
         deviceId: string
         pinRequestType?: PinMatrixRequestType
-        noBackButton?: boolean
+        showBackButton?: boolean
       }
     }
   | {

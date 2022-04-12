@@ -26,7 +26,7 @@ export const WalletViewsSwitch = () => {
   const translate = useTranslate()
   const match = useRouteMatch('/')
   const {
-    state: { wallet, modal, noBackButton, initialRoute, type },
+    state: { wallet, modal, showBackButton, initialRoute, type },
     dispatch,
   } = useWallet()
 
@@ -73,7 +73,7 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && !noBackButton && (
+            {!match?.isExact && showBackButton && (
               <IconButton
                 icon={<ArrowBackIcon />}
                 aria-label='Back'

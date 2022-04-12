@@ -47,7 +47,7 @@ export const useKeepKeyEventHandler = (
             payload: {
               deviceId,
               pinRequestType: e[1].message?.type,
-              noBackButton: disposition === 'initialized',
+              showBackButton: disposition !== 'initialized',
             },
           })
           break

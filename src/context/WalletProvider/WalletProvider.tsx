@@ -53,7 +53,7 @@ export interface InitialState {
   modal: boolean
   isLoadingLocalWallet: boolean
   deviceId: string
-  noBackButton: boolean
+  showBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
   deviceState: DeviceState
 }
@@ -69,7 +69,7 @@ const initialState: InitialState = {
   modal: false,
   isLoadingLocalWallet: false,
   deviceId: '',
-  noBackButton: false,
+  showBackButton: true,
   keepKeyPinRequestType: null,
   deviceState: {
     awaitingDeviceInteraction: false,
@@ -128,7 +128,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       if (!action.payload && state.modal) {
         newState.initialRoute = '/'
         newState.isLoadingLocalWallet = false
-        newState.noBackButton = false
+        newState.showBackButton = true
         newState.keepKeyPinRequestType = null
       }
       return newState
@@ -137,17 +137,17 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: action.payload.modal,
         type: KeyManager.Native,
-        noBackButton: state.isLoadingLocalWallet,
+        showBackButton: !state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
         initialRoute: '/native/enter-password',
       }
     case WalletActions.OPEN_KEEPKEY_PIN:
-      const { noBackButton, deviceId, pinRequestType } = action.payload
+      const { showBackButton, deviceId, pinRequestType } = action.payload
       return {
         ...state,
         modal: true,
         type: KeyManager.KeepKey,
-        noBackButton: noBackButton ?? true,
+        showBackButton: showBackButton ?? false,
         deviceId: deviceId,
         keepKeyPinRequestType: pinRequestType ?? null,
         initialRoute: '/keepkey/enter-pin',
@@ -157,7 +157,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: true,
         type: KeyManager.KeepKey,
-        noBackButton: true,
+        showBackButton: false,
         deviceId: action.payload.deviceId,
         initialRoute: '/keepkey/passphrase',
       }

@@ -412,7 +412,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             onCancel={handleCancel}
             onConfirm={handleDeposit}
             loading={state.loading}
-            loadingText={translate('common.confirmOnWallet')}
+            loadingText={translate('common.confirm')}
             headerText='modals.confirm.deposit.header'
             assets={[
               {

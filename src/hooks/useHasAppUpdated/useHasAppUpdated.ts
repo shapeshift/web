@@ -7,7 +7,7 @@ const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
 export const useHasAppUpdated = () => {
   const [hasUpdated, setHasUpdated] = useState(false)
-  const [initialManifestMainJs, setManifestMainJs] = useState(null)
+  const [initialManifestMainJs, setInitialManifestMainJs] = useState(null)
   const [initialEnvMainJs, setInitialEnvMainJs] = useState(null)
 
   const fetchData = async (url: string) => {

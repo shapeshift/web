@@ -19,7 +19,7 @@ export const useHasAppUpdated = () => {
     }
   }
 
-  // 'asset-manifest.json' keeps track of latest minified built files.
+  // 'asset-manifest.json' keeps track of the latest minified built files.
   // interpolated with a dummy query param to bypass the browser cache.
   const assetManifestUrl = `/asset-manifest.json?${new Date().valueOf()}`
   const storeMainManifestJs = async () => {

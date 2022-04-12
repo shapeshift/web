@@ -45,9 +45,13 @@ export const KeepKeyPin = () => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
         console.error('KeepKey PIN Submit error: ', e)
+      } finally {
+        if (pinFieldRef?.current) {
+          pinFieldRef.current.value = ''
+        }
+        setLoading(false)
       }
     }
-    setLoading(false)
   }
 
   // Use different translation text based on which type of PIN request we received

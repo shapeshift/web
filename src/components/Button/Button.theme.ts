@@ -15,6 +15,7 @@ const baseStyle = {
     boxShadow: 'none',
   },
   _hover: {
+    textDecoration: 'none',
     _disabled: {
       bg: 'initial',
     },

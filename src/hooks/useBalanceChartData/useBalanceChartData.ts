@@ -37,10 +37,10 @@ import {
   selectTxsByFilter,
 } from 'state/slices/selectors'
 import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
-import { useGetStakingDataQuery } from 'state/slices/stakingDataSlice/stakingDataSlice'
+import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
@@ -256,6 +256,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
         if (!assetIds.includes(asset)) return
         if (!includeTx) return
+        if (tx.status === chainAdapters.TxStatus.Failed) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
@@ -321,6 +322,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
+  const dispatch = useAppDispatch()
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
@@ -348,7 +350,18 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const cosmosCaip10 = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
 
   // load staking data to redux state
-  useGetStakingDataQuery({ accountSpecifier: cosmosCaip10 })
+  useEffect(() => {
+    ;(async () => {
+      if (!cosmosCaip10?.length) return
+
+      dispatch(
+        stakingDataApi.endpoints.getStakingData.initiate(
+          { accountSpecifier: cosmosCaip10 },
+          { forceRefetch: true },
+        ),
+      )
+    })()
+  }, [dispatch, cosmosCaip10])
 
   const delegationTotal = useAppSelector(state =>
     selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10),

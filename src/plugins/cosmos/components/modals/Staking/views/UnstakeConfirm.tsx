@@ -14,7 +14,11 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
-import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
+import {
+  ConfirmFormFields,
+  ConfirmFormInput,
+  TxFeeRadioGroup,
+} from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { FeePrice } from 'plugins/cosmos/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -29,6 +33,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId,
   selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -49,6 +54,9 @@ export const UnstakeConfirm = ({
   onCancel,
 }: UnstakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
+  const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
+    name: ConfirmFormFields.FeeType,
+  })
 
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods
@@ -65,10 +73,17 @@ export const UnstakeConfirm = ({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatUnstakeAmount = useMemo(
     () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
     [cryptoAmount, marketData.price],
+  )
+
+  const hasEnoughBalance = useMemo(
+    () => feeData && cryptoBalanceHuman.gt(bnOrZero(feeData[activeFee].txFee)),
+    [cryptoBalanceHuman, feeData, activeFee],
   )
 
   useEffect(() => {
@@ -164,8 +179,18 @@ export const UnstakeConfirm = ({
               <Button onClick={onCancel} size='lg' variant='ghost'>
                 <Text translation='common.cancel' />
               </Button>
-              <Button colorScheme={'blue'} mb={2} size='lg' type='submit'>
-                <Text translation={'defi.signAndBroadcast'} />
+              <Button
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
+                mb={2}
+                size='lg'
+                type='submit'
+              >
+                <Text
+                  translation={
+                    hasEnoughBalance ? 'defi.signAndBroadcast' : 'common.insufficientFunds'
+                  }
+                />
               </Button>
             </Stack>
           </ModalFooter>

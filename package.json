@@ -18,7 +18,7 @@
     "@shapeshiftoss/caip": "^2.1.2",
     "@shapeshiftoss/chain-adapters": "^2.13.0",
     "@shapeshiftoss/hdwallet-core": "^1.19.0",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.19.0",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.19.1",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.19.0",
     "@shapeshiftoss/hdwallet-metamask": "^1.19.0",
     "@shapeshiftoss/hdwallet-native": "^1.19.0",
@@ -113,8 +113,8 @@
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh",
-    "create-release": "./scripts/release.sh release",
-    "merge-release": "./scripts/release.sh main"
+    "create-release": "./scripts/release.sh create",
+    "merge-release": "./scripts/release.sh merge"
   },
   "eslintConfig": {
     "extends": "react-app",

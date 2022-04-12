@@ -4,6 +4,7 @@
     "next": "Avançar",
     "error": "Erro",
     "cancel": "Cancelar",
+    "close": "Fechar",
     "continue": "Continuar",
     "confirm": "Confirmar",
     "reject": "Rejeitar",
@@ -11,11 +12,13 @@
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
     "insufficientFunds": "Saldo insuficiente",
+    "estimatedGas": "Taxa de gás estimada",
     "insufficientAmountForGas": "ETH insuficiente para cobrir taxas de gás",
     "invalidAddress": "Endereço inválido",
     "unresolvableEnsDomain": "Não foi possível localizar o domínio ENS",
     "deposit": "Depositar",
     "withdraw": "Sacar",
+    "withdrawal": "Sacar",
     "getStarted": "Começar",
     "connectWallet": "Conectar Carteira",
     "connectedWallet": "Carteira Conectada",
@@ -41,7 +44,10 @@
     "copied": "Copiado para área de transferência.",
     "copyFailed": "Não foi possível copiar.",
     "copyFailedDescription": "Por favor, copie manualmente",
-    "viewAsset": "Visualizar Ativo"
+    "viewAsset": "Visualizar Ativo",
+    "settings": "Configurações",
+    "legalDated": "Data: janeiro de 2022",
+    "approveOnWallet": "Aprovar na Wallet"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -146,11 +152,32 @@
           "validator": "O Validador é responsável por processar transações, armazenar dados e adicionar blocos ao blockchain.",
           "gasFees": "As taxas de gás em %{networkName} são muito mais baixas do que as da Ethereum Mainnet. Esta taxa é paga diretamente aos validadores que protegem e operam a rede e não é paga à ShapeShift."
         }
+      },
+      "foxyOverview": {
+        "header": "Deposite FOX e obtenha FOXy",
+        "body": "FOXy é um token desenhado para Staking e acompanha o preço de FOX. Depósitos em FOX serão alocados em diferentes protocolos DeFi para que você obtenha o melhor rendimento.",
+        "rewards": "As recompensas que você recebe são acumuladas automaticamente.",
+        "cta": "Depositar FOX",
+        "foxyBalance": "Saldo FOXy",
+        "withdrawals": "Saques",
+        "emptyWithdraws": "Saques pendentes ou em processo de pagamento serão exibidos aqui.",
+        "availableDate": "Disponível %{date}"
+      },
+      "claim": {
+        "rewardDepositInfo": "Suas recompensas serão depositadas em sua carteira principal.",
+        "title": "Resgatar Recompensas",
+        "confirmAndClaim": "Confirmar e Resgatar",
+        "rewardAmount": "Valor da recompensa",
+        "claimingRewards": "Resgatando recompensas",
+        "claimAmount": "Valor do resgate",
+        "claimToAddress": "Enviar para Endereço",
+        "confirmClaim": "Confirmar resgate de recompensas",
+        "claimNow": "Resgatar agora"
       }
     },
     "amountToStake": "Montante para depósito",
     "amountToUnstake": "Valor a retirar",
-    "confirmDetails": "Confirmar detalhes",
+    "confirmDetails": "Confirmar",
     "validator": "Validador",
     "unstakeFrom": "Retirar de",
     "gasFee": "Taxa de gás",
@@ -209,7 +236,8 @@
         "body": "Você não possui nenhuma Pool ativa.",
         "cta": "Descobrir Oportunidades"
       }
-    }
+    },
+    "viewOnChain": "Ver na cadeia"
   },
   "staking": {
     "staking": "Poupança",
@@ -410,7 +438,9 @@
     "withdraw": {
       "amountToWithdraw": "Valor da Retirada",
       "footerDisclaimer": "Esta transação exigirá uma taxa.",
-      "slippageSettings": "Configurações de Slippage"
+      "slippageSettings": "Configurações de Slippage",
+      "info": {
+      }
     },
     "approve": {
       "header": "Permita que o Router da ShapeShift DAO utilize %{asset}",
@@ -431,8 +461,8 @@
         "estimatedReturns": "Estimativa de rendimentos anuais*",
         "preFooter": "As recompensas são acumuladas automaticamente"
       },
-      "withdrawFrom": "Retirada de",
       "withdrawTo": "Retirar para",
+      "withdrawFrom": "Retirada de",
       "depositTo": "Depositar em",
       "averageApy": "Média APY",
       "estimatedReturns": "Estimativa de rendimentos anuais*",
@@ -461,6 +491,8 @@
     },
     "connect": {
       "loadingText": "Emparelhando carteira"
+    },
+    "settings": {
     }
   },
   "walletProvider": {
@@ -712,7 +744,6 @@
       "trade": "Troca"
     },
     "assets": "Bens",
-    "viewOnChain": "Ver na cadeia",
     "txid": "ID TX",
     "fee": "Taxa",
     "youSent": "Você enviou",

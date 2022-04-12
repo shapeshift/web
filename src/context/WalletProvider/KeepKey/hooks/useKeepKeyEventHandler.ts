@@ -1,29 +1,42 @@
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { ActionTypes, Outcome, WalletActions } from 'context/WalletProvider/actions'
 import { InitialState } from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
 
-export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
+export const useKeepKeyEventHandler = (
+  state: KeyringState,
+  dispatch: Dispatch<ActionTypes>,
+  loadWallet: () => void,
+  setAwaitingDeviceInteraction: (awaitingDeviceInteraction: boolean) => void,
+  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome) => void,
+) => {
   const { keyring, modal } = state
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const deviceId = e[0]
       switch (e[1].message_enum) {
+        case MessageType.SUCCESS:
+          setAwaitingDeviceInteraction(false)
+          loadWallet()
+          setLastDeviceInteractionStatus('success')
+          break
+        case MessageType.BUTTONREQUEST:
+          setAwaitingDeviceInteraction(true)
+          break
         case MessageType.PASSPHRASEREQUEST:
-          if (!modal) {
-            dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
-          }
+          dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
           break
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PASSPHRASEACK:
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           break
         case MessageType.PINMATRIXREQUEST:
+          setAwaitingDeviceInteraction(false)
           dispatch({
             type: WalletActions.OPEN_KEEPKEY_PIN,
             payload: {
@@ -42,8 +55,21 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
             case FailureType.PINCANCELLED:
               console.warn('KeepKey Event [FAILURE]: PIN Cancelled')
               break
+            case FailureType.ACTIONCANCELLED:
+              setAwaitingDeviceInteraction(false)
+              break
+            case FailureType.NOTINITIALIZED:
+              console.warn('KeepKey Event [FAILURE]: Device not initialized')
+              dispatch({
+                type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
+                payload: {
+                  deviceId,
+                },
+              })
+              break
             default:
               console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
+              setLastDeviceInteractionStatus('error')
               break
           }
           break
@@ -113,5 +139,13 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
       keyring.off(['*', '*', Events.CONNECT], handleConnect)
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
     }
-  }, [dispatch, keyring, modal, state.walletInfo])
+  }, [
+    dispatch,
+    keyring,
+    loadWallet,
+    modal,
+    setAwaitingDeviceInteraction,
+    state.walletInfo,
+    setLastDeviceInteractionStatus,
+  ])
 }

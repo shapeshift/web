@@ -23,6 +23,7 @@
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
     "connectedWallet": "Connected Wallet",
+    "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
     "darkMode": "Dark Mode",
@@ -251,7 +252,8 @@
         "body": "You have not deposited into any liquidity pools.",
         "cta": "View Opportunities"
       }
-    }
+    },
+    "viewOnChain": "View on chain"
   },
   "staking": {
     "staking": "Staking",
@@ -368,6 +370,24 @@
         "header": "Enter Your Passphrase",
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
         "button": "Submit Passphrase"
+      },
+      "label": {
+        "header": "Label Your KeepKey",
+        "body": "Labeling each of your devices allows you to easily distinguish one from the other.",
+        "button": "Set Label"
+      },
+      "recoverySentence": {
+        "header": "Write down Recovery Sentence",
+        "body": "On your KeepKey screen, you will see your recovery sentence. Write it down. If you lose access to the device, your assets will ONLY be accessible by this sentence.",
+        "infoFirst": "Its critical you write it down exactly as it appears on the KeepKey.",
+        "infoSecond": "Never share your recovery sentence, it grants access to all of your funds.",
+        "awaitingButtonPress": "Follow the steps on your KeepKey to view your Recovery Sentence. Write it down!"
+      },
+      "wiped": {
+        "header": "KeepKey Wiped Successfully",
+        "body": "You have successfully reset your KeepKey to factory defaults. You can now restore using an existing recovery seed, or create a new wallet.",
+        "createButton": "Create a New Wallet",
+        "recoverButton": "Recover Wallet"
       }
     },
     "shapeShift": {
@@ -480,7 +500,7 @@
       "header": "Allow ShapeShift DAO Router to use your %{asset}",
       "body": "We need your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
-      "depositFee": "There will be separate gas fee to deposit.",
+      "depositFee": "There will be a separate gas fee to deposit.",
       "estimatedGas": "Estimated Gas Fee",
       "confirm": "Confirm",
       "reject": "Reject"
@@ -568,6 +588,77 @@
         "header": "Confirm Your New Pin",
         "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
         "button": "Save PIN"
+      },
+      "settings": {
+        "loadingText": "Loading...",
+        "menuLabels": {
+          "bootloader": "Bootloader",
+          "firmware": "Firmware",
+          "pin": "PIN",
+          "pinCaching": "PIN Caching",
+          "advanced": "Advanced",
+          "deviceTimeout": "Device Timeout",
+          "passphrase": "Passphrase",
+          "wipeDevice": "Wipe Device",
+          "label": "Label"
+        },
+        "status": {
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "upToDate": "Up to date",
+          "updateAvailable": "Update available"
+        },
+        "headings": {
+          "deviceSetting": "Device %{setting}",
+          "enterPin": "Enter current PIN",
+          "setPin": "Set a new PIN",
+          "confirmPin": "Confirm new PIN",
+          "pinCaching": "Pin Caching",
+          "passphrase": "Passphrase"
+        },
+        "descriptions": {
+          "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands.",
+          "pinCaching": "When this feature is turned on the device will remember your PIN.",
+          "passphrase": "Enable the ability to have multiple wallets, accessible by using a unique passphrase for each wallet.",
+          "label": "Labelling each of devices allows you to easily distinguish one from the other.",
+          "timeout": "Your device goes to sleep after 10 minutes of activity by default. However, you can change this.",
+          "buttonPrompt": "Press and hold the button on your KeepKey to change the device %{setting}.",
+          "updateSuccess": "%{setting} successfully updated!",
+          "updateFailed": "An error occurred whilst updating the %{setting}.",
+          "timeoutDuration": "%{minutes} minutes"
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "Use with caution",
+            "body": "If you forget your passphrase, you will lose access to your funds.",
+            "link": "Learn more"
+          }
+        },
+        "placeholders": {
+          "label": "Enter a device label"
+        },
+        "actions": {
+          "update": "Update %{setting}",
+          "enable": "Enable %{setting}",
+          "learnMore": "Learn More"
+        }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "Wipe Your KeepKey"
+        },
+        "descriptions": {
+          "wipeKeepKey": "I understand that by wiping my KeepKey I will lose access to my funds if I don't have my recovery phrase."
+        },
+        "actions": {
+          "wipeDevice": "Wipe Device"
+        },
+        "confirmations": {
+          "wipeKeepKey": "Press and hold the button on your KeepKey to confirm the reset to factory defaults."
+        },
+        "checkboxes": {
+          "wipeKeepKey": "I have backed up my recovery phrase and understand what I am doing"
+        }
       }
     },
     "metaMask": {
@@ -786,7 +877,6 @@
       "trade": "Trade"
     },
     "assets": "Assets",
-    "viewOnChain": "View on chain",
     "txid": "TX ID",
     "fee": "Fee",
     "youSent": "You Sent",

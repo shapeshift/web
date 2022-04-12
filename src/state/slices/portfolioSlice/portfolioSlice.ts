@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CAIP2, caip2 } from '@shapeshiftoss/caip'
-import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -11,15 +10,6 @@ import { ReduxState } from 'state/reducer'
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { initialState, Portfolio } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
-
-// for assetBalances, they're aggregated across all accounts, so we need to
-// upsert and sum the balances by id
-// https://lodash.com/docs/4.17.15#mergeWith
-const upsertAndSum = (dest: string, src: string) => {
-  // if we have an existing balance for this asset, add to it
-  if (dest) return bnOrZero(dest).plus(bnOrZero(src)).toString()
-  // returning undefined uses default merge function, i.e. upsert
-}
 
 export const portfolio = createSlice({
   name: 'portfolio',
@@ -32,11 +22,31 @@ export const portfolio = createSlice({
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
 
-      state.assetBalances.byId = mergeWith(
-        state.assetBalances.byId,
-        payload.assetBalances.byId,
-        upsertAndSum,
-      )
+      /**
+       * when fetching an account we got to calculate the difference between the
+       * state accountBalance and the payload accountBalance for each of account assets
+       * and then add [or subtract] the diff to the state.assetBalances related item.
+       */
+      payload.accountBalances.ids.forEach(accountSpecifier => {
+        // iterate over the account assets balances and calculate the diff
+        Object.entries(payload.accountBalances.byId[accountSpecifier]).forEach(
+          ([caip19, newAccountAssetBalance]) => {
+            // in case if getting accounts for the first time
+            const currentAccountBalance = bnOrZero(
+              state.accountBalances.byId[accountSpecifier]?.[caip19],
+            )
+            // diff could be both positive [tx type -> receive] and negative [tx type -> send]
+            const differenceBetweenCurrentAndNew =
+              bnOrZero(newAccountAssetBalance).minus(currentAccountBalance)
+            // get current asset balance from the state
+            const currentAssetBalance = bnOrZero(state.assetBalances.byId?.[caip19])
+            // update state.assetBalances with calculated diff
+            state.assetBalances.byId[caip19] = currentAssetBalance
+              .plus(differenceBetweenCurrentAndNew)
+              .toString()
+          },
+        )
+      })
 
       state.accountBalances.byId = {
         ...state.accountBalances.byId,

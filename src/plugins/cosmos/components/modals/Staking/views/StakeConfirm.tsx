@@ -14,7 +14,11 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
+import {
+  ConfirmFormFields,
+  ConfirmFormInput,
+  TxFeeRadioGroup,
+} from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
 import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
@@ -29,6 +33,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId,
   selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -59,7 +64,9 @@ export const StakeConfirm = ({
   onCancel,
 }: StakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
-
+  const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
+    name: ConfirmFormFields.FeeType,
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
@@ -69,6 +76,8 @@ export const StakeConfirm = ({
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods
@@ -77,6 +86,13 @@ export const StakeConfirm = ({
   const fiatStakeAmount = useMemo(
     () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
     [cryptoAmount, marketData.price],
+  )
+
+  const hasEnoughBalance = useMemo(
+    () =>
+      feeData &&
+      bnOrZero(cryptoAmount).plus(bnOrZero(feeData[activeFee].txFee)).lt(cryptoBalanceHuman),
+    [cryptoBalanceHuman, feeData, activeFee, cryptoAmount],
   )
 
   useEffect(() => {
@@ -186,8 +202,17 @@ export const StakeConfirm = ({
               <Button onClick={onCancel} size='lg' variant='ghost'>
                 <Text translation='common.cancel' />
               </Button>
-              <Button colorScheme={'blue'} size='lg' type='submit'>
-                <Text translation={'defi.signAndBroadcast'} />
+              <Button
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
+                size='lg'
+                type='submit'
+              >
+                <Text
+                  translation={
+                    hasEnoughBalance ? 'defi.signAndBroadcast' : 'common.insufficientFunds'
+                  }
+                />
               </Button>
             </Stack>
           </ModalFooter>

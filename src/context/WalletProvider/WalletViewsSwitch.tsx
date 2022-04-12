@@ -7,8 +7,11 @@ import {
   ModalContent,
   ModalOverlay,
 } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -20,6 +23,8 @@ import { SelectModal } from './SelectModal'
 export const WalletViewsSwitch = () => {
   const history = useHistory()
   const location = useLocation()
+  const toast = useToast()
+  const translate = useTranslate()
   const match = useRouteMatch('/')
   const { state, dispatch } = useWallet()
 
@@ -28,12 +33,25 @@ export const WalletViewsSwitch = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }
 
-  const handleBack = () => {
+  const handleBack = async () => {
     history.goBack()
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
     if (history.location.pathname === '/') {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+    }
+
+    // If we are interacting with a KeepKey, cancel any active requests on back
+    if (state.wallet && isKeepKey(state.wallet)) {
+      await state.wallet.cancel().catch(e => {
+        console.error(e)
+        toast({
+          title: translate('common.error'),
+          description: e?.message ?? translate('common.somethingWentWrong'),
+          status: 'error',
+          isClosable: true,
+        })
+      })
     }
   }
 

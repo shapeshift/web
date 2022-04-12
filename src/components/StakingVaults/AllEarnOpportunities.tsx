@@ -80,7 +80,7 @@ export const AllEarnOpportunities = () => {
       }
 
       history.push({
-        pathname: `/defi/${type}/${provider}/deposit`,
+        pathname: `/defi/${type}/${provider}/overview`,
         search: qs.stringify({
           chain,
           contractAddress,

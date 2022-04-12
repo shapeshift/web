@@ -5,10 +5,10 @@ import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import findIndex from 'lodash/findIndex'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 
-import { ActionTypes, WalletActions } from './actions'
+import { ActionTypes, Outcome, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
-import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
@@ -44,6 +44,8 @@ export interface InitialState {
   deviceId: string
   noBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
+  awaitingDeviceInteraction: boolean
+  lastDeviceInteractionStatus: Outcome
 }
 
 const initialState: InitialState = {
@@ -59,6 +61,8 @@ const initialState: InitialState = {
   deviceId: '',
   noBackButton: false,
   keepKeyPinRequestType: null,
+  awaitingDeviceInteraction: false,
+  lastDeviceInteractionStatus: undefined,
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -66,7 +70,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      const stateData = {
+      return {
         ...state,
         wallet: action.payload.wallet,
         walletInfo: {
@@ -79,19 +83,21 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
-
-      return stateData
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
+    case WalletActions.SET_AWAITING_DEVICE_INTERACTION:
+      return { ...state, awaitingDeviceInteraction: action.payload }
+    case WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS:
+      return { ...state, lastDeviceInteractionStatus: action.payload }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
       // Otherwise the connect button for last wallet we clicked on won't work
-      if (action.payload === false && state.modal === true) {
+      if (!action.payload && state.modal) {
         newState.initialRoute = '/'
         newState.isLoadingLocalWallet = false
         newState.noBackButton = false
@@ -126,6 +132,14 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         deviceId: action.payload.deviceId,
         initialRoute: '/keepkey/passphrase',
       }
+    case WalletActions.OPEN_KEEPKEY_INITIALIZE:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        deviceId: action.payload.deviceId,
+        initialRoute: '/keepkey/new',
+      }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
@@ -139,6 +153,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         isLoadingLocalWallet: false,
         noBackButton: false,
         keepKeyPinRequestType: null,
+        awaitingDeviceInteraction: false,
+        lastDeviceInteractionStatus: undefined,
       }
     default:
       return state
@@ -162,60 +178,6 @@ const getInitialState = () => {
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, getInitialState())
-  useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch)
-  useNativeEventHandler(state, dispatch)
-
-  useEffect(() => {
-    if (state.keyring) {
-      ;(async () => {
-        const adapters: Adapters = new Map()
-        let options: undefined | { portisAppId: string }
-        for (const wallet of Object.values(KeyManager)) {
-          try {
-            options =
-              wallet === 'portis'
-                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
-                : undefined
-            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
-            // useKeyring returns the instance of the adapter. We'll keep it for future reference.
-            await adapter.initialize()
-            adapters.set(wallet, adapter)
-          } catch (e) {
-            console.error('Error initializing HDWallet adapters', e)
-          }
-        }
-
-        dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
-      })()
-    }
-  }, [state.keyring])
-
-  const connect = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('connect'),
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
-      })
-    }
-  }, [])
-
-  const create = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('create'),
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
-      })
-    }
-  }, [])
 
   const disconnect = useCallback(() => {
     /**
@@ -227,7 +189,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     clearLocalWallet()
   }, [state.wallet])
 
-  useEffect(() => {
+  const load = useCallback(() => {
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
     if (localWalletType && localWalletDeviceId && state.adapters) {
@@ -352,9 +314,103 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
 
+  useEffect(() => {
+    if (state.keyring) {
+      ;(async () => {
+        const adapters: Adapters = new Map()
+        let options: undefined | { portisAppId: string }
+        for (const wallet of Object.values(KeyManager)) {
+          try {
+            options =
+              wallet === 'portis'
+                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
+                : undefined
+            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
+            // useKeyring returns the instance of the adapter. We'll keep it for future reference.
+            await adapter.initialize()
+            adapters.set(wallet, adapter)
+          } catch (e) {
+            console.error('Error initializing HDWallet adapters', e)
+          }
+        }
+
+        dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
+      })()
+    }
+  }, [state.keyring])
+
+  const connect = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('connect'),
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
+      })
+    }
+  }, [])
+
+  const create = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('create'),
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
+      })
+    }
+  }, [])
+
+  const setAwaitingDeviceInteraction = useCallback((awaitingDeviceInteraction: boolean) => {
+    dispatch({
+      type: WalletActions.SET_AWAITING_DEVICE_INTERACTION,
+      payload: awaitingDeviceInteraction,
+    })
+  }, [])
+
+  const setLastDeviceInteractionStatus = useCallback((lastDeviceInteractionStatus: Outcome) => {
+    dispatch({
+      type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS,
+      payload: lastDeviceInteractionStatus,
+    })
+  }, [])
+
+  useEffect(() => load(), [load, state.adapters, state.keyring])
+
+  useKeyringEventHandler(state)
+  useNativeEventHandler(state, dispatch)
+  useKeepKeyEventHandler(
+    state,
+    dispatch,
+    load,
+    setAwaitingDeviceInteraction,
+    setLastDeviceInteractionStatus,
+  )
+
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, create, disconnect }),
-    [state, connect, create, disconnect],
+    () => ({
+      state,
+      dispatch,
+      connect,
+      create,
+      disconnect,
+      load,
+      setAwaitingDeviceInteraction,
+      setLastDeviceInteractionStatus,
+    }),
+    [
+      state,
+      connect,
+      create,
+      disconnect,
+      load,
+      setAwaitingDeviceInteraction,
+      setLastDeviceInteractionStatus,
+    ],
   )
 
   return (

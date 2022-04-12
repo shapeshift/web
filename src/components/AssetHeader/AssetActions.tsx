@@ -1,5 +1,5 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { ButtonGroup, IconButton, Skeleton, Tooltip } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Button, ButtonGroup, Link, Skeleton } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
@@ -36,43 +36,63 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
 
   return (
     <ButtonGroup
-      ml={{ base: 0, lg: 'auto' }}
+      ml={{ base: 0, md: 'auto' }}
       mt={{ base: 6, lg: 0 }}
-      width={{ base: 'full', lg: 'auto' }}
+      spacing={{ base: 0, md: '0.5rem' }}
+      width={{ base: 'full', md: 'auto' }}
+      flexWrap={{ base: 'wrap', md: 'nowrap' }}
+      justifyContent={{ base: 'space-between', md: 'inherit' }}
     >
-      <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
-        <Tooltip
-          label={
-            !hasValidBalance ? translate('common.insufficientFunds') : translate('common.send')
-          }
-          fontSize='md'
-          px={4}
-          hasArrow
+      <Skeleton
+        isLoaded={isLoaded}
+        width={{ base: 'full', md: 'auto' }}
+        order={{ base: 2, md: 0 }}
+        mt={{ base: '0.5rem', md: '0' }}
+      >
+        <Button
+          as={Link}
+          leftIcon={<ExternalLinkIcon />}
+          // If tokenId is undefined, redirect to the basic explorer link
+          // else redirect to the token explorer link
+          href={`${asset?.tokenId ? asset?.explorerAddressLink : asset?.explorer}${
+            asset?.tokenId ?? ''
+          }`}
+          variant='solid'
+          isExternal
+          width='full'
         >
-          <div>
-            <IconButton
-              onClick={handleSendClick}
-              isRound
-              width='full'
-              icon={<ArrowUpIcon />}
-              aria-label={translate('common.send')}
-              isDisabled={!hasValidBalance}
-              data-test='asset-action-send'
-            />
-          </div>
-        </Tooltip>
+          {translate('defi.viewOnChain')}
+        </Button>
       </Skeleton>
-      <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
-        <Tooltip label={translate('common.receive')} fontSize='md' px={4} hasArrow>
-          <IconButton
-            onClick={handleReceiveClick}
-            isRound
-            width='full'
-            icon={<ArrowDownIcon />}
-            aria-label={translate('common.receive')}
-            data-test='asset-action-receive'
-          />
-        </Tooltip>
+      <Skeleton
+        isLoaded={isLoaded}
+        width={{ base: 'calc(50% - 0.25rem)', md: 'auto' }}
+        order={{ base: 0, md: 1 }}
+        ms='0'
+      >
+        <Button
+          onClick={handleSendClick}
+          leftIcon={<ArrowUpIcon />}
+          isDisabled={!hasValidBalance}
+          width='full'
+          data-test='asset-action-send'
+        >
+          {translate('common.send')}
+        </Button>
+      </Skeleton>
+      <Skeleton
+        isLoaded={isLoaded}
+        width={{ base: 'calc(50% - 0.25rem)', md: 'auto' }}
+        order={{ base: 1, md: 2 }}
+      >
+        <Button
+          onClick={handleReceiveClick}
+          leftIcon={<ArrowDownIcon />}
+          width='full'
+          data-test='asset-action-receive'
+        >
+          {translate('common.receive')}
+        </Button>
       </Skeleton>
     </ButtonGroup>
   )

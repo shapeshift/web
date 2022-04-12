@@ -68,7 +68,6 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const holderBg = useColorModeValue('gray.100', 'gray.800')
 
   const memoryHistory = useHistory()
 
@@ -154,11 +153,8 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
         justifyContent='space-between'
       >
         <AssetHoldingsCard
-          bg={holderBg}
-          py='8px'
           mb={6}
-          assetSymbol={asset.symbol}
-          assetIcon={asset.icon}
+          asset={asset}
           cryptoAmountAvailable={cryptoBalanceHuman.toString()}
           fiatAmountAvailable={fiatAmountAvailable}
         />

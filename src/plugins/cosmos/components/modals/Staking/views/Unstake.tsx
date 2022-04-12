@@ -11,13 +11,13 @@ import {
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
+import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
 import { useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
@@ -67,6 +67,8 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
     ),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
+
+  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
 
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -165,18 +167,11 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
           alignItems='center'
           justifyContent='space-between'
         >
-          <Flex width='100%' mb='6px' justifyContent='space-between' alignItems='center'>
-            <Text
-              lineHeight={1}
-              color='gray.500'
-              translation={['staking.assetStakingBalance', { assetSymbol: asset.symbol }]}
-            />
-            <Amount.Crypto
-              fontWeight='bold'
-              value={bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`).toString()}
-              symbol={asset.symbol}
-            />
-          </Flex>
+          <AssetHoldingsCard
+            asset={asset}
+            cryptoAmountAvailable={cryptoStakeBalanceHuman.toString()}
+            fiatAmountAvailable={fiatStakeAmountHuman}
+          />
           <FormControl>
             <AmountToStake
               width='100%'

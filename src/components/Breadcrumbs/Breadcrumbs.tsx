@@ -8,10 +8,11 @@ import { useAppSelector } from 'state/store'
 const GetAccountName = (props: any) => {
   const {
     match: {
-      params: { accountId },
+      params: { accountId, tab },
     },
   } = props
-  return <AccountLabel accountId={accountId} />
+
+  return tab ? <>{tab}</> : <AccountLabel accountId={accountId} />
 }
 
 const GetAssetName = (props: any) => {
@@ -27,6 +28,7 @@ const GetAssetName = (props: any) => {
 
 const routes: BreadcrumbsRoute[] = [
   { path: '/accounts/:accountId', breadcrumb: GetAccountName },
+  { path: '/accounts/:accountId/:tab', breadcrumb: GetAccountName },
   { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
   { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
 ]

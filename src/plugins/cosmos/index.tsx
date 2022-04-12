@@ -61,7 +61,7 @@ export function register(): Plugins {
             ],
           },
           {
-            path: '/accounts/cosmos::accountSubId/:assetId',
+            path: '/accounts/cosmos::accountSubId',
             label: '',
             hide: true,
             main: null,
@@ -80,7 +80,7 @@ export function register(): Plugins {
             ],
           },
           {
-            path: '/accounts/cosmos::accountSubId',
+            path: '/accounts/cosmos::accountSubId/:assetId',
             label: '',
             hide: true,
             main: null,

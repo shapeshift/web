@@ -2,6 +2,7 @@ import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { WithdrawInfo } from '@shapeshiftoss/investor-foxy/dist/api/foxy-types'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -117,6 +118,12 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const userAddress = await chainAdapter.getAddress({ wallet })
         const foxyOpportunities = await getFoxyOpportunities(balances, foxy, userAddress)
+
+        // remove when Tokemak has api to get real apy
+        for (const key in foxyOpportunities) {
+          foxyOpportunities[key].apy = getConfig().REACT_APP_FOXY_APY
+        }
+
         setOpportunites(foxyOpportunities)
       } catch (error) {
         console.error('error', error)

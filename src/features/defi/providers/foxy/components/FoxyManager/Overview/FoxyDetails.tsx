@@ -52,7 +52,7 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
     assetReference: rewardId,
   })
   const rewardAsset = useAppSelector(state => selectAssetByCAIP19(state, rewardAssetCAIP19))
-  const apy = bnOrZero(process.env.REACT_APP_FOXY_APY).times(100).toString()
+  const apy = bnOrZero(opportunity?.apy).times(100).toString()
   if (loading || !opportunity) {
     return (
       <Center minW='350px' minH='350px'>

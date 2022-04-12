@@ -5,15 +5,19 @@ import { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
-type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
+// type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal' | 'deviceState'>
 
 export const useKeepKeyEventHandler = (
-  state: KeyringState,
+  state: InitialState,
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
 ) => {
-  const { keyring, modal } = state
+  const {
+    keyring,
+    modal,
+    deviceState: { disposition },
+  } = state
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
@@ -43,6 +47,7 @@ export const useKeepKeyEventHandler = (
             payload: {
               deviceId,
               pinRequestType: e[1].message?.type,
+              noBackButton: disposition === 'initialized',
             },
           })
           break
@@ -140,5 +145,5 @@ export const useKeepKeyEventHandler = (
       keyring.off(['*', '*', Events.CONNECT], handleConnect)
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
     }
-  }, [dispatch, keyring, loadWallet, modal, state.walletInfo, setDeviceState])
+  }, [dispatch, keyring, loadWallet, modal, state.walletInfo, setDeviceState, disposition])
 }

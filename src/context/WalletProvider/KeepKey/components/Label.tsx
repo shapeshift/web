@@ -1,9 +1,10 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
 import { useRef, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { WipedParams } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export interface LabelParams {
   intent: 'create' | 'recover'
@@ -14,24 +15,36 @@ export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
   const history = useHistory<LabelParams>()
   const {
-    state: { intent },
-  } = useLocation<WipedParams>()
-
+    setDeviceState,
+    state: {
+      deviceState: { disposition },
+      wallet,
+    },
+  } = useWallet()
   const inputRef = useRef<HTMLInputElement | null>(null)
 
-  const handleCreateSubmit = async () => {
+  const handleInitializeSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
+    setDeviceState({ stagedLabel: label })
     history.push({
       pathname: KeepKeyRoutes.NewRecoverySentence,
-      state: { label, intent: 'create' },
     })
   }
 
   const handleRecoverSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
-    history.push({ pathname: KeepKeyRoutes.Pin, state: { label, intent: 'recover' } })
+    setDeviceState({ stagedLabel: label })
+    const recoverParams: RecoverDevice = {
+      entropy: 128,
+      label: label ?? '',
+      passphrase: false,
+      pin: true,
+      autoLockDelayMs: 600000,
+      u2fCounter: Math.floor(+new Date() / 1000),
+    }
+    wallet?.recover(recoverParams)
   }
 
   return (
@@ -46,7 +59,7 @@ export const KeepKeyLabel = () => {
           isFullWidth
           size='lg'
           colorScheme='blue'
-          onClick={intent === 'create' ? handleCreateSubmit : handleRecoverSubmit}
+          onClick={disposition === 'initializing' ? handleInitializeSubmit : handleRecoverSubmit}
           disabled={loading}
           mb={3}
         >

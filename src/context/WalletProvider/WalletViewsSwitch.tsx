@@ -8,7 +8,6 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -26,7 +25,10 @@ export const WalletViewsSwitch = () => {
   const toast = useToast()
   const translate = useTranslate()
   const match = useRouteMatch('/')
-  const { state, dispatch } = useWallet()
+  const {
+    state: { wallet, modal, noBackButton, initialRoute, type },
+    dispatch,
+  } = useWallet()
 
   const onClose = () => {
     history.replace('/')
@@ -41,30 +43,28 @@ export const WalletViewsSwitch = () => {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
 
-    // If we are interacting with a KeepKey, cancel any active requests on back
-    if (state.wallet && isKeepKey(state.wallet)) {
-      await state.wallet.cancel().catch(e => {
-        console.error(e)
-        toast({
-          title: translate('common.error'),
-          description: e?.message ?? translate('common.somethingWentWrong'),
-          status: 'error',
-          isClosable: true,
-        })
+    // Cancel any active requests with our wallet on back
+    await wallet?.cancel().catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
       })
-    }
+    })
   }
 
   useEffect(() => {
-    if (state?.initialRoute) {
-      history.push(state.initialRoute)
+    if (initialRoute) {
+      history.push(initialRoute)
     }
-  }, [history, state?.initialRoute])
+  }, [history, initialRoute])
 
   return (
     <>
       <Modal
-        isOpen={state.modal}
+        isOpen={modal}
         onClose={onClose}
         isCentered
         trapFocus={false}
@@ -73,7 +73,7 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && !state.noBackButton && (
+            {!match?.isExact && !noBackButton && (
               <IconButton
                 icon={<ArrowBackIcon />}
                 aria-label='Back'
@@ -89,8 +89,8 @@ export const WalletViewsSwitch = () => {
           <AnimatePresence exitBeforeEnter initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
-                {state.type &&
-                  SUPPORTED_WALLETS[state.type].routes.map((route, index) => {
+                {type &&
+                  SUPPORTED_WALLETS[type].routes.map((route, index) => {
                     const Component = route.component
                     return !Component ? null : (
                       <Route

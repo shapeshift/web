@@ -1,26 +1,30 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, Flex, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-
-export interface WipedParams {
-  intent: 'create' | 'recover'
-}
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const WipedSuccessfully = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory<WipedParams>()
+  const history = useHistory()
+  const { setDeviceState } = useWallet()
+
+  useEffect(() => {
+    setDeviceState({ disposition: undefined })
+  }, [setDeviceState])
 
   const handleCreateWalletPress = async () => {
     setLoading(true)
-    history.push(KeepKeyRoutes.NewLabel, { intent: 'create' })
+    setDeviceState({ disposition: 'initializing' })
+    history.push(KeepKeyRoutes.NewLabel)
   }
 
   const handleRecoverWalletPress = async () => {
     setLoading(true)
-    history.push(KeepKeyRoutes.NewLabel, { intent: 'recover' })
+    setDeviceState({ disposition: 'recovering' })
+    history.push(KeepKeyRoutes.NewLabel)
   }
 
   return (
@@ -47,10 +51,9 @@ export const WipedSuccessfully = () => {
           isFullWidth
           size='lg'
           onClick={handleRecoverWalletPress}
-          disabled={loading && true} // Un-disable when recover wallet is ready
+          disabled={loading}
           variant='outline'
           border='none'
-          title='Coming soon...'
         >
           <Text translation={'modals.keepKey.wiped.recoverButton'} />
         </Button>

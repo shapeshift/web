@@ -194,6 +194,11 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
               mt='8px'
               mb='8px'
             >
+              <PercentOptionsRow
+                width='100%'
+                onPercentClick={handlePercentClick}
+                percent={percent}
+              />
               <StakingInput
                 height='40px'
                 width='100%'
@@ -205,11 +210,6 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
                 onInputToggle={handleInputToggle}
                 onInputChange={handleInputChange}
                 control={control}
-              />
-              <PercentOptionsRow
-                width='100%'
-                onPercentClick={handlePercentClick}
-                percent={percent}
               />
             </VStack>
           </FormControl>

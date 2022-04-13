@@ -325,4 +325,8 @@ module.exports = {
       return config
     }
   },
+  paths: paths => {
+    console.info('Build paths:', paths)
+    return paths
+  },
 }

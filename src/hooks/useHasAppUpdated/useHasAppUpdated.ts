@@ -1,7 +1,7 @@
 import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
 import isEqual from 'lodash/isEqual'
-import { useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
@@ -24,17 +24,17 @@ export const useHasAppUpdated = () => {
   const assetManifestUrl = `/asset-manifest.json?${new Date().valueOf()}`
   const storeMainManifestJs = async () => {
     const manifestMainJs = await fetchData(assetManifestUrl)
-    setManifestMainJs(manifestMainJs)
+    setInitialManifestMainJs(manifestMainJs)
   }
-  useMemo(storeMainManifestJs, [])
+  useCallback(storeMainManifestJs, [])
 
   // interpolated with a dummy query param to bypass the browser cache.
   const envUrl = `/env.json?${new Date().valueOf()}`
   const storeMainEnvJs = async () => {
     const envMainJs = await fetchData(envUrl)
-    setEnvMainJs(envMainJs)
+    setInitialEnvMainJs(envMainJs)
   }
-  useMemo(storeMainEnvJs, [])
+  useCallback(storeMainEnvJs, [])
 
   useInterval(async () => {
     const [currentManifestJs, currentEnvJs] = await Promise.all([
@@ -45,8 +45,8 @@ export const useHasAppUpdated = () => {
     const isExactAssetManifest = isEqual(initialManifestMainJs, currentManifestJs)
     const isExactEnv = isEqual(initialEnvMainJs, currentEnvJs)
 
-    const eitherhasChanged = !isExactAssetManifest || !isExactEnv
-    eitherhasChanged ? setHasUpdated(true) : setHasUpdated(false)
+    const eitherHasChanged = !isExactAssetManifest || !isExactEnv
+    eitherHasChanged ? setHasUpdated(true) : setHasUpdated(false)
   }, APP_UPDATE_CHECK_INTERVAL)
 
   return hasUpdated

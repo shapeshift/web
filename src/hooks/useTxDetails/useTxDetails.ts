@@ -2,7 +2,12 @@ import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
-import { selectAssetByCAIP19, selectFeeAssetByChainId, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetByCAIP19,
+  selectFeeAssetByChainId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 

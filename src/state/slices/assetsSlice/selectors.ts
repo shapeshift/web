@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { AssetNamespace, AssetReference, CAIP19, caip19, CAIP2, caip2 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'

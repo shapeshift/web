@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { AssetNamespace, AssetReference, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, CAIP19, caip19, CAIP2, caip2 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
@@ -51,6 +51,21 @@ const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): 
   }
   throw new Error(`Chain ${chain} not supported.`)
 }
+
+export const selectFeeAssetByCAIP2 = createSelector(
+  selectAssets,
+  (_state: ReduxState, chainId: CAIP2) => chainId,
+  (assetsById, chainId): Asset => {
+    const { chain, network } = caip2.fromCAIP2(chainId)
+    const feeAssetId = caip19.toCAIP19({
+      chain,
+      network,
+      assetNamespace: AssetNamespace.Slip44,
+      assetReference: chainIdFeeAssetReferenceMap(chain, network),
+    })
+    return assetsById[feeAssetId]
+  },
+)
 
 export const selectFeeAssetById = createSelector(
   selectAssets,

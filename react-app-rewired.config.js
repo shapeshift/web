@@ -327,6 +327,7 @@ module.exports = {
   },
   paths: paths => {
     console.info('Build paths:', paths)
+    fs.writeFileSync('./public/paths.json', JSON.stringify(paths))
     return paths
   },
 }

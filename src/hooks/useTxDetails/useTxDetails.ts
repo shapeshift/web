@@ -2,7 +2,7 @@ import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
-import { selectAssetByCAIP19, selectFeeAssetByCAIP2, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import { selectAssetByCAIP19, selectFeeAssetByChainId, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -105,7 +105,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   )
 
   // stables need precision of eth (18) rather than 10
-  const defaultFeeAsset = useAppSelector(state => selectFeeAssetByCAIP2(state, tx.caip2))
+  const defaultFeeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.caip2))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, tx.fee?.caip19 ?? ''))
   const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTransfer?.caip19 ?? ''))
   const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTransfer?.caip19 ?? ''))

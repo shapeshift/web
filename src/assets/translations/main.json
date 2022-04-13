@@ -168,7 +168,6 @@
         "withdrawals": "Withdrawals",
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}",
-        "approveToken": "Approve",
         "confirm": "Confirm"
       },
       "claim": {

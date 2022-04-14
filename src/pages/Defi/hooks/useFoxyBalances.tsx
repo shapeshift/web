@@ -121,7 +121,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
         // remove when Tokemak has api to get real apy
         for (const key in foxyOpportunities) {
-          foxyOpportunities[key].apy = getConfig().REACT_APP_FOXY_APY
+          foxyOpportunities[key].apy = bnOrZero(getConfig().REACT_APP_FOXY_APY).toString()
         }
 
         setOpportunites(foxyOpportunities)

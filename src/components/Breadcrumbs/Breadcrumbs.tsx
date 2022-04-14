@@ -11,6 +11,7 @@ const GetAccountName = (props: any) => {
       params: { accountId },
     },
   } = props
+
   return <AccountLabel accountId={accountId} />
 }
 
@@ -20,6 +21,7 @@ const GetAssetName = (props: any) => {
       params: { chainId, assetSubId, assetId: assetIdParam },
     },
   } = props
+
   const assetId = assetIdParam ? decodeURIComponent(assetIdParam) : `${chainId}/${assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   return <>{asset?.name}</>

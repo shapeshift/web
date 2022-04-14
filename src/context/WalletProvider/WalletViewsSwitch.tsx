@@ -73,7 +73,7 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && !state.noBackButton && (
+            {!match?.isExact && state.showBackButton && (
               <IconButton
                 icon={<ArrowBackIcon />}
                 aria-label='Back'

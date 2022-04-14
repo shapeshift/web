@@ -42,7 +42,7 @@ export interface InitialState {
   modal: boolean
   isLoadingLocalWallet: boolean
   deviceId: string
-  noBackButton: boolean
+  showBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
   awaitingDeviceInteraction: boolean
   lastDeviceInteractionStatus: Outcome
@@ -59,7 +59,7 @@ const initialState: InitialState = {
   modal: false,
   isLoadingLocalWallet: false,
   deviceId: '',
-  noBackButton: false,
+  showBackButton: true,
   keepKeyPinRequestType: null,
   awaitingDeviceInteraction: false,
   lastDeviceInteractionStatus: undefined,
@@ -100,7 +100,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       if (!action.payload && state.modal) {
         newState.initialRoute = '/'
         newState.isLoadingLocalWallet = false
-        newState.noBackButton = false
+        newState.showBackButton = true
         newState.keepKeyPinRequestType = null
       }
       return newState
@@ -109,7 +109,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: action.payload.modal,
         type: KeyManager.Native,
-        noBackButton: state.isLoadingLocalWallet,
+        showBackButton: !state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
         initialRoute: '/native/enter-password',
       }
@@ -118,7 +118,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: true,
         type: KeyManager.KeepKey,
-        noBackButton: true,
+        showBackButton: false,
         deviceId: action.payload.deviceId,
         keepKeyPinRequestType: action.payload.pinRequestType ?? null,
         initialRoute: '/keepkey/enter-pin',
@@ -128,7 +128,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: true,
         type: KeyManager.KeepKey,
-        noBackButton: true,
+        showBackButton: false,
         deviceId: action.payload.deviceId,
         initialRoute: '/keepkey/passphrase',
       }
@@ -151,7 +151,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: null,
         initialRoute: null,
         isLoadingLocalWallet: false,
-        noBackButton: false,
+        showBackButton: true,
         keepKeyPinRequestType: null,
         awaitingDeviceInteraction: false,
         lastDeviceInteractionStatus: undefined,
@@ -327,7 +327,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 : undefined
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
-            await adapter.initialize()
+            await adapter.initialize?.()
             adapters.set(wallet, adapter)
           } catch (e) {
             console.error('Error initializing HDWallet adapters', e)

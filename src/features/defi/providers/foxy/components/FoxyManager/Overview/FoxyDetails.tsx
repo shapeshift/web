@@ -64,7 +64,7 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
     return (
       <FoxyEmpty
         assets={[stakingAsset, rewardAsset]}
-        apy={bnOrZero(opportunity?.apy).times(100).toString()}
+        apy={apy}
         onClick={() =>
           browserHistory.push({
             ...browserLocation,

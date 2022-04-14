@@ -114,7 +114,9 @@ export const Overview: React.FC<StakedProps> = ({
                   <ClaimButton
                     assetId={assetId}
                     validatorAddress={validatorAddress}
-                    isDisabled={bnOrZero(rewardsAmount).isZero()}
+                    // We're getting fractions of uatom as rewards, but at protocol-level, it is actually impossible to claim these
+                    // Any amount that's less than 1 uatom effectively means no rewards
+                    isDisabled={bnOrZero(rewardsAmount).lt(1)}
                   />
                 )}
               />

@@ -174,6 +174,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
             divider={<Divider />}
             spacing={0}
           >
+            <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
             <StakingInput
               height='40px'
               width='100%'
@@ -186,7 +187,6 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
               onInputChange={handleInputChange}
               control={control}
             />
-            <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
             <Box width='100%' pb='12px'>
               <EstimatedReturnsRow
                 px={4}

@@ -121,21 +121,16 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       return returVal
     } catch (error) {
       console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
-      if (error instanceof Error && error.message.includes('Not enough funds in reserve')) {
-        toast({
-          position: 'top-right',
-          description: translate('defi.notEnoughFundsInReserve'),
-          title: translate('common.somethingWentWrong'),
-          status: 'error',
-        })
-      } else {
-        toast({
-          position: 'top-right',
-          description: translate('common.somethingWentWrong'),
-          title: translate('common.somethingWentWrong'),
-          status: 'error',
-        })
-      }
+      const fundsError =
+        error instanceof Error && error.message.includes('Not enough funds in reserve')
+      toast({
+        position: 'top-right',
+        description: fundsError
+          ? translate('defi.notEnoughFundsInReserve')
+          : translate('common.somethingWentWrong'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error',
+      })
     }
   }
 

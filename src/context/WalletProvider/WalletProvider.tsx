@@ -7,6 +7,7 @@ import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
+import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 import { ActionTypes, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
@@ -150,7 +151,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         showBackButton: showBackButton ?? false,
         deviceId: deviceId,
         keepKeyPinRequestType: pinRequestType ?? null,
-        initialRoute: '/keepkey/enter-pin',
+        initialRoute: KeepKeyRoutes.Pin,
       }
     case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
       return {
@@ -159,7 +160,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.KeepKey,
         showBackButton: false,
         deviceId: action.payload.deviceId,
-        initialRoute: '/keepkey/passphrase',
+        initialRoute: KeepKeyRoutes.Passphrase,
       }
     case WalletActions.OPEN_KEEPKEY_INITIALIZE:
       return {
@@ -167,7 +168,15 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         modal: true,
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
-        initialRoute: '/keepkey/new',
+        initialRoute: KeepKeyRoutes.WipeSuccessful,
+      }
+    case WalletActions.OPEN_KEEPKEY_RECOVERY:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        deviceId: action.payload.deviceId,
+        initialRoute: KeepKeyRoutes.NewRecoverySentence,
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }

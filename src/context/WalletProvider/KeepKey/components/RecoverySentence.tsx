@@ -1,46 +1,11 @@
 import { Alert, AlertIcon, Flex, useColorModeValue } from '@chakra-ui/react'
 import { ModalBody, ModalHeader } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
-import { ResetDevice } from '@shapeshiftoss/hdwallet-core'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
-import { LabelParams } from 'context/WalletProvider/KeepKey/components/Label'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const KeepKeyRecoverySentence = () => {
   const yellowShade = useColorModeValue('yellow.500', 'yellow.200')
-  const {
-    load,
-    state: { wallet },
-  } = useWallet()
-  const history = useHistory()
-  const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
-  const {
-    state: { label },
-  } = useLocation<LabelParams>()
-  const toast = useToast()
-  const translate = useTranslate()
 
-  useEffect(() => {
-    ;(async () => {
-      const resetMessage: ResetDevice = { label: label ?? '' }
-      await keepKeyWallet?.reset(resetMessage).catch(e => {
-        console.error(e)
-        toast({
-          title: translate('common.error'),
-          description: e?.message ?? translate('common.somethingWentWrong'),
-          status: 'error',
-          isClosable: true,
-        })
-      })
-      load()
-      history.push('/keepkey/success')
-    })()
-  }, [history, keepKeyWallet, label, load, toast, translate])
   return (
     <>
       <ModalHeader>

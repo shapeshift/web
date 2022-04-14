@@ -20,6 +20,7 @@ export enum WalletActions {
   OPEN_KEEPKEY_PASSPHRASE = 'OPEN_KEEPKEY_PASSPHRASE',
   OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
   SET_DEVICE_STATE = 'SET_DEVICE_STATE',
+  OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
 }
 
 export type ActionTypes =
@@ -57,6 +58,12 @@ export type ActionTypes =
     }
   | {
       type: WalletActions.OPEN_KEEPKEY_PASSPHRASE
+      payload: {
+        deviceId: string
+      }
+    }
+  | {
+      type: WalletActions.OPEN_KEEPKEY_RECOVERY
       payload: {
         deviceId: string
       }

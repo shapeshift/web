@@ -1,19 +1,13 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
+import { useToast } from '@chakra-ui/toast'
+import { RecoverDevice, ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
-export interface LabelParams {
-  intent: 'create' | 'recover'
-  label: string | undefined
-}
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory<LabelParams>()
   const {
     setDeviceState,
     state: {
@@ -21,14 +15,23 @@ export const KeepKeyLabel = () => {
       wallet,
     },
   } = useWallet()
+  const toast = useToast()
+  const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const handleInitializeSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
-    setDeviceState({ stagedLabel: label })
-    history.push({
-      pathname: KeepKeyRoutes.NewRecoverySentence,
+    const resetMessage: ResetDevice = { label: label ?? '', pin: true }
+    setDeviceState({ awaitingDeviceInteraction: true })
+    await wallet?.reset(resetMessage).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
     })
   }
 

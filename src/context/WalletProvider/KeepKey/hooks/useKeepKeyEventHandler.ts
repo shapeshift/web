@@ -3,9 +3,7 @@ import { Dispatch, useEffect } from 'react'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
 
-import { FailureType, MessageType } from '../KeepKeyTypes'
-
-// type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal' | 'deviceState'>
+import { ButtonRequestType, FailureType, MessageType } from '../KeepKeyTypes'
 
 export const useKeepKeyEventHandler = (
   state: InitialState,
@@ -21,9 +19,20 @@ export const useKeepKeyEventHandler = (
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
-      const deviceId = e[0]
-      switch (e[1].message_enum) {
+      const [deviceId, event] = e
+      const { message_enum, message, from_wallet } = event
+      switch (message_enum) {
         case MessageType.SUCCESS:
+          switch (message.message) {
+            case 'Device reset':
+              setDeviceState({
+                disposition: 'initialized',
+              })
+              if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              break
+            default:
+              break
+          }
           setDeviceState({
             awaitingDeviceInteraction: false,
             lastDeviceInteractionStatus: 'success',
@@ -32,6 +41,15 @@ export const useKeepKeyEventHandler = (
           break
         case MessageType.BUTTONREQUEST:
           setDeviceState({ awaitingDeviceInteraction: true })
+          // This is a bit magic but KeepKey's recovery seed backup request in the reset flow sends
+          // an "other" code, so it's the best we can do unless we update the firmware
+          const isRecoverySeedBackupRequest =
+            from_wallet &&
+            message.code === ButtonRequestType.OTHER &&
+            disposition === 'initializing'
+          if (isRecoverySeedBackupRequest) {
+            dispatch({ type: WalletActions.OPEN_KEEPKEY_RECOVERY, payload: { deviceId } })
+          }
           break
         case MessageType.PASSPHRASEREQUEST:
           dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
@@ -46,7 +64,7 @@ export const useKeepKeyEventHandler = (
             type: WalletActions.OPEN_KEEPKEY_PIN,
             payload: {
               deviceId,
-              pinRequestType: e[1].message?.type,
+              pinRequestType: message?.type,
               showBackButton: disposition !== 'initialized',
             },
           })
@@ -57,7 +75,7 @@ export const useKeepKeyEventHandler = (
           break
         // @TODO: What do we want to do with these events?
         case MessageType.FAILURE:
-          switch (e[1].message?.code) {
+          switch (message?.code) {
             case FailureType.PINCANCELLED:
               console.warn('KeepKey Event [FAILURE]: PIN Cancelled')
               break
@@ -74,7 +92,7 @@ export const useKeepKeyEventHandler = (
               })
               break
             default:
-              console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
+              console.warn('KeepKey Event [FAILURE]: ', message?.message)
               setDeviceState({ lastDeviceInteractionStatus: 'error' })
               break
           }

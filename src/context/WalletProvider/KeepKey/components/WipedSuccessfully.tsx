@@ -24,7 +24,7 @@ export const WipedSuccessfully = () => {
   const handleRecoverWalletPress = async () => {
     setLoading(true)
     setDeviceState({ disposition: 'recovering' })
-    history.push(KeepKeyRoutes.NewLabel)
+    history.push(KeepKeyRoutes.RecoverySettings)
   }
 
   return (

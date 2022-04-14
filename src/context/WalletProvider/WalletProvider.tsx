@@ -6,6 +6,7 @@ import { getConfig } from 'config'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { SentenceLength } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
@@ -41,6 +42,8 @@ export type DeviceState = {
   lastDeviceInteractionStatus: Outcome | undefined
   disposition: DeviceDisposition | undefined
   stagedLabel: string | undefined
+  stagedPassphrase: boolean | undefined
+  stagedRecoveryLength: SentenceLength | undefined
 }
 
 export interface InitialState {
@@ -77,6 +80,8 @@ const initialState: InitialState = {
     lastDeviceInteractionStatus: undefined,
     disposition: undefined,
     stagedLabel: undefined,
+    stagedPassphrase: undefined,
+    stagedRecoveryLength: undefined,
   },
 }
 
@@ -111,6 +116,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         lastDeviceInteractionStatus = deviceState.lastDeviceInteractionStatus,
         disposition = deviceState.disposition,
         stagedLabel = deviceState.stagedLabel,
+        stagedPassphrase = deviceState.stagedPassphrase,
+        stagedRecoveryLength = deviceState.stagedRecoveryLength,
       } = action.payload
       return {
         ...state,
@@ -120,6 +127,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           lastDeviceInteractionStatus,
           disposition,
           stagedLabel,
+          stagedPassphrase,
+          stagedRecoveryLength,
         },
       }
     case WalletActions.SET_WALLET_MODAL:

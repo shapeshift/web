@@ -45,7 +45,6 @@ export const KeepKeyLabel = () => {
       passphrase: false,
       pin: true,
       autoLockDelayMs: 600000,
-      u2fCounter: Math.floor(+new Date() / 1000),
     }
     wallet?.recover(recoverParams)
   }

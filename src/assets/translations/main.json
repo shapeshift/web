@@ -375,6 +375,15 @@
         "body": "Labeling each of your devices allows you to easily distinguish one from the other.",
         "button": "Set Label"
       },
+      "recoverySettings": {
+        "header": "Recover Your Wallet",
+        "sentenceLengthLabel": "Recovery Sentence Length",
+        "recoveryPassphraseLabel": "Recovery Passphrase",
+        "recoveryPassphraseToggle": "Recover with passphrase?",
+        "recoveryPassphraseDescription": "If you are unsure if your recovery sentence is protected by a passphrase, leave this off.",
+        "wordCount": "%{wordCount} words",
+        "button": "Recover Wallet"
+      },
       "recoverySentence": {
         "header": "Write down Recovery Sentence",
         "body": "On your KeepKey screen, you will see your recovery sentence. Write it down. If you lose access to the device, your assets will ONLY be accessible by this sentence.",

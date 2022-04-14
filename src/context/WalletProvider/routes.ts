@@ -6,4 +6,5 @@ export enum KeepKeyRoutes {
   NewLabel = '/keepkey/label',
   Pin = '/keepkey/enter-pin',
   NewRecoverySentence = '/keepkey/recovery-sentence',
+  RecoverySettings = '/keepkey/recovery-settings',
 }

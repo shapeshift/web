@@ -10,7 +10,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
 
 import { FiatRamps } from '../config'
-import { FiatRampAction, FiatRampCurrency } from '../FiatRampsCommon'
+import { FiatRampAction, FiatRampCurrencyForVisualization } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
 
@@ -30,7 +30,7 @@ const entries = [
 const ManagerRouter = (props: any) => {
   const { location, history } = props
 
-  const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrency | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrencyForVisualization | null>(null)
   const [isBTC, setIsBTC] = useState<boolean | null>(null)
   // We addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string | null>(null)
@@ -84,7 +84,7 @@ const ManagerRouter = (props: any) => {
     setSelectedAsset(null)
     history.push(route)
   }
-  const handleAssetSelect = (asset: FiatRampCurrency, isBTC: boolean) => {
+  const handleAssetSelect = (asset: FiatRampCurrencyForVisualization, isBTC: boolean) => {
     const route =
       match?.params.fiatRampAction === FiatRampAction.Buy ? ManagerRoutes.Buy : ManagerRoutes.Sell
     setSelectedAsset(asset)

@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FiatRamps, supportedFiatRamps } from '../config'
+import { FiatRampCurrency, FiatRampCurrencyWithBalances } from '../FiatRampsCommon'
+import { isSupportedBitcoinAsset } from '../utils'
 
 export const useFiatRampCurrencyList = (
   fiatRampProvider: FiatRamps,
@@ -11,8 +14,36 @@ export const useFiatRampCurrencyList = (
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
 
   const [loading, setLoading] = useState(false)
-  const [buyList, setBuyList] = useState<any>([])
-  const [sellList, setSellList] = useState<any>([])
+  const [buyList, setBuyList] = useState<FiatRampCurrency[]>([])
+  const [sellList, setSellList] = useState<FiatRampCurrencyWithBalances[]>([])
+
+  const addSellPropertiesAndSort = useCallback(
+    (assets: FiatRampCurrency[]): FiatRampCurrencyWithBalances[] =>
+      assets
+        .map(asset => ({
+          ...asset,
+          disabled: isSupportedBitcoinAsset(asset.caip19) && !walletSupportsBTC,
+          cryptoBalance: bnOrZero(balances?.[asset.caip19]?.crypto),
+          fiatBalance: bnOrZero(balances?.[asset.caip19]?.fiat),
+        }))
+        .sort((a, b) =>
+          a.fiatBalance.gt(0) || b.fiatBalance.gt(0)
+            ? b.fiatBalance.minus(a.fiatBalance).toNumber()
+            : a.name.localeCompare(b.name),
+        ),
+    [balances, walletSupportsBTC],
+  )
+
+  const addBuyPropertiesAndSort = useCallback(
+    (assets: FiatRampCurrency[]): FiatRampCurrency[] =>
+      assets
+        .map(asset => ({
+          ...asset,
+          disabled: isSupportedBitcoinAsset(asset.caip19) && !walletSupportsBTC,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [walletSupportsBTC],
+  )
 
   // start getting currencies from selected fiatRampProvider
   useEffect(() => {
@@ -20,12 +51,13 @@ export const useFiatRampCurrencyList = (
     ;(async () => {
       const [parsedBuyList, parsedSellList] = await supportedFiatRamps[
         fiatRampProvider
-      ].getBuyAndSellList(walletSupportsBTC, balances)
-      setBuyList(parsedBuyList)
-      setSellList(parsedSellList)
+      ].getBuyAndSellList()
+      // only the sell list needs balances for sorting
+      setSellList(addSellPropertiesAndSort(parsedSellList))
+      setBuyList(addBuyPropertiesAndSort(parsedBuyList))
       setLoading(false)
     })()
-  }, [walletSupportsBTC, balances, fiatRampProvider])
+  }, [fiatRampProvider, addSellPropertiesAndSort, addBuyPropertiesAndSort])
 
   return {
     loading,

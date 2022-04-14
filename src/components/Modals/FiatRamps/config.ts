@@ -16,10 +16,7 @@ export interface SupportedFiatRampConfig {
   info?: string
   logo: string
   readyToUse: boolean
-  getBuyAndSellList: (
-    walletSupportsBTC: boolean,
-    balances: {},
-  ) => Promise<[FiatRampCurrency[], FiatRampCurrency[]]>
+  getBuyAndSellList: () => Promise<[FiatRampCurrency[], FiatRampCurrency[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
 }
 
@@ -33,12 +30,12 @@ export const supportedFiatRamps: Record<FiatRamps, SupportedFiatRampConfig> = {
     label: 'fiatRamps.gem',
     info: 'fiatRamps.gemMessage',
     logo: gemlogo,
-    getBuyAndSellList: async (walletSupportsBTC, balances) => {
+    getBuyAndSellList: async () => {
       const coinifyAssets = await fetchCoinifySupportedCurrencies()
       const wyreAssets = await fetchWyreSupportedCurrencies()
       const currencyList = concat(coinifyAssets, wyreAssets)
-      const parsedBuyList = parseGemBuyAssets(walletSupportsBTC, currencyList, balances)
-      const parsedSellList = parseGemSellAssets(walletSupportsBTC, currencyList, balances)
+      const parsedBuyList = parseGemBuyAssets(currencyList)
+      const parsedSellList = parseGemSellAssets(currencyList)
       return [parsedBuyList, parsedSellList]
     },
     onSubmit: (action, asset, address) => {

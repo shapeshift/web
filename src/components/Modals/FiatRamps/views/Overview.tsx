@@ -24,11 +24,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRamps, supportedFiatRamps } from '../config'
-import { FiatRampAction, FiatRampCurrency } from '../FiatRampsCommon'
+import { FiatRampAction, FiatRampCurrencyForVisualization } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
 type OverviewProps = {
-  selectedAsset: FiatRampCurrency | null
+  selectedAsset: FiatRampCurrencyForVisualization | null
   fiatRampProvider: FiatRamps
   isBTC: boolean
   btcAddress: string | null

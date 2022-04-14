@@ -3,10 +3,10 @@ import { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { FiatRampAction, FiatRampCurrency } from '../../FiatRampsCommon'
+import { FiatRampAction, FiatRampCurrencyWithBalances } from '../../FiatRampsCommon'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
-  const asset: FiatRampCurrency = data.items[index]
+  const asset: FiatRampCurrencyWithBalances = data.items[index]
 
   const { type, handleClick } = data
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')

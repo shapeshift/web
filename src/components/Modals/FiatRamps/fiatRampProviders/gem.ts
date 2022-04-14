@@ -1,14 +1,12 @@
-import { adapters, CAIP19 } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import flatten from 'lodash/flatten'
 import memoize from 'lodash/memoize'
 import uniqBy from 'lodash/uniqBy'
 import queryString from 'querystring'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FiatRampAction, FiatRampCurrency } from '../FiatRampsCommon'
-import { isSupportedBitcoinAsset } from '../utils'
 
 enum TransactionDirection {
   BankToBlockchain = 'bank_blockchain',
@@ -23,8 +21,6 @@ export type GemCurrency = {
   name: string
   ticker: string
   assetId: string
-  cryptoBalance: BigNumber
-  fiatBalance: BigNumber
   disabled?: boolean
 }
 
@@ -36,13 +32,6 @@ export type SupportedCurrency = {
     currencies: GemCurrency[]
   }
   transaction_direction: TransactionDirection
-}
-
-type MixedPortfolioAssetBalances = {
-  [k: CAIP19]: {
-    crypto: string
-    fiat: string
-  }
 }
 
 export const fetchCoinifySupportedCurrencies = memoize(async (): Promise<SupportedCurrency[]> => {
@@ -72,60 +61,36 @@ export const isBuyAsset = (currency: SupportedCurrency) =>
 export const isSellAsset = (currency: SupportedCurrency) =>
   currency.transaction_direction === TransactionDirection.BlockchainToBank
 
-export const parseGemSellAssets = memoize(
-  (
-    walletSupportsBTC: boolean,
-    assets: SupportedCurrency[],
-    balances: MixedPortfolioAssetBalances,
-  ): FiatRampCurrency[] =>
-    parseGemAssets(
-      'source',
-      walletSupportsBTC,
-      assets.filter(isSellAsset).map(asset => asset['source'].currencies),
-      balances,
-    ),
+export const parseGemSellAssets = memoize((assets: SupportedCurrency[]): FiatRampCurrency[] =>
+  parseGemAssets(
+    'source',
+    assets.filter(isSellAsset).map(asset => asset['source'].currencies),
+  ),
 )
 
-export const parseGemBuyAssets = memoize(
-  (
-    walletSupportsBTC: boolean,
-    assets: SupportedCurrency[],
-    balances: MixedPortfolioAssetBalances,
-  ): FiatRampCurrency[] =>
-    parseGemAssets(
-      'destination',
-      walletSupportsBTC,
-      assets.filter(isBuyAsset).map(asset => asset['destination'].currencies),
-      balances,
-    ),
+export const parseGemBuyAssets = memoize((assets: SupportedCurrency[]): FiatRampCurrency[] =>
+  parseGemAssets(
+    'destination',
+    assets.filter(isBuyAsset).map(asset => asset['destination'].currencies),
+  ),
 )
 
 const parseGemAssets = (
   key: 'destination' | 'source',
-  walletSupportsBTC: boolean,
   filteredList: GemCurrency[][],
-  balances: MixedPortfolioAssetBalances,
 ): FiatRampCurrency[] => {
   const results = uniqBy(flatten(filteredList), 'gem_asset_id')
     .filter(asset => Boolean(adapters.gemAssetIdToCAIP19(asset.gem_asset_id)))
     .map(asset => {
-      const assetId = adapters.gemAssetIdToCAIP19(asset.gem_asset_id) || ''
+      const caip19 = adapters.gemAssetIdToCAIP19(asset.gem_asset_id) || ''
       const { ticker, name } = asset
       return {
         symbol: ticker,
         name,
-        assetId,
+        caip19,
         imageUrl: getGemAssetLogoUrl(asset),
-        disabled: isSupportedBitcoinAsset(assetId) && !walletSupportsBTC,
-        cryptoBalance: bnOrZero(balances?.[assetId]?.crypto),
-        fiatBalance: bnOrZero(balances?.[assetId]?.fiat),
       }
     })
-    .sort((a, b) =>
-      key === 'source' && (a.fiatBalance.gt(0) || b.fiatBalance.gt(0))
-        ? b.fiatBalance.minus(a.fiatBalance).toNumber()
-        : a.name.localeCompare(b.name),
-    )
   return results
 }
 const memoizeAllArgsResolver = (...args: any) => JSON.stringify(args)

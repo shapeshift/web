@@ -13,6 +13,6 @@ Generally to add a new fiat ramp provider, you should complement `SupportedFiatR
 
 
 ### NOTE
-This whole structure is based on the assumption that user only should choose a provider and select an asset to buy or sell.
+This whole structure is based on the assumption that user only should choose a provider and select an asset to buy or sell. with the same flow for any given provider. if a new provider needs extra steps to be implemented, a connect-wallet-like approach should be implemented.
 
 

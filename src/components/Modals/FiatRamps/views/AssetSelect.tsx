@@ -6,13 +6,13 @@ import { Text } from 'components/Text'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRamps } from '../config'
-import { FiatRampAction, FiatRampCurrency } from '../FiatRampsCommon'
+import { FiatRampAction, FiatRampCurrencyForVisualization } from '../FiatRampsCommon'
 import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
 import { isSupportedBitcoinAsset } from '../utils'
 
 type AssetSelectProps = {
   fiatRampProvider: FiatRamps
-  onAssetSelect: (asset: FiatRampCurrency, isBTC: boolean) => void
+  onAssetSelect: (asset: FiatRampCurrencyForVisualization, isBTC: boolean) => void
   walletSupportsBTC: boolean
   selectAssetTranslation: string
 }
@@ -45,8 +45,8 @@ export const AssetSelect = ({
           <Text alignSelf='center' translation={selectAssetTranslation} />
         </Flex>
         <AssetSearch
-          onClick={(asset: FiatRampCurrency) =>
-            onAssetSelect(asset, isSupportedBitcoinAsset(asset.assetId))
+          onClick={(asset: FiatRampCurrencyForVisualization) =>
+            onAssetSelect(asset, isSupportedBitcoinAsset(asset.caip19))
           }
           type={fiatRampAction}
           assets={fiatRampAction === FiatRampAction.Buy ? buyList : sellList}

@@ -2,7 +2,7 @@ import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -29,7 +29,7 @@ export function AppProviders({ children }: ProvidersProps) {
         <ChakraProvider theme={theme}>
           <ColorModeScript />
           <PersistGate loading={<SplashScreen />} persistor={persistor}>
-            <BrowserRouter>
+            <HashRouter basename='/'>
               <ScrollToTop />
               <BrowserRouterProvider>
                 <I18nProvider>
@@ -48,7 +48,7 @@ export function AppProviders({ children }: ProvidersProps) {
                   </WalletProvider>
                 </I18nProvider>
               </BrowserRouterProvider>
-            </BrowserRouter>
+            </HashRouter>
           </PersistGate>
         </ChakraProvider>
       </PluginProvider>

@@ -61,6 +61,25 @@ export function register(): Plugins {
             ],
           },
           {
+            path: '/accounts/cosmos::accountSubId',
+            label: '',
+            hide: true,
+            main: null,
+            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
+            routes: [
+              {
+                path: '/',
+                label: 'navBar.overview',
+                main: () => <CosmosAccount />,
+              },
+              {
+                path: '/transactions',
+                label: 'navBar.transactions',
+                main: () => <CosmosAccountTxHistory />,
+              },
+            ],
+          },
+          {
             path: '/accounts/cosmos::accountSubId/:assetId',
             label: '',
             hide: true,

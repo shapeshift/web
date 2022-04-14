@@ -363,7 +363,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 : undefined
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
-            await adapter.initialize()
+            await adapter.initialize?.()
             adapters.set(wallet, adapter)
           } catch (e) {
             console.error('Error initializing HDWallet adapters', e)

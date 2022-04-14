@@ -120,6 +120,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
       return returVal
     } catch (error) {
+      console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
       if (error instanceof Error && error.message.includes('Not enough funds in reserve')) {
         toast({
           position: 'top-right',

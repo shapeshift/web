@@ -235,13 +235,13 @@ export const Overview: React.FC<OverviewProps> = ({
           colorScheme='blue'
           disabled={!selectedAsset}
           mt='25px'
-          onClick={() => {
+          onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(
               fiatRampAction,
               selectedAsset?.symbol || '',
               addressFull || '',
             )
-          }}
+          }
         >
           <Text translation='common.continue' />
         </Button>

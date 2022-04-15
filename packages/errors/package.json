@@ -1,0 +1,27 @@
+{
+  "name": "@shapeshiftoss/errors",
+  "version": "1.0.0",
+  "description": "Common set of typed errors",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist",
+    "src": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "yarn clean && tsc --project tsconfig.build.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc --watch",
+    "test": "jest test",
+    "type-check": "tsc --project ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "lodash.clonedeep": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/lodash.clonedeep": "^4.5.6"
+  }
+}

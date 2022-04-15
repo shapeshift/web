@@ -35,6 +35,7 @@ const validators = {
   REACT_APP_FEATURE_FOXY_INVESTOR: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
   REACT_APP_FEATURE_KEEPKEY_SETTINGS: bool({ default: false }),
+  REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.13.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.13.0...@shapeshiftoss/chain-adapters-v2.13.1) (2022-04-15)
+
+
+### Bug Fixes
+
+* add cosmos keepkey support ([#529](https://github.com/shapeshift/lib/issues/529)) ([74922b2](https://github.com/shapeshift/lib/commit/74922b282d493d31afada7929ab64f5d875ee032))
+
 # [@shapeshiftoss/chain-adapters-v2.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.12.0...@shapeshiftoss/chain-adapters-v2.13.0) (2022-04-10)
 
 

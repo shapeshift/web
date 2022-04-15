@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.3.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.3...@shapeshiftoss/investor-foxy-v1.3.4) (2022-04-15)
+
+
+### Bug Fixes
+
+* add cosmos keepkey support ([#529](https://github.com/shapeshift/lib/issues/529)) ([74922b2](https://github.com/shapeshift/lib/commit/74922b282d493d31afada7929ab64f5d875ee032))
+
 # [@shapeshiftoss/investor-foxy-v1.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.2...@shapeshiftoss/investor-foxy-v1.3.3) (2022-04-05)
 
 

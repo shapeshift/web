@@ -16,10 +16,13 @@ import { Text } from 'components/Text'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+export const VALID_ENTROPY = [128, 192, 256] as const
+export type Entropy = typeof VALID_ENTROPY[number]
+
 export enum SentenceLength {
-  TwelveWords = 'twelve_words',
-  EighteenWords = 'eighteen_words',
-  TwentyFourWords = 'twenty_four_words',
+  TwelveWords = VALID_ENTROPY[0],
+  EighteenWords = VALID_ENTROPY[1],
+  TwentyFourWords = VALID_ENTROPY[2],
 }
 
 const sentenceLengthOptions: readonly RadioOption<SentenceLength>[] = Object.freeze([
@@ -41,21 +44,29 @@ export const RecoverySettings = () => {
   const translate = useTranslate()
   const history = useHistory()
   const [useRecoveryPassphrase, setUseRecoveryPassphrase] = useState(false)
-  const [sentenceLengthSelection, setSentenceLengthSelection] = useState(SentenceLength.TwelveWords)
+  const [sentenceLengthSelection, setSentenceLengthSelection] = useState(
+    String(SentenceLength.TwelveWords),
+  )
   const { setDeviceState } = useWallet()
 
   const grayTextColor = useColorModeValue('gray.900', 'gray.400')
   const grayBackgroundColor = useColorModeValue('gray.100', 'gray.700')
 
+  const isValidEntropy = (length: number | undefined): length is Entropy | undefined => {
+    return VALID_ENTROPY.some(e => e === length)
+  }
+
   const handleSubmit = async () => {
+    const entropy = parseInt(sentenceLengthSelection)
+    const entropyTyped = isValidEntropy(entropy) ? entropy : VALID_ENTROPY[0]
     setDeviceState({
       stagedPassphrase: useRecoveryPassphrase,
-      stagedRecoveryLength: sentenceLengthSelection,
+      stagedEntropy: entropyTyped,
     })
     history.push(KeepKeyRoutes.NewLabel)
   }
 
-  const handleSentenceLengthSelection = (value: SentenceLength) => {
+  const handleSentenceLengthSelection = (value: string) => {
     setSentenceLengthSelection(value)
   }
 
@@ -107,7 +118,9 @@ export const RecoverySettings = () => {
         />
         <Radio
           onChange={handleSentenceLengthSelection}
-          options={sentenceLengthOptions}
+          options={sentenceLengthOptions.map(k => {
+            return { value: String(k.value), label: k.label }
+          })}
           defaultValue={sentenceLengthSelection}
           radioProps={radioButtonProps}
           buttonGroupProps={buttonGroupProps}

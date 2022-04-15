@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v2.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.0.2...@shapeshiftoss/swapper-v2.0.3) (2022-04-15)
+
+
+### Bug Fixes
+
+* add cosmos keepkey support ([#529](https://github.com/shapeshift/lib/issues/529)) ([74922b2](https://github.com/shapeshift/lib/commit/74922b282d493d31afada7929ab64f5d875ee032))
+
 # [@shapeshiftoss/swapper-v2.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.0.1...@shapeshiftoss/swapper-v2.0.2) (2022-03-16)
 
 

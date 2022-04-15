@@ -3,7 +3,7 @@ import banxalogo from 'assets/banxa.png'
 import gemlogo from 'assets/gem-mark.png'
 import onjunologo from 'assets/onjuno.png'
 
-import { createBanxaOrder, getCoins } from './fiatRampProviders/banxa'
+import { createBanxaUrl, getCoins } from './fiatRampProviders/banxa'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -60,7 +60,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return [coins, coins]
     },
     onSubmit: async (action: FiatRampAction, asset: string, address: string) => {
-      const banxaCheckoutUrl = await createBanxaOrder(action, asset, address)
+      const banxaCheckoutUrl = await createBanxaUrl(action, asset, address)
       window.open(banxaCheckoutUrl, '_blank')?.focus()
     },
   },

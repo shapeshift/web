@@ -233,15 +233,14 @@ export const Overview: React.FC<OverviewProps> = ({
           width='full'
           size='lg'
           colorScheme='blue'
-          isLoading={loading}
           disabled={!selectedAsset}
           mt='25px'
           onClick={() => {
-            setLoading(true)
-            supportedFiatRamps[fiatRampProvider]
-              .onSubmit(fiatRampAction, selectedAsset?.symbol || '', addressFull || '')
-              .then(() => setLoading(false))
-              .catch(() => setLoading(false))
+            supportedFiatRamps[fiatRampProvider].onSubmit(
+              fiatRampAction,
+              selectedAsset?.symbol || '',
+              addressFull || '',
+            )
           }}
         >
           <Text translation='common.continue' />

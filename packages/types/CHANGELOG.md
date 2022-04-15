@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v2.9.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.9.0...@shapeshiftoss/types-v2.9.1) (2022-04-15)
+
+
+### Bug Fixes
+
+* add cosmos keepkey support ([#529](https://github.com/shapeshift/lib/issues/529)) ([74922b2](https://github.com/shapeshift/lib/commit/74922b282d493d31afada7929ab64f5d875ee032))
+
 # [@shapeshiftoss/types-v2.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.8.0...@shapeshiftoss/types-v2.9.0) (2022-04-10)
 
 

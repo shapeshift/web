@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v1.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.4.4...@shapeshiftoss/investor-yearn-v1.4.5) (2022-04-15)
+
+
+### Bug Fixes
+
+* add cosmos keepkey support ([#529](https://github.com/shapeshift/lib/issues/529)) ([74922b2](https://github.com/shapeshift/lib/commit/74922b282d493d31afada7929ab64f5d875ee032))
+
 # [@shapeshiftoss/investor-yearn-v1.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.4.3...@shapeshiftoss/investor-yearn-v1.4.4) (2022-03-24)
 
 

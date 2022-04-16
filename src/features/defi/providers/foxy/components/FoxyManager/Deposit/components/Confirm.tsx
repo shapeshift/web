@@ -121,7 +121,7 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
       onCancel={() => history.push('/')}
       onConfirm={handleDeposit}
       loading={state.loading}
-      loadingText={translate('common.confirmOnWallet')}
+      loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
       assets={[
         {

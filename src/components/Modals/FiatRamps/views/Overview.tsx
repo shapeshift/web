@@ -11,9 +11,9 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { HDWallet, supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
@@ -23,22 +23,22 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { FiatRamps, supportedFiatRamps } from '../config'
-import { FiatRampAction, FiatRampCurrencyForVisualization } from '../FiatRampsCommon'
+import { FiatRamp, supportedFiatRamps } from '../config'
+import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
 type OverviewProps = {
-  selectedAsset: FiatRampCurrencyForVisualization | null
-  fiatRampProvider: FiatRamps
-  isBTC: boolean
+  selectedAsset: FiatRampCurrencyBase | null
+  fiatRampProvider: FiatRamp
+  isBTC: boolean | null
   btcAddress: string | null
   ethAddress: string | null
   ensName: string | null
   supportsAddressVerifying: boolean | null
-  setSupportsAddressVerifying: (wallet: HDWallet) => boolean
+  setSupportsAddressVerifying: Dispatch<SetStateAction<boolean | null>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
   onIsSelectingAsset: (walletSupportsBTC: Boolean, selectAssetTranslation: string) => void
-  setChainType: (chainType: ChainTypes) => void
+  setChainType: Dispatch<SetStateAction<ChainTypes.Ethereum | ChainTypes.Bitcoin>>
   chainAdapter: ChainAdapter<ChainTypes.Bitcoin | ChainTypes.Ethereum>
 }
 export const Overview = ({
@@ -61,6 +61,7 @@ export const Overview = ({
   const { fiatRamps } = useModal()
 
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
+
   const {
     state: { wallet },
   } = useWallet()
@@ -72,7 +73,7 @@ export const Overview = ({
       : ensName || middleEllipsis(ethAddress || '', 11)
 
   useEffect(() => {
-    if (wallet && !supportsAddressVerifying) setSupportsAddressVerifying(wallet)
+    if (wallet && !supportsAddressVerifying) setSupportsAddressVerifying(Boolean(wallet))
     const chainType =
       wallet && isBTC && supportsBTC(wallet) ? ChainTypes.Bitcoin : ChainTypes.Ethereum
     setChainType(chainType)

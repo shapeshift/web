@@ -12,21 +12,23 @@ import {
 import { FiatRampAction, FiatRampCurrency } from './FiatRampsCommon'
 
 export interface SupportedFiatRampConfig {
+  // key of translation jsons, will be used to show the provider name in the list
   label: string
+  // key of translation jsons, will be used to show the provider info in the list
   info?: string
   logo: string
-  readyToUse: boolean
+  isImplemented: boolean
   getBuyAndSellList: () => Promise<[FiatRampCurrency[], FiatRampCurrency[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
 }
 
-export enum FiatRamps {
+export enum FiatRamp {
   Gem = 'Gem',
   OnJuno = 'OnJuno',
 }
 
-export const supportedFiatRamps: Record<FiatRamps, SupportedFiatRampConfig> = {
-  [FiatRamps.Gem]: {
+export const supportedFiatRamps: Record<FiatRamp, SupportedFiatRampConfig> = {
+  [FiatRamp.Gem]: {
     label: 'fiatRamps.gem',
     info: 'fiatRamps.gemMessage',
     logo: gemlogo,
@@ -42,12 +44,12 @@ export const supportedFiatRamps: Record<FiatRamps, SupportedFiatRampConfig> = {
       const gemPartnerUrl = makeGemPartnerUrl(action, asset, address)
       window.open(gemPartnerUrl, '_blank')?.focus()
     },
-    readyToUse: true,
+    isImplemented: true,
   },
-  [FiatRamps.OnJuno]: {
+  [FiatRamp.OnJuno]: {
     label: 'fiatRamps.onJuno',
     logo: onjunologo,
-    readyToUse: false,
+    isImplemented: false,
     getBuyAndSellList: async () => [[], []],
     onSubmit: () => {},
   },

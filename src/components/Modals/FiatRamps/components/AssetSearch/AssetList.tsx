@@ -2,12 +2,12 @@ import { ListProps } from '@chakra-ui/react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
-import { FiatRampAction, FiatRampCurrencyForVisualization } from '../../FiatRampsCommon'
+import { FiatRampAction, FiatRampCurrencyBase } from '../../FiatRampsCommon'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {
-  handleClick: (asset: FiatRampCurrencyForVisualization) => void
-  assets: FiatRampCurrencyForVisualization[]
+  handleClick: (asset: FiatRampCurrencyBase) => void
+  assets: FiatRampCurrencyBase[]
   type: FiatRampAction
 } & ListProps
 

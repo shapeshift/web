@@ -5,13 +5,13 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
-import { FiatRamps, supportedFiatRamps } from '../config'
+import { FiatRamp, supportedFiatRamps } from '../config'
 import { FiatRampsRoutes } from '../FiatRampsCommon'
 
 export const RampsList = ({
   setFiatRampProvider,
 }: {
-  setFiatRampProvider: (key: FiatRamps) => void
+  setFiatRampProvider: (fiatRamp: FiatRamp) => void
 }) => {
   const history = useHistory()
 
@@ -27,10 +27,10 @@ export const RampsList = ({
           <Text lineHeight={1.2} color='gray.500' translation='fiatRamps.titleMessage' />
           <Stack spacing={2} mt={2} mx={-4}>
             {Object.entries(supportedFiatRamps)
-              .filter(([, { readyToUse }]) => readyToUse)
-              .map(([key, fiatRampConfig]) => (
+              .filter(([, { isImplemented }]) => isImplemented)
+              .map(([fiatRamp, fiatRampConfig]) => (
                 <Button
-                  key={key}
+                  key={fiatRamp}
                   width='full'
                   height='auto'
                   justifyContent='space-between'
@@ -38,7 +38,7 @@ export const RampsList = ({
                   fontWeight='normal'
                   py={2}
                   onClick={() => {
-                    setFiatRampProvider(key as FiatRamps)
+                    setFiatRampProvider(fiatRamp as FiatRamp)
                     history.push(FiatRampsRoutes.Manager)
                   }}
                   rightIcon={<ChevronRightIcon boxSize={6} />}
@@ -68,7 +68,7 @@ export const RampsList = ({
                 </Button>
               ))}
             {Object.values(supportedFiatRamps)
-              .filter(({ readyToUse }) => !readyToUse)
+              .filter(({ isImplemented }) => !isImplemented)
               .map(fiatRampConfig => (
                 <Button
                   key={fiatRampConfig.label}

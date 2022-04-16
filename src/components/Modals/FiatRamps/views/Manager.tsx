@@ -9,30 +9,36 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
 
-import { FiatRamps } from '../config'
-import { FiatRampAction, FiatRampCurrencyForVisualization } from '../FiatRampsCommon'
+import { FiatRamp } from '../config'
+import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
 
-export enum ManagerRoutes {
+enum FiatRampManagerRoutes {
   Buy = '/buy',
   Sell = '/sell',
   BuySelect = '/buy/select',
   SellSelect = '/sell/select',
 }
+
+type RouterLocationState = {
+  walletSupportsBTC: boolean
+  selectAssetTranslation: string
+}
+
 const entries = [
-  ManagerRoutes.Buy,
-  ManagerRoutes.BuySelect,
-  ManagerRoutes.Sell,
-  ManagerRoutes.SellSelect,
+  FiatRampManagerRoutes.Buy,
+  FiatRampManagerRoutes.BuySelect,
+  FiatRampManagerRoutes.Sell,
+  FiatRampManagerRoutes.SellSelect,
 ]
 
-const ManagerRouter = (props: any) => {
+const ManagerRouter = (props: { fiatRampProvider: FiatRamp } & RouteComponentProps) => {
   const { location, history } = props
 
-  const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrencyForVisualization | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrencyBase | null>(null)
   const [isBTC, setIsBTC] = useState<boolean | null>(null)
-  // We addresses in manager so we don't have to on every <Overview /> mount
+  // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string | null>(null)
   const [ethAddress, setEthAddress] = useState<string | null>(null)
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean | null>(null)
@@ -79,23 +85,29 @@ const ManagerRouter = (props: any) => {
   const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
     path: '/:fiatRampAction',
   })
+
   const handleFiatRampActionClick = (fiatRampAction: FiatRampAction) => {
-    const route = fiatRampAction === FiatRampAction.Buy ? ManagerRoutes.Buy : ManagerRoutes.Sell
+    const route =
+      fiatRampAction === FiatRampAction.Buy ? FiatRampManagerRoutes.Buy : FiatRampManagerRoutes.Sell
     setSelectedAsset(null)
     history.push(route)
   }
-  const handleAssetSelect = (asset: FiatRampCurrencyForVisualization, isBTC: boolean) => {
+
+  const handleAssetSelect = (asset: FiatRampCurrencyBase, isBTC: boolean) => {
     const route =
-      match?.params.fiatRampAction === FiatRampAction.Buy ? ManagerRoutes.Buy : ManagerRoutes.Sell
+      match?.params.fiatRampAction === FiatRampAction.Buy
+        ? FiatRampManagerRoutes.Buy
+        : FiatRampManagerRoutes.Sell
     setSelectedAsset(asset)
     setIsBTC(isBTC)
     history.push(route)
   }
+
   const handleIsSelectingAsset = (walletSupportsBTC: Boolean, selectAssetTranslation: string) => {
     const route =
       match?.params.fiatRampAction === FiatRampAction.Buy
-        ? ManagerRoutes.BuySelect
-        : ManagerRoutes.SellSelect
+        ? FiatRampManagerRoutes.BuySelect
+        : FiatRampManagerRoutes.SellSelect
     history.push(route, { walletSupportsBTC, selectAssetTranslation })
   }
 
@@ -104,7 +116,6 @@ const ManagerRouter = (props: any) => {
       <Switch location={location} key={location.key}>
         <Route exact path='/:fiatRampAction'>
           <Overview
-            {...props}
             selectedAsset={selectedAsset}
             onIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
@@ -115,22 +126,31 @@ const ManagerRouter = (props: any) => {
             chainAdapter={chainAdapter}
             setChainType={setChainType}
             isBTC={isBTC}
-          />
-        </Route>
-        <Route exact path='/:fiatRampAction/select'>
-          <AssetSelect
             fiatRampProvider={props.fiatRampProvider}
-            {...location.state}
-            onAssetSelect={handleAssetSelect}
+            ensName={null}
           />
         </Route>
-        <Redirect from='/' to={ManagerRoutes.Buy} />
+        {props.fiatRampProvider && (
+          <Route exact path='/:fiatRampAction/select'>
+            <AssetSelect
+              walletSupportsBTC={
+                (location.state as RouterLocationState)?.walletSupportsBTC ?? false
+              }
+              selectAssetTranslation={
+                (location.state as RouterLocationState)?.selectAssetTranslation ?? ''
+              }
+              onAssetSelect={handleAssetSelect}
+              fiatRampProvider={props.fiatRampProvider}
+            />
+          </Route>
+        )}
+        <Redirect from='/' to={FiatRampManagerRoutes.Buy} />
       </Switch>
     </AnimatePresence>
   )
 }
 
-export const Manager = ({ fiatRampProvider }: { fiatRampProvider?: FiatRamps }) => {
+export const Manager = ({ fiatRampProvider }: { fiatRampProvider: FiatRamp }) => {
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>

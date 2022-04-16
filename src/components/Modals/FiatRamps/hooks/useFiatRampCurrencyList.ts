@@ -3,14 +3,11 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FiatRamps, supportedFiatRamps } from '../config'
+import { FiatRamp, supportedFiatRamps } from '../config'
 import { FiatRampCurrency, FiatRampCurrencyWithBalances } from '../FiatRampsCommon'
 import { isSupportedBitcoinAsset } from '../utils'
 
-export const useFiatRampCurrencyList = (
-  fiatRampProvider: FiatRamps,
-  walletSupportsBTC: boolean,
-) => {
+export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp, walletSupportsBTC: boolean) => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
 
   const [loading, setLoading] = useState(false)
@@ -22,9 +19,9 @@ export const useFiatRampCurrencyList = (
       assets
         .map(asset => ({
           ...asset,
-          disabled: isSupportedBitcoinAsset(asset.caip19) && !walletSupportsBTC,
-          cryptoBalance: bnOrZero(balances?.[asset.caip19]?.crypto),
-          fiatBalance: bnOrZero(balances?.[asset.caip19]?.fiat),
+          disabled: isSupportedBitcoinAsset(asset.assetId) && !walletSupportsBTC,
+          cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
+          fiatBalance: bnOrZero(balances?.[asset.assetId]?.fiat),
         }))
         .sort((a, b) =>
           a.fiatBalance.gt(0) || b.fiatBalance.gt(0)
@@ -39,7 +36,7 @@ export const useFiatRampCurrencyList = (
       assets
         .map(asset => ({
           ...asset,
-          disabled: isSupportedBitcoinAsset(asset.caip19) && !walletSupportsBTC,
+          disabled: isSupportedBitcoinAsset(asset.assetId) && !walletSupportsBTC,
         }))
         .sort((a, b) => a.name.localeCompare(b.name)),
     [walletSupportsBTC],

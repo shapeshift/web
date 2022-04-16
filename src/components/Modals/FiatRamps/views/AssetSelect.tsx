@@ -5,14 +5,14 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
-import { FiatRamps } from '../config'
-import { FiatRampAction, FiatRampCurrencyForVisualization } from '../FiatRampsCommon'
+import { FiatRamp } from '../config'
+import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
 import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
 import { isSupportedBitcoinAsset } from '../utils'
 
 type AssetSelectProps = {
-  fiatRampProvider: FiatRamps
-  onAssetSelect: (asset: FiatRampCurrencyForVisualization, isBTC: boolean) => void
+  fiatRampProvider: FiatRamp
+  onAssetSelect: (asset: FiatRampCurrencyBase, isBTC: boolean) => void
   walletSupportsBTC: boolean
   selectAssetTranslation: string
 }
@@ -37,7 +37,7 @@ export const AssetSelect = ({
             icon={<ArrowBackIcon />}
             aria-label={selectAssetTranslation}
             size='sm'
-            onClick={() => goBack()}
+            onClick={goBack}
             isRound
             variant='ghost'
             mr={2}
@@ -45,8 +45,8 @@ export const AssetSelect = ({
           <Text alignSelf='center' translation={selectAssetTranslation} />
         </Flex>
         <AssetSearch
-          onClick={(asset: FiatRampCurrencyForVisualization) =>
-            onAssetSelect(asset, isSupportedBitcoinAsset(asset.caip19))
+          onClick={(asset: FiatRampCurrencyBase) =>
+            onAssetSelect(asset, isSupportedBitcoinAsset(asset.assetId))
           }
           type={fiatRampAction}
           assets={fiatRampAction === FiatRampAction.Buy ? buyList : sellList}

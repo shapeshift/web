@@ -82,12 +82,12 @@ const parseGemAssets = (
   const results = uniqBy(flatten(filteredList), 'gem_asset_id')
     .filter(asset => Boolean(adapters.gemAssetIdToCAIP19(asset.gem_asset_id)))
     .map(asset => {
-      const caip19 = adapters.gemAssetIdToCAIP19(asset.gem_asset_id) || ''
+      const assetId = adapters.gemAssetIdToCAIP19(asset.gem_asset_id) || ''
       const { ticker, name } = asset
       return {
         symbol: ticker,
         name,
-        caip19,
+        assetId,
         imageUrl: getGemAssetLogoUrl(asset),
       }
     })

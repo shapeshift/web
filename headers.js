@@ -6,9 +6,6 @@ const cspMeta = Object.entries({
   'connect-src': [
     "'self'",
     'data:',
-    // Explicitly whitelist our KeepKey versions file
-    // TODO: File manually added to IPFS - we need to instead add it to version control and use a persistent URL.
-    'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
     // @shapeshiftoss/swapper@1.15.0: https://github.com/shapeshift/lib/blob/f833ac7f8c70dee801eaa24525336ca6992e5903/packages/swapper/src/swappers/zrx/utils/zrxService.ts#L4
     'https://api.0x.org',
     // @shapeshiftoss/chain-adapters@1.22.1: https://github.com/shapeshift/lib/blob/476550629be9485bfc089decc4df85456968464a/packages/chain-adapters/src/ethereum/EthereumChainAdapter.ts#L226
@@ -56,6 +53,8 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL,
     process.env.REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_COSMOS_WS_URL,
+    // Explicitly whitelist our KeepKey versions file
+    process.env.REACT_APP_KEEPKEY_VERSIONS_URL,
   ],
   'frame-src': ['https://fwd.metamask.io/', 'https://widget.portis.io'],
   'img-src': [

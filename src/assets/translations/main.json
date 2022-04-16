@@ -188,6 +188,7 @@
     "broadcastingTransaction": "Broadcasting Transaction",
     "transactionComplete": "Transaction Complete",
     "transactionFailed": "Transaction Failed",
+    "notEnoughFundsInReserve": "Not enough funds in liquidity reserve contract",
     "validator": "Validator",
     "validatorMoniker":"%{moniker} Validator",
     "stakedAmount": "Staked Amount",

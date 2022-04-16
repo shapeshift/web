@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v2.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.3.0...@shapeshiftoss/asset-service-v2.3.1) (2022-04-16)
+
+
+### Bug Fixes
+
+* add KICK to the blacklist ([#524](https://github.com/shapeshift/lib/issues/524)) ([68f81db](https://github.com/shapeshift/lib/commit/68f81db13222005c410c54f0186f739084a66595))
+
 # [@shapeshiftoss/asset-service-v2.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.2.3...@shapeshiftoss/asset-service-v2.3.0) (2022-04-05)
 
 

@@ -9,7 +9,7 @@ everything else in this directory should be generic.
 Generally to add a new fiat ramp provider, you should complement `SupportedFiatRampConfig` interface in the `./config` file. 
 - The new provider should have a `getBuyAndSellList` async function to return a tuple containing the available assets for "selling" and "buying" in that provider. these arrays should return `FiatRampCurrency[]` type which is defined in the `./FiatRampsCommon`.
 - The new provider should have a `onSubmit` property for passing the data to the provider API.
-- `readyToUse` field is used to show whether the provider is ready to use or a `coming soon` text should be shown instead.
+- `isImplemeted` field is used to show whether the provider is ready to use or a `coming soon` text should be shown instead.
 
 
 ### NOTE

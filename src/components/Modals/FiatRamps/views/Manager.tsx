@@ -53,7 +53,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const location = useLocation<RouterLocationState>()
 
   const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrencyBase | null>(null)
-  const [walletSupportsAsset, setWalletSupportsAsset] = useState<boolean>(false)
   // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string>('')
   const [ethAddress, setEthAddress] = useState<string>('')
@@ -103,7 +102,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
         ? FiatRampManagerRoutes.Buy
         : FiatRampManagerRoutes.Sell
     setSelectedAsset(asset)
-    setWalletSupportsAsset(isSupportedAsset(asset?.assetId ?? '', wallet))
     history.push(route)
   }
 
@@ -123,7 +121,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const { selectAssetTranslation } = location.state ?? {}
 
   const assetSelectProps = {
-    walletSupportsAsset,
     selectAssetTranslation,
     onAssetSelect,
     fiatRampProvider,

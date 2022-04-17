@@ -8,9 +8,6 @@ import { FiatRampCurrencyBase } from './FiatRampsCommon'
 export const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
 
-export const isSupportedBitcoinAsset = (assetId: string) =>
-  Boolean(assetId === 'bip122:000000000019d6689c085ae165831e93/slip44:0')
-
 export const isSupportedAsset = (assetId: CAIP19, wallet: HDWallet): boolean => {
   if (!assetId) return false
   const { chain, network } = caip19.fromCAIP19(assetId)

@@ -1,25 +1,30 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FiatRamp, supportedFiatRamps } from '../config'
 import { FiatRampCurrency, FiatRampCurrencyWithBalances } from '../FiatRampsCommon'
-import { isSupportedBitcoinAsset } from '../utils'
+import { isSupportedAsset } from '../utils'
 
-export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp, walletSupportsBTC: boolean) => {
+export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
 
   const [loading, setLoading] = useState(false)
   const [buyList, setBuyList] = useState<FiatRampCurrency[]>([])
   const [sellList, setSellList] = useState<FiatRampCurrencyWithBalances[]>([])
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const addSellPropertiesAndSort = useCallback(
-    (assets: FiatRampCurrency[]): FiatRampCurrencyWithBalances[] =>
-      assets
+    (assets: FiatRampCurrency[]): FiatRampCurrencyWithBalances[] => {
+      if (!wallet) return []
+      return assets
         .map(asset => ({
           ...asset,
-          disabled: isSupportedBitcoinAsset(asset.assetId) && !walletSupportsBTC,
+          disabled: !isSupportedAsset(asset?.assetId ?? '', wallet),
           cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
           fiatBalance: bnOrZero(balances?.[asset.assetId]?.fiat),
         }))
@@ -27,19 +32,22 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp, walletSuppor
           a.fiatBalance.gt(0) || b.fiatBalance.gt(0)
             ? b.fiatBalance.minus(a.fiatBalance).toNumber()
             : a.name.localeCompare(b.name),
-        ),
-    [balances, walletSupportsBTC],
+        )
+    },
+    [balances, wallet],
   )
 
   const addBuyPropertiesAndSort = useCallback(
-    (assets: FiatRampCurrency[]): FiatRampCurrency[] =>
-      assets
+    (assets: FiatRampCurrency[]): FiatRampCurrency[] => {
+      if (!wallet) return []
+      return assets
         .map(asset => ({
           ...asset,
-          disabled: isSupportedBitcoinAsset(asset.assetId) && !walletSupportsBTC,
+          disabled: !isSupportedAsset(asset.assetId, wallet),
         }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [walletSupportsBTC],
+        .sort((a, b) => a.name.localeCompare(b.name))
+    },
+    [wallet],
   )
 
   // start getting currencies from selected fiatRampProvider

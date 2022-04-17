@@ -12,18 +12,14 @@ import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
 type AssetSelectProps = {
   fiatRampProvider: FiatRamp
   onAssetSelect: (asset: FiatRampCurrencyBase) => void
-  walletSupportsAsset: boolean
   selectAssetTranslation: string
 }
 
 export const AssetSelect: React.FC<AssetSelectProps> = props => {
-  const { fiatRampProvider, onAssetSelect, walletSupportsAsset, selectAssetTranslation } = props
+  const { fiatRampProvider, onAssetSelect, selectAssetTranslation } = props
   const { goBack } = useHistory()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
-  const { loading, sellList, buyList } = useFiatRampCurrencyList(
-    fiatRampProvider,
-    walletSupportsAsset,
-  )
+  const { loading, sellList, buyList } = useFiatRampCurrencyList(fiatRampProvider)
 
   return (
     <SlideTransition>

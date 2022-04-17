@@ -767,7 +767,8 @@
         "password": "Password",
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
-        "invalidCaptcha": "Captcha is invalid"
+        "invalidCaptcha": "Captcha is invalid",
+        "invalidLogin": "Invalid login"
       }
     },
     "selectModal": {

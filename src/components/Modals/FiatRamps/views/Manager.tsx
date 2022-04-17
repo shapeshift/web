@@ -20,7 +20,7 @@ import { ensReverseLookup } from 'lib/ens'
 import { ChainId, ethChainId } from 'state/slices/portfolioSlice/utils'
 
 import { FiatRamp } from '../config'
-import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
+import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 import { isSupportedAsset } from '../utils'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
@@ -52,7 +52,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
-  const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrencyBase | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
   // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string>('')
   const [ethAddress, setEthAddress] = useState<string>('')
@@ -95,7 +95,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     history.push(route)
   }
 
-  const onAssetSelect = (asset: FiatRampCurrencyBase | null) => {
+  const onAssetSelect = (asset: FiatRampAsset | null) => {
     if (!wallet) return
     const route =
       match?.params.fiatRampAction === FiatRampAction.Buy
@@ -105,10 +105,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     history.push(route)
   }
 
-  const handleIsSelectingAsset = (
-    asset: FiatRampCurrencyBase | null,
-    selectAssetTranslation: string,
-  ) => {
+  const handleIsSelectingAsset = (asset: FiatRampAsset | null, selectAssetTranslation: string) => {
     if (!wallet) return
     const walletSupportsAsset = isSupportedAsset(asset?.assetId ?? '', wallet)
     const route =

@@ -9,7 +9,7 @@ import {
   parseGemBuyAssets,
   parseGemSellAssets,
 } from './fiatRampProviders/gem'
-import { FiatRampAction, FiatRampCurrency } from './FiatRampsCommon'
+import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 export interface SupportedFiatRampConfig {
   // key of translation jsons, will be used to show the provider name in the list
@@ -18,7 +18,7 @@ export interface SupportedFiatRampConfig {
   info?: string
   logo: string
   isImplemented: boolean
-  getBuyAndSellList: () => Promise<[FiatRampCurrency[], FiatRampCurrency[]]>
+  getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
 }
 

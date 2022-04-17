@@ -29,11 +29,11 @@ import {
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRamp, supportedFiatRamps } from '../config'
-import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
+import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
 type OverviewProps = {
-  selectedAsset: FiatRampCurrencyBase | null
+  selectedAsset: FiatRampAsset | null
   fiatRampProvider: FiatRamp
   btcAddress: string
   ethAddress: string
@@ -41,13 +41,13 @@ type OverviewProps = {
   supportsAddressVerifying: boolean
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
-  onIsSelectingAsset: (asset: FiatRampCurrencyBase | null, selectAssetTranslation: string) => void
+  onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
   chainId: ChainId
   setChainId: Dispatch<SetStateAction<ChainId>>
   chainAdapterManager: ChainAdapterManager
 }
 type GenerateAddressProps = {
-  selectedAsset: FiatRampCurrencyBase | null
+  selectedAsset: FiatRampAsset | null
   btcAddress: string
   ethAddress: string
   ensName: string

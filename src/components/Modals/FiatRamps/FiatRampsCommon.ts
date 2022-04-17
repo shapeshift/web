@@ -10,17 +10,12 @@ export enum FiatRampAction {
   Sell = 'sell',
 }
 
-export type FiatRampCurrency = {
+export type FiatRampAsset = {
   name: string
   assetId: string
   symbol: string
   imageUrl?: string
   disabled?: boolean
+  cryptoBalance?: BigNumber
+  fiatBalance?: BigNumber
 }
-
-export type FiatRampCurrencyWithBalances = FiatRampCurrency & {
-  cryptoBalance: BigNumber
-  fiatBalance: BigNumber
-}
-
-export type FiatRampCurrencyBase = FiatRampCurrency | FiatRampCurrencyWithBalances

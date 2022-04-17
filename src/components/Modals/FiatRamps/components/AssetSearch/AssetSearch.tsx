@@ -4,19 +4,19 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
-import { FiatRampAction, FiatRampCurrencyBase } from '../../FiatRampsCommon'
+import { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
 import { filterAssetsBySearchTerm } from '../../utils'
 import { AssetList } from './AssetList'
 
 type AssetSearchProps = {
-  onClick: (asset: FiatRampCurrencyBase) => void
+  onClick: (asset: FiatRampAsset) => void
   type: FiatRampAction
-  assets: FiatRampCurrencyBase[]
+  assets: FiatRampAsset[]
   loading: boolean
 }
 
 export const AssetSearch = ({ onClick, type, assets, loading }: AssetSearchProps) => {
-  const [filteredAssets, setFilteredAssets] = useState<FiatRampCurrencyBase[]>([])
+  const [filteredAssets, setFilteredAssets] = useState<FiatRampAsset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {

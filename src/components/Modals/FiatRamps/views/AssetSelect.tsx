@@ -6,12 +6,12 @@ import { Text } from 'components/Text'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRamp } from '../config'
-import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
+import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
 
 type AssetSelectProps = {
   fiatRampProvider: FiatRamp
-  onAssetSelect: (asset: FiatRampCurrencyBase) => void
+  onAssetSelect: (asset: FiatRampAsset) => void
   selectAssetTranslation: string
 }
 

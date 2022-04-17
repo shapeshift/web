@@ -5,21 +5,21 @@ import { selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 import { FiatRamp, supportedFiatRamps } from '../config'
-import { FiatRampCurrency, FiatRampCurrencyWithBalances } from '../FiatRampsCommon'
+import { FiatRampAsset } from '../FiatRampsCommon'
 import { isSupportedAsset } from '../utils'
 
 export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
 
   const [loading, setLoading] = useState(false)
-  const [buyList, setBuyList] = useState<FiatRampCurrency[]>([])
-  const [sellList, setSellList] = useState<FiatRampCurrencyWithBalances[]>([])
+  const [buyList, setBuyList] = useState<FiatRampAsset[]>([])
+  const [sellList, setSellList] = useState<FiatRampAsset[]>([])
   const {
     state: { wallet },
   } = useWallet()
 
   const addSellPropertiesAndSort = useCallback(
-    (assets: FiatRampCurrency[]): FiatRampCurrencyWithBalances[] => {
+    (assets: FiatRampAsset[]): FiatRampAsset[] => {
       if (!wallet) return []
       return assets
         .filter(asset => Object.keys(balances).includes(asset.assetId))
@@ -39,7 +39,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   )
 
   const addBuyPropertiesAndSort = useCallback(
-    (assets: FiatRampCurrency[]): FiatRampCurrency[] => {
+    (assets: FiatRampAsset[]): FiatRampAsset[] => {
       if (!wallet) return []
       return assets
         .map(asset => ({

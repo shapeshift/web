@@ -3,7 +3,7 @@ import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshifto
 import { matchSorter } from 'match-sorter'
 import { btcChainId, cosmosChainId, ethChainId } from 'state/slices/portfolioSlice/utils'
 
-import { FiatRampCurrencyBase } from './FiatRampsCommon'
+import { FiatRampAsset } from './FiatRampsCommon'
 
 export const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
@@ -24,5 +24,5 @@ export const isSupportedAsset = (assetId: CAIP19, wallet: HDWallet): boolean => 
   }
 }
 
-export const filterAssetsBySearchTerm = (search: string, assets: FiatRampCurrencyBase[]) =>
+export const filterAssetsBySearchTerm = (search: string, assets: FiatRampAsset[]) =>
   matchSorter(assets, search, { keys: ['symbol', 'name'] })

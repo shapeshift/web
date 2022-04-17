@@ -22,6 +22,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
     (assets: FiatRampCurrency[]): FiatRampCurrencyWithBalances[] => {
       if (!wallet) return []
       return assets
+        .filter(asset => Object.keys(balances).includes(asset.assetId))
         .map(asset => ({
           ...asset,
           disabled: !isSupportedAsset(asset?.assetId ?? '', wallet),

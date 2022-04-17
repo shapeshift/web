@@ -80,7 +80,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
 
   useEffect(() => {
     ;(async () => {
-      ethAddress && !ensName && setEnsName((await ensReverseLookup(ethAddress))?.name ?? '')
+      !ensName && setEnsName((await ensReverseLookup(ethAddress)).name ?? '')
     })()
   }, [ensName, ethAddress])
 
@@ -142,7 +142,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             chainId={chainId}
             setChainId={setChainId}
             fiatRampProvider={fiatRampProvider}
-            ensName={''}
+            ensName={ensName}
           />
         </Route>
         {fiatRampProvider && (

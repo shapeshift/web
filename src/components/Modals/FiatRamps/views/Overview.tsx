@@ -66,7 +66,7 @@ const generateAddresses: GenerateAddresses = props => {
   const chainId = assetIdtoChainId(assetId)
   switch (chainId) {
     case ethChainId:
-      return [ensName || ethAddress, ethAddress, middleEllipsis(ethAddress, 11)]
+      return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
     case btcChainId:
       return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
     case cosmosChainId:

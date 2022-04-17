@@ -16,12 +16,9 @@ type AssetSelectProps = {
   walletSupportsBTC: boolean
   selectAssetTranslation: string
 }
-export const AssetSelect = ({
-  fiatRampProvider,
-  onAssetSelect,
-  walletSupportsBTC,
-  selectAssetTranslation,
-}: AssetSelectProps) => {
+
+export const AssetSelect: React.FC<AssetSelectProps> = props => {
+  const { fiatRampProvider, onAssetSelect, walletSupportsBTC, selectAssetTranslation } = props
   const { goBack } = useHistory()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const { loading, sellList, buyList } = useFiatRampCurrencyList(

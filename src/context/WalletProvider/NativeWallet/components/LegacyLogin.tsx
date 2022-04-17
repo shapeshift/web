@@ -8,6 +8,7 @@ import {
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
@@ -15,23 +16,33 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
 // @TODO(NeOMakinG): Remove this and add the 2fa code logic
-const doubleAuthCode = ''
+const twoFactorAuthCode = ''
 
 export const LegacyLogin = ({ history }: RouteComponentProps) => {
+  const [isCaptchaValidated, setCaptchaValidated] = useState(false)
   const captchaBgColor = useColorModeValue('gray.50', 'gray.700')
   const checkboxBorderColor = useColorModeValue('gray.400', 'white')
-
-  const onSubmit = async (values: FieldValues) => {
-    return
-  }
 
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({ shouldUnregister: true })
 
   const translate = useTranslate()
+
+  const onSubmit = async (values: FieldValues) => {
+    // Reset every fields in order to remove the password and email from the memory
+    reset()
+    return
+  }
+
+  const onCaptcha = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Check the captcha in case the captcha has been validated
+    setCaptchaValidated(e.target.checked)
+    return
+  }
 
   return (
     <>
@@ -74,7 +85,7 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
             />
             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={errors.captcha} mb={4} mt={6}>
+          <FormControl isInvalid={errors.captcha && !isCaptchaValidated} mb={4} mt={6}>
             <Card
               size='sm'
               width='full'
@@ -91,6 +102,8 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
                   {...register('captcha', {
                     required: translate('walletProvider.shapeShift.legacy.invalidCaptcha'),
                   })}
+                  onChange={onCaptcha}
+                  isChecked={isCaptchaValidated}
                 >
                   {translate('common.notRobot')}
                 </Checkbox>
@@ -98,15 +111,8 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
             </Card>
             <FormErrorMessage>{errors.captcha?.message}</FormErrorMessage>
           </FormControl>
-          <Input name='2fa' value={doubleAuthCode} type='hidden' />
-          <Button
-            colorScheme='blue'
-            isFullWidth
-            size='lg'
-            type='submit'
-            isLoading={isSubmitting}
-            data-test='wallet-native-seed-submit-button'
-          >
+          <Input name='2fa' value={twoFactorAuthCode} type='hidden' />
+          <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
             <Text translation={'common.logIn'} />
           </Button>
         </form>

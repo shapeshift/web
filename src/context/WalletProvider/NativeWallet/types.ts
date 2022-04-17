@@ -21,6 +21,15 @@ export interface NativeSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export interface LoginError {
-  message: '2fa required' | '2fa invalid'
+export interface LoginError extends Error {
+  response: {
+    status: number
+    data: {
+      success: boolean
+      error: {
+        code: number
+        msg: string
+      }
+    }
+  }
 }

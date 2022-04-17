@@ -805,6 +805,8 @@
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
         "invalidLogin": "Invalid login",
+        "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
+        "decryptionError": "Something went wrong decrypting your wallet.",
         "twoFactorAuthentication": "Two-Factor Authentication",
         "twoFactorPlaceholder": "6-digit code",
         "twoFactorRequired": "2FA is required",

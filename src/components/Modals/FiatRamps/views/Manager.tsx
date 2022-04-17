@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { supportsBTC, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -17,9 +17,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
+import { ChainId, ethChainId } from 'state/slices/portfolioSlice/utils'
 
 import { FiatRamp } from '../config'
 import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
+import { isSupportedAsset } from '../utils'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
 
@@ -31,7 +33,7 @@ enum FiatRampManagerRoutes {
 }
 
 type RouterLocationState = {
-  walletSupportsBTC: boolean
+  walletSupportsAsset: boolean
   selectAssetTranslation: string
 }
 
@@ -51,21 +53,18 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const location = useLocation<RouterLocationState>()
 
   const [selectedAsset, setSelectedAsset] = useState<FiatRampCurrencyBase | null>(null)
-  const [isBTC, setIsBTC] = useState<boolean | null>(null)
+  const [walletSupportsAsset, setWalletSupportsAsset] = useState<boolean>(false)
   // We keep addresses in manager so we don't have to on every <Overview /> mount
-  const [btcAddress, setBtcAddress] = useState<string | null>(null)
-  const [ethAddress, setEthAddress] = useState<string | null>(null)
-  const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean | null>(null)
-  const [ensName, setEnsName] = useState<string | null>()
+  const [btcAddress, setBtcAddress] = useState<string>('')
+  const [ethAddress, setEthAddress] = useState<string>('')
+  const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
+  const [ensName, setEnsName] = useState<string>('')
 
   const chainAdapterManager = useChainAdapters()
   const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
 
-  const [chainType, setChainType] = useState<ChainTypes.Bitcoin | ChainTypes.Ethereum>(
-    ChainTypes.Ethereum,
-  )
-  const chainAdapter = chainAdapterManager.byChain(chainType)
+  const [chainId, setChainId] = useState<ChainId>(ethChainId)
 
   const {
     state: { wallet },
@@ -74,25 +73,15 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   useEffect(() => {
     ;(async () => {
       if (!wallet) return
-      const ethAddress = await ethereumChainAdapter.getAddress({
-        wallet,
-      })
-      setEthAddress(ethAddress)
-      if (supportsBTC(wallet)) {
-        const btcAddress = await bitcoinChainAdapter.getAddress({
-          wallet,
-        })
-        setBtcAddress(btcAddress)
-      }
+      const payload = { wallet }
+      supportsETH(wallet) && setEthAddress(await ethereumChainAdapter.getAddress(payload))
+      supportsBTC(wallet) && setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
     })()
   }, [wallet, bitcoinChainAdapter, ethereumChainAdapter])
 
   useEffect(() => {
     ;(async () => {
-      if (ethAddress && !ensName) {
-        const reverseEthAddressLookup = await ensReverseLookup(ethAddress)
-        if (reverseEthAddressLookup?.name) setEnsName(reverseEthAddressLookup.name)
-      }
+      ethAddress && !ensName && setEnsName((await ensReverseLookup(ethAddress))?.name ?? '')
     })()
   }, [ensName, ethAddress])
 
@@ -107,28 +96,34 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     history.push(route)
   }
 
-  const onAssetSelect = (asset: FiatRampCurrencyBase, isBTC: boolean) => {
+  const onAssetSelect = (asset: FiatRampCurrencyBase | null) => {
+    if (!wallet) return
     const route =
       match?.params.fiatRampAction === FiatRampAction.Buy
         ? FiatRampManagerRoutes.Buy
         : FiatRampManagerRoutes.Sell
     setSelectedAsset(asset)
-    setIsBTC(isBTC)
+    setWalletSupportsAsset(isSupportedAsset(asset?.assetId ?? '', wallet))
     history.push(route)
   }
 
-  const handleIsSelectingAsset = (walletSupportsBTC: Boolean, selectAssetTranslation: string) => {
+  const handleIsSelectingAsset = (
+    asset: FiatRampCurrencyBase | null,
+    selectAssetTranslation: string,
+  ) => {
+    if (!wallet) return
+    const walletSupportsAsset = isSupportedAsset(asset?.assetId ?? '', wallet)
     const route =
       match?.params.fiatRampAction === FiatRampAction.Buy
         ? FiatRampManagerRoutes.BuySelect
         : FiatRampManagerRoutes.SellSelect
-    history.push(route, { walletSupportsBTC, selectAssetTranslation })
+    history.push(route, { walletSupportsAsset, selectAssetTranslation })
   }
 
-  const { walletSupportsBTC, selectAssetTranslation } = location.state ?? {}
+  const { selectAssetTranslation } = location.state ?? {}
 
   const assetSelectProps = {
-    walletSupportsBTC,
+    walletSupportsAsset,
     selectAssetTranslation,
     onAssetSelect,
     fiatRampProvider,
@@ -146,11 +141,11 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             ethAddress={ethAddress}
             supportsAddressVerifying={supportsAddressVerifying}
             setSupportsAddressVerifying={setSupportsAddressVerifying}
-            chainAdapter={chainAdapter}
-            setChainType={setChainType}
-            isBTC={isBTC}
+            chainAdapterManager={chainAdapterManager}
+            chainId={chainId}
+            setChainId={setChainId}
             fiatRampProvider={fiatRampProvider}
-            ensName={null}
+            ensName={''}
           />
         </Route>
         {fiatRampProvider && (

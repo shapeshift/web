@@ -10,9 +10,7 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
@@ -21,6 +19,13 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import {
+  assetIdtoChainId,
+  btcChainId,
+  ChainId,
+  cosmosChainId,
+  ethChainId,
+} from 'state/slices/portfolioSlice/utils'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRamp, supportedFiatRamps } from '../config'
@@ -30,18 +35,47 @@ import { middleEllipsis } from '../utils'
 type OverviewProps = {
   selectedAsset: FiatRampCurrencyBase | null
   fiatRampProvider: FiatRamp
-  isBTC: boolean | null
-  btcAddress: string | null
-  ethAddress: string | null
-  ensName: string | null
-  supportsAddressVerifying: boolean | null
-  setSupportsAddressVerifying: Dispatch<SetStateAction<boolean | null>>
+  btcAddress: string
+  ethAddress: string
+  ensName: string
+  supportsAddressVerifying: boolean
+  setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
-  onIsSelectingAsset: (walletSupportsBTC: Boolean, selectAssetTranslation: string) => void
-  setChainType: Dispatch<SetStateAction<ChainTypes.Ethereum | ChainTypes.Bitcoin>>
-  chainAdapter: ChainAdapter<ChainTypes.Bitcoin | ChainTypes.Ethereum>
+  onIsSelectingAsset: (asset: FiatRampCurrencyBase | null, selectAssetTranslation: string) => void
+  chainId: ChainId
+  setChainId: Dispatch<SetStateAction<ChainId>>
+  chainAdapterManager: ChainAdapterManager
 }
-export const Overview = ({
+type GenerateAddressProps = {
+  selectedAsset: FiatRampCurrencyBase | null
+  btcAddress: string
+  ethAddress: string
+  ensName: string
+}
+type AddressOrNameFull = string
+type AddressFull = string
+type AddressOrNameEllipsed = string
+type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEllipsed]
+type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
+
+const generateAddresses: GenerateAddresses = props => {
+  const { selectedAsset, btcAddress, ethAddress, ensName } = props
+  const assetId = selectedAsset?.assetId
+  const empty: GenerateAddressesReturn = ['', '', '']
+  if (!assetId) return empty
+  const chainId = assetIdtoChainId(assetId)
+  switch (chainId) {
+    case ethChainId:
+      return [ensName || ethAddress, ethAddress, middleEllipsis(ethAddress, 11)]
+    case btcChainId:
+      return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
+    case cosmosChainId:
+    default:
+      return empty
+  }
+}
+
+export const Overview: React.FC<OverviewProps> = ({
   fiatRampProvider,
   onIsSelectingAsset,
   onFiatRampActionClick,
@@ -51,10 +85,10 @@ export const Overview = ({
   ethAddress,
   ensName,
   selectedAsset,
-  setChainType,
-  chainAdapter,
-  isBTC,
-}: OverviewProps) => {
+  chainId,
+  setChainId,
+  chainAdapterManager,
+}) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
@@ -65,21 +99,21 @@ export const Overview = ({
   const {
     state: { wallet },
   } = useWallet()
-  const addressOrNameFull = isBTC ? btcAddress : ensName || ethAddress
-  const addressFull = isBTC ? btcAddress : ethAddress
-  const addressOrNameEllipsed =
-    isBTC && btcAddress
-      ? middleEllipsis(btcAddress, 11)
-      : ensName || middleEllipsis(ethAddress || '', 11)
+
+  const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
+    selectedAsset,
+    btcAddress,
+    ethAddress,
+    ensName,
+  })
 
   useEffect(() => {
-    if (wallet && !supportsAddressVerifying) setSupportsAddressVerifying(Boolean(wallet))
-    const chainType =
-      wallet && isBTC && supportsBTC(wallet) ? ChainTypes.Bitcoin : ChainTypes.Ethereum
-    setChainType(chainType)
-
+    if (!wallet) return
+    supportsAddressVerifying && setSupportsAddressVerifying(true)
+    setChainId(assetIdtoChainId(selectedAsset?.assetId ?? '/') ?? ethChainId)
+    // supportsAddressVerifying will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, isBTC])
+  }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -94,7 +128,7 @@ export const Overview = ({
     const isClosable = true
     const toastPayload = { duration, isClosable }
     try {
-      await navigator.clipboard.writeText(addressOrNameFull as string)
+      await navigator.clipboard.writeText(addressOrNameFull)
       const title = translate('common.copied')
       const status = 'success'
       const description = addressOrNameFull
@@ -109,6 +143,7 @@ export const Overview = ({
 
   const handleVerify = async () => {
     if (!wallet) return
+    const chainAdapter = await chainAdapterManager.byChainId(chainId)
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
@@ -134,9 +169,7 @@ export const Overview = ({
           colorScheme='gray'
           justifyContent='space-between'
           height='70px'
-          onClick={() =>
-            onIsSelectingAsset(Boolean(wallet && supportsBTC(wallet)), selectAssetTranslation)
-          }
+          onClick={() => onIsSelectingAsset(selectedAsset, selectAssetTranslation)}
           rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
         >
           {selectedAsset ? (

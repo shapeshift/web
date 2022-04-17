@@ -110,7 +110,7 @@ export const Overview: React.FC<OverviewProps> = ({
   useEffect(() => {
     if (!wallet) return
     supportsAddressVerifying && setSupportsAddressVerifying(true)
-    setChainId(assetIdtoChainId(selectedAsset?.assetId ?? '/') ?? ethChainId)
+    setChainId(assetIdtoChainId(selectedAsset?.assetId ?? '') ?? ethChainId)
     // supportsAddressVerifying will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])

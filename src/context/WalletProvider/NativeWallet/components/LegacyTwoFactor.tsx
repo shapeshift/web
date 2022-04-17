@@ -11,6 +11,9 @@ import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
+// @TODO(NeOMakinG): Change this with the mnemonic of the legacy account
+const DUMMY_MNEMONIC = 'yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo'
+
 export const LegacyTwoFactor = ({ history }: RouteComponentProps) => {
   const {
     handleSubmit,
@@ -22,7 +25,7 @@ export const LegacyTwoFactor = ({ history }: RouteComponentProps) => {
   const translate = useTranslate()
 
   const onSubmit = async (values: FieldValues) => {
-    history.push('/native/legacy/login/success')
+    history.push('/native/legacy/login/success', { mnemonic: DUMMY_MNEMONIC })
     // Reset the field in order to remove the 2fa code from the memory
     reset()
     return

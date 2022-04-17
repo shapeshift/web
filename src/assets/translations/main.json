@@ -56,7 +56,8 @@
     "confirmOnWallet": "Confirm On Wallet",
     "login": "Log In",
     "verify": "Verify",
-    "notRobot": "I am not a Robot"
+    "notRobot": "I am not a Robot",
+    "skip": "Skip"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -767,6 +768,9 @@
         "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
       },
       "legacy": {
+        "deprecatedWarning": "ShapeShift Log In is being Deprecated",
+        "learnMore": "Learn More",
+        "alreadySavedConfirm": "I confirm that my Secret Recovery Phrase is already backed up securely.",
         "mobileWalletTitle": "ShapeShift Mobile Wallet",
         "importInformations": "To continue using your ShapeShift Mobile Wallet, you'll need to import it.",
         "importWallet": "Import Wallet",

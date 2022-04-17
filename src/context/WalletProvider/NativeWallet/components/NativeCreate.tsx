@@ -4,6 +4,7 @@ import {
   AlertIcon,
   Button,
   Code,
+  Link,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -15,14 +16,15 @@ import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
 
-const getVault = async (): Promise<Vault> => {
+const getVault = async (mnemonic?: string): Promise<Vault> => {
   const vault = await Vault.create(undefined, false)
   vault.meta.set('createdAt', Date.now())
-  vault.set('#mnemonic', GENERATE_MNEMONIC)
+  vault.set('#mnemonic', mnemonic ?? GENERATE_MNEMONIC)
   return vault
 }
 
@@ -31,6 +33,7 @@ const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   const [revealed, setRevealed] = useState<boolean>(false)
+  const translate = useTranslate()
   const revealedOnce = useRef<boolean>(false)
   const handleShow = () => {
     revealedOnce.current = true
@@ -59,14 +62,14 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const vault = await getVault()
+        const vault = await getVault(location.state?.mnemonic)
         setVault(vault)
       } catch (e) {
         // @TODO
         console.error(e)
       }
     })()
-  }, [setVault])
+  }, [setVault, location.state?.mnemonic])
 
   useEffect(() => {
     if (!vault) return
@@ -104,6 +107,18 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   return (
     <>
       <ModalHeader>
+        {location.state?.mnemonic && (
+          <Alert status='error' mb={4}>
+            <AlertIcon />
+            <AlertDescription fontSize='md'>
+              <Text translation={'walletProvider.shapeShift.legacy.deprecatedWarning'} />
+              {/* @TODO(NeOMakinG): Use the right link for the learn more */}
+              <Link href='#' fontWeight='normal' isExternal>
+                {translate('walletProvider.shapeShift.legacy.learnMore')}
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
@@ -130,7 +145,10 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
           disabled={!(vault && words && revealedOnce.current)}
           onClick={() => {
             if (vault) {
-              history.push('/native/create-test', { vault })
+              history.push('/native/create-test', {
+                vault,
+                isLegacyWallet: !!location.state?.mnemonic,
+              })
             }
           }}
         >

@@ -7,10 +7,11 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-export const LegacyLoginSuccess = ({ history }: RouteComponentProps) => {
+import { NativeCreateProps } from '../types'
+
+export const LegacyLoginSuccess = ({ history, location }: NativeCreateProps) => {
   const translate = useTranslate()
   const successColor = useColorModeValue('green.500', 'green.200')
 
@@ -38,7 +39,7 @@ export const LegacyLoginSuccess = ({ history }: RouteComponentProps) => {
           colorScheme='blue'
           isFullWidth
           size='lg'
-          onClick={() => history.push('/native/import')}
+          onClick={() => history.push('/native/create', { mnemonic: location.state.mnemonic })}
         >
           <Text translation={'walletProvider.shapeShift.legacy.importWallet'} />
         </Button>

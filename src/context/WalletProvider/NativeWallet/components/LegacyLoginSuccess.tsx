@@ -34,7 +34,12 @@ export const LegacyLoginSuccess = ({ history }: RouteComponentProps) => {
           mb={4}
           translation={'walletProvider.shapeShift.legacy.importInformations'}
         />
-        <Button colorScheme='blue' isFullWidth size='lg'>
+        <Button
+          colorScheme='blue'
+          isFullWidth
+          size='lg'
+          onClick={() => history.push('/native/import')}
+        >
           <Text translation={'walletProvider.shapeShift.legacy.importWallet'} />
         </Button>
       </ModalBody>

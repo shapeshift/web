@@ -27,10 +27,11 @@ export const AssetSearch = ({ onClick, type, assets, loading }: AssetSearchProps
   const searchString = watch('search')
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
-  useEffect(() => {
-    setFilteredAssets(searching ? filterAssetsBySearchTerm(searchString, assets) : assets)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchString])
+  useEffect(
+    () => setFilteredAssets(filterAssetsBySearchTerm(searchString, assets)),
+    [assets, searching, searchString],
+  )
+
   return (
     <>
       <Box

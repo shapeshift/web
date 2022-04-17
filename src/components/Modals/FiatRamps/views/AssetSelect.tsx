@@ -8,26 +8,18 @@ import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRamp } from '../config'
 import { FiatRampAction, FiatRampCurrencyBase } from '../FiatRampsCommon'
 import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
-import { isSupportedBitcoinAsset } from '../utils'
 
 type AssetSelectProps = {
   fiatRampProvider: FiatRamp
-  onAssetSelect: (asset: FiatRampCurrencyBase, isBTC: boolean) => void
-  walletSupportsBTC: boolean
+  onAssetSelect: (asset: FiatRampCurrencyBase) => void
   selectAssetTranslation: string
 }
-export const AssetSelect = ({
-  fiatRampProvider,
-  onAssetSelect,
-  walletSupportsBTC,
-  selectAssetTranslation,
-}: AssetSelectProps) => {
+
+export const AssetSelect: React.FC<AssetSelectProps> = props => {
+  const { fiatRampProvider, onAssetSelect, selectAssetTranslation } = props
   const { goBack } = useHistory()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
-  const { loading, sellList, buyList } = useFiatRampCurrencyList(
-    fiatRampProvider,
-    walletSupportsBTC,
-  )
+  const { loading, sellList, buyList } = useFiatRampCurrencyList(fiatRampProvider)
 
   return (
     <SlideTransition>
@@ -45,9 +37,7 @@ export const AssetSelect = ({
           <Text alignSelf='center' translation={selectAssetTranslation} />
         </Flex>
         <AssetSearch
-          onClick={(asset: FiatRampCurrencyBase) =>
-            onAssetSelect(asset, isSupportedBitcoinAsset(asset.assetId))
-          }
+          onClick={onAssetSelect}
           type={fiatRampAction}
           assets={fiatRampAction === FiatRampAction.Buy ? buyList : sellList}
           loading={loading}

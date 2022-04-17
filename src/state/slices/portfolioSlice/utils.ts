@@ -26,6 +26,9 @@ export const ethChainId = 'eip155:1'
 export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const cosmosChainId = 'cosmos:cosmoshub-4'
 
+export const chainIds = [ethChainId, btcChainId, cosmosChainId] as const
+export type ChainId = typeof chainIds[number]
+
 // we only need to update this when we support additional chains, which is infrequent
 // so it's ok to hardcode this map here
 const caip2toCaip19: Record<string, string> = {
@@ -34,9 +37,7 @@ const caip2toCaip19: Record<string, string> = {
   [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118',
 }
 
-export const assetIdtoChainId = (caip19: CAIP19): string => {
-  return caip19.split('/')[0]
-}
+export const assetIdtoChainId = (caip19: CAIP19): ChainId => caip19.split('/')[0] as ChainId
 
 export const accountIdToChainId = (accountId: AccountSpecifier): CAIP2 => {
   // accountId = 'eip155:1:0xdef1...cafe

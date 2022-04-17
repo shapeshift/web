@@ -55,6 +55,7 @@
     "approveOnWallet": "Approve On Wallet",
     "confirmOnWallet": "Confirm On Wallet",
     "login": "Log In",
+    "verify": "Verify",
     "notRobot": "I am not a Robot"
   },
   "updateToast": {
@@ -766,16 +767,24 @@
         "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
       },
       "legacy": {
+        "mobileWalletTitle": "ShapeShift Mobile Wallet",
+        "importInformations": "To continue using your ShapeShift Mobile Wallet, you'll need to import it.",
+        "importWallet": "Import Wallet",
         "haveMobileWallet": "Have a ShapeShift Mobile Wallet?",
         "loginWithAccount": "Log In with ShapeShift Account",
         "loginInformations": "Enter your email address and password you use to login to your ShapeShift Mobile App.",
+        "loginSuccess": "Successfully Logged In",
         "emailAddress": "Email Address",
         "password": "Password",
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
         "invalidLogin": "Invalid login",
-        "twoFactorRequired": "2FA is required"
+        "twoFactorAuthentication": "Two-Factor Authentication",
+        "twoFactorPlaceholder": "6-digit code",
+        "twoFactorRequired": "2FA is required",
+        "invalidTwoFactor": "6-digit code is invalid",
+        "twoFactorDescription": "Two-factor authentication is enabled for your account. Please enter the code from your authentication app."
       }
     },
     "selectModal": {

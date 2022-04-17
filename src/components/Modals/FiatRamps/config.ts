@@ -27,7 +27,8 @@ export enum FiatRamp {
   OnJuno = 'OnJuno',
 }
 
-export const supportedFiatRamps: Record<FiatRamp, SupportedFiatRampConfig> = {
+export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
+export const supportedFiatRamps: SupportedFiatRamp = {
   [FiatRamp.Gem]: {
     label: 'fiatRamps.gem',
     info: 'fiatRamps.gemMessage',

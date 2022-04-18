@@ -26,18 +26,19 @@ export const createBanxaUrl = async (
   asset: string,
   address: string,
 ): Promise<string> => {
-  const BANXA_URL = 'https://shapeshift.banxa.com?'
-  let url = `${BANXA_URL}`
+  const BANXA_URL = 'https://shapeshift.banxa.com/'
+  let url = `${BANXA_URL}?`
   url += `fiatType=USD&`
   url += `coinType=${asset}&`
   url += `walletAddress=${address}&`
 
   /**
    * select the blockchain from asset caip19 and pass it to the banxa,
-   * since some Banxa assets could be on multiple chains
+   * since some Banxa assets could be on multiple chains and their default
+   * chain won't be exactly same as ours.
    */
   const assetCAIP19 = adapters.banxaTickerToCAIP19(asset.toLowerCase())
-  console.info(asset, assetCAIP19)
+
   if (assetCAIP19) {
     const { chain } = caip19.fromCAIP19(assetCAIP19)
     const banxaChain = banxaChainMap[chain]
@@ -46,7 +47,7 @@ export const createBanxaUrl = async (
 
   /**
    * based on https://docs.banxa.com/docs/referral-method
-   * if sellMode query parameter is not passed `buyMode` will be used
+   * if sellMode query parameter is not passed `buyMode` will be used by default
    */
   if (action === FiatRampAction.Sell) url += `sellMode`
   return url

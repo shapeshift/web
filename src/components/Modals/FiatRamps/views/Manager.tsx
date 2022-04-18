@@ -17,11 +17,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
-import { ChainId, ethChainId } from 'state/slices/portfolioSlice/utils'
+import { ChainId, ethChainId, isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 
 import { FiatRamp } from '../config'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
-import { isSupportedAsset } from '../utils'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
 
@@ -107,7 +106,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
 
   const handleIsSelectingAsset = (asset: FiatRampAsset | null, selectAssetTranslation: string) => {
     if (!wallet) return
-    const walletSupportsAsset = isSupportedAsset(asset?.assetId ?? '', wallet)
+    const walletSupportsAsset = isAssetSupportedByWallet(asset?.assetId ?? '', wallet)
     const route =
       match?.params.fiatRampAction === FiatRampAction.Buy
         ? FiatRampManagerRoutes.BuySelect

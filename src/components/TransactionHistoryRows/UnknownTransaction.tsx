@@ -50,11 +50,7 @@ export const UnknownTransaction = ({
           </Row>
           {txDetails.tx.tradeDetails && (
             <Row title='orderRoute'>
-              <Text
-                value={
-                  txDetails.tx.tradeDetails.dexName === SwapperType.Thorchain ? 'THORChain' : '0x'
-                }
-              />
+              <Text value={'0x'} />
             </Row>
           )}
           {txDetails.tx.tradeDetails && (

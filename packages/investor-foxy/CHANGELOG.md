@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.4.0...@shapeshiftoss/investor-foxy-v1.4.1) (2022-04-18)
+
+
+### Bug Fixes
+
+* use mostly right rebase history if one fails ([#525](https://github.com/shapeshift/lib/issues/525)) ([5dda69f](https://github.com/shapeshift/lib/commit/5dda69ff965b9280e4236cb48b11f95e980dbe38))
+
 # [@shapeshiftoss/investor-foxy-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.4...@shapeshiftoss/investor-foxy-v1.4.0) (2022-04-18)
 
 

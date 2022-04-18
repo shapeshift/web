@@ -277,9 +277,9 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
     const feeData = (await this.providers.http.getGasFees()).data
     const normalizationConstants = {
-      instant: String(new BigNumber(fees.instant).dividedBy(fees.fast)),
+      instant: bnOrZero(fees.instant).dividedBy(fees.fast).toString(),
       average: String(1),
-      slow: String(new BigNumber(fees.low).dividedBy(fees.fast))
+      slow: bnOrZero(fees.low).dividedBy(fees.fast).toString()
     }
 
     return {
@@ -288,16 +288,14 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         chainSpecific: {
           gasLimit,
           gasPrice: String(fees.instant),
-          maxFeePerGas: String(
-            new BigNumber(feeData.maxFeePerGas)
-              .times(normalizationConstants.instant)
-              .toFixed(0, BigNumber.ROUND_CEIL)
-          ),
-          maxPriorityFeePerGas: String(
-            new BigNumber(feeData.maxPriorityFeePerGas)
-              .times(normalizationConstants.instant)
-              .toFixed(0, BigNumber.ROUND_CEIL)
-          )
+          maxFeePerGas: bnOrZero(feeData.maxFeePerGas)
+            .times(normalizationConstants.instant)
+            .toFixed(0, BigNumber.ROUND_CEIL)
+            .toString(),
+          maxPriorityFeePerGas: bnOrZero(feeData.maxPriorityFeePerGas)
+            .times(normalizationConstants.instant)
+            .toFixed(0, BigNumber.ROUND_CEIL)
+            .toString()
         }
       },
       average: {
@@ -305,16 +303,14 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         chainSpecific: {
           gasLimit,
           gasPrice: String(fees.fast),
-          maxFeePerGas: String(
-            new BigNumber(feeData.maxFeePerGas)
-              .times(normalizationConstants.average)
-              .toFixed(0, BigNumber.ROUND_CEIL)
-          ),
-          maxPriorityFeePerGas: String(
-            new BigNumber(feeData.maxPriorityFeePerGas)
-              .times(normalizationConstants.average)
-              .toFixed(0, BigNumber.ROUND_CEIL)
-          )
+          maxFeePerGas: bnOrZero(feeData.maxFeePerGas)
+            .times(normalizationConstants.average)
+            .toFixed(0, BigNumber.ROUND_CEIL)
+            .toString(),
+          maxPriorityFeePerGas: bnOrZero(feeData.maxPriorityFeePerGas)
+            .times(normalizationConstants.average)
+            .toFixed(0, BigNumber.ROUND_CEIL)
+            .toString()
         }
       },
       slow: {
@@ -322,16 +318,14 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         chainSpecific: {
           gasLimit,
           gasPrice: String(fees.low),
-          maxFeePerGas: String(
-            new BigNumber(feeData.maxFeePerGas)
-              .times(normalizationConstants.slow)
-              .toFixed(0, BigNumber.ROUND_CEIL)
-          ),
-          maxPriorityFeePerGas: String(
-            new BigNumber(feeData.maxPriorityFeePerGas)
-              .times(normalizationConstants.slow)
-              .toFixed(0, BigNumber.ROUND_CEIL)
-          )
+          maxFeePerGas: bnOrZero(feeData.maxFeePerGas)
+            .times(normalizationConstants.slow)
+            .toFixed(0, BigNumber.ROUND_CEIL)
+            .toString(),
+          maxPriorityFeePerGas: bnOrZero(feeData.maxPriorityFeePerGas)
+            .times(normalizationConstants.slow)
+            .toFixed(0, BigNumber.ROUND_CEIL)
+            .toString()
         }
       }
     }

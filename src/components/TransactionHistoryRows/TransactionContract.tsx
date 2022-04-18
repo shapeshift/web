@@ -19,7 +19,7 @@ export const TransactionContract = ({
   compactMode,
   isOpen,
   toggleOpen,
-  parentWidth
+  parentWidth,
 }: TransactionRowProps) => {
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
@@ -28,7 +28,7 @@ export const TransactionContract = ({
   const interactsWithWithdrawMethod = txDetails.tx.data?.method === ContractMethod.Withdraw
   const isSend = txDetails.tradeTx?.type === TxType.Send
   const i18n =
-    (isReceive && !txDetails.tx.data?.method) ? txDetails.tradeTx?.type : txDetails.tx.data?.method
+    isReceive && !txDetails.tx.data?.method ? txDetails.tradeTx?.type : txDetails.tx.data?.method
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
   return (

@@ -22,7 +22,7 @@ export enum ContractMethod {
   Stake = 'stake',
   Unstake = 'unstake',
   InstantUnstake = 'instantUnstake',
-  ClaimWithdraw = 'claimWithdraw'
+  ClaimWithdraw = 'claimWithdraw',
 }
 
 export enum Direction {
@@ -92,7 +92,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const sellTransfer = getTransferByType(tx, chainAdapters.TxType.Send)
   const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
   // const tradeTx = activeAsset?.caip19 === sellTransfer?.caip19 ? sellTransfer : buyTransfer
-  console.log({ tradeTx, activeAsset, buyTransfer })
 
   const direction: Direction | undefined = (() => {
     switch (method) {

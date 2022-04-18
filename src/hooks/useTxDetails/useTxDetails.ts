@@ -19,6 +19,10 @@ export enum ContractMethod {
   AddLiquidityEth = 'addLiquidityETH',
   RemoveLiquidityEth = 'removeLiquidityETH',
   TransferOut = 'transferOut',
+  Stake = 'stake',
+  Unstake = 'unstake',
+  InstantUnstake = 'instantUnstake',
+  ClaimWithdraw = 'claimWithdraw'
 }
 
 export enum Direction {
@@ -88,15 +92,20 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const sellTransfer = getTransferByType(tx, chainAdapters.TxType.Send)
   const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
   // const tradeTx = activeAsset?.caip19 === sellTransfer?.caip19 ? sellTransfer : buyTransfer
+  console.log({ tradeTx, activeAsset, buyTransfer })
 
   const direction: Direction | undefined = (() => {
     switch (method) {
       case ContractMethod.Deposit:
       case ContractMethod.AddLiquidityEth:
       case ContractMethod.TransferOut:
+      case ContractMethod.Stake:
         return Direction.Outbound
       case ContractMethod.Withdraw:
       case ContractMethod.RemoveLiquidityEth:
+      case ContractMethod.Unstake:
+      case ContractMethod.InstantUnstake:
+      case ContractMethod.ClaimWithdraw:
         return Direction.Inbound
       case ContractMethod.Approve:
         return Direction.InPlace

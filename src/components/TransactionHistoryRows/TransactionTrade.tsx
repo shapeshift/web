@@ -1,5 +1,3 @@
-import { SwapperType } from '@shapeshiftoss/types'
-
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'

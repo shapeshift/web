@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { supportsBTC, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -55,12 +55,14 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string>('')
   const [ethAddress, setEthAddress] = useState<string>('')
+  const [cosmosAddress, setCosmosAddress] = useState<string>('')
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string>('')
 
   const chainAdapterManager = useChainAdapters()
   const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
+  const cosmosChainAdapter = chainAdapterManager.byChain(ChainTypes.Cosmos)
 
   const [chainId, setChainId] = useState<ChainId>(ethChainId)
 
@@ -74,8 +76,9 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
       const payload = { wallet }
       supportsETH(wallet) && setEthAddress(await ethereumChainAdapter.getAddress(payload))
       supportsBTC(wallet) && setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
+      supportsCosmos(wallet) && setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
     })()
-  }, [wallet, bitcoinChainAdapter, ethereumChainAdapter])
+  }, [wallet, bitcoinChainAdapter, ethereumChainAdapter, cosmosChainAdapter])
 
   useEffect(() => {
     ;(async () => {
@@ -131,6 +134,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             onIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
             btcAddress={btcAddress}
+            cosmosAddress={cosmosAddress}
             ethAddress={ethAddress}
             supportsAddressVerifying={supportsAddressVerifying}
             setSupportsAddressVerifying={setSupportsAddressVerifying}

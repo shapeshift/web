@@ -37,6 +37,7 @@ type OverviewProps = {
   fiatRampProvider: FiatRamp
   btcAddress: string
   ethAddress: string
+  cosmosAddress: string
   ensName: string
   supportsAddressVerifying: boolean
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
@@ -50,6 +51,7 @@ type GenerateAddressProps = {
   selectedAsset: FiatRampAsset | null
   btcAddress: string
   ethAddress: string
+  cosmosAddress: string
   ensName: string
 }
 type AddressOrNameFull = string
@@ -59,7 +61,7 @@ type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEll
 type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
 
 const generateAddresses: GenerateAddresses = props => {
-  const { selectedAsset, btcAddress, ethAddress, ensName } = props
+  const { selectedAsset, btcAddress, ethAddress, ensName, cosmosAddress } = props
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
@@ -70,6 +72,7 @@ const generateAddresses: GenerateAddresses = props => {
     case btcChainId:
       return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
     case cosmosChainId:
+      return [cosmosAddress, cosmosAddress, middleEllipsis(cosmosAddress, 11)]
     default:
       return empty
   }
@@ -83,6 +86,7 @@ export const Overview: React.FC<OverviewProps> = ({
   setSupportsAddressVerifying,
   btcAddress,
   ethAddress,
+  cosmosAddress,
   ensName,
   selectedAsset,
   chainId,
@@ -104,6 +108,7 @@ export const Overview: React.FC<OverviewProps> = ({
     selectedAsset,
     btcAddress,
     ethAddress,
+    cosmosAddress,
     ensName,
   })
 
@@ -174,7 +179,11 @@ export const Overview: React.FC<OverviewProps> = ({
         >
           {selectedAsset ? (
             <Flex alignItems='center'>
-              <AssetIcon src={selectedAsset.imageUrl} symbol={selectedAsset.symbol} mr={4} />
+              <AssetIcon
+                src={selectedAsset.imageUrl}
+                symbol={selectedAsset.symbol.toLowerCase()}
+                mr={4}
+              />
               <Box textAlign='left'>
                 <RawText lineHeight={1}>{selectedAsset.name}</RawText>
                 <RawText fontWeight='normal' fontSize='sm' color='gray.500'>

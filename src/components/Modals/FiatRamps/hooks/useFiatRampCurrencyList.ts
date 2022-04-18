@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FiatRamp, supportedFiatRamps } from '../config'
 import { FiatRampAsset } from '../FiatRampsCommon'
-import { isSupportedAsset } from '../utils'
 
 export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
@@ -30,7 +30,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
             ...asset,
             name: reduxAsset.name,
             symbol: reduxAsset.symbol,
-            disabled: !isSupportedAsset(asset?.assetId ?? '', wallet),
+            disabled: !isAssetSupportedByWallet(asset?.assetId ?? '', wallet),
             cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
             fiatBalance: bnOrZero(balances?.[asset.assetId]?.fiat),
           }
@@ -54,7 +54,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
             ...asset,
             name: reduxAsset.name,
             symbol: reduxAsset.symbol,
-            disabled: !isSupportedAsset(asset.assetId, wallet),
+            disabled: !isAssetSupportedByWallet(asset.assetId, wallet),
           }
         })
         .sort((a, b) => a.name.localeCompare(b.name))

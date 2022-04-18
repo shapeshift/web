@@ -1,5 +1,6 @@
-import { CAIP2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2, CAIP10, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import {
   Asset,
@@ -324,4 +325,20 @@ export const makeBalancesByChainBucketsFlattened = (
     initial,
   )
   return Object.values(balancesByChainBuckets).flat()
+}
+
+export const isAssetSupportedByWallet = (assetId: CAIP19, wallet: HDWallet): boolean => {
+  if (!assetId) return false
+  const { chain, network } = caip19.fromCAIP19(assetId)
+  const chainId = caip2.toCAIP2({ chain, network })
+  switch (chainId) {
+    case ethChainId:
+      return supportsETH(wallet)
+    case btcChainId:
+      return supportsBTC(wallet)
+    case cosmosChainId:
+      return supportsCosmos(wallet)
+    default:
+      return false
+  }
 }

@@ -174,7 +174,7 @@ export const Overview: React.FC<OverviewProps> = ({
         >
           {selectedAsset ? (
             <Flex alignItems='center'>
-              <AssetIcon src={selectedAsset.imageUrl} mr={4} />
+              <AssetIcon src={selectedAsset.imageUrl} symbol={selectedAsset.symbol} mr={4} />
               <Box textAlign='left'>
                 <RawText lineHeight={1}>{selectedAsset.name}</RawText>
                 <RawText fontWeight='normal' fontSize='sm' color='gray.500'>

@@ -1144,7 +1144,6 @@ export class FoxyApi {
       })
     )
 
-    const containsAllFulfilled = results.every((result) => result.status === 'fulfilled')
     const actualResults = results.reduce<RebaseHistory[]>((acc, cur) => {
       if (cur.status === 'rejected') {
         console.error('getFoxyRebaseHistory: balanceOf call failed - charts will be wrong')
@@ -1163,6 +1162,6 @@ export class FoxyApi {
       return acc
     }, [])
 
-    return containsAllFulfilled ? actualResults : []
+    return actualResults
   }
 }

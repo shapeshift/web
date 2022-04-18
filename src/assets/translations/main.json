@@ -54,7 +54,7 @@
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
     "confirmOnWallet": "Confirm On Wallet",
-    "logIn": "Log In",
+    "login": "Log In",
     "notRobot": "I am not a Robot"
   },
   "updateToast": {

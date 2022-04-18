@@ -19,7 +19,7 @@ import { Text } from 'components/Text'
 const twoFactorAuthCode = ''
 
 export const LegacyLogin = ({ history }: RouteComponentProps) => {
-  const [isCaptchaValidated, setCaptchaValidated] = useState(false)
+  const [isCaptchaSolved, setIsCaptchaSolved] = useState(false)
   const captchaBgColor = useColorModeValue('gray.50', 'gray.700')
   const checkboxBorderColor = useColorModeValue('gray.400', 'white')
 
@@ -38,9 +38,9 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
     return
   }
 
-  const onCaptcha = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onCaptchaRequested = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Check the captcha in case the captcha has been validated
-    setCaptchaValidated(e.target.checked)
+    setIsCaptchaSolved(e.target.checked)
     return
   }
 
@@ -85,7 +85,7 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
             />
             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={errors.captcha && !isCaptchaValidated} mb={4} mt={6}>
+          <FormControl isInvalid={errors.captcha && !isCaptchaSolved} mb={4} mt={6}>
             <Card
               size='sm'
               width='full'
@@ -102,8 +102,8 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
                   {...register('captcha', {
                     required: translate('walletProvider.shapeShift.legacy.invalidCaptcha'),
                   })}
-                  onChange={onCaptcha}
-                  isChecked={isCaptchaValidated}
+                  onChange={onCaptchaRequested}
+                  isChecked={isCaptchaSolved}
                 >
                   {translate('common.notRobot')}
                 </Checkbox>
@@ -113,7 +113,7 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
           </FormControl>
           <Input name='2fa' value={twoFactorAuthCode} type='hidden' />
           <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
-            <Text translation={'common.logIn'} />
+            <Text translation={'common.login'} />
           </Button>
         </form>
       </ModalBody>

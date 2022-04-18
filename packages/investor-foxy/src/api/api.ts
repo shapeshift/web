@@ -31,7 +31,6 @@ import {
   BalanceInput,
   ClaimWithdrawal,
   ContractAddressInput,
-  EstimateClaimFromTokemak,
   EstimateGasApproveInput,
   EstimateGasTxInput,
   FoxyAddressesType,
@@ -338,22 +337,6 @@ export class FoxyApi {
         : await stakingContract.methods.instantUnstake(true).estimateGas({
             from: userAddress
           })
-      return bnOrZero(estimatedGas)
-    } catch (e) {
-      throw new Error(`Failed to get gas ${e}`)
-    }
-  }
-
-  async estimateClaimFromTokemakGas(input: EstimateClaimFromTokemak): Promise<BigNumber> {
-    const { contractAddress, userAddress, recipient, v, r, s } = input
-    const stakingContract = this.getStakingContract(contractAddress)
-
-    try {
-      const estimatedGas = await stakingContract.methods
-        .claimFromTokemak(recipient, v, r, s)
-        .estimateGas({
-          from: userAddress
-        })
       return bnOrZero(estimatedGas)
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
@@ -966,7 +949,7 @@ export class FoxyApi {
     return bnOrZero(1).times('1e+18')
   }
 
-  // estimated apy
+  // TODO: use tokemak's api to get apy when they build it
   apy(): string {
     return '.15'
   }
@@ -1007,7 +990,7 @@ export class FoxyApi {
     }
   }
 
-  async getTokeRewardAmount(input: ContractAddressInput): Promise<GetTokeRewardAmount> {
+  async getClaimFromTokemakArgs(input: ContractAddressInput): Promise<GetTokeRewardAmount> {
     const { contractAddress } = input
     const rewardHashContract = new this.web3.eth.Contract(tokeRewardHashAbi, tokeRewardHashAddress)
     const latestCycleIndex = await (async () => {
@@ -1034,76 +1017,18 @@ export class FoxyApi {
         data: { payload, signature }
       } = response
 
-      const claimAmount = bnOrZero(payload.amount)
       const v = signature.v
       const r = signature.r
       const s = signature.s
       return {
-        latestCycleIndex,
-        claimAmount,
         v,
         r,
-        s
+        s,
+        recipient: payload
       }
     } catch (e) {
       throw new Error(`Failed to get information from Tokemak ipfs ${e}`)
     }
-  }
-
-  async claimFromTokemak(input: TxInput): Promise<string> {
-    const { contractAddress, wallet, userAddress, accountNumber = 0, dryRun = false } = input
-    if (!wallet) throw new Error('Missing inputs')
-
-    this.verifyAddresses([contractAddress])
-
-    const { latestCycleIndex, claimAmount, v, r, s } = await this.getTokeRewardAmount(input)
-
-    if (!bnOrZero(claimAmount).gt(0)) {
-      throw new Error('Must claim valid amount')
-    }
-
-    const recipient = {
-      chainId: 1,
-      cycle: latestCycleIndex,
-      wallet: contractAddress,
-      amount: claimAmount
-    }
-
-    const estimatedGasBN = await (async () => {
-      try {
-        return this.estimateClaimFromTokemakGas({
-          ...input,
-          recipient,
-          v,
-          r,
-          s
-        })
-      } catch (e) {
-        throw new Error(`Estimate Gas Error: ${e}`)
-      }
-    })()
-
-    const stakingContract = this.getStakingContract(contractAddress)
-
-    const data: string = stakingContract.methods.claimFromTokemak(recipient, v, r, s).encodeABI({
-      from: userAddress
-    })
-
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
-    const estimatedGas = estimatedGasBN.toString()
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
-    const chainId = Number(this.network)
-    const payload = {
-      bip44Params,
-      chainId,
-      data,
-      estimatedGas,
-      gasPrice,
-      nonce,
-      to: contractAddress,
-      value: '0'
-    }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
 
   async getRebaseHistory(input: BalanceInput) {

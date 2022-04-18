@@ -26,7 +26,7 @@ export const useHasAppUpdated = () => {
     const manifestMainJs = await fetchData(assetManifestUrl)
     setInitialManifestMainJs(manifestMainJs)
   }
-  useCallback(storeMainManifestJs, [])
+  useCallback(storeMainManifestJs, [assetManifestUrl])
 
   // interpolated with a dummy query param to bypass the browser cache.
   const envUrl = `/env.json?${new Date().valueOf()}`
@@ -34,7 +34,7 @@ export const useHasAppUpdated = () => {
     const envMainJs = await fetchData(envUrl)
     setInitialEnvMainJs(envMainJs)
   }
-  useCallback(storeMainEnvJs, [])
+  useCallback(storeMainEnvJs, [envUrl])
 
   useInterval(async () => {
     const [currentManifestJs, currentEnvJs] = await Promise.all([

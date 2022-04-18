@@ -16,6 +16,13 @@ export type FiatRampAsset = {
   symbol: string
   imageUrl?: string
   disabled?: boolean
-  cryptoBalance?: BigNumber
-  fiatBalance?: BigNumber
-}
+} & (
+  | {
+      cryptoBalance: BigNumber
+      fiatBalance: BigNumber
+    }
+  | {
+      cryptoBalance?: never
+      fiatBalance?: never
+    }
+)

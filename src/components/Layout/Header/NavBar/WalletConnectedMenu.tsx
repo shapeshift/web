@@ -12,7 +12,6 @@ import {
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
 import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
 import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
-import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
@@ -84,7 +83,6 @@ export const WalletConnectedMenu = ({
         <Route exact path={WalletConnectedRoutes.KeepKeyLabel} component={ChangeLabel} />
         <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={ChangePin} />
         <Route exact path={WalletConnectedRoutes.KeepKeyTimeout} component={ChangeTimeout} />
-        <Route exact path={WalletConnectedRoutes.KeepKeyPinCaching} component={ChangePinCaching} />
         <Route exact path={WalletConnectedRoutes.KeepKeyPassphrase} component={ChangePassphrase} />
       </Switch>
     </AnimatePresence>

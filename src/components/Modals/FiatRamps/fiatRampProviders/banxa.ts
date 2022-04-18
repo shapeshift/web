@@ -1,14 +1,22 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters, caip19 } from '@shapeshiftoss/caip'
+import { ChainTypes } from '@shapeshiftoss/types'
 
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+
+const banxaChainMap: Record<ChainTypes, string> = {
+  [ChainTypes.Ethereum]: 'ETH',
+  [ChainTypes.Bitcoin]: 'BTC',
+  [ChainTypes.Cosmos]: 'COSMOS',
+  [ChainTypes.Osmosis]: '',
+}
 
 export const getBanxaAssets = () => {
   const banxaAssets = adapters.getSupportedBanxaAssets()
   const assets: FiatRampAsset[] = banxaAssets.map(asset => ({
     assetId: asset.CAIP19,
     symbol: asset.ticker,
-    // TODO(stackedQ): get asset name from redux
-    name: asset.ticker,
+    // name will be set in useFiatRampCurrencyList hook
+    name: '',
   }))
   return assets
 }
@@ -22,13 +30,24 @@ export const createBanxaUrl = async (
   let url = `${BANXA_URL}`
   url += `fiatType=USD&`
   url += `coinType=${asset}&`
-  url += `walletAddress=${address}`
-  // TODO(stackedQ): select the blockchain from asset caip19 and pass it to the banxa,
-  // since some Banxa assets are on multiple chains
+  url += `walletAddress=${address}&`
+
+  /**
+   * select the blockchain from asset caip19 and pass it to the banxa,
+   * since some Banxa assets could be on multiple chains
+   */
+  const assetCAIP19 = adapters.banxaTickerToCAIP19(asset.toLowerCase())
+  console.info(asset, assetCAIP19)
+  if (assetCAIP19) {
+    const { chain } = caip19.fromCAIP19(assetCAIP19)
+    const banxaChain = banxaChainMap[chain]
+    url += `blockchain=${banxaChain}&`
+  }
+
   /**
    * based on https://docs.banxa.com/docs/referral-method
    * if sellMode query parameter is not passed `buyMode` will be used
    */
-  if (action === FiatRampAction.Sell) url += `&sellMode`
+  if (action === FiatRampAction.Sell) url += `sellMode`
   return url
 }

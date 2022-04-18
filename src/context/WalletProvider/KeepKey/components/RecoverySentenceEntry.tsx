@@ -22,7 +22,7 @@ const isLetter = (str: string) => {
   return str.length === 1 && str.match(/[a-z]/i)
 }
 
-const isInvalidInput = (
+const isValidInput = (
   e: KeyboardEvent,
   wordEntropy: number,
   currentCharacterPosition: number = 0,
@@ -30,16 +30,26 @@ const isInvalidInput = (
 ) => {
   // The 4th letter must be followed by space, enter or backspace
   if (e.key !== ' ' && e.key !== 'Enter' && e.key !== 'Backspace' && currentCharacterPosition === 4)
-    return true
-
+    return false
   // We can only do enter or space if we've received 3 or more characters
-  if ((e.key === ' ' || e.key === 'Enter') && currentCharacterPosition < 3) return true
+  if ((e.key === ' ' || e.key === 'Enter') && currentCharacterPosition < 3) return false
   // We can't do space on last word
-  if (e.key === ' ' && currentWordPosition === wordEntropy - 1) return true
+  if (e.key === ' ' && currentWordPosition === wordEntropy - 1) return false
   // We can't do enter not on last word
-  if (e.key === 'Enter' && currentWordPosition !== wordEntropy - 1) return true
+  if (e.key === 'Enter' && currentWordPosition !== wordEntropy - 1) return false
 
-  return false
+  // If we haven't early exited yet, the input is valid
+  return true
+}
+
+const inputValuesReducer = (
+  currentValues: Array<string | undefined>,
+  newValue: string | undefined,
+  newValueIndex: number,
+) => {
+  const newValues = currentValues.slice()
+  newValues[newValueIndex] = newValue
+  return newValues
 }
 
 export const KeepKeyRecoverySentenceEntry = () => {
@@ -51,8 +61,11 @@ export const KeepKeyRecoverySentenceEntry = () => {
   } = useWallet()
   const [wordCount, setWordCount] = useState(12)
   const [acceptingCipherInput, setAcceptingCipherInput] = useState(false)
+  const [characterInputValues, setCharacterInputValues] = useState(
+    Object.seal(new Array<string | undefined>(4).fill(undefined)),
+  )
+  const [inFocusInput, setInFocusInput] = useState<HTMLInputElement>()
 
-  const charInputRef = useRef<HTMLInputElement>(null)
   const charInputFieldRef1 = useRef<HTMLInputElement>(null)
   const charInputFieldRef2 = useRef<HTMLInputElement>(null)
   const charInputFieldRef3 = useRef<HTMLInputElement>(null)
@@ -102,17 +115,20 @@ export const KeepKeyRecoverySentenceEntry = () => {
   }, [currentWordPosition])
 
   const onCharacterInput = async (e: KeyboardEvent) => {
-    if (isInvalidInput(e, wordCount, currentCharacterPosition, currentWordPosition)) return
+    if (!isValidInput(e, wordCount, currentCharacterPosition, currentWordPosition)) return
+
+    const inFocusInputIndex = inFocusInput?.dataset.index
+    const parsedIndex = inFocusInputIndex ? parseInt(inFocusInputIndex) : undefined
+    if (isUndefined(parsedIndex)) return
 
     if (isLetter(e.key)) {
+      setCharacterInputValues(c => inputValuesReducer(c, e.key, parsedIndex))
       await keepKeyWallet?.sendCharacter(e.key.toLowerCase())
     } else if (e.key === ' ') {
       await keepKeyWallet?.sendCharacter(' ')
-      console.log('currentCharacterPosition', currentCharacterPosition)
-      if (currentCharacterPosition === 3) {
-        resetInputs()
-      }
+      if (currentCharacterPosition === 4) resetInputs()
     } else if (e.key === 'Backspace') {
+      setCharacterInputValues(c => inputValuesReducer(c, undefined, parsedIndex))
       await keepKeyWallet?.sendCharacterDelete()
     } else if (e.key === 'Enter') {
       await keepKeyWallet?.sendCharacterDone()
@@ -123,14 +139,13 @@ export const KeepKeyRecoverySentenceEntry = () => {
 
   const resetInputs = () => {
     charInputFieldRef1.current?.focus()
+    setCharacterInputValues(current => {
+      const newValues = current.slice()
+      return newValues.fill(undefined)
+    })
   }
 
   const handleWordSubmit = async () => {
-    await keepKeyWallet?.sendCharacter(' ')
-    resetInputs()
-  }
-
-  const onWordComplete = async () => {
     await keepKeyWallet?.sendCharacter(' ')
     resetInputs()
   }
@@ -140,6 +155,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     autoComplete: 'off',
     pattern: '[a-z]|[A-Z]',
     onKeyDown: onCharacterInput,
+    onFocus: e => setInFocusInput(e.target),
   }
 
   return (
@@ -160,7 +176,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
                 size='lg'
                 placeholder=''
                 errorBorderColor='red.500'
-                onComplete={onWordComplete}
+                value={characterInputValues.join('')}
               >
                 <PinInputField {...pinInputFieldProps} ref={charInputFieldRef1} />
                 <PinInputField {...pinInputFieldProps} ref={charInputFieldRef2} />

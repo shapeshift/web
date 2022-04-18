@@ -69,6 +69,16 @@ export const useKeepKeyEventHandler = (
             },
           })
           break
+        case MessageType.CHARACTERREQUEST:
+          setDeviceState({ awaitingDeviceInteraction: false })
+          dispatch({
+            type: WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST,
+            payload: {
+              characterPos: message?.characterPos,
+              wordPos: message?.wordPos,
+            },
+          })
+          break
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PINMATRIXACK:
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

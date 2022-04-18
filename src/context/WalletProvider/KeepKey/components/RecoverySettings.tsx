@@ -40,7 +40,7 @@ const sentenceLengthOptions: readonly RadioOption<SentenceLength>[] = Object.fre
   },
 ])
 
-export const RecoverySettings = () => {
+export const KeepKeyRecoverySettings = () => {
   const translate = useTranslate()
   const history = useHistory()
   const [useRecoveryPassphrase, setUseRecoveryPassphrase] = useState(false)

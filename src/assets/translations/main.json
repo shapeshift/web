@@ -397,6 +397,12 @@
         "body": "You have successfully reset your KeepKey to factory defaults. You can now restore using an existing recovery seed, or create a new wallet.",
         "createButton": "Create a New Wallet",
         "recoverButton": "Recover Wallet"
+      },
+      "recoverySentenceEntry": {
+        "header": "Enter your Recovery Sentence",
+        "body": "Using the scrambled keyboard legend on your KeepKey enter the first 4 letters of each word, or click next when you're done typing if there are less than 4 letters.",
+        "button": "Next",
+        "awaitingButtonPress": "Follow the instructions on your KeepKey to continue."
       }
     },
     "shapeShift": {

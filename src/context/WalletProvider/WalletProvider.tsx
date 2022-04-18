@@ -44,6 +44,19 @@ export type DeviceState = {
   stagedLabel: string | undefined
   stagedPassphrase: boolean | undefined
   stagedEntropy: Entropy
+  currentCharacterPosition: number | undefined
+  currentWordPosition: number | undefined
+}
+
+const initialDeviceState: DeviceState = {
+  awaitingDeviceInteraction: false,
+  lastDeviceInteractionStatus: undefined,
+  disposition: undefined,
+  stagedLabel: undefined,
+  stagedPassphrase: undefined,
+  stagedEntropy: VALID_ENTROPY[0],
+  currentCharacterPosition: undefined,
+  currentWordPosition: undefined,
 }
 
 export interface InitialState {
@@ -75,14 +88,7 @@ const initialState: InitialState = {
   deviceId: '',
   showBackButton: true,
   keepKeyPinRequestType: null,
-  deviceState: {
-    awaitingDeviceInteraction: false,
-    lastDeviceInteractionStatus: undefined,
-    disposition: undefined,
-    stagedLabel: undefined,
-    stagedPassphrase: undefined,
-    stagedEntropy: VALID_ENTROPY[0],
-  },
+  deviceState: initialDeviceState,
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -151,7 +157,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         deviceId: action.payload.deviceId,
         initialRoute: '/native/enter-password',
       }
-    case WalletActions.OPEN_KEEPKEY_PIN:
+    case WalletActions.OPEN_KEEPKEY_PIN: {
       const { showBackButton, deviceId, pinRequestType } = action.payload
       return {
         ...state,
@@ -162,6 +168,22 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         keepKeyPinRequestType: pinRequestType ?? null,
         initialRoute: KeepKeyRoutes.Pin,
       }
+    }
+    case WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST: {
+      const { characterPos, wordPos } = action.payload
+      const { deviceState } = state
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        initialRoute: KeepKeyRoutes.RecoverySentenceEntry,
+        deviceState: {
+          ...deviceState,
+          currentCharacterPosition: characterPos,
+          currentWordPosition: wordPos,
+        },
+      }
+    }
     case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
       return {
         ...state,

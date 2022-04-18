@@ -21,6 +21,7 @@ export enum WalletActions {
   OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
   SET_DEVICE_STATE = 'SET_DEVICE_STATE',
   OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
+  OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
 }
 
 export type ActionTypes =
@@ -46,6 +47,13 @@ export type ActionTypes =
       payload: {
         modal: boolean
         deviceId: string
+      }
+    }
+  | {
+      type: WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST
+      payload: {
+        characterPos: number | undefined
+        wordPos: number | undefined
       }
     }
   | {

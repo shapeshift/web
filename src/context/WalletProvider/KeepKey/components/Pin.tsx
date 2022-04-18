@@ -24,7 +24,12 @@ export const KeepKeyPin = () => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const {
-    state: { keyring, deviceId, keepKeyPinRequestType },
+    state: {
+      keyring,
+      deviceId,
+      keepKeyPinRequestType,
+      deviceState: { disposition },
+    },
     dispatch,
   } = useWallet()
   const wallet = keyring.get(deviceId)
@@ -45,7 +50,20 @@ export const KeepKeyPin = () => {
       try {
         // The event handler will pick up the response to the sendPin request
         await wallet?.sendPin(pin)
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        switch (disposition) {
+          case 'recovering':
+            dispatch({
+              type: WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST,
+              payload: {
+                characterPos: undefined,
+                wordPos: undefined,
+              },
+            })
+            break
+          default:
+            dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+            break
+        }
       } catch (e) {
         console.error('KeepKey PIN Submit error: ', e)
       } finally {

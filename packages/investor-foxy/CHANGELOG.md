@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.4...@shapeshiftoss/investor-foxy-v1.4.0) (2022-04-18)
+
+
+### Features
+
+* add transfer toke function + small fix to claimFromTokemak ([#505](https://github.com/shapeshift/lib/issues/505)) ([e035552](https://github.com/shapeshift/lib/commit/e03555207c650adbc19b031eb3f0ede8131be006))
+
 # [@shapeshiftoss/investor-foxy-v1.3.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.3...@shapeshiftoss/investor-foxy-v1.3.4) (2022-04-15)
 
 

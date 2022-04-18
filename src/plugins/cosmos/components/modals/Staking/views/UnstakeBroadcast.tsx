@@ -112,7 +112,13 @@ export const UnstakeBroadcast = ({
               <InfoOutlineIcon />
             </Tooltip>
           </CText>
-          <CText color='blue.300'>{validatorInfo?.moniker}</CText>
+          <Link
+            color={'blue.200'}
+            target='_blank'
+            href={`https://www.mintscan.io/cosmos/validators/${validatorAddress}`}
+          >
+            {validatorInfo.moniker}
+          </Link>
         </Flex>
 
         <Flex width='100%' mb='35px' justifyContent='space-between'>

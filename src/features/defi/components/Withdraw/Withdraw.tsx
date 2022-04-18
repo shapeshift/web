@@ -252,6 +252,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
               <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
               <ButtonGroup colorScheme='blue' width='full' variant='input'>
                 <Button
+                  disabled={true}
                   isFullWidth
                   flexDir='column'
                   height='auto'
@@ -388,6 +389,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
                           value={value}
+                          disabled={values.withdrawType === WithdrawType.INSTANT}
                           onChange={e => {
                             onChange(amountRef.current)
                             handleInputChange(amountRef.current as string)

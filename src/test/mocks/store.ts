@@ -52,6 +52,7 @@ export const mockStore: ReduxState = {
       FoxyInvestor: false,
       ReduxLogging: false,
       KeepKeySettings: false,
+      WalletMigration: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

@@ -6,6 +6,7 @@
     "cancel": "Cancel",
     "close": "Close",
     "continue": "Continue",
+    "approve": "Approve",
     "confirm": "Confirm",
     "reject": "Reject",
     "connected": "Connected",
@@ -50,9 +51,7 @@
     "viewAsset": "View Asset",
     "apy": "%{apy}% APY",
     "settings": "Settings",
-    "legalDated": "Dated: January 2022",
-    "approveOnWallet": "Approve On Wallet",
-    "confirmOnWallet": "Confirm On Wallet"
+    "legalDated": "Dated: January 2022"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -189,6 +188,7 @@
     "broadcastingTransaction": "Broadcasting Transaction",
     "transactionComplete": "Transaction Complete",
     "transactionFailed": "Transaction Failed",
+    "notEnoughFundsInReserve": "Not enough funds in liquidity reserve contract",
     "validator": "Validator",
     "validatorMoniker":"%{moniker} Validator",
     "stakedAmount": "Staked Amount",
@@ -482,7 +482,7 @@
       "slippageSettings": "Slippage Settings",
       "withdrawType": "Withdraw Type",
       "instant": "Instant",
-      "delayed": "~7 days",
+      "delayed": "7 to 14 days",
       "fee": "%{fee}% %{symbol} fee",
       "noFee": "No %{symbol} fee",
       "requestWithdraw": "Request Withdraw",
@@ -492,7 +492,7 @@
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",
         "delayedOne": "Request the withdrawal",
-        "delayedTwo": "Claim the withdrawal after 7 days",
+        "delayedTwo": "Claim the withdrawal after 7 to 14 days",
         "instant": "The instant withdrawal is one transaction and requires you to withdraw the full amount staked."
       }
     },
@@ -522,7 +522,7 @@
       "withdrawTime": "Withdraw Time",
       "withdrawFee": "Withdraw Fee",
       "withdrawInstantTime": "Instant",
-      "withdrawDelayedTime": "~7 days",
+      "withdrawDelayedTime": "7 to 14 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "preFooter": "Rewards accrue automatically",
@@ -531,7 +531,7 @@
     },
     "status": {
       "header": {
-        "pending": "Waiting on Confirmation",
+        "pending": "Transaction Pending",
         "success": "Transaction Confirmed",
         "failed": "Transaction Execution Failed"
       },

@@ -51,7 +51,11 @@
     "viewAsset": "View Asset",
     "apy": "%{apy}% APY",
     "settings": "Settings",
-    "legalDated": "Dated: January 2022"
+    "legalDated": "Dated: January 2022",
+    "approveOnWallet": "Approve On Wallet",
+    "confirmOnWallet": "Confirm On Wallet",
+    "login": "Log In",
+    "notRobot": "I am not a Robot"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -190,7 +194,7 @@
     "transactionFailed": "Transaction Failed",
     "notEnoughFundsInReserve": "Not enough funds in liquidity reserve contract",
     "validator": "Validator",
-    "validatorMoniker":"%{moniker} Validator",
+    "validatorMoniker": "%{moniker} Validator",
     "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",
@@ -754,6 +758,16 @@
         "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
         "button": "Next",
         "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+      },
+      "legacy": {
+        "haveMobileWallet": "Have a ShapeShift Mobile Wallet?",
+        "loginWithAccount": "Log In with ShapeShift Account",
+        "loginInformations": "Enter your email address and password you use to login to your ShapeShift Mobile App.",
+        "emailAddress": "Email Address",
+        "password": "Password",
+        "emailRequired": "Email is required",
+        "invalidEmail": "Email is invalid",
+        "invalidCaptcha": "Captcha is invalid"
       }
     },
     "selectModal": {

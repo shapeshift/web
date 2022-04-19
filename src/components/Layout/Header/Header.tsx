@@ -20,7 +20,7 @@ import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
-  const { onToggle, isOpen, onClose } = useDisclosure({ id: 'navDrawer' })
+  const { onToggle, isOpen, onClose } = useDisclosure()
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')

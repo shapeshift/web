@@ -20,7 +20,7 @@ import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
-  const { onToggle, isOpen, onClose } = useDisclosure()
+  const { onToggle, isOpen, onClose } = useDisclosure({ id: 'navDrawer' })
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -94,7 +94,7 @@ export const Header = () => {
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
         <DrawerContent>
-          <SideNavContent />
+          <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
     </>

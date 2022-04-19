@@ -60,7 +60,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
                 },
                 validate: {
                   validMnemonic: value =>
-                    bip39.validateMnemonic(value) ||
+                    bip39.validateMnemonic(value.toLowerCase()) ||
                     translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
                 },
               })}

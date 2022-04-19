@@ -5,7 +5,6 @@ import { ActionTypes } from 'context/WalletProvider/actions'
 
 export interface LocationState {
   vault: Vault
-  mnemonic?: string
   isLegacyWallet?: boolean
   error?: {
     message: string
@@ -22,11 +21,6 @@ export interface NativeSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export interface NativeCreateProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    Omit<LocationState, 'vault'>
-  > {
-  dispatch: React.Dispatch<ActionTypes>
+export interface LoginError {
+  message: string
 }

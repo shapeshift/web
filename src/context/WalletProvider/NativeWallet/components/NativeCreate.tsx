@@ -17,21 +17,24 @@ import { range } from 'lodash'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
+import { LocationState } from '../types'
 
-const getVault = async (mnemonic?: string): Promise<Vault> => {
+const getVault = async (): Promise<Vault> => {
   const vault = await Vault.create(undefined, false)
   vault.meta.set('createdAt', Date.now())
-  vault.set('#mnemonic', mnemonic ?? GENERATE_MNEMONIC)
+  vault.set('#mnemonic', GENERATE_MNEMONIC)
   return vault
 }
 
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
 const revocable = native.crypto.Isolation.Engines.Default.revocable
 
-export const NativeCreate = ({ history, location }: NativeSetupProps) => {
+export const NativeCreate = () => {
+  const history = useHistory()
+  const location = useLocation<LocationState>()
   const [revealed, setRevealed] = useState<boolean>(false)
   const translate = useTranslate()
   const revealedOnce = useRef<boolean>(false)
@@ -42,6 +45,8 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   const [vault, setVault] = useState<Vault | null>(null)
   const [words, setWords] = useState<Component[] | null>(null)
   const [revoker] = useState(new (Revocable(class {}))())
+
+  const isLegacyWallet = !!location.state?.vault
 
   const placeholders = useMemo(() => {
     return range(1, 13).map(i => (
@@ -62,14 +67,15 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const vault = await getVault(location.state?.mnemonic)
+        // If the vault is already passed from the legacy wallet flow, use it.
+        const vault = isLegacyWallet ? location.state.vault : await getVault()
         setVault(vault)
       } catch (e) {
         // @TODO
         console.error(e)
       }
     })()
-  }, [setVault, location.state?.mnemonic])
+  }, [setVault, location.state?.vault, isLegacyWallet])
 
   useEffect(() => {
     if (!vault) return
@@ -107,7 +113,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   return (
     <>
       <ModalHeader>
-        {location.state?.mnemonic && (
+        {isLegacyWallet && (
           <Alert status='error' mb={4}>
             <AlertIcon />
             <AlertDescription fontSize='md'>
@@ -147,7 +153,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
             if (vault) {
               history.push('/native/create-test', {
                 vault,
-                isLegacyWallet: !!location.state?.mnemonic,
+                isLegacyWallet,
               })
             }
           }}

@@ -10,16 +10,24 @@ import {
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+
+import { LoginError } from '../types'
 
 // @TODO(NeOMakinG): Remove this and add the 2fa code logic
 const twoFactorAuthCode = ''
 
+// @TODO(NeOMakinG): Change this with the mnemonic of the legacy account
+const DUMMY_MNEMONIC = 'yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo2'
+
 export const LegacyLogin = () => {
+  const history = useHistory()
   const [isCaptchaSolved, setIsCaptchaSolved] = useState(false)
   const [error, setError] = useState<boolean | string>(false)
   const captchaBgColor = useColorModeValue('gray.50', 'gray.700')
@@ -28,19 +36,28 @@ export const LegacyLogin = () => {
   const {
     handleSubmit,
     register,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({ shouldUnregister: true })
 
   const translate = useTranslate()
 
+  const isLoginError = (err: any): err is LoginError => err && typeof err.message === 'string'
+
   const onSubmit = async (values: FieldValues) => {
-    // @TODO(NeOMakinG): Remove this when we handle the error response from the API
-    if (true) {
+    try {
+      await new Promise((resolve, reject) => resolve(null))
+      // TODO: use response to create wallet vault.
+      const vault = await Vault.create(undefined, false)
+      vault.meta.set('createdAt', Date.now())
+      vault.set('#mnemonic', DUMMY_MNEMONIC)
+      history.push('/native/legacy/login/success', { vault })
+    } catch (err) {
+      if (isLoginError(err) && err.message === '2fa required') {
+        history.push('/native/legacy/two-factor')
+      }
+
+      // TODO: show login error
       setError(translate('walletProvider.shapeShift.legacy.invalidLogin'))
-    } else {
-      // Reset every fields in order to remove the password and email from the memory
-      reset()
     }
   }
 

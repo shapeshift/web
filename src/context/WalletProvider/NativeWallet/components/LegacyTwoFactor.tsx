@@ -8,13 +8,14 @@ import {
 } from '@chakra-ui/react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-// @TODO(NeOMakinG): Change this with the mnemonic of the legacy account
-const DUMMY_MNEMONIC = 'yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo'
+import { LocationState } from '../types'
 
-export const LegacyTwoFactor = ({ history }: RouteComponentProps) => {
+export const LegacyTwoFactor = () => {
+  const history = useHistory()
+  const location = useLocation<LocationState>()
   const {
     handleSubmit,
     register,
@@ -25,7 +26,7 @@ export const LegacyTwoFactor = ({ history }: RouteComponentProps) => {
   const translate = useTranslate()
 
   const onSubmit = async (values: FieldValues) => {
-    history.push('/native/legacy/login/success', { mnemonic: DUMMY_MNEMONIC })
+    history.push('/native/legacy/login/success', { vault: location.state.vault })
     // Reset the field in order to remove the 2fa code from the memory
     reset()
     return

@@ -98,7 +98,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
                   colorScheme='blue'
                   onClick={() => history.push('/native/legacy/login')}
                 >
-                  {translate('common.logIn')}
+                  {translate('common.login')}
                 </Button>
               </Flex>
             </>

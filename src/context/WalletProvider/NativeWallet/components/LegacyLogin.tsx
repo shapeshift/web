@@ -11,14 +11,13 @@ import {
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
 // @TODO(NeOMakinG): Remove this and add the 2fa code logic
 const twoFactorAuthCode = ''
 
-export const LegacyLogin = ({ history }: RouteComponentProps) => {
+export const LegacyLogin = () => {
   const [isCaptchaSolved, setIsCaptchaSolved] = useState(false)
   const captchaBgColor = useColorModeValue('gray.50', 'gray.700')
   const checkboxBorderColor = useColorModeValue('gray.400', 'white')
@@ -35,13 +34,11 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {
     // Reset every fields in order to remove the password and email from the memory
     reset()
-    return
   }
 
   const onCaptchaRequested = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Check the captcha in case the captcha has been validated
     setIsCaptchaSolved(e.target.checked)
-    return
   }
 
   return (
@@ -85,7 +82,7 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
             />
             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isInvalid={errors.captcha && !isCaptchaSolved} mb={4} mt={6}>
+          <FormControl isInvalid={errors.captchaChallenge && !isCaptchaSolved} mb={4} mt={6}>
             <Card
               size='sm'
               width='full'
@@ -99,7 +96,7 @@ export const LegacyLogin = ({ history }: RouteComponentProps) => {
                   borderColor={checkboxBorderColor}
                   spacing={'0.75rem'}
                   // @TODO(NeOMakinG): Change this to use a real captcha
-                  {...register('captcha', {
+                  {...register('captchaChallenge', {
                     required: translate('walletProvider.shapeShift.legacy.invalidCaptcha'),
                   })}
                   onChange={onCaptchaRequested}

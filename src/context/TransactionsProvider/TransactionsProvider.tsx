@@ -8,6 +8,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,
@@ -60,12 +61,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         const chainId = adapter.getCaip2()
         if (!walletSupportChain({ chainId, wallet })) continue
 
-        const asset = Object.values(assets).find(asset => asset.caip2 === chainId)
-        if (!asset) {
-          throw new Error(`asset not found for chain ${chain}`)
-        }
-
-        const accountTypes = supportedAccountTypes[chain] ?? [undefined]
+        // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
+        const asset = assets[chainIdToFeeAssetId(chainId)]
+        const accountTypes = supportedAccountTypes[chain]
 
         // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
         // this state machine should be removed, and managed by the txHistory RTK query api

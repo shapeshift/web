@@ -105,6 +105,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       {
         add: chain => {
           const factory = newChainAdapters[chain]
+          console.info('adding chain', chain)
           if (factory) getChainAdapters().addChain(chain, factory)
         },
         remove: chain => {
@@ -115,6 +116,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     )
 
     setRoutes(pluginRoutes)
+    console.info('setting supported chains')
     setSupportedChains(getChainAdapters().getSupportedChains())
   }, [chainAdapterManager, featureFlags, plugins, pluginManager])
 

@@ -1,8 +1,12 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
 import { ReduxState } from 'state/reducer'
 
-export const selectAccountSpecifiers = (state: ReduxState) =>
-  state.accountSpecifiers.accountSpecifiers
+import { createDeepEqualOutputSelector } from './../../selector-utils'
+
+export const selectAccountSpecifiers = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.accountSpecifiers.accountSpecifiers,
+  accountSpecifiers => accountSpecifiers,
+)
 
 // returns an array of the full `caip2:pubkeyish` type, as used in URLs for account pages
 export const selectAccountSpecifierStrings = (state: ReduxState) =>

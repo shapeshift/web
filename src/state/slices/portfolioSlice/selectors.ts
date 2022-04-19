@@ -1,7 +1,14 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
+import difference from 'lodash/difference'
+import flow from 'lodash/flow'
+import head from 'lodash/head'
+import keys from 'lodash/keys'
+import map from 'lodash/map'
+import size from 'lodash/size'
 import toLower from 'lodash/toLower'
+import uniq from 'lodash/uniq'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -15,6 +22,7 @@ import {
 } from 'state/slices/stakingDataSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
   PortfolioAccountBalances,
   PortfolioAccountSpecifiers,
@@ -23,6 +31,7 @@ import {
   PortfolioBalancesById,
 } from './portfolioSliceCommon'
 import {
+  assetIdtoChainId,
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
@@ -47,6 +56,20 @@ export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers[
 export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
+
+export const selectIsPortfolioLoaded = createSelector(
+  selectAccountSpecifiers,
+  selectPortfolioAssetIds,
+  (accountSpecifiers, portfolioAssetIds) => {
+    if (!accountSpecifiers.length) return false
+    return !size(
+      difference(
+        uniq(map(accountSpecifiers, flow([keys, head]))),
+        uniq(map(portfolioAssetIds, assetIdtoChainId)),
+      ),
+    )
+  },
+)
 
 export const selectPortfolioFiatBalances = createSelector(
   selectAssets,

@@ -12,6 +12,7 @@ import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,
   selectAssets,
+  selectIsPortfolioLoaded,
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds,
@@ -47,9 +48,12 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     [accountSpecifiers],
   )
 
+  const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
+
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
+    if (!isPortfolioLoaded) return
     ;(async () => {
       for (const chain of supportedChains) {
         const adapter = chainAdapterManager.byChain(chain)
@@ -130,6 +134,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       })
     }
   }, [
+    isPortfolioLoaded,
     assets,
     dispatch,
     walletInfo?.deviceId,

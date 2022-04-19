@@ -6,6 +6,7 @@
     "cancel": "취소",
     "close": "닫기",
     "continue": "계속하기",
+    "approve": "승인",
     "confirm": "확인",
     "reject": "거절",
     "connected": "연결됨",
@@ -49,9 +50,7 @@
     "viewAsset": "자산 보기",
     "apy": "%{apy}% APY",
     "settings": "설정",
-    "legalDated": "날짜: 2022년 1월",
-    "approveOnWallet": "지갑에서 승인",
-    "confirmOnWallet": "지갑에서 확인"
+    "legalDated": "날짜: 2022년 1월"
   },
   "updateToast": {
     "body": "새로운 버전의 앱이 출시되었습니다.",
@@ -458,7 +457,7 @@
       "slippageSettings": "슬리피지 설정",
       "withdrawType": "인출 종류",
       "instant": "즉시",
-      "delayed": "최대 7일",
+      "delayed": "최대 7-14일",
       "fee": "%{fee}% %{symbol} 수수료",
       "noFee": "%{symbol} 수수료 없음",
       "requestWithdraw": "인출 요청",
@@ -468,7 +467,7 @@
       "info": {
         "delayed": "지연된 출금에는 두 가지 거래가 있습니다:",
         "delayedOne": "전체 인출 요청",
-        "delayedTwo": "7일 이후에 전체 인출을 요청합니다.",
+        "delayedTwo": "7-14일 이후에 전체 인출을 요청합니다.",
         "instant": "즉시 전체 인출은 스테이크한 모든 비용을 총합하여 하나의 트랜잭션으로 만들 필요가 있습니다."
       }
     },
@@ -498,7 +497,7 @@
       "withdrawTime": "출금 시간",
       "withdrawFee": "출금 수수료",
       "withdrawInstantTime": "바로",
-      "withdrawDelayedTime": "~7일",
+      "withdrawDelayedTime": "7-14일",
       "estimatedReturns": "연간 예상 수익*",
       "estimatedGas": "예상 가스 요금",
       "preFooter": "보상은 자동으로 적립됩니다.",

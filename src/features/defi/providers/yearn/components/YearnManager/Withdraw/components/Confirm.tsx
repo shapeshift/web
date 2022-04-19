@@ -112,7 +112,7 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
       onCancel={handleCancel}
       headerText='modals.confirm.withdraw.header'
       loading={state.loading}
-      loadingText={translate('common.confirmOnWallet')}
+      loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}
       assets={[
         {

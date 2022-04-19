@@ -389,6 +389,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
                           value={value}
+                          disabled={values.withdrawType === WithdrawType.INSTANT}
                           onChange={e => {
                             onChange(amountRef.current)
                             handleInputChange(amountRef.current as string)

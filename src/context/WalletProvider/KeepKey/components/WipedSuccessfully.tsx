@@ -43,7 +43,8 @@ export const WipedSuccessfully = () => {
           isFullWidth
           size='lg'
           onClick={handleRecoverWalletPress}
-          disabled={loading && true} // Un-disable when recover wallet is ready
+          // TODO: (0xApotheosis) Always disabled. Remove 'true' when recover wallet flow is ready
+          disabled={loading || true}
           variant='outline'
           border='none'
           title='Coming soon...'

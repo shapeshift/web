@@ -6,6 +6,7 @@
     "cancel": "取消",
     "close": "关闭",
     "continue": "继续",
+    "approve": "在钱包上批准",
     "confirm": "确认",
     "reject": "拒绝",
     "connected": "已连接",
@@ -49,9 +50,7 @@
     "viewAsset": "查看资产",
     "apy": "%{apy}% 年化收益率",
     "settings": "设置",
-    "legalDated": "日期：2022 年 1 月",
-    "approveOnWallet": "在钱包上批准",
-    "confirmOnWallet": "在钱包上确认"
+    "legalDated": "日期：2022 年 1 月"
   },
   "updateToast": {
     "body": "应用有新版本",

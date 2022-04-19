@@ -88,7 +88,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
-        history.push('/metamask/success')
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error('MetaMask Connect: There was an error initializing the wallet', e)

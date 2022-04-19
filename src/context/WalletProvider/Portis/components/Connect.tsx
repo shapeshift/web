@@ -44,7 +44,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.Portis, 'test')
-        history.push('/portis/success')
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
         console.error('Portis Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.portis.errors.unknown')

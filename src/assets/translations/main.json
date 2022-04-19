@@ -768,7 +768,8 @@
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
-        "invalidLogin": "Invalid login"
+        "invalidLogin": "Invalid login",
+        "twoFactorRequired": "2FA is required"
       }
     },
     "selectModal": {

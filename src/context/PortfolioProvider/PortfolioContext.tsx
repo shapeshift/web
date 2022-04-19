@@ -15,6 +15,7 @@ import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -182,7 +183,8 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         }
 
         console.info('dispatching account specifiers set action')
-        dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
+        !isEqual(accountSpecifiers, acc) &&
+          dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
       } catch (e) {
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }

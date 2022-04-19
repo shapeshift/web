@@ -122,6 +122,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     })()
 
     return () => {
+      console.trace()
       console.info('clearing tx history')
       dispatch(txHistory.actions.clear())
       supportedChains.forEach(chain => {

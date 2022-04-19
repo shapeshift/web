@@ -48,7 +48,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
               size='lg'
               autoComplete='off'
               autoCorrect='off'
-              textTransform = 'lowercase'
+              textTransform='lowercase'
               {...register('mnemonic', {
                 required: translate(
                   'walletProvider.shapeShift.import.secretRecoveryPhraseRequired',

@@ -48,6 +48,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
               size='lg'
               autoComplete='off'
               autoCorrect='off'
+              textTransform = 'lowercase'
               {...register('mnemonic', {
                 required: translate(
                   'walletProvider.shapeShift.import.secretRecoveryPhraseRequired',
@@ -60,7 +61,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
                 },
                 validate: {
                   validMnemonic: value =>
-                    bip39.validateMnemonic(value.toLowerCase()) ||
+                    bip39.validateMnemonic(value) ||
                     translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
                 },
               })}

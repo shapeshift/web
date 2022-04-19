@@ -9,8 +9,10 @@ Bug fixes and features should always come with tests.
 - E2E - to test the full stack completely on critical flows
   - [cypress](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests)
     - When selecting DOM elements [use `data-test-*` instead of using a `class` or `id`](https://docs.cypress.io/guides/references/best-practices#Selecting-Elements).
+- Workflows - tools and libraries for GitHub Workflows or any DevOps processes
+  - [act](https://github.com/nektos/act) - Emulates GitHub Workflows virtual environment via Docker containers.
 
-### Testing Ui Business Logic
+### Testing UI Business Logic
 
 Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and test that code in isolation from it's UI.
 
@@ -68,4 +70,17 @@ describe('useIsComponentMounted hook', () => {
     expect(result.current.current).toBe(false)
   })
 })
+```
+
+### Workflow Testing
+
+Requirements: 
+- [act](https://github.com/nektos/act) - `brew install act`
+- Github Personal Access Token - via Github Settings
+
+Example command to test Cypress Github action:
+- --reuse persist state across runs
+- --rm remove container on failure 
+```sh
+act -s GITHUB_TOKEN=$GITHUB_TOKEN -j test-chrome --reuse
 ```

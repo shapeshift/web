@@ -1,4 +1,4 @@
-name: Cypress Tests
+name: Cypress Tests v2
 
 on:
   workflow_call:
@@ -26,7 +26,35 @@ env:
   REACT_APP_GEM_ENV: production
 
 jobs:
-  test-chrome:
+  install-v2:
+    runs-on: ubuntu-20.04
+    container: cypress/browsers:node16.13.2-chrome100-ff98
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Save build folder
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          if-no-files-found: error
+          path: build
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v3
+        with:
+          # Disable running of tests within install job
+          runTests: false
+          build: yarn build
+
+  test-chrome-v2:
     name: Run Cypress
     runs-on: ubuntu-20.04
     container: cypress/browsers:node16.13.2-chrome100-ff98
@@ -50,34 +78,8 @@ jobs:
           name: build
           path: build
 
-      # --- Install ---
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'yarn'
-
-      - name: Install Runner Dependencies
-        if: ${{ env.ACT }}
-        run: apt-get -yq install --no-install-recommends --no-install-suggests zstd
-
-      - name: Save build folder
-        if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
-
-      - name: Cypress install
-        uses: cypress-io/github-action@v3
-        with:
-          # Disable running of tests within install job
-          runTests: false
-          build: yarn install --frozen-lockfile --silent
+      - name: Install Serve
+        run: yarn global add serve
 
       - name: Verify Cypress
         env:
@@ -99,8 +101,8 @@ jobs:
         uses: cypress-io/github-action@v3
         with:
           install: false
-          record: true
-          start: yarn dev
+          record: false
+          start: serve -s build
           parallel: true
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 240 # seconds

@@ -1,0 +1,2 @@
+--artifact-server-path /tmp/act-artifacts
+--defaultbranch develop

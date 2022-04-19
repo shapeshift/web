@@ -76,10 +76,6 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination
   useEffect(() => {
-    if (isEmpty(accountSpecifiersList)) return
-    // clear the old portfolio, we have different non null data, we're switching wallet
-    console.info('dispatching portfolio clear action')
-    dispatch(portfolio.actions.clear())
     // fetch each account
     accountSpecifiersList.forEach(accountSpecifierMap => {
       // forceRefetch is enabled here to make sure that we always have the latest wallet information
@@ -88,6 +84,12 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }),
       )
     })
+
+    return () => {
+      // clear the old portfolio, we have different non null data, we're switching wallet
+      console.info('dispatching portfolio clear action')
+      dispatch(portfolio.actions.clear())
+    }
   }, [dispatch, accountSpecifiersList])
 
   /**
@@ -102,8 +104,12 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
    * break this at your peril
    */
   useEffect(() => {
-    if (!wallet) return
-    if (isEmpty(assetsById)) return
+    const cleanup = () => {
+      console.info('dispatching account specifiers clear action')
+      dispatch(accountSpecifiers.actions.clear())
+    }
+
+    if (!wallet || isEmpty(assetsById)) return cleanup
     ;(async () => {
       try {
         const acc: AccountSpecifierMap[] = []
@@ -175,11 +181,13 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
           }
         }
 
+        console.info('dispatching account specifiers set action')
         dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
       } catch (e) {
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }
     })()
+    return cleanup
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains])
 
   const txIds = useSelector(selectTxIds)

@@ -73,6 +73,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
+            console.info('subscribing txs for', chainId, accountType)
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
@@ -123,6 +124,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     })()
 
     return () => {
+      console.info('clearing tx history')
       dispatch(txHistory.actions.clear())
       supportedChains.forEach(chain => {
         try {

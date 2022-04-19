@@ -121,7 +121,7 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approveOnWallet')}
+      loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={
         <Alert status='info' borderRadius='lg' color='blue.500'>

@@ -120,11 +120,14 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
       return returVal
     } catch (error) {
-      // TODO: handle client side errors maybe add a toast?
       console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
+      const fundsError =
+        error instanceof Error && error.message.includes('Not enough funds in reserve')
       toast({
         position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
+        description: fundsError
+          ? translate('defi.notEnoughFundsInReserve')
+          : translate('common.somethingWentWrong'),
         title: translate('common.somethingWentWrong'),
         status: 'error',
       })

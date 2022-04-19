@@ -18,10 +18,7 @@ const validators = {
   // TODO:
   //  Version control data and use a persistent URL
   //  so we don't need to update whenever new KeepKey firmware/bootloader is released.
-  REACT_APP_KEEPKEY_VERSIONS_URL: url({
-    default:
-      'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
-  }),
+  REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
   REACT_APP_GEM_WYRE_SUPPORTED_COINS: url(),
@@ -35,6 +32,7 @@ const validators = {
   REACT_APP_FEATURE_FOXY_INVESTOR: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
   REACT_APP_FEATURE_KEEPKEY_SETTINGS: bool({ default: false }),
+  REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

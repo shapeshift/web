@@ -6,6 +6,7 @@
     "cancel": "Cancelar",
     "close": "Cerrar",
     "continue": "Continuar",
+    "approve": "Aprobar",
     "confirm": "Confirmar",
     "reject": "Rechazar",
     "connected": "Conectado",
@@ -49,9 +50,7 @@
     "viewAsset": "Ver activo",
     "apy": "%{apy}% APY",
     "settings": "Ajustes",
-    "legalDated": "Fecha: enero de 2022",
-    "approveOnWallet": "Aprobar en billetera",
-    "confirmOnWallet": "Confirmar en la Billetera"
+    "legalDated": "Fecha: enero de 2022"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -458,7 +457,7 @@
       "slippageSettings": "Ajustes de Deslizamiento",
       "withdrawType": "Tipo de Retiro",
       "instant": "iInstantáneo",
-      "delayed": "~7 días",
+      "delayed": "7 - 14 días",
       "fee": "%{fee}% %{símbolo} tarifa",
       "noFee": "Sin cargo de %{symbol}",
       "requestWithdraw": "Solicitar Retiro",
@@ -468,7 +467,7 @@
       "info": {
         "delayed": "El retiro diferido tiene dos transacciones:",
         "delayedOne": "Solicitar el retiro",
-        "delayedTwo": "Reclamar el retiro después de 7 días",
+        "delayedTwo": "Reclamar el retiro después de 7 - 14 días",
         "instant": "El retiro instantáneo es una transacción y requiere que retire el monto total staked."
       }
     },
@@ -498,7 +497,7 @@
       "withdrawTime": "Tiempo de Retiro",
       "withdrawFee": "Tarifa de Retiro",
       "withdrawInstantTime": "Instantáneo",
-      "withdrawDelayedTime": "~7 días",
+      "withdrawDelayedTime": "7 - 14 días",
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimatedGas": "Tarifa Estimada de Gas",
       "preFooter": "Las Recompensas se acumulan automáticamente",

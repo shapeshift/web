@@ -106,7 +106,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
          * aliases[deviceId] in the local wallet storage.
          */
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
-        history.push('/keepkey/success')
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
         console.error('KeepKey Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')

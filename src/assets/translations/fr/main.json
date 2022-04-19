@@ -6,6 +6,7 @@
     "cancel": "Annuler",
     "close": "Fermer",
     "continue": "Continuer",
+    "approve": "Approuver",
     "confirm": "Confirmer",
     "reject": "Rejeter",
     "connected": "Connecté",
@@ -49,9 +50,7 @@
     "viewAsset": "Voir l'actif",
     "apy": "%{apy}% APY",
     "settings": "Paramètres",
-    "legalDated": "Daté: Janvier 2022",
-    "approveOnWallet": "Approuver sur le porte-monnaie",
-    "confirmOnWallet": "Confirmer sur le porte-monnaie"
+    "legalDated": "Daté: Janvier 2022"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -457,7 +456,7 @@
       "slippageSettings": "Paramètres de glissement de taux",
       "withdrawType": "Type de retrait",
       "instant": "Instantané",
-      "delayed": "~7 jours",
+      "delayed": "7 - 14 jours",
       "fee": "%{fee}% %{symbol} de frais",
       "noFee": "Pas de frais end %{symbol}",
       "requestWithdraw": "Demander un retrait",
@@ -467,7 +466,7 @@
       "info": {
         "delayed": "Le retrait différé comporte deux transactions :",
         "delayedOne": "Demander le retrait",
-        "delayedTwo": "Réclamer le retrait après 7 jours",
+        "delayedTwo": "Réclamer le retrait après 7 - 14 jours",
         "instant": "Le retrait instantané est une unique transaction et vous oblige à retirer le montant misé total."
       }
     },
@@ -497,7 +496,7 @@
       "withdrawTime": "Heure de retrait",
       "withdrawFee": "Frais de retrait",
       "withdrawInstantTime": "Instantané",
-      "withdrawDelayedTime": "~7 jours",
+      "withdrawDelayedTime": "7 -14 jours",
       "estimatedReturns": "Rendements annuels estimés*",
       "estimatedGas": "Estimation des frais de carburant",
       "preFooter": "Les récompenses sont cumulées automatiquement",

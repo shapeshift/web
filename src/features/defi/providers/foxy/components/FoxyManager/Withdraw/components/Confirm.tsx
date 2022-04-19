@@ -120,7 +120,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
       headerText='modals.confirm.withdraw.header'
       onConfirm={handleConfirm}
       loading={state.loading}
-      loadingText={translate('common.confirmOnWallet')}
+      loadingText={translate('common.confirm')}
       assets={[
         {
           ...asset,

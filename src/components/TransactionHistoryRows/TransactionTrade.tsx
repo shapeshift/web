@@ -1,5 +1,3 @@
-import { SwapperType } from '@shapeshiftoss/types'
-
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -56,11 +54,7 @@ export const TransactionTrade = ({
           )}
           {txDetails.tx.tradeDetails && (
             <Row title='orderRoute'>
-              <Text
-                value={
-                  txDetails.tx.tradeDetails.dexName === SwapperType.Thorchain ? 'THORChain' : '0x'
-                }
-              />
+              <Text value={'0x'} />
             </Row>
           )}
           {txDetails.tx.tradeDetails && (

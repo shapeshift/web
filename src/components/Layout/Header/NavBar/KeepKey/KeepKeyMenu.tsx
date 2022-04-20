@@ -21,7 +21,7 @@ export const KeepKeyMenu = () => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
   const {
-    state: { hasPinCaching, deviceTimeout, features },
+    state: { deviceTimeout, features },
   } = useKeepKey()
   const versions = useKeepKeyVersions()
   const {
@@ -139,13 +139,6 @@ export const KeepKeyMenu = () => {
                 label='walletProvider.keepKey.settings.menuLabels.deviceTimeout'
                 value={deviceTimeoutTranslation}
                 hasSubmenu={true}
-              />
-              <ExpandedMenuItem
-                onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPinCaching)}
-                label='walletProvider.keepKey.settings.menuLabels.pinCaching'
-                hasSubmenu={true}
-                value={getBooleanLabel(hasPinCaching)}
-                valueDisposition={hasPinCaching ? 'positive' : 'neutral'}
               />
               <ExpandedMenuItem
                 onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}

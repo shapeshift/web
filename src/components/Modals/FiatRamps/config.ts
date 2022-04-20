@@ -44,7 +44,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const parsedSellList = parseGemSellAssets(currencyList)
       return [parsedBuyList, parsedSellList]
     },
-    onSubmit: async (action, asset, address) => {
+    onSubmit: (action, asset, address) => {
       const gemPartnerUrl = makeGemPartnerUrl(action, asset, address)
       window.open(gemPartnerUrl, '_blank')?.focus()
     },
@@ -59,8 +59,8 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const assets = getBanxaAssets()
       return [assets, assets]
     },
-    onSubmit: async (action: FiatRampAction, asset: string, address: string) => {
-      const banxaCheckoutUrl = await createBanxaUrl(action, asset, address)
+    onSubmit: (action: FiatRampAction, asset: string, address: string) => {
+      const banxaCheckoutUrl = createBanxaUrl(action, asset, address)
       window.open(banxaCheckoutUrl, '_blank')?.focus()
     },
   },
@@ -69,6 +69,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     logo: onjunologo,
     isImplemented: false,
     getBuyAndSellList: async () => [[], []],
-    onSubmit: async () => {},
+    onSubmit: () => {},
   },
 }

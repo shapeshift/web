@@ -13,9 +13,9 @@ import { KeepKeyConfig } from './KeepKey/config'
 import { KeyManager } from './KeyManager'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
-import { MetaMaskSuccess } from './MetaMask/components/Success'
 import { MetaMaskConfig } from './MetaMask/config'
 import { EnterPassword } from './NativeWallet/components/EnterPassword'
+import { LegacyLogin } from './NativeWallet/components/LegacyLogin'
 import { NativeCreate } from './NativeWallet/components/NativeCreate'
 import { NativeImport } from './NativeWallet/components/NativeImport'
 import { NativeLoad } from './NativeWallet/components/NativeLoad'
@@ -27,7 +27,6 @@ import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { NativeConfig } from './NativeWallet/config'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
-import { PortisSuccess } from './Portis/components/Success'
 import { PortisConfig } from './Portis/config'
 
 export interface SupportedWalletInfo {
@@ -50,6 +49,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/create-test', component: NativeTestPhrase },
       { path: '/native/success', component: NativeSuccess },
       { path: '/native/enter-password', component: EnterPassword },
+      { path: '/native/legacy/login', component: LegacyLogin },
     ],
   },
   [KeyManager.KeepKey]: {
@@ -68,7 +68,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...MetaMaskConfig,
     routes: [
       { path: '/metamask/connect', component: MetaMaskConnect },
-      { path: '/metamask/success', component: MetaMaskSuccess },
       { path: '/metamask/failure', component: MetaMaskFailure },
     ],
   },
@@ -76,7 +75,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...PortisConfig,
     routes: [
       { path: '/portis/connect', component: PortisConnect },
-      { path: '/portis/success', component: PortisSuccess },
       { path: '/portis/failure', component: PortisFailure },
     ],
   },

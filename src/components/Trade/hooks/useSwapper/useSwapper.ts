@@ -380,34 +380,18 @@ export const useSwapper = () => {
     const fee = feeBN.toString()
 
     switch (sellAsset.chain) {
-      // TODO: Handle Cosmos ChainType here
-      case ChainTypes.Ethereum: {
-        const ethResult = result as Quote<ChainTypes.Ethereum, SwapperType.Zrx>
-        const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
-          ? bn(ethResult.feeData.chainSpecific.approvalFee)
-              .dividedBy(bn(10).exponentiatedBy(18))
-              .toString()
-          : '0'
-        const totalFee = feeBN.plus(approvalFee).toString()
-        const gasPrice = bnOrZero(ethResult?.feeData?.chainSpecific.gasPrice).toString()
-        const estimatedGas = bnOrZero(ethResult?.feeData?.chainSpecific.estimatedGas).toString()
+      case ChainTypes.Ethereum:
+        {
+          const ethResult = result as Quote<ChainTypes.Ethereum, SwapperType.Zrx>
+          const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
+            ? bn(ethResult.feeData.chainSpecific.approvalFee)
+                .dividedBy(bn(10).exponentiatedBy(18))
+                .toString()
+            : '0'
+          const totalFee = feeBN.plus(approvalFee).toString()
+          const gasPrice = bnOrZero(ethResult?.feeData?.chainSpecific.gasPrice).toString()
+          const estimatedGas = bnOrZero(ethResult?.feeData?.chainSpecific.estimatedGas).toString()
 
-        if (isThorchainQuote(result)) {
-          const receiveFee = result?.feeData?.swapperSpecific.receiveFee ?? '0'
-          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Thorchain> = {
-            fee,
-            chainSpecific: {
-              approvalFee,
-              gasPrice,
-              estimatedGas,
-              totalFee,
-            },
-            swapperSpecific: {
-              receiveFee,
-            },
-          }
-          setValue('fees', fees)
-        } else {
           const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
             fee,
             chainSpecific: {
@@ -420,18 +404,9 @@ export const useSwapper = () => {
           setValue('fees', fees)
         }
         break
-      }
       default:
         throw new Error('Unsupported chain ' + sellAsset.chain)
     }
-  }
-
-  function isThorchainQuote(
-    result: Quote<ChainTypes, SwapperType>,
-  ): result is Quote<ChainTypes, SwapperType.Thorchain> {
-    return (
-      (result as Quote<ChainTypes, SwapperType.Thorchain>)?.feeData?.swapperSpecific !== undefined
-    )
   }
 
   const getBestSwapper = useCallback(

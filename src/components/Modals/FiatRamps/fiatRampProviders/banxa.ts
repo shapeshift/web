@@ -21,11 +21,7 @@ export const getBanxaAssets = () => {
   return assets
 }
 
-export const createBanxaUrl = async (
-  action: FiatRampAction,
-  asset: string,
-  address: string,
-): Promise<string> => {
+export const createBanxaUrl = (action: FiatRampAction, asset: string, address: string): string => {
   const BANXA_URL = 'https://shapeshift.banxa.com/'
   let url = `${BANXA_URL}?`
   url += `fiatType=USD&`

@@ -99,6 +99,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const { fiatRamps } = useModal()
 
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
+
   const {
     state: { wallet },
   } = useWallet()

@@ -90,12 +90,14 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
    * handle wallet disconnect/switch logic
    */
   useEffect(() => {
-    // if we have account specifiers, but not a wallet, it means we've disconnected/switched wallets
-    // and need to clear the account specifiers
-    const disconnected = !wallet
+    // if we have a wallet and changed account specifiers, we have switched wallets
+    // NOTE! - the wallet will change before the account specifiers does, so clearing here is valid
+    // check the console logs in the browser for the ordering of actions to verify this logic
     const switched = Boolean(wallet && !isEmpty(accountSpecifiersList))
-    disconnected && console.info('PortfolioContext: wallet disconnected')
+    const disconnected = !wallet
+    // TODO(0xdef1cafe): keep this - change to structured debug logging
     switched && console.info('PortfolioContext: wallet switched')
+    disconnected && console.info('PortfolioContext: wallet disconnected')
     if (switched || disconnected) {
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())

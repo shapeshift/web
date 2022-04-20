@@ -74,15 +74,23 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     ;(async () => {
       if (!wallet) return
       const payload = { wallet }
-      supportsETH(wallet) && setEthAddress(await ethereumChainAdapter.getAddress(payload))
-      supportsBTC(wallet) && setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
-      supportsCosmos(wallet) && setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
+      try {
+        supportsETH(wallet) && setEthAddress(await ethereumChainAdapter.getAddress(payload))
+        supportsBTC(wallet) && setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
+        supportsCosmos(wallet) && setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
+      } catch (error) {
+        console.error(error)
+      }
     })()
   }, [wallet, bitcoinChainAdapter, ethereumChainAdapter, cosmosChainAdapter])
 
   useEffect(() => {
     ;(async () => {
-      !ensName && setEnsName((await ensReverseLookup(ethAddress)).name ?? '')
+      try {
+        !ensName && setEnsName((await ensReverseLookup(ethAddress)).name ?? '')
+      } catch (error) {
+        console.error(error)
+      }
     })()
   }, [ensName, ethAddress])
 

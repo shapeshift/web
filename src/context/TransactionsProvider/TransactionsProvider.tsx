@@ -1,7 +1,7 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -32,6 +32,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     state: { wallet, walletInfo },
   } = useWallet()
   const { chainAdapterManager, supportedChains } = usePlugins()
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
   const assets = useSelector(selectAssets)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
@@ -58,6 +59,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (!isPortfolioLoaded && txIds.length) {
       console.info('TransactionsProvider: unsubscribing from tx history')
       supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
+      setIsSubscribed(false)
       dispatch(txHistory.actions.clear())
     }
     // txIds are changed by this effect, don't cause infinite loop
@@ -70,91 +72,86 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
-    if (!isPortfolioLoaded) return // ensures we subscribe once all chain portfolios are loaded
+    if (!isPortfolioLoaded) return // wait for all chain portfolios to be loaded before subscribing
     if (isEmpty(accountSpecifiers)) return // don't subscribe if we don't have accountSpecifiers
-    const walletSupportedChains = supportedChains.filter(chain => {
-      const chainId = chainAdapterManager.byChain(chain).getCaip2()
-      return walletSupportsChain({ chainId, wallet })
-    })
-
-    // account specifiers have changed, don't subscribe yet
-    if (
-      walletSupportedChains.length !==
-      [...new Set(accountSpecifiers.map(ac => Object.keys(ac)[0]))].length
-    ) {
-      return
-    }
+    if (isSubscribed) return // don't resubscribe
     ;(async () =>
       Promise.all(
-        walletSupportedChains.map(async chain => {
-          const adapter = chainAdapterManager.byChain(chain)
-          const chainId = adapter.getCaip2()
-          if (!walletSupportsChain({ chainId, wallet })) return
-
-          // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
-          const asset = assets[chainIdToFeeAssetId(chainId)]
-          const accountTypes = supportedAccountTypes[chain]
-
-          // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
-          // this state machine should be removed, and managed by the txHistory RTK query api
-          dispatch(txHistory.actions.setStatus('loading'))
-          try {
-            await Promise.all(
-              accountTypes.map(async accountType => {
-                const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
-                console.info('subscribing txs for', chainId, accountType)
-                return adapter.subscribeTxs(
-                  { wallet, accountType, ...accountParams },
-                  msg => {
-                    const caip10 = `${msg.caip2}:${msg.address}`
-                    const state = store.getState()
-                    const accountId = selectAccountIdByAddress(state, caip10)
-                    dispatch(
-                      txHistory.actions.onMessage({
-                        message: { ...msg, accountType },
-                        accountSpecifier: accountId,
-                      }),
-                    )
-                  },
-                  (err: any) => console.error(err),
-                )
-              }),
-            )
-          } catch (e: unknown) {
-            console.error(
-              `TransactionProvider: Error subscribing to transaction history for chain: ${chain}`,
-              e,
-            )
-          }
-
-          // RESTfully fetch all tx and rebase history for this chain.
-          const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
-          if (isEmpty(chainAccountSpecifiers)) return
-          chainAccountSpecifiers.forEach(accountSpecifierMap => {
-            const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-            const options = { forceRefetch: true }
-            dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
-
-            /**
-             * foxy rebase history is most closely linked to transactions.
-             * unfortunately, we have to call this for a specific asset here
-             * because we need it for the dashboard balance chart
-             *
-             * if you're reading this and are about to add another rebase token here,
-             * stop, and make a getRebaseHistoryByAccountId that takes
-             * an accountId and assetId[] in the txHistoryApi
-             */
-
-            // fetch all rebase history for FOXy
-            const payload = { accountSpecifierMap, portfolioAssetIds }
-            dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
+        supportedChains
+          .filter(chain => {
+            const chainId = chainAdapterManager.byChain(chain).getCaip2()
+            return walletSupportsChain({ chainId, wallet })
           })
-        }),
+          .map(async chain => {
+            const adapter = chainAdapterManager.byChain(chain)
+            const chainId = adapter.getCaip2()
+
+            // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
+            const asset = assets[chainIdToFeeAssetId(chainId)]
+            const accountTypes = supportedAccountTypes[chain]
+
+            // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
+            // this state machine should be removed, and managed by the txHistory RTK query api
+            dispatch(txHistory.actions.setStatus('loading'))
+            try {
+              await Promise.all(
+                accountTypes.map(async accountType => {
+                  const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+                  console.info('subscribing txs for', chainId, accountType)
+                  return adapter.subscribeTxs(
+                    { wallet, accountType, ...accountParams },
+                    msg => {
+                      const caip10 = `${msg.caip2}:${msg.address}`
+                      const state = store.getState()
+                      const accountId = selectAccountIdByAddress(state, caip10)
+                      dispatch(
+                        txHistory.actions.onMessage({
+                          message: { ...msg, accountType },
+                          accountSpecifier: accountId,
+                        }),
+                      )
+                    },
+                    (err: any) => console.error(err),
+                  )
+                }),
+              )
+              // manage subscription state - we can't request this from chain adapters,
+              // and need this to prevent resubscribing when switching wallets
+              setIsSubscribed(true)
+            } catch (e: unknown) {
+              console.error(
+                `TransactionProvider: Error subscribing to transaction history for chain: ${chain}`,
+                e,
+              )
+            }
+
+            // RESTfully fetch all tx and rebase history for this chain.
+            getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
+              const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+              const options = { forceRefetch: true }
+              dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
+
+              /**
+               * foxy rebase history is most closely linked to transactions.
+               * unfortunately, we have to call this for a specific asset here
+               * because we need it for the dashboard balance chart
+               *
+               * if you're reading this and are about to add another rebase token here,
+               * stop, and make a getRebaseHistoryByAccountId that takes
+               * an accountId and assetId[] in the txHistoryApi
+               */
+
+              // fetch all rebase history for FOXy
+              const payload = { accountSpecifierMap, portfolioAssetIds }
+              dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
+            })
+          }),
       ))()
     // assets causes unnecessary renders, but doesn't actually change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isPortfolioLoaded,
+    isSubscribed,
     dispatch,
     walletInfo?.deviceId,
     wallet,

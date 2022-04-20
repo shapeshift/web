@@ -194,9 +194,6 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }
     })()
-
-    // accountSpecifiersList is set by this hook, so don't create infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains])
 
   const txIds = useSelector(selectTxIds)

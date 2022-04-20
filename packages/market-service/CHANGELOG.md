@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.1.2...@shapeshiftoss/market-service-v2.2.0) (2022-04-20)
+
+
+### Features
+
+* fiat to fiat ([#495](https://github.com/shapeshift/lib/issues/495)) ([15dc620](https://github.com/shapeshift/lib/commit/15dc6204a72f82466aeff53b5bf2fe7078f88f15))
+
 # [@shapeshiftoss/market-service-v2.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.1.1...@shapeshiftoss/market-service-v2.1.2) (2022-03-29)
 
 # [@shapeshiftoss/market-service-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.1.0...@shapeshiftoss/market-service-v2.1.1) (2022-03-24)

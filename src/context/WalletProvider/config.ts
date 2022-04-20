@@ -17,7 +17,6 @@ import { MetaMaskConfig } from './MetaMask/config'
 import { EnterPassword } from './NativeWallet/components/EnterPassword'
 import { LegacyLogin } from './NativeWallet/components/LegacyLogin'
 import { LegacyLoginSuccess } from './NativeWallet/components/LegacyLoginSuccess'
-import { LegacyTwoFactor } from './NativeWallet/components/LegacyTwoFactor'
 import { NativeCreate } from './NativeWallet/components/NativeCreate'
 import { NativeImport } from './NativeWallet/components/NativeImport'
 import { NativeLoad } from './NativeWallet/components/NativeLoad'
@@ -52,7 +51,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/success', component: NativeSuccess },
       { path: '/native/enter-password', component: EnterPassword },
       { path: '/native/legacy/login', component: LegacyLogin },
-      { path: '/native/legacy/two-factor', component: LegacyTwoFactor },
       { path: '/native/legacy/login/success', component: LegacyLoginSuccess },
     ],
   },

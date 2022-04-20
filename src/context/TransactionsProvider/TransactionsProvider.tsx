@@ -54,21 +54,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
    * tx history unsubscribe and cleanup logic
    */
   useEffect(() => {
-    if (!accountSpecifiers.length && txIds.length) {
-      console.info('clearing tx history')
+    // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
+    if (!isPortfolioLoaded && txIds.length) {
+      console.info('TransactionsProvider: unsubscribing from tx history')
+      supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
       dispatch(txHistory.actions.clear())
-      supportedChains.forEach(chain => {
-        try {
-          const adapter = chainAdapterManager.byChain(chain)
-          adapter.unsubscribeTxs()
-        } catch (e) {
-          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
-        }
-      })
     }
     // txIds are changed by this effect, don't cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountSpecifiers, chainAdapterManager, supportedChains])
+  }, [isPortfolioLoaded, accountSpecifiers, chainAdapterManager, supportedChains])
 
   /**
    * tx history subscription logic
@@ -76,10 +70,23 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
-    if (!isPortfolioLoaded) return
+    if (!isPortfolioLoaded) return // ensures we subscribe once all chain portfolios are loaded
+    if (isEmpty(accountSpecifiers)) return // don't subscribe if we don't have accountSpecifiers
+    const walletSupportedChains = supportedChains.filter(chain => {
+      const chainId = chainAdapterManager.byChain(chain).getCaip2()
+      return walletSupportsChain({ chainId, wallet })
+    })
+
+    // account specifiers have changed, don't subscribe yet
+    if (
+      walletSupportedChains.length !==
+      [...new Set(accountSpecifiers.map(ac => Object.keys(ac)[0]))].length
+    ) {
+      return
+    }
     ;(async () =>
       Promise.all(
-        supportedChains.map(async chain => {
+        walletSupportedChains.map(async chain => {
           const adapter = chainAdapterManager.byChain(chain)
           const chainId = adapter.getCaip2()
           if (!walletSupportsChain({ chainId, wallet })) return

@@ -15,7 +15,6 @@ import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
-import isEqual from 'lodash/isEqual'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -77,20 +76,14 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination
   useEffect(() => {
+    const { getAccount } = portfolioApi.endpoints
+    // forceRefetch is enabled here to make sure that we always have the latest wallet information
+    // it also forces queryFn to run and that's needed for the wallet info to be dispatched
+    const options = { forceRefetch: true }
     // fetch each account
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      // forceRefetch is enabled here to make sure that we always have the latest wallet information
-      // it also forces queryFn to run and that's needed for the wallet info to be dispatched
-      dispatch(
-        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }),
-      )
-    })
-
-    return () => {
-      // clear the old portfolio, we have different non null data, we're switching wallet
-      console.info('dispatching portfolio clear action')
-      dispatch(portfolio.actions.clear())
-    }
+    accountSpecifiersList.forEach(accountSpecifierMap =>
+      dispatch(getAccount.initiate({ accountSpecifierMap }, options)),
+    )
   }, [dispatch, accountSpecifiersList])
 
   /**
@@ -99,13 +92,17 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   useEffect(() => {
     // if we have account specifiers, but not a wallet, it means we've disconnected/switched wallets
     // and need to clear the account specifiers
-    if (!isEmpty(accountSpecifiersList) && !wallet) {
-      console.info('dispatching account specifiers clear action')
+    const disconnected = !wallet
+    const switched = Boolean(wallet && !isEmpty(accountSpecifiersList))
+    disconnected && console.info('PortfolioContext: wallet disconnected')
+    switched && console.info('PortfolioContext: wallet switched')
+    if (switched || disconnected) {
       dispatch(accountSpecifiers.actions.clear())
+      dispatch(portfolio.actions.clear())
     }
-    // this effect sets accountSpecifiers, don't create infinite loop
+    // this effect changes accountSpecifiersList, don't create infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet])
+  }, [dispatch, wallet])
 
   /**
    * this was previously known as the useAccountSpecifiers hook
@@ -192,10 +189,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
           }
         }
 
-        if (!isEqual(accountSpecifiersList, acc)) {
-          console.info('dispatching account specifiers set action')
-          dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
-        }
+        dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
       } catch (e) {
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }

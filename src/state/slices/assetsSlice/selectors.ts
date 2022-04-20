@@ -4,6 +4,7 @@ import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
 export const selectAssetByCAIP19 = createSelector(
@@ -16,7 +17,10 @@ export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
   asset ? asset.name : undefined,
 )
 
-export const selectAssets = (state: ReduxState) => state.assets.byId
+export const selectAssets = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.assets.byId,
+  byId => byId,
+)
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createSelector(

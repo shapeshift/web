@@ -94,6 +94,20 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   }, [dispatch, accountSpecifiersList])
 
   /**
+   * handle wallet disconnect/switch logic
+   */
+  useEffect(() => {
+    // if we have account specifiers, but not a wallet, it means we've disconnected/switched wallets
+    // and need to clear the account specifiers
+    if (!isEmpty(accountSpecifiersList) && !wallet) {
+      console.info('dispatching account specifiers clear action')
+      dispatch(accountSpecifiers.actions.clear())
+    }
+    // this effect sets accountSpecifiers, don't create infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet])
+
+  /**
    * this was previously known as the useAccountSpecifiers hook
    * this has recently been moved into redux state, as hooks are not singletons,
    * and we needed to call useAccountSpecifiers in multiple places, namely here
@@ -105,12 +119,8 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
    * break this at your peril
    */
   useEffect(() => {
-    const cleanup = () => {
-      console.info('dispatching account specifiers clear action')
-      dispatch(accountSpecifiers.actions.clear())
-    }
-
-    if (!wallet || isEmpty(assetsById)) return cleanup
+    if (isEmpty(assetsById)) return
+    if (!wallet) return
     ;(async () => {
       try {
         const acc: AccountSpecifierMap[] = []
@@ -182,14 +192,17 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
           }
         }
 
-        console.info('dispatching account specifiers set action')
-        !isEqual(accountSpecifiers, acc) &&
+        if (!isEqual(accountSpecifiersList, acc)) {
+          console.info('dispatching account specifiers set action')
           dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
+        }
       } catch (e) {
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }
     })()
-    return cleanup
+
+    // accountSpecifiersList is set by this hook, so don't create infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains])
 
   const txIds = useSelector(selectTxIds)

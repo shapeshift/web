@@ -11,7 +11,6 @@ export enum WalletConnectedRoutes {
   KeepKeyPin = '/keepkey/pin',
   KeepKeyLabel = '/keepkey/label',
   KeepKeyTimeout = '/keepkey/timeout',
-  KeepKeyPinCaching = '/keepkey/pin-caching',
   KeepKeyPassphrase = '/keepkey/passphrase',
 }
 

@@ -1,42 +1,54 @@
 import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
 import isEqual from 'lodash/isEqual'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
+export const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
 export const useHasAppUpdated = () => {
   const [hasUpdated, setHasUpdated] = useState(false)
-  const [initialManifestMainJs, setInitialManifestMainJs] = useState(null)
-  const [initialEnvMainJs, setInitialEnvMainJs] = useState(null)
+  const [initialManifestMainJs, setInitialManifestMainJs] = useState<unknown>()
+  const [initialEnvMainJs, setInitialEnvMainJs] = useState<unknown>()
 
-  const fetchData = async (url: string) => {
-    try {
-      const { data } = await axios.get(url)
-      return data
-    } catch (e) {
-      return console.error(`useHasAppUpdated: error fetching data from URL: ${url}`, e)
-    }
-  }
+  const isLocalhost = window.location.hostname === 'localhost'
 
-  // 'asset-manifest.json' keeps track of the latest minified built files.
-  // interpolated with a dummy query param to bypass the browser cache.
-  const assetManifestUrl = `/asset-manifest.json?${new Date().valueOf()}`
-  const storeMainManifestJs = async () => {
+  const fetchData = useCallback(
+    async (url: string): Promise<unknown> => {
+      // don't ever try to fetch on localhost - we don't care
+      if (isLocalhost) return {} // need to return dummy value
+      try {
+        // dummy query param to bypass the browser cache.
+        const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
+        return data
+      } catch (e) {
+        console.error(`useHasAppUpdated: error fetching data from URL: ${url}`, e)
+      }
+    },
+    [isLocalhost],
+  )
+
+  // 'asset-manifest.json' keeps track of the latest minified built files
+  const assetManifestUrl = `/asset-manifest.json`
+  const storeMainManifestJs = useCallback(async () => {
     const manifestMainJs = await fetchData(assetManifestUrl)
-    setInitialManifestMainJs(manifestMainJs)
-  }
-  useCallback(storeMainManifestJs, [assetManifestUrl])
+    manifestMainJs && setInitialManifestMainJs(manifestMainJs)
+  }, [assetManifestUrl, fetchData])
 
-  // interpolated with a dummy query param to bypass the browser cache.
-  const envUrl = `/env.json?${new Date().valueOf()}`
-  const storeMainEnvJs = async () => {
+  // 'asset-manifest.json' keeps track of the current environment variables
+  const envUrl = `/env.json`
+  const storeMainEnvJs = useCallback(async () => {
     const envMainJs = await fetchData(envUrl)
-    setInitialEnvMainJs(envMainJs)
-  }
-  useCallback(storeMainEnvJs, [envUrl])
+    envMainJs && setInitialEnvMainJs(envMainJs)
+  }, [envUrl, fetchData])
+
+  // store initial values once
+  useEffect(() => {
+    storeMainManifestJs()
+    storeMainEnvJs()
+  }, [storeMainEnvJs, storeMainManifestJs])
 
   useInterval(async () => {
+    if (isLocalhost) return
     const [currentManifestJs, currentEnvJs] = await Promise.all([
       fetchData(assetManifestUrl),
       fetchData(envUrl),
@@ -46,8 +58,9 @@ export const useHasAppUpdated = () => {
     const isExactEnv = isEqual(initialEnvMainJs, currentEnvJs)
 
     const eitherHasChanged = !isExactAssetManifest || !isExactEnv
-    eitherHasChanged ? setHasUpdated(true) : setHasUpdated(false)
+    setHasUpdated(eitherHasChanged)
   }, APP_UPDATE_CHECK_INTERVAL)
 
+  if (isLocalhost) return false // never return true on localhost
   return hasUpdated
 }

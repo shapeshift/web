@@ -56,7 +56,6 @@ export const LegacyLogin = () => {
         history.push('/native/legacy/two-factor')
       }
 
-      // TODO: show login error
       setError(translate('walletProvider.shapeShift.legacy.invalidLogin'))
     }
   }

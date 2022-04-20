@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   FormControl,
   FormErrorMessage,
@@ -6,29 +8,39 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
+import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { LocationState } from '../types'
+// @TODO(NeOMakinG): Change this with the mnemonic of the legacy account
+const DUMMY_MNEMONIC = 'yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo yolo2'
 
 export const LegacyTwoFactor = () => {
+  const [error, setError] = useState<boolean | string>(false)
   const history = useHistory()
-  const location = useLocation<LocationState>()
   const {
     handleSubmit,
     register,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({ shouldUnregister: true })
 
   const translate = useTranslate()
 
   const onSubmit = async (values: FieldValues) => {
-    history.push('/native/legacy/login/success', { vault: location.state.vault })
-    // Reset the field in order to remove the 2fa code from the memory
-    reset()
+    try {
+      await new Promise((resolve, reject) => resolve(null))
+      // TODO: use response to create wallet vault.
+      const vault = await Vault.create(undefined, false)
+      vault.meta.set('createdAt', Date.now())
+      vault.set('#mnemonic', DUMMY_MNEMONIC)
+      history.push('/native/legacy/login/success', { vault })
+    } catch (err) {
+      setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
+    }
+
     return
   }
 
@@ -60,6 +72,14 @@ export const LegacyTwoFactor = () => {
             />
             <FormErrorMessage>{errors.twoFactorCode?.message}</FormErrorMessage>
           </FormControl>
+
+          {error && (
+            <Alert status='error' my={4}>
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+
           <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
             <Text translation={'common.verify'} />
           </Button>

@@ -16,6 +16,7 @@ import { Text } from 'components/Text'
 export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {
     try {
+      values.mnemonic = values.mnemonic.toLowerCase().trim()
       const vault = await Vault.create()
       vault.meta.set('createdAt', Date.now())
       vault.set('#mnemonic', values.mnemonic)
@@ -61,7 +62,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
                 },
                 validate: {
                   validMnemonic: value =>
-                    bip39.validateMnemonic(value.trim()) ||
+                    bip39.validateMnemonic(value.toLowerCase().trim()) ||
                     translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
                 },
               })}

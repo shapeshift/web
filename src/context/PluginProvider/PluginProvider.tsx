@@ -50,10 +50,10 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
   const chainAdapterManagerRef = useRef<ChainAdapterManager>(getChainAdapters())
 
   // a memoized version of the current version of the ref to be made available on the context
-  const chainAdapterManager = useMemo(
-    () => chainAdapterManagerRef.current,
-    [chainAdapterManagerRef],
-  )
+  const chainAdapterManager = useMemo(() => {
+    console.info('cam ref')
+    return chainAdapterManagerRef.current
+  }, [chainAdapterManagerRef])
 
   useEffect(() => {
     ;(async () => {

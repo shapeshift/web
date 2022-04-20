@@ -54,6 +54,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
+    console.info('tp assets count', Object.keys(assets).length)
+    console.info('walletInfo?.deviceId', walletInfo?.deviceId)
     if (!isPortfolioLoaded) return
     ;(async () => {
       for (const chain of supportedChains) {
@@ -68,31 +70,33 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
         // this state machine should be removed, and managed by the txHistory RTK query api
         dispatch(txHistory.actions.setStatus('loading'))
-        for await (const accountType of accountTypes) {
-          const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
-          try {
-            console.info('subscribing txs for', chainId, accountType)
-            await adapter.subscribeTxs(
-              { wallet, accountType, ...accountParams },
-              msg => {
-                const caip10 = `${msg.caip2}:${msg.address}`
-                const state = store.getState()
-                const accountId = selectAccountIdByAddress(state, caip10)
-                dispatch(
-                  txHistory.actions.onMessage({
-                    message: { ...msg, accountType },
-                    accountSpecifier: accountId,
-                  }),
-                )
-              },
-              (err: any) => console.error(err),
-            )
-          } catch (e) {
-            console.error(
-              `TransactionProvider: Error subscribing to transaction history for chain: ${chain}, accountType: ${accountType}`,
-              e,
-            )
-          }
+        try {
+          await Promise.all(
+            accountTypes.map(async accountType => {
+              const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+              console.info('subscribing txs for', chainId, accountType)
+              return adapter.subscribeTxs(
+                { wallet, accountType, ...accountParams },
+                msg => {
+                  const caip10 = `${msg.caip2}:${msg.address}`
+                  const state = store.getState()
+                  const accountId = selectAccountIdByAddress(state, caip10)
+                  dispatch(
+                    txHistory.actions.onMessage({
+                      message: { ...msg, accountType },
+                      accountSpecifier: accountId,
+                    }),
+                  )
+                },
+                (err: any) => console.error(err),
+              )
+            }),
+          )
+        } catch (e: unknown) {
+          console.error(
+            `TransactionProvider: Error subscribing to transaction history for chain: ${chain}`,
+            e,
+          )
         }
 
         // RESTfully fetch all tx and rebase history for this chain.
@@ -114,7 +118,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
            */
 
           // fetch all rebase history for FOXy
-          if (!portfolioAssetIds.length) return // can't fetch without portfolio assets
           const payload = { accountSpecifierMap, portfolioAssetIds }
           dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
         })
@@ -122,7 +125,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     })()
 
     return () => {
-      console.trace()
       console.info('clearing tx history')
       dispatch(txHistory.actions.clear())
       supportedChains.forEach(chain => {

@@ -51,7 +51,7 @@ import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
  * for some time as reselect does a really good job of memoizing things
  *
  */
-export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch()
   const { chainAdapterManager, supportedChains } = usePlugins()
   const {

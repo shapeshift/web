@@ -38,7 +38,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
       {!isLargerThanMd && (
         <>
           <Flex width='full'>
-            <UserMenu onClick={() => handleClick} />
+            <UserMenu onClick={() => handleClick()} />
           </Flex>
           <Flex width='full' mt={4}>
             <FiatRamps />

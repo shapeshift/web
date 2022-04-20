@@ -5,7 +5,7 @@ import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
@@ -35,6 +35,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
+  const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
 
@@ -49,8 +50,29 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     [accountSpecifiers],
   )
 
-  const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
+  /**
+   * tx history unsubscribe and cleanup logic
+   */
+  useEffect(() => {
+    if (!accountSpecifiers.length && txIds.length) {
+      console.info('clearing tx history')
+      dispatch(txHistory.actions.clear())
+      supportedChains.forEach(chain => {
+        try {
+          const adapter = chainAdapterManager.byChain(chain)
+          adapter.unsubscribeTxs()
+        } catch (e) {
+          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
+        }
+      })
+    }
+    // txIds are changed by this effect, don't cause infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountSpecifiers, chainAdapterManager, supportedChains])
 
+  /**
+   * tx history subscription logic
+   */
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
@@ -60,7 +82,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         supportedChains.map(async chain => {
           const adapter = chainAdapterManager.byChain(chain)
           const chainId = adapter.getCaip2()
-          if (!walletSupportChain({ chainId, wallet })) return
+          if (!walletSupportsChain({ chainId, wallet })) return
 
           // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
           const asset = assets[chainIdToFeeAssetId(chainId)]
@@ -122,29 +144,17 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           })
         }),
       ))()
-
-    return () => {
-      console.info('clearing tx history')
-      dispatch(txHistory.actions.clear())
-      supportedChains.forEach(chain => {
-        try {
-          const adapter = chainAdapterManager.byChain(chain)
-          adapter.unsubscribeTxs()
-        } catch (e) {
-          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
-        }
-      })
-    }
+    // assets causes unnecessary renders, but doesn't actually change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isPortfolioLoaded,
-    // assets,
     dispatch,
     walletInfo?.deviceId,
-    // wallet,
-    // chainAdapterManager,
-    // supportedChains,
-    // accountSpecifiers,
-    // getAccountSpecifiersByChainId,
+    wallet,
+    chainAdapterManager,
+    supportedChains,
+    accountSpecifiers,
+    getAccountSpecifiersByChainId,
     portfolioAssetIds,
   ])
 
@@ -167,7 +177,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (isEmpty(assets)) return
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
     if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
-    const TX_DEBOUNCE_DELAY = 10000
+    const TX_DEBOUNCE_DELAY = 5000
     const timer = setTimeout(
       () => dispatch(txHistory.actions.setStatus('loaded')),
       TX_DEBOUNCE_DELAY,

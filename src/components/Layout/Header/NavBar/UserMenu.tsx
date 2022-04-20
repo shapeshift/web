@@ -128,11 +128,12 @@ const WalletButton: FC<WalletButtonProps> = ({
   )
 }
 
-export const UserMenu = () => {
+export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, walletInfo, type } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = () => {
+    onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 

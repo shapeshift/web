@@ -312,6 +312,12 @@
       },
       "thor": {
         "transferOut": "Transfer out"
+      },
+      "foxy": {
+        "stake": "Stake",
+        "unstake": "Unstake",
+        "instantUnstake": "Instant Unstake",
+        "claimWithdraw": "Claim Withdraw"
       }
     },
     "unknown": "Transaction"
@@ -767,7 +773,9 @@
         "password": "Password",
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
-        "invalidCaptcha": "Captcha is invalid"
+        "invalidCaptcha": "Captcha is invalid",
+        "invalidLogin": "Invalid login",
+        "twoFactorRequired": "2FA is required"
       }
     },
     "selectModal": {

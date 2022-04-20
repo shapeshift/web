@@ -94,7 +94,7 @@ export const Header = () => {
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
         <DrawerContent>
-          <SideNavContent />
+          <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
     </>

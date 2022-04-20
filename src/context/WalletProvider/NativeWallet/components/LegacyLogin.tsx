@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   Checkbox,
   FormControl,
@@ -19,6 +21,7 @@ const twoFactorAuthCode = ''
 
 export const LegacyLogin = () => {
   const [isCaptchaSolved, setIsCaptchaSolved] = useState(false)
+  const [error, setError] = useState<boolean | string>(false)
   const captchaBgColor = useColorModeValue('gray.50', 'gray.700')
   const checkboxBorderColor = useColorModeValue('gray.400', 'white')
 
@@ -32,8 +35,13 @@ export const LegacyLogin = () => {
   const translate = useTranslate()
 
   const onSubmit = async (values: FieldValues) => {
-    // Reset every fields in order to remove the password and email from the memory
-    reset()
+    // @TODO(NeOMakinG): Remove this when we handle the error response from the API
+    if (true) {
+      setError(translate('walletProvider.shapeShift.legacy.invalidLogin'))
+    } else {
+      // Reset every fields in order to remove the password and email from the memory
+      reset()
+    }
   }
 
   const onCaptchaRequested = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,6 +116,14 @@ export const LegacyLogin = () => {
             </Card>
             <FormErrorMessage>{errors.captcha?.message}</FormErrorMessage>
           </FormControl>
+
+          {error && (
+            <Alert status='error' my={4}>
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+
           <Input name='2fa' value={twoFactorAuthCode} type='hidden' />
           <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
             <Text translation={'common.login'} />

@@ -220,7 +220,10 @@ export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
   reducers: {
-    clear: () => initialState,
+    clear: () => {
+      console.info('txHistorySlice: clearing tx history')
+      return initialState
+    },
     setStatus: (state, { payload }: TxHistoryStatusPayload) => {
       state.txs.status = payload
     },

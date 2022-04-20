@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Box } from '@chakra-ui/react'
 import { AccountAssetsList } from 'components/AccountAssets/AccountAssetsList'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
@@ -14,6 +15,7 @@ export const AccountRowWithTokens = ({ accountId }: AccountRowWithTokensProps) =
   const assetIds = useAppSelector(state =>
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId),
   )
+
   return (
     <Card variant='outline'>
       <Card.Body>

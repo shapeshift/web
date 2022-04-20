@@ -16,6 +16,7 @@ const AccountHeader = () => {
 
 export const Accounts = () => {
   const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
+
   return (
     <Main titleComponent={<AccountHeader />}>
       <Stack>

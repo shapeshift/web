@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CAIP2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
@@ -25,6 +26,7 @@ export type UtxoParamsAndAccountType = {
 export const ethChainId = 'eip155:1'
 export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const cosmosChainId = 'cosmos:cosmoshub-4'
+export const osmosisChainId = 'cosmos:osmosis-1'
 
 // we only need to update this when we support additional chains, which is infrequent
 // so it's ok to hardcode this map here
@@ -32,6 +34,7 @@ const caip2toCaip19: Record<string, string> = {
   [ethChainId]: 'eip155:1/slip44:60',
   [btcChainId]: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118',
+  [osmosisChainId]: 'cosmos:osmosis-1/slip44:118',
 }
 
 export const assetIdtoChainId = (caip19: CAIP19): string => {
@@ -88,6 +91,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     }
     case cosmosChainId: {
       return 'Cosmos'
+    }
+    case osmosisChainId: {
+      return 'Osmosis'
     }
     default: {
       return ''
@@ -160,6 +166,7 @@ const sumBalance = (totalBalance: string, currentBalance: string) => {
 // until we can kill all the other places in web fetching this data
 export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
+
 
   Object.entries(args.portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
     const { chain } = account

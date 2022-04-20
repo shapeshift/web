@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CAIP2, caip2 } from '@shapeshiftoss/caip'
@@ -96,6 +97,7 @@ export const portfolioApi = createApi({
             .byChain(chain)
             .getAccount(accountSpecifier)
           const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
+          console.log('accountToPortfolio!!!', portfolioAccounts)
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
           // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
           // to prevent edge cases like #820

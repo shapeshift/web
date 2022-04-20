@@ -64,7 +64,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           as={Link}
           justifyContent='flex-start'
           variant='ghost'
-          onClick={() => handleClick}
+          onClick={() => handleClick()}
           label={translate('common.submitFeedback')}
           isExternal
           href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'

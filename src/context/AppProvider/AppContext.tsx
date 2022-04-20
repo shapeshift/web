@@ -96,8 +96,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const switched = Boolean(wallet && !isEmpty(accountSpecifiersList))
     const disconnected = !wallet
     // TODO(0xdef1cafe): keep this - change to structured debug logging
-    switched && console.info('PortfolioContext: wallet switched')
-    disconnected && console.info('PortfolioContext: wallet disconnected')
+    switched && console.info('AppContext: wallet switched')
+    disconnected && console.info('AppContext: wallet disconnected')
     if (switched || disconnected) {
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())

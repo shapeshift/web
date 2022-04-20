@@ -20,6 +20,7 @@ export const portfolio = createSlice({
       return initialState
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
+      console.info('portfolioSlice: upserting portfolio')
       // upsert all
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))

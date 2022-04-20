@@ -57,13 +57,12 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   useEffect(() => {
     // account specifiers changing will trigger this effect
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
-    if (txIds.length) {
-      console.info('TransactionsProvider: unsubscribing from tx history')
-      supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
-      setIsSubscribed(false)
-      dispatch(txHistory.actions.clear())
-    }
-    // txIds are changed by this effect, don't cause infinite loop
+    if (!isSubscribed) return
+    console.info('TransactionsProvider: unsubscribing from tx history')
+    supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
+    dispatch(txHistory.actions.clear())
+    setIsSubscribed(false)
+    // setting isSubscribed to false will trigger this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountSpecifiers, dispatch, chainAdapterManager, supportedChains])
 

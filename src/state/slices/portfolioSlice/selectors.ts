@@ -64,7 +64,7 @@ export const selectIsPortfolioLoaded = createSelector(
     if (!accountSpecifiers.length) return false
     /**
      * for a given wallet - we can support 1 to n chains
-     * PortfolioContext ensures we will have a portfolioAssetId for each chain's fee asset
+     * AppContext ensures we will have a portfolioAssetId for each chain's fee asset
      * until the portfolioAssetIds includes supported chains fee assets, it's not fully loaded
      * the golf below ensures that's the case
      */

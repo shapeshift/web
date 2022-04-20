@@ -100,7 +100,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...XDEFIConfig,
     routes: [
       { path: '/xdefi/connect', component: XDEFIConnect },
-
       { path: '/xdefi/failure', component: XDEFIFailure },
     ],
   }

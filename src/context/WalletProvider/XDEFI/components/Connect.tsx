@@ -1,4 +1,4 @@
-import { XDeFiHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
+import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
@@ -40,7 +40,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
     if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
       try {
         const wallet = (await state.adapters.get(KeyManager.XDefi)?.pairDevice()) as
-          | XDeFiHDWallet
+          | XDEFIHDWallet
           | undefined
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
@@ -72,7 +72,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
           return oldDisconnect()
         }
 
-        await wallet.initialize(provider)
+        await wallet.initialize()
 
         dispatch({
           type: WalletActions.SET_WALLET,

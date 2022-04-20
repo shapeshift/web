@@ -21,7 +21,7 @@ import { createRateLimiter } from '../utils/rateLimiters'
 import { ACCOUNT_HISTORIC_EARNINGS } from './gql-queries'
 import { VaultDayDataGQLResponse } from './yearn-types'
 
-const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.YEARN)
+const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 
 type YearnVaultMarketCapServiceArgs = {
   yearnSdk: Yearn<ChainId>

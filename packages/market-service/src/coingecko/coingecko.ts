@@ -99,7 +99,6 @@ export class CoinGeckoMarketService implements MarketService {
         `${this.baseUrl}/coins/${id}${contractUrl}`
       )
 
-      // TODO: get correct localizations
       const currency = 'usd'
       const marketData = data?.market_data
       return {
@@ -157,7 +156,6 @@ export class CoinGeckoMarketService implements MarketService {
         prices: [number, number][]
       }
 
-      // TODO: change vs_currency to localized currency
       const currency = 'usd'
       const { data: historyData } = await axios.get<CoinGeckoHistoryData>(
         `${url}/market_chart/range?id=${id}&vs_currency=${currency}&from=${from}&to=${to}`

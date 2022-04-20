@@ -16,7 +16,7 @@ import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bnOrZero } from '../utils/bignumber'
 import { createRateLimiter } from '../utils/rateLimiters'
 
-const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.YEARN)
+const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 
 type YearnTokenMarketCapServiceArgs = {
   yearnSdk: Yearn<ChainId>

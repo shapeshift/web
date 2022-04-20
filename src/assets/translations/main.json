@@ -312,6 +312,12 @@
       },
       "thor": {
         "transferOut": "Transfer out"
+      },
+      "foxy": {
+        "stake": "Stake",
+        "unstake": "Unstake",
+        "instantUnstake": "Instant Unstake",
+        "claimWithdraw": "Claim Withdraw"
       }
     },
     "unknown": "Transaction"

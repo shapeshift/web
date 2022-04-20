@@ -102,8 +102,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return cosmosChainAdapter.getFeeData({})
       }
       case ChainTypes.Osmosis: {
-        // TODO(gomes): implement Osmosis support
-        return {} as FeeDataEstimate<ChainTypes>
+        const osmosisChainAdapter = await chainAdapterManager.byChainId('cosmos:osmosis-1')
+        return osmosisChainAdapter.getFeeData({})
       }
       case ChainTypes.Ethereum: {
         const from = await adapter.getAddress({

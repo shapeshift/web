@@ -37,7 +37,7 @@ export const useFormSend = () => {
           const gas = fees.chainSpecific.gasLimit
           const fee = fees.txFee
           const address = to
-          result = await (adapter as ChainAdapter<ChainTypes.Cosmos>).buildSendTransaction({
+          result = await adapter.buildSendTransaction({
             to: address,
             memo,
             value,
@@ -46,7 +46,18 @@ export const useFormSend = () => {
             sendMax: data.sendMax,
           })
         } else if (adapterType === ChainTypes.Osmosis) {
-          // TODO(gomes): implement this
+          const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Osmosis>
+          const gas = fees.chainSpecific.gasLimit
+          const fee = fees.txFee
+          const address = to
+          result = await adapter.buildSendTransaction({
+            to: address,
+            memo,
+            value,
+            wallet,
+            chainSpecific: { gas, fee },
+            sendMax: data.sendMax,
+          })
         } else {
           throw new Error('unsupported adapterType')
         }
@@ -54,6 +65,8 @@ export const useFormSend = () => {
 
         let broadcastTXID: string | undefined
 
+        console.log('wallet.supportsOfflineSigning()', wallet.supportsOfflineSigning())
+        console.log('txToSign', txToSign)
         // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
         if (txToSign && wallet.supportsOfflineSigning()) {
           broadcastTXID = await adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
@@ -84,6 +97,7 @@ export const useFormSend = () => {
           position: 'top-right',
         })
       } catch (error) {
+        console.log('fuck balls', error)
         toast({
           title: translate('modals.send.errorTitle', {
             asset: data.asset.name,

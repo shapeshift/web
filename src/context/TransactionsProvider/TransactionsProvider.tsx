@@ -74,7 +74,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (!wallet) return
     if (isEmpty(assets)) return
     if (!isPortfolioLoaded) return // wait for all chain portfolios to be loaded before subscribing
-    if (isEmpty(accountSpecifiers)) return // don't subscribe if we don't have accountSpecifiers
     if (isSubscribed) return // don't resubscribe
     ;(async () =>
       Promise.all(

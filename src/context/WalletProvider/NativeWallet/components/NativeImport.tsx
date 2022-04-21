@@ -16,10 +16,9 @@ import { Text } from 'components/Text'
 export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {
     try {
-      values.mnemonic = values.mnemonic.toLowerCase().trim()
       const vault = await Vault.create()
       vault.meta.set('createdAt', Date.now())
-      vault.set('#mnemonic', values.mnemonic)
+      vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
       history.push('/native/password', { vault })
     } catch (e) {
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })

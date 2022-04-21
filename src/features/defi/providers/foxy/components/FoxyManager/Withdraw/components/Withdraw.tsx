@@ -56,7 +56,7 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
 
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, '', '', assetCAIP19),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: assetCAIP19 }),
   )
 
   const withdrawalFee = useMemo(() => {

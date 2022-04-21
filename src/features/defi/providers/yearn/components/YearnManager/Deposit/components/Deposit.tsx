@@ -43,7 +43,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
 
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, '', '', assetCAIP19),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: assetCAIP19 }),
   )
 
   // notify

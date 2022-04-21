@@ -346,10 +346,13 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, '')
 
   // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
-  const cosmosAccountId = account ? caip10.toCAIP10({ caip2: cosmosChainId, account }) : ''
+  const cosmosAccountSpecifier = account ? caip10.toCAIP10({ caip2: cosmosChainId, account }) : ''
 
   const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosAccountId, '', cosmosAssetId),
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
+      accountSpecifier: cosmosAccountSpecifier,
+      assetId: cosmosAssetId,
+    }),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)

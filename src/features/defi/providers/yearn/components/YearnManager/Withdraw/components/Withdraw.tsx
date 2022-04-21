@@ -50,7 +50,7 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
 
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, '', '', assetCAIP19),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: assetCAIP19 }),
   )
 
   if (!state || !dispatch) return null

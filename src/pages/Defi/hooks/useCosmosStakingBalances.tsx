@@ -45,7 +45,7 @@ export function useCosmosStakingBalances({
   const accountSpecifier = accountSpecifiers?.[0] // TODO: maybe remove me, or maybe not
 
   const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, accountSpecifier, '', assetId),
+    selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
   )
   // TODO: This whole module probably goes away as well
   // We just parse total delegation in fiat, tvl in fiat, and parse cryptoAmount to precision - this should be done at component-level and not require a whole hook

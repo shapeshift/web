@@ -71,9 +71,7 @@ export const UnstakeConfirm = ({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, '', '', assetId),
-  )
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatUnstakeAmount = useMemo(

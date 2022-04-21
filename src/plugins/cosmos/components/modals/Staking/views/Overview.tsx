@@ -34,19 +34,22 @@ export const Overview: React.FC<StakedProps> = ({
   const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
   const isLoaded = Boolean(validatorInfo)
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
-  )
-  const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByAccountSpecifier(
-      state,
+    selectTotalBondingsBalanceByAssetId(state, {
       accountSpecifier,
       validatorAddress,
-      asset.caip19,
-    ),
+      assetId: asset.caip19,
+    }),
+  )
+  const undelegationEntries = useAppSelector(state =>
+    selectUnbondingEntriesByAccountSpecifier(state, {
+      accountSpecifier,
+      validatorAddress,
+      assetId: asset.caip19,
+    }),
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsByValidator(state, accountSpecifier, validatorAddress, assetId),
+    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   // If it's loading, it will display the skeleton,

@@ -10,11 +10,14 @@ import {
   PinInput,
   PinInputField,
   Progress,
+  useToast,
 } from '@chakra-ui/react'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { KeyboardEvent, MouseEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 const isLetter = (str: string) => {
@@ -48,7 +51,6 @@ const isValidInput = (
   // We can't do enter not on last word
   if (!isLastWord && isEnter) return false
   // The UI doesn't currently support returning to a previous word
-  // TODO - store entire mnemonic and support this
   if (noCharactersEntered && isBackspace) return false
 
   // If we haven't early exited yet, the input is valid
@@ -61,12 +63,13 @@ const inputValuesReducer = (
   newValueIndex: number,
 ) => {
   const newValues = currentValues.slice()
-  newValues[newValueIndex] = newValue
+  newValues[newValueIndex] = newValue?.toUpperCase()
   return newValues
 }
 
 export const KeepKeyRecoverySentenceEntry = () => {
   const {
+    dispatch,
     state: {
       wallet,
       deviceState: {
@@ -77,10 +80,13 @@ export const KeepKeyRecoverySentenceEntry = () => {
       },
     },
   } = useWallet()
+  const toast = useToast()
+  const translate = useTranslate()
   const [wordCount, setWordCount] = useState(12)
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
   )
+  const [awaitingKeepKeyResponse, setAwaitingKeepKeyResponse] = useState(true)
 
   const inputField1 = useRef<HTMLInputElement>(null)
   const inputField2 = useRef<HTMLInputElement>(null)
@@ -108,6 +114,12 @@ export const KeepKeyRecoverySentenceEntry = () => {
     })
   }, [stagedEntropy])
 
+  // If an index updates we've heard back from the device
+  useEffect(() => {
+    setAwaitingKeepKeyResponse(false)
+  }, [currentCharacterIndex, currentWordIndex])
+
+  // Focus on the first input field once restore action confirmed on the device
   useEffect(() => {
     inputFields[0].current?.focus()
   }, [awaitingDeviceInteraction, inputFields])
@@ -132,42 +144,71 @@ export const KeepKeyRecoverySentenceEntry = () => {
     )
   }, [currentWordIndex])
 
-  const onCharacterInput = async (e: KeyboardEvent) => {
-    // We can't allow tabbing between inputs or the focused element gets out of sync with the KeepKey
-    if (e.key === 'Tab') e.preventDefault()
-    if (!isValidInput(e, wordCount, currentCharacterIndex, currentWordIndex)) return
-    if (isLetter(e.key)) {
-      setCharacterInputValues(c => inputValuesReducer(c, e.key, currentCharacterIndex))
-      await keepKeyWallet?.sendCharacter(e.key.toLowerCase())
-    } else if (e.key === ' ') {
-      resetInputs()
-      await keepKeyWallet?.sendCharacter(' ')
-    } else if (e.key === 'Backspace') {
-      setCharacterInputValues(c => inputValuesReducer(c, undefined, currentCharacterIndex - 1))
-      await keepKeyWallet?.sendCharacterDelete()
-    } else if (e.key === 'Enter') {
-      await keepKeyWallet?.sendCharacterDone()
-    } else {
-      console.error('Invalid input', e.key)
-    }
-  }
-
-  const resetInputs = () => {
+  const resetInputs = useCallback(() => {
     inputFields[0].current?.focus()
     setCharacterInputValues(current => {
       const newValues = current.slice()
       return newValues.fill(undefined)
     })
-  }
+  }, [inputFields])
 
-  const handleWordSubmit = async () => {
-    if (currentWordIndex === wordCount - 1) {
+  const handleWordSubmit = useCallback(async () => {
+    const isLastWord = currentWordIndex === wordCount - 1
+    // If we've entered all words in our seed phrase, tell KeepKey we're done
+    if (isLastWord) {
       await keepKeyWallet?.sendCharacterDone()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      toast({
+        title: translate('common.success'),
+        description: translate('modals.keepKey.recoverySentenceEntry.toastMessage'),
+        status: 'success',
+        isClosable: true,
+      })
+      // Else send a Space to let KeepKey know we're ready to enter the next word
     } else {
       await keepKeyWallet?.sendCharacter(' ')
       resetInputs()
     }
-  }
+  }, [currentWordIndex, dispatch, keepKeyWallet, resetInputs, toast, translate, wordCount])
+
+  const onCharacterInput = useCallback(
+    async (e: KeyboardEvent) => {
+      // The KeepKey is not yet ready to receive inputs
+      if (awaitingKeepKeyResponse) return
+
+      // We can't allow tabbing between inputs or the focused element gets out of sync with the KeepKey
+      if (e.key === 'Tab') e.preventDefault()
+
+      if (!isValidInput(e, wordCount, currentCharacterIndex, currentWordIndex)) return
+      if (isLetter(e.key)) {
+        setCharacterInputValues(c => inputValuesReducer(c, e.key, currentCharacterIndex))
+        setAwaitingKeepKeyResponse(true)
+        await keepKeyWallet?.sendCharacter(e.key)
+      } else if (e.key === ' ') {
+        resetInputs()
+        setAwaitingKeepKeyResponse(true)
+        await keepKeyWallet?.sendCharacter(' ')
+      } else if (e.key === 'Backspace') {
+        setCharacterInputValues(c => inputValuesReducer(c, undefined, currentCharacterIndex - 1))
+        setAwaitingKeepKeyResponse(true)
+        await keepKeyWallet?.sendCharacterDelete()
+      } else if (e.key === 'Enter') {
+        setAwaitingKeepKeyResponse(true)
+        await handleWordSubmit()
+      } else {
+        console.error('Invalid input', e.key)
+      }
+    },
+    [
+      awaitingKeepKeyResponse,
+      currentCharacterIndex,
+      currentWordIndex,
+      handleWordSubmit,
+      keepKeyWallet,
+      resetInputs,
+      wordCount,
+    ],
+  )
 
   const preventClickIfNotCurrentIndex = (e: MouseEvent<HTMLInputElement>, inputIndex: number) => {
     if (inputIndex !== currentCharacterIndex) {
@@ -175,12 +216,15 @@ export const KeepKeyRecoverySentenceEntry = () => {
     }
   }
 
-  const pinInputFieldProps: PinInputFieldProps = {
-    background: 'blackAlpha.300',
-    autoComplete: 'off',
-    pattern: '[a-z]|[A-Z]',
-    onKeyDown: onCharacterInput,
-  }
+  const pinInputFieldProps: PinInputFieldProps = useMemo(
+    () => ({
+      background: 'blackAlpha.300',
+      autoComplete: 'off',
+      pattern: '[a-z]|[A-Z]',
+      onKeyDown: onCharacterInput,
+    }),
+    [onCharacterInput],
+  )
 
   return (
     <>

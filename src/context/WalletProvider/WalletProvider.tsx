@@ -175,6 +175,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
+        showBackButton: false,
         type: KeyManager.KeepKey,
         initialRoute: KeepKeyRoutes.RecoverySentenceEntry,
         deviceState: {

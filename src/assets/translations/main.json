@@ -37,6 +37,7 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
+    "success": "Success",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
@@ -412,7 +413,8 @@
         "header": "Enter your Recovery Sentence",
         "body": "Using the scrambled keyboard legend on your KeepKey enter the first 4 letters of each word, or click next when you're done typing if there are less than 4 letters.",
         "button": "Next",
-        "awaitingButtonPress": "Follow the instructions on your KeepKey to continue."
+        "awaitingButtonPress": "Follow the instructions on your KeepKey to continue.",
+        "toastMessage": "KeepKey restored successfully!"
       }
     },
     "shapeShift": {

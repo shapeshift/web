@@ -44,7 +44,7 @@ export const KeepKeyLabel = () => {
       label: label ?? '',
       passphrase: stagedPassphrase || false,
       pin: true,
-      autoLockDelayMs: 600000,
+      autoLockDelayMs: 600000, // Ten minutes
     }
     wallet?.recover(recoverParams)
   }

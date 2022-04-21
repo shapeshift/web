@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.1.2...@shapeshiftoss/caip-v2.2.0) (2022-04-21)
+
+
+### Features
+
+* banxa asset list ([#532](https://github.com/shapeshift/lib/issues/532)) ([f24f9d8](https://github.com/shapeshift/lib/commit/f24f9d800041534ae45a5196bb2030bba5f5864a))
+
 # [@shapeshiftoss/caip-v2.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.1.1...@shapeshiftoss/caip-v2.1.2) (2022-03-24)
 
 # [@shapeshiftoss/caip-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.1.0...@shapeshiftoss/caip-v2.1.1) (2022-03-24)

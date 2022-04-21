@@ -68,4 +68,15 @@ describe('ErrorWithDetails', () => {
     expect(e.cause).toBe(cause)
     expect(Object.getOwnPropertyNames(e)).toStrictEqual(['stack', 'message', 'name', 'cause'])
   })
+
+  it('should support an error code', () => {
+    const e = new ErrorWithDetails('test message')
+    // Default code
+    expect(e.code).toBe('ERR_UNKNOWN')
+    e.code = 'another_error'
+    expect(e.code).toBe('ANOTHER_ERROR')
+
+    const e2 = new ErrorWithDetails('test message', { code: 'ERR_test' })
+    expect(e2.code).toBe('ERR_TEST')
+  })
 })

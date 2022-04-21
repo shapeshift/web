@@ -31,4 +31,10 @@ describe('createErrorClass', () => {
     expect(err.cause.message).toBe('test')
     expect(err.details.prop).toBe(true)
   })
+
+  it('should create a new Error with a default error code based on the error name', () => {
+    const E = createErrorClass('TestError')
+    const err = new E('test')
+    expect(err.code).toBe('ERR_TEST')
+  })
 })

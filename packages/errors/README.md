@@ -29,6 +29,17 @@ try {
 
 ```
 
+### Error.code
+
+All errors support a `code` property. This property is designed to be used for internationalization
+so that translated text can be displayed based on the `code` rather than on the `message`.
+
+```ts
+import { RateLimitError } from '@shapeshiftoss/errors'
+
+const e = new RateLimitError('Something bad happened', { code: 'ERR_RATE_LIMIT_INFURA' })
+```
+
 ## Types
 
 ```

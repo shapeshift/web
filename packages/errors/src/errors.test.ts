@@ -6,14 +6,14 @@ import { default as UnauthorizedError } from './UnauthorizedError'
 import { default as ValidationError } from './ValidationError'
 
 describe.each`
-  TestError
-  ${ErrorWithDetails}
-  ${ForbiddenError}
-  ${NotFoundError}
-  ${RateLimitError}
-  ${UnauthorizedError}
-  ${ValidationError}
-`('$TestError.name', ({ TestError }) => {
+  TestError            | code
+  ${ErrorWithDetails}  | ${'ERR_UNKNOWN'}
+  ${ForbiddenError}    | ${'ERR_FORBIDDEN'}
+  ${NotFoundError}     | ${'ERR_NOT_FOUND'}
+  ${RateLimitError}    | ${'ERR_RATE_LIMIT'}
+  ${UnauthorizedError} | ${'ERR_UNAUTHORIZED'}
+  ${ValidationError}   | ${'ERR_VALIDATION'}
+`('$TestError.name', ({ TestError, code }) => {
   it('should create an error with no message', () => {
     const e = new TestError()
     expect(e).toBeInstanceOf(TestError)
@@ -60,5 +60,18 @@ describe.each`
     expect(e.message).toBe('test message')
     expect(e.cause).toBe(cause)
     expect(Object.getOwnPropertyNames(e)).toStrictEqual(['stack', 'message', 'name', 'cause'])
+  })
+
+  it(`should have a default error code of ${code}`, () => {
+    const e = new TestError('test message', { code })
+    expect(e.code).toBe(code)
+  })
+
+  it(`should support a custom error code`, () => {
+    const e = new TestError('test message', { code: 'my error' })
+    expect(e.code).toBe('MY_ERROR')
+
+    e.code = 'second-Error'
+    expect(e.code).toBe('SECOND_ERROR')
   })
 })

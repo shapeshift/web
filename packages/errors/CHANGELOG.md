@@ -1,3 +1,10 @@
+# [@shapeshiftoss/errors-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/errors-v1.0.1...@shapeshiftoss/errors-v1.1.0) (2022-04-21)
+
+
+### Features
+
+* add "code" to errors ([#537](https://github.com/shapeshift/lib/issues/537)) ([7ca4da0](https://github.com/shapeshift/lib/commit/7ca4da0b602039ae8f83eaeb4d1a17b9692c4f8d))
+
 # [@shapeshiftoss/errors-v1.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/errors-v1.0.0...@shapeshiftoss/errors-v1.0.1) (2022-04-15)
 
 # @shapeshiftoss/errors-v1.0.0 (2022-04-15)

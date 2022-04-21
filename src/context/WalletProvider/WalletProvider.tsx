@@ -44,8 +44,8 @@ export type DeviceState = {
   stagedLabel: string | undefined
   stagedPassphrase: boolean | undefined
   stagedEntropy: Entropy
-  currentCharacterPosition: number | undefined
-  currentWordPosition: number | undefined
+  currentCharacterIndex: number | undefined
+  currentWordIndex: number | undefined
 }
 
 const initialDeviceState: DeviceState = {
@@ -55,8 +55,8 @@ const initialDeviceState: DeviceState = {
   stagedLabel: undefined,
   stagedPassphrase: undefined,
   stagedEntropy: VALID_ENTROPY[0],
-  currentCharacterPosition: undefined,
-  currentWordPosition: undefined,
+  currentCharacterIndex: undefined,
+  currentWordIndex: undefined,
 }
 
 export interface InitialState {
@@ -170,7 +170,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       }
     }
     case WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST: {
-      const { characterPos, wordPos } = action.payload
+      const { characterPos: currentCharacterIndex, wordPos: currentWordIndex } = action.payload
       const { deviceState } = state
       return {
         ...state,
@@ -179,8 +179,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         initialRoute: KeepKeyRoutes.RecoverySentenceEntry,
         deviceState: {
           ...deviceState,
-          currentCharacterPosition: characterPos,
-          currentWordPosition: wordPos,
+          currentCharacterIndex,
+          currentWordIndex,
         },
       }
     }

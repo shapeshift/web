@@ -12,7 +12,6 @@ import {
   Progress,
 } from '@chakra-ui/react'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import isUndefined from 'lodash/isUndefined'
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from 'components/Text'
@@ -32,11 +31,14 @@ const isValidInput = (
   if (e.key !== ' ' && e.key !== 'Enter' && e.key !== 'Backspace' && currentCharacterPosition === 4)
     return false
   // We can only do enter or space if we've received 3 or more characters
-  if ((e.key === ' ' || e.key === 'Enter') && currentCharacterPosition < 3) return false
+  if ((e.key === ' ' || e.key === 'Enter') && currentCharacterPosition < 2) return false
   // We can't do space on last word
   if (e.key === ' ' && currentWordPosition === wordEntropy - 1) return false
   // We can't do enter not on last word
   if (e.key === 'Enter' && currentWordPosition !== wordEntropy - 1) return false
+  // The UI doesn't currently support returning to a previous word
+  // TODO - store entire mnemonic and support this
+  if (e.key === 'Backspace' && currentCharacterPosition === 0) return false
 
   // If we haven't early exited yet, the input is valid
   return true
@@ -56,15 +58,13 @@ export const KeepKeyRecoverySentenceEntry = () => {
   const {
     state: {
       wallet,
-      deviceState: { stagedEntropy, currentWordPosition, currentCharacterPosition },
+      deviceState: { stagedEntropy, currentWordIndex, currentCharacterIndex = 0 },
     },
   } = useWallet()
   const [wordCount, setWordCount] = useState(12)
-  const [acceptingCipherInput, setAcceptingCipherInput] = useState(false)
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(4).fill(undefined)),
   )
-  const [inFocusInput, setInFocusInput] = useState<HTMLInputElement>()
 
   const charInputFieldRef1 = useRef<HTMLInputElement>(null)
   const charInputFieldRef2 = useRef<HTMLInputElement>(null)
@@ -88,15 +88,9 @@ export const KeepKeyRecoverySentenceEntry = () => {
     })
   }, [stagedEntropy])
 
-  useEffect(() => {
-    setAcceptingCipherInput(
-      !(isUndefined(currentWordPosition) && isUndefined(currentCharacterPosition)),
-    )
-  }, [currentCharacterPosition, currentWordPosition])
-
   const wordCountCircle = useMemo(() => {
     const size = 2.5
-    const paddedNumber = String((currentWordPosition || 0) + 1).padStart(2, '0')
+    const paddedNumber = String((currentWordIndex || 0) + 1).padStart(2, '0')
     return (
       <Box
         borderWidth='2px'
@@ -112,23 +106,21 @@ export const KeepKeyRecoverySentenceEntry = () => {
         <RawText fontWeight='bold'>{paddedNumber}</RawText>
       </Box>
     )
-  }, [currentWordPosition])
+  }, [currentWordIndex])
 
   const onCharacterInput = async (e: KeyboardEvent) => {
-    if (!isValidInput(e, wordCount, currentCharacterPosition, currentWordPosition)) return
-
-    const inFocusInputIndex = inFocusInput?.dataset.index
-    const parsedIndex = inFocusInputIndex ? parseInt(inFocusInputIndex) : undefined
-    if (isUndefined(parsedIndex)) return
-
+    console.log('onCharacterInput', e.code)
+    if (!isValidInput(e, wordCount, currentCharacterIndex, currentWordIndex)) return
+    console.log('didnt early exit')
     if (isLetter(e.key)) {
-      setCharacterInputValues(c => inputValuesReducer(c, e.key, parsedIndex))
+      setCharacterInputValues(c => inputValuesReducer(c, e.key, currentCharacterIndex))
       await keepKeyWallet?.sendCharacter(e.key.toLowerCase())
-    } else if (e.key === ' ') {
+    } else if (e.code === 'Space') {
+      console.log('Space!')
+      resetInputs()
       await keepKeyWallet?.sendCharacter(' ')
-      if (currentCharacterPosition === 4) resetInputs()
     } else if (e.key === 'Backspace') {
-      setCharacterInputValues(c => inputValuesReducer(c, undefined, parsedIndex))
+      setCharacterInputValues(c => inputValuesReducer(c, undefined, currentCharacterIndex - 1))
       await keepKeyWallet?.sendCharacterDelete()
     } else if (e.key === 'Enter') {
       await keepKeyWallet?.sendCharacterDone()
@@ -138,6 +130,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
   }
 
   const resetInputs = () => {
+    console.log('resetInputs')
     charInputFieldRef1.current?.focus()
     setCharacterInputValues(current => {
       const newValues = current.slice()
@@ -146,8 +139,12 @@ export const KeepKeyRecoverySentenceEntry = () => {
   }
 
   const handleWordSubmit = async () => {
-    await keepKeyWallet?.sendCharacter(' ')
-    resetInputs()
+    if (currentWordIndex === wordCount - 1) {
+      await keepKeyWallet?.sendCharacterDone()
+    } else {
+      await keepKeyWallet?.sendCharacter(' ')
+      resetInputs()
+    }
   }
 
   const pinInputFieldProps: PinInputFieldProps = {
@@ -155,7 +152,13 @@ export const KeepKeyRecoverySentenceEntry = () => {
     autoComplete: 'off',
     pattern: '[a-z]|[A-Z]',
     onKeyDown: onCharacterInput,
-    onFocus: e => setInFocusInput(e.target),
+  }
+
+  const test = () => {
+    console.log('wordCount', wordCount)
+    console.log('characterInputValues', characterInputValues)
+    console.log('currentWordPosition', currentWordIndex)
+    console.log('currentCharacterPosition', currentCharacterIndex)
   }
 
   return (
@@ -165,56 +168,69 @@ export const KeepKeyRecoverySentenceEntry = () => {
       </ModalHeader>
       <ModalBody>
         <Text color='gray.500' translation={'modals.keepKey.recoverySentenceEntry.body'} mb={4} />
-        {acceptingCipherInput ? (
-          <>
-            <HStack justifyContent='space-between'>
-              {wordCountCircle}
-              <PinInput
-                id='character-input'
-                type='alphanumeric'
-                autoFocus
-                size='lg'
-                placeholder=''
-                errorBorderColor='red.500'
-                value={characterInputValues.join('')}
-              >
-                <PinInputField {...pinInputFieldProps} ref={charInputFieldRef1} />
-                <PinInputField {...pinInputFieldProps} ref={charInputFieldRef2} />
-                <PinInputField {...pinInputFieldProps} ref={charInputFieldRef3} />
-                <PinInputField {...pinInputFieldProps} ref={charInputFieldRef4} />
-              </PinInput>
-            </HStack>
-            <Divider my={5} />
-            <Flex alignItems='center' justifyContent='space-between'>
-              <Progress
-                width='40%'
-                min={0}
-                max={wordCount}
-                value={(currentWordPosition || 0) + 1}
-                background='whiteAlpha.50'
-                borderRadius='lg'
-                sx={{
-                  '& > div': {
-                    background: 'blue.500',
-                  },
-                }}
+        <AwaitKeepKey translation='modals.keepKey.recoverySentenceEntry.awaitingButtonPress'>
+          <HStack justifyContent='space-between'>
+            {wordCountCircle}
+            <PinInput
+              id='character-input'
+              type='alphanumeric'
+              size='lg'
+              placeholder=''
+              errorBorderColor='red.500'
+              value={characterInputValues.join('')}
+            >
+              <PinInputField
+                {...pinInputFieldProps}
+                ref={charInputFieldRef1}
+                disabled={currentCharacterIndex !== 0}
+                isDisabled={true}
               />
-              <Button
-                width='30%'
-                size='lg'
-                colorScheme='blue'
-                type='submit'
-                onClick={handleWordSubmit}
-                mb={3}
-                disabled={currentCharacterPosition ? currentCharacterPosition < 3 : true}
-              >
-                <Text translation={'modals.keepKey.recoverySentenceEntry.button'} />
-              </Button>
-            </Flex>
-          </>
-        ) : (
-          <AwaitKeepKey translation='modals.keepKey.recoverySentenceEntry.awaitingButtonPress' />
-        )}
+              <PinInputField
+                {...pinInputFieldProps}
+                ref={charInputFieldRef2}
+                disabled={currentCharacterIndex !== 1}
+              />
+              <PinInputField
+                {...pinInputFieldProps}
+                ref={charInputFieldRef3}
+                disabled={currentCharacterIndex !== 2}
+              />
+              <PinInputField
+                {...pinInputFieldProps}
+                ref={charInputFieldRef4}
+                disabled={currentCharacterIndex !== 3}
+              />
+            </PinInput>
+          </HStack>
+          <Divider my={5} />
+          <Flex alignItems='center' justifyContent='space-between'>
+            <Progress
+              width='40%'
+              min={0}
+              max={wordCount}
+              value={(currentWordIndex || 0) + 1}
+              background='whiteAlpha.50'
+              borderRadius='lg'
+              sx={{
+                '& > div': {
+                  background: 'blue.500',
+                },
+              }}
+            />
+            <Button
+              width='30%'
+              size='lg'
+              colorScheme='blue'
+              type='submit'
+              onClick={handleWordSubmit}
+              mb={3}
+              disabled={currentCharacterIndex ? currentCharacterIndex < 3 : true}
+            >
+              <Text translation={'modals.keepKey.recoverySentenceEntry.button'} />
+            </Button>
+            <Button onClick={test}>Test</Button>
+          </Flex>
+        </AwaitKeepKey>
       </ModalBody>
     </>
   )

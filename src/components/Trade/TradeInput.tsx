@@ -130,12 +130,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (!wallet) return
     try {
       setIsSendMaxLoading(true)
-      const maxSendAmount = await getSendMaxAmount({
-        wallet,
-        sellAsset,
-        buyAsset,
-        feeAsset,
-      })
+      const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })
       const action = TradeActions.SELL
       const currentSellAsset = getValues('sellAsset')
       const currentBuyAsset = getValues('buyAsset')

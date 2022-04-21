@@ -97,9 +97,11 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
+export const chainIdToFeeAssetId = (chainId: CAIP2): CAIP19 => caip2toCaip19[chainId]
+
 // note - this is not really a selector, more of a util
-export const accountIdToFeeAssetId = (accountId: AccountSpecifier) =>
-  caip2toCaip19[accountIdToChainId(accountId)]
+export const accountIdToFeeAssetId = (accountId: AccountSpecifier): CAIP19 =>
+  chainIdToFeeAssetId(accountIdToChainId(accountId))
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))

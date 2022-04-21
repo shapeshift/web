@@ -6,19 +6,16 @@ import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetCl
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
-  selectAllUnbondingsEntriesByAssetIdAndValidator,
-  selectRewardsAmountByAssetId,
-  selectSingleValidator,
-  selectStakingDataIsLoaded,
+  selectRewardsByValidator,
   selectTotalBondingsBalanceByAssetId,
-} from 'state/slices/stakingDataSlice/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+  selectUnbondingEntriesByAccountSpecifier,
+} from 'state/slices/portfolioSlice/selectors'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectSingleValidator } from 'state/slices/validatorDataSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 type StakedProps = {
   assetId: CAIP19
@@ -31,34 +28,16 @@ export const Overview: React.FC<StakedProps> = ({
   validatorAddress,
   accountSpecifier,
 }) => {
-  const isLoaded = useAppSelector(selectStakingDataIsLoaded)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    ;(async () => {
-      if (!accountSpecifier.length || isLoaded) return
-
-      dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier },
-          { forceRefetch: true },
-        ),
-      )
-    })()
-  }, [accountSpecifier, isLoaded, dispatch])
-
-  const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
-  )
-
+  const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
+  const isLoaded = Boolean(validatorInfo)
   const totalBondings = useAppSelector(state =>
     selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
   )
   const undelegationEntries = useAppSelector(state =>
-    selectAllUnbondingsEntriesByAssetIdAndValidator(
+    selectUnbondingEntriesByAccountSpecifier(
       state,
       accountSpecifier,
       validatorAddress,
@@ -67,7 +46,7 @@ export const Overview: React.FC<StakedProps> = ({
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
+    selectRewardsByValidator(state, accountSpecifier, validatorAddress, assetId),
   )
 
   // If it's loading, it will display the skeleton,

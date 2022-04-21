@@ -1,6 +1,7 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
+import size from 'lodash/size'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -9,17 +10,20 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,
   selectAssets,
   selectIsPortfolioLoaded,
+  selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store, useAppSelector } from 'state/store'
 
 type TransactionsProviderProps = {
@@ -66,6 +70,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountSpecifiers, dispatch, chainAdapterManager, supportedChains])
 
+  const portfolioAccounts = useAppSelector(state => selectPortfolioAccounts(state))
   /**
    * tx history subscription logic
    */
@@ -124,8 +129,27 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               )
             }
 
+            const SHAPESHIFT_VALIDATOR_ADDRESS =
+              'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
             // RESTfully fetch all tx and rebase history for this chain.
             getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
+              if (accountSpecifierMap[cosmosChainId]) {
+                const cosmosAccountSpecifier = accountSpecifierMap[cosmosChainId]
+                const cosmosPortfolioAccount =
+                  portfolioAccounts[`${cosmosChainId}:${cosmosAccountSpecifier}`]
+                if (cosmosPortfolioAccount) {
+                  const validatorIds = size(cosmosPortfolioAccount.validatorIds)
+                    ? cosmosPortfolioAccount.validatorIds
+                    : [SHAPESHIFT_VALIDATOR_ADDRESS]
+                  validatorIds?.forEach(validatorAddress => {
+                    dispatch(
+                      validatorDataApi.endpoints.getValidatorData.initiate({
+                        validatorAddress,
+                      }),
+                    )
+                  })
+                }
+              }
               const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
               const options = { forceRefetch: true }
               dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))

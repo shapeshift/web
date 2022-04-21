@@ -10,12 +10,18 @@ import {
   UtxoAccountType,
 } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
+import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { initialState, Portfolio } from './portfolioSliceCommon'
+import { PubKey } from '../validatorDataSlice/validatorDataSlice'
+import {
+  initialState,
+  Portfolio,
+  PortfolioAccounts as PortfolioSliceAccounts,
+} from './portfolioSliceCommon'
 
 export type UtxoParamsAndAccountType = {
   utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
@@ -26,6 +32,11 @@ export type UtxoParamsAndAccountType = {
 export const ethChainId = 'eip155:1'
 export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const cosmosChainId = 'cosmos:cosmoshub-4'
+export const osmosisChainId = 'cosmos:osmosis-1'
+export const ethAssetId = 'eip155:1/slip44:60'
+export const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+export const cosmosAssetId = 'cosmos:cosmoshub-4/slip44:118'
+export const osmosisAssetId = 'cosmos:osmosis-1/slip44:118'
 
 export const chainIds = [ethChainId, btcChainId, cosmosChainId] as const
 export type ChainId = typeof chainIds[number]
@@ -33,9 +44,10 @@ export type ChainId = typeof chainIds[number]
 // we only need to update this when we support additional chains, which is infrequent
 // so it's ok to hardcode this map here
 const caip2toCaip19: Record<string, string> = {
-  [ethChainId]: 'eip155:1/slip44:60',
-  [btcChainId]: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-  [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118',
+  [ethChainId]: ethAssetId,
+  [btcChainId]: btcAssetId,
+  [cosmosChainId]: cosmosAssetId,
+  [osmosisChainId]: osmosisAssetId,
 }
 
 export const assetIdtoChainId = (caip19: CAIP19): ChainId => caip19.split('/')[0] as ChainId
@@ -124,12 +136,12 @@ export const accountIdToUtxoParams = (
 }
 
 export const findAccountsByAssetId = (
-  portfolioAccounts: { [k: string]: string[] },
+  portfolioAccounts: PortfolioSliceAccounts['byId'],
   assetId: CAIP19,
 ): AccountSpecifier[] => {
   const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
-    (acc, [accountId, accountAssets]) => {
-      if (accountAssets.includes(assetId)) acc.push(accountId)
+    (acc, [accountId, account]) => {
+      if (account.assetIds.includes(assetId)) acc.push(accountId)
       return acc
     },
     [],
@@ -178,8 +190,8 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
-        portfolio.accounts.byId[accountSpecifier] = []
-        portfolio.accounts.byId[accountSpecifier].push(caip19)
+        portfolio.accounts.byId[accountSpecifier] = { assetIds: [] }
+        portfolio.accounts.byId[accountSpecifier].assetIds.push(caip19)
         portfolio.accounts.ids.push(accountSpecifier)
 
         portfolio.assetBalances.byId[caip19] = sumBalance(
@@ -201,7 +213,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
             return
           }
 
-          portfolio.accounts.byId[CAIP10].push(token.caip19)
+          portfolio.accounts.byId[CAIP10].assetIds.push(token.caip19)
           // add assetId without dupes
           portfolio.assetBalances.ids = Array.from(
             new Set([...portfolio.assetBalances.ids, token.caip19]),
@@ -238,14 +250,16 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountBalances.byId[accountSpecifier][caip19] = balance
 
         // initialize
-        if (!portfolio.accounts.byId[accountSpecifier]?.length) {
-          portfolio.accounts.byId[accountSpecifier] = []
+        if (!portfolio.accounts.byId[accountSpecifier]?.assetIds.length) {
+          portfolio.accounts.byId[accountSpecifier] = {
+            assetIds: [],
+          }
         }
 
         portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountSpecifier]))
 
-        portfolio.accounts.byId[accountSpecifier] = Array.from(
-          new Set([...portfolio.accounts.byId[accountSpecifier], caip19]),
+        portfolio.accounts.byId[accountSpecifier].assetIds = Array.from(
+          new Set([...portfolio.accounts.byId[accountSpecifier].assetIds, caip19]),
         )
 
         portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
@@ -269,14 +283,92 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       }
       case ChainTypes.Cosmos:
       case ChainTypes.Osmosis: {
+        const cosmosAccount = account as chainAdapters.Account<ChainTypes.Cosmos>
         const { caip2, caip19 } = account
         const accountSpecifier = `${caip2}:${_xpubOrAccount}`
         const accountId = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
-        portfolio.accounts.byId[accountSpecifier] = []
-        portfolio.accounts.byId[accountSpecifier].push(caip19)
+        portfolio.accounts.byId[accountSpecifier] = {
+          assetIds: [],
+          validatorIds: [],
+          stakingData: {
+            delegations: [],
+            undelegations: [],
+            redelegations: [],
+            rewards: [],
+          },
+          stakingDataByValidatorId: {},
+        }
+
+        portfolio.accounts.byId[accountSpecifier].assetIds.push(caip19)
+        // TODO: refactor this before review
+        const uniqueValidatorAddresses: PubKey[] = Array.from(
+          new Set(
+            [
+              cosmosAccount.chainSpecific.delegations.map(
+                delegation => delegation.validator.address,
+              ),
+              cosmosAccount.chainSpecific.undelegations.map(
+                undelegation => undelegation.validator.address,
+              ),
+              cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
+            ].flat(),
+          ),
+        )
+
+        portfolio.accounts.byId[accountSpecifier].validatorIds = uniqueValidatorAddresses
+        portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId = {}
+
+        // TODO: Make it its own util?
+        // This is only ran once on portfolio load and after caching ends so the addditional time complexity isn't so relevant, but it can probably be simplified
+        uniqueValidatorAddresses.forEach(validatorAddress => {
+          const validatorRewards = cosmosAccount.chainSpecific.rewards.find(
+            validatorRewards => validatorRewards.validator.address === validatorAddress,
+          )
+          const rewards = groupBy(validatorRewards?.rewards, rewardEntry => rewardEntry.assetId)
+          // TODO: Do we need this? There might only be one entry per validator address actually
+          const delegationEntries = cosmosAccount.chainSpecific.delegations.filter(
+            delegation => delegation.validator.address === validatorAddress,
+          )
+          // TODO: Do we need this? There might only be one entry per validator address actually
+          const undelegationEntries = cosmosAccount.chainSpecific.undelegations.find(
+            undelegation => undelegation.validator.address === validatorAddress,
+          )
+          const delegations = groupBy(delegationEntries, delegationEntry => delegationEntry.assetId)
+          const undelegations = groupBy(
+            undelegationEntries?.entries,
+            undelegationEntry => undelegationEntry.assetId,
+          )
+
+          const uniqueAssetIds = Array.from(
+            new Set([
+              ...Object.keys(delegations),
+              ...Object.keys(undelegations),
+              ...Object.keys(rewards),
+            ]),
+          )
+
+          let portfolioAccount = portfolio.accounts.byId[accountSpecifier]
+          if (portfolioAccount.stakingDataByValidatorId) {
+            portfolioAccount.stakingDataByValidatorId[validatorAddress] = {}
+
+            uniqueAssetIds.forEach(assetId => {
+              // Just to make TS happy, we are sure this is defined because of the assignment before the forEach
+              // However, forEach being its own scope loses the narrowing
+              if (portfolioAccount?.stakingDataByValidatorId?.[validatorAddress]) {
+                portfolioAccount.stakingDataByValidatorId[validatorAddress][assetId] = {
+                  delegations: delegations[assetId],
+                  undelegations: undelegations[assetId],
+                  rewards: rewards[assetId],
+                  redelegations: [], // We do not use redelegations for now, let's not store them in store
+                }
+              }
+            })
+          }
+        })
+
         portfolio.accounts.ids.push(accountSpecifier)
 
         portfolio.assetBalances.byId[caip19] = sumBalance(

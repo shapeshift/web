@@ -13,8 +13,6 @@ import { OpportunityCard } from './OpportunityCard'
 export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
   const activeOpportunities = balances.opportunities.filter(o => bnOrZero(o.cryptoAmount).gt(0))
 
-  if (balances.loading) return null
-
   return (
     <Box mb={6}>
       <Flex alignItems='center' mb={6} justifyContent='space-between' px={{ base: 4, xl: 0 }}>
@@ -41,9 +39,7 @@ export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesRet
         gridGap={6}
       >
         {activeOpportunities.map(opportunity => {
-          return (
-            <OpportunityCard isLoaded={true} key={opportunity.contractAddress} {...opportunity} />
-          )
+          return <OpportunityCard key={opportunity.contractAddress} {...opportunity} />
         })}
       </SimpleGrid>
       {activeOpportunities.length === 0 && (

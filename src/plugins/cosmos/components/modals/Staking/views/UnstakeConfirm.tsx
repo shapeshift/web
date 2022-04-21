@@ -62,9 +62,7 @@ export const UnstakeConfirm = ({
   const { handleSubmit, control } = methods
   const { cryptoAmount } = useWatch({ control })
 
-  const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
-  )
+  const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
   const {
     state: { wallet },
   } = useWallet()

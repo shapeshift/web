@@ -86,7 +86,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(estimatedGasFees))
     .minus(tradeDeduction)
-    .gt(0)
+    .gte(0)
 
   const onSubmit = async () => {
     if (!wallet) return

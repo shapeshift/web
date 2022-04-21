@@ -3,12 +3,14 @@ import {
   btcAddresses,
   btcCaip10s,
   btcPubKeys,
+  cosmosCaip19,
   ethCaip10s,
   ethCaip19,
   ethPubKeys,
   foxCaip19,
   mockBtcAccount,
   mockBtcAddress,
+  mockCosmosAccount,
   mockEthAccount,
   mockETHandBTCAccounts,
   mockEthToken,
@@ -19,13 +21,15 @@ import {
   yvusdcCaip19,
   zeroCaip19,
 } from 'test/mocks/accounts'
-import { mockAssetState } from 'test/mocks/assets'
+import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockUpsertPortfolio } from 'test/mocks/portfolio'
+import { mockStakingData, mockStakingDataWithOnlyUndelegations } from 'test/mocks/stakingData'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
+import { stakingData as stakingDataSlice } from '../stakingDataSlice/stakingDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectAccountIdByAddress,
@@ -40,6 +44,7 @@ import {
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
   selectPortfolioTotalFiatBalanceByAccount,
+  selectTotalFiatBalanceWithDelegations,
 } from './selectors'
 
 describe('portfolioSlice', () => {
@@ -771,6 +776,134 @@ describe('portfolioSlice', () => {
       it('should return correct portfolio rows in case of 100% allocation on one asset', () => {
         const result = selectPortfolioAccountRows(state)
         expect(result).toMatchSnapshot()
+      })
+    })
+
+    describe('selectTotalFiatBalanceWithDelegations', () => {
+      const cosmosAccountSpecifier: string =
+        'cosmos:cosmoshub-4:cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'
+
+      it('should return correct fiat balance in case there are delegations, undelegations and asset balance', () => {
+        const store = createStore()
+        const assetData = mockAssetState({
+          byId: {
+            [cosmos.caip19]: cosmos,
+          },
+          ids: [cosmos.caip19],
+        })
+        store.dispatch(assetsSlice.actions.setAssets(assetData))
+
+        const cosmosMarketData = mockMarketData({ price: '77.55' })
+        store.dispatch(
+          marketDataSlice.actions.setMarketData({
+            [cosmos.caip19]: cosmosMarketData,
+          }),
+        )
+
+        const cosmosAccount = mockCosmosAccount()
+
+        store.dispatch(
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
+          ),
+        )
+
+        store.dispatch(
+          stakingDataSlice.actions.upsertStakingData({
+            accountSpecifier: cosmosAccountSpecifier,
+            stakingData: mockStakingData,
+          }),
+        )
+
+        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
+          assetId: cosmosCaip19,
+          accountId: cosmosAccountSpecifier,
+        })
+        expect(result).toEqual('1.25002845')
+      })
+
+      it('should return correct fiat balance in case there are delegations and undelegations but no asset balance', () => {
+        const store = createStore()
+        const assetData = mockAssetState({
+          byId: {
+            [cosmos.caip19]: cosmos,
+          },
+          ids: [cosmos.caip19],
+        })
+        store.dispatch(assetsSlice.actions.setAssets(assetData))
+
+        const cosmosMarketData = mockMarketData({ price: '77.55' })
+        store.dispatch(
+          marketDataSlice.actions.setMarketData({
+            [cosmos.caip19]: cosmosMarketData,
+          }),
+        )
+        store.dispatch(
+          stakingDataSlice.actions.upsertStakingData({
+            accountSpecifier: cosmosAccountSpecifier,
+            stakingData: mockStakingData,
+          }),
+        )
+
+        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
+          assetId: cosmosCaip19,
+          accountId: cosmosAccountSpecifier,
+        })
+        expect(result).toEqual('1.17247845')
+      })
+
+      it('should return non zero fiat balance in case there are only undelegations', () => {
+        const store = createStore()
+        const assetData = mockAssetState({
+          byId: {
+            [cosmos.caip19]: cosmos,
+          },
+          ids: [cosmos.caip19],
+        })
+        store.dispatch(assetsSlice.actions.setAssets(assetData))
+
+        const cosmosMarketData = mockMarketData({ price: '77.55' })
+        store.dispatch(
+          marketDataSlice.actions.setMarketData({
+            [cosmos.caip19]: cosmosMarketData,
+          }),
+        )
+        store.dispatch(
+          stakingDataSlice.actions.upsertStakingData({
+            accountSpecifier: cosmosAccountSpecifier,
+            stakingData: mockStakingDataWithOnlyUndelegations,
+          }),
+        )
+
+        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
+          assetId: cosmosCaip19,
+          accountId: cosmosAccountSpecifier,
+        })
+        expect(result).toEqual('0.0271425')
+      })
+
+      it('should return zero fiat balance in case there are no delegations nor asset balance', () => {
+        const store = createStore()
+        const assetData = mockAssetState({
+          byId: {
+            [cosmos.caip19]: cosmos,
+          },
+          ids: [cosmos.caip19],
+        })
+        store.dispatch(assetsSlice.actions.setAssets(assetData))
+
+        const cosmosMarketData = mockMarketData({ price: '77.55' })
+        store.dispatch(
+          marketDataSlice.actions.setMarketData({
+            [cosmos.caip19]: cosmosMarketData,
+          }),
+        )
+
+        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
+          assetId: cosmosCaip19,
+          accountId: cosmosAccountSpecifier,
+        })
+        expect(result).toEqual('0')
       })
     })
   })

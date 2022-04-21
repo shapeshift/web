@@ -18,7 +18,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     try {
       const vault = await Vault.create()
       vault.meta.set('createdAt', Date.now())
-      vault.set('#mnemonic', values.mnemonic)
+      vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
       history.push('/native/password', { vault })
     } catch (e) {
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
@@ -48,6 +48,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
               size='lg'
               autoComplete='off'
               autoCorrect='off'
+              textTransform='lowercase'
               {...register('mnemonic', {
                 required: translate(
                   'walletProvider.shapeShift.import.secretRecoveryPhraseRequired',
@@ -60,7 +61,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
                 },
                 validate: {
                   validMnemonic: value =>
-                    bip39.validateMnemonic(value) ||
+                    bip39.validateMnemonic(value.toLowerCase().trim()) ||
                     translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
                 },
               })}

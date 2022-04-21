@@ -288,7 +288,12 @@ describe('portfolioSlice', () => {
       const state = store.getState()
 
       it('can select crypto asset balance by asset Id', () => {
-        const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(state, ethCaip19)
+        const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(
+          state,
+          '',
+          '',
+          ethCaip19,
+        )
         expect(cryptoAssetBalanceByAccount).toBe(state.portfolio.assetBalances.byId[ethCaip19])
       })
     })

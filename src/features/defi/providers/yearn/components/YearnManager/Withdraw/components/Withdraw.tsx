@@ -49,7 +49,9 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByAssetId(state, '', '', assetCAIP19),
+  )
 
   if (!state || !dispatch) return null
 

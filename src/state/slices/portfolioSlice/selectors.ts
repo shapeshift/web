@@ -44,6 +44,18 @@ import {
   makeSortedAccountBalances,
 } from './utils'
 
+// accountId is optional, but we should always pass an assetId when using these params
+type OptionalParamFilter = {
+  assetId: CAIP19
+  accountId?: AccountSpecifier
+  accountSpecifier?: string
+}
+
+type ParamFilter = {
+  assetId: CAIP19
+  accountId: AccountSpecifier
+}
+
 const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
 // We should prob change this once we add more chains
@@ -59,12 +71,27 @@ const selectAccountIdParamFromFilterOptional = (
 ) => paramFilter.accountId
 
 // TODO: fixme
-const selectAssetIdParamArityFour = (
+const selectAssetIdParam = (
   _state: ReduxState,
   _accountSpecifier: CAIP10,
   _validatorAddress: PubKey,
   assetId: CAIP19,
 ) => assetId
+
+const selectValidatorAddressParam = (
+  _state: ReduxState,
+  _accountSpecifier: CAIP10,
+  validatorAddress: PubKey,
+  _assetId: CAIP19,
+) => validatorAddress
+
+const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
+  paramFilter.assetId
+const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
+  paramFilter.accountId
+
+const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
+const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
 export type OpportunitiesDataFull = {
   totalDelegations: string
@@ -134,34 +161,6 @@ export const selectPortfolioFiatBalances = createSelector(
       {},
     ),
 )
-
-// accountId is optional, but we should always pass an assetId when using these params
-type OptionalParamFilter = {
-  assetId: CAIP19
-  accountId?: AccountSpecifier
-  accountSpecifier?: string
-}
-
-type ParamFilter = {
-  assetId: CAIP19
-  accountId: AccountSpecifier
-}
-
-const selectValidatorAddress = (
-  _state: ReduxState,
-  _accountSpecifier: CAIP10,
-  validatorAddress: PubKey,
-  _assetId: CAIP19,
-) => validatorAddress
-
-const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
-const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.assetId
-const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.accountId
-
-const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
-const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
 export const selectPortfolioFiatAccountBalances = createSelector(
   selectAssets,
@@ -753,7 +752,7 @@ export type AmountByValidatorAddressType = {
 
 export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelector(
   selectStakingDataByAccountSpecifier,
-  selectAssetIdParamArityFour,
+  selectAssetIdParam,
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
   (stakingData, assetId) => {
@@ -772,8 +771,8 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelect
 
 export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
   selectStakingDataByAccountSpecifier,
-  selectValidatorAddress,
-  selectAssetIdParamArityFour,
+  selectValidatorAddressParam,
+  selectAssetIdParam,
   (stakingData, validatorAddress, assetId): string => {
     return stakingData?.[validatorAddress][assetId]?.delegations[0]?.amount ?? '0'
   },
@@ -781,8 +780,8 @@ export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
 
 export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSelector(
   selectAllStakingDataByValidator,
-  selectValidatorAddress,
-  selectAssetIdParamArityFour,
+  selectValidatorAddressParam,
+  selectAssetIdParam,
   (stakingDataByValidator, validatorAddress, assetId): chainAdapters.cosmos.UndelegationEntry[] => {
     const validatorStakingData = stakingDataByValidator?.[validatorAddress]?.[assetId]
 
@@ -817,9 +816,9 @@ export const selectTotalBondingsBalanceByAssetId = createSelector(
 
 export const selectRewardsByValidator = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
-  selectValidatorAddress,
+  selectValidatorAddressParam,
   selectAccountSpecifierParam,
-  selectAssetIdParamArityFour,
+  selectAssetIdParam,
   (allPortfolioAccounts, validatorAddress, accountSpecifier, assetId): string => {
     const cosmosAccount = allPortfolioAccounts?.[accountSpecifier]
 
@@ -847,7 +846,7 @@ export const selectStakingOpportunitiesDataFull = createSelector(
   selectValidatorIds,
   selectAllValidatorsData,
   selectAllStakingDataByValidator,
-  selectAssetIdParamArityFour,
+  selectAssetIdParam,
   (validatorIds, validatorsData, stakingDataByValidator, assetId): OpportunitiesDataFull[] =>
     validatorIds.map(validatorId => {
       const delegatedAmount = bnOrZero(

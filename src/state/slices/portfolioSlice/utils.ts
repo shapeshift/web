@@ -1,5 +1,6 @@
-import { CAIP2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2, CAIP10, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import {
   Asset,
@@ -26,6 +27,9 @@ export const ethChainId = 'eip155:1'
 export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const cosmosChainId = 'cosmos:cosmoshub-4'
 
+export const chainIds = [ethChainId, btcChainId, cosmosChainId] as const
+export type ChainId = typeof chainIds[number]
+
 // we only need to update this when we support additional chains, which is infrequent
 // so it's ok to hardcode this map here
 const caip2toCaip19: Record<string, string> = {
@@ -34,9 +38,7 @@ const caip2toCaip19: Record<string, string> = {
   [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118',
 }
 
-export const assetIdtoChainId = (caip19: CAIP19): string => {
-  return caip19.split('/')[0]
-}
+export const assetIdtoChainId = (caip19: CAIP19): ChainId => caip19.split('/')[0] as ChainId
 
 export const accountIdToChainId = (accountId: AccountSpecifier): CAIP2 => {
   // accountId = 'eip155:1:0xdef1...cafe
@@ -95,9 +97,11 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
+export const chainIdToFeeAssetId = (chainId: CAIP2): CAIP19 => caip2toCaip19[chainId]
+
 // note - this is not really a selector, more of a util
-export const accountIdToFeeAssetId = (accountId: AccountSpecifier) =>
-  caip2toCaip19[accountIdToChainId(accountId)]
+export const accountIdToFeeAssetId = (accountId: AccountSpecifier): CAIP19 =>
+  chainIdToFeeAssetId(accountIdToChainId(accountId))
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
@@ -323,4 +327,20 @@ export const makeBalancesByChainBucketsFlattened = (
     initial,
   )
   return Object.values(balancesByChainBuckets).flat()
+}
+
+export const isAssetSupportedByWallet = (assetId: CAIP19, wallet: HDWallet): boolean => {
+  if (!assetId) return false
+  const { chain, network } = caip19.fromCAIP19(assetId)
+  const chainId = caip2.toCAIP2({ chain, network })
+  switch (chainId) {
+    case ethChainId:
+      return supportsETH(wallet)
+    case btcChainId:
+      return supportsBTC(wallet)
+    case cosmosChainId:
+      return supportsCosmos(wallet)
+    default:
+      return false
+  }
 }

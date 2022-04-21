@@ -12,12 +12,18 @@ import { UserMenu } from './NavBar/UserMenu'
 
 type HeaderContentProps = {
   isCompact?: boolean
+  onClose?: () => void
 } & FlexProps
 
-export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
+export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const { settings } = useModal()
+
+  const handleClick = (onClick?: () => void) => {
+    onClose && onClose()
+    onClick && onClick()
+  }
 
   return (
     <Flex
@@ -32,7 +38,7 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
       {!isLargerThanMd && (
         <>
           <Flex width='full'>
-            <UserMenu />
+            <UserMenu onClick={() => handleClick()} />
           </Flex>
           <Flex width='full' mt={4}>
             <FiatRamps />
@@ -48,7 +54,7 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
         <MainNavLink
           variant='ghost'
           isCompact={isCompact}
-          onClick={() => settings.open({})}
+          onClick={() => handleClick(() => settings.open({}))}
           label={translate('common.settings')}
           leftIcon={<SettingsIcon />}
         />
@@ -58,6 +64,7 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
           as={Link}
           justifyContent='flex-start'
           variant='ghost'
+          onClick={() => handleClick()}
           label={translate('common.submitFeedback')}
           isExternal
           href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'

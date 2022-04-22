@@ -297,7 +297,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         }
 
         portfolio.accounts.byId[accountSpecifier].assetIds.push(caip19)
-        // TODO: refactor this before review
         const uniqueValidatorAddresses: PubKey[] = Array.from(
           new Set(
             [
@@ -315,7 +314,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accounts.byId[accountSpecifier].validatorIds = uniqueValidatorAddresses
         portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId = {}
 
-        // TODO: Make it its own util?
+        // This block loads staking data at validator into the portfolio state
         // This is only ran once on portfolio load and after caching ends so the addditional time complexity isn't so relevant, but it can probably be simplified
         uniqueValidatorAddresses.forEach(validatorAddress => {
           const validatorRewards = cosmosAccount.chainSpecific.rewards.find(
@@ -349,14 +348,14 @@ export const accountToPortfolio: AccountToPortfolio = args => {
             portfolioAccount.stakingDataByValidatorId[validatorAddress] = {}
 
             uniqueAssetIds.forEach(assetId => {
-              // Just to make TS happy, we are sure this is defined because of the assignment before the forEach
+              // Useless check just to make TS happy, we are sure this is defined because of the assignment before the forEach
               // However, forEach being its own scope loses the narrowing
               if (portfolioAccount?.stakingDataByValidatorId?.[validatorAddress]) {
                 portfolioAccount.stakingDataByValidatorId[validatorAddress][assetId] = {
                   delegations: delegations[assetId],
                   undelegations: undelegations[assetId],
                   rewards: rewards[assetId],
-                  redelegations: [], // We do not use redelegations for now, let's not store them in store
+                  redelegations: [], // We don't need redelegations in web, let's not store them in store but keep them for unchained/chain-adapters parity
                 }
               }
             })

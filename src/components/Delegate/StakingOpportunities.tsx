@@ -67,9 +67,8 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const hasActiveStaking =
     // More than one opportunity data means we have more than the default opportunity
     size(stakingOpportunitiesData) > 1 ||
-    stakingOpportunitiesData.some(({ rewards, totalDelegations }) => {
-      return bnOrZero(rewards).gt(0) || bnOrZero(totalDelegations).gt(0)
-    })
+    bnOrZero(stakingOpportunitiesData[0].rewards).gt(0) ||
+    bnOrZero(stakingOpportunitiesData[0].totalDelegations).gt(0)
 
   const rows = stakingOpportunitiesData
 
@@ -99,8 +98,8 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
           return (
             <Skeleton isLoaded={validator.isLoaded}>
               <ValidatorName
-                validatorAddress={validator?.address || ''}
-                moniker={validator?.moniker || ''}
+                validatorAddress={validator?.address}
+                moniker={validator?.moniker}
                 isStaking={true}
               />
             </Skeleton>

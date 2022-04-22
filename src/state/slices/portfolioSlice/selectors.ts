@@ -184,7 +184,6 @@ export const selectPortfolioTotalFiatBalance = createSelector(
 export const selectAllStakingDelegationCrypto = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   portfolioAccounts => {
-    // TODO: Implement this better
     const allStakingData = Object.entries(portfolioAccounts)
     const allStakingDelegationCrypto = reduce(
       allStakingData,
@@ -324,7 +323,7 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEq
   },
 )
 
-export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createDeepEqualOutputSelector(
+export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSelector(
   selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
   // We make the assumption that all delegation rewards come from a single denom (asset)
@@ -349,7 +348,7 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createDeep
   },
 )
 
-export const selectTotalStakingDelegationCryptoByFilter = createDeepEqualOutputSelector(
+export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   selectAssetIdParamFromFilter,
   (state: ReduxState) => state.assets.byId,
   selectTotalStakingDelegationCryptoByAccountSpecifier,

@@ -47,11 +47,7 @@ export function useCosmosStakingBalances({
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
   )
-  // TODO: This whole module probably goes away as well
-  // We just parse total delegation in fiat, tvl in fiat, and parse cryptoAmount to precision - this should be done at component-level and not require a whole hook
-  // We also shoehorn chain, assetId, and tokenAddress - all of which can also be shoehorned at component-level
-  // Finally, we have a totalBalance - this can be added at selector-level
-  // The loading state is not needed anymore
+
   const mergedActiveStakingOpportunities = useMemo(() => {
     if (!marketData?.price) return []
     return Object.values(stakingOpportunities).map(opportunity => {

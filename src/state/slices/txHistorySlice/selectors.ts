@@ -72,20 +72,16 @@ type TxHistoryPageFilter = {
   matchingAssets: CAIP19[] | null
 }
 
-const selectDateParamFromFilter = (
-  _state: ReduxState,
-  { fromDate, toDate }: TxHistoryPageFilter,
-) => ({ fromDate, toDate })
+const selectDateParamFromFilter = (_state: ReduxState, filter: TxHistoryPageFilter) => ({
+  fromDate: filter?.fromDate,
+  toDate: filter?.toDate,
+})
 
-const selectTransactionTypesParamFromFilter = (
-  _state: ReduxState,
-  { types }: TxHistoryPageFilter,
-) => types ?? []
+const selectTransactionTypesParamFromFilter = (_state: ReduxState, filter: TxHistoryPageFilter) =>
+  filter?.types ?? []
 
-const selectMatchingAssetsParamFromFilter = (
-  _state: ReduxState,
-  { matchingAssets }: TxHistoryPageFilter,
-) => matchingAssets
+const selectMatchingAssetsParamFromFilter = (_state: ReduxState, filter: TxHistoryPageFilter) =>
+  filter?.matchingAssets
 
 export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelector(
   selectTxs,
@@ -142,10 +138,10 @@ type TxHistoryFilter = {
   accountIds?: AccountSpecifier[]
 }
 
-const selectAssetIdsParamFromFilter = (_state: ReduxState, { assetIds }: TxHistoryFilter) =>
-  assetIds
-const selectAccountIdsParamFromFilter = (_state: ReduxState, { accountIds }: TxHistoryFilter) =>
-  accountIds ?? []
+const selectAssetIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilter) =>
+  filter?.assetIds ?? []
+const selectAccountIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilter) =>
+  filter?.accountIds ?? []
 
 export const selectTxIdsByFilter = createSelector(
   selectTxsByAssetId,

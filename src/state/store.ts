@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
-import { registerSelectors } from 'reselect-tools'
+import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { logging } from './middleware/logging'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
@@ -18,8 +18,6 @@ const persistConfig = {
   whitelist: [''],
   storage: localforage,
 }
-
-registerSelectors(selectors)
 
 const apiMiddleware = [
   portfolioApi.middleware,
@@ -67,6 +65,9 @@ export const createStore = () =>
 
 export const store = createStore()
 export const persistor = persistStore(store)
+
+getStateWith(store.getState)
+registerSelectors(selectors)
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
 

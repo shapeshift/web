@@ -32,6 +32,4 @@ self.addEventListener('message', event => {
   }
 })
 
-self.addEventListener('fetch', event => {
-  console.info('ServiceWorker:fetch', event)
-})
+self.addEventListener('fetch', event => {})

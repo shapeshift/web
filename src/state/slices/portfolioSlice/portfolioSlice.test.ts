@@ -43,6 +43,8 @@ import {
 } from './selectors'
 
 describe('portfolioSlice', () => {
+  const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)
+  afterAll(() => consoleInfoSpy.mockRestore())
   describe('reducers', () => {
     describe('upsertPortfolio', () => {
       describe('ethereum', () => {

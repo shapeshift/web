@@ -8,4 +8,5 @@ export enum KeepKeyRoutes {
   NewRecoverySentence = '/keepkey/recovery-sentence',
   RecoverySentenceEntry = '/keepkey/recovery-sentence-entry',
   RecoverySettings = '/keepkey/recovery-settings',
+  RecoverySettingUp = '/keepkey/recovery-setting-up',
 }

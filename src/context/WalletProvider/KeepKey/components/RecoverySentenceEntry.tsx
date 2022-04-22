@@ -14,10 +14,10 @@ import {
 } from '@chakra-ui/react'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
+import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 const isLetter = (str: string) => {
@@ -38,7 +38,7 @@ const isValidInput = (
   const isBackspace = e.key === 'Backspace'
   // KeepKey sets character index to 4 when word is complete, and we are awaiting a space
   const hasFilledAllInputs = currentCharacterIndex === maxInputLength
-  const hasEnoughCharactersForWordMatch = currentCharacterIndex >= minInputLength - 1
+  const hasEnoughCharactersForWordMatch = currentCharacterIndex >= minInputLength
   const isLastWord = currentWordIndex === wordEntropy - 1
   const noCharactersEntered = currentCharacterIndex === 0
 
@@ -48,8 +48,6 @@ const isValidInput = (
   if (!hasEnoughCharactersForWordMatch && (isSpace || isEnter)) return false
   // We can't do space on last word
   if (isLastWord && isSpace) return false
-  // We can't do enter not on last word
-  if (!isLastWord && isEnter) return false
   // The UI doesn't currently support returning to a previous word
   if (noCharactersEntered && isBackspace) return false
 
@@ -69,7 +67,6 @@ const inputValuesReducer = (
 
 export const KeepKeyRecoverySentenceEntry = () => {
   const {
-    dispatch,
     state: {
       wallet,
       deviceState: {
@@ -80,8 +77,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
       },
     },
   } = useWallet()
-  const toast = useToast()
-  const translate = useTranslate()
+  const history = useHistory()
   const [wordCount, setWordCount] = useState(12)
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
@@ -160,20 +156,14 @@ export const KeepKeyRecoverySentenceEntry = () => {
     const isLastWord = currentWordIndex === wordCount - 1
     // If we've entered all words in our seed phrase, tell KeepKey we're done
     if (isLastWord) {
+      history.push(KeepKeyRoutes.RecoverySettingUp)
       await keepKeyWallet?.sendCharacterDone()
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-      toast({
-        title: translate('common.success'),
-        description: translate('modals.keepKey.recoverySentenceEntry.toastMessage'),
-        status: 'success',
-        isClosable: true,
-      })
       // Else send a Space to let KeepKey know we're ready to enter the next word
     } else {
       await keepKeyWallet?.sendCharacter(' ')
       resetInputs()
     }
-  }, [currentWordIndex, dispatch, keepKeyWallet, resetInputs, toast, translate, wordCount])
+  }, [currentWordIndex, history, keepKeyWallet, resetInputs, wordCount])
 
   const onCharacterInput = useCallback(
     async (e: KeyboardEvent) => {
@@ -230,6 +220,10 @@ export const KeepKeyRecoverySentenceEntry = () => {
     [onCharacterInput, inputBackgroundColor],
   )
 
+  const onCancel = () => {
+    history.goBack()
+  }
+
   return (
     <>
       <ModalHeader>
@@ -237,7 +231,10 @@ export const KeepKeyRecoverySentenceEntry = () => {
       </ModalHeader>
       <ModalBody>
         <Text color='gray.500' translation={'modals.keepKey.recoverySentenceEntry.body'} mb={4} />
-        <AwaitKeepKey translation='modals.keepKey.recoverySentenceEntry.awaitingButtonPress'>
+        <AwaitKeepKey
+          translation='modals.keepKey.recoverySentenceEntry.awaitingButtonPress'
+          onCancel={onCancel}
+        >
           <HStack justifyContent='space-between'>
             {wordCountCircle}
             <PinInput

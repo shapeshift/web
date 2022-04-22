@@ -1,5 +1,7 @@
+import { useToast } from '@chakra-ui/toast'
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
 
@@ -17,6 +19,9 @@ export const useKeepKeyEventHandler = (
     deviceState: { disposition },
   } = state
 
+  const toast = useToast()
+  const translate = useTranslate()
+
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const [deviceId, event] = e
@@ -29,6 +34,15 @@ export const useKeepKeyEventHandler = (
                 disposition: 'initialized',
               })
               if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              break
+            case 'Device recovered':
+              if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              toast({
+                title: translate('common.success'),
+                description: translate('modals.keepKey.recoverySentenceEntry.toastMessage'),
+                status: 'success',
+                isClosable: true,
+              })
               break
             default:
               break

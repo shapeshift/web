@@ -10,7 +10,7 @@ import {
   PinInput,
   PinInputField,
   Progress,
-  useToast,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -97,6 +97,10 @@ export const KeepKeyRecoverySentenceEntry = () => {
     [inputField1, inputField2, inputField3, inputField4],
   )
 
+  const circleBorderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  const inputBackgroundColor = useColorModeValue('blackAlpha.50', 'blackAlpha.300')
+  const progressBarBackgroundColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
+
   const keepKeyWallet = wallet && isKeepKey(wallet) ? wallet : undefined
 
   useEffect(() => {
@@ -130,7 +134,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     return (
       <Box
         borderWidth='2px'
-        borderColor='whiteAlpha.100'
+        borderColor={circleBorderColor}
         fontSize='md'
         borderRadius='50%'
         verticalAlign='middle'
@@ -142,7 +146,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
         <RawText fontWeight='bold'>{paddedNumber}</RawText>
       </Box>
     )
-  }, [currentWordIndex])
+  }, [circleBorderColor, currentWordIndex])
 
   const resetInputs = useCallback(() => {
     inputFields[0].current?.focus()
@@ -218,12 +222,12 @@ export const KeepKeyRecoverySentenceEntry = () => {
 
   const pinInputFieldProps: PinInputFieldProps = useMemo(
     () => ({
-      background: 'blackAlpha.300',
+      background: inputBackgroundColor,
       autoComplete: 'off',
       pattern: '[a-z]|[A-Z]',
       onKeyDown: onCharacterInput,
     }),
-    [onCharacterInput],
+    [onCharacterInput, inputBackgroundColor],
   )
 
   return (
@@ -263,7 +267,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
               min={0}
               max={wordCount}
               value={(currentWordIndex || 0) + 1}
-              background='whiteAlpha.50'
+              background={progressBarBackgroundColor}
               borderRadius='lg'
               sx={{
                 '& > div': {

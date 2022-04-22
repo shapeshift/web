@@ -41,22 +41,20 @@ export type DeviceState = {
   awaitingDeviceInteraction: boolean
   lastDeviceInteractionStatus: Outcome | undefined
   disposition: DeviceDisposition | undefined
-  stagedLabel: string | undefined
-  stagedPassphrase: boolean | undefined
-  stagedEntropy: Entropy
-  currentCharacterIndex: number | undefined
-  currentWordIndex: number | undefined
+  recoverWithPassphrase: boolean | undefined
+  recoveryEntropy: Entropy
+  recoveryCharacterIndex: number | undefined
+  recoveryWordIndex: number | undefined
 }
 
 const initialDeviceState: DeviceState = {
   awaitingDeviceInteraction: false,
   lastDeviceInteractionStatus: undefined,
   disposition: undefined,
-  stagedLabel: undefined,
-  stagedPassphrase: undefined,
-  stagedEntropy: VALID_ENTROPY[0],
-  currentCharacterIndex: undefined,
-  currentWordIndex: undefined,
+  recoverWithPassphrase: undefined,
+  recoveryEntropy: VALID_ENTROPY[0],
+  recoveryCharacterIndex: undefined,
+  recoveryWordIndex: undefined,
 }
 
 export interface InitialState {
@@ -121,9 +119,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         awaitingDeviceInteraction = deviceState.awaitingDeviceInteraction,
         lastDeviceInteractionStatus = deviceState.lastDeviceInteractionStatus,
         disposition = deviceState.disposition,
-        stagedLabel = deviceState.stagedLabel,
-        stagedPassphrase = deviceState.stagedPassphrase,
-        stagedEntropy = deviceState.stagedEntropy,
+        recoverWithPassphrase = deviceState.recoverWithPassphrase,
+        recoveryEntropy = deviceState.recoveryEntropy,
       } = action.payload
       return {
         ...state,
@@ -132,9 +129,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           awaitingDeviceInteraction,
           lastDeviceInteractionStatus,
           disposition,
-          stagedLabel,
-          stagedPassphrase,
-          stagedEntropy,
+          recoverWithPassphrase,
+          recoveryEntropy,
         },
       }
     case WalletActions.SET_WALLET_MODAL:
@@ -170,7 +166,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       }
     }
     case WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST: {
-      const { characterPos: currentCharacterIndex, wordPos: currentWordIndex } = action.payload
+      const { characterPos: recoveryCharacterIndex, wordPos: recoveryWordIndex } = action.payload
       const { deviceState } = state
       return {
         ...state,
@@ -180,8 +176,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         initialRoute: KeepKeyRoutes.RecoverySentenceEntry,
         deviceState: {
           ...deviceState,
-          currentCharacterIndex,
-          currentWordIndex,
+          recoveryCharacterIndex,
+          recoveryWordIndex,
         },
       }
     }

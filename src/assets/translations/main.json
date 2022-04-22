@@ -393,7 +393,7 @@
         "recoveryPassphraseLabel": "Recovery Passphrase",
         "recoveryPassphraseToggle": "Recover with passphrase?",
         "recoveryPassphraseDescription": "If you are unsure if your recovery sentence is protected by a passphrase, leave this off.",
-        "wordCount": "%{wordCount} words",
+        "wordEntropy": "%{wordEntropy} words",
         "button": "Recover Wallet"
       },
       "recoverySentence": {
@@ -411,7 +411,7 @@
       },
       "recoverySentenceEntry": {
         "header": "Enter your Recovery Sentence",
-        "body": "Using the scrambled keyboard legend on your KeepKey enter the first 4 letters of each word, or click next when you're done typing if there are less than 4 letters.",
+        "body": "Using the scrambled keyboard legend on your KeepKey enter the first 4 letters of each word, followed by enter or space, or click next when you're done typing if there are less than 4 letters.",
         "button": "Next",
         "awaitingButtonPress": "Follow the instructions on your KeepKey to continue.",
         "toastMessage": "KeepKey restored successfully!"

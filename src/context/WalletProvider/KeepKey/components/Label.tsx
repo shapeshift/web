@@ -11,7 +11,7 @@ export const KeepKeyLabel = () => {
   const {
     setDeviceState,
     state: {
-      deviceState: { disposition, stagedPassphrase, stagedEntropy },
+      deviceState: { disposition, recoverWithPassphrase, recoveryEntropy },
       wallet,
     },
   } = useWallet()
@@ -38,11 +38,11 @@ export const KeepKeyLabel = () => {
   const handleRecoverSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
-    setDeviceState({ stagedLabel: label, awaitingDeviceInteraction: true })
+    setDeviceState({ awaitingDeviceInteraction: true })
     const recoverParams: RecoverDevice = {
-      entropy: stagedEntropy,
+      entropy: recoveryEntropy,
       label: label ?? '',
-      passphrase: stagedPassphrase || false,
+      passphrase: recoverWithPassphrase || false,
       pin: true,
       autoLockDelayMs: 600000, // Ten minutes
     }

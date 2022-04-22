@@ -30,17 +30,17 @@ const maxInputLength = 4
 const isValidInput = (
   e: KeyboardEvent,
   wordEntropy: number,
-  currentCharacterIndex: number = 0,
-  currentWordIndex: number = 0,
+  recoveryCharacterIndex: number = 0,
+  recoveryWordIndex: number = 0,
 ) => {
   const isSpace = e.key === ' '
   const isEnter = e.key === 'Enter'
   const isBackspace = e.key === 'Backspace'
   // KeepKey sets character index to 4 when word is complete, and we are awaiting a space
-  const hasFilledAllInputs = currentCharacterIndex === maxInputLength
-  const hasEnoughCharactersForWordMatch = currentCharacterIndex >= minInputLength
-  const isLastWord = currentWordIndex === wordEntropy - 1
-  const noCharactersEntered = currentCharacterIndex === 0
+  const hasFilledAllInputs = recoveryCharacterIndex === maxInputLength
+  const hasEnoughCharactersForWordMatch = recoveryCharacterIndex >= minInputLength
+  const isLastWord = recoveryWordIndex === wordEntropy - 1
+  const noCharactersEntered = recoveryCharacterIndex === 0
 
   // The 4th letter must be followed by space, enter or backspace
   if (hasFilledAllInputs && !isSpace && !isEnter && !isBackspace) return false
@@ -70,15 +70,15 @@ export const KeepKeyRecoverySentenceEntry = () => {
     state: {
       wallet,
       deviceState: {
-        stagedEntropy,
-        currentWordIndex,
-        currentCharacterIndex = 0,
+        recoveryEntropy,
+        recoveryWordIndex,
+        recoveryCharacterIndex = 0,
         awaitingDeviceInteraction,
       },
     },
   } = useWallet()
   const history = useHistory()
-  const [wordCount, setWordCount] = useState(12)
+  const [wordEntropy, setWordEntropy] = useState(12)
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
   )
@@ -100,8 +100,8 @@ export const KeepKeyRecoverySentenceEntry = () => {
   const keepKeyWallet = wallet && isKeepKey(wallet) ? wallet : undefined
 
   useEffect(() => {
-    setWordCount(() => {
-      switch (stagedEntropy) {
+    setWordEntropy(() => {
+      switch (recoveryEntropy) {
         case 128:
           return 12
         case 192:
@@ -112,21 +112,21 @@ export const KeepKeyRecoverySentenceEntry = () => {
           return 12
       }
     })
-  }, [stagedEntropy])
+  }, [recoveryEntropy])
 
   // If an index updates we've heard back from the device
   useEffect(() => {
     setAwaitingKeepKeyResponse(false)
-  }, [currentCharacterIndex, currentWordIndex])
+  }, [recoveryCharacterIndex, recoveryWordIndex])
 
   // Focus on the first input field once restore action confirmed on the device
   useEffect(() => {
     inputFields[0].current?.focus()
   }, [awaitingDeviceInteraction, inputFields])
 
-  const wordCountCircle = useMemo(() => {
+  const wordEntropyCircle = useMemo(() => {
     const size = 2.5
-    const paddedNumber = String((currentWordIndex || 0) + 1).padStart(2, '0')
+    const paddedNumber = String((recoveryWordIndex || 0) + 1).padStart(2, '0')
     return (
       <Box
         borderWidth='2px'
@@ -142,28 +142,25 @@ export const KeepKeyRecoverySentenceEntry = () => {
         <RawText fontWeight='bold'>{paddedNumber}</RawText>
       </Box>
     )
-  }, [circleBorderColor, currentWordIndex])
+  }, [circleBorderColor, recoveryWordIndex])
 
   const resetInputs = useCallback(() => {
     inputFields[0].current?.focus()
-    setCharacterInputValues(current => {
-      const newValues = current.slice()
-      return newValues.fill(undefined)
-    })
+    setCharacterInputValues(new Array<string | undefined>(maxInputLength).fill(undefined))
   }, [inputFields])
 
   const handleWordSubmit = useCallback(async () => {
-    const isLastWord = currentWordIndex === wordCount - 1
-    // If we've entered all words in our seed phrase, tell KeepKey we're done
+    const isLastWord = recoveryWordIndex === wordEntropy - 1
+    // If we've entered all words in our seed phrase, tell the KeepKey we're done
     if (isLastWord) {
       history.push(KeepKeyRoutes.RecoverySettingUp)
       await keepKeyWallet?.sendCharacterDone()
-      // Else send a Space to let KeepKey know we're ready to enter the next word
+      // Else send a Space to let the KeepKey know we're ready to enter the next word
     } else {
       await keepKeyWallet?.sendCharacter(' ')
       resetInputs()
     }
-  }, [currentWordIndex, history, keepKeyWallet, resetInputs, wordCount])
+  }, [recoveryWordIndex, history, keepKeyWallet, resetInputs, wordEntropy])
 
   const onCharacterInput = useCallback(
     async (e: KeyboardEvent) => {
@@ -173,9 +170,11 @@ export const KeepKeyRecoverySentenceEntry = () => {
       // We can't allow tabbing between inputs or the focused element gets out of sync with the KeepKey
       if (e.key === 'Tab') e.preventDefault()
 
-      if (!isValidInput(e, wordCount, currentCharacterIndex, currentWordIndex)) return
+      // Check if an input is valid given the current device state
+      if (!isValidInput(e, wordEntropy, recoveryCharacterIndex, recoveryWordIndex)) return
+
       if (isLetter(e.key)) {
-        setCharacterInputValues(c => inputValuesReducer(c, e.key, currentCharacterIndex))
+        setCharacterInputValues(c => inputValuesReducer(c, e.key, recoveryCharacterIndex))
         setAwaitingKeepKeyResponse(true)
         await keepKeyWallet?.sendCharacter(e.key)
       } else if (e.key === ' ') {
@@ -183,7 +182,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
         setAwaitingKeepKeyResponse(true)
         await keepKeyWallet?.sendCharacter(' ')
       } else if (e.key === 'Backspace') {
-        setCharacterInputValues(c => inputValuesReducer(c, undefined, currentCharacterIndex - 1))
+        setCharacterInputValues(c => inputValuesReducer(c, undefined, recoveryCharacterIndex - 1))
         setAwaitingKeepKeyResponse(true)
         await keepKeyWallet?.sendCharacterDelete()
       } else if (e.key === 'Enter') {
@@ -195,19 +194,24 @@ export const KeepKeyRecoverySentenceEntry = () => {
     },
     [
       awaitingKeepKeyResponse,
-      currentCharacterIndex,
-      currentWordIndex,
+      recoveryCharacterIndex,
+      recoveryWordIndex,
       handleWordSubmit,
       keepKeyWallet,
       resetInputs,
-      wordCount,
+      wordEntropy,
     ],
   )
 
+  // Only the next expected input field should be in focus, else we get out of sync with the KeepKey
   const preventClickIfNotCurrentIndex = (e: MouseEvent<HTMLInputElement>, inputIndex: number) => {
-    if (inputIndex !== currentCharacterIndex) {
+    if (inputIndex !== recoveryCharacterIndex) {
       e.preventDefault()
     }
+  }
+
+  const onCancel = () => {
+    history.goBack()
   }
 
   const pinInputFieldProps: PinInputFieldProps = useMemo(
@@ -219,10 +223,6 @@ export const KeepKeyRecoverySentenceEntry = () => {
     }),
     [onCharacterInput, inputBackgroundColor],
   )
-
-  const onCancel = () => {
-    history.goBack()
-  }
 
   return (
     <>
@@ -236,7 +236,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
           onCancel={onCancel}
         >
           <HStack justifyContent='space-between'>
-            {wordCountCircle}
+            {wordEntropyCircle}
             <PinInput
               id='character-input'
               type='alphanumeric'
@@ -262,8 +262,8 @@ export const KeepKeyRecoverySentenceEntry = () => {
             <Progress
               width='40%'
               min={0}
-              max={wordCount}
-              value={(currentWordIndex || 0) + 1}
+              max={wordEntropy}
+              value={(recoveryWordIndex || 0) + 1}
               background={progressBarBackgroundColor}
               borderRadius='lg'
               sx={{
@@ -279,7 +279,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
               type='submit'
               onClick={handleWordSubmit}
               mb={3}
-              disabled={currentCharacterIndex ? currentCharacterIndex < 3 : true}
+              disabled={recoveryCharacterIndex ? recoveryCharacterIndex < 3 : true}
             >
               <Text translation={'modals.keepKey.recoverySentenceEntry.button'} />
             </Button>

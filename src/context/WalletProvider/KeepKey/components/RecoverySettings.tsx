@@ -28,15 +28,15 @@ export enum SentenceLength {
 const sentenceLengthOptions: readonly RadioOption<SentenceLength>[] = Object.freeze([
   {
     value: SentenceLength.TwelveWords,
-    label: ['modals.keepKey.recoverySettings.wordCount', { wordCount: '12' }],
+    label: ['modals.keepKey.recoverySettings.wordEntropy', { wordEntropy: '12' }],
   },
   {
     value: SentenceLength.EighteenWords,
-    label: ['modals.keepKey.recoverySettings.wordCount', { wordCount: '18' }],
+    label: ['modals.keepKey.recoverySettings.wordEntropy', { wordEntropy: '18' }],
   },
   {
     value: SentenceLength.TwentyFourWords,
-    label: ['modals.keepKey.recoverySettings.wordCount', { wordCount: '24' }],
+    label: ['modals.keepKey.recoverySettings.wordEntropy', { wordEntropy: '24' }],
   },
 ])
 
@@ -60,8 +60,8 @@ export const KeepKeyRecoverySettings = () => {
     const entropy = parseInt(sentenceLengthSelection)
     const entropyTyped = isValidEntropy(entropy) ? entropy : VALID_ENTROPY[0]
     setDeviceState({
-      stagedPassphrase: useRecoveryPassphrase,
-      stagedEntropy: entropyTyped,
+      recoverWithPassphrase: useRecoveryPassphrase,
+      recoveryEntropy: entropyTyped,
     })
     history.push(KeepKeyRoutes.NewLabel)
   }

@@ -303,14 +303,31 @@ export const selectAllStakingDataByValidator = createSelector(
   },
 )
 
-export const selectTotalStakingDelegationCryptoByFilter = createSelector(
-  (state: ReduxState, filter: Partial<ParamFilter>) =>
-    selectAllStakingDataByValidator(state, {
-      accountSpecifier: filter.accountSpecifier ?? filter.accountId ?? '',
-    }),
+export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelector(
+  selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
-  (state: ReduxState) => state.assets.byId,
-  (stakingData, assetId, assets) => {
+  // We make the assumption that all delegation rewards come from a single denom (asset)
+  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
+  (stakingData, assetId) => {
+    const delegations = Object.values(stakingData || {}).flatMap(
+      validatorStaking => validatorStaking[assetId].delegations?.[0],
+    )
+    const amount = reduce(
+      delegations,
+      (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
+      bn(0),
+    )
+
+    return amount.toString()
+  },
+)
+
+export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSelector(
+  selectStakingDataByAccountSpecifier,
+  selectAssetIdParamFromFilter,
+  // We make the assumption that all delegation rewards come from a single denom (asset)
+  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
+  (stakingData, assetId) => {
     if (!stakingData) return '0'
 
     const stakingDataFilteredByAssetId = Object.values(stakingData).flatMap(
@@ -318,10 +335,6 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
     )
     const amount = Object.values(stakingDataFilteredByAssetId)
       .reduce((acc, validatorStakingData) => {
-        const delegationsAmount = validatorStakingData.delegations?.[0]?.amount
-
-        acc = acc.plus(delegationsAmount)
-
         validatorStakingData.undelegations?.forEach(undelegationEntry => {
           acc = acc.plus(undelegationEntry.amount)
         })
@@ -330,7 +343,18 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
       }, bnOrZero(0))
       .toString()
 
-    return fromBaseUnit(amount, assets[assetId].precision ?? 0).toString()
+    return amount
+  },
+)
+
+export const selectTotalStakingDelegationCryptoByFilter = createSelector(
+  selectAssetIdParamFromFilter,
+  (state: ReduxState) => state.assets.byId,
+  selectTotalStakingDelegationCryptoByAccountSpecifier,
+  selectTotalStakingUndelegationCryptoByAccountSpecifier,
+  (assetId, assets, totalDelegations, totalUndelegations) => {
+    const total = bnOrZero(totalDelegations).plus(totalUndelegations)
+    return fromBaseUnit(total, assets[assetId].precision ?? 0).toString()
   },
 )
 
@@ -735,25 +759,6 @@ export type AmountByValidatorAddressType = {
   // {"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf": "1000000"}
   [k: PubKey]: string
 }
-
-export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelector(
-  selectStakingDataByAccountSpecifier,
-  selectAssetIdParamFromFilter,
-  // We make the assumption that all delegation rewards come from a single denom (asset)
-  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  (stakingData, assetId) => {
-    const delegations = Object.values(stakingData || {}).flatMap(
-      validatorStaking => validatorStaking[assetId].delegations?.[0],
-    )
-    const amount = reduce(
-      delegations,
-      (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
-      bn(0),
-    )
-
-    return amount.toString()
-  },
-)
 
 export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
   selectStakingDataByAccountSpecifier,

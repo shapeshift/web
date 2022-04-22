@@ -284,6 +284,8 @@
   "transactionRow": {
     "send": "Sent %{symbol}",
     "receive": "Received %{symbol}",
+    "stake": "Staked",
+    "unstake": "Unstaked",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -910,6 +912,7 @@
     "from": "From",
     "to": "To",
     "for": "For",
+    "amount": "Amount",
     "transfers": "Transfers"
   }
 }

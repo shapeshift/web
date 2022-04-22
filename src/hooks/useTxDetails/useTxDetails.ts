@@ -31,6 +31,11 @@ export enum Direction {
   Inbound = 'inbound',
 }
 
+export enum StakeType {
+  Stake = 'stake',
+  Unstake = 'unstake',
+}
+
 export interface TxDetails {
   tx: Tx
   buyTransfer?: chainAdapters.TxTransfer
@@ -44,7 +49,7 @@ export interface TxDetails {
   ensTo?: string
   from: string
   ensFrom?: string
-  type: chainAdapters.TradeType | chainAdapters.TxType | ''
+  type: chainAdapters.TradeType | chainAdapters.TxType | StakeType | ''
   symbol: string
   precision: number
   explorerTxLink: string

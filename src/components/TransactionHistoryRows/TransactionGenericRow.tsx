@@ -5,10 +5,12 @@ import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-ico
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
+import { StakingDownArrowIcon } from 'components/Icons/StakingDownArrow'
+import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { Text } from 'components/Text'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
 import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTime'
-import { Direction } from 'hooks/useTxDetails/useTxDetails'
+import { Direction, StakeType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -36,6 +38,10 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
 
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
+    case StakeType.Stake:
+      return <StakingUpArrowIcon />
+    case StakeType.Unstake:
+      return <StakingDownArrowIcon />
     case chainAdapters.TxType.Send:
     case Direction.Outbound:
       return <ArrowUpIcon />

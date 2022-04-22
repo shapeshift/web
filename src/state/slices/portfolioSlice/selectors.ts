@@ -189,8 +189,10 @@ export const selectAllStakingDelegationCrypto = createSelector(
     const allStakingDelegationCrypto = reduce(
       allStakingData,
       (acc, [accountSpecifier, portfolioData]) => {
-        if (!portfolioData.stakingData) return acc
-        const delegations = portfolioData.stakingData.delegations
+        if (!portfolioData.stakingDataByValidatorId) return acc
+        const delegations = Object.values(portfolioData.stakingDataByValidatorId)
+          .flatMap(stakingDataByValidator => Object.values(stakingDataByValidator))
+          .flatMap(({ delegations }) => delegations)
         const delegationSum = reduce(
           delegations,
           (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),

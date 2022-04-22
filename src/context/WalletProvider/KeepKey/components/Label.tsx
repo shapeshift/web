@@ -38,7 +38,7 @@ export const KeepKeyLabel = () => {
   const handleRecoverSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
-    setDeviceState({ stagedLabel: label })
+    setDeviceState({ stagedLabel: label, awaitingDeviceInteraction: true })
     const recoverParams: RecoverDevice = {
       entropy: stagedEntropy,
       label: label ?? '',

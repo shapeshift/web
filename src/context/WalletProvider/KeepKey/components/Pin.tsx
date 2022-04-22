@@ -24,6 +24,7 @@ export const KeepKeyPin = () => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const {
+    setDeviceState,
     state: {
       keyring,
       deviceId,
@@ -52,6 +53,7 @@ export const KeepKeyPin = () => {
         await wallet?.sendPin(pin)
         switch (disposition) {
           case 'recovering':
+            setDeviceState({ awaitingDeviceInteraction: true })
             dispatch({
               type: WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST,
               payload: {

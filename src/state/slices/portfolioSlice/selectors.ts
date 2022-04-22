@@ -181,7 +181,7 @@ export const selectPortfolioTotalFiatBalance = createSelector(
       .toFixed(2),
 )
 
-export const selectAllStakingDelegationCrypto = createSelector(
+export const selectAllStakingDelegationCrypto = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   portfolioAccounts => {
     // TODO: Implement this better
@@ -206,7 +206,7 @@ export const selectAllStakingDelegationCrypto = createSelector(
     return allStakingDelegationCrypto
   },
 )
-export const selectTotalStakingDelegationFiat = createSelector(
+export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
   selectAllStakingDelegationCrypto,
   selectMarketData,
   (state: ReduxState) => state.assets.byId,
@@ -305,7 +305,7 @@ export const selectAllStakingDataByValidator = createSelector(
   },
 )
 
-export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelector(
+export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
   // We make the assumption that all delegation rewards come from a single denom (asset)
@@ -324,7 +324,7 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelect
   },
 )
 
-export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSelector(
+export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
   // We make the assumption that all delegation rewards come from a single denom (asset)
@@ -349,7 +349,7 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSele
   },
 )
 
-export const selectTotalStakingDelegationCryptoByFilter = createSelector(
+export const selectTotalStakingDelegationCryptoByFilter = createDeepEqualOutputSelector(
   selectAssetIdParamFromFilter,
   (state: ReduxState) => state.assets.byId,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
@@ -784,7 +784,7 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
   },
 )
 
-export const selectUnbondingCryptoAmountByAssetIdAndValidator = createSelector(
+export const selectUnbondingCryptoAmountByAssetIdAndValidator = createDeepEqualOutputSelector(
   selectUnbondingEntriesByAccountSpecifier,
   (unbondingEntries): string => {
     if (!unbondingEntries.length) return '0'
@@ -823,7 +823,9 @@ export const selectRewardsByValidator = createDeepEqualOutputSelector(
   },
 )
 
-export const selectValidatorIds = createSelector(
+// New array object reference every time we return this expression: [SHAPESHIFT_VALIDATOR_ADDRESS]
+// We need to explicitly deep output compare, since ([SHAPESHIFT_VALIDATOR_ADDRESS] === [SHAPESHIFT_VALIDATOR_ADDRESS]) === false
+export const selectValidatorIds = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAccountSpecifierParamFromFilter,
   (portfolioAccounts, accountSpecifier): PubKey[] => {
@@ -835,7 +837,7 @@ export const selectValidatorIds = createSelector(
   },
 )
 
-export const selectStakingOpportunitiesDataFull = createSelector(
+export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
   selectValidatorIds,
   selectAllValidatorsData,
   selectAllStakingDataByValidator,

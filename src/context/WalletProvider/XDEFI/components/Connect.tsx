@@ -88,7 +88,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
           setErrorLoading('walletProvider.xdefi.errors.unknown')
           history.push('/xdefi/failure')
           // Safely navigate user to website if XDEFI is not found
-          if (e?.message === 'XDeFi provider not found') {
+          if (e?.message === 'XDEFI provider not found') {
             const newWindow = window.open('https://xdefi.io', '_blank', 'noopener noreferrer')
             if (newWindow) newWindow.opener = null
           }

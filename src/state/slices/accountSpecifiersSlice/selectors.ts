@@ -1,4 +1,5 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
+import { createSelector } from 'reselect'
 import { ReduxState } from 'state/reducer'
 
 import { createDeepEqualOutputSelector } from './../../selector-utils'
@@ -18,7 +19,7 @@ export const selectAccountSpecifierStrings = (state: ReduxState) =>
 // For most accounts, that's effectively a CAIP19, but not for e.g UTXO chains thus the pubkeyish naming
 // We use this in cosmos plugin to get the pubkey as a CAIP19, without needing to use chain-adapters in components
 // Since the pubkey is already in state
-export const selectAccountSpecifier = (state: ReduxState, chainId: CAIP2) =>
+export const selectAccountSpecifiersByChainId = (state: ReduxState, chainId: CAIP2) =>
   state.accountSpecifiers.accountSpecifiers.reduce<string[]>((acc, accountSpecifier) => {
     const pubkeyish = Object.entries(accountSpecifier)[0].join(':')
     const currentChainId = Object.keys(accountSpecifier)[0]
@@ -29,3 +30,8 @@ export const selectAccountSpecifier = (state: ReduxState, chainId: CAIP2) =>
 
     return acc
   }, [])
+
+export const selectFirstAccountSpecifierByChainId = createSelector(
+  selectAccountSpecifiersByChainId,
+  accountSpecifiers => accountSpecifiers[0],
+)

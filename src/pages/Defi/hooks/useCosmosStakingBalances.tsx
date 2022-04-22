@@ -4,8 +4,8 @@ import { useMemo } from 'react'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   ActiveStakingOpportunity,
-  selectAccountSpecifier,
   selectAssetByCAIP19,
+  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
@@ -41,8 +41,9 @@ export function useCosmosStakingBalances({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
 
-  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.caip2))
-  const accountSpecifier = accountSpecifiers?.[0] // TODO: maybe remove me, or maybe not
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+  )
 
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),

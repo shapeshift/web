@@ -15,8 +15,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   OpportunitiesDataFull,
-  selectAccountSpecifier,
   selectAssetByCAIP19,
+  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
@@ -57,8 +57,9 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.caip2))
-  const accountSpecifier = accountSpecifiers?.[0]
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+  )
 
   const stakingOpportunitiesData = useAppSelector(state =>
     selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),

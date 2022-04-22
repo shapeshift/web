@@ -34,8 +34,8 @@ import {
   selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/portfolioSlice/selectors'
 import {
-  selectAccountSpecifier,
   selectAssetByCAIP19,
+  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
   selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
@@ -68,8 +68,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const translate = useTranslate()
 
-  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.caip2))
-  const accountSpecifier = accountSpecifiers?.[0] // TODO: maybe remove me, or maybe not
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+  )
   const filter = useMemo(
     () => ({ assetId, accountId, accountSpecifier }),
     [assetId, accountId, accountSpecifier],

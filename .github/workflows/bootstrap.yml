@@ -34,7 +34,6 @@ jobs:
           # Disable running of tests within install job
           runTests: false
           build: yarn build
-          # cache-key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
 
       - name: Verify Cypress
         env:

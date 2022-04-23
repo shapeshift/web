@@ -46,7 +46,15 @@ export const KeepKeyLabel = () => {
       pin: true,
       autoLockDelayMs: 600000, // Ten minutes
     }
-    wallet?.recover(recoverParams)
+    await wallet?.recover(recoverParams).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
 
   return (

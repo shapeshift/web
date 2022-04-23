@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
@@ -30,20 +30,7 @@ export const WalletViewsSwitch = () => {
     dispatch,
   } = useWallet()
 
-  const onClose = () => {
-    history.replace('/')
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-  }
-
-  const handleBack = async () => {
-    history.goBack()
-    // If we're back at the select wallet modal, remove the initial route
-    // otherwise clicking the button for the same wallet doesn't do anything
-    if (history.location.pathname === '/') {
-      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
-    }
-
-    // Cancel any active requests with our wallet on back
+  const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
       console.error(e)
       toast({
@@ -53,6 +40,22 @@ export const WalletViewsSwitch = () => {
         isClosable: true,
       })
     })
+  }, [toast, translate, wallet])
+
+  const onClose = async () => {
+    history.replace('/')
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    await cancelWalletRequests()
+  }
+
+  const handleBack = async () => {
+    history.goBack()
+    // If we're back at the select wallet modal, remove the initial route
+    // otherwise clicking the button for the same wallet doesn't do anything
+    if (history.location.pathname === '/') {
+      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+    }
+    await cancelWalletRequests()
   }
 
   useEffect(() => {

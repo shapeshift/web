@@ -170,22 +170,33 @@ export const KeepKeyRecoverySentenceEntry = () => {
       if (!isValidInput(e, wordEntropy, recoveryCharacterIndex, recoveryWordIndex)) return
 
       if (isLetter(e.key)) {
+        // Handle a letter
         setCharacterInputValues(c => inputValuesReducer(c, e.key, recoveryCharacterIndex))
         setAwaitingKeepKeyResponse(true)
         await keepKeyWallet?.sendCharacter(e.key)
-      } else if (e.key === ' ') {
-        resetInputs()
-        setAwaitingKeepKeyResponse(true)
-        await keepKeyWallet?.sendCharacter(' ')
-      } else if (e.key === 'Backspace') {
-        setCharacterInputValues(c => inputValuesReducer(c, undefined, recoveryCharacterIndex - 1))
-        setAwaitingKeepKeyResponse(true)
-        await keepKeyWallet?.sendCharacterDelete()
-      } else if (e.key === 'Enter') {
-        setAwaitingKeepKeyResponse(true)
-        await handleWordSubmit()
+        return
       } else {
-        console.error('Invalid input', e.key)
+        // Handle a special character
+        switch (e.key) {
+          case ' ':
+            resetInputs()
+            setAwaitingKeepKeyResponse(true)
+            await keepKeyWallet?.sendCharacter(' ')
+            break
+          case 'Backspace':
+            setCharacterInputValues(c =>
+              inputValuesReducer(c, undefined, recoveryCharacterIndex - 1),
+            )
+            setAwaitingKeepKeyResponse(true)
+            await keepKeyWallet?.sendCharacterDelete()
+            break
+          case 'Enter':
+            setAwaitingKeepKeyResponse(true)
+            await handleWordSubmit()
+            break
+          default:
+            console.error('Invalid input', e.key)
+        }
       }
     },
     [

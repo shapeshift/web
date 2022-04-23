@@ -23,7 +23,7 @@ export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs
 const selectTxIdParam = createCachedSelector(
   (_state: ReduxState, txId: string) => txId,
   txId => txId,
-)((_state: ReduxState, txId: TxId): TxId => txId)
+)((_state: ReduxState, txId: TxId): TxId => txId ?? 'undefined')
 
 const selectTxIdsParam = createDeepEqualOutputSelector(
   (_state: ReduxState, txIds: TxId[]) => txIds,
@@ -41,7 +41,7 @@ export const selectTxById = createCachedSelector(
   selectTxIdParam,
   (txsById, txId) => txsById[txId],
 )({
-  keySelector: (_txsById, txId: TxId): TxId => txId,
+  keySelector: (_txsById, txId: TxId): TxId => txId ?? 'undefined',
   selectorCreator: createDeepEqualOutputSelector,
 })
 

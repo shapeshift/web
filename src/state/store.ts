@@ -45,6 +45,23 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(apiSlices.stakingDataApi.util.resetApiState())
 }
 
+const actionSanitizer = (action: any) => {
+  const blackList = [
+    'asset/setAssets',
+    'assetApi/executeQuery/fulfilled',
+    'marketData/setMarketData',
+    'marketData/setPriceHistory',
+  ]
+  return blackList.includes(action.type)
+    ? {
+        ...action,
+        payload: 'see actionSanitizer in store.ts',
+      }
+    : action
+}
+
+const stateSanitizer = (state: any) => ({ ...state, assets: 'see stateSanitizer in store.ts' })
+
 /// This allows us to create an empty store for tests
 export const createStore = () =>
   configureStore({
@@ -60,7 +77,10 @@ export const createStore = () =>
           ignoredActions: [PERSIST],
         },
       }).concat(apiMiddleware),
-    devTools: true,
+    devTools: {
+      actionSanitizer,
+      stateSanitizer,
+    },
   })
 
 export const store = createStore()

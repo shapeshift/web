@@ -16,26 +16,26 @@ import { Text } from 'components/Text'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const VALID_ENTROPY = [128, 192, 256] as const
+export const VALID_ENTROPY = ['128', '192', '256'] as const
 export type Entropy = typeof VALID_ENTROPY[number]
 
-export enum SentenceLength {
-  TwelveWords = VALID_ENTROPY[0],
-  EighteenWords = VALID_ENTROPY[1],
-  TwentyFourWords = VALID_ENTROPY[2],
-}
+export const sentenceLength = Object.freeze({
+  TwelveWords: VALID_ENTROPY[0],
+  EighteenWords: VALID_ENTROPY[1],
+  TwentyFourWords: VALID_ENTROPY[2],
+})
 
-const sentenceLengthOptions: readonly RadioOption<SentenceLength>[] = Object.freeze([
+const sentenceLengthOptions: readonly RadioOption<Entropy>[] = Object.freeze([
   {
-    value: SentenceLength.TwelveWords,
+    value: sentenceLength.TwelveWords,
     label: ['modals.keepKey.recoverySettings.wordEntropy', { wordEntropy: '12' }],
   },
   {
-    value: SentenceLength.EighteenWords,
+    value: sentenceLength.EighteenWords,
     label: ['modals.keepKey.recoverySettings.wordEntropy', { wordEntropy: '18' }],
   },
   {
-    value: SentenceLength.TwentyFourWords,
+    value: sentenceLength.TwentyFourWords,
     label: ['modals.keepKey.recoverySettings.wordEntropy', { wordEntropy: '24' }],
   },
 ])
@@ -44,35 +44,23 @@ export const KeepKeyRecoverySettings = () => {
   const translate = useTranslate()
   const history = useHistory()
   const [useRecoveryPassphrase, setUseRecoveryPassphrase] = useState(false)
-  const [sentenceLengthSelection, setSentenceLengthSelection] = useState(
-    String(SentenceLength.TwelveWords),
+  const [sentenceLengthSelection, setSentenceLengthSelection] = useState<Entropy>(
+    sentenceLength.TwelveWords,
   )
   const { setDeviceState } = useWallet()
 
   const grayTextColor = useColorModeValue('gray.900', 'gray.400')
   const grayBackgroundColor = useColorModeValue('gray.100', 'gray.700')
 
-  const isValidEntropy = (length: number | undefined): length is Entropy | undefined => {
-    return VALID_ENTROPY.some(e => e === length)
-  }
-
   const handleSubmit = async () => {
-    const entropy = parseInt(sentenceLengthSelection)
-    const entropyTyped = isValidEntropy(entropy) ? entropy : VALID_ENTROPY[0]
     setDeviceState({
       recoverWithPassphrase: useRecoveryPassphrase,
-      recoveryEntropy: entropyTyped,
+      recoveryEntropy: sentenceLengthSelection,
     })
     history.push(KeepKeyRoutes.NewLabel)
   }
 
-  const handleSentenceLengthSelection = (value: string) => {
-    setSentenceLengthSelection(value)
-  }
-
-  const handlePassphraseToggle = () => {
-    setUseRecoveryPassphrase(current => !current)
-  }
+  const handlePassphraseToggle = () => setUseRecoveryPassphrase(current => !current)
 
   const radioButtonProps = {
     width: 'full',
@@ -117,10 +105,8 @@ export const KeepKeyRecoverySettings = () => {
           mb={2}
         />
         <Radio
-          onChange={handleSentenceLengthSelection}
-          options={sentenceLengthOptions.map(k => {
-            return { value: String(k.value), label: k.label }
-          })}
+          onChange={setSentenceLengthSelection}
+          options={sentenceLengthOptions}
           defaultValue={sentenceLengthSelection}
           radioProps={radioButtonProps}
           buttonGroupProps={buttonGroupProps}

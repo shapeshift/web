@@ -21,7 +21,7 @@ import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 const isLetter = (str: string) => {
-  return str.length === 1 && str.match(/[a-z]/i)
+  return str.length === 1 && str.match(/[a-zA-Z]/i)
 }
 
 const minInputLength = 3
@@ -78,7 +78,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     },
   } = useWallet()
   const history = useHistory()
-  const [wordEntropy, setWordEntropy] = useState(12)
+  const [wordEntropy, setWordEntropy] = useState<12 | 18 | 24>(12)
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
   )
@@ -102,11 +102,11 @@ export const KeepKeyRecoverySentenceEntry = () => {
   useEffect(() => {
     setWordEntropy(() => {
       switch (recoveryEntropy) {
-        case 128:
+        case '128':
           return 12
-        case 192:
+        case '192':
           return 18
-        case 256:
+        case '256':
           return 24
         default:
           return 12
@@ -115,14 +115,10 @@ export const KeepKeyRecoverySentenceEntry = () => {
   }, [recoveryEntropy])
 
   // If an index updates we've heard back from the device
-  useEffect(() => {
-    setAwaitingKeepKeyResponse(false)
-  }, [recoveryCharacterIndex, recoveryWordIndex])
+  useEffect(() => setAwaitingKeepKeyResponse(false), [recoveryCharacterIndex, recoveryWordIndex])
 
   // Focus on the first input field once restore action confirmed on the device
-  useEffect(() => {
-    inputFields[0].current?.focus()
-  }, [awaitingDeviceInteraction, inputFields])
+  useEffect(() => inputFields[0].current?.focus(), [awaitingDeviceInteraction, inputFields])
 
   const wordEntropyCircle = useMemo(() => {
     const size = 2.5
@@ -210,9 +206,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     }
   }
 
-  const onCancel = () => {
-    history.goBack()
-  }
+  const onCancel = () => history.goBack()
 
   const pinInputFieldProps: PinInputFieldProps = useMemo(
     () => ({

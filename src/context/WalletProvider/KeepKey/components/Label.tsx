@@ -40,7 +40,7 @@ export const KeepKeyLabel = () => {
     const label = inputRef.current?.value
     setDeviceState({ awaitingDeviceInteraction: true })
     const recoverParams: RecoverDevice = {
-      entropy: recoveryEntropy,
+      entropy: parseInt(recoveryEntropy) as RecoverDevice['entropy'],
       label: label ?? '',
       passphrase: recoverWithPassphrase || false,
       pin: true,

@@ -42,46 +42,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Install Serve
-        run: yarn global add serve
       
-      - name: Download the build folders
+      - name: Download Build Folder
         if: ${{ !env.ACT }}
         uses: actions/download-artifact@v3
         with:
           name: build
           path: build
 
-      # --- Install ---
-      # - name: Checkout
-      #   uses: actions/checkout@v3
-
-      # - name: Setup Node
-      #   uses: actions/setup-node@v3
+      # - name: Cache dependencies
+      #   uses: actions/cache@v2
       #   with:
-      #     node-version-file: '.nvmrc'
-      #     cache: 'yarn'
-
-      # - name: Install Runner Dependencies
-      #   if: ${{ env.ACT }}
-      #   run: apt-get -yq install --no-install-recommends --no-install-suggests zstd
-
-      # - name: Save build folder
-      #   if: ${{ !env.ACT }}
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: build
-      #     if-no-files-found: error
-      #     path: build
-
-      # - name: Cypress install
-      #   uses: cypress-io/github-action@v3
-      #   with:
-      #     # Disable running of tests within install job
-      #     runTests: false
-      #     build: yarn install --frozen-lockfile --silent
-      #     cache-key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+      #     path: '**/node_modules'
+      #     key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
 
       - name: Verify Cypress
         env:
@@ -106,10 +81,9 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v3
         with:
-          install: yarn cypress install
+          # install: false
           record: true
-          # start: yarn dev
-          start: serve -s build
+          start: yarn dev
           parallel: true
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 240 # seconds

@@ -28,7 +28,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Cypress install
+      - name: Install Cypress & Build Project 
         uses: cypress-io/github-action@v3
         with:
           # Disable running of tests within install job
@@ -45,7 +45,7 @@ jobs:
           npx cypress verify
           npx cypress info
 
-      - name: Save build folder
+      - name: Save Build Folder
         if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v3
         with:
@@ -59,6 +59,3 @@ jobs:
   call-pr-cypress-workflow:
     uses: ./.github/workflows/pr-cypress.yml
     needs: [install-and-cache]
-  # call-pr-cypress-workflow-v2:
-  #   uses: ./.github/workflows/pr-cypress-serve.yml
-  #   needs: [install-and-cache]

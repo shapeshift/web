@@ -42,6 +42,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-${{ github.ref }}-
       
       - name: Download Build Folder
         if: ${{ !env.ACT }}
@@ -49,14 +57,6 @@ jobs:
         with:
           name: build
           path: build
-
-      # - name: Cache dependencies
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: '**/node_modules'
-      #     key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
 
       - name: Verify Cypress
         env:
@@ -78,7 +78,7 @@ jobs:
       # Testing: Local Docker resources in settings may need to be increased to 
       # closer reflect Github runner resources.
       # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-      - name: Cypress run
+      - name: Cypress Run
         uses: cypress-io/github-action@v3
         with:
           # install: false

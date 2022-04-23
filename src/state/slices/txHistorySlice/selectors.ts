@@ -1,8 +1,7 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
-import isEqual from 'lodash/isEqual'
 import last from 'lodash/last'
-import values from 'lodash/values'
+import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -10,51 +9,41 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
 
-export const selectTxs = (state: ReduxState) => state.txHistory.txs.byId
-export const selectTxIds = (state: ReduxState) => state.txHistory.txs.ids
+export const selectTxs = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.txHistory.txs.byId,
+  byId => byId,
+)
+export const selectTxIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.txHistory.txs.ids,
+  ids => ids,
+)
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
 export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs.byAccountId
 
-const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
-const selectTxIdsParam = (_state: ReduxState, txIds: TxId[]) => txIds
+const selectTxIdParam = createCachedSelector(
+  (_state: ReduxState, txId: string) => txId,
+  txId => txId,
+)((_state: ReduxState, txId: TxId): TxId => txId)
 
-export const selectTxsByAccountIds = createSelector(
-  selectTxs,
-  selectTxIdsByAccountId,
-  selectAccountIdsParam,
-  (txsById, txsByAccountId, accountIds): Tx[] => {
-    if (!accountIds?.length) {
-      return values(selectTxs)
-    } else {
-      return Object.entries(txsByAccountId)
-        .reduce<TxId[]>((acc, [accountId, txIds]) => {
-          if (accountIds.includes(accountId)) acc.push(...txIds)
-          return acc
-        }, [])
-        .map(txId => txsById[txId])
-    }
-  },
-  // deep equality check on output as we're mapping
-  { memoizeOptions: { resultEqualityCheck: isEqual } },
+const selectTxIdsParam = createDeepEqualOutputSelector(
+  (_state: ReduxState, txIds: TxId[]) => txIds,
+  txIds => txIds,
 )
 
-export const selectLastNTxIds = createSelector(
-  // ids will always change
+export const selectLastNTxIds = createDeepEqualOutputSelector(
   selectTxIds,
   (_state: ReduxState, count: number) => count,
   (ids, count) => ids.slice(0, count),
-  // https://github.com/reduxjs/reselect#createselectorinputselectors--inputselectors-resultfunc-selectoroptions
-  // we're doing a deel equality check on the output
-  // meaning the selector returns the same array ref
-  // regardless of if the input has changed
-  { memoizeOptions: { resultEqualityCheck: isEqual } },
 )
 
-export const selectTxById = createSelector(
-  (state: ReduxState) => state.txHistory.txs.byId,
-  (_state: ReduxState, txId: string) => txId,
+export const selectTxById = createCachedSelector(
+  selectTxs,
+  selectTxIdParam,
   (txsById, txId) => txsById[txId],
-)
+)({
+  keySelector: (_txsById, txId: TxId): TxId => txId,
+  selectorCreator: createDeepEqualOutputSelector,
+})
 
 export const selectTxDateByIds = createDeepEqualOutputSelector(
   selectTxIdsParam,
@@ -143,7 +132,7 @@ const selectAssetIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilt
 const selectAccountIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilter) =>
   filter?.accountIds ?? []
 
-export const selectTxIdsByFilter = createSelector(
+export const selectTxIdsByFilter = createDeepEqualOutputSelector(
   selectTxsByAssetId,
   selectTxIdsByAccountId,
   selectAssetIdsParamFromFilter,
@@ -156,11 +145,12 @@ export const selectTxIdsByFilter = createSelector(
     const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
     return intersection(accountsTxIds, assetTxIds)
   },
-  { memoizeOptions: { resultEqualityCheck: isEqual } },
 )
 
-export const selectTxsByFilter = createSelector(selectTxs, selectTxIdsByFilter, (txs, txIds) =>
-  txIds.map(txId => txs[txId]),
+export const selectTxsByFilter = createDeepEqualOutputSelector(
+  selectTxs,
+  selectTxIdsByFilter,
+  (txs, txIds) => txIds.map(txId => txs[txId]),
 )
 
 // this is only used on trade confirm - new txs will be pushed

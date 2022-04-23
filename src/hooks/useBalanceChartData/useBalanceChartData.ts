@@ -328,7 +328,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   // dummy assetId - we're only filtering on account
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId),
+    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId ?? ''),
   )
 
   // Get total delegation

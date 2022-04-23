@@ -9,6 +9,7 @@ import map from 'lodash/map'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -294,13 +295,13 @@ export const selectPortfolioCryptoBalanceByFilter = createSelector(
   },
 )
 
-export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
+export const selectPortfolioCryptoHumanBalanceByAssetId = createCachedSelector(
   selectAssets,
   selectPortfolioAssetBalances,
   selectAssetIdParam,
   (assets, balances, assetId): string =>
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0),
-)
+)((_assets, _balances, assetId: CAIP19): CAIP19 => assetId ?? 'undefined')
 
 export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
   selectAssets,

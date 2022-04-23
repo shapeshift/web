@@ -42,6 +42,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Install Serve
+        run: yarn global add serve
       
       - name: Download the build folders
         if: ${{ !env.ACT }}
@@ -105,7 +108,8 @@ jobs:
         with:
           install: false
           record: true
-          start: yarn dev
+          # start: yarn dev
+          start: serve -s build
           parallel: true
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 240 # seconds

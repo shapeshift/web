@@ -36,6 +36,9 @@ export const useKeepKeyEventHandler = (
               if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
               break
             case 'Device recovered':
+              setDeviceState({
+                disposition: 'initialized',
+              })
               if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
               toast({
                 title: translate('common.success'),

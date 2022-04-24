@@ -28,8 +28,8 @@ env:
 jobs:
   test-chrome:
     name: Run Cypress
-    runs-on: ubuntu-20.04
-    container: cypress/browsers:node16.13.2-chrome100-ff98
+    runs-on: ubuntu-latest
+    # container: cypress/browsers:node16.13.2-chrome100-ff98
     strategy:
       # When one test fails, do not cancel the other
       # containers, because this will kill Cypress processes,
@@ -43,14 +43,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Node Modules
-        uses: actions/cache@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-
-      
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
       - name: Download Build Folder
         if: ${{ !env.ACT }}
         uses: actions/download-artifact@v3
@@ -86,7 +84,7 @@ jobs:
           start: yarn dev
           parallel: true
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 240 # seconds
+          wait-on-timeout: 300 # seconds
           browser: chrome
           group: 'Chrome tests'
         env:
@@ -96,7 +94,3 @@ jobs:
           # determine the unique run id necessary to re-run the checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # DEBUG: '@cypress/github-action'
-          # prevents extra Cypress installation progress messages
-          CI: 1
-          # avoid warnings like "tput: No value for $TERM and no -T specified"
-          TERM: xterm

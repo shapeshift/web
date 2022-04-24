@@ -72,6 +72,7 @@ jobs:
         # verify: Verify that Cypress is installed correctly and is executable
         # info: Prints information about Cypress and the current environment
         run: |
+          npx cypress install
           npx cypress cache path
           npx cypress cache list
           npx cypress verify

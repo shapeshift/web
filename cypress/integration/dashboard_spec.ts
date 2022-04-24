@@ -15,7 +15,7 @@ describe('The Dashboard', () => {
 
   it('nav bar works', () => {
     // A proxy to understand if the Dashboard has initialised
-    cy.getBySel('account-row').should('have.length.gt', 5)
+    cy.getBySel('account-row', { timeout: 60000 }).should('have.length.gt', 5)
 
     cy.navigateToAccounts()
     cy.navigateToAssets()
@@ -24,6 +24,7 @@ describe('The Dashboard', () => {
   })
 
   it('displays the expected account rows', () => {
+    cy.waitForAllGetReqs()
     cy.getBySel('account-row').should('have.length.gt', 5)
 
     // Check LINK - one asset is enough. Test all and our tests become brittle.
@@ -42,11 +43,23 @@ describe('The Dashboard', () => {
     cy.getBySel('swap-assets-button').click()
     // cy.getBySel('trade-rate-quote').should('have.text', '1 FOX = 0.00011 ETH') // TODO - mock response and test here
     cy.getBySel('trade-preview-button').should('be.disabled')
+
+    // Clicking 'swap-assets-button' will cause XHR requests, lets wait for
+    // those requests to complete since the 'trade-preview-button' will have
+    // the text "Loading..." (displays a spinner)
+    // cy.intercept({ method: 'GET', url: '/swap/**'}).as('getSwap')
+    // cy.intercept({ method: 'GET', url: '**/account/**'}).as('getAccount')
+    // cy.wait(['@getSwap', '@getAccount'], { timeout: 60000 })
+    cy.intercept({ method: 'GET'}).as('getReqs')
+    cy.wait(['@getReqs'])
+
     cy.getBySel('token-row-sell-max-button').click()
+    cy.waitForAllGetReqs()
     // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
-    cy.getBySel('trade-preview-button').should('have.text', 'Insufficient Funds', {
-      timeout: 30000,
-    })
+    // cy.getBySel('trade-preview-button', {
+    //   timeout: 30000,
+    // }).should('have.text', 'Insufficient Funds')
+    cy.get('[data-test=trade-preview-button]').contains('Insufficient Funds', { timeout: 60000 })
     // TODO - We are now at the approval screen - test the rest of the flow
   })
 

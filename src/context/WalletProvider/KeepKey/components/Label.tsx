@@ -10,7 +10,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 const parseIntToEntropy = (entropy: string): RecoverDevice['entropy'] => {
   const isValidEntropyNumber = (entropy: number): entropy is RecoverDevice['entropy'] =>
     new Set(VALID_ENTROPY.map(parseInt)).has(entropy)
-
   const parsedInt = parseInt(entropy)
   return isValidEntropyNumber(parsedInt) ? parsedInt : 128
 }

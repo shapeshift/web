@@ -12,7 +12,7 @@ type UseWalletSupportsChainArgs = { chainId: CAIP2; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 
 // use outside react
-export const walletSupportChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
+export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
   const ethCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
   const btcCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
@@ -46,4 +46,4 @@ export const walletSupportChain: UseWalletSupportsChain = ({ chainId, wallet }) 
 }
 
 // TODO(0xdef1cafe): this whole thing should belong in chain adapters
-export const useWalletSupportsChain: UseWalletSupportsChain = args => walletSupportChain(args)
+export const useWalletSupportsChain: UseWalletSupportsChain = args => walletSupportsChain(args)

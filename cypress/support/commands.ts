@@ -141,7 +141,7 @@ Cypress.Commands.add('backdropDismiss', () => {
 // @ts-ignore
 Cypress.Commands.add('waitForAllGetReqs', () => {
   cy.intercept({ method: 'GET' }).as('getReqs')
-  cy.wait(['@getReqs'], { timeout: 60000 })
+  cy.wait(['@getReqs'])
 })
 
 // @ts-ignore
@@ -155,9 +155,7 @@ Cypress.Commands.add('navigateToDashboard', () => {
 Cypress.Commands.add('navigateToAccounts', () => {
   cy.getBySel('full-width-header').findBySel('navbar-accounts-button').click()
 
-  cy.waitForAllGetReqs()
-
-  cy.url({ timeout: 60000 }).should('equal', `${baseUrl}accounts`)
+  cy.url().should('equal', `${baseUrl}accounts`)
 })
 
 // @ts-ignore

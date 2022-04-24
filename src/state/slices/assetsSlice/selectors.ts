@@ -12,7 +12,7 @@ export const selectAssetByCAIP19 = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
   (byId, CAIP19) => byId[CAIP19] || undefined,
-)((_state: ReduxState, assetId: CAIP19): CAIP19 => assetId ?? 'undefined')
+)((_state: ReduxState, assetId: CAIP19 | undefined): CAIP19 => assetId ?? 'undefined')
 
 export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
   asset ? asset.name : undefined,

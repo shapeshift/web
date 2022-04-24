@@ -59,11 +59,11 @@ const inputValuesReducer = (
   currentValues: Array<string | undefined>,
   newValue: string | undefined,
   newValueIndex: number,
-) => {
-  const newValues = currentValues.slice()
-  newValues[newValueIndex] = newValue?.toUpperCase()
-  return newValues
-}
+) => [
+  ...currentValues.slice(0, newValueIndex),
+  newValue?.toUpperCase(),
+  ...currentValues.slice(newValueIndex + 1),
+]
 
 export const KeepKeyRecoverySentenceEntry = () => {
   const {

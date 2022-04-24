@@ -33,13 +33,13 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      # - name: Cache Node Modules
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: node_modules
-      #     key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-node-modules-${{ github.ref }}-
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-${{ github.ref }}-
 
       - name: Download Build Folder
         if: ${{ !env.ACT }}

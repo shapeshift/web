@@ -140,48 +140,36 @@ Cypress.Commands.add('backdropDismiss', () => {
 
 // @ts-ignore
 Cypress.Commands.add('waitForAllGetReqs', () => {
-  cy.intercept({ method: 'GET'}).as('getReqs')
+  cy.intercept({ method: 'GET' }).as('getReqs')
   cy.wait(['@getReqs'], { timeout: 60000 })
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToDashboard', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-dashboard-button')
-    .click()
-  
-  cy.url()
-    .should('equal', `${baseUrl}dashboard`)
+  cy.getBySel('full-width-header').findBySel('navbar-dashboard-button').click()
+
+  cy.url().should('equal', `${baseUrl}dashboard`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToAccounts', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-accounts-button')
-    .click()
-  
+  cy.getBySel('full-width-header').findBySel('navbar-accounts-button').click()
+
   cy.waitForAllGetReqs()
-  
-  cy.url({ timeout: 60000 })
-    .should('equal', `${baseUrl}accounts`)
+
+  cy.url({ timeout: 60000 }).should('equal', `${baseUrl}accounts`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToDefi', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-defi-button')
-    .click()
+  cy.getBySel('full-width-header').findBySel('navbar-defi-button').click()
 
-  cy.url()
-    .should('equal', `${baseUrl}defi`)
+  cy.url().should('equal', `${baseUrl}defi`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToAssets', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-assets-button')
-    .click()
+  cy.getBySel('full-width-header').findBySel('navbar-assets-button').click()
 
-  cy.url()
-    .should('equal', `${baseUrl}assets`)
+  cy.url().should('equal', `${baseUrl}assets`)
 })

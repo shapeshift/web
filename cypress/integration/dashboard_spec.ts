@@ -50,7 +50,7 @@ describe('The Dashboard', () => {
     // cy.intercept({ method: 'GET', url: '/swap/**'}).as('getSwap')
     // cy.intercept({ method: 'GET', url: '**/account/**'}).as('getAccount')
     // cy.wait(['@getSwap', '@getAccount'], { timeout: 60000 })
-    cy.intercept({ method: 'GET'}).as('getReqs')
+    cy.intercept({ method: 'GET' }).as('getReqs')
     cy.wait(['@getReqs'])
 
     cy.getBySel('token-row-sell-max-button').click()

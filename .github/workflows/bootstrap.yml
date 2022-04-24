@@ -28,14 +28,6 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Cache Node Modules
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-
       - name: Install Cypress & Build Project 
         uses: cypress-io/github-action@v3
         with:

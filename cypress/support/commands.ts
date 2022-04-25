@@ -140,8 +140,8 @@ Cypress.Commands.add('backdropDismiss', () => {
 
 // @ts-ignore
 Cypress.Commands.add('waitForAllGetRequests', () => {
-  cy.intercept({ method: 'GET' }).as('getReqs')
-  cy.wait(['@getReqs'])
+  cy.intercept({ method: 'GET' }).as('getRequests')
+  cy.wait(['@getRequests'])
 })
 
 // @ts-ignore

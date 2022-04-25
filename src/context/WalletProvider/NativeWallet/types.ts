@@ -22,5 +22,5 @@ export interface NativeSetupProps
 }
 
 export interface LoginError {
-  message: string
+  message: '2fa required' | '2fa invalid'
 }

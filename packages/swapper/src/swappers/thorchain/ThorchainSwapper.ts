@@ -35,16 +35,6 @@ export class ThorchainSwapper implements Swapper {
     throw new Error('ThorchainSwapper: getMinMax unimplemented')
   }
 
-  getAvailableAssets(assets: Asset[]): Asset[] {
-    console.info(assets)
-    throw new Error('ThorchainSwapper: getAvailableAssets unimplemented')
-  }
-
-  canTradePair(sellAsset: Asset, buyAsset: Asset): boolean {
-    console.info(sellAsset, buyAsset)
-    throw new Error('ThorchainSwapper: canTradePair unimplemented')
-  }
-
   async executeQuote(): Promise<ExecQuoteOutput> {
     throw new Error('ThorchainSwapper: executeQuote unimplemented')
   }

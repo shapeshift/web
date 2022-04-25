@@ -42,16 +42,6 @@ export interface Swapper {
   getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote<ChainTypes, SwapperType>>
 
   /**
-   * Get a list of available assets based on the array of assets you send it
-   */
-  getAvailableAssets(assets: Asset[]): Asset[]
-
-  /**
-   * Get a boolean if the trade pair will work
-   */
-  canTradePair(sellAsset: Asset, buyAsset: Asset): boolean
-
-  /**
    * Get the usd rate from either the assets symbol or tokenId
    */
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>

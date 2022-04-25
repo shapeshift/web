@@ -10,7 +10,7 @@ import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxQuote } from './getZrxQuote/getZrxQuote'
 import { getZrxSendMaxAmount } from './getZrxSendMaxAmount/getZrxSendMaxAmount'
 import { getUsdRate } from './utils/helpers/helpers'
-import { BTC, FOX, WETH } from './utils/test-data/assets'
+import { FOX } from './utils/test-data/assets'
 import { setupQuote } from './utils/test-data/setupSwapQuote'
 import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
 import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
@@ -68,21 +68,6 @@ describe('ZrxSwapper', () => {
     const message = 'test error'
     const error = new ZrxError(message)
     expect(error.message).toBe(`ZrxError:${message}`)
-  })
-  it('getAvailableAssets filters out all non-ethereum assets', () => {
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const availableAssets = swapper.getAvailableAssets([BTC, FOX, WETH])
-    expect(availableAssets).toStrictEqual([FOX, WETH])
-  })
-  it('canTradePair fails on non-eth chains', () => {
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const canTradePair = swapper.canTradePair(BTC, WETH)
-    expect(canTradePair).toBeFalsy()
-  })
-  it('canTradePair succeeds on eth chains', () => {
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const canTradePair = swapper.canTradePair(FOX, WETH)
-    expect(canTradePair).toBeTruthy()
   })
   it('calls ZrxBuildQuoteTx on swapper.buildQuoteTx', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)

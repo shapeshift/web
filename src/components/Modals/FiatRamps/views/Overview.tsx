@@ -232,12 +232,12 @@ export const Overview: React.FC<OverviewProps> = ({
             </InputGroup>
           </Flex>
         )}
-        {selectedAsset?.isBelowTheMinimumUsdAmountWhenSelling && (
+        {selectedAsset?.isBelowSellThreshold && (
           <Alert status='error'>
             <AlertIcon />
             <Text
               translation={[
-                'fiatRamps.lowBalanceError',
+                'fiatRamps.insufficientCryptoAmountToSell',
                 { amount: supportedFiatRamps[fiatRampProvider].minimumUsdAmountWhenSelling },
               ]}
             />
@@ -247,7 +247,7 @@ export const Overview: React.FC<OverviewProps> = ({
           width='full'
           size='lg'
           colorScheme='blue'
-          disabled={!selectedAsset || selectedAsset?.isBelowTheMinimumUsdAmountWhenSelling}
+          disabled={!selectedAsset || selectedAsset?.isBelowSellThreshold}
           mt='25px'
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(

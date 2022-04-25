@@ -26,13 +26,20 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
         .filter(asset => Object.keys(balances).includes(asset.assetId))
         .map(asset => {
           const reduxAsset = reduxAssets[asset.assetId]
+          const fiatBalance = bnOrZero(balances?.[asset.assetId]?.fiat)
+          const fiatRampMinimumUsdAmountWhenSelling = bnOrZero(
+            supportedFiatRamps[fiatRampProvider].minimumUsdAmountWhenSelling ?? 0,
+          )
           return {
             ...asset,
             name: reduxAsset.name,
             symbol: reduxAsset.symbol,
             disabled: !isAssetSupportedByWallet(asset?.assetId ?? '', wallet),
             cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
-            fiatBalance: bnOrZero(balances?.[asset.assetId]?.fiat),
+            fiatBalance,
+            isBelowTheMinimumUsdAmountWhenSelling: fiatBalance.lt(
+              fiatRampMinimumUsdAmountWhenSelling,
+            ),
           }
         })
         .sort((a, b) =>
@@ -41,7 +48,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
             : a.name.localeCompare(b.name),
         )
     },
-    [balances, reduxAssets, wallet],
+    [balances, fiatRampProvider, reduxAssets, wallet],
   )
 
   const addBuyPropertiesAndSort = useCallback(

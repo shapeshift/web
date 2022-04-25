@@ -1,5 +1,7 @@
 import { CheckIcon, ChevronRightIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -230,11 +232,22 @@ export const Overview: React.FC<OverviewProps> = ({
             </InputGroup>
           </Flex>
         )}
+        {selectedAsset?.isBelowTheMinimumUsdAmountWhenSelling && (
+          <Alert status='error'>
+            <AlertIcon />
+            <Text
+              translation={[
+                'fiatRamps.lowBalanceError',
+                { amount: supportedFiatRamps[fiatRampProvider].minimumUsdAmountWhenSelling },
+              ]}
+            />
+          </Alert>
+        )}
         <Button
           width='full'
           size='lg'
           colorScheme='blue'
-          disabled={!selectedAsset}
+          disabled={!selectedAsset || selectedAsset?.isBelowTheMinimumUsdAmountWhenSelling}
           mt='25px'
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(

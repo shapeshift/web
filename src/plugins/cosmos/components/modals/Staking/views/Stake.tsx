@@ -220,6 +220,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
             <Link
               color={'blue.200'}
               fontWeight='bold'
+              target='_blank'
               href='/#/legal/privacy-policy'
               onClick={cosmosStaking.close}
             >

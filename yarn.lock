@@ -17648,6 +17648,11 @@ raw-loader@^4.0.2:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
 
+re-reselect@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/re-reselect/-/re-reselect-4.0.0.tgz#9ddec4c72c4d952f68caa5aa4b76a9ed38b75cac"
+  integrity sha512-wuygyq8TXUlSdVXv2kigXxQNOgdb9m7LbIjwfTNGSpaY1riLd5e+VeQjlQMyUtrk0oiyhi1AqIVynworl3qxHA==
+
 react-app-polyfill@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-3.0.0.tgz#95221e0a9bd259e5ca6b177c7bb1cb6768f68fd7"

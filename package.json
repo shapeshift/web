@@ -60,6 +60,7 @@
     "process": "^0.11.10",
     "qr-image": "^3.2.0",
     "qs": "^6.10.1",
+    "re-reselect": "^4.0.0",
     "react": "^17.0.2",
     "react-countdown-circle-timer": "^2.5.4",
     "react-datepicker": "^4.7.0",

@@ -23,6 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
@@ -70,6 +71,8 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const memoryHistory = useHistory()
+
+  const { cosmosStaking } = useModal()
 
   const onSubmit = (_: any) => {
     memoryHistory.push(StakingPath.Confirm, {
@@ -214,7 +217,12 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
               {`${translate('defi.modals.staking.risks')}`}
             </Link>
             {` ${translate('defi.modals.staking.ofParticipating')} `}
-            <Link color={'blue.200'} fontWeight='bold' target='_blank' href='/legal/privacy-policy'>
+            <Link
+              color={'blue.200'}
+              fontWeight='bold'
+              href='/#/legal/privacy-policy'
+              onClick={cosmosStaking.close}
+            >
               {`${translate('defi.modals.staking.terms')}.`}
             </Link>
           </CText>

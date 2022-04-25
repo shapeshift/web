@@ -76,11 +76,15 @@ describe('useIsComponentMounted hook', () => {
 
 Requirements: 
 - [act](https://github.com/nektos/act) - `brew install act`
-- Github Personal Access Token - via Github Settings
+  - Requires [Docker Desktop](https://docs.docker.com/get-docker/)
+- [GitHub Personal Access Token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication) - via GitHub Settings
 
-Example command to test Cypress Github action:
-- --reuse persist state across runs
-- --rm remove container on failure 
+Example command to test Cypress GitHub action:
 ```sh
+# run from project root
 act -s GITHUB_TOKEN=$GITHUB_TOKEN -j test-chrome --reuse
 ```
+
+Two important flags that can be passed to the `act` command:
+- `--reuse` - persist state across runs
+- `--rm` - remove container on failure 

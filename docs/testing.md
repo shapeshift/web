@@ -85,6 +85,8 @@ Example command to test Cypress GitHub action:
 act -s GITHUB_TOKEN=$GITHUB_TOKEN -j test-chrome --reuse
 ```
 
+**NOTE:** there are two parameters set in the project's root `.actrc` file.
+
 Two important flags that can be passed to the `act` command:
 - `--reuse` - persist state across runs
 - `--rm` - remove container on failure 

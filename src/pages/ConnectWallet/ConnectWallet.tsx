@@ -110,7 +110,7 @@ export const ConnectWallet = () => {
             <Link href='/legal/terms-of-service'>
               <Text color='gray.500' translation='common.terms' />
             </Link>
-            <Link href='/legal/privacy-policy'>
+            <Link href='/#/legal/privacy-policy'>
               <Text color='gray.500' translation='common.privacy' />
             </Link>
           </Flex>

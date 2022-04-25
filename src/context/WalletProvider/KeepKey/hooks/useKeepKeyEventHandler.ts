@@ -190,5 +190,15 @@ export const useKeepKeyEventHandler = (
       keyring.off(['*', '*', Events.CONNECT], handleConnect)
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
     }
-  }, [dispatch, keyring, loadWallet, modal, state.walletInfo, setDeviceState, disposition])
+  }, [
+    dispatch,
+    keyring,
+    loadWallet,
+    modal,
+    state.walletInfo,
+    setDeviceState,
+    disposition,
+    toast,
+    translate,
+  ])
 }

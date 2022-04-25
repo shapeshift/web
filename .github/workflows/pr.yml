@@ -42,7 +42,6 @@ jobs:
             ${{ runner.os }}-node-modules-${{ github.ref }}-
 
       - name: Download Build Folder
-        if: ${{ !env.ACT }}
         uses: actions/download-artifact@v3
         with:
           name: build

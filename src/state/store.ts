@@ -45,6 +45,9 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(apiSlices.stakingDataApi.util.resetApiState())
 }
 
+/**
+ * These actions make the redux devtools crash. Blacklist them from the developer tools.
+ */
 const actionSanitizer = (action: any) => {
   const blackList = [
     'asset/setAssets',

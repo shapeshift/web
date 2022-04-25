@@ -57,7 +57,6 @@ jobs:
             ${{ runner.os }}-node-modules-${{ github.ref }}-
 
       - name: Download Build Folder
-        if: ${{ !env.ACT }}
         uses: actions/download-artifact@v3
         with:
           name: build
@@ -100,4 +99,3 @@ jobs:
           # Passing the GitHub token lets this action correctly
           # determine the unique run id necessary to re-run the checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # DEBUG: '@cypress/github-action'

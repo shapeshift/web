@@ -1,14 +1,7 @@
-import { adapters, caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { adapters } from '@shapeshiftoss/caip'
+import queryString from 'querystring'
 
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
-
-const banxaChainMap: Record<ChainTypes, string> = {
-  [ChainTypes.Ethereum]: 'ETH',
-  [ChainTypes.Bitcoin]: 'BTC',
-  [ChainTypes.Cosmos]: 'COSMOS',
-  [ChainTypes.Osmosis]: '',
-}
 
 export const getBanxaAssets = () => {
   const banxaAssets = adapters.getSupportedBanxaAssets()
@@ -22,29 +15,24 @@ export const getBanxaAssets = () => {
 }
 
 export const createBanxaUrl = (action: FiatRampAction, asset: string, address: string): string => {
-  const BANXA_URL = 'https://shapeshift.banxa.com/'
-  let url = `${BANXA_URL}?`
-  url += `fiatType=USD&`
-  url += `coinType=${asset}&`
-  url += `walletAddress=${address}&`
+  const BANXA_BASE_URL = 'https://shapeshift.banxa.com/'
 
-  /**
-   * select the blockchain from asset caip19 and pass it to the banxa,
-   * since some Banxa assets could be on multiple chains and their default
-   * chain won't be exactly same as ours.
-   */
-  const assetCAIP19 = adapters.banxaTickerToCAIP19(asset.toLowerCase())
+  const queryConfig = queryString.stringify({
+    fiatType: 'USD',
+    coinType: asset,
+    walletAddress: address,
+    /**
+     * based on https://docs.banxa.com/docs/referral-method
+     * if sellMode query parameter is not passed `buyMode` will be used by default
+     */
+    [action === FiatRampAction.Sell ? 'sellMode' : 'buyMode']: '',
+    /**
+     * select the blockchain from asset and pass it to the banxa,
+     * since some Banxa assets could be on multiple chains and their default
+     * chain won't be exactly the same as ours.
+     */
+    blockchain: adapters.getBanxaBlockchainFromBanxaAssetTicker(asset),
+  })
 
-  if (assetCAIP19) {
-    const { chain } = caip19.fromCAIP19(assetCAIP19)
-    const banxaChain = banxaChainMap[chain]
-    url += `blockchain=${banxaChain}&`
-  }
-
-  /**
-   * based on https://docs.banxa.com/docs/referral-method
-   * if sellMode query parameter is not passed `buyMode` will be used by default
-   */
-  if (action === FiatRampAction.Sell) url += `sellMode`
-  return url
+  return `${BANXA_BASE_URL}?${queryConfig}`
 }

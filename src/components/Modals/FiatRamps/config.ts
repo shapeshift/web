@@ -56,8 +56,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     logo: banxalogo,
     isImplemented: true,
     getBuyAndSellList: async () => {
-      const assets = getBanxaAssets()
-      return [assets, assets]
+      const buyAssets = getBanxaAssets()
+      const sellAssets = buyAssets
+      return [buyAssets, sellAssets]
     },
     onSubmit: (action: FiatRampAction, asset: string, address: string) => {
       const banxaCheckoutUrl = createBanxaUrl(action, asset, address)

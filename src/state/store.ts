@@ -60,6 +60,9 @@ const actionSanitizer = (action: any) => {
     : action
 }
 
+/**
+ * Remove data from state to improve developer tools experience
+ */
 const stateSanitizer = (state: any) => ({ ...state, assets: 'see stateSanitizer in store.ts' })
 
 /// This allows us to create an empty store for tests

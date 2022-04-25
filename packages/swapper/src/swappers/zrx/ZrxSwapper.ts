@@ -17,7 +17,7 @@ import {
 } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { Swapper } from '../../api'
+import { BuyAssetBySellIdInput, Swapper } from '../../api'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxQuote } from './getZrxQuote/getZrxQuote'
 import { getZrxSendMaxAmount } from './getZrxSendMaxAmount/getZrxSendMaxAmount'
@@ -97,5 +97,16 @@ export class ZrxSwapper implements Swapper {
 
   async getSendMaxAmount(args: SendMaxAmountInput): Promise<string> {
     return getZrxSendMaxAmount(this.deps, args)
+  }
+
+  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): CAIP19[] {
+    const { buyAssetIds } = args
+    // TODO: pending changes to caip lib, we may want to import caip2 value instead.
+    return buyAssetIds.filter((id) => id.startsWith('eip155:1'))
+  }
+
+  filterAssetIdsBySellable(assetIds: CAIP19[]): CAIP19[] {
+    // reusing logic to avoid potential bugs from changing one and not the other
+    return this.filterBuyAssetsBySellAssetId({ buyAssetIds: assetIds, sellAssetId: '' })
   }
 }

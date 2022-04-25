@@ -1,6 +1,8 @@
 import { GetQuoteInput, SwapperType } from '@shapeshiftoss/types'
+import uniq from 'lodash/uniq'
 
 import { Swapper } from '..'
+import { BuyAssetBySellIdInput, SupportedSellAssetsInput } from '../api'
 
 export class SwapperError extends Error {
   constructor(message: string) {
@@ -62,5 +64,23 @@ export class SwapperManager {
   async getBestSwapper(quoteParams: GetQuoteInput): Promise<SwapperType> {
     quoteParams // noop to shut up linter
     return SwapperType.Zrx // TODO: implement getBestSwapper
+  }
+
+  getSupportedBuyAssetsFromSellId(args: BuyAssetBySellIdInput) {
+    return uniq(
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper) =>
+        swapper.filterBuyAssetsBySellAssetId(args)
+      )
+    )
+  }
+
+  getSupportedSellAssets(args: SupportedSellAssetsInput) {
+    const { sellAssetIds } = args
+
+    return uniq(
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper) =>
+        swapper.filterAssetIdsBySellable(sellAssetIds)
+      )
+    )
   }
 }

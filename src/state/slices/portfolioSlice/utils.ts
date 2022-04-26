@@ -255,8 +255,8 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           .plus(bnOrZero(balance))
           .toString()
 
-        // For tx history, we need to have CAIP-10 account specifiers of addresses that may have 0 balances
-        // for accountSpecifier to CAIP-10 account specifier mapping
+        // For tx history, we need to have CAIP10/AccountIds of addresses that may have 0 balances
+        // for accountSpecifier to CAIP10/AccountId mapping
         addresses.forEach(({ pubkey }) => {
           const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
           if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {

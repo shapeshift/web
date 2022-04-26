@@ -2,23 +2,53 @@ import format from './format'
 
 class RuntimeError extends Error {}
 
+class ErrorWithDetails extends Error {
+  cause: unknown
+  code?: string
+  details?: Record<string, unknown>
+}
+
 describe('format(x: any)', () => {
-  const err = new RuntimeError('Some error')
-  it.each([
-    ['asdf', { message: 'asdf' }],
-    [{ name: 'zan' }, { name: 'zan' }],
-    [
-      err,
-      {
-        error: {
-          message: err.message,
-          stack: err.stack,
-          kind: 'RuntimeError'
-        }
+  it('should format a string to a message', () => {
+    expect(format('asdf')).toStrictEqual({ message: 'asdf' })
+  })
+
+  it('should pass through an object', () => {
+    expect(format({ name: 'name' })).toStrictEqual({ name: 'name' })
+  })
+
+  it('should format a normal error', () => {
+    const err = new RuntimeError('Some error')
+    expect(format(err)).toStrictEqual({
+      error: {
+        message: err.message,
+        stack: expect.stringMatching(/_callCircusTest(?!_runTestsForDescribeBlock)/m),
+        kind: 'RuntimeError'
       }
-    ]
-  ])('should format %p', (x, expected) => {
-    expect(format(x)).toMatchObject(expected)
+    })
+  })
+
+  it('should format an error with cause and details', () => {
+    const err = new ErrorWithDetails('details')
+    err.code = 'ERR_TEST'
+    err.details = { foo: 'bar' }
+    err.cause = new Error('cause')
+    expect(format(err)).toStrictEqual({
+      error: {
+        code: 'ERR_TEST',
+        cause: {
+          error: {
+            message: 'cause',
+            stack: expect.stringMatching(/_callCircusTest(?!_runTestsForDescribeBlock)/m),
+            kind: 'Error'
+          }
+        },
+        details: { foo: 'bar' },
+        message: err.message,
+        stack: expect.stringMatching(/_callCircusTest(?!_runTestsForDescribeBlock)/m),
+        kind: 'ErrorWithDetails'
+      }
+    })
   })
 
   it('should throw if provided an array', () => {

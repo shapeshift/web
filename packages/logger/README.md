@@ -1,11 +1,13 @@
 # @shapeshiftoss/logger
 
-Shapeshift's JSON logging library.
+ShapeShift DAO's simple logging library.
 
 ## Installation
 
 ```bash
 yarn add @shapeshiftoss/logger
+# or
+npm i @shapeshiftoss/logger
 ```
 
 ## Initialization
@@ -22,6 +24,23 @@ const logger = new Logger({
   // extra fields to include on each message
   defaultFields: {
       fn: 'defaultFn'
+  }
+})
+```
+
+### Custom logging output function
+By default, the Logger will log a `JSON` string to the `console`.
+
+You can customize this by providing a `logFn` option to the Logger constructor.
+
+```ts
+import { Logger } from '@shapeshiftoss/logger'
+import type { LogLevel, LogData } from '@shapeshiftoss/logger'
+
+const logger = new Logger({
+  name: 'MyAppLogger',
+  logFn: (level: LogLevel, data: LogData) => {
+    myCentralLogger.send(JSON.stringify(data))
   }
 })
 ```
@@ -92,4 +111,13 @@ const child2 = child.child({ namespace: ['MyModule', 'myFunction']})
 child.info({ biz: 'baz' }, 'hello!') 
 // {"fn":"defaultFn","biz":"baz","message":"hello!",
 //   "timestamp":"2021-10-25T17:53:55.909Z","namespace":"Parent:MyModule:myFunction","status":"info"}
+```
+
+## Reserved Properties
+The following property names are reserved. If you want to log out an object that contains these property names, you'll need to nest it inside another object. 
+
+```ts
+  'namespace'
+  'timestamp'
+  'status'
 ```

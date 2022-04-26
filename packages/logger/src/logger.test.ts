@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Logger from './logger'
-import { LogLevel } from './logger.type'
+import { LoggerFunction, LogLevel } from './logger.type'
 
 describe('Logger', () => {
   let dateSpy: jest.SpyInstance
@@ -96,6 +96,13 @@ describe('Logger', () => {
       )
       spy.mockRestore()
     })
+
+    it('should support a custom logger function', () => {
+      const logFn: LoggerFunction = jest.fn()
+      const logger = new Logger({ name: 'test', logFn })
+      logger.info('test')
+      expect(logFn).toHaveBeenCalledWith('info', expect.objectContaining({ status: 'info' }))
+    })
   })
 
   describe('Logger functions', () => {
@@ -159,6 +166,13 @@ describe('Logger', () => {
         logger.trace('parent')
         expect(traceSpy).toHaveBeenCalledWith(expect.stringMatching(/parent/))
         traceSpy.mockRestore()
+      })
+
+      it('should pass through the logFn of the parent', () => {
+        const logFn: LoggerFunction = jest.fn()
+        const parent = new Logger({ name: 'test', logFn })
+        parent.child({ name: 'info' }).info('child')
+        expect(logFn).toHaveBeenCalledWith('info', expect.objectContaining({ status: 'info' }))
       })
 
       it('should include child keys', () => {

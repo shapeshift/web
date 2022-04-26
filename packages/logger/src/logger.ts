@@ -1,5 +1,14 @@
 import format from './format'
-import { Arg1, Arg2, Arg3, LoggerOptions, LoggerT, LogLevel } from './logger.type'
+import {
+  Arg1,
+  Arg2,
+  Arg3,
+  LogData,
+  LoggerFunction,
+  LoggerOptions,
+  LoggerT,
+  LogLevel
+} from './logger.type'
 
 const childIgnoredFields = Object.freeze([
   'name',
@@ -21,18 +30,32 @@ const rankedLogLevels = Object.freeze([
 
 const rankedLogLevelStrings = Object.freeze(rankedLogLevels.map(String))
 
+/**
+ * The default logging function to use when none is provided
+ *
+ * This uses `console` to log out a JSON string of the data.
+ */
+const defaultLogFn: LoggerFunction = (level, data) => {
+  // console.trace outputs stack traces so we use debug instead
+  const consoleFn = level === LogLevel.TRACE ? LogLevel.DEBUG : level
+  // eslint-disable-next-line no-console
+  console[consoleFn](JSON.stringify(data))
+}
+
 export default class Logger implements LoggerT {
   private readonly level: number
   private readonly defaultFields?: Record<string, unknown>
   private namespace: string[] = []
+  private readonly logFn: LoggerFunction
 
   constructor(options?: LoggerOptions) {
-    const { level, defaultFields, namespace, name } = options || {}
+    const { level, defaultFields, namespace, name, logFn } = options || {}
     this.level = typeof level === 'string' ? rankedLogLevelStrings.indexOf(level) : 2
     if (this.level < 0 || this.level >= rankedLogLevels.length) {
       throw new Error('Invalid debug logging level')
     }
 
+    this.logFn = logFn || defaultLogFn
     // Add key/values to be included in every log entry
     this.defaultFields = format(defaultFields) ?? {}
     // A child logger will provide the parent's namespace
@@ -50,7 +73,7 @@ export default class Logger implements LoggerT {
   }
 
   child(options?: LoggerOptions & Record<string, unknown>) {
-    const newOptions = { level: rankedLogLevels[this.level], ...options }
+    const newOptions = { level: rankedLogLevels[this.level], logFn: this.logFn, ...options }
     // Keep the parent namespace
     newOptions.namespace = this.namespace.concat(newOptions.namespace || [])
     // Merge the default fields. For conflicts, keep the child logger's value
@@ -78,12 +101,9 @@ export default class Logger implements LoggerT {
     // No-op if logging is disabled
     if (rankedLogLevels.indexOf(level) < this.level || level === LogLevel.NONE) return
 
-    // console.trace outputs stack traces so we use debug instead
-    const consoleFn = level === LogLevel.TRACE ? LogLevel.DEBUG : level
-
     const args = [arg1, arg2, arg3]
     const argsFormatted = args.map(format)
-    const result: Record<string, unknown> = {
+    const result: LogData = {
       ...this.defaultFields,
       ...argsFormatted[0],
       ...argsFormatted[1],
@@ -95,11 +115,10 @@ export default class Logger implements LoggerT {
 
     // I'm concerned that this will add unnecessary overhead to all logging calls
     // just to support a small use case. How can we optimize this?
-    const stringArgs = args.filter((a) => typeof a === 'string')
+    const stringArgs = args.filter((a): a is string => typeof a === 'string')
     if (stringArgs.length > 1) result._messages = stringArgs
 
-    // eslint-disable-next-line no-console
-    console[consoleFn](JSON.stringify(result))
+    this.logFn(level, result)
   }
 
   trace(error: Error, metadata: Record<string, unknown>, message: string): void

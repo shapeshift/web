@@ -350,10 +350,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
           {
             type: 'cosmos-sdk/MsgWithdrawDelegationReward',
             value: {
-              amount: {
-                amount: bnOrZero(0).toString(), // amount here is required to broadcast, but we are withdrawing ALL rewards
-                denom: 'uatom'
-              },
               delegator_address: from,
               validator_address: validator
             }

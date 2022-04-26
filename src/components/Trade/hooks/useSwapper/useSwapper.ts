@@ -85,11 +85,7 @@ export const useSwapper = () => {
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
-    console.log('filtering!')
-    const assetIdMap = assetIds.reduce<{ [k: string]: boolean }>((acc, val) => {
-      acc[val] = true
-      return acc
-    }, {})
+    const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
     return assets.filter(asset => assetIdMap[asset.caip19])
   }
 

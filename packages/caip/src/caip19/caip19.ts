@@ -5,6 +5,8 @@ import { ChainNamespace, ChainReference, toCAIP2 } from '../caip2/caip2'
 
 export type CAIP19 = string
 
+export type AssetId = string
+
 export enum AssetNamespace {
   CW20 = 'cw20',
   CW721 = 'cw721',

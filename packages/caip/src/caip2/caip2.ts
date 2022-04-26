@@ -4,6 +4,8 @@ import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export type CAIP2 = string
 
+export type ChainId = string
+
 export enum ChainNamespace {
   Ethereum = 'eip155',
   Bitcoin = 'bip122',

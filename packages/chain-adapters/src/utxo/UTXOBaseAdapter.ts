@@ -1,4 +1,4 @@
-import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, CAIP2, CAIP19, ChainId } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, HDWallet, PublicKey } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -26,7 +26,7 @@ export interface ChainAdapterArgs {
     ws: unchained.ws.Client<unchained.Tx>
   }
   coinName: string
-  chainId?: CAIP2
+  chainId?: ChainId | CAIP2
 }
 
 /**
@@ -36,10 +36,10 @@ export interface ChainAdapterArgs {
  * `export type UTXOChainTypes = ChainTypes.Bitcoin | ChainTypes.Litecoin`
  */
 export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChainAdapter<T> {
-  protected chainId: CAIP2
-  protected assetId: CAIP19
+  protected chainId: ChainId | CAIP2
+  protected assetId: AssetId | CAIP19
   protected coinName: string
-  protected readonly supportedChainIds: CAIP2[]
+  protected readonly supportedChainIds: ChainId | CAIP2[]
   protected readonly providers: {
     http: unchained.bitcoin.V1Api
     ws: unchained.ws.Client<unchained.Tx>
@@ -82,19 +82,25 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
 
   /* public methods */
 
-  getCaip2(): CAIP2 {
+  /**
+   * @deprecated - use `getChainId()` instead
+   */
+  getCaip2(): ChainId | CAIP2 {
     return this.chainId
   }
 
-  getCaip19(): CAIP19 {
+  /**
+   * @deprecated - use `getChainId()` instead
+   */
+  getCaip19(): AssetId | CAIP19 {
     return this.assetId
   }
 
-  getChainId(): CAIP2 {
+  getChainId(): ChainId | CAIP2 {
     return this.chainId
   }
 
-  getAssetId(): CAIP19 {
+  getAssetId(): AssetId | CAIP19 {
     return this.assetId
   }
 

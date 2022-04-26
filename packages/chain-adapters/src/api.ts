@@ -1,4 +1,4 @@
-import { CAIP2 } from '@shapeshiftoss/caip'
+import { CAIP2, ChainId } from '@shapeshiftoss/caip'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
 export type ChainAdapter<T extends ChainTypes> = {
@@ -7,9 +7,12 @@ export type ChainAdapter<T extends ChainTypes> = {
    */
   getType(): T
 
-  getCaip2(): CAIP2
+  /**
+   * @deprecated - use `getChainId()` instead
+   */
+  getCaip2(): ChainId | CAIP2
 
-  getChainId(): CAIP2
+  getChainId(): ChainId | CAIP2
   /**
    * Get the balance of an address
    */

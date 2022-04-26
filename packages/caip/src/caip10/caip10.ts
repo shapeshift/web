@@ -2,6 +2,8 @@ import { CAIP2, ChainNamespace, isCAIP2 } from './../caip2/caip2'
 
 export type CAIP10 = string
 
+export type AccountId = string
+
 type ToCAIP19Args = {
   caip2: CAIP2
   account: string

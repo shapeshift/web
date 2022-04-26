@@ -1,4 +1,4 @@
-import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, CAIP2, CAIP19, ChainId } from '@shapeshiftoss/caip'
 import { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -11,7 +11,7 @@ import { getStatus, getType, toRootDerivationPath } from '../utils'
 export type CosmosChainTypes = ChainTypes.Cosmos | ChainTypes.Osmosis
 
 export interface ChainAdapterArgs {
-  chainId?: CAIP2
+  chainId?: ChainId | CAIP2
   providers: {
     http: unchained.cosmos.V1Api
     ws: unchained.ws.Client<unchained.cosmos.Tx>
@@ -35,9 +35,9 @@ const transformValidator = (
 })
 
 export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implements IChainAdapter<T> {
-  protected readonly chainId: CAIP2
-  protected readonly assetId: CAIP19 // This is the caip19 for native token on the chain (ATOM/OSMO/etc)
-  protected readonly supportedChainIds: CAIP2[]
+  protected readonly chainId: ChainId | CAIP2
+  protected readonly assetId: AssetId | CAIP19 // This is the CAIP19/AssetId for native token on the chain (ATOM/OSMO/etc)
+  protected readonly supportedChainIds: ChainId[]
   protected readonly coinName: string
   protected readonly providers: {
     http: unchained.cosmos.V1Api
@@ -62,11 +62,11 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
 
   abstract getType(): T
 
-  getChainId(): CAIP2 {
+  getChainId(): ChainId | CAIP2 {
     return this.chainId
   }
 
-  getCaip2(): CAIP2 {
+  getCaip2(): ChainId | CAIP2 {
     return this.chainId
   }
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.13.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.13.2...@shapeshiftoss/chain-adapters-v2.13.3) (2022-04-26)
+
+
+### Reverts
+
+* Revert "fix: cosmos-sdk/MsgWithdrawDelegationReward -> cosmos-sdk/MsgWithdrawDelegatorReward (#558)" (#561) ([d8c75e6](https://github.com/shapeshift/lib/commit/d8c75e69d86ea72f339a95ecdeb0f4a6f00c071f)), closes [#558](https://github.com/shapeshift/lib/issues/558) [#561](https://github.com/shapeshift/lib/issues/561)
+
 # [@shapeshiftoss/chain-adapters-v2.13.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.13.1...@shapeshiftoss/chain-adapters-v2.13.2) (2022-04-26)
 
 

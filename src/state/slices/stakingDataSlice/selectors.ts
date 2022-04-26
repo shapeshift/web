@@ -14,7 +14,7 @@ import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { PubKey } from './stakingDataSlice'
+import { PubKey, Staking } from './stakingDataSlice'
 export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
@@ -76,11 +76,11 @@ export const selectStakingDataByAccountSpecifier = createSelector(
   },
 )
 
-export const selectStakingDataByFilter = createSelector(
+export const selectStakingDataByFilter = createDeepEqualOutputSelector(
   selectStakingData,
   selectAssetIdParamFromFilterOptional,
   selectAccountIdParamFromFilterOptional,
-  (stakingData, _, accountId) => {
+  (stakingData, _, accountId): Staking[] => {
     if (!accountId) return Object.values(stakingData.byAccountSpecifier)
     return [stakingData.byAccountSpecifier[accountId]] || null
   },

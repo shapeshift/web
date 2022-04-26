@@ -9,7 +9,7 @@ import {
   Tag,
   TagLabel,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { MouseEvent, useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -27,7 +27,7 @@ import { ActiveStakingOpportunity } from 'state/slices/stakingDataSlice/selector
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
-  assetId: CAIP19
+  assetId: AssetId
 }
 
 type ValidatorNameProps = {

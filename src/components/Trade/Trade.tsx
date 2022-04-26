@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes, Quote, SwapperType } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
@@ -13,7 +13,7 @@ export type TradeAsset = {
 }
 
 export type TradeProps = {
-  defaultBuyAssetId?: CAIP19
+  defaultBuyAssetId?: AssetId
 }
 
 export type MinMax = {

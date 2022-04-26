@@ -131,10 +131,6 @@
     ]
   },
   "jest": {
-    "transform": {
-      "^.+\\.ts?$": "ts-jest"
-    },
-    "verbose": true,
     "collectCoverageFrom": [],
     "coveragePathIgnorePatterns": [
       "./src/env"
@@ -202,7 +198,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "fast-json-stable-stringify": "^2.1.0",
-    "jest": "^27.5.1",
     "jest-mock": "^27.5.1",
     "msw": "^0.36.5",
     "msw-storybook-addon": "^1.6.0",
@@ -214,7 +209,6 @@
     "reselect-tools": "^0.0.7",
     "ssri": "^8.0.1",
     "storybook-dark-mode": "^1.0.9",
-    "ts-jest": "^27.1.4",
     "typescript": "^4.6.2",
     "val-loader": "^4.0.0",
     "web3-utils": "^1.5.2",

@@ -37,6 +37,7 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
+    "success": "Success",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
@@ -386,6 +387,15 @@
         "body": "Labeling each of your devices allows you to easily distinguish one from the other.",
         "button": "Set Label"
       },
+      "recoverySettings": {
+        "header": "Recover Your Wallet",
+        "sentenceLengthLabel": "Recovery Sentence Length",
+        "recoveryPassphraseLabel": "Recovery Passphrase",
+        "recoveryPassphraseToggle": "Recover with passphrase?",
+        "recoveryPassphraseDescription": "If you are unsure if your recovery sentence is protected by a passphrase, leave this off.",
+        "wordEntropy": "%{wordEntropy} words",
+        "button": "Recover Wallet"
+      },
       "recoverySentence": {
         "header": "Write down Recovery Sentence",
         "body": "On your KeepKey screen, you will see your recovery sentence. Write it down. If you lose access to the device, your assets will ONLY be accessible by this sentence.",
@@ -398,6 +408,17 @@
         "body": "You have successfully reset your KeepKey to factory defaults. You can now restore using an existing recovery seed, or create a new wallet.",
         "createButton": "Create a New Wallet",
         "recoverButton": "Recover Wallet"
+      },
+      "recoverySentenceEntry": {
+        "header": "Enter your Recovery Sentence",
+        "body": "Using the scrambled keyboard legend on your KeepKey enter the first 4 letters of each word, followed by enter or space, or click next when you're done typing if there are less than 4 letters.",
+        "button": "Next",
+        "awaitingButtonPress": "Follow the instructions on your KeepKey to continue.",
+        "toastMessage": "KeepKey restored successfully!"
+      },
+      "recoverySettingUp": {
+        "header": "Setting up device...",
+        "body": "Please wait while we initialize your device and sync your addresses."
       }
     },
     "shapeShift": {

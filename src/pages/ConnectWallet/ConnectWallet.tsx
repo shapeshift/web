@@ -107,10 +107,10 @@ export const ConnectWallet = () => {
             </Badge>
           </Flex>
           <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
-            <Link href='/legal/terms-of-service'>
+            <Link href='/#/legal/terms-of-service'>
               <Text color='gray.500' translation='common.terms' />
             </Link>
-            <Link href='/legal/privacy-policy'>
+            <Link href='/#/legal/privacy-policy'>
               <Text color='gray.500' translation='common.privacy' />
             </Link>
           </Flex>

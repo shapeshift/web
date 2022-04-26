@@ -56,6 +56,6 @@ const isValidEntropyNumber = (entropy: number): entropy is RecoverDevice['entrop
   VALID_ENTROPY_NUMBERS.some(validEntropy => validEntropy === entropy)
 
 export const parseIntToEntropy = (entropy: string): RecoverDevice['entropy'] => {
-  const parsedInt = Math.floor(Number(entropy))
-  return isValidEntropyNumber(parsedInt) ? parsedInt : VALID_ENTROPY_NUMBERS[0]
+  const parsedEntropy = Math.floor(Number(entropy))
+  return isValidEntropyNumber(parsedEntropy) ? parsedEntropy : VALID_ENTROPY_NUMBERS[0]
 }

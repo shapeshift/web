@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.13.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.13.3...@shapeshiftoss/chain-adapters-v2.13.4) (2022-04-26)
+
+
+### Bug Fixes
+
+* don't set amount on MsgWithdrawDelegationReward ([#563](https://github.com/shapeshift/lib/issues/563)) ([f45ac3e](https://github.com/shapeshift/lib/commit/f45ac3ef1f37781817f6db8eb45d241e157a014b))
+
 # [@shapeshiftoss/chain-adapters-v2.13.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.13.2...@shapeshiftoss/chain-adapters-v2.13.3) (2022-04-26)
 
 

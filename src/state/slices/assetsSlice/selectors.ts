@@ -3,15 +3,16 @@ import { AssetNamespace, AssetReference, CAIP2, caip2, CAIP19, caip19 } from '@s
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
+import createCachedSelector from 're-reselect'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
-export const selectAssetByCAIP19 = createSelector(
+export const selectAssetByCAIP19 = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
   (byId, CAIP19) => byId[CAIP19] || undefined,
-)
+)((_state: ReduxState, assetId: CAIP19 | undefined): CAIP19 => assetId ?? 'undefined')
 
 export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
   asset ? asset.name : undefined,

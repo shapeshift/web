@@ -55,7 +55,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch()
   const { chainAdapterManager, supportedChains } = usePlugins()
   const {
-    state: { wallet },
+    state: {
+      wallet,
+      deviceState: { disposition },
+    },
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
@@ -196,7 +199,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }
     })()
-  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains])
+  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
 
   const txIds = useSelector(selectTxIds)
   const txsById = useSelector(selectTxs)

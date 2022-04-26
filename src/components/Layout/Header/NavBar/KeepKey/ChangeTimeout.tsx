@@ -19,7 +19,9 @@ export const ChangeTimeout = () => {
     state: { deviceTimeout },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction },
+    state: {
+      deviceState: { awaitingDeviceInteraction },
+    },
   } = useWallet()
   const toast = useToast()
   const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()

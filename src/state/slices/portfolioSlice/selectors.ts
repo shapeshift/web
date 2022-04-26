@@ -9,6 +9,7 @@ import map from 'lodash/map'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -111,18 +112,18 @@ type ParamFilter = {
 
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
 const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.assetId
+  paramFilter?.assetId
 const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.accountId
+  paramFilter?.accountId
 
 const selectAssetIdParamFromFilterOptional = (
   _state: ReduxState,
   paramFilter: OptionalParamFilter,
-) => paramFilter.assetId
+) => paramFilter?.assetId
 const selectAccountIdParamFromFilterOptional = (
   _state: ReduxState,
   paramFilter: OptionalParamFilter,
-) => paramFilter.accountId
+) => paramFilter?.accountId
 
 const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
 const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
@@ -217,7 +218,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
       )
     }
 
-    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId].precision ?? 0)
+    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId]?.precision ?? 0)
   },
 )
 
@@ -294,13 +295,13 @@ export const selectPortfolioCryptoBalanceByFilter = createSelector(
   },
 )
 
-export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
+export const selectPortfolioCryptoHumanBalanceByAssetId = createCachedSelector(
   selectAssets,
   selectPortfolioAssetBalances,
   selectAssetIdParam,
   (assets, balances, assetId): string =>
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0),
-)
+)((_assets, _balances, assetId: CAIP19): CAIP19 => assetId ?? 'undefined')
 
 export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
   selectAssets,

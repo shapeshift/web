@@ -40,11 +40,11 @@ type OptionalParamFilter = {
 const selectAssetIdParamFromFilterOptional = (
   _state: ReduxState,
   paramFilter: OptionalParamFilter,
-) => paramFilter.assetId
+) => paramFilter?.assetId
 const selectAccountIdParamFromFilterOptional = (
   _state: ReduxState,
   paramFilter: OptionalParamFilter,
-) => paramFilter.accountId
+) => paramFilter?.accountId
 
 export const selectStakingDataIsLoaded = (state: ReduxState) =>
   state.stakingData.status === 'loaded'
@@ -115,7 +115,7 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
       bn(0),
     )
 
-    return fromBaseUnit(amount, assets[assetId].precision ?? 0).toString()
+    return fromBaseUnit(amount, assets[assetId]?.precision ?? 0).toString()
   },
 )
 

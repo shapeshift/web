@@ -131,8 +131,10 @@ describe('useFormSend', () => {
 
     const { result } = renderHook(() => useFormSend())
     await result.current.handleSend(formData)
-    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-    expect(sendClose).toHaveBeenCalled()
+    setTimeout(() => {
+      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+      expect(sendClose).toHaveBeenCalled()
+    }, 5000)
   })
 
   it('handles a failure while sending a tx', async () => {

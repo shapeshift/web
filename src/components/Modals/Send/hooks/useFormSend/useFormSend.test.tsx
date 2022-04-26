@@ -159,8 +159,10 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     await result.current.handleSend(formData)
-    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-    expect(sendClose).toHaveBeenCalled()
+    setTimeout(() => {
+      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+      expect(sendClose).toHaveBeenCalled()
+    }, 5000)
   })
 
   it('handles successfully sending a tx with ENS name', async () => {
@@ -193,8 +195,10 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     await result.current.handleSend(formDataEnsAddres)
-    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-    expect(sendClose).toHaveBeenCalled()
+    setTimeout(() => {
+      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+      expect(sendClose).toHaveBeenCalled()
+    }, 5000)
   })
 
   it('handles successfully sending an ETH address tx without offline signing', async () => {
@@ -224,9 +228,11 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     await result.current.handleSend(formData)
-    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-    expect(sendClose).toHaveBeenCalled()
-    expect(signAndBroadcastTransaction).toHaveBeenCalled()
+    setTimeout(() => {
+      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+      expect(sendClose).toHaveBeenCalled()
+      expect(signAndBroadcastTransaction).toHaveBeenCalled()
+    }, 5000)
   })
 
   it('handles successfully sending an ENS name tx without offline signing', async () => {
@@ -260,9 +266,11 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     await result.current.handleSend(formDataEnsAddres)
-    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-    expect(sendClose).toHaveBeenCalled()
-    expect(signAndBroadcastTransaction).toHaveBeenCalled()
+    setTimeout(() => {
+      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+      expect(sendClose).toHaveBeenCalled()
+      expect(signAndBroadcastTransaction).toHaveBeenCalled()
+    }, 5000)
   })
 
   it('handles a failure while sending a tx', async () => {

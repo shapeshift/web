@@ -46,10 +46,11 @@ export type Staking = {
 }
 
 export type PortfolioAccount = {
-  // asset ids belonging to an account
+  /** The asset ids belonging to an account */
   assetIds: CAIP19[]
+  /** The list of validators this account is delegated to */
   validatorIds?: PubKey[]
-  // The staking data for per validator, so we can do a join from validatorDataSlice
+  /** The staking data for per validator, so we can do a join from validatorDataSlice */
   stakingDataByValidatorId?: Record<PubKey, StakingDataParsedByAccountSpecifier>
 }
 type StakingDataParsedByAccountSpecifier = Record<string, Staking>

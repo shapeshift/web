@@ -112,7 +112,8 @@
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
-    "cta": "Connect Wallet"
+    "cta": "Connect Wallet",
+    "orViewADemo": "or view a Demo"
   },
   "connectWallet": {
     "menu": {

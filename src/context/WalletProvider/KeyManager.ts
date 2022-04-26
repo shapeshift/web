@@ -3,4 +3,5 @@ export enum KeyManager {
   KeepKey = 'keepkey',
   MetaMask = 'metamask',
   Portis = 'portis',
+  Demo = 'demo',
 }

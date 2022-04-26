@@ -1,8 +1,11 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
+import * as native from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
+import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
@@ -15,7 +18,13 @@ import { SUPPORTED_WALLETS } from './config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
-import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './local-wallet'
+import {
+  clearLocalWallet,
+  getLocalWalletDeviceId,
+  getLocalWalletType,
+  setLocalNativeWalletName,
+  setLocalWalletTypeAndDeviceId,
+} from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import { IWalletContext, WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
@@ -251,6 +260,36 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
           switch (localWalletType) {
+            case KeyManager.Demo:
+              const localDemoWallet = await state.adapters
+                .get(KeyManager.Demo)
+                ?.pairDevice(localWalletDeviceId)
+              if (localDemoWallet) {
+                if (!(await localDemoWallet.isInitialized())) {
+                  const { create } = native.crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
+                  await (localDemoWallet as NativeHDWallet).loadDevice({
+                    mnemonic: await create(PublicWalletXpubs),
+                    deviceId: localWalletDeviceId,
+                  })
+                  await localDemoWallet.initialize()
+                  const { name, icon } = SUPPORTED_WALLETS[KeyManager.Demo]
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localDemoWallet,
+                      name,
+                      icon,
+                      deviceId: localWalletDeviceId,
+                      meta: { label: name },
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+                  dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+                }
+              } else {
+                disconnect()
+              }
+              break
             case KeyManager.Native:
               const localNativeWallet = await state.adapters
                 .get(KeyManager.Native)
@@ -407,6 +446,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
+  const connectDemo = useCallback(async () => {
+    const { name } = SUPPORTED_WALLETS[KeyManager.Demo]
+    setLocalWalletTypeAndDeviceId(KeyManager.Demo, name)
+    setLocalNativeWalletName(name)
+    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
+    load()
+  }, [load])
+
   const create = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
@@ -442,8 +489,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
+      connectDemo,
     }),
-    [state, connect, create, disconnect, load, setDeviceState],
+    [state, connect, create, disconnect, load, setDeviceState, connectDemo],
   )
 
   return (

@@ -13,6 +13,7 @@ export const SelectModal = () => {
     create,
   } = useWallet()
   const translate = useTranslate()
+  const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
 
   return (
     <>
@@ -25,7 +26,7 @@ export const SelectModal = () => {
           {adapters &&
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter
-            Object.values(KeyManager).map(key => {
+            wallets.map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
               return (

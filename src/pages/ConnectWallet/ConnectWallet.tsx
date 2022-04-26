@@ -177,6 +177,20 @@ export const ConnectWallet = () => {
         >
           <Text translation='connectWalletPage.cta' />
         </Button>
+
+        <Button
+          size='md'
+          zIndex={1}
+          colorScheme='blue'
+          variant='ghost'
+          mt={6}
+          rightIcon={<ArrowForwardIcon />}
+          onClick={connectDemo}
+          isLoading={state.isLoadingLocalWallet}
+          data-test='view-a-demo-button'
+        >
+          <Text translation='connectWalletPage.orViewADemo' />
+        </Button>
       </Center>
     </Page>
   )

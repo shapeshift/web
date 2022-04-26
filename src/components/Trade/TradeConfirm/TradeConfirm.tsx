@@ -12,6 +12,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -46,7 +47,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet },
+    state: { wallet, walletInfo },
+    dispatch,
   } = useWallet()
   const { chain, tokenId } = sellAsset.currency
   const network = NetworkTypes.MAINNET
@@ -78,6 +80,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       )?.[1] || defaultTradeError
     )
   }
+
+  const handleWalletModalOpen = () =>
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -135,7 +140,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   return (
     <SlideTransition>
-      <Box as='form' onSubmit={handleSubmit(onSubmit)}>
+      <Box
+        as='form'
+        onSubmit={() =>
+          walletInfo?.deviceId !== 'DemoWallet' ? handleSubmit(onSubmit) : handleWalletModalOpen()
+        }
+      >
         <Card variant='unstyled'>
           <Card.Header px={0} pt={0}>
             <WithBackButton handleBack={handleBack}>

@@ -93,10 +93,14 @@ export const useSwapper = () => {
     wallet,
     sellAsset,
     buyAsset,
+    feeAsset,
+    estimatedGasFees,
   }: {
     wallet: HDWallet
     sellAsset: TradeAsset
     buyAsset: TradeAsset
+    feeAsset: Asset
+    estimatedGasFees: string | undefined
   }) => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     const { minimum: minimumAmount } = await swapper?.getMinMax({
@@ -116,20 +120,28 @@ export const useSwapper = () => {
     })
 
     if (!minimumQuote) return
+    // use gas estimate from quote if estimatedGasFees var is not populated yet
+    const quoteEstimatedGasFees = fromBaseUnit(minimumQuote?.feeData?.fee ?? 0, feeAsset.precision)
+
+    // to account for gas fees when trading Max ETH
+    const gasDeduction =
+      feeAsset.caip19 === sellAsset.currency.caip19
+        ? bnOrZero(estimatedGasFees ?? quoteEstimatedGasFees)
+        : bn(0)
 
     const sendMaxAmount = await swapper.getSendMaxAmount({
       wallet,
       quote: minimumQuote,
       sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
     })
-
-    const formattedMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
+    const formattedSendMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
+    const maxAmount = bnOrZero(formattedSendMaxAmount).minus(gasDeduction).toString()
 
     // Set form amount value to updated max value
-    setValue('sellAsset.amount', formattedMaxAmount)
+    setValue('sellAsset.amount', maxAmount)
     setValue('action', TradeActions.SELL)
 
-    return formattedMaxAmount
+    return maxAmount
   }
 
   const buildQuoteTx = async ({

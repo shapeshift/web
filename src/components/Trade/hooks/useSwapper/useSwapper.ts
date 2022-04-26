@@ -71,8 +71,8 @@ export const useSwapper = () => {
   const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
-  const [quote, trade] = useWatch({
-    name: ['quote', 'trade'],
+  const [quote, trade, sellAsset] = useWatch({
+    name: ['quote', 'trade', 'sellAsset'],
   })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
@@ -83,6 +83,22 @@ export const useSwapper = () => {
   })
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
+
+  const getSupportedSellableAssets = (assets: Asset[]) => {
+    const assetIds = assets.map(asset => asset.caip19)
+    const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({ assetIds })
+    return assets.filter(asset => sellableAssetIds.includes(asset.caip19))
+  }
+
+  const getSupportedBuyAssetsFromSellAsset = (assets: Asset[]): Asset[] => {
+    const assetIds = assets.map(asset => asset.caip19)
+    const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
+      assetIds,
+      sellAssetId: sellAsset.caip19,
+    })
+
+    return assets.filter(asset => supportedBuyAssetIds.includes(asset.caip19))
+  }
 
   const getDefaultPair = useCallback(() => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
@@ -451,6 +467,8 @@ export const useSwapper = () => {
     buildQuoteTx,
     executeQuote,
     getBestSwapper,
+    getSupportedBuyAssetsFromSellAsset,
+    getSupportedSellableAssets,
     getDefaultPair,
     checkApprovalNeeded,
     approveInfinite,

@@ -130,11 +130,11 @@ describe('useFormSend', () => {
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
-    setTimeout(() => {
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-    }, 5000)
+    jest.advanceTimersByTime(5000)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
   })
 
   it('handles a failure while sending a tx', async () => {

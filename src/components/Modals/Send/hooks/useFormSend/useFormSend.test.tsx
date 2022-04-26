@@ -158,11 +158,11 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
-    setTimeout(() => {
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-    }, 5000)
+    jest.advanceTimersByTime(5000)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending a tx with ENS name', async () => {
@@ -194,11 +194,11 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddres)
-    setTimeout(() => {
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-    }, 5000)
+    jest.advanceTimersByTime(5000)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending an ETH address tx without offline signing', async () => {
@@ -227,12 +227,12 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
-    setTimeout(() => {
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-      expect(signAndBroadcastTransaction).toHaveBeenCalled()
-    }, 5000)
+    jest.advanceTimersByTime(5000)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
+    expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
   it('handles successfully sending an ENS name tx without offline signing', async () => {
@@ -265,12 +265,12 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddres)
-    setTimeout(() => {
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-      expect(signAndBroadcastTransaction).toHaveBeenCalled()
-    }, 5000)
+    jest.advanceTimersByTime(5000)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
+    expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
   it('handles a failure while sending a tx', async () => {

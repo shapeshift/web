@@ -84,21 +84,35 @@ export const useSwapper = () => {
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
-  const getSupportedSellableAssets = useCallback((assets: Asset[]) => {
-    const assetIds = assets.map(asset => asset.caip19)
-    const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({ assetIds })
-    return assets.filter(asset => sellableAssetIds.includes(asset.caip19))
-  }, [swapperManager])
+  const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
+    console.log('filtering!')
+    const assetIdMap = assetIds.reduce<{ [k: string]: boolean }>((acc, val) => {
+      acc[val] = true
+      return acc
+    }, {})
+    return assets.filter(asset => assetIdMap[asset.caip19])
+  }
 
-  const getSupportedBuyAssetsFromSellAsset = useCallback((assets: Asset[]): Asset[] => {
-    const assetIds = assets.map(asset => asset.caip19)
-    const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
-      assetIds,
-      sellAssetId: sellAsset.caip19,
-    })
+  const getSupportedSellableAssets = useCallback(
+    (assets: Asset[]) => {
+      const assetIds = assets.map(asset => asset.caip19)
+      const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({ assetIds })
+      return filterAssetsByIds(assets, sellableAssetIds)
+    },
+    [swapperManager],
+  )
 
-    return assets.filter(asset => supportedBuyAssetIds.includes(asset.caip19))
-  }, [swapperManager, sellAsset])
+  const getSupportedBuyAssetsFromSellAsset = useCallback(
+    (assets: Asset[]): Asset[] => {
+      const assetIds = assets.map(asset => asset.caip19)
+      const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
+        assetIds,
+        sellAssetId: sellAsset.caip19,
+      })
+      return filterAssetsByIds(assets, supportedBuyAssetIds)
+    },
+    [swapperManager, sellAsset],
+  )
 
   const getDefaultPair = useCallback(() => {
     const swapper = swapperManager.getSwapper(bestSwapperType)

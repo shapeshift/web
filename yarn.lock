@@ -3836,10 +3836,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.1.2.tgz#61aee46519ccbcd5ee5db2ca5d44d893a79644bc"
   integrity sha512-7t4Q49KtySfGZiTYyfOUcUMcOIYGoHn4/5fSaUVTi2oR4i2LJxAKsX1iNzBz1UOBytVIbQIUknG3jIFvQCb25A==
 
-"@shapeshiftoss/chain-adapters@^2.13.1":
-  version "2.13.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.13.1.tgz#6d646e5a0c754c8dd146e4e69c69c434002a1815"
-  integrity sha512-AtFMZTaxiTkuI974IlMsGHsuxRYotrQuOi9hCJWdqPBJf4YmJhuzMTnmh8FdGJnUAEjuNZJS6Dcgw/MKLLCs9A==
+"@shapeshiftoss/chain-adapters@^2.13.2":
+  version "2.13.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.13.2.tgz#7f8b25b382440b9404cce45db4c2082ceecbe6f1"
+  integrity sha512-Vyin3KG0vqPQXh49nSz1fRkgfewzJD43WyHj6FKAtvA93b4b9GeiDUg/DrM5vBZDhmepy30q1dAwrEbRCYSblw==
   dependencies:
     axios "^0.26.0"
     bech32 "^2.0.0"
@@ -4040,13 +4040,14 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-2.0.3.tgz#5779fd624eb6d4ddafac738be0f1cd6174632b23"
-  integrity sha512-p7bEZKcTn6X+Vy2mE7PYFMxD80SLksXJfWEaD4aKsMBG7frdudovVTkv27HDAVI6qXvJVD3Trby6Lx8wEk0baw==
+"@shapeshiftoss/swapper@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-2.1.0.tgz#0bc737affbd17fc021e0777a596faf6d8bcf010d"
+  integrity sha512-i0yPRkRqy8iZzCe58Br3KqESzOMMYQR+bneLXv7EMF+ktZGjZP9mzhWJmOs7g40/yNWT9PVT2dg48w9/+PCYGA==
   dependencies:
     axios "^0.26.0"
     bignumber.js "^9.0.1"
+    lodash "^4.17.21"
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
@@ -7245,13 +7246,6 @@ axios@^0.21.2:
   dependencies:
     follow-redirects "^1.14.0"
 
-axios@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
-  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
-  dependencies:
-    follow-redirects "^1.14.4"
-
 axios@^0.26.0, axios@^0.26.1:
   version "0.26.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
@@ -9456,10 +9450,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress@9.5.1:
-  version "9.5.1"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-9.5.1.tgz#51162f3688cedf5ffce311b914ef49a7c1ece076"
-  integrity sha512-H7lUWB3Svr44gz1rNnj941xmdsCljXoJa2cDneAltjI9leKLMQLm30x6jLlpQ730tiVtIbW5HdUmBzPzwzfUQg==
+cypress@9.6.0:
+  version "9.6.0"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-9.6.0.tgz#84473b3362255fa8f5e627a596e58575c9e5320f"
+  integrity sha512-nNwt9eBQmSENamwa8LxvggXksfyzpyYaQ7lNBLgks3XZ6dPE/6BCQFBzeAyAPt/bNXfH3tKPkAyhiAZPYkWoEg==
   dependencies:
     "@cypress/request" "^2.88.10"
     "@cypress/xvfb" "^1.2.4"
@@ -9493,7 +9487,7 @@ cypress@9.5.1:
     listr2 "^3.8.3"
     lodash "^4.17.21"
     log-symbols "^4.0.0"
-    minimist "^1.2.5"
+    minimist "^1.2.6"
     ospath "^1.2.2"
     pretty-bytes "^5.6.0"
     proxy-from-env "1.0.0"
@@ -11679,7 +11673,7 @@ follow-redirects@1.5.10:
   dependencies:
     debug "=3.1.0"
 
-follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.14.0, follow-redirects@^1.14.4, follow-redirects@^1.14.8:
+follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.14.0, follow-redirects@^1.14.8:
   version "1.14.9"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
   integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
@@ -15320,7 +15314,7 @@ minimist-options@4.1.0:
     is-plain-obj "^1.1.0"
     kind-of "^6.0.3"
 
-minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5:
+minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5, minimist@^1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
   integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==

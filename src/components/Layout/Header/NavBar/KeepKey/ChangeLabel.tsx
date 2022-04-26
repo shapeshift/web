@@ -17,7 +17,9 @@ export const ChangeLabel = () => {
   const { walletInfo } = state
   const { keepKeyWallet } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction },
+    state: {
+      deviceState: { awaitingDeviceInteraction },
+    },
   } = useWallet()
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 

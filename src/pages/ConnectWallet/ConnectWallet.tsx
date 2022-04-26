@@ -59,7 +59,7 @@ async function connectCypressWallet(
 }
 
 export const ConnectWallet = () => {
-  const { state, dispatch } = useWallet()
+  const { state, dispatch, connectDemo } = useWallet()
   const isCypressTest =
     localStorage.hasOwnProperty('cypressWalletSeed') &&
     localStorage.hasOwnProperty('cypressWalletPassword')
@@ -172,7 +172,6 @@ export const ConnectWallet = () => {
           size='lg'
           zIndex={1}
           colorScheme='blue'
-          rightIcon={<ArrowForwardIcon />}
           onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
           data-test='connect-wallet-button'
         >

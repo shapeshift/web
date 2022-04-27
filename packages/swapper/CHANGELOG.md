@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.1.0...@shapeshiftoss/swapper-v2.2.0) (2022-04-27)
+
+
+### Features
+
+* **swapper:** add getByPair ([#526](https://github.com/shapeshift/lib/issues/526)) ([ec6d40f](https://github.com/shapeshift/lib/commit/ec6d40f9b399ab6eabdac97125e04c93342b7ab7))
+
 # [@shapeshiftoss/swapper-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.0.3...@shapeshiftoss/swapper-v2.1.0) (2022-04-25)
 
 

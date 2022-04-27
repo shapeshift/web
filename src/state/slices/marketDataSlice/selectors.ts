@@ -2,17 +2,18 @@ import { createSelector } from '@reduxjs/toolkit'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
+import createCachedSelector from 're-reselect'
 import { ReduxState } from 'state/reducer'
 
 export const selectMarketData = (state: ReduxState) => state.marketData.byId
 
 const selectAssetId = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => assetId
 
-export const selectMarketDataById = createSelector(
+export const selectMarketDataById = createCachedSelector(
   selectMarketData,
   selectAssetId,
-  (marketData, assetId) => marketData[assetId],
-)
+  (marketData, assetId: CAIP19) => marketData[assetId],
+)((_marketData, assetId: CAIP19): CAIP19 => assetId)
 
 // assets we have loaded market data for
 export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids

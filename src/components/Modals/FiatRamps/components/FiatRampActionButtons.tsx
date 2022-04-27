@@ -12,23 +12,24 @@ export const FiatRampActionButtons = ({
 }) => {
   const translate = useTranslate()
 
+  const commonButtonProps = {
+    pt: 4,
+    pb: 4,
+    pl: 10,
+    pr: 10,
+  }
+
   return (
     <ButtonGroup variant='ghost' colorScheme='blue'>
       <Button
-        pt={4}
-        pb={4}
-        pl={10}
-        pr={10}
+        {...commonButtonProps}
         isActive={action === FiatRampAction.Buy}
         onClick={() => setAction(FiatRampAction.Buy)}
       >
         {translate('fiatRamps.buy')}
       </Button>
       <Button
-        pt={4}
-        pb={4}
-        pl={10}
-        pr={10}
+        {...commonButtonProps}
         isActive={action === FiatRampAction.Sell}
         onClick={() => setAction(FiatRampAction.Sell)}
       >

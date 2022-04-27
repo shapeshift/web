@@ -4,10 +4,13 @@ import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import findIndex from 'lodash/findIndex'
+import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { Entropy, VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
+import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
-import { ActionTypes, Outcome, WalletActions } from './actions'
+import { ActionTypes, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
@@ -31,6 +34,29 @@ export type WalletInfo = {
   meta?: { label?: string; address?: string }
 }
 
+export type Outcome = 'success' | 'error'
+export type DeviceDisposition = 'initialized' | 'recovering' | 'initializing'
+
+export type DeviceState = {
+  awaitingDeviceInteraction: boolean
+  lastDeviceInteractionStatus: Outcome | undefined
+  disposition: DeviceDisposition | undefined
+  recoverWithPassphrase: boolean | undefined
+  recoveryEntropy: Entropy
+  recoveryCharacterIndex: number | undefined
+  recoveryWordIndex: number | undefined
+}
+
+const initialDeviceState: DeviceState = {
+  awaitingDeviceInteraction: false,
+  lastDeviceInteractionStatus: undefined,
+  disposition: undefined,
+  recoverWithPassphrase: undefined,
+  recoveryEntropy: VALID_ENTROPY[0],
+  recoveryCharacterIndex: undefined,
+  recoveryWordIndex: undefined,
+}
+
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
@@ -44,8 +70,7 @@ export interface InitialState {
   deviceId: string
   showBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
-  awaitingDeviceInteraction: boolean
-  lastDeviceInteractionStatus: Outcome
+  deviceState: DeviceState
 }
 
 const initialState: InitialState = {
@@ -61,8 +86,7 @@ const initialState: InitialState = {
   deviceId: '',
   showBackButton: true,
   keepKeyPinRequestType: null,
-  awaitingDeviceInteraction: false,
-  lastDeviceInteractionStatus: undefined,
+  deviceState: initialDeviceState,
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -89,10 +113,26 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
-    case WalletActions.SET_AWAITING_DEVICE_INTERACTION:
-      return { ...state, awaitingDeviceInteraction: action.payload }
-    case WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS:
-      return { ...state, lastDeviceInteractionStatus: action.payload }
+    case WalletActions.SET_DEVICE_STATE:
+      const { deviceState } = state
+      const {
+        awaitingDeviceInteraction = deviceState.awaitingDeviceInteraction,
+        lastDeviceInteractionStatus = deviceState.lastDeviceInteractionStatus,
+        disposition = deviceState.disposition,
+        recoverWithPassphrase = deviceState.recoverWithPassphrase,
+        recoveryEntropy = deviceState.recoveryEntropy,
+      } = action.payload
+      return {
+        ...state,
+        deviceState: {
+          ...deviceState,
+          awaitingDeviceInteraction,
+          lastDeviceInteractionStatus,
+          disposition,
+          recoverWithPassphrase,
+          recoveryEntropy,
+        },
+      }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
@@ -113,16 +153,34 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         deviceId: action.payload.deviceId,
         initialRoute: '/native/enter-password',
       }
-    case WalletActions.OPEN_KEEPKEY_PIN:
+    case WalletActions.OPEN_KEEPKEY_PIN: {
+      const { showBackButton, deviceId, pinRequestType } = action.payload
       return {
         ...state,
         modal: true,
         type: KeyManager.KeepKey,
-        showBackButton: false,
-        deviceId: action.payload.deviceId,
-        keepKeyPinRequestType: action.payload.pinRequestType ?? null,
-        initialRoute: '/keepkey/enter-pin',
+        showBackButton: showBackButton ?? false,
+        deviceId: deviceId,
+        keepKeyPinRequestType: pinRequestType ?? null,
+        initialRoute: KeepKeyRoutes.Pin,
       }
+    }
+    case WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST: {
+      const { characterPos: recoveryCharacterIndex, wordPos: recoveryWordIndex } = action.payload
+      const { deviceState } = state
+      return {
+        ...state,
+        modal: true,
+        showBackButton: false,
+        type: KeyManager.KeepKey,
+        initialRoute: KeepKeyRoutes.RecoverySentenceEntry,
+        deviceState: {
+          ...deviceState,
+          recoveryCharacterIndex,
+          recoveryWordIndex,
+        },
+      }
+    }
     case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
       return {
         ...state,
@@ -130,7 +188,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.KeepKey,
         showBackButton: false,
         deviceId: action.payload.deviceId,
-        initialRoute: '/keepkey/passphrase',
+        initialRoute: KeepKeyRoutes.Passphrase,
       }
     case WalletActions.OPEN_KEEPKEY_INITIALIZE:
       return {
@@ -138,24 +196,21 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         modal: true,
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
-        initialRoute: '/keepkey/new',
+        initialRoute: KeepKeyRoutes.WipeSuccessful,
+      }
+    case WalletActions.OPEN_KEEPKEY_RECOVERY:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        deviceId: action.payload.deviceId,
+        initialRoute: KeepKeyRoutes.NewRecoverySentence,
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
-      return {
-        ...state,
-        wallet: null,
-        walletInfo: null,
-        isConnected: false,
-        type: null,
-        initialRoute: null,
-        isLoadingLocalWallet: false,
-        showBackButton: true,
-        keepKeyPinRequestType: null,
-        awaitingDeviceInteraction: false,
-        lastDeviceInteractionStatus: undefined,
-      }
+      const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
+      return { ...state, ...resetProperties }
     default:
       return state
   }
@@ -365,17 +420,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
-  const setAwaitingDeviceInteraction = useCallback((awaitingDeviceInteraction: boolean) => {
+  const setDeviceState = useCallback((deviceState: Partial<DeviceState>) => {
     dispatch({
-      type: WalletActions.SET_AWAITING_DEVICE_INTERACTION,
-      payload: awaitingDeviceInteraction,
-    })
-  }, [])
-
-  const setLastDeviceInteractionStatus = useCallback((lastDeviceInteractionStatus: Outcome) => {
-    dispatch({
-      type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS,
-      payload: lastDeviceInteractionStatus,
+      type: WalletActions.SET_DEVICE_STATE,
+      payload: deviceState,
     })
   }, [])
 
@@ -383,13 +431,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useKeyringEventHandler(state)
   useNativeEventHandler(state, dispatch)
-  useKeepKeyEventHandler(
-    state,
-    dispatch,
-    load,
-    setAwaitingDeviceInteraction,
-    setLastDeviceInteractionStatus,
-  )
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
 
   const value: IWalletContext = useMemo(
     () => ({
@@ -399,18 +441,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       create,
       disconnect,
       load,
-      setAwaitingDeviceInteraction,
-      setLastDeviceInteractionStatus,
+      setDeviceState,
     }),
-    [
-      state,
-      connect,
-      create,
-      disconnect,
-      load,
-      setAwaitingDeviceInteraction,
-      setLastDeviceInteractionStatus,
-    ],
+    [state, connect, create, disconnect, load, setDeviceState],
   )
 
   return (

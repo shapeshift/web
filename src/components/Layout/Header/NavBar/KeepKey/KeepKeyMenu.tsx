@@ -1,6 +1,7 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Box, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
+import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
@@ -21,13 +22,24 @@ export const KeepKeyMenu = () => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
   const {
-    state: { hasPinCaching, deviceTimeout, features },
+    state: { deviceTimeout, features },
   } = useKeepKey()
   const versions = useKeepKeyVersions()
   const {
+    setDeviceState,
     state: { isConnected, walletInfo },
   } = useWallet()
   const { keepKeyWipe } = useModal()
+
+  // Reset ephemeral device state properties when opening the KeepKey menu
+  useEffect(() => {
+    ;(async () => {
+      setDeviceState({
+        lastDeviceInteractionStatus: undefined,
+        awaitingDeviceInteraction: false,
+      })
+    })()
+  }, [setDeviceState])
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -139,13 +151,6 @@ export const KeepKeyMenu = () => {
                 label='walletProvider.keepKey.settings.menuLabels.deviceTimeout'
                 value={deviceTimeoutTranslation}
                 hasSubmenu={true}
-              />
-              <ExpandedMenuItem
-                onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPinCaching)}
-                label='walletProvider.keepKey.settings.menuLabels.pinCaching'
-                hasSubmenu={true}
-                value={getBooleanLabel(hasPinCaching)}
-                valueDisposition={hasPinCaching ? 'positive' : 'neutral'}
               />
               <ExpandedMenuItem
                 onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}

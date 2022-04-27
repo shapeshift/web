@@ -25,31 +25,42 @@ jobs:
       REACT_APP_GEM_ENV: production
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-      - name: Cache build folder
-        uses: actions/cache@v2
+            ${{ runner.os }}-node-modules-${{ github.ref }}-
+
+      - name: Download Build Folder
+        uses: actions/download-artifact@v3
         with:
+          name: build
           path: build
-          key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ github.ref }}-
+
       - name: Install
         run: yarn install --frozen-lockfile
+
       # needs to run after install
-      - name: Commitlint PR title
+      - name: Commitlint PR Title
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$TITLE" | npx commitlint
+
       - name: Lint
         run: yarn lint
-      - name: Type check
+
+      - name: Type Check
         run: yarn type-check
+
       - name: Test
         run: yarn test

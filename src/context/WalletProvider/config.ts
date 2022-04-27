@@ -2,6 +2,9 @@ import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
 import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
 import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
+import { KeepKeyRecoverySentenceEntry } from 'context/WalletProvider/KeepKey/components/RecoverySentenceEntry'
+import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
+import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
 import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
@@ -15,6 +18,8 @@ import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskConfig } from './MetaMask/config'
 import { EnterPassword } from './NativeWallet/components/EnterPassword'
+import { LegacyLogin } from './NativeWallet/components/LegacyLogin'
+import { LegacyLoginSuccess } from './NativeWallet/components/LegacyLoginSuccess'
 import { NativeCreate } from './NativeWallet/components/NativeCreate'
 import { NativeImport } from './NativeWallet/components/NativeImport'
 import { NativeLoad } from './NativeWallet/components/NativeLoad'
@@ -48,6 +53,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/create-test', component: NativeTestPhrase },
       { path: '/native/success', component: NativeSuccess },
       { path: '/native/enter-password', component: EnterPassword },
+      { path: '/native/legacy/login', component: LegacyLogin },
+      { path: '/native/legacy/login/success', component: LegacyLoginSuccess },
     ],
   },
   [KeyManager.KeepKey]: {
@@ -60,6 +67,9 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
       { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
+      { path: KeepKeyRoutes.RecoverySentenceEntry, component: KeepKeyRecoverySentenceEntry },
+      { path: KeepKeyRoutes.RecoverySettings, component: KeepKeyRecoverySettings },
+      { path: KeepKeyRoutes.RecoverySettingUp, component: RecoverySettingUp },
     ],
   },
   [KeyManager.MetaMask]: {

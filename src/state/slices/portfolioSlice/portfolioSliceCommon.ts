@@ -8,9 +8,12 @@ export const supportedAccountTypes = {
     UtxoAccountType.SegwitP2sh,
     UtxoAccountType.P2pkh,
   ],
-  [ChainTypes.Ethereum]: undefined,
-  [ChainTypes.Cosmos]: undefined,
-  [ChainTypes.Osmosis]: undefined,
+  // this looks funky, but we need a non zero length array to map over
+  // where we consume it - it either looks weird here or in the consumption
+  // so...  ¯\_(ツ)_/¯
+  [ChainTypes.Ethereum]: [undefined],
+  [ChainTypes.Cosmos]: [undefined],
+  [ChainTypes.Osmosis]: [undefined],
 }
 
 /*

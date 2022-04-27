@@ -5,6 +5,7 @@ import { ActionTypes } from 'context/WalletProvider/actions'
 
 export interface LocationState {
   vault: Vault
+  isLegacyWallet?: boolean
   error?: {
     message: string
   }
@@ -18,4 +19,8 @@ export interface NativeSetupProps
   > {
   vault: Vault
   dispatch: React.Dispatch<ActionTypes>
+}
+
+export interface LoginError {
+  message: '2fa required' | '2fa invalid'
 }

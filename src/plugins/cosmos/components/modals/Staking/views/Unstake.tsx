@@ -9,7 +9,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
@@ -41,7 +41,7 @@ export enum InputType {
 
 type UnstakeProps = {
   apr: string
-  assetId: CAIP19
+  assetId: AssetId
   accountSpecifier: string
   validatorAddress: string
 }

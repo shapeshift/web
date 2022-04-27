@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
@@ -11,7 +11,7 @@ import { TradeInput } from '../TradeInput'
 export const entries = ['/send/details', '/send/confirm']
 
 type TradeRoutesProps = {
-  defaultBuyAssetId?: CAIP19
+  defaultBuyAssetId?: AssetId
 }
 
 export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {

@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -14,7 +14,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   useCompactMode?: boolean
   limit?: number

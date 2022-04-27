@@ -22,7 +22,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   assetIdtoChainId,
   btcChainId,
-  ChainId,
+  ChainIdType,
   cosmosChainId,
   ethChainId,
 } from 'state/slices/portfolioSlice/utils'
@@ -43,8 +43,8 @@ type OverviewProps = {
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
   onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
-  chainId: ChainId
-  setChainId: Dispatch<SetStateAction<ChainId>>
+  chainId: ChainIdType
+  setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
 }
 type GenerateAddressProps = {

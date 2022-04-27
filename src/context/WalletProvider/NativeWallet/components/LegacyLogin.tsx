@@ -81,6 +81,14 @@ export const LegacyLogin = () => {
         }
 
         if (
+          err.response.status === loginErrors.invalidCaptcha.httpCode &&
+          err.response.data.error.msg === loginErrors.invalidCaptcha.msg
+        ) {
+          setError(translate('walletProvider.shapeShift.legacy.invalidCaptcha'))
+          return
+        }
+
+        if (
           err.response.status === loginErrors.twoFactorInvalid.httpCode &&
           err.response.data.error.msg === loginErrors.twoFactorInvalid.msg
         ) {

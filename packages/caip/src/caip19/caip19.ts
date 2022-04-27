@@ -3,6 +3,9 @@ import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { ChainNamespace, ChainReference, toCAIP2 } from '../caip2/caip2'
 
+/**
+ * @deprecated - Temporarily left in place for backwards compatibility, to be replaced with AssetId
+ */
 export type CAIP19 = string
 
 export type AssetId = string

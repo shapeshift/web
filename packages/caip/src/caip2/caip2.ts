@@ -2,6 +2,9 @@
 
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
+/**
+ * @deprecated - Temporarily left in place for backwards compatibility, to be replaced with ChainId
+ */
 export type CAIP2 = string
 
 export type ChainId = string

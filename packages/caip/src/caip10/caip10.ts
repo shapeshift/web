@@ -1,5 +1,8 @@
 import { CAIP2, ChainNamespace, isCAIP2 } from './../caip2/caip2'
 
+/**
+ * @deprecated - Temporarily left in place for backwards compatibility, to be replaced with AccountId
+ */
 export type CAIP10 = string
 
 export type AccountId = string

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.2.0...@shapeshiftoss/caip-v2.2.1) (2022-04-27)
+
+
+### Bug Fixes
+
+* add deprecation warnings to caip2, caip10, caip19 ([#567](https://github.com/shapeshift/lib/issues/567)) ([14b451a](https://github.com/shapeshift/lib/commit/14b451aa85f7a223a24a3d9e28fcf9861429de40))
+
 # [@shapeshiftoss/caip-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.1.2...@shapeshiftoss/caip-v2.2.0) (2022-04-21)
 
 

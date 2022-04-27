@@ -103,7 +103,7 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.caip19)
       const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
         assetIds,
-        sellAssetId: sellAsset.caip19,
+        sellAssetId: sellAsset.currency.caip19,
       })
       return filterAssetsByIds(assets, supportedBuyAssetIds)
     },
@@ -111,9 +111,9 @@ export const useSwapper = () => {
   )
 
   const getDefaultPair = useCallback(() => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
-    return swapper.getDefaultPair()
-  }, [swapperManager, bestSwapperType])
+    // eth & fox
+    return ['eip155:1/slip44:60', 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+  }, [])
 
   const getSendMaxAmount = async ({
     wallet,

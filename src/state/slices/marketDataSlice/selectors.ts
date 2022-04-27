@@ -12,19 +12,13 @@ const selectAssetId = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => a
 export const selectMarketDataById = createCachedSelector(
   selectMarketData,
   selectAssetId,
-  (marketData, assetId: CAIP19) => marketData[assetId]?.data,
+  (marketData, assetId: CAIP19) => marketData[assetId],
 )((_marketData, assetId: CAIP19): CAIP19 => assetId)
 
 export const selectMarketDataUnavailableById = createSelector(
   selectMarketData,
   selectAssetId,
-  (marketData, assetId) => marketData[assetId]?.data === null,
-)
-
-export const selectMarketDataErroredById = createSelector(
-  selectMarketData,
-  selectAssetId,
-  (marketData, assetId) => Boolean(marketData[assetId]?.errored),
+  (marketData, assetId) => !Boolean(marketData[assetId]),
 )
 
 // assets we have loaded market data for
@@ -42,14 +36,7 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   selectPriceHistory,
   selectAssetId,
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId]?.data ?? [],
-)
-
-export const selectAssetPriceHistoryErrored = createSelector(
-  selectPriceHistory,
-  selectAssetId,
-  (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, assetId, timeframe) => Boolean(priceHistory[timeframe][assetId]?.errored),
+  (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? [],
 )
 
 export const selectPriceHistoriesEmptyByAssetTimeframe = createSelector(
@@ -57,7 +44,7 @@ export const selectPriceHistoriesEmptyByAssetTimeframe = createSelector(
   (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
   (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
   (priceHistory, assetIds, timeframe) =>
-    assetIds.filter(assetId => priceHistory[timeframe][assetId]?.data?.length === 0),
+    assetIds.filter(assetId => priceHistory[timeframe][assetId]?.length === 0),
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
@@ -66,15 +53,7 @@ export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
   (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
   (priceHistory, assetIds, timeframe) =>
-    !assetIds.every(assetId => Boolean(priceHistory[timeframe][assetId]?.data)),
-)
-
-export const selectPriceHistoriesErroredByAssetTimeframe = createSelector(
-  selectPriceHistory,
-  (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
-  (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, assetIds, timeframe) =>
-    assetIds.filter(assetId => priceHistory[timeframe][assetId]?.errored),
+    !assetIds.every(assetId => Boolean(priceHistory[timeframe][assetId])),
 )
 
 export const selectPriceHistoryTimeframe = createSelector(

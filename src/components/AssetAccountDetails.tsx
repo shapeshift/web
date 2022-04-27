@@ -4,10 +4,7 @@ import { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import {
-  selectMarketDataErroredById,
-  selectMarketDataUnavailableById,
-} from 'state/slices/selectors'
+import { selectMarketDataUnavailableById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
@@ -28,7 +25,6 @@ type AssetDetailsProps = {
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
   const unavailable = useAppSelector(state => selectMarketDataUnavailableById(state, caip19))
-  const errored = useAppSelector(state => selectMarketDataErroredById(state, caip19))
   return (
     <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
@@ -45,7 +41,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <AssetTransactionHistory limit={3} assetId={caip19} accountId={accountId} />
         </Stack>
-        {!unavailable && !errored && (
+        {!unavailable && (
           <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
             <TradeCard defaultBuyAssetId={caip19} />
             <AssetMarketData assetId={caip19} />

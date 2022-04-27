@@ -8,11 +8,7 @@ import { MissingDataMessage } from 'components/MissingDataFeedback/Message'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectMarketDataById,
-  selectMarketDataErroredById,
-  selectMarketDataUnavailableById,
-} from 'state/slices/selectors'
+import { selectMarketDataById, selectMarketDataUnavailableById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetMarketDataProps = {
@@ -54,18 +50,17 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
 export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const unavailable = useAppSelector(state => selectMarketDataUnavailableById(state, assetId))
-  const errored = useAppSelector(state => selectMarketDataErroredById(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
-  return errored ? (
-    <Card>
-      <MissingDataMessage tkey='assetErrored' />
-    </Card>
-  ) : unavailable ? (
-    <Card>
-      <MissingDataMessage tkey='assetUnavailable' />
-    </Card>
-  ) : (
+
+  if (unavailable)
+    return (
+      <Card>
+        <MissingDataMessage tkey='assetUnavailable' />
+      </Card>
+    )
+
+  return (
     <Card>
       <Card.Header>
         <Card.Heading>Market Data</Card.Heading>

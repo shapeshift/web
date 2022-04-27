@@ -24,8 +24,8 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { IconCircle } from 'components/IconCircle'
 import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
-import { PriceChart } from 'components/PriceChart/PriceChart'
 import { MissingDataMessage } from 'components/MissingDataFeedback/Message'
+import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -37,7 +37,6 @@ import {
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectMarketDataErroredById,
   selectMarketDataUnavailableById,
   selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
@@ -66,7 +65,6 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const unavailable = useAppSelector(state => selectMarketDataUnavailableById(state, assetId))
-  const errored = useAppSelector(state => selectMarketDataErroredById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
@@ -85,15 +83,14 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectTotalStakingDelegationCryptoByFilter(state, filter),
   )
 
-  return errored ? (
-    <Card>
-      <MissingDataMessage tkey='assetErrored' />
-    </Card>
-  ) : unavailable ? (
-    <Card>
-      <MissingDataMessage tkey='assetUnavailable' />
-    </Card>
-  ) : (
+  if (unavailable)
+    return (
+      <Card>
+        <MissingDataMessage tkey='assetUnavailable' />
+      </Card>
+    )
+
+  return (
     <Card>
       <Card.Header>
         <Flex

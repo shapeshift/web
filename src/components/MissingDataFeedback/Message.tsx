@@ -5,14 +5,7 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 
 export const MissingDataMessage: React.FC<{
-  tkey:
-    | 'assetUnavailable'
-    | 'assetErrored'
-    | 'priceHistoryLookupErrored'
-    | 'priceHistoryUnavailable'
-    | 'balanceHistoryErrored'
-    | 'balanceHistoryUnavailable'
-    | 'loading'
+  tkey: 'assetUnavailable' | 'priceHistoryUnavailable' | 'balanceHistoryUnavailable' | 'loading'
 }> = ({ tkey }) => {
   return (
     <Box p={8}>

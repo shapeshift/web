@@ -6,7 +6,6 @@ import { Graph } from 'components/Graph/Graph'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { calculatePercentChange } from 'lib/charts'
 import {
-  selectAssetPriceHistoryErrored,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
 } from 'state/slices/selectors'
@@ -41,21 +40,25 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
 
-  const errored = useAppSelector(state => selectAssetPriceHistoryErrored(state, assetId, timeframe))
-
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
-  return (
-    <Card.Body p={0} height={errored || data.length === 0 ? undefined : '350px'}>
-      {errored ? (
-        <MissingDataMessage tkey='priceHistoryLookupErrored' />
-      ) : loading ? (
+  if (loading)
+    return (
+      <Card.Body p={0}>
         <MissingDataMessage tkey='loading' />
-      ) : data.length === 0 ? (
+      </Card.Body>
+    )
+
+  if (data.length === 0)
+    return (
+      <Card.Body p={0}>
         <MissingDataMessage tkey='priceHistoryUnavailable' />
-      ) : (
-        <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
-      )}
+      </Card.Body>
+    )
+
+  return (
+    <Card.Body p={0} height='350px'>
+      <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
     </Card.Body>
   )
 }

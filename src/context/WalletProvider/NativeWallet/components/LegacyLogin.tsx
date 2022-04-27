@@ -3,13 +3,11 @@ import {
   AlertIcon,
   Box,
   Button,
-  Checkbox,
   FormControl,
   FormErrorMessage,
   Input,
   ModalBody,
   ModalHeader,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import axios from 'axios'
@@ -18,19 +16,17 @@ import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
 
 import { loginErrors, LoginResponseError } from '../types'
+import { FriendlyCaptcha } from './Captcha'
 
 export const LegacyLogin = () => {
   const history = useHistory()
-  const [isCaptchaSolved, setIsCaptchaSolved] = useState(false)
   const [error, setError] = useState<boolean | string>(false)
   const [isTwoFactorRequired, setTwoFactorRequired] = useState(false)
-  const captchaBgColor = useColorModeValue('gray.50', 'gray.700')
-  const checkboxBorderColor = useColorModeValue('gray.400', 'white')
+  const [captchaSolution, setCaptchaSolution] = useState<string | null>(null)
 
   const {
     handleSubmit,
@@ -62,6 +58,7 @@ export const LegacyLogin = () => {
         email: values.email,
         password: hashedPassword,
         twoFactorCode: values.twoFactorCode || undefined,
+        captchaSolution,
       })
       const { data: encryptedWallet } = response
       const vault = await Vault.create(undefined, false)
@@ -110,9 +107,14 @@ export const LegacyLogin = () => {
     }
   }
 
-  const onCaptchaRequested = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCaptcha = (solution: string) => {
+    if (typeof solution === 'string') {
+      setCaptchaSolution(solution)
+    } else {
+      setCaptchaSolution(null)
+    }
     // Check the captcha in case the captcha has been validated
-    setIsCaptchaSolved(e.target.checked)
+    // setIsCaptchaSolved(e.target.checked)
   }
 
   return (
@@ -163,31 +165,13 @@ export const LegacyLogin = () => {
               />
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.captchaChallenge && !isCaptchaSolved} mb={4} mt={6}>
-              <Card
-                size='sm'
-                width='full'
-                variant='group'
-                p={2}
-                border={0}
-                background={captchaBgColor}
-              >
-                <Card.Body p={2}>
-                  <Checkbox
-                    borderColor={checkboxBorderColor}
-                    spacing={'0.75rem'}
-                    // @TODO(NeOMakinG): Change this to use a real captcha
-                    {...register('captchaChallenge', {
-                      required: translate('walletProvider.shapeShift.legacy.invalidCaptcha'),
-                    })}
-                    onChange={onCaptchaRequested}
-                    isChecked={isCaptchaSolved}
-                  >
-                    {translate('common.notRobot')}
-                  </Checkbox>
-                </Card.Body>
-              </Card>
-              <FormErrorMessage>{errors.captchaChallenge?.message}</FormErrorMessage>
+            <FormControl isInvalid={!captchaSolution} mb={4} mt={6}>
+              <Box flexDir={'row'} justifyContent='center' alignItems={'center'}>
+                <FriendlyCaptcha handleCaptcha={handleCaptcha} />
+              </Box>
+              <FormErrorMessage>
+                {translate('walletProvider.shapeShift.invalidCaptcha')}
+              </FormErrorMessage>
             </FormControl>
           </Box>
 
@@ -225,7 +209,14 @@ export const LegacyLogin = () => {
             </Alert>
           )}
 
-          <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
+          <Button
+            disabled={!captchaSolution}
+            colorScheme='blue'
+            isFullWidth
+            size='lg'
+            type='submit'
+            isLoading={isSubmitting}
+          >
             <Text translation={isTwoFactorRequired ? 'common.verify' : 'common.login'} />
           </Button>
         </form>

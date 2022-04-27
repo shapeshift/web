@@ -252,7 +252,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
               <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
               <ButtonGroup colorScheme='blue' width='full' variant='input'>
                 <Button
-                  disabled={true}
                   isFullWidth
                   flexDir='column'
                   height='auto'

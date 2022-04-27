@@ -89,6 +89,27 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             const asset = assets[chainIdToFeeAssetId(chainId)]
             const accountTypes = supportedAccountTypes[chain]
 
+            // RESTfully fetch all tx and rebase history for this chain.
+            getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
+              const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+              const options = { forceRefetch: true }
+              dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
+
+              /**
+               * foxy rebase history is most closely linked to transactions.
+               * unfortunately, we have to call this for a specific asset here
+               * because we need it for the dashboard balance chart
+               *
+               * if you're reading this and are about to add another rebase token here,
+               * stop, and make a getRebaseHistoryByAccountId that takes
+               * an accountId and assetId[] in the txHistoryApi
+               */
+
+              // fetch all rebase history for FOXy
+              const payload = { accountSpecifierMap, portfolioAssetIds }
+              dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
+            })
+
             // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
             // this state machine should be removed, and managed by the txHistory RTK query api
             dispatch(txHistory.actions.setStatus('loading'))
@@ -123,27 +144,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 e,
               )
             }
-
-            // RESTfully fetch all tx and rebase history for this chain.
-            getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
-              const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-              const options = { forceRefetch: true }
-              dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
-
-              /**
-               * foxy rebase history is most closely linked to transactions.
-               * unfortunately, we have to call this for a specific asset here
-               * because we need it for the dashboard balance chart
-               *
-               * if you're reading this and are about to add another rebase token here,
-               * stop, and make a getRebaseHistoryByAccountId that takes
-               * an accountId and assetId[] in the txHistoryApi
-               */
-
-              // fetch all rebase history for FOXy
-              const payload = { accountSpecifierMap, portfolioAssetIds }
-              dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
-            })
           }),
       ))()
     // assets causes unnecessary renders, but doesn't actually change

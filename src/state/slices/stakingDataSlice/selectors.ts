@@ -14,7 +14,7 @@ import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { PubKey } from './stakingDataSlice'
+import { PubKey, Staking } from './stakingDataSlice'
 export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
@@ -76,13 +76,13 @@ export const selectStakingDataByAccountSpecifier = createSelector(
   },
 )
 
-export const selectStakingDataByFilter = createSelector(
+export const selectStakingDataByFilter = createDeepEqualOutputSelector(
   selectStakingData,
   selectAssetIdParamFromFilterOptional,
   selectAccountIdParamFromFilterOptional,
-  (stakingData, _, accountId) => {
-    if (!accountId) return null
-    return stakingData.byAccountSpecifier[accountId] || null
+  (stakingData, _, accountId): Staking[] => {
+    if (!accountId) return Object.values(stakingData.byAccountSpecifier)
+    return [stakingData.byAccountSpecifier[accountId]] || null
   },
 )
 
@@ -110,8 +110,27 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
   (stakingData, assetId, _, assets) => {
     const amount = reduce(
-      stakingData?.delegations,
-      (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
+      stakingData,
+      (acc, singleStakingData) => {
+        const amountDelegations = reduce(
+          singleStakingData?.delegations,
+          (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
+          bn(0),
+        )
+
+        const amountUndelegations = reduce(
+          singleStakingData?.undelegations,
+          (acc, undelegation) => {
+            undelegation.entries.forEach(undelegationEntry => {
+              acc = acc.plus(bnOrZero(undelegationEntry.amount))
+            })
+            return acc
+          },
+          bn(0),
+        )
+
+        return acc.plus(amountDelegations).plus(amountUndelegations)
+      },
       bn(0),
     )
 

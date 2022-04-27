@@ -23,19 +23,19 @@ export type MinMax = {
   name?: string
 }
 
-export type TradeState<C extends ChainTypes, S extends SwapperType> = {
+export type TradeState<C extends ChainTypes> = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset
-  fees?: chainAdapters.QuoteFeeData<C, S>
+  fees?: chainAdapters.QuoteFeeData<C>
   trade?: MinMax
   action?: TradeActions
   fiatAmount?: string
-  quote?: Quote<C, S>
+  quote?: Quote<C>
   estimatedGasFees?: string
 }
 
 export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
-  const methods = useForm<TradeState<ChainTypes, SwapperType>>({
+  const methods = useForm<TradeState<ChainTypes>>({
     mode: 'onChange',
     defaultValues: {
       fiatAmount: undefined,

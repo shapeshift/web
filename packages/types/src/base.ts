@@ -91,7 +91,8 @@ export type Asset = AbstractAsset & Partial<TokenAssetFields>
 
 export enum SwapperType {
   Zrx = '0x',
-  Thorchain = 'Thorchain'
+  Thorchain = 'Thorchain',
+  Test = 'Test'
 }
 
 export type SwapSource = {

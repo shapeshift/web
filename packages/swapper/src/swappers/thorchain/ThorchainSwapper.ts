@@ -56,10 +56,10 @@ export class ThorchainSwapper implements Swapper {
   }
 
   filterBuyAssetsBySellAssetId(): CAIP19[] {
-    throw new Error('ThorchainSwapper: filterBuyAssetsBySellAssetId unimplemented')
+    return []
   }
 
   filterAssetIdsBySellable(): CAIP19[] {
-    throw new Error('ThorchainSwapper: filterAssetIdsBySellable unimplemented')
+    return []
   }
 }

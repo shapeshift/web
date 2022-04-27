@@ -16,13 +16,22 @@ import {
   SwapperType
 } from '@shapeshiftoss/types'
 
+export type SupportedAssetInput = {
+  assetIds: CAIP19[]
+}
+
+export type ByPairInput = {
+  sellAssetId: CAIP19
+  buyAssetId: CAIP19
+}
+
 export type BuyAssetBySellIdInput = {
   sellAssetId: CAIP19
-  buyAssetIds: CAIP19[]
+  assetIds: CAIP19[]
 }
 
 export type SupportedSellAssetsInput = {
-  sellAssetIds: CAIP19[]
+  assetIds: CAIP19[]
 }
 
 export class SwapError extends Error {}

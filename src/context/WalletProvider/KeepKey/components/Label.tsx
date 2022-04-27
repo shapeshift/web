@@ -1,19 +1,69 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
+import { RecoverDevice, ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+import { VALID_ENTROPY_NUMBERS } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
+import { useWallet } from 'hooks/useWallet/useWallet'
+
+const isValidEntropyNumber = (entropy: number): entropy is RecoverDevice['entropy'] =>
+  VALID_ENTROPY_NUMBERS.some(validEntropy => validEntropy === entropy)
+
+const parseIntToEntropy = (entropy: string): RecoverDevice['entropy'] => {
+  const parsedInt = Math.floor(Number(entropy))
+  return isValidEntropyNumber(parsedInt) ? parsedInt : VALID_ENTROPY_NUMBERS[0]
+}
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory()
-
+  const {
+    setDeviceState,
+    state: {
+      deviceState: { disposition, recoverWithPassphrase, recoveryEntropy },
+      wallet,
+    },
+  } = useWallet()
+  const toast = useToast()
+  const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement | null>(null)
 
-  const handleSubmit = async () => {
+  const handleInitializeSubmit = async () => {
     setLoading(true)
     const label = inputRef.current?.value
-    history.push({ pathname: KeepKeyRoutes.NewRecoverySentence, state: { label } })
+    const resetMessage: ResetDevice = { label: label ?? '', pin: true }
+    setDeviceState({ awaitingDeviceInteraction: true })
+    await wallet?.reset(resetMessage).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
+  }
+
+  const handleRecoverSubmit = async () => {
+    setLoading(true)
+    const label = inputRef.current?.value
+    setDeviceState({ awaitingDeviceInteraction: true })
+    const recoverParams: RecoverDevice = {
+      entropy: parseIntToEntropy(recoveryEntropy),
+      label: label ?? '',
+      passphrase: recoverWithPassphrase || false,
+      pin: true,
+      autoLockDelayMs: 600000, // Ten minutes
+    }
+    await wallet?.recover(recoverParams).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
 
   return (
@@ -28,7 +78,7 @@ export const KeepKeyLabel = () => {
           isFullWidth
           size='lg'
           colorScheme='blue'
-          onClick={handleSubmit}
+          onClick={disposition === 'initializing' ? handleInitializeSubmit : handleRecoverSubmit}
           disabled={loading}
           mb={3}
         >

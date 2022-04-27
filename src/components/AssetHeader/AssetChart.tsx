@@ -148,7 +148,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(delegationBalance).gt(0) && (
+          {bnOrZero(delegationBalance).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}

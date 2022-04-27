@@ -5,7 +5,10 @@ import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 
 export type PriceHistoryData = {
-  [k: CAIP19]: HistoryData[]
+  [k: CAIP19]: {
+    data: HistoryData[]
+    errored?: boolean
+  }
 }
 
 type PriceHistoryByTimeframe = {
@@ -15,7 +18,10 @@ type PriceHistoryByTimeframe = {
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
   byId: {
-    [k: CAIP19]: MarketData
+    [k: CAIP19]: {
+      data: MarketData | null
+      errored?: boolean
+    }
   }
   ids: CAIP19[]
   priceHistory: PriceHistoryByTimeframe
@@ -43,9 +49,17 @@ export const marketData = createSlice({
   reducers: {
     clear: () => initialState,
     setMarketData: (state, { payload }) => {
-      state.byId = { ...state.byId, ...payload } // upsert
+      Object.keys(payload).forEach(k => {
+        state.byId[k] = { data: payload[k] }
+      }) // upsert
       const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))
       state.ids = ids // upsert unique
+    },
+    setMarketDataUnavailable: (state, { payload }) => {
+      state.byId[payload] = { data: null }
+    },
+    setMarketDataErrored: (state, { payload }) => {
+      state.byId[payload] = { data: null, errored: true }
     },
     setPriceHistory: (
       state,
@@ -54,7 +68,14 @@ export const marketData = createSlice({
       }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } },
     ) => {
       const { assetId, timeframe } = args
-      state.priceHistory[timeframe][assetId] = data
+      state.priceHistory[timeframe][assetId] = { data }
+    },
+    setPriceHistoryErrors: (
+      state,
+      { payload: { args } }: { payload: { args: FindPriceHistoryByCaip19Args } },
+    ) => {
+      const { assetId, timeframe } = args
+      state.priceHistory[timeframe][assetId] = { data: [], errored: true }
     },
   },
 })
@@ -81,13 +102,16 @@ export const marketApi = createApi({
       queryFn: async (caip19: CAIP19, baseQuery) => {
         try {
           const currentMarketData = await findByCaip19({ caip19 })
-          if (!currentMarketData) throw new Error()
+          if (!currentMarketData) throw new Error('query returned null')
           const data = { [caip19]: currentMarketData }
           // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
           // to prevent edge cases like #858
           baseQuery.dispatch(marketData.actions.setMarketData(data))
           return { data }
-        } catch (e) {
+        } catch (e: any) {
+          if (e.message === 'query returned null')
+            baseQuery.dispatch(marketData.actions.setMarketDataUnavailable(caip19))
+          else baseQuery.dispatch(marketData.actions.setMarketDataErrored(caip19))
           const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
           return { error }
         }
@@ -100,7 +124,7 @@ export const marketApi = createApi({
           return { data }
         } catch (e) {
           const error = {
-            data: `findPriceHistoryByCaip19: error fetching price history for ${assetId}`,
+            data: assetId,
             status: 400,
           }
           return { error }
@@ -112,12 +136,12 @@ export const marketApi = createApi({
         const payload = { data, args }
         try {
           await queryFulfilled
-          const data = getCacheEntry().data
+          const { data, error } = getCacheEntry()
+          if (!data && error) throw new Error()
           payload.data = data ?? []
-        } catch (e) {
-          // swallow
-        } finally {
           dispatch(marketData.actions.setPriceHistory(payload))
+        } catch (e: any) {
+          dispatch(marketData.actions.setPriceHistoryErrors({ args: payload.args }))
         }
       },
     }),

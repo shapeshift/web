@@ -808,7 +808,14 @@
         "SegwitNative": "Segwit Native",
         "P2pkh": "Legacy",
         "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
-        "btcFormat": "BTC format"
+        "btcFormat": "BTC format",
+        "priceHistoryLookupErrored": "There was an error loading price history for this asset at this timeframe. Try a different timeframe or try reloading.",
+        "priceHistoryUnavailable": "There is no price history data at this timeframe. Try a longer timeframe.",
+        "balanceHistoryUnavailable": "All the selected assets are missing price history data at this timeframe. Try a longer timeframe.",
+        "balanceHistoryErrored": "There was an error loading price history for one or more selected assets. Try reloading.",
+        "assetErrored": "There was an error fetching market data for this asset. Try reloading.",
+        "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
+        "loading": "Fetching price history, hang tight..."
       },
       "assetDescription": {
         "showMore": "Show More",

@@ -204,16 +204,6 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(6, 'buyAsset.amount', buyAmount)
     expect(setValue).toHaveBeenNthCalledWith(7, 'fiatAmount', '0.00')
   })
-  it('getBestSwapper gets best swapper', async () => {
-    const { result, getBestSwapper } = setup()
-    await act(async () => {
-      await result.current.getBestSwapper({
-        sellAsset: { currency: WETH },
-        buyAsset: { currency: FOX },
-      })
-    })
-    expect(getBestSwapper).toHaveBeenCalled()
-  })
   it('reset resets', () => {
     const { result, setValue } = setup()
     const reset = result.current.reset

@@ -46,13 +46,12 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
   return (
-    <Card.Body p={0} height='350px'>
+    <Card.Body p={0} height={errored || data.length === 0 ? undefined : '350px'}>
       {errored ? (
         <MissingDataMessage tkey='priceHistoryLookupErrored' />
       ) : loading ? (
         <MissingDataMessage tkey='loading' />
-      ) : data.length ===
-        0 /* length 0 but not errored indicates the query succeeded, but there is no data at this timeframe */ ? (
+      ) : data.length === 0 ? (
         <MissingDataMessage tkey='priceHistoryUnavailable' />
       ) : (
         <Graph color={color} data={data} loading={loading} isLoaded={!loading} />

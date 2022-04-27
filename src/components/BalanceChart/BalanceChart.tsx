@@ -50,7 +50,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
   return (
-    <Card.Body p={0} height='350px'>
+    <Card.Body p={0} height={priceHistoryDataErrors.length > 0 || priceHistoryDataEmpty.length === assetIds.length ? undefined : '350px'}>
       {!balanceChartDataLoading && priceHistoryDataErrors.length > 0 ? (
         // one or more asset API request errored, so balance can't be computed
         <MissingDataMessage tkey='balanceHistoryErrored' />

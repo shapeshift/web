@@ -233,7 +233,7 @@ export const Overview: React.FC<OverviewProps> = ({
           </Flex>
         )}
         {selectedAsset?.isBelowSellThreshold && (
-          <Alert status='error'>
+          <Alert status='error' variant={'solid'}>
             <AlertIcon />
             <Text
               translation={[

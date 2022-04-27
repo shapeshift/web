@@ -1,9 +1,12 @@
+import { getConfig } from 'config'
 import { WidgetInstance } from 'friendly-challenge'
 import { useCallback, useEffect, useRef } from 'react'
 
 type FriendlyCaptchaProps = {
   handleCaptcha(solution: string | any): void
 }
+
+const siteKey = getConfig().REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY
 
 export const FriendlyCaptcha = ({ handleCaptcha }: FriendlyCaptchaProps) => {
   const container = useRef<HTMLDivElement | null>(null)
@@ -37,5 +40,5 @@ export const FriendlyCaptcha = ({ handleCaptcha }: FriendlyCaptchaProps) => {
     }
   }, [container, doneCallback, errorCallback])
 
-  return <div ref={container} className='frc-captcha' data-sitekey='<site_key>' />
+  return <div ref={container} className='frc-captcha' data-sitekey={siteKey} />
 }

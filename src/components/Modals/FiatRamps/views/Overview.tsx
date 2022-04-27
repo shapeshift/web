@@ -238,7 +238,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Text
               translation={[
                 'fiatRamps.insufficientCryptoAmountToSell',
-                { amount: supportedFiatRamps[fiatRampProvider].minimumUsdAmountWhenSelling },
+                { amount: supportedFiatRamps[fiatRampProvider].minimumSellThreshold },
               ]}
             />
           </Alert>

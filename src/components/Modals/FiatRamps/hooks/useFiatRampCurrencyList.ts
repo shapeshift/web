@@ -27,8 +27,8 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
         .map(asset => {
           const reduxAsset = reduxAssets[asset.assetId]
           const fiatBalance = bnOrZero(balances?.[asset.assetId]?.fiat)
-          const fiatRampMinimumUsdAmountWhenSelling = bnOrZero(
-            supportedFiatRamps[fiatRampProvider].minimumUsdAmountWhenSelling ?? 0,
+          const minimumSellThreshold = bnOrZero(
+            supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0,
           )
           return {
             ...asset,
@@ -37,9 +37,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
             disabled: !isAssetSupportedByWallet(asset?.assetId ?? '', wallet),
             cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
             fiatBalance,
-            isBelowTheMinimumUsdAmountWhenSelling: fiatBalance.lt(
-              fiatRampMinimumUsdAmountWhenSelling,
-            ),
+            isBelowSellThreshold: fiatBalance.lt(minimumSellThreshold),
           }
         })
         .sort((a, b) =>

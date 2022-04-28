@@ -4,7 +4,11 @@ import { FaInfoCircle } from 'react-icons/fa'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 
-export const TranslationAlertBox: React.FC<{ translation: string }> = ({ translation }) => {
+type InformationalAlertProps = {
+  translation: string
+}
+
+export const InformationalAlert: React.FC<InformationalAlertProps> = ({ translation }) => {
   return (
     <Box p={8}>
       <Alert status='info' variant='subtle' borderRadius='lg' pl={2}>

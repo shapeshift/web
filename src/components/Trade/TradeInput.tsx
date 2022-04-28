@@ -135,7 +135,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         sellAsset,
         buyAsset,
         feeAsset,
-        estimatedGasFees,
       })
       const action = TradeActions.SELL
       const currentSellAsset = getValues('sellAsset')

@@ -19,6 +19,8 @@ import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponen
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
+import { selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const debounceTime = 1000
 
@@ -71,8 +73,8 @@ export const useSwapper = () => {
   const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
-  const [quote, trade] = useWatch({
-    name: ['quote', 'trade'],
+  const [quote, trade, sellAsset] = useWatch({
+    name: ['quote', 'trade', 'sellAsset'],
   })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
@@ -89,58 +91,44 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
+  const balance =
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByAssetId(state, sellAsset?.currency?.caip19),
+    ) ?? '0'
+
   const getSendMaxAmount = async ({
     wallet,
     sellAsset,
     buyAsset,
     feeAsset,
-    estimatedGasFees,
   }: {
     wallet: HDWallet
     sellAsset: TradeAsset
     buyAsset: TradeAsset
     feeAsset: Asset
-    estimatedGasFees: string | undefined
   }) => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
-    const { minimum: minimumAmount } = await swapper?.getMinMax({
-      sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency,
-    })
-
-    const minimumQuote = await swapper?.buildQuoteTx({
-      input: {
+    const maximumQuote = await swapper.getQuote(
+      {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
-        sellAmount: toBaseUnit(minimumAmount, sellAsset.currency.precision),
-        sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-        buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+        sellAmount: balance,
       },
       wallet,
-    })
+    )
 
-    if (!minimumQuote) return
-    // use gas estimate from quote if estimatedGasFees var is not populated yet
-    const quoteEstimatedGasFees = fromBaseUnit(minimumQuote?.feeData?.fee ?? 0, feeAsset.precision)
+    const isFeeAsset = feeAsset.caip19 === sellAsset.currency.caip19
+    // Pad fee because estimations can be wrong
+    const feePadded = bnOrZero(maximumQuote?.feeData?.fee).times(1.1)
+    const maxAmount = fromBaseUnit(
+      bnOrZero(balance)
+        .minus(isFeeAsset ? feePadded : 0)
+        .toString(),
+      sellAsset.currency.precision,
+    )
 
-    // to account for gas fees when trading Max ETH
-    const gasDeduction =
-      feeAsset.caip19 === sellAsset.currency.caip19
-        ? bnOrZero(estimatedGasFees ?? quoteEstimatedGasFees)
-        : bn(0)
-
-    const sendMaxAmount = await swapper.getSendMaxAmount({
-      wallet,
-      quote: minimumQuote,
-      sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-    })
-    const formattedSendMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
-    const maxAmount = bnOrZero(formattedSendMaxAmount).minus(gasDeduction).toString()
-
-    // Set form amount value to updated max value
     setValue('sellAsset.amount', maxAmount)
     setValue('action', TradeActions.SELL)
-
     return maxAmount
   }
 

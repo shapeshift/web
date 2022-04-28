@@ -1,7 +1,7 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalFooter, Stack, Text as CText, Tooltip } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { useState } from 'react'
@@ -27,7 +27,7 @@ export enum InputType {
 }
 
 type StakeProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountSpecifier: string
   validatorAddress: string
   onClose: () => void

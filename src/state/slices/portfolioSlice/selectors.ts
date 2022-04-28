@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
@@ -9,6 +9,7 @@ import map from 'lodash/map'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -100,31 +101,31 @@ export const selectPortfolioFiatBalances = createSelector(
 
 // accountId is optional, but we should always pass an assetId when using these params
 type OptionalParamFilter = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 
 type ParamFilter = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId: AccountSpecifier
 }
 
-const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
+const selectAssetIdParam = (_state: ReduxState, id: AssetId) => id
 const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.assetId
+  paramFilter?.assetId
 const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.accountId
+  paramFilter?.accountId
 
 const selectAssetIdParamFromFilterOptional = (
   _state: ReduxState,
   paramFilter: OptionalParamFilter,
-) => paramFilter.assetId
+) => paramFilter?.assetId
 const selectAccountIdParamFromFilterOptional = (
   _state: ReduxState,
   paramFilter: OptionalParamFilter,
-) => paramFilter.accountId
+) => paramFilter?.accountId
 
-const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
+const selectAccountAddressParam = (_state: ReduxState, id: AccountId) => id
 const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
 export const selectPortfolioFiatAccountBalances = createSelector(
@@ -217,7 +218,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
       )
     }
 
-    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId].precision ?? 0)
+    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId]?.precision ?? 0)
   },
 )
 
@@ -294,20 +295,20 @@ export const selectPortfolioCryptoBalanceByFilter = createSelector(
   },
 )
 
-export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
+export const selectPortfolioCryptoHumanBalanceByAssetId = createCachedSelector(
   selectAssets,
   selectPortfolioAssetBalances,
   selectAssetIdParam,
   (assets, balances, assetId): string =>
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0),
-)
+)((_assets, _balances, assetId: AssetId): AssetId => assetId ?? 'undefined')
 
 export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
   (assets, marketData, balances) =>
-    Object.entries(balances).reduce<{ [k: CAIP19]: { crypto: string; fiat: string } }>(
+    Object.entries(balances).reduce<{ [k: AssetId]: { crypto: string; fiat: string } }>(
       (acc, [assetId, balance]) => {
         const precision = assets[assetId]?.precision
         const price = marketData[assetId]?.price
@@ -323,7 +324,7 @@ export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
 export const selectPortfolioAssets = createSelector(
   selectAssets,
   selectPortfolioAssetIds,
-  (assetsById, portfolioAssetIds): { [k: CAIP19]: Asset } =>
+  (assetsById, portfolioAssetIds): { [k: AssetId]: Asset } =>
     portfolioAssetIds.reduce<PortfolioAssets>((acc, cur) => {
       acc[cur] = assetsById[cur]
       return acc
@@ -341,7 +342,7 @@ export const selectPortfolioLoading = createSelector(
 
 export const selectPortfolioAssetBalancesSortedFiat = createSelector(
   selectPortfolioFiatBalances,
-  (portfolioFiatBalances): { [k: CAIP19]: string } =>
+  (portfolioFiatBalances): { [k: AssetId]: string } =>
     Object.entries(portfolioFiatBalances)
       .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
       .reduce<PortfolioAssetBalances['byId']>((acc, [assetId, assetFiatBalance]) => {
@@ -356,13 +357,13 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
   (
     portfolioFiatAccountBalances,
     balanceThreshold,
-  ): { [k: AccountSpecifier]: { [k: CAIP19]: string } } => {
+  ): { [k: AccountSpecifier]: { [k: AssetId]: string } } => {
     return Object.entries(portfolioFiatAccountBalances).reduce<{
-      [k: AccountSpecifier]: { [k: CAIP19]: string }
+      [k: AccountSpecifier]: { [k: AssetId]: string }
     }>((acc, [accountId, assetBalanceObj]) => {
       const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
         .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
-        .reduce<{ [k: CAIP19]: string }>((acc, [assetId, assetFiatBalance]) => {
+        .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetFiatBalance]) => {
           if (bnOrZero(assetFiatBalance).lt(bnOrZero(balanceThreshold))) return acc
           acc[assetId] = assetFiatBalance
           return acc
@@ -376,14 +377,14 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
 
 export const selectPortfolioAssetIdsSortedFiat = createSelector(
   selectPortfolioAssetBalancesSortedFiat,
-  (sortedBalances): CAIP19[] => Object.keys(sortedBalances),
+  (sortedBalances): AssetId[] => Object.keys(sortedBalances),
 )
 
 export const selectPortfolioAllocationPercent = createSelector(
   selectPortfolioTotalFiatBalance,
   selectPortfolioFiatBalances,
-  (totalBalance, fiatBalances): { [k: CAIP19]: number } =>
-    Object.entries(fiatBalances).reduce<{ [k: CAIP19]: number }>((acc, [assetId, fiatBalance]) => {
+  (totalBalance, fiatBalances): { [k: AssetId]: number } =>
+    Object.entries(fiatBalances).reduce<{ [k: AssetId]: number }>((acc, [assetId, fiatBalance]) => {
       acc[assetId] = bnOrZero(fiatBalance).div(bnOrZero(totalBalance)).times(100).toNumber()
       return acc
     }, {}),
@@ -454,7 +455,7 @@ export const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.ac
 
 export const selectPortfolioAssetAccounts = createSelector(
   selectPortfolioAccounts,
-  (_state: ReduxState, assetId: CAIP19) => assetId,
+  (_state: ReduxState, assetId: AssetId) => assetId,
   (portfolioAccounts, assetId): AccountSpecifier[] =>
     Object.keys(portfolioAccounts).filter(accountSpecifier =>
       portfolioAccounts[accountSpecifier].find(accountAssetId => accountAssetId === assetId),
@@ -495,7 +496,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
 export const selectAccountIdByAddress = createSelector(
   selectAccountIds,
   selectAccountAddressParam,
-  (portfolioAccounts: { [k: AccountSpecifier]: CAIP10[] }, caip10): string => {
+  (portfolioAccounts: { [k: AccountSpecifier]: AccountId[] }, caip10): string => {
     let accountSpecifier = ''
     for (const accountId in portfolioAccounts) {
       const isAccountSpecifier = !!portfolioAccounts[accountId].find(

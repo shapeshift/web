@@ -1,5 +1,5 @@
 import { Box, Flex, Heading, Image, Skeleton, SkeletonCircle } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -15,7 +15,7 @@ import { useAppSelector } from 'state/store'
 import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 

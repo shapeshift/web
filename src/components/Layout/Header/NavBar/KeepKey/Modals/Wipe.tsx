@@ -27,7 +27,9 @@ export const WipeModal = () => {
     keepKeyWipe: { close, isOpen },
   } = useModal()
   const {
-    state: { awaitingDeviceInteraction },
+    state: {
+      deviceState: { awaitingDeviceInteraction },
+    },
   } = useWallet()
   const toast = useToast()
   const [wipeConfirmationChecked, setWipeConfirmationChecked] = useState(false)

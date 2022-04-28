@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { Allocations } from 'components/AccountRow/Allocations'
@@ -20,8 +20,8 @@ import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioS
 import {
   selectAssetByCAIP19,
   selectPortfolioAllocationPercentByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter,
+  selectTotalCryptoBalanceWithDelegations,
+  selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -32,7 +32,7 @@ import { breakpoints } from 'theme/theme'
 
 type AssetAccountRowProps = {
   accountId: AccountSpecifier
-  assetId?: CAIP19
+  assetId?: AssetId
   showAllocation?: boolean
   isCompact?: boolean
 } & SimpleGridProps
@@ -51,9 +51,9 @@ export const AssetAccountRow = ({
   const asset = useAppSelector(state => selectAssetByCAIP19(state, rowAssetId))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
-  const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
+  const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
+    selectTotalCryptoBalanceWithDelegations(state, filter),
   )
   const allocation = useAppSelector(state =>
     selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),

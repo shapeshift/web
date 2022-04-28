@@ -1,5 +1,5 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -24,7 +24,7 @@ import { useAppSelector } from 'state/store'
 
 interface ClaimStatusState {
   txid: string
-  assetId: CAIP19
+  assetId: AssetId
   amount: string
   userAddress: string
   estimatedGas: string

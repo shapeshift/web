@@ -18,5 +18,6 @@ declare namespace Cypress {
     navigateToAssets(): Chainable<Element>
     navigateToDefi(): Chainable<Element>
     backdropDismiss(): Chainable<Element>
+    waitForAllGetRequests(): Chainable<Element>
   }
 }

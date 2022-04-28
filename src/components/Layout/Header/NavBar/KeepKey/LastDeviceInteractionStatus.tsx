@@ -10,7 +10,9 @@ export type LastDeviceInteractionStatusProps = {
 export const LastDeviceInteractionStatus = ({ setting }: LastDeviceInteractionStatusProps) => {
   const translate = useTranslate()
   const {
-    state: { lastDeviceInteractionStatus },
+    state: {
+      deviceState: { lastDeviceInteractionStatus },
+    },
   } = useWallet()
   const greenShade = useColorModeValue('green.700', 'green.200')
   const yellowShade = useColorModeValue('yellow.500', 'yellow.200')

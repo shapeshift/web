@@ -1,4 +1,4 @@
-import { GetQuoteInput, SwapperType } from '@shapeshiftoss/types'
+import { SwapperType } from '@shapeshiftoss/types'
 import uniq from 'lodash/uniq'
 
 import { BuyAssetBySellIdInput, ByPairInput, SupportedSellAssetsInput, Swapper } from '..'
@@ -60,9 +60,10 @@ export class SwapperManager {
     return this
   }
 
-  async getBestSwapper(quoteParams: GetQuoteInput): Promise<SwapperType> {
-    quoteParams // noop to shut up linter
-    return SwapperType.Zrx // TODO: implement getBestSwapper
+  async getBestSwapper(args: ByPairInput): Promise<Swapper> {
+    // TODO: This will eventually have logic to determine the best swapper.
+    // For now we return the first swapper we get from getSwappersByPair
+    return this.getSwappersByPair(args)[0]
   }
 
   /**

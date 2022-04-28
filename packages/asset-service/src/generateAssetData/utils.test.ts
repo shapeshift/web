@@ -5,7 +5,7 @@ import blacklist from './blacklist.json'
 import { filterBlacklistedAssets } from './utils'
 
 // We need to use the non-null assertion because we know this mocks contains the token property
-jest.mock('./blacklist.json', () => [ETHMockedAsset.tokens![0].caip19, BTCMockedAsset.caip19], {
+jest.mock('./blacklist.json', () => [ETHMockedAsset.tokens![0].assetId, BTCMockedAsset.assetId], {
   virtual: true
 })
 
@@ -15,7 +15,7 @@ describe('Utils', () => {
   describe('filterBlacklistedAssets', () => {
     it('should filter BTC from the asset list', () => {
       const filteredAssetList = filterBlacklistedAssets(blacklist, assetList)
-      expect(filteredAssetList[0]).toHaveProperty('caip19', ETHMockedAsset.caip19)
+      expect(filteredAssetList[0]).toHaveProperty('assetId', ETHMockedAsset.assetId)
     })
 
     it('should filter ERC20 from the asset list', () => {
@@ -23,7 +23,7 @@ describe('Utils', () => {
       const ethFiltered = filteredAssetList[0]
       const remainingToken = ETHMockedAsset.tokens![1]
 
-      expect(ethFiltered.tokens![0]).toHaveProperty('caip19', remainingToken.caip19)
+      expect(ethFiltered.tokens![0]).toHaveProperty('assetId', remainingToken.assetId)
     })
   })
 })

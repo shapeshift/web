@@ -11,6 +11,8 @@ jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
 const EthAsset: Asset = {
+  assetId: 'eip155:3/slip44:60',
+  chainId: 'eip155:3',
   caip19: 'eip155:3/slip44:60',
   caip2: 'eip155:3',
   chain: ChainTypes.Ethereum,
@@ -148,7 +150,7 @@ describe('AssetService', () => {
 
     it('should return a string if found', async () => {
       const assetDescriptions = descriptions as Record<string, string>
-      delete assetDescriptions[EthAsset.caip19]
+      delete assetDescriptions[EthAsset.assetId]
 
       const assetService = new AssetService(assetFileUrl)
       const description = { en: 'a blue fox' }
@@ -163,6 +165,8 @@ describe('AssetService', () => {
       mockedAxios.get.mockRejectedValue({ data: null })
       const chain = ChainTypes.Ethereum
       const tokenData: Asset = {
+        assetId: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
+        chainId: 'eip155:3',
         caip19: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
         caip2: 'eip155:3',
         chain: ChainTypes.Ethereum,

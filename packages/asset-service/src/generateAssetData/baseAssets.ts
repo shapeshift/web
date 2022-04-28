@@ -2,6 +2,8 @@ import { AssetNamespace } from '@shapeshiftoss/caip'
 import { AssetDataSource, BaseAsset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const ethereum: BaseAsset = {
+  assetId: 'eip155:1/slip44:60',
+  chainId: 'eip155:1',
   caip19: 'eip155:1/slip44:60',
   caip2: 'eip155:1',
   chain: ChainTypes.Ethereum,
@@ -22,6 +24,8 @@ export const ethereum: BaseAsset = {
 }
 
 export const bitcoin: BaseAsset = {
+  assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  chainId: 'bip122:000000000019d6689c085ae165831e93',
   caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   caip2: 'bip122:000000000019d6689c085ae165831e93',
   chain: ChainTypes.Bitcoin,
@@ -42,6 +46,8 @@ export const bitcoin: BaseAsset = {
 }
 
 export const tBitcoin: BaseAsset = {
+  assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
+  chainId: 'bip122:000000000933ea01ad0ee984209779ba',
   caip19: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
   caip2: 'bip122:000000000933ea01ad0ee984209779ba',
   chain: ChainTypes.Bitcoin,
@@ -62,6 +68,8 @@ export const tBitcoin: BaseAsset = {
 }
 
 export const tEthereum: BaseAsset = {
+  assetId: 'eip155:3/slip44:60',
+  chainId: 'eip155:3',
   caip19: 'eip155:3/slip44:60',
   caip2: 'eip155:3',
   chain: ChainTypes.Ethereum,
@@ -81,6 +89,8 @@ export const tEthereum: BaseAsset = {
   receiveSupport: false,
   tokens: [
     {
+      assetId: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
+      chainId: 'eip155:3',
       caip19: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
       caip2: 'eip155:3',
       name: 'Test Token',
@@ -99,6 +109,8 @@ export const tEthereum: BaseAsset = {
 }
 
 export const atom: BaseAsset = {
+  assetId: 'cosmos:cosmoshub-4/slip44:118',
+  chainId: 'cosmos:cosmoshub-4',
   caip19: 'cosmos:cosmoshub-4/slip44:118',
   caip2: 'cosmos:cosmoshub-4',
   chain: ChainTypes.Cosmos,
@@ -119,6 +131,8 @@ export const atom: BaseAsset = {
 }
 
 export const osmosis: BaseAsset = {
+  assetId: 'cosmos:osmosis-1/slip44:118',
+  chainId: 'cosmos:osmosis-1',
   caip19: 'cosmos:osmosis-1/slip44:118',
   caip2: 'cosmos:osmosis-1',
   chain: ChainTypes.Cosmos,

@@ -49,6 +49,8 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
       return acc
     }
     const result: TokenAsset = {
+      assetId: caip19.toCAIP19({ chain, network, assetNamespace, assetReference }),
+      chainId: caip2.toCAIP2({ chain, network }),
       caip19: caip19.toCAIP19({ chain, network, assetNamespace, assetReference }),
       caip2: caip2.toCAIP2({ chain, network }),
       dataSource: AssetDataSource.CoinGecko,

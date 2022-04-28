@@ -51,8 +51,10 @@ export enum AssetDataSource {
 // asset-service
 
 type AbstractAsset = {
-  caip19: string
+  assetId: string
   caip2: string
+  caip19: string
+  chainId: string
   chain: ChainTypes
   description?: string
   isTrustedDescription?: boolean

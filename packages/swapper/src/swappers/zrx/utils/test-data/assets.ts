@@ -2,6 +2,8 @@ import { AssetNamespace } from '@shapeshiftoss/caip'
 import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const BTC: Asset = {
+  assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  chainId: 'bip122:000000000019d6689c085ae165831e93',
   caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   caip2: 'bip122:000000000019d6689c085ae165831e93',
   name: 'bitcoin',
@@ -23,6 +25,8 @@ export const BTC: Asset = {
 }
 
 export const WETH: Asset = {
+  assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  chainId: 'eip155:1',
   caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   caip2: 'eip155:1',
   name: 'WETH',
@@ -45,6 +49,8 @@ export const WETH: Asset = {
 }
 
 export const FOX: Asset = {
+  assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  chainId: 'eip155:1',
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   caip2: 'eip155:1',
   name: 'FOX',

@@ -82,7 +82,7 @@ describe('ZrxSwapper', () => {
     const ethCAIP19 = 'eip155:1/slip44:60'
     expect(pair).toHaveLength(2)
     expect(pair[0]).toEqual(ethCAIP19)
-    expect(pair[1]).toEqual(FOX.caip19)
+    expect(pair[1]).toEqual(FOX.assetId)
   })
   it('calls getUsdRate on swapper.getUsdRate', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)

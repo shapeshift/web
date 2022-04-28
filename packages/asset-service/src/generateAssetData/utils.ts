@@ -13,7 +13,7 @@ export const filterBlacklistedAssets = <T extends BaseAsset | TokenAsset>(
       token.tokens = filterBlacklistedAssets(blacklist, token.tokens)
     }
 
-    return !blacklist.includes(token.caip19)
+    return !blacklist.includes(token.assetId)
   })
 
   return filteredAssets

@@ -44,6 +44,8 @@ const mockQuoteResponse = {
   allowanceGrantRequired: true,
   buyAmount: undefined,
   buyAsset: {
+    assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    chainId: 'eip155:1',
     caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     caip2: 'eip155:1',
     chain: 'ethereum',
@@ -80,6 +82,8 @@ const mockQuoteResponse = {
   receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   sellAmount: '1000000000000000000',
   sellAsset: {
+    assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    chainId: 'eip155:1',
     caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
     caip2: 'eip155:1',
     chain: 'ethereum',

@@ -8,6 +8,13 @@ export const getFoxyToken = (): TokenAsset[] => {
   const assetReference = '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3' // FOXy contract address
 
   const result: TokenAsset = {
+    assetId: caip19.toCAIP19({
+      chain,
+      network,
+      assetNamespace,
+      assetReference
+    }),
+    chainId: caip2.toCAIP2({ chain, network }),
     caip19: caip19.toCAIP19({
       chain,
       network,

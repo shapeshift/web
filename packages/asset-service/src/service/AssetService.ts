@@ -125,9 +125,9 @@ export class AssetService {
     const descriptions: Record<string, string> = assetsDescriptions
 
     // Return overridden asset description if it exists and add isTrusted for description links
-    if (descriptions[asset.caip19]) {
+    if (descriptions[asset.assetId]) {
       return {
-        description: descriptions[asset.caip19],
+        description: descriptions[asset.assetId],
         isTrusted: true
       }
     }

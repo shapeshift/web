@@ -206,6 +206,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 size='lg'
                 width='full'
                 mt={6}
+                data-test='trade-form-confirm-and-trade-button'
                 type='submit'
               >
                 <Text translation='trade.confirmAndTrade' />

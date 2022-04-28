@@ -64,7 +64,7 @@ export const AssetCell = ({
   const rowTitle = buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
-    <HStack width='full' data-test='account-row'>
+    <HStack width='full' data-test='defi-earn-asset-row'>
       {showTeaser && (
         <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
           <PopoverTrigger>

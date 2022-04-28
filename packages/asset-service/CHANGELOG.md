@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v2.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.3.1...@shapeshiftoss/asset-service-v2.4.0) (2022-04-28)
+
+
+### Features
+
+* add assetid, chainid fields to asset type ([#570](https://github.com/shapeshift/lib/issues/570)) ([1c3c24c](https://github.com/shapeshift/lib/commit/1c3c24c2df6e71f3a4ad4b7f1863168aafdc8aa5))
+
 # [@shapeshiftoss/asset-service-v2.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.3.0...@shapeshiftoss/asset-service-v2.3.1) (2022-04-16)
 
 

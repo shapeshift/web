@@ -1,5 +1,4 @@
 import { crypto } from '@shapeshiftoss/hdwallet-native'
-import * as bip39 from 'bip39'
 
 const { EncryptedWallet } = crypto
 const cryptoEngine = new crypto.engines.WebCryptoEngine()
@@ -31,9 +30,6 @@ export const decryptNativeWallet = async (
     const encryptedWallet = getEncryptedWallet()
     await encryptedWallet.init(email, password, encryptedWalletString)
     const mnemonic = await encryptedWallet.decrypt()
-    if (!bip39.validateMnemonic(mnemonic)) {
-      throw new Error('Invalid Mnemonic')
-    }
     return mnemonic
   } catch (e) {
     throw new Error('Native wallet decryption failed: ' + e)

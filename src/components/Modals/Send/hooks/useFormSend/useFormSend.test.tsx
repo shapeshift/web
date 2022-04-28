@@ -158,7 +158,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
   })
@@ -192,7 +194,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddres)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
   })
@@ -223,7 +227,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()
@@ -259,7 +265,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddres)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()

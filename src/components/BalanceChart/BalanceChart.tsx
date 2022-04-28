@@ -42,7 +42,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
-  if (!balanceChartDataLoading && priceHistoryDataEmpty.length === assetIds.length)
+  if (!balanceChartDataLoading && isPriceHistoryDataEmpty)
     return (
       <Card.Body p={0}>
         <MissingDataMessage tkey='balanceHistoryUnavailable' />

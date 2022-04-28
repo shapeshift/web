@@ -201,7 +201,7 @@ export const selectPortfolioFiatBalanceByFilter = createSelector(
 export const selectPortfolioCryptoBalanceByAssetId = createSelector(
   selectPortfolioAssetBalances,
   selectAssetIdParam,
-  (byId, assetId): string => byId[assetId],
+  (byId, assetId): string => byId[assetId] ?? 0,
 )
 
 export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(

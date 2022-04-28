@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`stakingDataSlice reducers clear clears state back to initial state 1`] = `undefined`;
+
+exports[`stakingDataSlice reducers clear clears state back to initial state 2`] = `Object {}`;
+
+exports[`stakingDataSlice reducers upsertValidatorData updates or inserts validator data in state 1`] = `Object {}`;

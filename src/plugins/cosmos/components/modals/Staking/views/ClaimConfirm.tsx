@@ -9,7 +9,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
@@ -40,8 +40,8 @@ import { useAppSelector } from 'state/store'
 import { ClaimPath, Field, StakingValues } from '../StakingCommon'
 
 type ClaimConfirmProps = {
-  assetId: CAIP19
-  accountSpecifier: CAIP10
+  assetId: AssetId
+  accountSpecifier: AccountId
   validatorAddress: string
 }
 

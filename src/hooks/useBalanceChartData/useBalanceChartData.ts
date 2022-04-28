@@ -1,4 +1,4 @@
-import { CAIP2, caip2, caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, caip2, caip10, ChainId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import {
   chainAdapters,
@@ -61,7 +61,7 @@ export const priceAtBlockTime: PriceAtBlockTime = ({ date, assetPriceHistoryData
 }
 
 type CryptoBalance = {
-  [k: CAIP19]: BigNumber // map of asset to base units
+  [k: AssetId]: BigNumber // map of asset to base units
 }
 
 type BucketBalance = {
@@ -90,7 +90,7 @@ type MakeBucketsReturn = {
 
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   balances: PortfolioBalancesById
 }
 
@@ -177,7 +177,7 @@ type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
   priceHistoryData: {
-    [k: CAIP19]: HistoryData[]
+    [k: AssetId]: HistoryData[]
   }
 }
 
@@ -207,7 +207,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 }
 
 type CalculateBucketPricesArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
@@ -305,7 +305,7 @@ type UseBalanceChartDataReturn = {
 }
 
 type UseBalanceChartDataArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   accountId?: AccountSpecifier
   timeframe: HistoryTimeframe
 }
@@ -332,21 +332,21 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // Get total delegation
   // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const cosmosChainId: CAIP2 = caip2.toCAIP2({
+  const cosmosCaip2: ChainId = caip2.toCAIP2({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
   })
 
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
-    if (accountSpecifier[cosmosChainId]) {
-      acc = accountSpecifier[cosmosChainId]
+    if (accountSpecifier[cosmosCaip2]) {
+      acc = accountSpecifier[cosmosCaip2]
     }
     return acc
   }, '')
 
   // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
-  const cosmosAccountSpecifier = account ? caip10.toCAIP10({ caip2: cosmosChainId, account }) : ''
+  const cosmosAccountSpecifier = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
 
   const delegationTotal = useAppSelector(state =>
     selectTotalStakingDelegationCryptoByAccountSpecifier(state, {

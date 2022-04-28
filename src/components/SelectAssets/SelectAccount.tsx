@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
@@ -17,7 +17,7 @@ type SelectAccountProps = {
 }
 
 type SelectAccountLocation = {
-  assetId: CAIP19
+  assetId: AssetId
 }
 
 export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {

@@ -1,6 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Skeleton } from '@chakra-ui/react'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetClaimCard'
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
@@ -18,9 +18,9 @@ import { selectSingleValidator } from 'state/slices/validatorDataSlice/selectors
 import { useAppSelector } from 'state/store'
 
 type StakedProps = {
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
-  accountSpecifier: CAIP10
+  accountSpecifier: AccountId
 }
 
 export const Overview: React.FC<StakedProps> = ({

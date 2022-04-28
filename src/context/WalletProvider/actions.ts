@@ -4,6 +4,7 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
 import type { Adapters } from './WalletProvider'
+import { DeviceState } from './WalletProvider'
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -18,11 +19,10 @@ export enum WalletActions {
   OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN',
   OPEN_KEEPKEY_PASSPHRASE = 'OPEN_KEEPKEY_PASSPHRASE',
   OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
-  SET_AWAITING_DEVICE_INTERACTION = 'SET_AWAITING_DEVICE_INTERACTION',
-  SET_LAST_DEVICE_INTERACTION_STATUS = 'SET_LAST_DEVICE_INTERACTION_STATUS',
+  SET_DEVICE_STATE = 'SET_DEVICE_STATE',
+  OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
+  OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
 }
-
-export type Outcome = 'success' | 'error' | undefined
 
 export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
@@ -41,8 +41,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
-  | { type: WalletActions.SET_AWAITING_DEVICE_INTERACTION; payload: boolean }
-  | { type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS; payload: Outcome }
+  | { type: WalletActions.SET_DEVICE_STATE; payload: Partial<DeviceState> }
   | {
       type: WalletActions.NATIVE_PASSWORD_OPEN
       payload: {
@@ -51,14 +50,28 @@ export type ActionTypes =
       }
     }
   | {
+      type: WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST
+      payload: {
+        characterPos: number | undefined
+        wordPos: number | undefined
+      }
+    }
+  | {
       type: WalletActions.OPEN_KEEPKEY_PIN
       payload: {
         deviceId: string
         pinRequestType?: PinMatrixRequestType
+        showBackButton?: boolean
       }
     }
   | {
       type: WalletActions.OPEN_KEEPKEY_PASSPHRASE
+      payload: {
+        deviceId: string
+      }
+    }
+  | {
+      type: WalletActions.OPEN_KEEPKEY_RECOVERY
       payload: {
         deviceId: string
       }

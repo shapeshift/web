@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import size from 'lodash/size'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { MouseEvent, useMemo } from 'react'
@@ -23,7 +23,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
-  assetId: CAIP19
+  assetId: AssetId
 }
 
 type ValidatorNameProps = {

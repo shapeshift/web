@@ -17,7 +17,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
-import { ChainId, ethChainId, isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import {
+  ChainIdType,
+  ethChainId,
+  isAssetSupportedByWallet,
+} from 'state/slices/portfolioSlice/utils'
 
 import { FiatRamp } from '../config'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
@@ -64,7 +68,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
   const cosmosChainAdapter = chainAdapterManager.byChain(ChainTypes.Cosmos)
 
-  const [chainId, setChainId] = useState<ChainId>(ethChainId)
+  const [chainId, setChainId] = useState<ChainIdType>(ethChainId)
 
   const {
     state: { wallet },

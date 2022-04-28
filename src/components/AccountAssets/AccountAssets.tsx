@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -11,7 +11,7 @@ import { Card } from '../Card/Card'
 import { AccountAssetsList } from './AccountAssetsList'
 
 type AccountAssetsProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId: AccountSpecifier
 }
 

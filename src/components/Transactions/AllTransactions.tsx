@@ -1,5 +1,5 @@
 import { Center } from '@chakra-ui/layout'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 import { Card } from 'components/Card/Card'
@@ -18,7 +18,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 

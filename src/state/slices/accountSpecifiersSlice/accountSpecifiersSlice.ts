@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { CAIP2 } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 
 // an account specifier is an x/y/zpub, or eth public key
-// as consumed by unchained, note this is *not* a CAIP10
+// as consumed by unchained, note this is *not* a CAIP10/AccountId
 // as we're dealing with unchained accounts, not addresses
 export type AccountSpecifier = string
-export type AccountSpecifierMap = Record<CAIP2, AccountSpecifier>
+export type AccountSpecifierMap = Record<ChainId, AccountSpecifier>
 
 type AccountSpecifierState = {
   accountSpecifiers: AccountSpecifierMap[]

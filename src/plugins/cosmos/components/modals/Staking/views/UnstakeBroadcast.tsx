@@ -1,7 +1,7 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalCloseButton, Text as CText, Tooltip } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { useState } from 'react'
@@ -21,7 +21,7 @@ import { useAppSelector } from 'state/store'
 import { StakingAction, StakingValues } from '../StakingCommon'
 
 type UnstakeBroadcastProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountSpecifier: string
   onClose: () => void
   validatorAddress: string

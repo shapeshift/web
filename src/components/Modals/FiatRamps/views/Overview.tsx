@@ -1,5 +1,7 @@
 import { CheckIcon, ChevronRightIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -22,7 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   assetIdtoChainId,
   btcChainId,
-  ChainId,
+  ChainIdType,
   cosmosChainId,
   ethChainId,
 } from 'state/slices/portfolioSlice/utils'
@@ -43,8 +45,8 @@ type OverviewProps = {
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
   onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
-  chainId: ChainId
-  setChainId: Dispatch<SetStateAction<ChainId>>
+  chainId: ChainIdType
+  setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
 }
 type GenerateAddressProps = {
@@ -230,11 +232,22 @@ export const Overview: React.FC<OverviewProps> = ({
             </InputGroup>
           </Flex>
         )}
+        {selectedAsset?.isBelowSellThreshold && (
+          <Alert status='error' variant={'solid'}>
+            <AlertIcon />
+            <Text
+              translation={[
+                'fiatRamps.insufficientCryptoAmountToSell',
+                { amount: supportedFiatRamps[fiatRampProvider].minimumSellThreshold },
+              ]}
+            />
+          </Alert>
+        )}
         <Button
           width='full'
           size='lg'
           colorScheme='blue'
-          disabled={!selectedAsset}
+          disabled={!selectedAsset || selectedAsset?.isBelowSellThreshold}
           mt='25px'
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(

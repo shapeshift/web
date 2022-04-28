@@ -1,4 +1,4 @@
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
@@ -47,7 +47,7 @@ export type Staking = {
 
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   /** The list of validators this account is delegated to */
   validatorIds?: PubKey[]
   /** The staking data for per validator, so we can do a join from validatorDataSlice */
@@ -66,24 +66,24 @@ export type PortfolioAccounts = {
 export type PortfolioBalancesById = {
   // these are aggregated balances across all accounts in a portfolio for the same asset
   // balance in base units of asset - bn doesn't serialize
-  [k: CAIP19]: string
+  [k: AssetId]: string
 }
 
 export type PortfolioAssetBalances = {
   byId: PortfolioBalancesById
   // all asset ids in an account
-  ids: CAIP19[]
+  ids: AssetId[]
 }
 
 export type PortfolioAssets = {
-  [k: CAIP19]: Asset
+  [k: AssetId]: Asset
 }
 
 export type PortfolioAccountBalances = {
   byId: {
     [k: AccountSpecifier]: {
       // these are granular balances of this asset for this account
-      [k: CAIP19]: string // balance for asset in base units
+      [k: AssetId]: string // balance for asset in base units
     }
   }
   ids: AccountSpecifier[]
@@ -94,7 +94,7 @@ export type PortfolioAccountSpecifiers = {
     // this maps an account identifier to a list of addresses
     // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
     // in account based chains, this is a 1:1 mapping, i.e. the account is the address
-    [k: AccountSpecifier]: CAIP10[]
+    [k: AccountSpecifier]: AccountId[]
   }
   ids: AccountSpecifier[]
 }

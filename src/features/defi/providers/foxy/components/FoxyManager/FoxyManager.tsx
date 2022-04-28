@@ -45,21 +45,21 @@ const FoxyRoutes = ({ parentLocation, provider, earnType }: FoxyRouteProps) => {
       </ModalHeader>
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={parentLocation} key={parentLocation.key}>
-          <Route path={FoxyPath.Deposit}>
+          <Route path={FoxyPath.Deposit} key={FoxyPath.Deposit}>
             <MemoryRouter>
               <SlideTransition>
                 <FoxyDeposit api={foxy} />
               </SlideTransition>
             </MemoryRouter>
           </Route>
-          <Route path={FoxyPath.Withdraw}>
+          <Route path={FoxyPath.Withdraw} key={FoxyPath.Withdraw}>
             <MemoryRouter>
               <SlideTransition>
                 <FoxyWithdraw api={foxy} />
               </SlideTransition>
             </MemoryRouter>
           </Route>
-          <Route path={FoxyPath.Overview}>
+          <Route path={FoxyPath.Overview} key={FoxyPath.Overview}>
             <MemoryRouter>
               <SlideTransition>
                 <FoxyOverview api={foxy} />

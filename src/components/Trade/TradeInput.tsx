@@ -82,13 +82,13 @@ export const TradeInput = ({ history }: RouterProps) => {
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
     sellAsset && feeAsset && feeAsset.caip19 === sellAsset.currency.caip19
-      ? bnOrZero(estimatedGasFees).plus(bnOrZero(sellAsset.amount))
+      ? bnOrZero(sellAsset.amount)
       : bnOrZero(0)
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(estimatedGasFees))
     .minus(tradeDeduction)
-    .gt(0)
+    .gte(0)
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -132,7 +132,12 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (!wallet) return
     try {
       setIsSendMaxLoading(true)
-      const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })
+      const maxSendAmount = await getSendMaxAmount({
+        wallet,
+        sellAsset,
+        buyAsset,
+        feeAsset,
+      })
       const action = TradeActions.SELL
       const currentSellAsset = getValues('sellAsset')
       const currentBuyAsset = getValues('buyAsset')

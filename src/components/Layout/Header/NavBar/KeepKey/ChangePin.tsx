@@ -14,7 +14,9 @@ export const ChangePin = () => {
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction },
+    state: {
+      deviceState: { awaitingDeviceInteraction },
+    },
   } = useWallet()
   const toast = useToast()
 

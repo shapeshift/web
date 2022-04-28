@@ -39,7 +39,7 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? [],
 )
 
-export const selectPriceHistoriesEmptyByAssetTimeframe = createSelector(
+export const selectPriceHistoriesUnavailableByAssetsAndTimeframe = createSelector(
   selectPriceHistory,
   (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
   (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,

@@ -25,22 +25,22 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
-  const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
-  const { activeStakingOpportunities, stakingOpportunities } = useCosmosStakingBalances({
+  const {
+    activeStakingOpportunities: cosmosActiveStakingOpportunities,
+    stakingOpportunities: cosmosStakingOpportunities,
+  } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
-  const cosmosActiveStakingOpportunities = cosmosInvestorFlag ? activeStakingOpportunities : []
-  const cosmosStakingOpportunities = cosmosInvestorFlag ? stakingOpportunities : []
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,

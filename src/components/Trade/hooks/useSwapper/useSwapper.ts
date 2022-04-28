@@ -120,6 +120,8 @@ export const useSwapper = () => {
     const isFeeAsset = feeAsset.caip19 === sellAsset.currency.caip19
     // Pad fee because estimations can be wrong
     const feePadded = bnOrZero(maximumQuote?.feeData?.fee)
+    // sell asset balance minus expected fee = maxTradeAmount
+    // only subtract if sell asset is fee asset
     const maxAmount = fromBaseUnit(
       bnOrZero(sellAssetBalance)
         .minus(isFeeAsset ? feePadded : 0)

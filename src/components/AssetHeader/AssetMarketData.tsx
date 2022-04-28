@@ -4,12 +4,13 @@ import { StatArrow } from '@chakra-ui/stat'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import { MissingDataMessage } from 'components/MissingDataFeedback/Message'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataById, selectMarketDataUnavailableById } from 'state/slices/selectors'
+import { selectMarketDataById, selectMarketDataUnavailableByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { TranslationAlertBox } from '../TranslationAlertBox/TranslationAlertBox'
 
 type AssetMarketDataProps = {
   assetId: CAIP19
@@ -49,14 +50,14 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
 
 export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const unavailable = useAppSelector(state => selectMarketDataUnavailableById(state, assetId))
+  const assetUnavailable = useAppSelector(state => selectMarketDataUnavailableByAssetId(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
 
-  if (unavailable)
+  if (assetUnavailable)
     return (
       <Card>
-        <MissingDataMessage tkey='assetUnavailable' />
+        <TranslationAlertBox translation='assets.assetDetails.assetHeader.assetUnavailable' />
       </Card>
     )
 

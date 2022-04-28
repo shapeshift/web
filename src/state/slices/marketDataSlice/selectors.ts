@@ -44,7 +44,7 @@ export const selectPriceHistoriesUnavailableByAssetsAndTimeframe = createSelecto
   (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
   (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
   (priceHistory, assetIds, timeframe): boolean =>
-    assetIds.filter(assetId => priceHistory[timeframe][assetId]?.length === 0).length,
+    assetIds.filter(assetId => priceHistory[timeframe][assetId]?.length === 0).length === assetIds.length,
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(

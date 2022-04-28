@@ -3,11 +3,11 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
-import { MissingDataMessage } from 'components/MissingDataFeedback/Message'
+import { TranslationAlertBox } from 'components/TranslationAlertBox/TranslationAlertBox'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { calculatePercentChange } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectPriceHistoriesEmptyByAssetTimeframe } from 'state/slices/selectors'
+import { selectPriceHistoriesUnavailableByAssetsAndTimeframe } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type BalanceChartArgs = {
@@ -32,7 +32,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   })
 
   const isPriceHistoryDataEmpty = useAppSelector(state =>
-    selectPriceHistoriesEmptyByAssetTimeframe(state, assetIds, timeframe),
+    selectPriceHistoriesUnavailableByAssetsAndTimeframe(state, assetIds, timeframe),
   )
 
   useEffect(
@@ -45,7 +45,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   if (!balanceChartDataLoading && isPriceHistoryDataEmpty)
     return (
       <Card.Body p={0}>
-        <MissingDataMessage tkey='balanceHistoryUnavailable' />
+        <TranslationAlertBox translation='assets.assetDetails.assetHeader.balanceHistoryUnavailable' />
       </Card.Body>
     )
 

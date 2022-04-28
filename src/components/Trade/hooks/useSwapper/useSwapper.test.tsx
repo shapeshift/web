@@ -19,7 +19,11 @@ jest.mock('context/PluginProvider/PluginProvider')
 function setup({
   action = TradeActions.SELL,
   approvalNeededBoolean = false,
-  quote = { rate: '1.2' },
+  quote = {
+    rate: '1.2',
+    buyAsset: USDC,
+    sellAsset: WETH,
+  },
   minMax = MIN_MAX,
 } = {}) {
   const setValue = jest.fn()
@@ -29,7 +33,7 @@ function setup({
   const getQuote = jest.fn(() => ETHCHAIN_QUOTE)
   const wallet = {} as HDWallet
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
-    getSwapper: () => ({
+    getBestSwapper: () => ({
       getDefaultPair: () => [FOX, WETH],
       getMinMax: jest.fn(() => minMax),
       getUsdRate: () => '1',
@@ -38,7 +42,6 @@ function setup({
       getQuote,
     }),
     addSwapper: jest.fn(),
-    getBestSwapper,
   }))
   ;(debounce as jest.Mock<unknown>).mockImplementation(fn => fn)
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [quote, {}, action])
@@ -108,13 +111,14 @@ describe('useSwapper', () => {
       ETHCHAIN_QUOTE.buyAmount || '0',
       ETHCHAIN_QUOTE.buyAsset.precision,
     )
-    expect(setValue).toHaveBeenNthCalledWith(1, 'trade', MIN_MAX)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
-    expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(4, 'sellAsset.fiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAsset.fiatRate', '0.00026046624288885352')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'buyAsset.amount', buyAmount)
-    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatAmount', '0.00')
+    expect(setValue).toHaveBeenNthCalledWith(1, 'fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'sellAsset.fiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.fiatRate', '0.00026046624288885352')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAsset.amount', buyAmount)
+    expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '0.00')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'action', undefined)
+    expect(setValue).toHaveBeenNthCalledWith(8, 'estimatedGasFees', '0.153244')
   })
   it('getQuote gets quote with buyAmount', async () => {
     const { result, setValue } = setup({ action: TradeActions.BUY })
@@ -131,13 +135,14 @@ describe('useSwapper', () => {
       ETHCHAIN_QUOTE.sellAmount || '0',
       ETHCHAIN_QUOTE.sellAsset.precision,
     )
-    expect(setValue).toHaveBeenNthCalledWith(1, 'trade', MIN_MAX)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
-    expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(4, 'sellAsset.fiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAsset.fiatRate', '0.00026046624288885352')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'sellAsset.amount', sellAmount)
-    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatAmount', '0.00')
+    expect(setValue).toHaveBeenNthCalledWith(1, 'fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'sellAsset.fiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.fiatRate', '0.00026046624288885352')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'sellAsset.amount', sellAmount)
+    expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '0.00')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'action', undefined)
+    expect(setValue).toHaveBeenNthCalledWith(8, 'estimatedGasFees', '0.153244')
   })
   it('getQuote needs buyAsset or sellAsset', async () => {
     const { result, getQuote } = setup({ action: TradeActions.FIAT })
@@ -171,13 +176,14 @@ describe('useSwapper', () => {
       ETHCHAIN_QUOTE.sellAmount || '0',
       ETHCHAIN_QUOTE.sellAsset.precision,
     )
-    expect(setValue).toHaveBeenNthCalledWith(1, 'trade', MIN_MAX)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
-    expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(4, 'sellAsset.fiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAsset.fiatRate', '0.00026046624288885352')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'buyAsset.amount', buyAmount)
-    expect(setValue).toHaveBeenNthCalledWith(7, 'sellAsset.amount', sellAmount)
+    expect(setValue).toHaveBeenNthCalledWith(1, 'fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'sellAsset.fiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.fiatRate', '0.00026046624288885352')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAsset.amount', buyAmount)
+    expect(setValue).toHaveBeenNthCalledWith(6, 'sellAsset.amount', sellAmount)
+    expect(setValue).toHaveBeenNthCalledWith(7, 'action', undefined)
+    expect(setValue).toHaveBeenNthCalledWith(8, 'estimatedGasFees', '0.153244')
   })
   it('getQuote sets trade value with minMax if no quote is in state', async () => {
     const minMax = { minimum: '1000', minimumAmount: '1' }

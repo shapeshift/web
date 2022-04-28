@@ -16,6 +16,7 @@ export type FiatRampAsset = {
   symbol: string
   imageUrl?: string
   disabled?: boolean
+  isBelowSellThreshold?: boolean
 } & (
   | {
       cryptoBalance: BigNumber

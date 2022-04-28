@@ -121,8 +121,6 @@ export const LegacyLogin = () => {
     } else {
       setCaptchaSolution(null)
     }
-    // Check the captcha in case the captcha has been validated
-    // setIsCaptchaSolved(e.target.checked)
   }
 
   return (

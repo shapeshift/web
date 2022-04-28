@@ -385,9 +385,11 @@
         "button": "Submit Passphrase"
       },
       "label": {
-        "header": "Label Your KeepKey",
+        "header": "Label Your KeepKey (optional)",
         "body": "Labeling each of your devices allows you to easily distinguish one from the other.",
-        "button": "Set Label"
+        "setLabelButton": "Set Label",
+        "skipLabelButton": "Skip",
+        "placeholder": "Optional"
       },
       "recoverySettings": {
         "header": "Recover Your Wallet",

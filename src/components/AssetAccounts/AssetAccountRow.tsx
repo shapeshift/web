@@ -14,7 +14,7 @@ import { generatePath, Link } from 'react-router-dom'
 import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -25,6 +25,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
+
+import { selectMarketDataAvailableByAssetId } from '../../state/slices/marketDataSlice/selectors'
 
 // This can maybe be combined with the other AccountRow component once we know how the data works
 // src/components/AccountRow
@@ -63,6 +65,9 @@ export const AssetAccountRow = ({
     filter,
   )
   const label = accountIdToLabel(accountId)
+  const isAssetAvailable = useAppSelector(state =>
+    selectMarketDataAvailableByAssetId(state, rowAssetId),
+  )
 
   if (!asset) return null
   return (
@@ -145,9 +150,15 @@ export const AssetAccountRow = ({
 
       <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
         <Flex flexDir='column' textAlign='right'>
-          <Amount.Fiat value={fiatBalance} />
-          {(isCompact || !isLargerThanMd) && (
-            <Amount.Crypto color='gray.500' value={cryptoHumanBalance} symbol={asset?.symbol} />
+          {isAssetAvailable ? (
+            <>
+              <Amount.Fiat value={fiatBalance} />
+              {(isCompact || !isLargerThanMd) && (
+                <Amount.Crypto color='gray.500' value={cryptoHumanBalance} symbol={asset?.symbol} />
+              )}
+            </>
+          ) : (
+            <Text translation='assets.assetDetails.assetAccounts.valueUnavailable' />
           )}
         </Flex>
       </Flex>

@@ -91,7 +91,7 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  const balance =
+  const sellAssetBalance =
     useAppSelector(state =>
       selectPortfolioCryptoBalanceByAssetId(state, sellAsset?.currency?.caip19),
     ) ?? '0'
@@ -112,7 +112,7 @@ export const useSwapper = () => {
       {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
-        sellAmount: balance,
+        sellAmount: sellAssetBalance,
       },
       wallet,
     )
@@ -121,7 +121,7 @@ export const useSwapper = () => {
     // Pad fee because estimations can be wrong
     const feePadded = bnOrZero(maximumQuote?.feeData?.fee).times(1.1)
     const maxAmount = fromBaseUnit(
-      bnOrZero(balance)
+      bnOrZero(sellAssetBalance)
         .minus(isFeeAsset ? feePadded : 0)
         .toString(),
       sellAsset.currency.precision,

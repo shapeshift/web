@@ -15,7 +15,7 @@ export const selectMarketDataById = createCachedSelector(
   (marketData, assetId: CAIP19) => marketData[assetId],
 )((_marketData, assetId: CAIP19): CAIP19 => assetId)
 
-export const selectMarketDataUnavailableById = createSelector(
+export const selectMarketDataUnavailableByAssetId = createSelector(
   selectMarketData,
   selectAssetId,
   (marketData, assetId) => !Boolean(marketData[assetId]),

@@ -12,7 +12,7 @@ const SHAPESHIFT_OPPORTUNITY = {
   commission: '0.100000000000000000',
 }
 
-describe('stakingDataSlice', () => {
+describe('validatorDataSlice', () => {
   beforeEach(() => {
     clearState()
   })

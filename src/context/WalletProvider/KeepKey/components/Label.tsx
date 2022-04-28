@@ -1,7 +1,7 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { RecoverDevice, ResetDevice } from '@shapeshiftoss/hdwallet-core'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { VALID_ENTROPY_NUMBERS } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -26,11 +26,10 @@ export const KeepKeyLabel = () => {
   } = useWallet()
   const toast = useToast()
   const translate = useTranslate()
-  const inputRef = useRef<HTMLInputElement | null>(null)
+  const [label, setLabel] = useState('')
 
   const handleInitializeSubmit = async () => {
     setLoading(true)
-    const label = inputRef.current?.value
     const resetMessage: ResetDevice = { label: label ?? '', pin: true }
     setDeviceState({ awaitingDeviceInteraction: true })
     await wallet?.reset(resetMessage).catch(e => {
@@ -46,7 +45,6 @@ export const KeepKeyLabel = () => {
 
   const handleRecoverSubmit = async () => {
     setLoading(true)
-    const label = inputRef.current?.value
     setDeviceState({ awaitingDeviceInteraction: true })
     const recoverParams: RecoverDevice = {
       entropy: parseIntToEntropy(recoveryEntropy),
@@ -73,7 +71,16 @@ export const KeepKeyLabel = () => {
       </ModalHeader>
       <ModalBody>
         <Text color='gray.500' translation={'modals.keepKey.label.body'} mb={4} />
-        <Input type='text' ref={inputRef} size='lg' variant='filled' mt={3} mb={6} />
+        <Input
+          type='text'
+          value={label}
+          placeholder={translate('modals.keepKey.label.placeholder')}
+          onChange={e => setLabel(e.target.value)}
+          size='lg'
+          variant='filled'
+          mt={3}
+          mb={6}
+        />
         <Button
           isFullWidth
           size='lg'
@@ -82,7 +89,11 @@ export const KeepKeyLabel = () => {
           disabled={loading}
           mb={3}
         >
-          <Text translation={'modals.keepKey.label.button'} />
+          <Text
+            translation={
+              label ? 'modals.keepKey.label.setLabelButton' : 'modals.keepKey.label.skipLabelButton'
+            }
+          />
         </Button>
       </ModalBody>
     </>

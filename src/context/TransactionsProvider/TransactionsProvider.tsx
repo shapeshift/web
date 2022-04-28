@@ -1,4 +1,4 @@
-import { CAIP2 } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -41,7 +41,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const txIds = useAppSelector(selectTxIds)
 
   const getAccountSpecifiersByChainId = useCallback(
-    (chainId: CAIP2): AccountSpecifierMap[] => {
+    (chainId: ChainId): AccountSpecifierMap[] => {
       return accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
         const [_chainId, accountSpecifier] = Object.entries(cur)[0]
         if (_chainId !== chainId) return acc

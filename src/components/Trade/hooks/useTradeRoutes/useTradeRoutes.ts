@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -13,7 +13,7 @@ import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
 
 export const useTradeRoutes = (
-  defaultBuyAssetId?: CAIP19,
+  defaultBuyAssetId?: AssetId,
 ): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>

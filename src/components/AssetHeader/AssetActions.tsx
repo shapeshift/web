@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup, Link, Skeleton } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -12,7 +12,7 @@ import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {
   isLoaded: boolean
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   cryptoBalance: string
 }

@@ -11,7 +11,7 @@ import {
   SkeletonText,
   Stack,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
@@ -20,7 +20,7 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const AssetTeaser = ({ assetId }: { assetId: CAIP19 }) => {
+export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const { description, icon, name } = asset || {}
   const { isLoading } = useGetAssetDescriptionQuery(assetId, { skip: !!description })

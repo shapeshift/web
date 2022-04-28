@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useParams } from 'react-router-dom'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
@@ -8,7 +8,7 @@ import { CosmosAssetAccountDetails } from './CosmosAssetAccountDetails'
 
 export type MatchParams = {
   accountSubId: string
-  assetId?: CAIP19
+  assetId?: AssetId
 }
 
 export const CosmosAccount = () => {

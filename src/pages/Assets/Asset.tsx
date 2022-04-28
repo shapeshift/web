@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import type { CAIP2 } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LoadingAsset } from './LoadingAsset'
 export interface MatchParams {
-  chainId: CAIP2
+  chainId: ChainId
   assetSubId: string
 }
 

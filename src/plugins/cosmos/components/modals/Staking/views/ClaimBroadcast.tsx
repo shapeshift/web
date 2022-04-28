@@ -1,7 +1,7 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, Text as CText, Tooltip } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import {
   StakingAction,
@@ -20,7 +20,7 @@ import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 type ClaimBroadcastProps = {
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
   onClose: () => void
 }

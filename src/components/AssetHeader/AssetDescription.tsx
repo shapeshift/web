@@ -1,5 +1,5 @@
 import { Button, Collapse, Skeleton, SkeletonText } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -11,7 +11,7 @@ import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetDescriptionProps = {
-  assetId: CAIP19
+  assetId: AssetId
 }
 
 export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {

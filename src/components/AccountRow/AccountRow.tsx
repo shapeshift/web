@@ -1,5 +1,5 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import type { CAIP19 } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -17,7 +17,7 @@ import { Allocations } from './Allocations'
 
 export type AccountRowArgs = {
   allocationValue: number
-  assetId: CAIP19
+  assetId: AssetId
   to?: LinkProps['to']
 }
 

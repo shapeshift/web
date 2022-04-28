@@ -22,7 +22,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
 
-import { LoginError } from '../types'
+import { loginErrors, LoginResponseError } from '../types'
 
 export const LegacyLogin = () => {
   const history = useHistory()
@@ -41,7 +41,7 @@ export const LegacyLogin = () => {
 
   const translate = useTranslate()
 
-  const isLoginError = (err: any): err is LoginError =>
+  const isLoginError = (err: any): err is LoginResponseError =>
     typeof err?.response?.data?.error?.msg === 'string' && typeof err.response.status === 'number'
 
   const isDecryptionError = (err: any): err is Error =>
@@ -75,20 +75,26 @@ export const LegacyLogin = () => {
       reset()
     } catch (err) {
       if (isLoginError(err)) {
-        if (err.response.status === 428 && err.response.data.error.msg === '2fa required') {
+        if (
+          err.response.status === loginErrors.twoFactorRequired.httpCode &&
+          err.response.data.error.msg === loginErrors.twoFactorRequired.msg
+        ) {
           setTwoFactorRequired(true)
           return
         }
 
-        if (err.response.status === 412 && err.response.data.error.msg === '2fa invalid') {
+        if (
+          err.response.status === loginErrors.twoFactorInvalid.httpCode &&
+          err.response.data.error.msg === loginErrors.twoFactorInvalid.msg
+        ) {
           setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
           return
         }
 
         // Successful account login, but no Native Wallet for account.
         if (
-          err.response.status === 404 &&
-          err.response.data.error.msg.startsWith('no native wallet located for')
+          err.response.status === loginErrors.noWallet.httpCode &&
+          err.response.data.error.msg.startsWith(loginErrors.noWallet.msg)
         ) {
           setError(translate('walletProvider.shapeShift.legacy.noWallet'))
           return

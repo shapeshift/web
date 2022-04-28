@@ -21,7 +21,7 @@ export interface NativeSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export interface LoginError extends Error {
+export interface LoginResponseError extends Error {
   response: {
     status: number
     data: {
@@ -32,4 +32,19 @@ export interface LoginError extends Error {
       }
     }
   }
+}
+
+export const loginErrors = {
+  twoFactorRequired: {
+    httpCode: 428,
+    msg: '2fa required',
+  },
+  twoFactorInvalid: {
+    httpCode: 412,
+    msg: '2fa invalid',
+  },
+  noWallet: {
+    httpCode: 404,
+    msg: 'no native wallet located for',
+  },
 }

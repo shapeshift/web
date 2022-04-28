@@ -13,6 +13,22 @@
     "0xApi": "https://api.0x.org/",
     "coinGeckoApi": "https://api.coingecko.com/api/v3/",
     "foxContract": "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
-    "linkContract": "eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca"
+    "linkContract": "eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca",
+    "includeHosts": [
+      "dev-api.ethereum.shapeshift.com",
+      "assets.coincap.io",
+      "raw.githubusercontent.com",
+      "api.0x.org",
+      "api.github.com",
+      "dev-api.bitcoin.shapeshift.com",
+      "dev-api.cosmos.shapeshift.com",
+      "static.coincap.io",
+      "mainnet.infura.io",
+      "raw.githack.com",
+      "rawcdn.githack.com",
+      "api.coingecko.com",
+      "cache.yearn.finance"
+    ],
+    "hars_folders": "cypress/hars"
   }
 }

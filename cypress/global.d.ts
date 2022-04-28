@@ -11,6 +11,8 @@ declare namespace Cypress {
     mockExternalRequests(): Chainable<Element>
     mockInternalRequests(): Chainable<Element>
     mockAllRequests(): Chainable<Element>
+    saveHar(options?: any): Chainable<Promise>
+    recordHar(options?: any): Chainable<Promise>
     navigateToDashboard(): Chainable<Element>
     navigateToAccounts(): Chainable<Element>
     navigateToAssets(): Chainable<Element>

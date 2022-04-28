@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v2.10.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.10.0...@shapeshiftoss/types-v2.10.1) (2022-04-28)
+
+
+### Bug Fixes
+
+* remove getmaxamount unnecessary code ([#582](https://github.com/shapeshift/lib/issues/582)) ([026672b](https://github.com/shapeshift/lib/commit/026672b39498ea5abe056cc21518d69e611e6090))
+
 # [@shapeshiftoss/types-v2.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.9.1...@shapeshiftoss/types-v2.10.0) (2022-04-27)
 
 

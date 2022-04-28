@@ -35,7 +35,7 @@ export function autoRecord() {
     cy.intercept('*', req => {
       const har = harsMap ? harsMap[req.url] : null
 
-      if (har) {
+      if (har && !har.response.content.error) {
         switch (har.response.content.mimeType) {
           case 'application/json': {
             req.reply(JSON.parse(har.response.content.text))

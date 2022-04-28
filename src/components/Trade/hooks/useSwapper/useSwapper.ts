@@ -91,10 +91,9 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  const sellAssetBalance =
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByAssetId(state, sellAsset?.currency?.caip19),
-    ) ?? '0'
+  const sellAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByAssetId(state, sellAsset?.currency?.caip19),
+  )
 
   const getSendMaxAmount = async ({
     wallet,
@@ -117,9 +116,10 @@ export const useSwapper = () => {
       wallet,
     )
 
+    // Only subtract fee if sell asset is the see asset
     const isFeeAsset = feeAsset.caip19 === sellAsset.currency.caip19
     // Pad fee because estimations can be wrong
-    const feePadded = bnOrZero(maximumQuote?.feeData?.fee).times(1.1)
+    const feePadded = bnOrZero(maximumQuote?.feeData?.fee)
     const maxAmount = fromBaseUnit(
       bnOrZero(sellAssetBalance)
         .minus(isFeeAsset ? feePadded : 0)

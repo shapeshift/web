@@ -24,7 +24,7 @@ type AssetDetailsProps = {
 }
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
-  const assetUnavailable = useAppSelector(state => selectMarketDataUnavailableByAssetId(state, caip19))
+  const isAssetUnavailable = useAppSelector(state => selectMarketDataUnavailableByAssetId(state, caip19))
   return (
     <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack

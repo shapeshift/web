@@ -24,9 +24,9 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { IconCircle } from 'components/IconCircle'
 import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
+import { InformationalAlert } from 'components/InformationalAlert/InformationalAlert'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
-import { TranslationAlertBox } from 'components/TranslationAlertBox/TranslationAlertBox'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
@@ -36,8 +36,8 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import {
   selectAssetByCAIP19,
+  selectMarketDataAvailableByAssetId,
   selectMarketDataById,
-  selectMarketDataUnavailableByAssetId,
   selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -64,7 +64,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const assetUnavailable = useAppSelector(state => selectMarketDataUnavailableByAssetId(state, assetId))
+  const isAssetAvailable = useAppSelector(state =>
+    selectMarketDataAvailableByAssetId(state, assetId),
+  )
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
@@ -83,10 +85,10 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectTotalStakingDelegationCryptoByFilter(state, filter),
   )
 
-  if (assetUnavailable)
+  if (!isAssetAvailable)
     return (
       <Card>
-        <TranslationAlertBox translation='assets.assetDetails.assetHeader.assetUnavailable' />
+        <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />
       </Card>
     )
 

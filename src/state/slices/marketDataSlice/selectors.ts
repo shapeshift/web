@@ -15,10 +15,10 @@ export const selectMarketDataById = createCachedSelector(
   (marketData, assetId: CAIP19) => marketData[assetId],
 )((_marketData, assetId: CAIP19): CAIP19 => assetId)
 
-export const selectMarketDataUnavailableByAssetId = createSelector(
+export const selectMarketDataAvailableByAssetId = createSelector(
   selectMarketData,
   selectAssetId,
-  (marketData, assetId) => !Boolean(marketData[assetId]),
+  (marketData, assetId) => Boolean(marketData[assetId]),
 )
 
 // assets we have loaded market data for
@@ -39,12 +39,12 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? [],
 )
 
-export const selectPriceHistoriesUnavailableByAssetsAndTimeframe = createSelector(
+export const selectBalanceHistoryAvailableByAssetsAndTimeframe = createSelector(
   selectPriceHistory,
   (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
   (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
   (priceHistory, assetIds, timeframe): boolean =>
-    assetIds.filter(assetId => priceHistory[timeframe][assetId]?.length === 0).length === assetIds.length,
+    assetIds.some(assetId => priceHistory[timeframe][assetId]?.length !== 0),
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(

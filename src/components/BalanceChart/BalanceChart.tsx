@@ -3,11 +3,11 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
-import { TranslationAlertBox } from 'components/TranslationAlertBox/TranslationAlertBox'
+import { InformationalAlert } from 'components/InformationalAlert/InformationalAlert'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { calculatePercentChange } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectPriceHistoriesUnavailableByAssetsAndTimeframe } from 'state/slices/selectors'
+import { selectBalanceHistoryAvailableByAssetsAndTimeframe } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type BalanceChartArgs = {
@@ -31,8 +31,8 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
     timeframe,
   })
 
-  const isPriceHistoryDataEmpty = useAppSelector(state =>
-    selectPriceHistoriesUnavailableByAssetsAndTimeframe(state, assetIds, timeframe),
+  const isAtLeastOnePriceHistoryAvailable = useAppSelector(state =>
+    selectBalanceHistoryAvailableByAssetsAndTimeframe(state, assetIds, timeframe),
   )
 
   useEffect(
@@ -42,10 +42,10 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
-  if (!balanceChartDataLoading && isPriceHistoryDataEmpty)
+  if (!balanceChartDataLoading && !isAtLeastOnePriceHistoryAvailable)
     return (
       <Card.Body p={0}>
-        <TranslationAlertBox translation='assets.assetDetails.assetHeader.balanceHistoryUnavailable' />
+        <InformationalAlert translation='assets.assetDetails.assetHeader.balanceHistoryUnavailable' />
       </Card.Body>
     )
 

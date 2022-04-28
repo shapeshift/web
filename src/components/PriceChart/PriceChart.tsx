@@ -11,7 +11,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TranslationAlertBox } from '../TranslationAlertBox/TranslationAlertBox'
+import { InformationalAlert } from '../InformationalAlert/InformationalAlert'
 
 type PriceChartArgs = {
   assetId: CAIP19
@@ -45,14 +45,14 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   if (loading)
     return (
       <Card.Body p={0}>
-        <TranslationAlertBox translation='assets.assetDetails.assetHeader.loading' />
+        <InformationalAlert translation='assets.assetDetails.assetHeader.loading' />
       </Card.Body>
     )
 
   if (data.length === 0)
     return (
       <Card.Body p={0}>
-        <TranslationAlertBox translation='assets.assetDetails.assetHeader.priceHistoryUnavailable' />
+        <InformationalAlert translation='assets.assetDetails.assetHeader.priceHistoryUnavailable' />
       </Card.Body>
     )
 

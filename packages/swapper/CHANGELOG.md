@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v2.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.2.1...@shapeshiftoss/swapper-v2.2.2) (2022-04-28)
+
+
+### Bug Fixes
+
+* remove getmaxamount unnecessary code ([#582](https://github.com/shapeshift/lib/issues/582)) ([026672b](https://github.com/shapeshift/lib/commit/026672b39498ea5abe056cc21518d69e611e6090))
+
 # [@shapeshiftoss/swapper-v2.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.2.0...@shapeshiftoss/swapper-v2.2.1) (2022-04-28)
 
 # [@shapeshiftoss/swapper-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.1.0...@shapeshiftoss/swapper-v2.2.0) (2022-04-27)

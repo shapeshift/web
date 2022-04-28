@@ -51,7 +51,6 @@ yarn dev # run the dev server on localhost:3000
 ```
 yarn dev
 ```
-
 Runs the app in the development mode with hot reloading on [http://localhost:3000](http://localhost:3000) - optionally `yarn dev:silent` runs without automatically launching a browser.
 
 ```
@@ -62,30 +61,31 @@ Launches the test runner in the interactive watch mode.
 ```
 yarn test
 ```
-To run the full unit tests and generate test coverage report, available at `coverage/lcov-report/index.html`
+Runs the unit test suite and generates a test coverage report, available at `coverage/lcov-report/index.html`
 
 ```
 yarn test:cypress
 ```
-
 Starts Cypress E2E testing with GUI.
 
 ```
 yarn test:cypress:headless
 ```
-
 Headless version of Cypress E2E tests.
 
 ```
 yarn build
 ```
-
 Builds the app for production to the `build` folder.
+
+```
+yarn local-ci
+```
+Runs `yarn lint && yarn type-check && yarn test && yarn build` which covers most of the things that will fail in CI.
 
 ```
 yarn storybook
 ```
-
 Runs [Storybook](https://storybook.js.org/) on [localhost:6006](http://localhost:6006) (requires `yarn dev:silent` running at the same time).
 
 ## Advanced
@@ -120,7 +120,7 @@ If your changes only touch `web` these steps are not necessary.
 
 1. [Fork the repo](https://github.com/shapeshift/web/fork) and create a PR.
 2. Ensure you've followed the guidelines in [CONTRIBUTING.md](https://github.com/shapeshift/web/blob/main/CONTRIBUTING.md); in particular, make sure that the title of your PR conforms to the Conventional Commits format.
-3. Ping `@W-Engineering` in `#engineering-prs` in [Discord](https://discord.gg/shapeshift) for a more expedient review.
+3. Optional - ping `@W-Engineering` in `#engineering-prs` in [Discord](https://discord.gg/shapeshift) for a more expedient review.
 
 ## Releases
 

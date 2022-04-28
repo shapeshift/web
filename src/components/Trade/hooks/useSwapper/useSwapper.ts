@@ -83,7 +83,6 @@ export const useSwapper = () => {
   const [bestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
-
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
     return assets.filter(asset => assetIdMap[asset.caip19])

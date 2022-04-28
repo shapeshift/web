@@ -12,7 +12,6 @@ import {
   GetQuoteInput,
   MinMaxOutput,
   Quote,
-  SendMaxAmountInput,
   SwapperType
 } from '@shapeshiftoss/types'
 
@@ -79,11 +78,6 @@ export interface Swapper {
    * Get the txid of an approve infinite transaction
    */
   approveInfinite(args: ApproveInfiniteInput<ChainTypes, SwapperType>): Promise<string>
-
-  /**
-   * Get max swap balance (minus fees) for sell asset
-   */
-  getSendMaxAmount(args: SendMaxAmountInput): Promise<string>
 
   /**
    * Get supported buyAssetId's by sellAssetId

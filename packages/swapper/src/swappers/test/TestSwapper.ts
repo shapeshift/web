@@ -65,10 +65,6 @@ export class TestSwapper implements Swapper {
     throw new Error('TestSwapper: approveInfinite unimplemented')
   }
 
-  async getSendMaxAmount(): Promise<string> {
-    throw new Error('TestSwapper: getSendMaxAmount unimplemented')
-  }
-
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): CAIP19[] {
     const { sellAssetId } = args
     if (!this.supportAssets.includes(sellAssetId)) return []

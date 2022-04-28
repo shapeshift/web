@@ -12,7 +12,6 @@ import {
   GetQuoteInput,
   MinMaxOutput,
   Quote,
-  SendMaxAmountInput,
   SwapperType
 } from '@shapeshiftoss/types'
 import Web3 from 'web3'
@@ -20,7 +19,6 @@ import Web3 from 'web3'
 import { BuyAssetBySellIdInput, Swapper } from '../../api'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxQuote } from './getZrxQuote/getZrxQuote'
-import { getZrxSendMaxAmount } from './getZrxSendMaxAmount/getZrxSendMaxAmount'
 import { getUsdRate } from './utils/helpers/helpers'
 import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
 import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
@@ -85,10 +83,6 @@ export class ZrxSwapper implements Swapper {
 
   async approveInfinite(args: ApproveInfiniteInput<ChainTypes, SwapperType>): Promise<string> {
     return ZrxApproveInfinite(this.deps, args)
-  }
-
-  async getSendMaxAmount(args: SendMaxAmountInput): Promise<string> {
-    return getZrxSendMaxAmount(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): CAIP19[] {

@@ -19,7 +19,8 @@ type StakingInputProps = {
 const cryptoInputValidation = {
   required: true,
   validate: {
-    validateCryptoAmount: (_: string) => {
+    validateCryptoAmount: (cryptoAmount: string) => {
+      if (bnOrZero(cryptoAmount).isZero()) return false
       // TODO: Implement when we have cosmos/osmosis balance data
       return true
     },
@@ -28,8 +29,9 @@ const cryptoInputValidation = {
 const fiatInputValidation = {
   required: true,
   validate: {
-    validateFiatAmount: (_: string) => {
-      // TODO: Implement when we have cosmos/osmosis balance data
+    validateFiatAmount: (fiatAmount: string) => {
+      if (bnOrZero(fiatAmount).isZero()) return false
+
       return true
     },
   },

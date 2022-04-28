@@ -31,7 +31,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
     timeframe,
   })
 
-  const priceHistoryDataEmpty = useAppSelector(state =>
+  const isPriceHistoryDataEmpty = useAppSelector(state =>
     selectPriceHistoriesEmptyByAssetTimeframe(state, assetIds, timeframe),
   )
 

@@ -1,7 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -19,11 +18,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
 
-type FoxyStatusProps = {
-  api: FoxyApi
-}
-
-export const Status = ({ api }: FoxyStatusProps) => {
+export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()

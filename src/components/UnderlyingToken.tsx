@@ -21,7 +21,7 @@ type UnderlyingTokenProps = {
 
 // TODO: currently this is hard coded to yearn vaults only.
 // In the future we should add a hook to get the provider interface by vault provider
-export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) => {
+export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
   const { loading, yearn } = useYearn()
   const vaults: SupportedYearnVault[] = useYearnVaults()

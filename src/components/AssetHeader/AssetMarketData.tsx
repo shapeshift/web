@@ -50,13 +50,13 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
 
 export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const isAssetAvailable = useAppSelector(state =>
+  const isMarketDataAvailable = useAppSelector(state =>
     selectMarketDataAvailableByAssetId(state, assetId),
   )
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
 
-  if (!isAssetAvailable)
+  if (!isMarketDataAvailable)
     return (
       <Card>
         <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />

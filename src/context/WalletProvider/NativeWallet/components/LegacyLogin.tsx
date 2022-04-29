@@ -115,14 +115,6 @@ export const LegacyLogin = () => {
     }
   }
 
-  const handleCaptcha = (solution: string) => {
-    if (typeof solution === 'string') {
-      setCaptchaSolution(solution)
-    } else {
-      setCaptchaSolution(null)
-    }
-  }
-
   return (
     <>
       <ModalHeader>
@@ -173,7 +165,7 @@ export const LegacyLogin = () => {
             </FormControl>
             <FormControl isInvalid={!captchaSolution} mb={4} mt={6}>
               <Box flexDir={'row'} justifyContent='center' alignItems={'center'}>
-                <FriendlyCaptcha handleCaptcha={handleCaptcha} />
+                <FriendlyCaptcha handleCaptcha={setCaptchaSolution} />
               </Box>
               <FormErrorMessage>
                 {translate('walletProvider.shapeShift.invalidCaptcha')}

@@ -50,9 +50,7 @@ export const Overview: React.FC<StakedProps> = ({
     })()
   }, [accountSpecifier, isLoaded, dispatch])
 
-  const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
-  )
+  const validatorInfo = useAppSelector(state => selectSingleValidator(state, { validatorAddress }))
 
   const totalBondings = useAppSelector(state =>
     selectTotalBondingsBalanceByAssetId(state, {
@@ -62,7 +60,7 @@ export const Overview: React.FC<StakedProps> = ({
     }),
   )
   const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByAccountSpecifier(state, {
+    selectAllUnbondingsEntriesByAssetIdAndValidator(state, {
       accountSpecifier,
       validatorAddress,
       assetId: asset.caip19,
@@ -70,7 +68,11 @@ export const Overview: React.FC<StakedProps> = ({
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
+    selectRewardsAmountByAssetId(state, {
+      accountSpecifier,
+      validatorAddress,
+      assetId: asset.caip19,
+    }),
   )
 
   // If it's loading, it will display the skeleton,

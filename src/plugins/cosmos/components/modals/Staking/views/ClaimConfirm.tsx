@@ -85,7 +85,7 @@ export const ClaimConfirm = ({
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
+    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(

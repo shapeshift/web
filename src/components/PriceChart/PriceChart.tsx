@@ -1,8 +1,12 @@
+import { Alert, Box } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
+import { FaInfoCircle } from 'react-icons/fa'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
+import { IconCircle } from 'components/IconCircle'
+import { Text } from 'components/Text'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { calculatePercentChange } from 'lib/charts'
 import {
@@ -10,8 +14,6 @@ import {
   selectPriceHistoryByAssetTimeframe,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { InformationalAlert } from '../InformationalAlert/InformationalAlert'
 
 type PriceChartArgs = {
   assetId: AssetId
@@ -44,9 +46,18 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
 
   if (!loading && !data.length)
     return (
-      <Card.Body p={0}>
-        <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />
-      </Card.Body>
+      <Box p={8}>
+        <Alert status='info' variant='subtle' borderRadius='lg' pl={2}>
+          <IconCircle boxSize={8} color='blue.300' background='transparent'>
+            <FaInfoCircle />
+          </IconCircle>
+          <Text
+            color='blue.300'
+            translation={'assets.assetDetails.assetHeader.assetUnavailable'}
+            fontWeight='semibold'
+          />
+        </Alert>
+      </Box>
     )
 
   return (

@@ -7,10 +7,8 @@ import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataAvailableByAssetId, selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { InformationalAlert } from '../InformationalAlert/InformationalAlert'
 
 type AssetMarketDataProps = {
   assetId: AssetId
@@ -50,18 +48,8 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
 
 export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const isMarketDataAvailable = useAppSelector(state =>
-    selectMarketDataAvailableByAssetId(state, assetId),
-  )
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
-
-  if (!isMarketDataAvailable)
-    return (
-      <Card>
-        <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />
-      </Card>
-    )
 
   return (
     <Card>

@@ -16,6 +16,7 @@ type AssetSearchProps = {
 
 export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
   const assets = useSelector(selectAssetsByMarketCap)
+
   const currentAssets = useMemo(() => (filterBy ? filterBy(assets) : assets), [assets, filterBy])
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({

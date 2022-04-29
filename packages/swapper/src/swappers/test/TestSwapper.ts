@@ -31,11 +31,11 @@ export class TestSwapper implements Swapper {
     ]
   }
 
-  async getQuote(): Promise<Quote<ChainTypes, SwapperType>> {
+  async getQuote(): Promise<Quote<ChainTypes>> {
     throw new Error('TestSwapper: getQuote unimplemented')
   }
 
-  async buildQuoteTx(): Promise<Quote<ChainTypes, SwapperType>> {
+  async buildQuoteTx(): Promise<Quote<ChainTypes>> {
     throw new Error('TestSwapper: getQuote unimplemented')
   }
 

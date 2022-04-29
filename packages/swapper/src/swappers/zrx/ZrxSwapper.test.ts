@@ -42,7 +42,7 @@ jest.mock('./ZrxApproveInfinite/ZrxApproveInfinite', () => ({
 
 describe('ZrxSwapper', () => {
   const input = <GetQuoteInput>{}
-  const quote = <Quote<ChainTypes, SwapperType>>{}
+  const quote = <Quote<ChainTypes>>{}
   const wallet = <HDWallet>{}
   const web3 = <Web3>{}
   const adapterManager = <ChainAdapterManager>{}

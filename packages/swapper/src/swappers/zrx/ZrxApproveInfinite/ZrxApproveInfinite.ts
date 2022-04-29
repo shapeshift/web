@@ -1,5 +1,5 @@
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ApproveInfiniteInput, ChainTypes, QuoteResponse, SwapperType } from '@shapeshiftoss/types'
+import { ApproveInfiniteInput, ChainTypes, QuoteResponse } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
 import { SwapError } from '../../../api'
@@ -12,7 +12,7 @@ import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function ZrxApproveInfinite(
   { adapterManager, web3 }: ZrxSwapperDeps,
-  { quote, wallet }: ApproveInfiniteInput<ChainTypes, SwapperType>
+  { quote, wallet }: ApproveInfiniteInput<ChainTypes>
 ) {
   const adapter: ChainAdapter<ChainTypes.Ethereum> = adapterManager.byChain(ChainTypes.Ethereum)
   const bip44Params = adapter.buildBIP44Params({

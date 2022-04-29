@@ -1,4 +1,4 @@
-import { ChainTypes, ExecQuoteInput, ExecQuoteOutput, SwapperType } from '@shapeshiftoss/types'
+import { ChainTypes, ExecQuoteInput, ExecQuoteOutput } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
 
 import { SwapError } from '../../../api'
@@ -6,7 +6,7 @@ import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function ZrxExecuteQuote(
   { adapterManager }: ZrxSwapperDeps,
-  { quote, wallet }: ExecQuoteInput<ChainTypes.Ethereum, SwapperType>
+  { quote, wallet }: ExecQuoteInput<ChainTypes.Ethereum>
 ): Promise<ExecQuoteOutput> {
   const { sellAsset } = quote
 

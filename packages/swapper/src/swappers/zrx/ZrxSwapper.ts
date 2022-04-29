@@ -49,11 +49,11 @@ export class ZrxSwapper implements Swapper {
     return SwapperType.Zrx
   }
 
-  async buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes, SwapperType>> {
+  async buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes>> {
     return ZrxBuildQuoteTx(this.deps, args)
   }
 
-  async getQuote(input: GetQuoteInput): Promise<Quote<ChainTypes, SwapperType>> {
+  async getQuote(input: GetQuoteInput): Promise<Quote<ChainTypes>> {
     return getZrxQuote(input)
   }
 
@@ -71,17 +71,15 @@ export class ZrxSwapper implements Swapper {
     return [ETH, FOX]
   }
 
-  async executeQuote(args: ExecQuoteInput<ChainTypes, SwapperType>): Promise<ExecQuoteOutput> {
+  async executeQuote(args: ExecQuoteInput<ChainTypes>): Promise<ExecQuoteOutput> {
     return ZrxExecuteQuote(this.deps, args)
   }
 
-  async approvalNeeded(
-    args: ApprovalNeededInput<ChainTypes, SwapperType>
-  ): Promise<ApprovalNeededOutput> {
+  async approvalNeeded(args: ApprovalNeededInput<ChainTypes>): Promise<ApprovalNeededOutput> {
     return ZrxApprovalNeeded(this.deps, args)
   }
 
-  async approveInfinite(args: ApproveInfiniteInput<ChainTypes, SwapperType>): Promise<string> {
+  async approveInfinite(args: ApproveInfiniteInput<ChainTypes>): Promise<string> {
     return ZrxApproveInfinite(this.deps, args)
   }
 

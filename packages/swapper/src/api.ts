@@ -42,12 +42,12 @@ export interface Swapper {
   /**
    * Get a Quote along with an unsigned transaction that can be signed and broadcast to execute the swap
    **/
-  buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes, SwapperType>>
+  buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes>>
 
   /**
    * Get a basic quote (rate) for a trading pair
    */
-  getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote<ChainTypes, SwapperType>>
+  getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote<ChainTypes>>
 
   /**
    * Get the usd rate from either the assets symbol or tokenId
@@ -67,17 +67,17 @@ export interface Swapper {
   /**
    * Execute a quote built with buildQuoteTx by signing and broadcasting
    */
-  executeQuote(args: ExecQuoteInput<ChainTypes, SwapperType>): Promise<ExecQuoteOutput>
+  executeQuote(args: ExecQuoteInput<ChainTypes>): Promise<ExecQuoteOutput>
 
   /**
    * Get a boolean if a quote needs approval
    */
-  approvalNeeded(args: ApprovalNeededInput<ChainTypes, SwapperType>): Promise<ApprovalNeededOutput>
+  approvalNeeded(args: ApprovalNeededInput<ChainTypes>): Promise<ApprovalNeededOutput>
 
   /**
    * Get the txid of an approve infinite transaction
    */
-  approveInfinite(args: ApproveInfiniteInput<ChainTypes, SwapperType>): Promise<string>
+  approveInfinite(args: ApproveInfiniteInput<ChainTypes>): Promise<string>
 
   /**
    * Get supported buyAssetId's by sellAssetId

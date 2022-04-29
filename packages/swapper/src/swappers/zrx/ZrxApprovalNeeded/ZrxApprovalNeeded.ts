@@ -2,8 +2,7 @@ import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
   ChainTypes,
-  QuoteResponse,
-  SwapperType
+  QuoteResponse
 } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 import { BigNumber } from 'bignumber.js'
@@ -22,7 +21,7 @@ import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function ZrxApprovalNeeded(
   { adapterManager, web3 }: ZrxSwapperDeps,
-  { quote, wallet }: ApprovalNeededInput<ChainTypes, SwapperType>
+  { quote, wallet }: ApprovalNeededInput<ChainTypes>
 ): Promise<ApprovalNeededOutput> {
   const { sellAsset } = quote
 

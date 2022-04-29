@@ -2,7 +2,6 @@ import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, Text as CText, Tooltip } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
 import {
   StakingAction,
   StakingValues,
@@ -27,10 +26,6 @@ type ClaimBroadcastProps = {
 
 export enum Field {
   FeeType = 'feeType',
-}
-
-export type ClaimBroadcastParams = {
-  [Field.FeeType]: chainAdapters.FeeDataKey
 }
 
 export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroadcastProps) => {

@@ -42,14 +42,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
-  if (loading)
-    return (
-      <Card.Body p={0}>
-        <InformationalAlert translation='assets.assetDetails.assetHeader.loading' />
-      </Card.Body>
-    )
-
-  if (data.length === 0)
+  if (!data.length)
     return (
       <Card.Body p={0}>
         <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />

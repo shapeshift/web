@@ -135,7 +135,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         sellAsset,
         buyAsset,
         feeAsset,
-        estimatedGasFees,
       })
       const action = TradeActions.SELL
       const currentSellAsset = getValues('sellAsset')
@@ -285,7 +284,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     Max
                   </Button>
                 }
-                data-test='token-row-sell'
+                data-test='trade-form-token-input-row-sell'
               />
             </FormControl>
             <FormControl
@@ -348,7 +347,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     data-test='token-row-buy-token-button'
                   />
                 }
-                data-test='token-row-buy'
+                data-test='trade-form-token-input-row-buy'
               />
             </FormControl>
             <Button
@@ -373,7 +372,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 whiteSpace: 'normal',
                 wordWrap: 'break-word',
               }}
-              data-test='trade-preview-button'
+              data-test='trade-form-preview-button'
             >
               <Text translation={getTranslationKey()} />
             </Button>

@@ -12,7 +12,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
-  selectAssetByAssetId,
+  selectAssetById,
   selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -26,7 +26,7 @@ export const AllTransactions: React.FC<AssetTransactionProps> = ({ assetId, acco
   const {
     state: { wallet },
   } = useWallet()
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const chainId = asset.caip2
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const filter = useMemo(

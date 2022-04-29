@@ -13,7 +13,7 @@ import { useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { selectAccountSpecifier, selectAssetByAssetId } from 'state/slices/selectors'
+import { selectAccountSpecifier, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakeFormManager } from './forms/StakeFormManager'
@@ -73,7 +73,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
 
   const initialRef = useRef<HTMLInputElement>(null)
 
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const accountSpecifiersForChainId = useAppSelector(state =>
     selectAccountSpecifier(state, asset?.caip2),
   )

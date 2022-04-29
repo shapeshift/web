@@ -13,7 +13,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -51,7 +51,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
 
   // user info

@@ -13,7 +13,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectSingleValidator,
 } from 'state/slices/selectors'
@@ -50,7 +50,7 @@ export const StakeBroadcast = ({
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
 
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

@@ -14,7 +14,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssetByAssetId, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
@@ -39,16 +39,14 @@ export const Status = ({ api }: FoxyStatusProps) => {
     assetNamespace,
     assetReference: tokenId,
   })
-  const underlyingAsset = useAppSelector(state =>
-    selectAssetByAssetId(state, underlyingAssetCAIP19),
-  )
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetCAIP19))
   const assetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAssetCAIP19 = caip19.toCAIP19({
@@ -57,7 +55,7 @@ export const Status = ({ api }: FoxyStatusProps) => {
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetByAssetId(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
   const withdrawalFee = useMemo(() => {

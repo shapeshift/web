@@ -26,7 +26,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -53,7 +53,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
     setValue,
   } = useFormContext<StakingValues>()
 
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))

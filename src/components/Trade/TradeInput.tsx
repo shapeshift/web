@@ -25,7 +25,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectFeeAssetById,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -71,7 +71,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const feeAsset = useAppSelector(state =>
     sellAsset
       ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
-      : selectAssetByAssetId(state, 'eip155:1/slip44:60'),
+      : selectAssetById(state, 'eip155:1/slip44:60'),
   )
   const feeAssetBalance = useAppSelector(state =>
     feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null,

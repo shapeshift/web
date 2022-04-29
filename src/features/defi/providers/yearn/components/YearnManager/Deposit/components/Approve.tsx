@@ -14,7 +14,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssetByAssetId, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositPath, YearnDepositActionType } from '../DepositCommon'
@@ -43,10 +43,10 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAsset = useAppSelector(state => selectAssetByAssetId(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
   // user info

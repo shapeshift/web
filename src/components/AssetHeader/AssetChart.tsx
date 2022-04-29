@@ -34,7 +34,7 @@ import {
   selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/portfolioSlice/selectors'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
@@ -60,7 +60,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0

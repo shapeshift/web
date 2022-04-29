@@ -11,7 +11,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -38,7 +38,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   const assetNamespace = AssetNamespace.ERC20
   const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
 
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
 

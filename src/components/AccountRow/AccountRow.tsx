@@ -6,7 +6,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceByAssetId,
@@ -25,7 +25,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])
 
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoValue = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, assetId),

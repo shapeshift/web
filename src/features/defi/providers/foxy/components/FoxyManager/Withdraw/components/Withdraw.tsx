@@ -18,7 +18,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -50,7 +50,7 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
     assetNamespace,
     assetReference: rewardId,
   })
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
 

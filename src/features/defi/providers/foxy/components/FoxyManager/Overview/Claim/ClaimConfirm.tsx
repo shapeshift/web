@@ -23,7 +23,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetByAssetId, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
@@ -53,14 +53,14 @@ export const ClaimConfirm = ({
 
   // Asset Info
   const network = NetworkTypes.MAINNET
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetByAssetId(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
   const toast = useToast()

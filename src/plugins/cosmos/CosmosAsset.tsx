@@ -4,7 +4,7 @@ import { Page } from 'components/Layout/Page'
 import { LoadingAsset } from 'pages/Assets/LoadingAsset'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectMarketDataLoadingById,
 } from 'state/slices/selectors'
@@ -22,7 +22,7 @@ export const CosmosAsset = () => {
 
   const { chainRef, assetSubId } = useParams<MatchParams>()
   const assetId = `cosmos:${chainRef}/${assetSubId}`
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   if (!marketData) dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))

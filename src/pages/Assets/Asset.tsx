@@ -6,7 +6,7 @@ import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByAssetId,
+  selectAssetById,
   selectMarketDataById,
   selectMarketDataLoadingById,
 } from 'state/slices/selectors'
@@ -23,7 +23,7 @@ export const useAsset = () => {
 
   const params = useParams<MatchParams>()
   const assetId = `${params.chainId}/${params.assetSubId}`
-  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // Many, but not all, assets are initialized with market data on app load. This dispatch will

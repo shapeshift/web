@@ -13,7 +13,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -51,7 +51,7 @@ enum View {
 
 type AssetChartProps = {
   accountId?: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
   isLoaded: boolean
 }
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {

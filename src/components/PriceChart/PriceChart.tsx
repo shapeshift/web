@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { Card } from 'components/Card/Card'
@@ -14,7 +14,7 @@ import { useAppSelector } from 'state/store'
 import { InformationalAlert } from '../InformationalAlert/InformationalAlert'
 
 type PriceChartArgs = {
-  assetId: CAIP19
+  assetId: AssetId
   timeframe: HistoryTimeframe
   percentChange: number
   setPercentChange: (percentChange: number) => void

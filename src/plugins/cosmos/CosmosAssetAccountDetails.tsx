@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
@@ -16,7 +16,7 @@ import { selectFeatureFlag } from '../../state/slices/preferencesSlice/selectors
 import { useAppSelector } from '../../state/store'
 
 type AssetDetailsProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 

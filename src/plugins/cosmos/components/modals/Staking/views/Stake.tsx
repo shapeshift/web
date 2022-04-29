@@ -11,7 +11,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
@@ -36,7 +36,7 @@ import { Field, InputType, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   apr: string
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
 }
 
@@ -220,6 +220,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
             <Link
               color={'blue.200'}
               fontWeight='bold'
+              target='_blank'
               href='/#/legal/privacy-policy'
               onClick={cosmosStaking.close}
             >

@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
@@ -33,7 +33,7 @@ export type AmountByValidatorAddressType = {
 
 // accountId is optional, but we should always pass an assetId when using these params
 type OptionalParamFilter = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 
@@ -50,20 +50,20 @@ export const selectStakingDataIsLoaded = (state: ReduxState) =>
   state.stakingData.status === 'loaded'
 export const selectValidatorIsLoaded = (state: ReduxState) =>
   state.stakingData.validatorStatus === 'loaded'
-const selectAccountSpecifierParam = (_state: ReduxState, accountSpecifier: CAIP10) =>
+const selectAccountSpecifierParam = (_state: ReduxState, accountSpecifier: AccountId) =>
   accountSpecifier
 
 const selectValidatorAddress = (
   _state: ReduxState,
-  accountSpecifier: CAIP10,
+  accountSpecifier: AccountId,
   validatorAddress: PubKey,
 ) => validatorAddress
 
 const selectAssetIdParam = (
   _state: ReduxState,
-  accountSpecifier: CAIP10,
+  accountSpecifier: AccountId,
   validatorAddress: PubKey,
-  assetId: CAIP19,
+  assetId: AssetId,
 ) => assetId
 
 export const selectStakingData = (state: ReduxState) => state.stakingData

@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { Card } from 'components/Card/Card'
@@ -11,7 +11,7 @@ import { selectBalanceHistoryAvailableByAssetsAndTimeframe } from 'state/slices/
 import { useAppSelector } from 'state/store'
 
 type BalanceChartArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   accountId?: AccountSpecifier
   timeframe: HistoryTimeframe
   percentChange: number

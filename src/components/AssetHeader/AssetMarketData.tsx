@@ -1,7 +1,7 @@
 import { BoxProps, SimpleGrid, TextProps } from '@chakra-ui/layout'
 import { Skeleton } from '@chakra-ui/skeleton'
 import { StatArrow } from '@chakra-ui/stat'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
@@ -13,7 +13,7 @@ import { useAppSelector } from 'state/store'
 import { InformationalAlert } from '../InformationalAlert/InformationalAlert'
 
 type AssetMarketDataProps = {
-  assetId: CAIP19
+  assetId: AssetId
   isLoaded?: boolean
 }
 

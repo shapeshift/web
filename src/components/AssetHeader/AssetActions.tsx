@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, ButtonGroup, Link } from '@chakra-ui/react'
+import { Button, Link, Stack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
@@ -34,13 +34,11 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   return (
-    <ButtonGroup
-      ml={{ base: 0, md: 'auto' }}
+    <Stack
+      ml={{ base: 0, lg: 'auto' }}
       mt={{ base: 6, lg: 0 }}
-      spacing={{ base: 0, md: '0.5rem' }}
+      direction={{ base: 'column-reverse', md: 'row' }}
       width={{ base: 'full', md: 'auto' }}
-      flexWrap={{ base: 'wrap', md: 'nowrap' }}
-      justifyContent={{ base: 'space-between', md: 'inherit' }}
     >
       <Button
         as={Link}
@@ -51,29 +49,30 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           asset?.tokenId ?? ''
         }`}
         variant='solid'
+        width={{ base: '100%', md: 'auto' }}
         isExternal
-        width={{ base: 'full', md: 'auto' }}
-        mt={{ base: '0.5rem', md: '0' }}
       >
         {translate('defi.viewOnChain')}
       </Button>
-      <Button
-        onClick={handleSendClick}
-        leftIcon={<ArrowUpIcon />}
-        isDisabled={!hasValidBalance}
-        width='full'
-        data-test='asset-action-send'
-      >
-        {translate('common.send')}
-      </Button>
-      <Button
-        onClick={handleReceiveClick}
-        leftIcon={<ArrowDownIcon />}
-        width='full'
-        data-test='asset-action-receive'
-      >
-        {translate('common.receive')}
-      </Button>
-    </ButtonGroup>
+      <Stack direction='row'>
+        <Button
+          onClick={handleSendClick}
+          leftIcon={<ArrowUpIcon />}
+          width={{ base: '100%', md: 'auto' }}
+          isDisabled={!hasValidBalance}
+          data-test='asset-action-send'
+        >
+          {translate('common.send')}
+        </Button>
+        <Button
+          onClick={handleReceiveClick}
+          leftIcon={<ArrowDownIcon />}
+          width={{ base: '100%', md: 'auto' }}
+          data-test='asset-action-receive'
+        >
+          {translate('common.receive')}
+        </Button>
+      </Stack>
+    </Stack>
   )
 }

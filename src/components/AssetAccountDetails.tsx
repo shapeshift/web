@@ -24,7 +24,7 @@ type AssetDetailsProps = {
 }
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
-  const isAssetAvailable = useAppSelector(state =>
+  const isMarketDataAvailable = useAppSelector(state =>
     selectMarketDataAvailableByAssetId(state, caip19),
   )
   return (
@@ -45,7 +45,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
           <TradeCard defaultBuyAssetId={caip19} />
-          {isAssetAvailable && <AssetMarketData assetId={caip19} />}
+          {isMarketDataAvailable && <AssetMarketData assetId={caip19} />}
           <AssetDescription assetId={caip19} />
         </Stack>
       </Stack>

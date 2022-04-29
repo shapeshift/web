@@ -36,10 +36,10 @@ type GetQuoteInput = {
   action?: TradeActions
 }
 
-interface GetQuoteFromSwapper<C extends ChainTypes, S extends SwapperType> extends GetQuoteInput {
+interface GetQuoteFromSwapper<C extends ChainTypes> extends GetQuoteInput {
   sellAsset: Asset
   buyAsset: Asset
-  onFinish: (quote: Quote<C, S>) => void
+  onFinish: (quote: Quote<C>) => void
 }
 
 export enum TRADE_ERRORS {
@@ -170,7 +170,7 @@ export const useSwapper = () => {
     sellAsset: Asset
     buyAsset: Asset
     amount: string
-  }): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
+  }): Promise<Quote<ChainTypes> | undefined> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: buyAsset.caip19,
       sellAssetId: sellAsset.caip19,
@@ -253,13 +253,13 @@ export const useSwapper = () => {
     return result
   }
 
-  const getQuoteFromSwapper = async <C extends ChainTypes, S extends SwapperType>({
+  const getQuoteFromSwapper = async <C extends ChainTypes>({
     amount,
     sellAsset,
     buyAsset,
     action,
     onFinish,
-  }: GetQuoteFromSwapper<C, S>) => {
+  }: GetQuoteFromSwapper<C>) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
@@ -359,7 +359,7 @@ export const useSwapper = () => {
     }
     const feeAssetPrecision = feeAsset.precision
 
-    const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
+    const onFinish = (quote: Quote<ChainTypes>) => {
       if (isComponentMounted.current) {
         const { sellAsset, buyAsset, action, fiatAmount } = getValues()
 
@@ -390,7 +390,7 @@ export const useSwapper = () => {
       }
     }
 
-    await getQuoteFromSwapper<typeof sellAsset.currency.chain, typeof SwapperType.Zrx>({
+    await getQuoteFromSwapper<typeof sellAsset.currency.chain>({
       amount: formattedAmount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
@@ -416,7 +416,7 @@ export const useSwapper = () => {
     })
   }
 
-  const setFees = async (result: Quote<ChainTypes, SwapperType>, sellAsset: Asset) => {
+  const setFees = async (result: Quote<ChainTypes>, sellAsset: Asset) => {
     const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
     const feeBN = bnOrZero(result?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feePrecision))
     const fee = feeBN.toString()
@@ -424,7 +424,7 @@ export const useSwapper = () => {
     switch (sellAsset.chain) {
       case ChainTypes.Ethereum:
         {
-          const ethResult = result as Quote<ChainTypes.Ethereum, SwapperType.Zrx>
+          const ethResult = result as Quote<ChainTypes.Ethereum>
           const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
             ? bn(ethResult.feeData.chainSpecific.approvalFee)
                 .dividedBy(bn(10).exponentiatedBy(18))
@@ -434,7 +434,7 @@ export const useSwapper = () => {
           const gasPrice = bnOrZero(ethResult?.feeData?.chainSpecific.gasPrice).toString()
           const estimatedGas = bnOrZero(ethResult?.feeData?.chainSpecific.estimatedGas).toString()
 
-          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
+          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum> = {
             fee,
             chainSpecific: {
               approvalFee,

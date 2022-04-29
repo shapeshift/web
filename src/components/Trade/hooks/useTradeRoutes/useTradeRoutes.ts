@@ -1,5 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -19,7 +19,7 @@ export const useTradeRoutes = (
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TradeState<ChainTypes, SwapperType>>()
+  const { getValues, setValue } = useFormContext<TradeState<ChainTypes>>()
   const { getQuote, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')

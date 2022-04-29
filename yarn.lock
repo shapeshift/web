@@ -3788,10 +3788,17 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
+<<<<<<< HEAD
 "@shapeshiftoss/asset-service@^2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.4.0.tgz#179ade182c450dcb61a0f346148283a0b3bdc4b8"
   integrity sha512-xCeleiG70wbQr8yi0BXzrPlyyt7wk6en0ErhNTuJb3wj8hUAPAtkp9dzVMkD6XzXloIzbFlq1OdOefQfYgd9Eg==
+=======
+"@shapeshiftoss/asset-service@^2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.4.1.tgz#eda8205ba065b36db7469d9466cfc004b99394be"
+  integrity sha512-SOhuhf/X6Ki5NuFqbBdPW0NopLJWpxninU8TzNyY+EyUnAdMk/D1TASNFeSZzGOJrtXbY9j2SNgL4cjTU9WklQ==
+>>>>>>> develop
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"
@@ -3820,10 +3827,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^6.9.0":
-  version "6.9.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.9.0.tgz#cc4c0d9ed3f31cc584ff41e78e6504191a44881e"
-  integrity sha512-GJ9QAeJl/oZwovxjt5nlmlFdHGqHmf0l39v+5VXvEwqjSgKevfE7FXWl0idTCvfIpgezp9yeQbTGT8fatle1UA==
+"@shapeshiftoss/blockbook@^6.10.0":
+  version "6.10.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.10.0.tgz#2dac224eb30ccb6a75caf1da21636d7431f139dc"
+  integrity sha512-9C/zN+tkVz5/juHd90mXi3s1r7lRIASNyQhni8FwBPyZjkDgs0Pzcw9wxclp59W9sQWf0gHwpZvPEOyFGb5kxA==
   dependencies:
     axios "^0.26.0"
     express "^4.17.1"
@@ -4042,10 +4049,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-2.3.0.tgz#15d90542af5e036b142464e83035ae59467a8640"
-  integrity sha512-UGiUM4r56pmic+z1RT/MZ0eXMIt+sQSUmsr4IfA83vWKhQimoXqW46pUEDPMyp0gN7rytP/HoRIEL25nsK8kmQ==
+"@shapeshiftoss/swapper@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-3.0.0.tgz#896338a83b413273f0009928ce56219ae1a09060"
+  integrity sha512-ImpPVTq064BOV+nxA1tHM/vQ3lYsXorS5zsNMNxoBYdNyHQVUqevu9tpufPvkabYPZAhFjSRtFhx9/kv7CG8kg==
   dependencies:
     axios "^0.26.0"
     bignumber.js "^9.0.1"
@@ -4053,17 +4060,22 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.11.0":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.11.0.tgz#b2c9a400b1467e645e290c9fd3d94b90d223006e"
-  integrity sha512-a2DuYcgWNfMTGenytXZ/pn1peeiFBT8+5rziGu+uCWiOsOzK7OKpjhqRnolUXoLqymedps7IFZJVookEep9k/A==
+"@shapeshiftoss/types@^2.0.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.10.0.tgz#7b1e4028ae048ea2a49c44d962bd0809ca1c4163"
+  integrity sha512-WScuXKhuH5BzLQCcpnENN8s6zYaYzHy3F54FnOrjaocXkVZJe2//uUeT9aM0WcRl5I3d65giqPTTvbgBr+Yjug==
 
-"@shapeshiftoss/unchained-client@^6.7.0":
-  version "6.9.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.9.0.tgz#0eb8ae13187e835ecead14c50f348a8765e7e4d6"
-  integrity sha512-CZFwv27OghWYqH/8vPnmIuL3pjZYu6NRIz9nBse9coKHDXO3OVA0J81xp0ck5yTmnqtZHODWkCjHZWHAiCsSPg==
+"@shapeshiftoss/types@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.0.0.tgz#5ee5189d0e80765e1d1b95de866d1a8a1bab16e3"
+  integrity sha512-ncMLfOqC16tIPpic/YW467h3+JhMcKKChEEU+f27HYXw8WTonR1UMZ/imh7UDE589I85MJFJQk/ajBujN1vy6w==
+
+"@shapeshiftoss/unchained-client@^6.10.0":
+  version "6.10.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.10.0.tgz#3fb20c095e4aab487f1cf215a91f64b3d0d515c7"
+  integrity sha512-YFPYj11XE3JMHiEFVvTtK3UWiPgpNfIUESqtSz3ucaef8cjCvspkS3Bewx8oF0HwtOdtD+OFI+LM0jyat2bfPw==
   dependencies:
-    "@shapeshiftoss/blockbook" "^6.9.0"
+    "@shapeshiftoss/blockbook" "^6.10.0"
     "@shapeshiftoss/caip" "^2.0.0"
     "@shapeshiftoss/logger" "^1.0.0"
     "@shapeshiftoss/types" "^2.0.0"

@@ -52,7 +52,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   if (data.length === 0)
     return (
       <Card.Body p={0}>
-        <InformationalAlert translation='assets.assetDetails.assetHeader.priceHistoryUnavailable' />
+        <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />
       </Card.Body>
     )
 

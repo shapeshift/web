@@ -45,7 +45,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   if (!balanceChartDataLoading && !isAtLeastOnePriceHistoryAvailable)
     return (
       <Card.Body p={0}>
-        <InformationalAlert translation='assets.assetDetails.assetHeader.balanceHistoryUnavailable' />
+        <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />
       </Card.Body>
     )
 

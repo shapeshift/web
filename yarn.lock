@@ -3788,10 +3788,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.3.1.tgz#862699948a6af621f97c0b1866af0d3966df4866"
-  integrity sha512-SWXN/dpxG+T6GnBbjH6OGoaWqhy5qqr4yC4xzi0rndPyrzpNHYBSAQnt2IrlhqDijpSJtHplHB+0WhgiZIvJ3A==
+"@shapeshiftoss/asset-service@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.4.0.tgz#179ade182c450dcb61a0f346148283a0b3bdc4b8"
+  integrity sha512-xCeleiG70wbQr8yi0BXzrPlyyt7wk6en0ErhNTuJb3wj8hUAPAtkp9dzVMkD6XzXloIzbFlq1OdOefQfYgd9Eg==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"
@@ -4051,10 +4051,10 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.9.1":
-  version "2.9.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.9.1.tgz#cb701df1f171ddeca646b1e5688607ce52151a7b"
-  integrity sha512-4OzKwqVb+iMhzO2OmmrzQux2QJCe4RCZeeGXJLIbU7uDpFrQjiChnb6aC9bXdtdpA4ufHbVnTzALhj1Fq+yVSw==
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.11.0":
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.11.0.tgz#b2c9a400b1467e645e290c9fd3d94b90d223006e"
+  integrity sha512-a2DuYcgWNfMTGenytXZ/pn1peeiFBT8+5rziGu+uCWiOsOzK7OKpjhqRnolUXoLqymedps7IFZJVookEep9k/A==
 
 "@shapeshiftoss/unchained-client@^6.7.0":
   version "6.7.0"

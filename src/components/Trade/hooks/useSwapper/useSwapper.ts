@@ -85,12 +85,12 @@ export const useSwapper = () => {
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
-    return assets.filter(asset => assetIdMap[asset.caip19])
+    return assets.filter(asset => assetIdMap[asset.assetId])
   }
 
   const getSupportedSellableAssets = useCallback(
     (assets: Asset[]) => {
-      const assetIds = assets.map(asset => asset.caip19)
+      const assetIds = assets.map(asset => asset.assetId)
       const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({ assetIds })
       return filterAssetsByIds(assets, sellableAssetIds)
     },
@@ -99,10 +99,10 @@ export const useSwapper = () => {
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
     (assets: Asset[]): Asset[] => {
-      const assetIds = assets.map(asset => asset.caip19)
+      const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
         assetIds,
-        sellAssetId: sellAsset.currency.caip19,
+        sellAssetId: sellAsset.currency.assetId,
       })
       return filterAssetsByIds(assets, supportedBuyAssetIds)
     },
@@ -128,8 +128,8 @@ export const useSwapper = () => {
     estimatedGasFees: string | undefined
   }) => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: buyAsset.currency.caip19,
-      sellAssetId: sellAsset.currency.caip19,
+      buyAssetId: buyAsset.currency.assetId,
+      sellAssetId: sellAsset.currency.assetId,
     })
 
     const { minimum: minimumAmount } = await swapper?.getMinMax({
@@ -154,7 +154,7 @@ export const useSwapper = () => {
 
     // to account for gas fees when trading Max ETH
     const gasDeduction =
-      feeAsset.caip19 === sellAsset.currency.caip19
+      feeAsset.assetId === sellAsset.currency.assetId
         ? bnOrZero(estimatedGasFees ?? quoteEstimatedGasFees)
         : bn(0)
 
@@ -185,8 +185,8 @@ export const useSwapper = () => {
     amount: string
   }): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: buyAsset.caip19,
-      sellAssetId: sellAsset.caip19,
+      buyAssetId: buyAsset.assetId,
+      sellAssetId: sellAsset.assetId,
     })
 
     const { minimum } = await swapper.getMinMax({
@@ -258,8 +258,8 @@ export const useSwapper = () => {
     wallet: HDWallet
   }): Promise<ExecQuoteOutput | undefined> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.caip19,
-      sellAssetId: quote.sellAsset.caip19,
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
     })
 
     const result = await swapper.executeQuote({ quote, wallet })
@@ -279,8 +279,8 @@ export const useSwapper = () => {
       if (isComponentMounted.current) {
         try {
           const swapper = await swapperManager.getBestSwapper({
-            buyAssetId: buyAsset.caip19,
-            sellAssetId: sellAsset.caip19,
+            buyAssetId: buyAsset.assetId,
+            sellAssetId: sellAsset.assetId,
           })
           let convertedAmount =
             action === TradeActions.BUY ? { buyAmount: amount } : { sellAmount: amount }
@@ -420,8 +420,8 @@ export const useSwapper = () => {
     tokenId?: string
   }): Promise<string> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.caip19,
-      sellAssetId: quote.sellAsset.caip19,
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
     })
     return swapper?.getUsdRate({
       symbol,
@@ -466,8 +466,8 @@ export const useSwapper = () => {
 
   const checkApprovalNeeded = async (wallet: HDWallet | NativeHDWallet): Promise<boolean> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.caip19,
-      sellAssetId: quote.sellAsset.caip19,
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
     })
     const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
@@ -475,8 +475,8 @@ export const useSwapper = () => {
 
   const approveInfinite = async (wallet: HDWallet | NativeHDWallet): Promise<string> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.caip19,
-      sellAssetId: quote.sellAsset.caip19,
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
     })
     const txid = await swapper.approveInfinite({ quote, wallet })
     return txid

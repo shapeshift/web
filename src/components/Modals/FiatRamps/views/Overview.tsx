@@ -22,7 +22,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  assetIdtoChainId,
+  assetIdToChainId,
   btcChainId,
   ChainIdType,
   cosmosChainId,
@@ -67,7 +67,7 @@ const generateAddresses: GenerateAddresses = props => {
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
-  const chainId = assetIdtoChainId(assetId)
+  const chainId = assetIdToChainId(assetId)
   switch (chainId) {
     case ethChainId:
       return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
@@ -117,7 +117,7 @@ export const Overview: React.FC<OverviewProps> = ({
   useEffect(() => {
     if (!wallet) return
     supportsAddressVerifying && setSupportsAddressVerifying(true)
-    setChainId(assetIdtoChainId(selectedAsset?.assetId ?? '') ?? ethChainId)
+    setChainId(assetIdToChainId(selectedAsset?.assetId ?? '') ?? ethChainId)
     // supportsAddressVerifying will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])

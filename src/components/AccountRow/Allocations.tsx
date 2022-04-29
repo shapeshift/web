@@ -1,6 +1,6 @@
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
 
-export const Allocations = ({ value, color }: { value: number; color?: string }) => {
+export const Allocations = ({ value }: { value: number }) => {
   return (
     <Flex
       height='8px'

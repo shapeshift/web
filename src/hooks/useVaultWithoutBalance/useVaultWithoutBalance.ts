@@ -51,7 +51,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
 
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
-      (acc: Record<string, YearnVaultWithApyAndTvl>, [index, vault]) => {
+      (acc: Record<string, YearnVaultWithApyAndTvl>, [_, vault]) => {
         const yearnVault = yearn?.findByVaultTokenId(vault.vaultAddress)
         acc[vault.vaultAddress] = {
           ...vault,

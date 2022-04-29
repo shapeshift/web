@@ -17,8 +17,8 @@ import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
 export const selectAssetByAssetId = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
-  (_state: ReduxState, CAIP19: AssetId) => CAIP19,
-  (byId, CAIP19) => byId[CAIP19] || undefined,
+  (_state: ReduxState, assetId: AssetId) => assetId,
+  (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 export const selectAssetNameById = createSelector(selectAssetByAssetId, asset =>

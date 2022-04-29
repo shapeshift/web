@@ -71,6 +71,7 @@ export const LegacyLogin = () => {
       // Clear the form state on success.
       reset()
     } catch (err) {
+      setError(false)
       setCaptchaSolution(null)
       if (isLoginError(err)) {
         if (

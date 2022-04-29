@@ -15,7 +15,7 @@ export const FriendlyCaptcha = ({ handleCaptcha, solution }: FriendlyCaptchaProp
 
   useEffect(() => {
     if (widget.current && !solution) {
-      widget.current.reset()
+      widget.current?.reset?.()
     }
   }, [solution])
 

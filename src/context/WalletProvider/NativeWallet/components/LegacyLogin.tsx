@@ -76,6 +76,7 @@ export const LegacyLogin = () => {
           err.response.status === loginErrors.twoFactorRequired.httpCode &&
           err.response.data.error.msg === loginErrors.twoFactorRequired.msg
         ) {
+          setCaptchaSolution(null)
           setTwoFactorRequired(true)
           return
         }
@@ -198,6 +199,16 @@ export const LegacyLogin = () => {
               />
               <FormErrorMessage>{errors.twoFactorCode?.message}</FormErrorMessage>
             </FormControl>
+            {isTwoFactorRequired ? (
+              <FormControl isInvalid={!captchaSolution} mb={4} mt={6}>
+                <Box flexDir={'row'} justifyContent='center' alignItems={'center'}>
+                  <FriendlyCaptcha handleCaptcha={setCaptchaSolution} />
+                </Box>
+                <FormErrorMessage>
+                  {translate('walletProvider.shapeShift.invalidCaptcha')}
+                </FormErrorMessage>
+              </FormControl>
+            ) : null}
           </Box>
 
           {error && (

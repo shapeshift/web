@@ -38,7 +38,7 @@ const caip2toCaip19: Record<string, string> = {
   [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118',
 }
 
-export const assetIdtoChainId = (caip19: AssetId): ChainIdType =>
+export const assetIdToChainId = (caip19: AssetId): ChainIdType =>
   caip19.split('/')[0] as ChainIdType
 
 export const accountIdToChainId = (accountId: AccountSpecifier): ChainId => {
@@ -140,7 +140,7 @@ export const findAccountsByAssetId = (
   // return the account(s) for that given assets chain
   if (result.length === 0) {
     return Object.keys(portfolioAccounts).filter(
-      accountId => assetIdtoChainId(assetId) === accountIdToChainId(accountId),
+      accountId => assetIdToChainId(assetId) === accountIdToChainId(accountId),
     )
   }
   return result

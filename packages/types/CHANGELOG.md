@@ -1,3 +1,15 @@
+# [@shapeshiftoss/types-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.11.0...@shapeshiftoss/types-v3.0.0) (2022-04-29)
+
+
+### Features
+
+* remove swappertype from quote fee type ([#569](https://github.com/shapeshift/lib/issues/569)) ([303dfb1](https://github.com/shapeshift/lib/commit/303dfb1fd1b27c00075c0921d1478e93cb9feeff))
+
+
+### BREAKING CHANGES
+
+* removed SwapperType generic
+
 # [@shapeshiftoss/types-v2.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.10.1...@shapeshiftoss/types-v2.11.0) (2022-04-28)
 
 

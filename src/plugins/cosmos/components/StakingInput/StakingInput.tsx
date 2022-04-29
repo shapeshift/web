@@ -21,7 +21,6 @@ const cryptoInputValidation = {
   validate: {
     validateCryptoAmount: (cryptoAmount: string) => {
       if (bnOrZero(cryptoAmount).isZero()) return false
-      // TODO: Implement when we have cosmos/osmosis balance data
       return true
     },
   },

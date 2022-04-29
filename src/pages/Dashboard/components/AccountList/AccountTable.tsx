@@ -68,7 +68,7 @@ export const AccountTable = () => {
         accessor: 'price',
         isNumeric: true,
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+        Cell: ({ value }: { value: string }) => (
           <Amount.Fiat color={textColor} value={value} lineHeight='tall' />
         ),
       },

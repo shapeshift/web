@@ -1,6 +1,5 @@
 import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
 import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchPath } from 'react-router'
@@ -17,11 +16,7 @@ import { useAppSelector } from 'state/store'
 import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-type FoxyDetailsProps = {
-  api: FoxyApi
-}
-
-export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
+export const FoxyDetails = () => {
   const { opportunities, loading } = useFoxyBalances()
   const {
     query,

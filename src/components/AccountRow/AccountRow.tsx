@@ -100,7 +100,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
         )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-        <Allocations value={allocationValue} color={asset.color} />
+        <Allocations value={allocationValue} />
       </Flex>
     </SimpleGrid>
   )

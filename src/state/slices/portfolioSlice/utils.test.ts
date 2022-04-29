@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 
 import {
@@ -168,7 +168,7 @@ describe('makeBalancesByChainBucketsFlattened', () => {
     'eip155:1/slip44:60': {
       chain: 'ethereum',
     },
-  } as unknown as { [k: CAIP19]: Asset }
+  } as unknown as { [k: AssetId]: Asset }
 
   it('makes flattened balances by chain buckets - mixed assets', () => {
     const accountBalances = [

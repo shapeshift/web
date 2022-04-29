@@ -1,4 +1,4 @@
-import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { WithdrawInfo } from '@shapeshiftoss/investor-foxy/dist/api/foxy-types'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
@@ -29,9 +29,9 @@ export type FoxyOpportunity = {
   expired?: boolean
   apy?: string
   balance: string
-  contractCaip19: CAIP19
-  tokenCaip19: CAIP19
-  rewardTokenCaip19: CAIP19
+  contractCaip19: AssetId
+  tokenCaip19: AssetId
+  rewardTokenCaip19: AssetId
   pricePerShare: BigNumber
   withdrawInfo: WithdrawInfo
 }

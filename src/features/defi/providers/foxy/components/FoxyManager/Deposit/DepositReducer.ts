@@ -1,5 +1,6 @@
 import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FoxyDepositActions, FoxyDepositActionType, FoxyDepositState } from './DepositCommon'
@@ -34,7 +35,8 @@ export const initialState: FoxyDepositState = {
 export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => {
   switch (action.type) {
     case FoxyDepositActionType.SET_OPPORTUNITY:
-      return { ...state, foxyOpportunity: { ...state.foxyOpportunity, ...action.payload } }
+      const apy = bnOrZero(getConfig().REACT_APP_FOXY_APY).toString() // delete when Tokemak api is setup
+      return { ...state, foxyOpportunity: { ...state.foxyOpportunity, ...action.payload, apy } }
     case FoxyDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case FoxyDepositActionType.SET_DEPOSIT:

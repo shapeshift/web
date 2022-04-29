@@ -9,7 +9,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
@@ -46,7 +46,7 @@ export enum InputType {
 }
 
 type StakeProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountSpecifier: string
   validatorAddress: string
   onCancel: () => void

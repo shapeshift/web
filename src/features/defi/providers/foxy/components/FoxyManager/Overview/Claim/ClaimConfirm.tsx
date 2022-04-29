@@ -8,7 +8,7 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -27,7 +27,7 @@ import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
-  assetId: CAIP19
+  assetId: AssetId
   amount?: string
   contractAddress: string
   chain: ChainTypes

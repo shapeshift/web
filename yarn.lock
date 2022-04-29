@@ -2833,6 +2833,11 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.1.0":
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.11.0.tgz#b2c9a400b1467e645e290c9fd3d94b90d223006e"
+  integrity sha512-a2DuYcgWNfMTGenytXZ/pn1peeiFBT8+5rziGu+uCWiOsOzK7OKpjhqRnolUXoLqymedps7IFZJVookEep9k/A==
+
 "@shapeshiftoss/unchained-client@^6.6.0":
   version "6.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.6.0.tgz#59f919c18a38400d97a3137d3c73c9a812c0ebd6"
@@ -11661,25 +11666,7 @@ ts-jest@^27.0.5:
     semver "7.x"
     yargs-parser "20.x"
 
-ts-node@^10.2.1:
-  version "10.4.0"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.4.0.tgz#680f88945885f4e6cf450e7f0d6223dd404895f7"
-  integrity sha512-g0FlPvvCXSIO1JDF6S232P5jPYqBkRL9qly81ZgAOSU7rwI0stphCgd2kLiCrU9DjQCrJMWEqcNSjQL02s6d8A==
-  dependencies:
-    "@cspotcode/source-map-support" "0.7.0"
-    "@tsconfig/node10" "^1.0.7"
-    "@tsconfig/node12" "^1.0.7"
-    "@tsconfig/node14" "^1.0.0"
-    "@tsconfig/node16" "^1.0.2"
-    acorn "^8.4.1"
-    acorn-walk "^8.1.1"
-    arg "^4.1.0"
-    create-require "^1.1.0"
-    diff "^4.0.1"
-    make-error "^1.1.1"
-    yn "3.1.1"
-
-ts-node@^10.7.0:
+ts-node@^10.2.1, ts-node@^10.7.0:
   version "10.7.0"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.7.0.tgz#35d503d0fab3e2baa672a0e94f4b40653c2463f5"
   integrity sha512-TbIGS4xgJoX2i3do417KSaep1uRAW/Lu+WAL2doDHC0D6ummjirVOXU5/7aiZotbQ5p1Zp9tP7U6cYhA0O7M8A==

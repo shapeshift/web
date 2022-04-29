@@ -64,7 +64,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const isAssetAvailable = useAppSelector(state =>
+  const isMarketDataAvailable = useAppSelector(state =>
     selectMarketDataAvailableByAssetId(state, assetId),
   )
   const { price } = marketData || {}
@@ -85,7 +85,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectTotalStakingDelegationCryptoByFilter(state, filter),
   )
 
-  if (!isAssetAvailable)
+  if (!isMarketDataAvailable)
     return (
       <Card>
         <InformationalAlert translation='assets.assetDetails.assetHeader.assetUnavailable' />

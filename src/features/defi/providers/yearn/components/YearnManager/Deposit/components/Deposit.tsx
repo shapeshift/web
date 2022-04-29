@@ -42,7 +42,9 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: assetCAIP19 }),
+  )
 
   // notify
   const toast = useToast()

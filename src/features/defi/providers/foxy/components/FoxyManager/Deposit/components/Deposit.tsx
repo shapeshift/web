@@ -43,7 +43,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
 
   // notify
   const toast = useToast()

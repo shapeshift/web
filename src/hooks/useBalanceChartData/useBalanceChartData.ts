@@ -364,7 +364,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, [dispatch, cosmosCaip10])
 
   const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10),
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
+      accountSpecifier: cosmosAccountSpecifier,
+      assetId: cosmosAssetId,
+    }),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)

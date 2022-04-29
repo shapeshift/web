@@ -62,9 +62,7 @@ export const UnstakeConfirm = ({
   const { handleSubmit, control } = methods
   const { cryptoAmount } = useWatch({ control })
 
-  const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
-  )
+  const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
   const {
     state: { wallet },
   } = useWallet()
@@ -73,7 +71,7 @@ export const UnstakeConfirm = ({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatUnstakeAmount = useMemo(

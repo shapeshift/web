@@ -45,7 +45,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).div(100).toString()
 }
 
-export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
+export const Stake = ({ assetId, apr }: StakeProps) => {
   const {
     control,
     formState: { isValid },

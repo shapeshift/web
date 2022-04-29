@@ -134,7 +134,7 @@ export const AssetAccountRow = ({
       </Flex>
       {showAllocation && (
         <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-          <Allocations value={allocation} color={'#000'} />
+          <Allocations value={allocation} />
         </Flex>
       )}
       {!isCompact && (

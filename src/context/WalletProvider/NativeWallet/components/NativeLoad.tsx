@@ -128,7 +128,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
       </ModalHeader>
       <ModalBody>
         <VStack mx={-4} spacing={0}>
-          {wallets.map((wallet, i) => {
+          {wallets.map(wallet => {
             return (
               <Row
                 key={wallet.id}

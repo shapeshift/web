@@ -80,7 +80,6 @@ export const useSwapper = () => {
     return manager
   })
 
-  const [bestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
@@ -403,7 +402,7 @@ export const useSwapper = () => {
       }
     }
 
-    await getQuoteFromSwapper<typeof sellAsset.currency.chain, typeof bestSwapperType>({
+    await getQuoteFromSwapper<typeof sellAsset.currency.chain, typeof SwapperType.Zrx>({
       amount: formattedAmount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,

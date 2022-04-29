@@ -12,7 +12,7 @@ type SelectAssetProps = {
   filterBy: (assets: Asset[]) => Asset[]
 } & RouteComponentProps
 
-export const SelectAsset = ({ onClick, history, filterBy }: SelectAssetProps) => {
+export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history, filterBy }) => {
   const handleBack = () => {
     history.push('/trade/input')
   }

@@ -1,3 +1,4 @@
+import { Box, Text, ToastId, useToast } from '@chakra-ui/react'
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
@@ -7,9 +8,14 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
 } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { InfoToast } from './KeepKey/components/InfoToast'
+import { getKeepKeyVersions } from './KeepKey/utils'
 
 export enum DeviceTimeout {
   TenMinutes = '600000',
@@ -18,6 +24,11 @@ export enum DeviceTimeout {
   ThirtyMinutes = '1800000',
   FortyFiveMinutes = '2700000',
   SixtyMinutes = '3600000',
+}
+
+enum KeepKeyToastIds {
+  FirmwareUpdate = 'update-firmware',
+  BootloaderUpdate = 'update-bootloader',
 }
 
 export const timeoutOptions: readonly RadioOption<DeviceTimeout>[] = Object.freeze([
@@ -101,8 +112,12 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
+  const translate = useTranslate()
+  const toast = useToast()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [state, dispatch] = useReducer(reducer, initialState)
+  const toastFirmwareRef = useRef<ToastId | undefined>()
+  const toastBootloaderRef = useRef<ToastId | undefined>()
 
   const setHasPassphrase = useCallback((payload: boolean | undefined) => {
     dispatch({
@@ -129,6 +144,77 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       )
     })()
   }, [keepKeyWallet, keepKeyWallet?.features, setDeviceTimeout, setHasPassphrase])
+
+  useEffect(() => {
+    if (!keepKeyWallet) return
+    ;(async () => {
+      const features = await keepKeyWallet.getFeatures()
+      const versions = await getKeepKeyVersions(keepKeyWallet, features?.bootloaderHash)
+
+      if (!versions) return
+
+      if (
+        versions.bootloader.updateAvailable &&
+        !toast.isActive(KeepKeyToastIds.BootloaderUpdate)
+      ) {
+        toastBootloaderRef.current = toast({
+          render: () => {
+            return (
+              <InfoToast
+                title={translate('updateToast.keepKey.title')}
+                description={() => (
+                  <Text>
+                    {translate('updateToast.keepKey.newVersion')}
+                    <span> </span>
+                    <Box as='span' fontWeight='bold' color='inherit'>
+                      {translate('updateToast.keepKey.keepkeyBootloader')}
+                    </Box>
+                    <span> </span>
+                    {translate('updateToast.keepKey.availableToDownload')}
+                  </Text>
+                )}
+                cta={translate('updateToast.keepKey.downloadCta')}
+                toastRef={toastBootloaderRef}
+              />
+            )
+          },
+          id: KeepKeyToastIds.BootloaderUpdate,
+          duration: null,
+          isClosable: true,
+          position: 'bottom-right',
+        })
+      }
+
+      if (versions.firmware.updateAvailable && !toast.isActive(KeepKeyToastIds.FirmwareUpdate)) {
+        toastFirmwareRef.current = toast({
+          render: () => {
+            return (
+              <InfoToast
+                title={translate('updateToast.keepKey.title')}
+                description={() => (
+                  <Text>
+                    {translate('updateToast.keepKey.newVersion')}
+                    <span> </span>
+                    <Box as='span' fontWeight='bold' color='inherit'>
+                      {translate('updateToast.keepKey.keepkeyFirmware')}
+                    </Box>
+                    <span> </span>
+                    {translate('updateToast.keepKey.availableToDownload')}
+                  </Text>
+                )}
+                cta={translate('updateToast.keepKey.downloadCta')}
+                toastRef={toastFirmwareRef}
+              />
+            )
+          },
+          id: KeepKeyToastIds.FirmwareUpdate,
+          duration: null,
+          isClosable: true,
+          position: 'bottom-right',
+        })
+      }
+    })()
+  }, [keepKeyWallet, toast, translate])
 
   const value: IKeepKeyContext = useMemo(
     () => ({

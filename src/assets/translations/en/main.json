@@ -62,7 +62,15 @@
   },
   "updateToast": {
     "body": "A new version of the app is available",
-    "cta": "Reload App"
+    "cta": "Reload App",
+    "keepKey": {
+      "title": "KeepKey Update Available",
+      "newVersion": "A new version of the",
+      "availableToDownload": "is available to download",
+      "downloadCta": "Download Update",
+      "keepkeyFirmware": "KeepKey Firmware",
+      "keepkeyBootloader": "KeepKey Bootloader"
+    }
   },
   "dashboard": {
     "portfolio": {
@@ -103,7 +111,7 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell %{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

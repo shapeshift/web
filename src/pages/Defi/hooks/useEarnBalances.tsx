@@ -29,19 +29,18 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   const foxyArray = foxyInvestorFeatureFlag ? foxies : []
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SupportedYearnVault[] = useMemo(() => Object.values(vaults), [vaults])
-  const { activeStakingOpportunities, totalBalance } = useCosmosStakingBalances({
+  const { stakingOpportunities, totalBalance } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
-  const cosmosActiveStakingOpportunities = cosmosInvestorFlag ? activeStakingOpportunities : []
+  const cosmosStakingOpportunities = cosmosInvestorFlag ? stakingOpportunities : []
   const totalCosmosStakingBalance = cosmosInvestorFlag ? totalBalance : bnOrZero(0)
 
   // cosmosStakingOpportunities intentionally set to empty array => we do not need to display staking opportunities with no staking amount
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray,
-    cosmosActiveStakingOpportunities: cosmosActiveStakingOpportunities,
-    cosmosStakingOpportunities: [],
+    cosmosStakingOpportunities,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)

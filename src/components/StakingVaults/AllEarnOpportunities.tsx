@@ -32,20 +32,18 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
-  const { activeStakingOpportunities, stakingOpportunities } = useCosmosStakingBalances({
+  const { stakingOpportunities } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
-  const cosmosActiveStakingOpportunities = cosmosInvestorFlag ? activeStakingOpportunities : []
   const cosmosStakingOpportunities = cosmosInvestorFlag ? stakingOpportunities : []
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosActiveStakingOpportunities,
     cosmosStakingOpportunities,
   })
 

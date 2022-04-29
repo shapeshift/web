@@ -22,7 +22,11 @@ import { RawText, Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetByCAIP19,
+  selectFirstAccountSpecifierByChainId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { ActiveStakingOpportunity } from 'state/slices/stakingDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -37,7 +41,6 @@ type ValidatorNameProps = {
 }
 
 export const ValidatorName = ({ moniker, isStaking, validatorAddress }: ValidatorNameProps) => {
-  const isLoaded = true
   const assetIcon = isStaking
     ? `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/cosmoshub/${validatorAddress}.png`
     : 'https://assets.coincap.io/assets/icons/256/atom.png'
@@ -45,17 +48,14 @@ export const ValidatorName = ({ moniker, isStaking, validatorAddress }: Validato
   return (
     <Box cursor='pointer'>
       <Flex alignItems='center' maxWidth='180px' mr={'-20px'}>
-        <SkeletonCircle boxSize='8' isLoaded={isLoaded} mr={4}>
-          <AssetIcon src={assetIcon} boxSize='8' />
-        </SkeletonCircle>
-        <Skeleton isLoaded={isLoaded} cursor='pointer'>
-          {isStaking && (
-            <Tag colorScheme='blue'>
-              <TagLabel>{moniker}</TagLabel>
-            </Tag>
-          )}
-          {!isStaking && <RawText fontWeight='bold'>{`${moniker}`}</RawText>}
-        </Skeleton>
+        <AssetIcon src={assetIcon} boxSize='8' />
+        {isStaking ? (
+          <Tag colorScheme='blue'>
+            <TagLabel>{moniker}</TagLabel>
+          </Tag>
+        ) : (
+          <RawText fontWeight='bold'>{`${moniker}`}</RawText>
+        )}
       </Flex>
     </Box>
   )
@@ -65,11 +65,21 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const { activeStakingOpportunities, stakingOpportunities, isLoaded } = useCosmosStakingBalances({
-    assetId,
-  })
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+  )
 
-  const hasActiveStakingOpportunities = activeStakingOpportunities.length !== 0
+  const stakingOpportunitiesData = useAppSelector(state =>
+    selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
+  )
+
+  const hasActiveStaking =
+    // More than one opportunity data means we have more than the default opportunity
+    size(stakingOpportunitiesData) > 1 ||
+    bnOrZero(stakingOpportunitiesData[0].rewards).gt(0) ||
+    bnOrZero(stakingOpportunitiesData[0].totalDelegations).gt(0)
+
+  const rows = stakingOpportunitiesData
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const handleGetStartedClick = (e: MouseEvent<HTMLButtonElement>) => {
@@ -77,94 +87,120 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     e.stopPropagation()
   }
 
-  const handleStakedClick = (values: Row<ActiveStakingOpportunity>) => {
+  const handleStakedClick = (values: Row<OpportunitiesDataFull>) => {
     cosmosStaking.open({
       assetId,
       validatorAddress: values.original.address,
     })
   }
 
-  const columns: Column<ActiveStakingOpportunity>[] = useMemo(
+  const columns = useMemo(
     () => [
       {
         Header: <Text translation='defi.validator' />,
         id: 'moniker',
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: ActiveStakingOpportunity } }) => (
-          <ValidatorName
-            validatorAddress={row.original.address}
-            moniker={row.original.moniker}
-            isStaking={hasActiveStakingOpportunities}
-          />
-        ),
+        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+          const validator = row.original
+
+          return (
+            <Skeleton isLoaded={validator.isLoaded}>
+              <ValidatorName
+                validatorAddress={validator?.address}
+                moniker={validator?.moniker}
+                isStaking={true}
+              />
+            </Skeleton>
+          )
+        },
         disableSortBy: true,
       },
       {
         Header: <Text translation='defi.apr' />,
-        accessor: 'apr',
+        id: 'apr',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => (
-          <Skeleton isLoaded={isLoaded}>
-            <AprTag percentage={value} showAprSuffix />
-          </Skeleton>
-        ),
+        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+          const validator = row.original
+
+          return (
+            <Skeleton isLoaded={validator.isLoaded}>
+              <AprTag percentage={validator?.apr} showAprSuffix />
+            </Skeleton>
+          )
+        },
         disableSortBy: true,
       },
       {
         Header: <Text translation='defi.stakedAmount' />,
-        accessor: 'cryptoAmount',
+        id: 'cryptoAmount',
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => {
-          return hasActiveStakingOpportunities ? (
-            <Amount.Crypto
-              value={value}
-              symbol={asset.symbol}
-              color='white'
-              fontWeight={'normal'}
-            />
-          ) : (
-            <Box minWidth={{ base: '0px', md: '200px' }} />
+        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+          const { isLoaded, totalDelegations } = row.original
+
+          return (
+            <Skeleton isLoaded={isLoaded}>
+              {bnOrZero(totalDelegations).gt(0) ? (
+                <Amount.Crypto
+                  value={bnOrZero(totalDelegations)
+                    .div(`1e+${asset.precision}`)
+                    .decimalPlaces(asset.precision)
+                    .toString()}
+                  symbol={asset.symbol}
+                  color='white'
+                  fontWeight={'normal'}
+                />
+              ) : (
+                <Box minWidth={{ base: '0px', md: '200px' }} />
+              )}
+            </Skeleton>
           )
         },
         disableSortBy: true,
       },
       {
         Header: <Text translation='defi.rewards' />,
-        accessor: 'rewards',
+        id: 'rewards',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => {
-          return hasActiveStakingOpportunities ? (
-            <HStack fontWeight={'normal'}>
-              <Amount.Crypto
-                value={bnOrZero(value)
-                  .div(`1e+${asset.precision}`)
-                  .decimalPlaces(asset.precision)
-                  .toString()}
-                symbol={asset.symbol}
-              />
-              <Amount.Fiat
-                value={bnOrZero(value)
-                  .div(`1e+${asset.precision}`)
-                  .times(bnOrZero(marketData.price))
-                  .toPrecision()}
-                color='green.500'
-                prefix='≈'
-              />
-            </HStack>
-          ) : (
-            <Box width='100%' textAlign={'right'}>
-              <Button
-                onClick={handleGetStartedClick}
-                as='span'
-                colorScheme='blue'
-                variant='ghost-filled'
-                size='sm'
-                cursor='pointer'
-              >
-                <Text translation='common.getStarted' />
-              </Button>
-            </Box>
+        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+          const { rewards: validatorRewards, isLoaded } = row.original
+          const rewards = bnOrZero(validatorRewards)
+
+          return (
+            <Skeleton isLoaded={isLoaded}>
+              {bnOrZero(rewards).gt(0) ? (
+                <HStack fontWeight={'normal'}>
+                  <Amount.Crypto
+                    value={bnOrZero(rewards)
+                      .div(`1e+${asset.precision}`)
+                      .decimalPlaces(asset.precision)
+                      .toString()}
+                    symbol={asset.symbol}
+                  />
+                  <Amount.Fiat
+                    value={bnOrZero(rewards)
+                      .div(`1e+${asset.precision}`)
+                      .times(bnOrZero(marketData.price))
+                      .toPrecision()}
+                    color='green.500'
+                    prefix='≈'
+                  />
+                </HStack>
+              ) : (
+                <Box width='100%' textAlign={'right'}>
+                  <Button
+                    onClick={handleGetStartedClick}
+                    as='span'
+                    colorScheme='blue'
+                    variant='ghost-filled'
+                    size='sm'
+                    cursor='pointer'
+                  >
+                    <Text translation='common.getStarted' />
+                  </Button>
+                </Box>
+              )}
+            </Skeleton>
           )
         },
         disableSortBy: true,
@@ -173,7 +209,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoaded],
+    [accountSpecifier],
   )
   return (
     <Card>
@@ -190,13 +226,9 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0} px={2}>
         <ReactTable
-          data={
-            !hasActiveStakingOpportunities && isLoaded
-              ? stakingOpportunities
-              : activeStakingOpportunities
-          }
+          data={rows}
           columns={columns}
-          displayHeaders={hasActiveStakingOpportunities}
+          displayHeaders={hasActiveStaking}
           onRowClick={handleStakedClick}
         />
       </Card.Body>

@@ -12,7 +12,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import {
-  selectAssetByCAIP19,
+  selectAssetByAssetId,
   selectMarketDataById,
   selectSingleValidator,
 } from 'state/slices/selectors'
@@ -37,7 +37,7 @@ export const UnstakeBroadcast = ({
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
     selectSingleValidator(state, accountSpecifier, validatorAddress),

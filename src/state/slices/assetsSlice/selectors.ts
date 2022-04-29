@@ -15,13 +15,13 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
-export const selectAssetByCAIP19 = createCachedSelector(
+export const selectAssetByAssetId = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, CAIP19: AssetId) => CAIP19,
   (byId, CAIP19) => byId[CAIP19] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
-export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
+export const selectAssetNameById = createSelector(selectAssetByAssetId, asset =>
   asset ? asset.name : undefined,
 )
 

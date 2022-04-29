@@ -7,7 +7,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {
@@ -24,7 +24,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

@@ -11,7 +11,7 @@ import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetByAssetId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -45,7 +45,7 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
 
   // user info

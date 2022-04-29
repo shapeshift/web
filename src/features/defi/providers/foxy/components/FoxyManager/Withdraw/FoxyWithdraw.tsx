@@ -17,7 +17,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByCAIP19,
+  selectAssetByAssetId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -53,7 +53,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     assetNamespace,
     assetReference: rewardId,
   })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAssetCAIP19 = caip19.toCAIP19({

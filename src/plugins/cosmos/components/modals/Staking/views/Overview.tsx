@@ -9,7 +9,7 @@ import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRo
 import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetByAssetId, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllUnbondingsEntriesByAssetIdAndValidator,
   selectRewardsAmountByAssetId,
@@ -32,7 +32,7 @@ export const Overview: React.FC<StakedProps> = ({
   accountSpecifier,
 }) => {
   const isLoaded = useAppSelector(selectStakingDataIsLoaded)
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const dispatch = useAppDispatch()

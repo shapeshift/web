@@ -14,7 +14,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetByAssetId, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositPath } from '../DepositCommon'
@@ -45,10 +45,10 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
     assetReference: AssetReference.Ethereum,
   })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetByAssetId(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info

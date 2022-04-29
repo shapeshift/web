@@ -30,7 +30,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectAssetByCAIP19,
+  selectAssetByAssetId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectRewardsAmountByAssetId,
@@ -54,7 +54,7 @@ export const ClaimConfirm = ({
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
   })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, assetId))
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 

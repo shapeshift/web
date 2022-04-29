@@ -7,7 +7,7 @@ import { useHistory, useLocation } from 'react-router'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { SlideTransition } from 'components/SlideTransition'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectAccountIdsByAssetId, selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssetByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
@@ -27,7 +27,7 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, location.state.assetId),
   )
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, location.state.assetId))
+  const asset = useAppSelector(state => selectAssetByAssetId(state, location.state.assetId))
   return (
     <SlideTransition>
       <ModalHeader textAlign='center' display='grid' gridTemplateColumns='32px 1fr 32px' px={2}>

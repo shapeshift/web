@@ -86,7 +86,7 @@ export const StakingInput = ({
                 inputMode='decimal'
                 thousandSeparator={localeParts.group}
                 value={value}
-                onChange={e => {
+                onChange={() => {
                   onChange(amountRef)
                   onInputChange(amountRef as string)
                   amountRef = null
@@ -114,7 +114,7 @@ export const StakingInput = ({
                 inputMode='decimal'
                 thousandSeparator={localeParts.group}
                 value={value.length ? bnOrZero(value).toPrecision() : undefined}
-                onChange={e => {
+                onChange={() => {
                   onChange(amountRef)
                   onInputChange(amountRef as string)
                   amountRef = null

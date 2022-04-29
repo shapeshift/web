@@ -46,7 +46,7 @@ type UnstakeProps = {
   validatorAddress: string
 }
 
-export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: UnstakeProps) => {
+export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: UnstakeProps) => {
   const {
     control,
     formState: { isValid },

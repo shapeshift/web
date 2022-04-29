@@ -71,12 +71,12 @@ export const LegacyLogin = () => {
       // Clear the form state on success.
       reset()
     } catch (err) {
+      setCaptchaSolution(null)
       if (isLoginError(err)) {
         if (
           err.response.status === loginErrors.twoFactorRequired.httpCode &&
           err.response.data.error.msg === loginErrors.twoFactorRequired.msg
         ) {
-          setCaptchaSolution(null)
           setTwoFactorRequired(true)
           return
         }
@@ -164,16 +164,12 @@ export const LegacyLogin = () => {
               />
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
-            {!isTwoFactorRequired ? (
-              <FormControl isInvalid={!captchaSolution} mb={4} mt={6}>
-                <Box flexDir={'row'} justifyContent='center' alignItems={'center'}>
-                  <FriendlyCaptcha handleCaptcha={setCaptchaSolution} />
-                </Box>
-                <FormErrorMessage>
-                  {translate('walletProvider.shapeShift.invalidCaptcha')}
-                </FormErrorMessage>
-              </FormControl>
-            ) : null}
+            <FormControl isInvalid={!captchaSolution} my={6}>
+              <FriendlyCaptcha handleCaptcha={setCaptchaSolution} solution={captchaSolution} />
+              <FormErrorMessage>
+                {translate('walletProvider.shapeShift.invalidCaptcha')}
+              </FormErrorMessage>
+            </FormControl>
           </Box>
 
           <Box display={isTwoFactorRequired ? 'block' : 'none'}>
@@ -201,16 +197,12 @@ export const LegacyLogin = () => {
               />
               <FormErrorMessage>{errors.twoFactorCode?.message}</FormErrorMessage>
             </FormControl>
-            {isTwoFactorRequired ? (
-              <FormControl isInvalid={!captchaSolution} mb={4} mt={6}>
-                <Box flexDir={'row'} justifyContent='center' alignItems={'center'}>
-                  <FriendlyCaptcha handleCaptcha={setCaptchaSolution} />
-                </Box>
-                <FormErrorMessage>
-                  {translate('walletProvider.shapeShift.invalidCaptcha')}
-                </FormErrorMessage>
-              </FormControl>
-            ) : null}
+            <FormControl isInvalid={!captchaSolution} my={6}>
+              <FriendlyCaptcha handleCaptcha={setCaptchaSolution} solution={captchaSolution} />
+              <FormErrorMessage>
+                {translate('walletProvider.shapeShift.invalidCaptcha')}
+              </FormErrorMessage>
+            </FormControl>
           </Box>
 
           {error && (

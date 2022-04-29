@@ -4,6 +4,8 @@ import { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectMarketDataAvailableByAssetId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -22,6 +24,9 @@ type AssetDetailsProps = {
 }
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
+  const isMarketDataAvailable = useAppSelector(state =>
+    selectMarketDataAvailableByAssetId(state, caip19),
+  )
   return (
     <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
@@ -40,7 +45,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
           <TradeCard defaultBuyAssetId={caip19} />
-          <AssetMarketData assetId={caip19} />
+          {isMarketDataAvailable && <AssetMarketData assetId={caip19} />}
           <AssetDescription assetId={caip19} />
         </Stack>
       </Stack>

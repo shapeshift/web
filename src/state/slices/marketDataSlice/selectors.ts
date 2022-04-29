@@ -39,14 +39,6 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? [],
 )
 
-export const selectBalanceHistoryAvailableByAssetsAndTimeframe = createSelector(
-  selectPriceHistory,
-  (_state: ReduxState, assetIds: AssetId[], _timeframe: HistoryTimeframe) => assetIds,
-  (_state: ReduxState, _assetIds: AssetId[], timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, assetIds, timeframe): boolean =>
-    assetIds.some(assetId => priceHistory[timeframe][assetId]?.length !== 0),
-)
-
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
   selectPriceHistory,
   (_state: ReduxState, assetIds: AssetId[], _timeframe: HistoryTimeframe) => assetIds,

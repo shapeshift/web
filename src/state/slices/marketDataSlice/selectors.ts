@@ -15,12 +15,6 @@ export const selectMarketDataById = createCachedSelector(
   (marketData, assetId: AssetId) => marketData[assetId],
 )((_marketData, assetId: AssetId): AssetId => assetId)
 
-export const selectMarketDataAvailableByAssetId = createSelector(
-  selectMarketData,
-  selectAssetId,
-  (marketData, assetId) => Boolean(marketData[assetId]),
-)
-
 // assets we have loaded market data for
 export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids
 

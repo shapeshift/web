@@ -1,4 +1,4 @@
-import { Flex, FlexProps } from '@chakra-ui/layout'
+import { Stack, StackProps } from '@chakra-ui/layout'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -20,16 +20,20 @@ export const StakedRow = ({
   assetIcon,
   apr,
   ...styleProps
-}: StakedRowProps & FlexProps) => {
+}: StakedRowProps & StackProps) => {
   return (
-    <Flex width='100%' flexDirection='column' alignItems='center' {...styleProps}>
+    <Stack width='100%' py={8} alignItems='center' {...styleProps}>
       <Text translation={'defi.amountStaked'} color='gray.500' />
-
-      <Flex alignItems='center'>
-        <AssetIcon src={assetIcon} boxSize='40px' mr='24px' />
-        <Amount.Crypto fontSize='28' value={cryptoStakedAmount.toString()} symbol={assetSymbol} />
-      </Flex>
-      <AprTag height='20px' percentage={apr.toPrecision()} showAprSuffix={true} />
-    </Flex>
+      <Stack direction='row' alignItems='center'>
+        <AssetIcon src={assetIcon} boxSize='10' />
+        <Amount.Crypto
+          fontSize='3xl'
+          fontWeight='medium'
+          value={cryptoStakedAmount.toString()}
+          symbol={assetSymbol}
+        />
+      </Stack>
+      <AprTag percentage={apr.toPrecision()} showAprSuffix={true} />
+    </Stack>
   )
 }

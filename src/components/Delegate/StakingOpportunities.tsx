@@ -54,7 +54,7 @@ export const ValidatorName = ({ moniker, isStaking, validatorAddress }: Validato
               <TagLabel>{moniker}</TagLabel>
             </Tag>
           )}
-          {!isStaking && <RawText fontWeight='bold'>{`${moniker}`}</RawText>}
+          {!isStaking && <RawText>{`${moniker}`}</RawText>}
         </Skeleton>
       </Flex>
     </Box>

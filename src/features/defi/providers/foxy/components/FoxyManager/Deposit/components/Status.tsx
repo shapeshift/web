@@ -25,7 +25,7 @@ type FoxyStatusProps = {
   apy: string
 }
 
-export const Status = ({ api, apy }: FoxyStatusProps) => {
+export const Status = ({ apy }: FoxyStatusProps) => {
   const { state } = useContext(DepositContext)
   const history = useHistory()
   const appDispatch = useAppDispatch()

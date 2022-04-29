@@ -143,7 +143,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       case WithdrawPath.Confirm:
         return <Confirm api={api} />
       case WithdrawPath.Status:
-        return <Status api={api} />
+        return <Status />
       default:
         throw new Error('Route does not exist')
     }

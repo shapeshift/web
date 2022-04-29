@@ -1,6 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SwapperManager, TestSwapper, ZrxSwapper } from '@shapeshiftoss/swapper'
+import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
   Asset,
   chainAdapters,

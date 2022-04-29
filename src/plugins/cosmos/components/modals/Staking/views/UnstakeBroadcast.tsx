@@ -39,9 +39,7 @@ export const UnstakeBroadcast = ({
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
-  )
+  const validatorInfo = useAppSelector(state => selectSingleValidator(state, { validatorAddress }))
 
   const translate = useTranslate()
 

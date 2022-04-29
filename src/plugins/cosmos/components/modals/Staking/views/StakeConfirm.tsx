@@ -69,14 +69,12 @@ export const StakeConfirm = ({
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
-  )
+  const validatorInfo = useAppSelector(state => selectSingleValidator(state, { validatorAddress }))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()

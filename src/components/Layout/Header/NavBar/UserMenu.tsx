@@ -98,7 +98,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
-          {isConnected || walletInfo?.deviceId === 'DemoWallet' ? undefined : (
+          {!(isConnected || walletInfo?.deviceId === 'DemoWallet') && (
             <WarningTwoIcon
               ml={2}
               w={3}

@@ -15,7 +15,7 @@ import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
@@ -57,7 +57,7 @@ export const AssetCell = ({
   const linkColor = useColorModeValue('black', 'white')
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   if (!asset) return null
 

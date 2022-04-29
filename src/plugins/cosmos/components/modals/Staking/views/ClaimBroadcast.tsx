@@ -16,7 +16,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimBroadcastProps = {
@@ -43,7 +43,7 @@ export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroa
   const { control } = methods
   const { txFee, fiatFee, gasLimit, cryptoAmount } = useWatch({ control })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // TODO(gomes): This currently fires the broadcat once on component mount. Move this to something like useFormSend

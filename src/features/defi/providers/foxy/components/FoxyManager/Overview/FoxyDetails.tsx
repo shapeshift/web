@@ -11,7 +11,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyEmpty } from './FoxyEmpty'
@@ -44,14 +44,14 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
     assetNamespace,
     assetReference: tokenId,
   })
-  const stakingAsset = useAppSelector(state => selectAssetByCAIP19(state, stakingAssetCAIP19))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetCAIP19))
   const rewardAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const rewardAsset = useAppSelector(state => selectAssetByCAIP19(state, rewardAssetCAIP19))
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetCAIP19))
   const apy = bnOrZero(opportunity?.apy).times(100).toString()
   if (loading || !opportunity) {
     return (

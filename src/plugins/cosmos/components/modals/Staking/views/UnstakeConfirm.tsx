@@ -31,7 +31,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectSingleValidator,
@@ -69,7 +69,7 @@ export const UnstakeConfirm = ({
     state: { wallet },
   } = useWallet()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter

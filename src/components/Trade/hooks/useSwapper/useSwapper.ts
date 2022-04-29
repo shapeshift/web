@@ -414,15 +414,11 @@ export const useSwapper = () => {
   const getBestSwapper = useCallback(
     async ({ sellAsset, buyAsset }: Pick<TradeState<ChainTypes>, 'sellAsset' | 'buyAsset'>) => {
       if (!sellAsset.currency || !buyAsset.currency) return
-      const input = {
-        sellAsset: sellAsset.currency,
-        buyAsset: buyAsset.currency,
-      }
-      const bestSwapperType = await swapperManager.getBestSwapper(input)
+      const bestSwapperType = SwapperType.Zrx
       setBestSwapperType(bestSwapperType)
       setValue('trade', { ...trade, name: bestSwapperType })
     },
-    [swapperManager, trade, setBestSwapperType, setValue],
+    [trade, setBestSwapperType, setValue],
   )
 
   const checkApprovalNeeded = async (wallet: HDWallet | NativeHDWallet): Promise<boolean> => {

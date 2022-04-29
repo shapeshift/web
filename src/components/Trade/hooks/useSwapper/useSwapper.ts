@@ -1,6 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
+import { SwapperManager, TestSwapper, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
   Asset,
   chainAdapters,
@@ -13,13 +13,14 @@ import debounce from 'lodash/debounce'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { TradeAsset, TradeState } from 'components/Trade/Trade'
+import { useSelector } from 'react-redux'
+import { TradeAsset } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponentMounted'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
-import { selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
+import { selectAssetIds, selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const debounceTime = 1000
@@ -67,8 +68,6 @@ export enum TRADE_ERRORS {
   HDWALLET_INVALID_CONFIG = 'trade.errors.hdwalletInvalidConfig',
 }
 
-// TODO: (ryankk) revisit the logic inside useSwapper post bounty to see
-// if it makes sense to move some of it down to lib.
 export const useSwapper = () => {
   const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
@@ -81,18 +80,45 @@ export const useSwapper = () => {
     const manager = new SwapperManager()
     const web3 = getWeb3Instance()
     manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapterManager }))
+    manager.addSwapper(SwapperType.Test, new TestSwapper())
     return manager
   })
-  const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
+
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
+  const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
+    const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
+    return assets.filter(asset => assetIdMap[asset.assetId])
+  }
+
+  const assetIds = useSelector(selectAssetIds)
+  const getSupportedSellableAssets = useCallback(
+    (assets: Asset[]) => {
+      const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({ assetIds })
+      return filterAssetsByIds(assets, sellableAssetIds)
+    },
+    [assetIds, swapperManager],
+  )
+
+  const getSupportedBuyAssetsFromSellAsset = useCallback(
+    (assets: Asset[]): Asset[] => {
+      const assetIds = assets.map(asset => asset.assetId)
+      const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
+        assetIds,
+        sellAssetId: sellAsset.currency.assetId,
+      })
+      return filterAssetsByIds(assets, supportedBuyAssetIds)
+    },
+    [swapperManager, sellAsset],
+  )
+
   const getDefaultPair = useCallback(() => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
-    return swapper.getDefaultPair()
-  }, [swapperManager, bestSwapperType])
+    // eth & fox
+    return ['eip155:1/slip44:60', 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+  }, [])
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, sellAsset?.currency?.caip19),
+    selectPortfolioCryptoBalanceByAssetId(state, sellAsset?.currency?.assetId),
   )
 
   const getSendMaxAmount = async ({
@@ -106,7 +132,7 @@ export const useSwapper = () => {
     buyAsset: TradeAsset
     feeAsset: Asset
   }) => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const swapper = swapperManager.getSwapper(SwapperType.Zrx)
     const maximumQuote = await swapper.getQuote(
       {
         sellAsset: sellAsset.currency,
@@ -117,7 +143,7 @@ export const useSwapper = () => {
     )
 
     // Only subtract fee if sell asset is the see asset
-    const isFeeAsset = feeAsset.caip19 === sellAsset.currency.caip19
+    const isFeeAsset = feeAsset.assetId === sellAsset.currency.assetId
     // Pad fee because estimations can be wrong
     const feePadded = bnOrZero(maximumQuote?.feeData?.fee)
     // sell asset balance minus expected fee = maxTradeAmount
@@ -145,7 +171,11 @@ export const useSwapper = () => {
     buyAsset: Asset
     amount: string
   }): Promise<Quote<ChainTypes> | undefined> => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const swapper = await swapperManager.getBestSwapper({
+      buyAssetId: buyAsset.assetId,
+      sellAssetId: sellAsset.assetId,
+    })
+
     const { minimum } = await swapper.getMinMax({
       sellAsset,
       buyAsset,
@@ -214,7 +244,11 @@ export const useSwapper = () => {
   }: {
     wallet: HDWallet
   }): Promise<ExecQuoteOutput | undefined> => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const swapper = await swapperManager.getBestSwapper({
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
+    })
+
     const result = await swapper.executeQuote({ quote, wallet })
     return result
   }
@@ -231,7 +265,10 @@ export const useSwapper = () => {
     const quoteDebounce = debounce(async () => {
       if (isComponentMounted.current) {
         try {
-          const swapper = swapperManager.getSwapper(bestSwapperType)
+          const swapper = await swapperManager.getBestSwapper({
+            buyAssetId: buyAsset.assetId,
+            sellAssetId: sellAsset.assetId,
+          })
           let convertedAmount =
             action === TradeActions.BUY ? { buyAmount: amount } : { sellAmount: amount }
 
@@ -369,7 +406,10 @@ export const useSwapper = () => {
     symbol: string
     tokenId?: string
   }): Promise<string> => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const swapper = await swapperManager.getBestSwapper({
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
+    })
     return swapper?.getUsdRate({
       symbol,
       tokenId,
@@ -411,24 +451,20 @@ export const useSwapper = () => {
     }
   }
 
-  const getBestSwapper = useCallback(
-    async ({ sellAsset, buyAsset }: Pick<TradeState<ChainTypes>, 'sellAsset' | 'buyAsset'>) => {
-      if (!sellAsset.currency || !buyAsset.currency) return
-      const bestSwapperType = SwapperType.Zrx
-      setBestSwapperType(bestSwapperType)
-      setValue('trade', { ...trade, name: bestSwapperType })
-    },
-    [trade, setBestSwapperType, setValue],
-  )
-
   const checkApprovalNeeded = async (wallet: HDWallet | NativeHDWallet): Promise<boolean> => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const swapper = await swapperManager.getBestSwapper({
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
+    })
     const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
   }
 
   const approveInfinite = async (wallet: HDWallet | NativeHDWallet): Promise<string> => {
-    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const swapper = await swapperManager.getBestSwapper({
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
+    })
     const txid = await swapper.approveInfinite({ quote, wallet })
     return txid
   }
@@ -445,7 +481,8 @@ export const useSwapper = () => {
     getQuote,
     buildQuoteTx,
     executeQuote,
-    getBestSwapper,
+    getSupportedBuyAssetsFromSellAsset,
+    getSupportedSellableAssets,
     getDefaultPair,
     checkApprovalNeeded,
     approveInfinite,

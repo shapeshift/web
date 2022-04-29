@@ -19,6 +19,7 @@ const validators = {
   //  Version control data and use a persistent URL
   //  so we don't need to update whenever new KeepKey firmware/bootloader is released.
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
+  REACT_APP_WALLET_MIGRATION_URL: url(),
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
   REACT_APP_GEM_WYRE_SUPPORTED_COINS: url(),

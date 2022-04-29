@@ -17,11 +17,13 @@
     "url": "https://github.com/shapeshift/lib"
   },
   "scripts": {
-    "build": "yarn clean && tsc --project tsconfig.build.json",
-    "clean": "rm -rf dist",
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json",
     "dev": "tsc --watch",
+    "prepare": "yarn build",
     "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.json --noEmit",
+    "type-check": "tsc --project ./tsconfig.build.json --noEmit",
     "marketcli": "yarn build && node ./dist/marketDataCLI.js"
   },
   "dependencies": {

@@ -1,12 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "outDir": "./dist",
-    "resolveJsonModule": true
+    "composite": true,
   },
-  "include": [
-    "src"
-  ]
 }

@@ -18,10 +18,11 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && tsc --project tsconfig.json",
-    "clean": "rm -rf dist",
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json",
     "dev": "tsc --watch",
-    "prepare": "yarn clean && yarn build",
+    "prepare": "yarn build",
     "test": "jest --coverage"
   },
   "dependencies": {

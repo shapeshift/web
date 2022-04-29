@@ -6,7 +6,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
-  selectAssetByCAIP19,
+  selectAssetById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -19,7 +19,7 @@ type AssetHeaderProps = {
 }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const chainId = asset.caip2
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined

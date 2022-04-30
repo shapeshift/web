@@ -66,10 +66,9 @@
     "keepKey": {
       "title": "KeepKey Update Available",
       "newVersion": "A new version of the",
-      "availableToDownload": "is available to download",
+      "isAvailable": "is available",
       "downloadCta": "Download Update",
-      "keepkeyFirmware": "KeepKey Firmware",
-      "keepkeyBootloader": "KeepKey Bootloader"
+      "firmwareOrBootloader": "KeepKey Firmware and/or Bootloader"
     }
   },
   "dashboard": {

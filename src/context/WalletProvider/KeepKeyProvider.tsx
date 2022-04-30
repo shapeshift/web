@@ -1,4 +1,14 @@
-import { Box, Text, ToastId, useToast } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Box,
+  CloseButton,
+  Link,
+  Text,
+  ToastId,
+  useToast,
+} from '@chakra-ui/react'
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
@@ -10,11 +20,11 @@ import React, {
   useReducer,
   useRef,
 } from 'react'
+import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { InfoToast } from './KeepKey/components/InfoToast'
 import { getKeepKeyVersions } from './KeepKey/utils'
 
 export enum DeviceTimeout {
@@ -26,10 +36,7 @@ export enum DeviceTimeout {
   SixtyMinutes = '3600000',
 }
 
-enum KeepKeyToastIds {
-  FirmwareUpdate = 'update-firmware',
-  BootloaderUpdate = 'update-bootloader',
-}
+const KeepKeyToastId = 'update-available'
 
 export const timeoutOptions: readonly RadioOption<DeviceTimeout>[] = Object.freeze([
   {
@@ -116,8 +123,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const toast = useToast()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [state, dispatch] = useReducer(reducer, initialState)
-  const toastFirmwareRef = useRef<ToastId | undefined>()
-  const toastBootloaderRef = useRef<ToastId | undefined>()
+  const toastRef = useRef<ToastId | undefined>()
 
   const setHasPassphrase = useCallback((payload: boolean | undefined) => {
     dispatch({
@@ -154,60 +160,54 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       if (!versions) return
 
       if (
-        versions.bootloader.updateAvailable &&
-        !toast.isActive(KeepKeyToastIds.BootloaderUpdate)
+        (versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
+        !toast.isActive(KeepKeyToastId)
       ) {
-        toastBootloaderRef.current = toast({
+        toastRef.current = toast({
           render: () => {
             return (
-              <InfoToast
-                title={translate('updateToast.keepKey.title')}
-                description={() => (
-                  <Text>
-                    {translate('updateToast.keepKey.newVersion')}
-                    <span> </span>
-                    <Box as='span' fontWeight='bold' color='inherit'>
-                      {translate('updateToast.keepKey.keepkeyBootloader')}
-                    </Box>
-                    <span> </span>
-                    {translate('updateToast.keepKey.availableToDownload')}
-                  </Text>
-                )}
-                cta={translate('updateToast.keepKey.downloadCta')}
-                toastRef={toastBootloaderRef}
-              />
+              <Alert status='info' variant='solid' colorScheme='blue'>
+                <Box alignSelf='flex-start' me={2}>
+                  <RiFlashlightLine size={24} />
+                </Box>
+                <Box>
+                  <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
+                  <AlertDescription>
+                    <Text>
+                      {translate('updateToast.keepKey.newVersion')}
+                      <span> </span>
+                      <Box as='span' fontWeight='bold' color='inherit'>
+                        {translate('updateToast.keepKey.firmwareOrBootloader')}
+                      </Box>
+                      <span> </span>
+                      {translate('updateToast.keepKey.isAvailable')}
+                    </Text>
+                  </AlertDescription>
+                  <Link
+                    href={'https://beta.shapeshift.com/updater-download'}
+                    display={'block'}
+                    fontWeight={'bold'}
+                    mt={2}
+                    isExternal
+                  >
+                    {translate('updateToast.keepKey.downloadCta')}
+                  </Link>
+                </Box>
+                <CloseButton
+                  alignSelf='flex-start'
+                  position='relative'
+                  right={-1}
+                  top={-1}
+                  onClick={() => {
+                    if (toastRef.current) {
+                      toast.close(toastRef.current)
+                    }
+                  }}
+                />
+              </Alert>
             )
           },
-          id: KeepKeyToastIds.BootloaderUpdate,
-          duration: null,
-          isClosable: true,
-          position: 'bottom-right',
-        })
-      }
-
-      if (versions.firmware.updateAvailable && !toast.isActive(KeepKeyToastIds.FirmwareUpdate)) {
-        toastFirmwareRef.current = toast({
-          render: () => {
-            return (
-              <InfoToast
-                title={translate('updateToast.keepKey.title')}
-                description={() => (
-                  <Text>
-                    {translate('updateToast.keepKey.newVersion')}
-                    <span> </span>
-                    <Box as='span' fontWeight='bold' color='inherit'>
-                      {translate('updateToast.keepKey.keepkeyFirmware')}
-                    </Box>
-                    <span> </span>
-                    {translate('updateToast.keepKey.availableToDownload')}
-                  </Text>
-                )}
-                cta={translate('updateToast.keepKey.downloadCta')}
-                toastRef={toastFirmwareRef}
-              />
-            )
-          },
-          id: KeepKeyToastIds.FirmwareUpdate,
+          id: KeepKeyToastId,
           duration: null,
           isClosable: true,
           position: 'bottom-right',

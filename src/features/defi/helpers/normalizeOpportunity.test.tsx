@@ -1,9 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks'
 import { TestProviders } from 'test/TestProviders'
-import {
-  MergedActiveStakingOpportunity,
-  MergedStakingOpportunity,
-} from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
 import { useNormalizeOpportunities } from './normalizeOpportunity'
@@ -15,7 +12,7 @@ jest.mock('pages/Defi/hooks/useFoxyBalances')
 function setup({
   cosmosStakingOpportunities,
 }: {
-  cosmosStakingOpportunities?: MergedStakingOpportunity[]
+  cosmosStakingOpportunities?: MergedActiveStakingOpportunity[]
 } = {}) {
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
   const { result } = renderHook(

@@ -38,11 +38,9 @@ import {
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
 } from 'state/slices/selectors'
-import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
@@ -352,6 +350,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const delegationTotal = useAppSelector(state =>
     selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
       accountSpecifier: cosmosAccountSpecifier,
+      assetId: cosmosAssetId,
     }),
   )
 

@@ -38,7 +38,6 @@ import {
   selectTxIds,
   selectTxs,
 } from 'state/slices/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'

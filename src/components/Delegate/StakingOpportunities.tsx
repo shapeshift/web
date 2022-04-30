@@ -1,19 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Skeleton,
-  SkeletonCircle,
-  Tag,
-  TagLabel,
-} from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import size from 'lodash/size'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { MouseEvent, useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Column, Row } from 'react-table'
+import { Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -21,13 +13,13 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import {
+  OpportunitiesDataFull,
   selectAssetByCAIP19,
   selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
+  selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
-import { ActiveStakingOpportunity } from 'state/slices/stakingDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {

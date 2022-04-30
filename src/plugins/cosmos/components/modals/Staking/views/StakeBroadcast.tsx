@@ -54,7 +54,7 @@ export const StakeBroadcast = ({
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state => selectSingleValidator(state, { validatorAddress }))
+  const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods

@@ -7,7 +7,6 @@ import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
-import { stakingData, stakingDataApi } from './slices/stakingDataSlice/stakingDataSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { validatorData, validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
@@ -15,11 +14,10 @@ export const slices = {
   assets,
   marketData,
   txHistory,
-  stakingData,
+  validatorData,
   portfolio,
   preferences,
   accountSpecifiers,
-  validatorData,
 }
 
 const preferencesPersistConfig = {
@@ -32,7 +30,6 @@ export const sliceReducers = {
   assets: assets.reducer,
   marketData: marketData.reducer,
   txHistory: txHistory.reducer,
-  stakingData: stakingData.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   accountSpecifiers: accountSpecifiers.reducer,
@@ -44,8 +41,7 @@ export const apiSlices = {
   portfolioApi,
   marketApi,
   txHistoryApi,
-  stakingDataApi,
-  validatorData,
+  validatorDataApi,
 }
 
 export const apiReducers = {
@@ -53,7 +49,6 @@ export const apiReducers = {
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
-  [stakingDataApi.reducerPath]: stakingDataApi.reducer,
   [validatorDataApi.reducerPath]: validatorDataApi.reducer,
 }
 

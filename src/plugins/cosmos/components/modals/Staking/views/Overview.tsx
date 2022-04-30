@@ -15,7 +15,6 @@ import {
   selectUnbondingEntriesByAccountSpecifier,
 } from 'state/slices/portfolioSlice/selectors'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { selectSingleValidator } from 'state/slices/validatorDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 

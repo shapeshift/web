@@ -79,6 +79,7 @@ const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAd
 const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpecifier')
 
 const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
+const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
 
 export type OpportunitiesDataFull = {
   totalDelegations: string
@@ -275,7 +276,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
   selectAccountIdParamFromFilterOptional,
-  selectAssetIdParamFromFilter,
+  selectAssetIdParamFromFilterOptional,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
       return fromBaseUnit(
@@ -349,7 +350,7 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSele
 )
 
 export const selectTotalStakingDelegationCryptoByFilter = createSelector(
-  selectAssetIdParamFromFilter,
+  selectAssetIdParamFromFilterOptional,
   (state: ReduxState) => state.assets.byId,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTotalStakingUndelegationCryptoByAccountSpecifier,

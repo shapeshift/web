@@ -124,7 +124,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
 }
 
 const useTransformCosmosStaking = (
-  cosmosStakingOpportunities: MergedStakingOpportunity[],
+  cosmosStakingOpportunities: MergedActiveStakingOpportunity[],
 ): EarnOpportunityType[] => {
   const translate = useTranslate()
   return cosmosStakingOpportunities
@@ -132,7 +132,6 @@ const useTransformCosmosStaking = (
       return {
         type: DefiType.TokenStaking,
         provider: chainTypeToLabel(staking.chain),
-        version: translate('defi.validatorMoniker', { moniker: staking.moniker }),
         contractAddress: staking.address,
         tokenAddress: staking.tokenAddress,
         rewardAddress: '',

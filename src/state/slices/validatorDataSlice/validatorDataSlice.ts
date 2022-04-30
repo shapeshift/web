@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
@@ -17,7 +17,7 @@ export type Validators = {
 
 export type ValidatorData = {
   byValidator: ValidatorDataByPubKey
-  validatorIds: string[]
+  validatorIds: PubKey[]
 }
 
 export type ValidatorDataByPubKey = {
@@ -66,7 +66,9 @@ export const validatorDataApi = createApi({
     getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
       queryFn: async ({ validatorAddress }, { dispatch }) => {
         const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(cosmosChainId)) as CosmosChainAdapter
+        const adapter = (await chainAdapters.byChainId(
+          cosmosChainId,
+        )) as cosmossdk.cosmos.ChainAdapter
         try {
           const data = await adapter.getValidator(validatorAddress)
           dispatch(
@@ -74,9 +76,7 @@ export const validatorDataApi = createApi({
               validators: [data],
             }),
           )
-          return {
-            data: data,
-          }
+          return { data }
         } catch (e) {
           console.error('Error fetching single validator data', e)
           return {

@@ -43,11 +43,6 @@ describe('validatorDataSlice', () => {
             validators: [],
           }),
         )
-        store.dispatch(
-          validatorData.actions.upsertValidatorData({
-            validators: [],
-          }),
-        )
 
         expect(
           store.getState().validatorData.byValidator[SHAPESHIFT_VALIDATOR_ADDRESS],

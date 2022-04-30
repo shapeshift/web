@@ -1,6 +1,7 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
 import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
+import { KeepKeyRecoveryInvalid } from 'context/WalletProvider/KeepKey/components/RecoveryInvalid'
 import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
 import { KeepKeyRecoverySentenceEntry } from 'context/WalletProvider/KeepKey/components/RecoverySentenceEntry'
 import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -70,6 +71,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.RecoverySentenceEntry, component: KeepKeyRecoverySentenceEntry },
       { path: KeepKeyRoutes.RecoverySettings, component: KeepKeyRecoverySettings },
       { path: KeepKeyRoutes.RecoverySettingUp, component: RecoverySettingUp },
+      { path: KeepKeyRoutes.RecoveryInvalid, component: KeepKeyRecoveryInvalid },
     ],
   },
   [KeyManager.MetaMask]: {

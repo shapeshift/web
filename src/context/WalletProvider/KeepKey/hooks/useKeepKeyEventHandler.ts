@@ -118,6 +118,15 @@ export const useKeepKeyEventHandler = (
                 },
               })
               break
+            case FailureType.SYNTAXERROR:
+              console.warn('KeepKey Event [FAILURE]: Invalid mnemonic, are words in correct order?')
+              dispatch({
+                type: WalletActions.OPEN_KEEPKEY_FAILURE,
+                payload: {
+                  deviceId,
+                },
+              })
+              break
             default:
               console.warn('KeepKey Event [FAILURE]: ', message?.message)
               setDeviceState({ lastDeviceInteractionStatus: 'error' })

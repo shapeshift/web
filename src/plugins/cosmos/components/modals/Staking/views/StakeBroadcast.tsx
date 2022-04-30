@@ -21,11 +21,6 @@ import { useAppSelector } from 'state/store'
 
 import { StakingAction, StakingValues } from '../StakingCommon'
 
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat',
-}
-
 type StakeProps = {
   assetId: AssetId
   accountSpecifier: string

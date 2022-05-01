@@ -8,20 +8,20 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
 
 type AssetCellProps = {
-  assetId: CAIP19
+  assetId: AssetId
   subText?: string
   postFix?: string
   showTeaser?: boolean
@@ -57,14 +57,14 @@ export const AssetCell = ({
   const linkColor = useColorModeValue('black', 'white')
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   if (!asset) return null
 
   const rowTitle = buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
-    <HStack width='full' data-test='account-row'>
+    <HStack width='full' data-test='defi-earn-asset-row'>
       {showTeaser && (
         <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
           <PopoverTrigger>

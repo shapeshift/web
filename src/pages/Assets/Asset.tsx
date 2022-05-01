@@ -1,12 +1,12 @@
 import { Flex } from '@chakra-ui/react'
-import type { CAIP2 } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectMarketDataLoadingById,
 } from 'state/slices/selectors'
@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LoadingAsset } from './LoadingAsset'
 export interface MatchParams {
-  chainId: CAIP2
+  chainId: ChainId
   assetSubId: string
 }
 
@@ -23,7 +23,7 @@ export const useAsset = () => {
 
   const params = useParams<MatchParams>()
   const assetId = `${params.chainId}/${params.assetSubId}`
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // Many, but not all, assets are initialized with market data on app load. This dispatch will

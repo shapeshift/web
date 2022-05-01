@@ -1,22 +1,34 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { AssetNamespace, AssetReference, CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  AssetNamespace,
+  AssetReference,
+  caip2,
+  caip19,
+  ChainId,
+} from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
+import createCachedSelector from 're-reselect'
 import { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
-export const selectAssetByCAIP19 = createSelector(
+export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
-  (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
-  (byId, CAIP19) => byId[CAIP19] || undefined,
-)
+  (_state: ReduxState, assetId: AssetId) => assetId,
+  (byId, assetId) => byId[assetId] || undefined,
+)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
-export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
+export const selectAssetNameById = createSelector(selectAssetById, asset =>
   asset ? asset.name : undefined,
 )
 
-export const selectAssets = (state: ReduxState) => state.assets.byId
+export const selectAssets = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.assets.byId,
+  byId => byId,
+)
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createSelector(
@@ -54,7 +66,7 @@ const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): 
 
 export const selectFeeAssetByChainId = createSelector(
   selectAssets,
-  (_state: ReduxState, chainId: CAIP2) => chainId,
+  (_state: ReduxState, chainId: ChainId) => chainId,
   (assetsById, chainId): Asset => {
     const { chain, network } = caip2.fromCAIP2(chainId)
     const feeAssetId = caip19.toCAIP19({
@@ -69,7 +81,7 @@ export const selectFeeAssetByChainId = createSelector(
 
 export const selectFeeAssetById = createSelector(
   selectAssets,
-  (_state: ReduxState, assetId: CAIP19) => assetId,
+  (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset => {
     const { chain, network } = caip19.fromCAIP19(assetId)
     const feeAssetId = caip19.toCAIP19({

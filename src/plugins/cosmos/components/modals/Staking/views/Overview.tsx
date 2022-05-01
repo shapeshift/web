@@ -1,6 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Skeleton } from '@chakra-ui/react'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetClaimCard'
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
@@ -9,7 +9,7 @@ import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRo
 import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllUnbondingsEntriesByAssetIdAndValidator,
   selectRewardsAmountByAssetId,
@@ -21,9 +21,9 @@ import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type StakedProps = {
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
-  accountSpecifier: CAIP10
+  accountSpecifier: AccountId
 }
 
 export const Overview: React.FC<StakedProps> = ({
@@ -32,7 +32,7 @@ export const Overview: React.FC<StakedProps> = ({
   accountSpecifier,
 }) => {
   const isLoaded = useAppSelector(selectStakingDataIsLoaded)
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const dispatch = useAppDispatch()

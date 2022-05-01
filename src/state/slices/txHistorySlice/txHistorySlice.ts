@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetNamespace, CAIP2, caip2, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, caip2, caip10, caip19, ChainId } from '@shapeshiftoss/caip'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -16,13 +16,6 @@ import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER 
 
 export type TxId = string
 export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
-
-export type TxFilter = {
-  accountType?: UtxoAccountType
-  caip19?: CAIP19
-  caip2?: CAIP2
-  txid?: TxId
-}
 
 export type TxHistoryById = {
   [k: TxId]: Tx
@@ -47,7 +40,7 @@ export type TxHistoryById = {
  */
 
 export type TxIdByAssetId = {
-  [k: CAIP19]: TxId[]
+  [k: AssetId]: TxId[]
 }
 
 export type TxIdByAccountId = {
@@ -65,7 +58,7 @@ type RebaseById = {
 }
 
 type RebaseByAssetId = {
-  [k: CAIP19]: RebaseId[]
+  [k: AssetId]: RebaseId[]
 }
 
 type RebaseByAccountId = {
@@ -198,7 +191,7 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
 
 type MakeRebaseIdArgs = {
   accountId: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
   rebase: RebaseHistory
 }
 
@@ -211,7 +204,7 @@ type TxHistoryStatusPayload = { payload: TxHistoryStatus }
 type RebaseHistoryPayload = {
   payload: {
     accountId: AccountSpecifier
-    assetId: CAIP19
+    assetId: AssetId
     data: RebaseHistory[]
   }
 }
@@ -220,7 +213,10 @@ export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
   reducers: {
-    clear: () => initialState,
+    clear: () => {
+      console.info('txHistorySlice: clearing tx history')
+      return initialState
+    },
     setStatus: (state, { payload }: TxHistoryStatusPayload) => {
       state.txs.status = payload
     },
@@ -240,7 +236,7 @@ type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 type RebaseTxHistoryArgs = {
   accountSpecifierMap: AccountSpecifierMap
-  portfolioAssetIds: CAIP19[]
+  portfolioAssetIds: AssetId[]
 }
 
 export const txHistoryApi = createApi({
@@ -318,7 +314,7 @@ export const txHistoryApi = createApi({
           const error = { data, status: 400 }
           return { error }
         }
-        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
         const accountSpecifier = `${CAIP2}:${pubkey}`
         try {
           let txs: chainAdapters.Transaction<ChainTypes>[] = []

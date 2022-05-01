@@ -1,9 +1,9 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Card } from 'components/Card/Card'
 import { Trade } from 'components/Trade/Trade'
 
 type TradeCardProps = {
-  defaultBuyAssetId?: CAIP19
+  defaultBuyAssetId?: AssetId
 }
 
 export const TradeCard = ({ defaultBuyAssetId }: TradeCardProps) => {

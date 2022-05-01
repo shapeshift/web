@@ -11,6 +11,8 @@ export type FeatureFlags = {
   WalletMigration: boolean
 }
 
+export type Flag = keyof FeatureFlags
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string

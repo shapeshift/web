@@ -1,6 +1,7 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Box, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
+import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
@@ -25,9 +26,20 @@ export const KeepKeyMenu = () => {
   } = useKeepKey()
   const versions = useKeepKeyVersions()
   const {
+    setDeviceState,
     state: { isConnected, walletInfo },
   } = useWallet()
   const { keepKeyWipe } = useModal()
+
+  // Reset ephemeral device state properties when opening the KeepKey menu
+  useEffect(() => {
+    ;(async () => {
+      setDeviceState({
+        lastDeviceInteractionStatus: undefined,
+        awaitingDeviceInteraction: false,
+      })
+    })()
+  }, [setDeviceState])
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value

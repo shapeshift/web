@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { CAIP2, caip2 } from '@shapeshiftoss/caip'
+import { caip2, ChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -16,8 +16,12 @@ export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
   reducers: {
-    clear: () => initialState,
+    clear: () => {
+      console.info('portfolioSlice: clearing portfolio')
+      return initialState
+    },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
+      console.info('portfolioSlice: upserting portfolio')
       // upsert all
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
@@ -89,7 +93,10 @@ export const portfolioApi = createApi({
         const untypedState = getState()
         const assetIds = (untypedState as ReduxState).assets.ids
         const chainAdapters = getChainAdapters()
-        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
+          ChainId,
+          string,
+        ]
         // TODO(0xdef1cafe): chainAdapters.byCAIP2()
         const { chain } = caip2.fromCAIP2(CAIP2)
         try {

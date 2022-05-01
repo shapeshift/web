@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -35,7 +35,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     getValues,
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
+  } = useFormContext<TradeState<ChainTypes>>()
   const toast = useToast()
   const translate = useTranslate()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
@@ -206,6 +206,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 size='lg'
                 width='full'
                 mt={6}
+                data-test='trade-form-confirm-and-trade-button'
                 type='submit'
               >
                 <Text translation='trade.confirmAndTrade' />

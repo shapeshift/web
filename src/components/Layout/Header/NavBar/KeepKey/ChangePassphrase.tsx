@@ -31,7 +31,9 @@ export const ChangePassphrase = () => {
     state: { hasPassphrase },
   } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction },
+    state: {
+      deviceState: { awaitingDeviceInteraction },
+    },
   } = useWallet()
 
   const handleToggle = async () => {

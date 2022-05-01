@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
@@ -16,7 +16,7 @@ import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
 
 type AssetDetailsProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   route?: Route
 }

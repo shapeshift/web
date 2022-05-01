@@ -61,7 +61,13 @@ export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesRet
               color='gray.500'
               translation='defi.earnBody'
             />
-            <Button variant='ghost' colorScheme='blue' as={NavLink} to='/defi/earn'>
+            <Button
+              variant='ghost'
+              colorScheme='blue'
+              as={NavLink}
+              to='/defi/earn'
+              data-test='defi-view-opportunities-button'
+            >
               <Text translation='defi.empty.stakingVaults.cta' />
             </Button>
           </Card.Body>

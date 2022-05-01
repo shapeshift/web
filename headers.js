@@ -57,6 +57,7 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
     // Explicitly whitelist our KeepKey versions file
     process.env.REACT_APP_KEEPKEY_VERSIONS_URL,
+    process.env.REACT_APP_WALLET_MIGRATION_URL,
   ],
   'frame-src': ['https://fwd.metamask.io/', 'https://widget.portis.io'],
   'img-src': [

@@ -51,11 +51,14 @@ import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
  * for some time as reselect does a really good job of memoizing things
  *
  */
-export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch()
   const { chainAdapterManager, supportedChains } = usePlugins()
   const {
-    state: { wallet },
+    state: {
+      wallet,
+      deviceState: { disposition },
+    },
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
@@ -76,19 +79,35 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination
   useEffect(() => {
-    if (isEmpty(accountSpecifiersList)) return
-    // clear the old portfolio, we have different non null data, we're switching wallet
-    console.info('dispatching portfolio clear action')
-    dispatch(portfolio.actions.clear())
+    const { getAccount } = portfolioApi.endpoints
+    // forceRefetch is enabled here to make sure that we always have the latest wallet information
+    // it also forces queryFn to run and that's needed for the wallet info to be dispatched
+    const options = { forceRefetch: true }
     // fetch each account
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      // forceRefetch is enabled here to make sure that we always have the latest wallet information
-      // it also forces queryFn to run and that's needed for the wallet info to be dispatched
-      dispatch(
-        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }),
-      )
-    })
+    accountSpecifiersList.forEach(accountSpecifierMap =>
+      dispatch(getAccount.initiate({ accountSpecifierMap }, options)),
+    )
   }, [dispatch, accountSpecifiersList])
+
+  /**
+   * handle wallet disconnect/switch logic
+   */
+  useEffect(() => {
+    // if we have a wallet and changed account specifiers, we have switched wallets
+    // NOTE! - the wallet will change before the account specifiers does, so clearing here is valid
+    // check the console logs in the browser for the ordering of actions to verify this logic
+    const switched = Boolean(wallet && !isEmpty(accountSpecifiersList))
+    const disconnected = !wallet
+    // TODO(0xdef1cafe): keep this - change to structured debug logging
+    switched && console.info('AppContext: wallet switched')
+    disconnected && console.info('AppContext: wallet disconnected')
+    if (switched || disconnected) {
+      dispatch(accountSpecifiers.actions.clear())
+      dispatch(portfolio.actions.clear())
+    }
+    // this effect changes accountSpecifiersList, don't create infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, wallet])
 
   /**
    * this was previously known as the useAccountSpecifiers hook
@@ -102,8 +121,8 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
    * break this at your peril
    */
   useEffect(() => {
-    if (!wallet) return
     if (isEmpty(assetsById)) return
+    if (!wallet) return
     ;(async () => {
       try {
         const acc: AccountSpecifierMap[] = []
@@ -180,7 +199,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }
     })()
-  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains])
+  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
 
   const txIds = useSelector(selectTxIds)
   const txsById = useSelector(selectTxs)

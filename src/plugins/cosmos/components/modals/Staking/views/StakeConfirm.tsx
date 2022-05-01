@@ -57,12 +57,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-export const StakeConfirm = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onCancel,
-}: StakeProps) => {
+export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -107,6 +102,8 @@ export const StakeConfirm = ({
     state: { wallet },
   } = useWallet()
 
+  if (!validatorInfo || !cryptoAmount) return null
+
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
   const fiatYield = bnOrZero(cryptoYield).times(bnOrZero(marketData.price)).toPrecision()
 
@@ -122,8 +119,6 @@ export const StakeConfirm = ({
 
     memoryHistory.push(StakingPath.Broadcast)
   }
-
-  if (!cryptoAmount) return null
 
   return (
     <FormProvider {...methods}>

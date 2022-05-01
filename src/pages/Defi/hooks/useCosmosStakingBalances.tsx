@@ -49,8 +49,6 @@ export function useCosmosStakingBalances({
     selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
   )
 
-  const chainId = asset.caip2
-
   const mergedActiveStakingOpportunities = useMemo(() => {
     if (!marketData?.price) return []
 

@@ -128,7 +128,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
                 <UnstakeConfirm
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onCancel={handleCancel}
                 />

@@ -42,17 +42,11 @@ import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 type UnstakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onCancel: () => void
 }
 
-export const UnstakeConfirm = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onCancel,
-}: UnstakeProps) => {
+export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -110,7 +104,7 @@ export const UnstakeConfirm = ({
 
   const translate = useTranslate()
 
-  if (!cryptoAmount) return null
+  if (!validatorInfo || !cryptoAmount) return null
 
   return (
     <FormProvider {...methods}>

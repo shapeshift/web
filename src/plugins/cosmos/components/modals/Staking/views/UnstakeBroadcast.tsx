@@ -48,7 +48,7 @@ export const UnstakeBroadcast = ({
   const { handleStakingAction } = useStakingAction()
   const { txFee, fiatFee, cryptoAmount, gasLimit } = useWatch({ control })
 
-  if (!txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
+  if (!validatorInfo || !txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
 
   // We will also need to listen to incoming Txs (which are currently not coming from the websocket) to determine broadcasted
   // state and react on broadcast errors instead of being optimistic

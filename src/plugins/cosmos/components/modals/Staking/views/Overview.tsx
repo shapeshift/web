@@ -6,7 +6,6 @@ import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetCl
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {

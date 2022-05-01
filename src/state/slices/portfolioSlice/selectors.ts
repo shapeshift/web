@@ -364,7 +364,7 @@ export const selectTotalFiatBalanceWithDelegations = createSelector(
   selectPortfolioCryptoHumanBalanceByFilter,
   selectTotalStakingDelegationCryptoByFilter,
   selectMarketData,
-  selectAssetIdParamFromFilter,
+  selectAssetIdParamFromFilterOptional,
   (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
     const price = marketData[assetId]?.price
     const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)

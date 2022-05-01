@@ -29,7 +29,6 @@ import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
-import { stakingData as stakingDataSlice } from '../stakingDataSlice/stakingDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectAccountIdByAddress,
@@ -823,7 +822,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.25002845')
       })
@@ -853,7 +852,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.17247845')
       })
@@ -883,7 +882,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0.0271425')
       })
@@ -907,7 +906,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0')
       })

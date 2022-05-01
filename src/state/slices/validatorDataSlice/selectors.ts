@@ -1,21 +1,22 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { ReduxState } from 'state/reducer'
 
-import { PubKey } from './validatorDataSlice'
+import { PubKey, ValidatorData, ValidatorDataByPubKey } from './validatorDataSlice'
 
 export const selectValidatorAddress = (_state: ReduxState, validatorAddress: PubKey) =>
   validatorAddress
 
-export const selectValidatorData = (state: ReduxState) => state.validatorData
+export const selectValidatorData = (state: ReduxState): ValidatorData => state.validatorData
 export const selectAllValidatorsData = createSelector(
   selectValidatorData,
-  validatorData => validatorData.byValidator,
+  (validatorData): ValidatorDataByPubKey => validatorData.byValidator,
 )
 
 export const selectSingleValidator = createSelector(
   selectValidatorData,
   selectValidatorAddress,
-  (stakingData, validatorAddress) => {
+  (stakingData, validatorAddress): chainAdapters.cosmos.Validator | null => {
     return stakingData.byValidator[validatorAddress] || null
   },
 )

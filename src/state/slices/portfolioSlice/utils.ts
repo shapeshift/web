@@ -353,9 +353,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
               // However, forEach being its own scope loses the narrowing
               if (portfolioAccount?.stakingDataByValidatorId?.[validatorAddress]) {
                 portfolioAccount.stakingDataByValidatorId[validatorAddress][assetId] = {
-                  delegations: delegations[assetId],
-                  undelegations: undelegations[assetId],
-                  rewards: rewards[assetId],
+                  delegations: delegations[assetId] ?? [],
+                  undelegations: undelegations[assetId] ?? [],
+                  rewards: rewards[assetId] ?? [],
                   redelegations: [], // We don't need redelegations in web, let's not store them in store but keep them for unchained/chain-adapters parity
                 }
               }

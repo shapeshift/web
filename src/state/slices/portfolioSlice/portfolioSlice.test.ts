@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep'
+import merge from 'lodash/merge'
 import {
   assetIds,
   btcAddresses,
@@ -11,6 +13,8 @@ import {
   mockBtcAccount,
   mockBtcAddress,
   mockCosmosAccount,
+  mockCosmosAccountWithOnlyUndelegations,
+  mockCosmosAccountWithStakingData,
   mockEthAccount,
   mockETHandBTCAccounts,
   mockEthToken,
@@ -805,19 +809,12 @@ describe('portfolioSlice', () => {
           }),
         )
 
-        const cosmosAccount = mockCosmosAccount()
+        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
 
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
             mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
           ),
-        )
-
-        store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData,
-          }),
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
@@ -843,11 +840,14 @@ describe('portfolioSlice', () => {
             [cosmos.caip19]: cosmosMarketData,
           }),
         )
+
+        const cosmosAccount = merge(mockCosmosAccount(merge(mockCosmosAccountWithStakingData)), {
+          balance: '0',
+        })
         store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData,
-          }),
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
+          ),
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
@@ -873,11 +873,13 @@ describe('portfolioSlice', () => {
             [cosmos.caip19]: cosmosMarketData,
           }),
         )
+
+        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithOnlyUndelegations)
+
         store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingDataWithOnlyUndelegations,
-          }),
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
+          ),
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {

@@ -311,9 +311,9 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEq
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
   (stakingData, assetId) => {
-    const delegations = Object.values(stakingData || {}).flatMap(
-      validatorStaking => validatorStaking[assetId].delegations?.[0],
-    )
+    const delegations = Object.values(stakingData || {})
+      .flatMap(validatorStaking => validatorStaking[assetId]?.delegations?.[0])
+      .filter(Boolean)
     const amount = reduce(
       delegations,
       (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
@@ -337,7 +337,7 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSele
     )
     const amount = Object.values(stakingDataFilteredByAssetId)
       .reduce((acc, validatorStakingData) => {
-        validatorStakingData.undelegations?.forEach(undelegationEntry => {
+        validatorStakingData?.undelegations?.forEach(undelegationEntry => {
           acc = acc.plus(undelegationEntry.amount)
         })
 

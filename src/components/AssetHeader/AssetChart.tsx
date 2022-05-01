@@ -63,7 +63,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     state: { walletInfo },
   } = useWallet()
   const initialTimeframe =
-    walletInfo?.deviceId === 'DemoWallet' ? HistoryTimeframe.ALL : HistoryTimeframe.DAY
+    walletInfo?.deviceId === 'DemoWallet' ? HistoryTimeframe.MONTH : HistoryTimeframe.DAY
   const [timeframe, setTimeframe] = useState(initialTimeframe)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -88,7 +88,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
   useEffect(() => {
     if (walletInfo?.deviceId === 'DemoWallet') {
-      setTimeframe(HistoryTimeframe.ALL)
+      setTimeframe(HistoryTimeframe.MONTH)
     }
   }, [walletInfo?.deviceId])
 

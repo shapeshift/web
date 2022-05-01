@@ -21,7 +21,7 @@ export const Portfolio = () => {
     state: { walletInfo },
   } = useWallet()
   const initialTimeframe =
-    walletInfo?.deviceId === 'DemoWallet' ? HistoryTimeframe.ALL : HistoryTimeframe.DAY
+    walletInfo?.deviceId === 'DemoWallet' ? HistoryTimeframe.MONTH : HistoryTimeframe.DAY
   const [timeframe, setTimeframe] = useState(initialTimeframe)
   const [percentChange, setPercentChange] = useState(0)
 
@@ -33,7 +33,7 @@ export const Portfolio = () => {
 
   useEffect(() => {
     if (walletInfo?.deviceId === 'DemoWallet') {
-      setTimeframe(HistoryTimeframe.ALL)
+      setTimeframe(HistoryTimeframe.MONTH)
     }
   }, [walletInfo?.deviceId])
 

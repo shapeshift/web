@@ -174,6 +174,11 @@ export const useKeepKeyEventHandler = (
         if (id === state.walletInfo?.deviceId) {
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
         }
+        if (modal) {
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        }
       } catch (e) {
         console.error('Device Disconnect Error:', e)
       }

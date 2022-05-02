@@ -1,5 +1,4 @@
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import { Validator } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
 
@@ -244,7 +243,7 @@ export const mockCosmosAccount = (obj?: {
   merge(
     {},
     {
-      balance: '1000',
+      balance: '0',
       caip2: cosmosCaip2,
       caip19: cosmosCaip19,
       chain: ChainTypes.Cosmos as const,

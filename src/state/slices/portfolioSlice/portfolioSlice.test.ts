@@ -807,7 +807,9 @@ describe('portfolioSlice', () => {
           }),
         )
 
-        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
+        const cosmosAccount = merge(mockCosmosAccount(mockCosmosAccountWithStakingData), {
+          balance: '1000',
+        })
 
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
@@ -839,9 +841,7 @@ describe('portfolioSlice', () => {
           }),
         )
 
-        const cosmosAccount = merge(mockCosmosAccount(merge(mockCosmosAccountWithStakingData)), {
-          balance: '0',
-        })
+        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
             mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
@@ -855,7 +855,7 @@ describe('portfolioSlice', () => {
         expect(result).toEqual('1.17247845')
       })
 
-      it('should return non zero fiat balance in case there are only undelegations', () => {
+      it('should return non zero fiat balance in case there are only undelegations but no asset balance', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {

@@ -67,8 +67,8 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const hasActiveStaking =
     // More than one opportunity data means we have more than the default opportunity
     size(stakingOpportunitiesData) > 1 ||
-    bnOrZero(stakingOpportunitiesData[0].rewards).gt(0) ||
-    bnOrZero(stakingOpportunitiesData[0].totalDelegations).gt(0)
+    bnOrZero(stakingOpportunitiesData[0]?.rewards).gt(0) ||
+    bnOrZero(stakingOpportunitiesData[0]?.totalDelegations).gt(0)
 
   const rows = stakingOpportunitiesData
   const { cosmosGetStarted, cosmosStaking } = useModal()

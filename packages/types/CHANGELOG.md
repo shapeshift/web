@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v3.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v3.0.1...@shapeshiftoss/types-v3.1.0) (2022-05-02)
+
+
+### Features
+
+* make caip2, caip19 fields optional ([#593](https://github.com/shapeshift/lib/issues/593)) ([0ac7a81](https://github.com/shapeshift/lib/commit/0ac7a815ed189ee5b842d7488752e14f8a84f8f4))
+
 # [@shapeshiftoss/types-v3.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v3.0.0...@shapeshiftoss/types-v3.0.1) (2022-05-02)
 
 

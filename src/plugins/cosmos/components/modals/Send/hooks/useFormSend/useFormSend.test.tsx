@@ -26,7 +26,9 @@ const formData: SendInput = {
   [SendFormFields.Address]: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner',
   [SendFormFields.Asset]: {
     caip19: 'cosmos:cosmoshub-4/slip44:118',
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
     caip2: 'cosmos:cosmoshub-4',
+    chainId: 'cosmos:cosmoshub-4',
     chain: ChainTypes.Cosmos,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.COSMOSHUB_MAINNET,

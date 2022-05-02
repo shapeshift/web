@@ -23,7 +23,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectDelegationCryptoAmountByAssetIdAndValidator,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -46,7 +46,7 @@ type UnstakeProps = {
   validatorAddress: string
 }
 
-export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: UnstakeProps) => {
+export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: UnstakeProps) => {
   const {
     control,
     formState: { isValid },
@@ -56,7 +56,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
 
   const values = useWatch({ control })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoStakeBalance = useAppSelector(state =>
     selectDelegationCryptoAmountByAssetIdAndValidator(state, {

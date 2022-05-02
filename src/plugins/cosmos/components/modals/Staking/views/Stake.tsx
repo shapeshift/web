@@ -26,7 +26,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -45,7 +45,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).div(100).toString()
 }
 
-export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
+export const Stake = ({ assetId, apr }: StakeProps) => {
   const {
     control,
     formState: { isValid },
@@ -53,7 +53,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
     setValue,
   } = useFormContext<StakingValues>()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
@@ -220,6 +220,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
             <Link
               color={'blue.200'}
               fontWeight='bold'
+              target='_blank'
               href='/#/legal/privacy-policy'
               onClick={cosmosStaking.close}
             >

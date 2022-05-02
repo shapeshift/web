@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   ActiveStakingOpportunity,
-  selectAssetByCAIP19,
+  selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
   selectStakingOpportunitiesDataFull,
@@ -39,7 +39,7 @@ export function useCosmosStakingBalances({
   assetId,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.caip2),

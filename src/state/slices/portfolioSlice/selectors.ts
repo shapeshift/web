@@ -38,7 +38,7 @@ import {
   PortfolioBalancesById,
 } from './portfolioSliceCommon'
 import {
-  assetIdtoChainId,
+  assetIdToChainId,
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
@@ -121,7 +121,7 @@ export const selectIsPortfolioLoaded = createSelector(
     return !size(
       difference(
         uniq(map(accountSpecifiers, flow([keys, head]))),
-        uniq(map(portfolioAssetIds, assetIdtoChainId)),
+        uniq(map(portfolioAssetIds, assetIdToChainId)),
       ),
     )
   },
@@ -268,7 +268,7 @@ export const selectPortfolioFiatBalanceByFilter = createSelector(
 export const selectPortfolioCryptoBalanceByAssetId = createSelector(
   selectPortfolioAssetBalances,
   selectAssetIdParamFromFilter,
-  (byId, assetId): string => byId[assetId],
+  (byId, assetId): string => byId[assetId] ?? 0,
 )
 
 export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(

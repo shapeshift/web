@@ -15,11 +15,10 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   OpportunitiesDataFull,
-  selectAssetByCAIP19,
   selectFirstAccountSpecifierByChainId,
-  selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
@@ -54,7 +53,7 @@ export const ValidatorName = ({ moniker, isStaking, validatorAddress }: Validato
 }
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const accountSpecifier = useAppSelector(state =>

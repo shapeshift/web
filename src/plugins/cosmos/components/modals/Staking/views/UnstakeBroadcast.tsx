@@ -12,7 +12,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectSingleValidator,
 } from 'state/slices/selectors'
@@ -22,22 +22,16 @@ import { StakingAction, StakingValues } from '../StakingCommon'
 
 type UnstakeBroadcastProps = {
   assetId: AssetId
-  accountSpecifier: string
   onClose: () => void
   validatorAddress: string
 }
 
-export const UnstakeBroadcast = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onClose,
-}: UnstakeBroadcastProps) => {
+export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: UnstakeBroadcastProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
 

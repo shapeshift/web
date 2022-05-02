@@ -18,7 +18,7 @@ import { RawText } from 'components/Text'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectPortfolioAllocationPercentByFilter,
   selectTotalCryptoBalanceWithDelegations,
@@ -50,7 +50,7 @@ export const AssetAccountRow = ({
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetByCAIP19(state, rowAssetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.caip2),
   )
@@ -142,7 +142,7 @@ export const AssetAccountRow = ({
       </Flex>
       {showAllocation && (
         <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-          <Allocations value={allocation} color={'#000'} />
+          <Allocations value={allocation} />
         </Flex>
       )}
       {!isCompact && (

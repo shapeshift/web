@@ -1,19 +1,11 @@
 import { AccountId, AssetId, caip2, caip10, caip19, ChainId } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import {
-  Asset,
-  BIP44Params,
-  chainAdapters,
-  ChainTypes,
-  UtxoAccountType,
-} from '@shapeshiftoss/types'
+import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
-import util from 'util'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -23,11 +15,6 @@ import {
   Portfolio,
   PortfolioAccounts as PortfolioSliceAccounts,
 } from './portfolioSliceCommon'
-
-export type UtxoParamsAndAccountType = {
-  utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
-  accountType: UtxoAccountType
-}
 
 // TODO(gomes): Import from caip after lib#572 is merged
 export const ethChainId = 'eip155:1'
@@ -51,7 +38,7 @@ const caip2toCaip19: Record<string, string> = {
   [osmosisChainId]: osmosisAssetId,
 }
 
-export const assetIdtoChainId = (caip19: AssetId): ChainIdType =>
+export const assetIdToChainId = (caip19: AssetId): ChainIdType =>
   caip19.split('/')[0] as ChainIdType
 
 export const accountIdToChainId = (accountId: AccountSpecifier): ChainId => {
@@ -153,7 +140,7 @@ export const findAccountsByAssetId = (
   // return the account(s) for that given assets chain
   if (result.length === 0) {
     return Object.keys(portfolioAccounts).filter(
-      accountId => assetIdtoChainId(assetId) === accountIdToChainId(accountId),
+      accountId => assetIdToChainId(assetId) === accountIdToChainId(accountId),
     )
   }
   return result

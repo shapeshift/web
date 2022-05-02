@@ -1,6 +1,5 @@
 import { Box, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { Route } from 'Routes/helpers'
 import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 
@@ -13,7 +12,7 @@ const DefiHeader = () => {
   )
 }
 
-export const StakingVaults = ({ route }: { route?: Route }) => {
+export const StakingVaults = () => {
   return (
     <Main titleComponent={<DefiHeader />}>
       <AllEarnOpportunities />

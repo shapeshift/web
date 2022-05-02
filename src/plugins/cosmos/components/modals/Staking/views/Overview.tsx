@@ -13,7 +13,7 @@ import {
   selectTotalBondingsBalanceByAssetId,
   selectUnbondingEntriesByAccountSpecifier,
 } from 'state/slices/portfolioSlice/selectors'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { selectSingleValidator } from 'state/slices/validatorDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,7 +28,7 @@ export const Overview: React.FC<StakedProps> = ({
   validatorAddress,
   accountSpecifier,
 }) => {
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))

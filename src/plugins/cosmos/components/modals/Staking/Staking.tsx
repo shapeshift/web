@@ -13,7 +13,7 @@ import { useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { selectAssetByCAIP19, selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
+import { selectAssetById, selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakeFormManager } from './forms/StakeFormManager'
@@ -73,7 +73,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
 
   const initialRef = useRef<HTMLInputElement>(null)
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.caip2),
   )
@@ -111,7 +111,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
                 <StakeConfirm
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onCancel={handleCancel}
                 />
@@ -119,7 +118,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
                 <StakeBroadcast
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
                   onCancel={handleCancel}
@@ -135,7 +133,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
                 <UnstakeBroadcast
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
                 />

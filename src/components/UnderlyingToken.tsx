@@ -11,7 +11,7 @@ import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UnderlyingTokenProps = {
@@ -21,13 +21,13 @@ type UnderlyingTokenProps = {
 
 // TODO: currently this is hard coded to yearn vaults only.
 // In the future we should add a hook to get the provider interface by vault provider
-export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) => {
+export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
   const { loading, yearn } = useYearn()
   const vaults: SupportedYearnVault[] = useYearnVaults()
 
   // Get asset from caip19
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const {
     state: { wallet },

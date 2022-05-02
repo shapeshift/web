@@ -37,7 +37,7 @@ export const useStakingAction = () => {
         let result
 
         const { chainSpecific, validator, action, value } = data
-        if (adapterType === ChainTypes.Cosmos) {
+        if (adapterType === ChainTypes.Cosmos || adapterType === ChainTypes.Osmosis) {
           switch (action) {
             case StakingAction.Claim: {
               result = await (adapter as CosmosChainAdapter).buildClaimRewardsTransaction({
@@ -69,15 +69,13 @@ export const useStakingAction = () => {
               break
             }
           }
-        } else if (adapterType === ChainTypes.Osmosis) {
-          // TODO(gomes): implement this
         } else {
           throw new Error('unsupported adapterType')
         }
+
         const txToSign = result?.txToSign
 
         let broadcastTXID: string | undefined
-
         // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
         if (txToSign && wallet.supportsOfflineSigning()) {
           broadcastTXID = await adapter.signAndBroadcastTransaction?.({ txToSign, wallet })

@@ -19,6 +19,7 @@ import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+const SHAPESHIFT_OSMO_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
 type UseCosmosStakingBalancesProps = {
   assetId: AssetId
@@ -71,6 +72,7 @@ export function useCosmosStakingBalances({
   const shapeshiftValidator = useAppSelector(state =>
     selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS),
   )
+
   const stakingOpportunities = useMemo(() => {
     return [
       {

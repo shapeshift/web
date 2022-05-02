@@ -32,6 +32,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     state: { wallet, walletInfo },
   } = useWallet()
   const { chainAdapterManager, supportedChains } = usePlugins()
+
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
   const assets = useSelector(selectAssets)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)

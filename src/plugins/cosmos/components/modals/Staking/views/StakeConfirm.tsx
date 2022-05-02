@@ -72,6 +72,7 @@ export const StakeConfirm = ({
   const validatorInfo = useAppSelector(state =>
     selectSingleValidator(state, accountSpecifier, validatorAddress),
   )
+
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const translate = useTranslate()
@@ -160,7 +161,7 @@ export const StakeConfirm = ({
               target='_blank'
               href={`https://www.mintscan.io/cosmos/validators/${validatorAddress}`}
             >
-              {validatorInfo.moniker}
+              {validatorInfo?.moniker}
             </Link>
           </Flex>
           <Flex width='100%' mb='35px' justifyContent='space-between'>

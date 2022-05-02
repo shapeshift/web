@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { createSelector } from '@reduxjs/toolkit'
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'

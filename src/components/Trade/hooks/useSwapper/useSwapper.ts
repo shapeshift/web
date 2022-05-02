@@ -80,6 +80,7 @@ export const useSwapper = () => {
     const manager = new SwapperManager()
     const web3 = getWeb3Instance()
     manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapterManager }))
+
     return manager
   })
 

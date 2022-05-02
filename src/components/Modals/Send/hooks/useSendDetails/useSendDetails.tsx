@@ -1,7 +1,6 @@
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import { FeeDataEstimate } from '@shapeshiftoss/types/dist/chain-adapters'
 import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

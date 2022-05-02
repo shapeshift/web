@@ -462,7 +462,7 @@ export const selectActiveStakingOpportunityDataByAssetId = createDeepEqualOutput
             address: validatorAddress,
             apr,
             moniker,
-            tokens,
+            tokens: tokens as string,
             cryptoAmount,
             rewards,
           })

@@ -19,7 +19,10 @@ const ASSET_ID_TO_MAX_APR: Record<AssetId, string> = {
   'cosmos:cosmoshub-4/slip44:118': '12',
 }
 
-const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+const VALIDATOR_ASSET_MAP: Record<string, string> = {
+  'cosmos:osmosis-1/slip44:118': 'osmovaloper1dpwecca283m0c20dmsfzztp4mma8h9ajxwvx52',
+  'cosmos:cosmoshub-4/slip44:118': 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+}
 
 export const GetStarted = ({ assetId }: GetStartedProps) => {
   const { cosmosGetStarted, cosmosStaking } = useModal()
@@ -35,7 +38,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
   const handleStartStakingClick = () => {
     cosmosStaking.open({
       assetId,
-      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+      validatorAddress: VALIDATOR_ASSET_MAP[assetId],
     })
     cosmosGetStarted.close()
   }

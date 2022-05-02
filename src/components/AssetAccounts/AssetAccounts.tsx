@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Grid, Stack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
@@ -22,7 +21,6 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   )
   if ((accountIds && accountIds.length === 0) || accountId) return null
 
-  console.log('accountIds', accountIds)
   return (
     <Card>
       <Card.Header>

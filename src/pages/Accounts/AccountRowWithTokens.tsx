@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Box } from '@chakra-ui/react'
 import { AccountAssetsList } from 'components/AccountAssets/AccountAssetsList'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'

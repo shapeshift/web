@@ -3,7 +3,7 @@ import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -53,7 +53,7 @@ export function useCosmosStakingBalances({
   const isValidatorDataLoaded = useAppSelector(selectValidatorIsLoaded)
   const isLoaded = isStakingDataLoaded && isValidatorDataLoaded
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const dispatch = useAppDispatch()
 
   const accountSpecifier = useAppSelector(state =>

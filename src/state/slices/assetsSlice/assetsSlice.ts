@@ -55,12 +55,12 @@ export const assetApi = createApi({
       // all assets
       queryFn: async () => {
         // @ts-ignore
-        const service = await getAssetService()
+        const service = await getAssetService() 
         const assetArray = service?.byNetwork()
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
-          const { caip19 } = cur
-          acc.byId[caip19] = cur
-          acc.ids.push(caip19)
+          const { assetId } = cur
+          acc.byId[assetId] = cur
+          acc.ids.push(assetId)
           return acc
         }, cloneDeep(initialState))
         return { data }

@@ -32,7 +32,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const chainId = asset.caip2
+  const chainId = asset.chainId
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const filter = useMemo(
     // if we are passed an accountId, we're on an asset account page, use that specifically.

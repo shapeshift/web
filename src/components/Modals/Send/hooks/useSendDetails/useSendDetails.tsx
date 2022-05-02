@@ -50,30 +50,30 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
-  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
+  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.assetId)).price)
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
   const balancesLoading = false
 
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.caip19, accountId }),
+      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.assetId, accountId }),
     ),
   )
 
   const fiatBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.caip19, accountId }),
+      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.assetId, accountId }),
     ),
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.assetId, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.caip19, accountId }),
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.assetId, accountId }),
     ),
   )
   const chainAdapterManager = useChainAdapters()
@@ -165,7 +165,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   const handleSendMax = async () => {
-    if (feeAsset.caip19 !== asset.caip19) {
+    if (feeAsset.assetId !== asset.assetId) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
       setLoading(true)

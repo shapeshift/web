@@ -125,7 +125,7 @@ export const useSwapper = () => {
 
     // to account for gas fees when trading Max ETH
     const gasDeduction =
-      feeAsset.caip19 === sellAsset.currency.caip19
+      feeAsset.assetId === sellAsset.currency.assetId
         ? bnOrZero(estimatedGasFees ?? quoteEstimatedGasFees)
         : bn(0)
 

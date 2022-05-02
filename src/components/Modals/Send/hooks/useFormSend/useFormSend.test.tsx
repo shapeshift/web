@@ -41,8 +41,8 @@ jest.mock('lib/ens')
 const formData: SendInput = {
   [SendFormFields.Address]: EthSend.address,
   [SendFormFields.Asset]: {
-    caip2: '',
-    caip19: '',
+    chainId: '',
+    assetId: '',
     description: '',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,

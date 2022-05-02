@@ -29,7 +29,7 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     getQuote: getQuote,
     getBestSwapper: () => SwapperType.Zrx,
-    getDefaultPair: () => [mockETH.caip19, mockFOX.caip19],
+    getDefaultPair: () => [mockETH.assetId, mockFOX.assetId],
   }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,

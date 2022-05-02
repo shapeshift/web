@@ -27,7 +27,7 @@ export const AllTransactions: React.FC<AssetTransactionProps> = ({ assetId, acco
     state: { wallet },
   } = useWallet()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const chainId = asset.caip2
+  const chainId = asset.chainId
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const filter = useMemo(
     // if we are passed an accountId, we're on an asset accoutn page, use that specifically.
@@ -43,7 +43,7 @@ export const AllTransactions: React.FC<AssetTransactionProps> = ({ assetId, acco
   const { next, data, hasMore } = useInfiniteScroll(txIds)
 
   const txRows = useMemo(() => {
-    if (!asset.caip19) return null
+    if (!asset.assetId) return null
     return data?.map((txId: string) => (
       <TransactionRow key={txId} txId={txId} activeAsset={asset} />
     ))

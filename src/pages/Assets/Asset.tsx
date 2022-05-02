@@ -49,6 +49,6 @@ export const Asset = ({ route }: { route?: Route }) => {
       </Flex>
     </Page>
   ) : (
-    <AssetAccountDetails assetId={asset.caip19} key={asset?.tokenId} route={route} />
+    <AssetAccountDetails assetId={asset.assetId} key={asset?.tokenId} route={route} />
   )
 }

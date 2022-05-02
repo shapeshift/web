@@ -21,7 +21,7 @@ type AssetHeaderProps = {
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const chainId = asset.caip2
+  const chainId = asset.chainId
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined

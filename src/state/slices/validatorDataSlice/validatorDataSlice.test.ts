@@ -1,3 +1,4 @@
+import merge from 'lodash/merge'
 import { clearState, store } from 'state/store'
 
 import { selectSingleValidator } from './selectors'
@@ -12,6 +13,32 @@ const SHAPESHIFT_OPPORTUNITY = {
   commission: '0.100000000000000000',
 }
 
+const MOCK_VALIDATORS = merge(
+  [
+    {
+      address: 'cosmosvaloper19ggkjc5slg5gphf92yrvusr3jc702h4tfz6nvn',
+      moniker: 'IZ*ONE',
+      tokens: '60102',
+      commission: '0.040000000000000000',
+      apr: '0.1631159915',
+    },
+    {
+      address: 'cosmosvaloper19f0w9svr905fhefusyx4z8sf83j6et0g9l5yhl',
+      moniker: 'NodeStake.top',
+      tokens: '1366570093',
+      commission: '0.010000000000000000',
+      apr: '0.1682133662',
+    },
+    {
+      address: 'cosmosvaloper1xhhquwctvwm40qn3nmmqq067pc2gw22eqkwgt0',
+      moniker: 'stake2earn',
+      tokens: '4474530413',
+      commission: '0.010000000000000000',
+      apr: '0.1682133662',
+    },
+  ],
+  [SHAPESHIFT_OPPORTUNITY],
+)
 describe('validatorDataSlice', () => {
   beforeEach(() => {
     clearState()
@@ -29,7 +56,7 @@ describe('validatorDataSlice', () => {
       it('updates or inserts validator data in state', async () => {
         store.dispatch(
           validatorData.actions.upsertValidatorData({
-            validators: [],
+            validators: MOCK_VALIDATORS,
           }),
         )
         expect(store.getState().validatorData.byValidator).toMatchSnapshot()
@@ -40,7 +67,7 @@ describe('validatorDataSlice', () => {
       it('clears state back to initial state', async () => {
         store.dispatch(
           validatorData.actions.upsertValidatorData({
-            validators: [],
+            validators: MOCK_VALIDATORS,
           }),
         )
 
@@ -69,7 +96,7 @@ describe('validatorDataSlice', () => {
         beforeEach(() => {
           store.dispatch(
             validatorData.actions.upsertValidatorData({
-              validators: [],
+              validators: MOCK_VALIDATORS,
             }),
           )
         })
@@ -77,7 +104,7 @@ describe('validatorDataSlice', () => {
         it('returns null when validator data is not present in state', async () => {
           store.dispatch(
             validatorData.actions.upsertValidatorData({
-              validators: [SHAPESHIFT_OPPORTUNITY],
+              validators: MOCK_VALIDATORS,
             }),
           )
 
@@ -91,7 +118,7 @@ describe('validatorDataSlice', () => {
         it('returns validator info when validator data is present in state', async () => {
           store.dispatch(
             validatorData.actions.upsertValidatorData({
-              validators: [SHAPESHIFT_OPPORTUNITY],
+              validators: MOCK_VALIDATORS,
             }),
           )
 

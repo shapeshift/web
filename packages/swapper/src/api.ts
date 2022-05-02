@@ -55,11 +55,6 @@ export interface Swapper {
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>
 
   /**
-   * Get the default pair of the swapper
-   */
-  getDefaultPair(): [CAIP19, CAIP19]
-
-  /**
    * Get the minimum and maximum trade value of the sellAsset and buyAsset
    */
   getMinMax(input: GetQuoteInput): Promise<MinMaxOutput>

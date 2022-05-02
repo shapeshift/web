@@ -39,10 +39,6 @@ export class ThorchainSwapper implements Swapper {
     throw new Error('ThorchainSwapper: executeQuote unimplemented')
   }
 
-  getDefaultPair(): [CAIP19, CAIP19] {
-    throw new Error('ThorchainSwapper: getDefaultPair unimplemented')
-  }
-
   async approvalNeeded(): Promise<ApprovalNeededOutput> {
     throw new Error('ThorchainSwapper: approvalNeeded unimplemented')
   }

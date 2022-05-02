@@ -53,10 +53,6 @@ export class TestSwapper implements Swapper {
     throw new Error('TestSwapper: executeQuote unimplemented')
   }
 
-  getDefaultPair(): [CAIP19, CAIP19] {
-    throw new Error('TestSwapper: getDefaultPair unimplemented')
-  }
-
   async approvalNeeded(): Promise<ApprovalNeededOutput> {
     throw new Error('TestSwapper: approvalNeeded unimplemented')
   }

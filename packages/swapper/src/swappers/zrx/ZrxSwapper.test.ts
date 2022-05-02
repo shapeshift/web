@@ -76,14 +76,6 @@ describe('ZrxSwapper', () => {
     await swapper.executeQuote(args)
     expect(ZrxExecuteQuote).toHaveBeenCalled()
   })
-  it('gets default pair', () => {
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const pair = swapper.getDefaultPair()
-    const ethCAIP19 = 'eip155:1/slip44:60'
-    expect(pair).toHaveLength(2)
-    expect(pair[0]).toEqual(ethCAIP19)
-    expect(pair[1]).toEqual(FOX.assetId)
-  })
   it('calls getUsdRate on swapper.getUsdRate', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     await swapper.getUsdRate(FOX)

@@ -302,20 +302,6 @@ module.exports = {
         : {}
     )
 
-    // Remove data-test="" attributes from production builds
-    //
-    // data-test attributes are used as unique identifiers in Cypress integration and e2e tests.
-    // They aren't needed in production and
-    //   a) only bump up the bundle size, as well as
-    //   b) make it stupidly easy for potential bot authors
-    //      to automate site interactions.
-    //      (After all, that automation is what cypress tests do)
-    if (isProduction) {
-      const oneOfLoaders = config.module.rules.find(rule => Array.isArray(rule.oneOf))?.oneOf
-      const babelLoader = oneOfLoaders.find(rule => rule.loader?.includes('babel-loader'))
-      babelLoader.options.plugins.push(['react-remove-properties', { properties: ['data-test'] }])
-    }
-
     return config
   },
   devServer: configFunction => {

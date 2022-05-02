@@ -8,7 +8,7 @@ export const selectValidatorAddress = (_state: ReduxState, validatorAddress: Pub
   validatorAddress
 
 export const selectValidatorData = (state: ReduxState): ValidatorData => state.validatorData
-export const selectAllValidatorsData = createSelector(
+export const selectValidators = createSelector(
   selectValidatorData,
   (validatorData): ValidatorDataByPubKey => validatorData.byValidator,
 )

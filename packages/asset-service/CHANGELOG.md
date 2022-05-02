@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v2.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.4.3...@shapeshiftoss/asset-service-v2.4.4) (2022-05-02)
+
+
+### Bug Fixes
+
+* update descriptions ([#592](https://github.com/shapeshift/lib/issues/592)) ([b3cf4e8](https://github.com/shapeshift/lib/commit/b3cf4e8673be639704e595f701d18f0a6334371a))
+
 # [@shapeshiftoss/asset-service-v2.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.4.2...@shapeshiftoss/asset-service-v2.4.3) (2022-05-02)
 
 

@@ -81,7 +81,7 @@ export function useCosmosStakingBalances({
   }, [shapeshiftValidator])
 
   const nonLoadedValidators = useAppSelector(state =>
-    selectNonloadedValidators(state, { accountSpecifier: accountSpecifier }),
+    selectNonloadedValidators(state, { accountSpecifier }),
   )
 
   const chainId = asset.caip2

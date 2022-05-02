@@ -1,4 +1,5 @@
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { Validator } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
 
@@ -186,29 +187,27 @@ export const mockCosmosAccountWithOnlyUndelegations = Object.freeze({
     rewards: [],
     undelegations: [
       {
-        amount: '100',
-        assetId: 'cosmos:cosmoshub-4/slip44:118',
-        completionTime: 1650472940,
+        entries: [
+          {
+            amount: '100',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+            completionTime: 1650472940,
+          },
+          {
+            amount: '250',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+            completionTime: 1650472941,
+          },
+        ],
         validator: {
           address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
           tokens: '111116',
           apr: '0.1496681491',
           commission: '0.100000000000000000',
           moniker: 'ShapeShift DAO',
-        },
+        } as Validator,
       },
-      {
-        amount: '250',
-        assetId: 'cosmos:cosmoshub-4/slip44:118',
-        completionTime: 1650472941,
-        validator: {
-          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          tokens: '111116',
-          apr: '0.1496681491',
-          commission: '0.100000000000000000',
-          moniker: 'ShapeShift DAO',
-        },
-      },
+      {},
     ],
     sequence: '422',
     accountNumber: '424242',

@@ -1,4 +1,3 @@
-import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import {
   assetIds,
@@ -28,7 +27,6 @@ import {
 import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockUpsertPortfolio } from 'test/mocks/portfolio'
-import { mockStakingData, mockStakingDataWithOnlyUndelegations } from 'test/mocks/stakingData'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'

@@ -13,6 +13,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
+import util from 'util'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -304,9 +305,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
               cosmosAccount.chainSpecific.delegations.map(
                 delegation => delegation.validator.address,
               ),
-              cosmosAccount.chainSpecific.undelegations.map(
-                undelegation => undelegation.validator.address,
-              ),
+              cosmosAccount.chainSpecific.undelegations
+                .map(undelegation => {
+                  return undelegation?.validator?.address
+                })
+                .filter(Boolean),
               cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
             ].flat(),
           ),

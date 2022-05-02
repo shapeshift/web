@@ -13,18 +13,13 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectSingleValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingAction, StakingValues } from '../StakingCommon'
-
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat',
-}
 
 type StakeProps = {
   assetId: AssetId
@@ -50,7 +45,7 @@ export const StakeBroadcast = ({
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

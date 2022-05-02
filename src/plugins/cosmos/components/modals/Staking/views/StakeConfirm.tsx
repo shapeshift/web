@@ -31,7 +31,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectSingleValidator,
@@ -39,11 +39,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { Field, StakingPath, StakingValues } from '../StakingCommon'
-
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat',
-}
 
 type StakeProps = {
   assetId: AssetId
@@ -67,7 +62,7 @@ export const StakeConfirm = ({
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
   })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
     selectSingleValidator(state, accountSpecifier, validatorAddress),

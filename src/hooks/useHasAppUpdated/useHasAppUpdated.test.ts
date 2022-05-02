@@ -28,7 +28,7 @@ describe('useHasAppUpdated', () => {
     })
 
     it('should return false when env.json/asset-manifest.json is not updated', async () => {
-      mockAxios.get.mockImplementation((url: string) => {
+      mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
@@ -39,7 +39,7 @@ describe('useHasAppUpdated', () => {
     })
 
     it('should return true when env.json is updated', async () => {
-      mockAxios.get.mockImplementation((url: string) => {
+      mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
@@ -59,7 +59,7 @@ describe('useHasAppUpdated', () => {
     })
 
     it('should return true when asset-manifest.json is updated', async () => {
-      mockAxios.get.mockImplementation((url: string) => {
+      mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
@@ -81,7 +81,7 @@ describe('useHasAppUpdated', () => {
 
   describe('localhost', () => {
     it('should return false when env.json/asset-manifest.json is not updated', async () => {
-      mockAxios.get.mockImplementation((url: string) => {
+      mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
@@ -99,7 +99,7 @@ describe('useHasAppUpdated', () => {
     })
 
     it('should return false when env.json updated', async () => {
-      mockAxios.get.mockImplementation((url: string) => {
+      mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
@@ -119,7 +119,7 @@ describe('useHasAppUpdated', () => {
     })
 
     it('should return false when asset-manifest.json is updated', async () => {
-      mockAxios.get.mockImplementation((url: string) => {
+      mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 

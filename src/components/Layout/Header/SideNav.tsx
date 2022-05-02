@@ -3,8 +3,6 @@ import React from 'react'
 
 import { SideNavContent } from './SideNavContent'
 
-export const NAV_PADDING = { base: 6, lg: 16 }
-
 export const SideNav = () => {
   const bg = useColorModeValue('white', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')

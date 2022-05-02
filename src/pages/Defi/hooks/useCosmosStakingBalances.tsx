@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAccountSpecifier,
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import {
@@ -53,7 +53,7 @@ export function useCosmosStakingBalances({
   const isValidatorDataLoaded = useAppSelector(selectValidatorIsLoaded)
   const isLoaded = isStakingDataLoaded && isValidatorDataLoaded
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const dispatch = useAppDispatch()
 
   const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.chainId))

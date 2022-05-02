@@ -106,6 +106,7 @@ describe('getTransferByType', () => {
 describe('getTransferByAsset', () => {
   it('finds transfer with asset', () => {
     const asset = {
+      caip19: 'eip155:1/slip44:60',
       assetId: 'eip155:1/slip44:60',
     } as Asset
     const result = getTransferByAsset(EthSend, asset)
@@ -114,6 +115,7 @@ describe('getTransferByAsset', () => {
   })
   it('returns undefined on failure', () => {
     const asset = {
+      caip19: 'eip999:1/0x:ZZ',
       assetId: 'eip999:1/0x:ZZ',
     } as Asset
     const result = getTransferByAsset(EthSend, asset)

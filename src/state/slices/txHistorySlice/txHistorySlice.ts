@@ -17,13 +17,6 @@ import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER 
 export type TxId = string
 export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
 
-export type TxFilter = {
-  accountType?: UtxoAccountType
-  caip19?: AssetId
-  caip2?: ChainId
-  txid?: TxId
-}
-
 export type TxHistoryById = {
   [k: TxId]: Tx
 }

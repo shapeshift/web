@@ -118,7 +118,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   fiatInputValidation,
   onContinue,
   updateWithdraw,
-  onCancel,
   percentOptions,
   feePercentage,
   children,
@@ -197,7 +196,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       setValue(Field.CryptoAmount, cryptoAmount.toString(), {
         shouldValidate: true,
       })
-      setPercent(1)
+      // TODO(0xdef1cafe): query the fee function from the liquidity reserve contract
+      // this is correct as at 2022-04-27
+      // https://etherscan.io/address/0x8EC637Fe2800940C7959f9BAd4fE69e41225CD39#readContract
+      setPercent(2.5)
       setValue(Field.WithdrawType, WithdrawType.INSTANT)
     } else {
       setValue(Field.WithdrawType, WithdrawType.DELAYED)
@@ -252,7 +254,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
               <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
               <ButtonGroup colorScheme='blue' width='full' variant='input'>
                 <Button
-                  disabled={true}
                   isFullWidth
                   flexDir='column'
                   height='auto'
@@ -390,7 +391,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           thousandSeparator={localeParts.group}
                           value={value}
                           disabled={values.withdrawType === WithdrawType.INSTANT}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             handleInputChange(amountRef.current as string)
                             amountRef.current = null
@@ -417,7 +418,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
                           value={bnOrZero(value).toFixed(2)}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             if (amountRef.current) handleInputChange(amountRef.current)
                             amountRef.current = null

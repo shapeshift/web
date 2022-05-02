@@ -16,10 +16,7 @@ export const SettingsRouter = ({ appHistory }: { appHistory: RouteComponentProps
             <SettingsList appHistory={appHistory} {...props} />
           )}
         />
-        <Route
-          path={SettingsRoutes.Languages}
-          component={(props: RouteComponentProps) => <Languages {...props} />}
-        />
+        <Route path={SettingsRoutes.Languages} component={() => <Languages />} />
       </Switch>
     </AnimatePresence>
   )

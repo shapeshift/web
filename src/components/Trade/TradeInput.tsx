@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
 import { AssetNamespace } from '@shapeshiftoss/caip'
-import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
@@ -25,13 +25,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectFeeAssetById,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type TS = TradeState<ChainTypes, SwapperType>
+type TS = TradeState<ChainTypes>
 
 export const TradeInput = ({ history }: RouterProps) => {
   const {
@@ -40,7 +40,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     getValues,
     setValue,
     formState: { errors, isDirty, isValid, isSubmitting },
-  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
+  } = useFormContext<TradeState<ChainTypes>>()
   const {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -70,8 +70,8 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const feeAsset = useAppSelector(state =>
     sellAsset
-      ? selectFeeAssetById(state, sellAsset?.currency?.assetId)
-      : selectAssetByCAIP19(state, 'eip155:1/slip44:60'),
+      ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
+      : selectAssetById(state, 'eip155:1/slip44:60'),
   )
   const feeAssetBalance = useAppSelector(state =>
     feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.assetId) : null,
@@ -135,7 +135,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         sellAsset,
         buyAsset,
         feeAsset,
-        estimatedGasFees,
       })
       const action = TradeActions.SELL
       const currentSellAsset = getValues('sellAsset')
@@ -254,7 +253,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               <FormErrorMessage>{errors.fiatAmount && errors.fiatAmount.message}</FormErrorMessage>
             </FormControl>
             <FormControl>
-              <TokenRow<TradeState<ChainTypes, SwapperType>>
+              <TokenRow<TradeState<ChainTypes>>
                 control={control}
                 fieldName='sellAsset.amount'
                 disabled={isSendMaxLoading}
@@ -285,7 +284,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     Max
                   </Button>
                 }
-                data-test='token-row-sell'
+                data-test='trade-form-token-input-row-sell'
               />
             </FormControl>
             <FormControl
@@ -330,7 +329,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               </Box>
             </FormControl>
             <FormControl mb={6}>
-              <TokenRow<TradeState<ChainTypes, SwapperType>>
+              <TokenRow<TradeState<ChainTypes>>
                 control={control}
                 fieldName='buyAsset.amount'
                 disabled={isSendMaxLoading}
@@ -348,7 +347,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     data-test='token-row-buy-token-button'
                   />
                 }
-                data-test='token-row-buy'
+                data-test='trade-form-token-input-row-buy'
               />
             </FormControl>
             <Button
@@ -373,7 +372,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 whiteSpace: 'normal',
                 wordWrap: 'break-word',
               }}
-              data-test='trade-preview-button'
+              data-test='trade-form-preview-button'
             >
               <Text translation={getTranslationKey()} />
             </Button>

@@ -6,7 +6,7 @@ import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDa
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
 import { MatchParams } from 'pages/Assets/Asset'
-import { selectAssetByCAIP19, selectTxDateByIds } from 'state/slices/selectors'
+import { selectAssetById, selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -26,7 +26,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
 }) => {
   const params = useParams<MatchParams>()
   const assetId = `${params.chainId}/${params.assetSubId}`
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const { setNode, entry } = useResizeObserver()
   const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))

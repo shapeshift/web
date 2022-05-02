@@ -1,7 +1,7 @@
 import { Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
@@ -36,7 +36,6 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
             showTeaser={showTeaser}
             showAssetSymbol={row.original.showAssetSymbol}
             postFix={row.original.version && `(${row.original.version})`}
-            onClick={() => onClick(row.original)}
           />
         ),
         disableSortBy: true,
@@ -79,11 +78,13 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           ),
       },
     ],
-    // React-tables requires the use of a useMemo
-    // but we do not want it to recompute the values onClick
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showTeaser, onClick],
+    [showTeaser],
   )
 
-  return <ReactTable data={data} columns={columns} />
+  const handleRowClick = useCallback(
+    (row: Row<EarnOpportunityType>) => onClick(row.original),
+    [onClick],
+  )
+
+  return <ReactTable data={data} columns={columns} onRowClick={handleRowClick} />
 }

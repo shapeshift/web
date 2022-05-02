@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.2.2...@shapeshiftoss/caip-v2.2.3) (2022-05-02)
+
+
+### Bug Fixes
+
+* removes 3 unnecessary api calls from zrxswapper.  ([#586](https://github.com/shapeshift/lib/issues/586)) ([57d59c8](https://github.com/shapeshift/lib/commit/57d59c8488cceb05cd5e0778b49690d0d2c97b68))
+
 # [@shapeshiftoss/caip-v2.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.2.1...@shapeshiftoss/caip-v2.2.2) (2022-05-02)
 
 

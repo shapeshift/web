@@ -1,15 +1,10 @@
-import { NotAllowedIcon } from '@chakra-ui/icons'
-import { Button, ModalBody, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
-import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
+import { parseIntToEntropy } from 'context/WalletProvider/KeepKey/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { parseIntToEntropy } from './Label'
-
-export const KeepKeyRecoveryInvalid = () => {
-  const [loading, setLoading] = useState(false)
+export const useKeepKeyRecover = () => {
   const {
     setDeviceState,
     state: {
@@ -17,12 +12,10 @@ export const KeepKeyRecoveryInvalid = () => {
       wallet,
     },
   } = useWallet()
-  const translate = useTranslate()
   const toast = useToast()
+  const translate = useTranslate()
 
-  const handleRetryPress = async () => {
-    const label = await wallet?.getLabel()
-    setLoading(true)
+  const sendKeepKeyRecover = async (label: string | undefined) => {
     setDeviceState({ awaitingDeviceInteraction: true })
     const recoverParams: RecoverDevice = {
       entropy: parseIntToEntropy(recoveryEntropy),
@@ -42,15 +35,5 @@ export const KeepKeyRecoveryInvalid = () => {
     })
   }
 
-  return (
-    <>
-      <ModalBody textAlign='center'>
-        <NotAllowedIcon color='red.500' boxSize={20} mb={6} />
-        <Text fontSize='lg' translation={'modals.keepKey.recoverySentence.invalid'} mb={4} />
-        <Button isFullWidth colorScheme='blue' disabled={loading} onClick={handleRetryPress}>
-          <Text translation={'modals.keepKey.recoverySentence.tryAgain'} />
-        </Button>
-      </ModalBody>
-    </>
-  )
+  return sendKeepKeyRecover
 }

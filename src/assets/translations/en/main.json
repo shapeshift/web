@@ -406,9 +406,7 @@
         "body": "On your KeepKey screen, you will see your recovery sentence. Write it down. If you lose access to the device, your assets will ONLY be accessible by this sentence.",
         "infoFirst": "Its critical you write it down exactly as it appears on the KeepKey.",
         "infoSecond": "Never share your recovery sentence, it grants access to all of your funds.",
-        "awaitingButtonPress": "Follow the steps on your KeepKey to view your Recovery Sentence. Write it down!",
-        "invalid": "The Recovery Phrase you have entered is invalid",
-        "tryAgain": "Try Again"
+        "awaitingButtonPress": "Follow the steps on your KeepKey to view your Recovery Sentence. Write it down!"
       },
       "wiped": {
         "header": "KeepKey Wiped Successfully",
@@ -426,6 +424,11 @@
       "recoverySettingUp": {
         "header": "Setting up device...",
         "body": "Please wait while we initialize your device and sync your addresses."
+      },
+      "recoveryInvalid": {
+        "header": "Invalid Recovery Phrase",
+        "body": "The Recovery Phrase you have entered is invalid.",
+        "button": "Try Again"
       }
     },
     "shapeShift": {

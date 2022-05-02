@@ -7,7 +7,7 @@ export enum KeepKeyRoutes {
   Pin = '/keepkey/enter-pin',
   NewRecoverySentence = '/keepkey/recovery-sentence',
   RecoverySentenceEntry = '/keepkey/recovery-sentence-entry',
-  RecoveryInvalid = '/keepkey/recovery-sentence/invalid',
+  RecoverySentenceInvalid = '/keepkey/recovery-sentence/invalid',
   RecoverySettings = '/keepkey/recovery-settings',
   RecoverySettingUp = '/keepkey/recovery-setting-up',
 }

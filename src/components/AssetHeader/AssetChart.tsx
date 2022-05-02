@@ -13,7 +13,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -34,7 +34,7 @@ import {
   selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/portfolioSlice/selectors'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
@@ -49,7 +49,7 @@ enum View {
 
 type AssetChartProps = {
   accountId?: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
   isLoaded: boolean
 }
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
@@ -60,7 +60,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0

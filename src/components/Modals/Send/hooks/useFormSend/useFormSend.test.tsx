@@ -42,7 +42,9 @@ const formData: SendInput = {
   [SendFormFields.Address]: EthSend.address,
   [SendFormFields.Asset]: {
     caip2: '',
+    chainId: '',
     caip19: '',
+    assetId: '',
     description: '',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
@@ -158,7 +160,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
   })
@@ -192,7 +196,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddres)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
   })
@@ -223,7 +229,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()
@@ -259,7 +267,9 @@ describe.each([
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddres)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()

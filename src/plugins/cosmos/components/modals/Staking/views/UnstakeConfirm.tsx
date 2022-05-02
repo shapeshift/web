@@ -9,7 +9,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
@@ -31,7 +31,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectSingleValidator,
@@ -41,7 +41,7 @@ import { useAppSelector } from 'state/store'
 import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 type UnstakeProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountSpecifier: string
   validatorAddress: string
   onCancel: () => void
@@ -69,7 +69,7 @@ export const UnstakeConfirm = ({
     state: { wallet },
   } = useWallet()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter

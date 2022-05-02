@@ -31,7 +31,12 @@ export const ReactTable = <T extends {}>({
     return rows.map(row => {
       prepareRow(row)
       return (
-        <Tr {...row.getRowProps()} tabIndex={row.index} onClick={() => onRowClick?.(row)}>
+        <Tr
+          {...row.getRowProps()}
+          tabIndex={row.index}
+          onClick={() => onRowClick?.(row)}
+          cursor={onRowClick ? 'pointer' : undefined}
+        >
           {row.cells.map(cell => (
             <Td {...cell.getCellProps()} display={cell.column.display}>
               {cell.render('Cell')}

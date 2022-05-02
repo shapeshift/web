@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -12,8 +12,8 @@ jest.mock('react-hook-form')
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
-  selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
-  selectFeeAssetById: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
+  selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
+  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
   selectMarketDataById: () => mockEthAsset,
 }))
 

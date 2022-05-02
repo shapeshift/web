@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
 import last from 'lodash/last'
 import createCachedSelector from 're-reselect'
@@ -58,7 +58,7 @@ type TxHistoryPageFilter = {
   fromDate: number | null
   toDate: number | null
   types: string[] | null
-  matchingAssets: CAIP19[] | null
+  matchingAssets: AssetId[] | null
 }
 
 const selectDateParamFromFilter = (_state: ReduxState, filter: TxHistoryPageFilter) => ({
@@ -114,7 +114,7 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
 
 export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byAssetId
 
-const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
+const selectAssetIdParam = (_state: ReduxState, assetId: AssetId) => assetId
 
 const selectTxIdsByAssetId = createSelector(
   selectTxsByAssetId,
@@ -123,7 +123,7 @@ const selectTxIdsByAssetId = createSelector(
 )
 
 type TxHistoryFilter = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   accountIds?: AccountSpecifier[]
 }
 

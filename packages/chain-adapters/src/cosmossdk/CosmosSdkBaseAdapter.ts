@@ -30,7 +30,8 @@ const transformValidator = (
   address: validator.address,
   moniker: validator.moniker,
   commission: validator.commission.rate,
-  apr: validator.apr
+  apr: validator.apr,
+  tokens: validator.tokens
 })
 
 export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implements IChainAdapter<T> {

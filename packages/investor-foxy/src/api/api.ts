@@ -55,7 +55,7 @@ import {
 export * from './foxy-types'
 
 export type ConstructorArgs = {
-  adapter: ChainAdapter<ChainTypes>
+  adapter: ChainAdapter<ChainTypes.Ethereum>
   providerUrl: string
   foxyAddresses: FoxyAddressesType
   network?:
@@ -82,7 +82,7 @@ export const transformData = ({ tvl, apy, expired, ...contractData }: FoxyOpport
 const TOKE_IPFS_URL = 'https://ipfs.tokemaklabs.xyz/ipfs'
 
 export class FoxyApi {
-  public adapter: ChainAdapter<ChainTypes>
+  public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: HttpProvider
   private providerUrl: string
   public jsonRpcProvider: JsonRpcProvider

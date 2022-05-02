@@ -6,7 +6,7 @@ import {
   PriceHistoryArgs,
   PriceHistoryType
 } from '@shapeshiftoss/types'
-import { FindAllMarketArgs } from '@shapeshiftoss/types/src'
+import { FindAllMarketArgs } from '@shapeshiftoss/types'
 
 import { MarketProviders } from './market-providers'
 

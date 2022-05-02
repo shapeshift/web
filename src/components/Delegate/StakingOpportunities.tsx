@@ -154,12 +154,12 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         id: 'rewards',
         display: { base: 'table-cell' },
         Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
-          const { rewards: validatorRewards, isLoaded } = row.original
+          const { totalDelegations, rewards: validatorRewards, isLoaded } = row.original
           const rewards = bnOrZero(validatorRewards)
 
           return (
             <Skeleton isLoaded={isLoaded}>
-              {bnOrZero(rewards).gt(0) ? (
+              {bnOrZero(totalDelegations).gt(0) ? (
                 <HStack fontWeight={'normal'}>
                   <Amount.Crypto
                     value={bnOrZero(rewards)

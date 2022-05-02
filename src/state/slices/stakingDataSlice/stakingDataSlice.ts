@@ -41,13 +41,6 @@ export type ValidatorDataByPubKey = {
   [k: PubKey]: chainAdapters.cosmos.Validator
 }
 
-export type StakingPayload = {
-  payload: {
-    pubKey: PubKey
-    stakingData: Staking
-  }
-}
-
 const initialState: StakingData = {
   byAccountSpecifier: {},
   byValidator: {},

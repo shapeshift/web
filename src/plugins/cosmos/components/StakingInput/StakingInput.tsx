@@ -28,11 +28,7 @@ const cryptoInputValidation = {
 const fiatInputValidation = {
   required: true,
   validate: {
-    validateFiatAmount: (fiatAmount: string) => {
-      if (bnOrZero(fiatAmount).isZero()) return false
-
-      return true
-    },
+    validateFiatAmount: (fiatAmount: string) => Boolean(bn(fiatAmount).gt(0)),
   },
 }
 const CryptoInput = (props: any) => (

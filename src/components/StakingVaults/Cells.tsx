@@ -26,7 +26,6 @@ type AssetCellProps = {
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
-  onClick: () => void
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
@@ -51,7 +50,6 @@ export const AssetCell = ({
   showTeaser,
   showAssetSymbol,
   postFix,
-  onClick,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -75,7 +73,7 @@ export const AssetCell = ({
           {showPopover && <AssetTeaser assetId={assetId} />}
         </Popover>
       )}
-      <HStack onClick={onClick} flex={1} cursor='pointer'>
+      <HStack flex={1}>
         <SkeletonCircle isLoaded={!!asset}>
           <AssetIcon src={asset.icon} boxSize='8' />
         </SkeletonCircle>

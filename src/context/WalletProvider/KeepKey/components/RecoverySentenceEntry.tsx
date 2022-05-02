@@ -17,53 +17,12 @@ import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, use
 import { useHistory } from 'react-router-dom'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from 'components/Text'
+import { inputValuesReducer, isLetter, isValidInput } from 'context/WalletProvider/KeepKey/helpers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-const isLetter = (str: string) => {
-  return str.length === 1 && str.match(/[a-zA-Z]/i)
-}
-
 const minInputLength = 3
 const maxInputLength = 4
-
-const isValidInput = (
-  e: KeyboardEvent,
-  wordEntropy: number,
-  recoveryCharacterIndex: number = 0,
-  recoveryWordIndex: number = 0,
-) => {
-  const isSpace = e.key === ' '
-  const isEnter = e.key === 'Enter'
-  const isBackspace = e.key === 'Backspace'
-  // KeepKey sets character index to 4 when word is complete, and we are awaiting a space
-  const hasFilledAllInputs = recoveryCharacterIndex === maxInputLength
-  const hasEnoughCharactersForWordMatch = recoveryCharacterIndex >= minInputLength
-  const isLastWord = recoveryWordIndex === wordEntropy - 1
-  const noCharactersEntered = recoveryCharacterIndex === 0
-
-  // The 4th letter must be followed by space, enter or backspace
-  if (hasFilledAllInputs && !isSpace && !isEnter && !isBackspace) return false
-  // We can only do enter or space if we've received 3 or more characters
-  if (!hasEnoughCharactersForWordMatch && (isSpace || isEnter)) return false
-  // We can't do space on last word
-  if (isLastWord && isSpace) return false
-  // The UI doesn't currently support returning to a previous word
-  if (noCharactersEntered && isBackspace) return false
-
-  // If we haven't early exited yet, the input is valid
-  return true
-}
-
-const inputValuesReducer = (
-  currentValues: Array<string | undefined>,
-  newValue: string | undefined,
-  newValueIndex: number,
-) => [
-  ...currentValues.slice(0, newValueIndex),
-  newValue?.toUpperCase(),
-  ...currentValues.slice(newValueIndex + 1),
-]
 
 export const KeepKeyRecoverySentenceEntry = () => {
   const {
@@ -167,7 +126,17 @@ export const KeepKeyRecoverySentenceEntry = () => {
       if (e.key === 'Tab') e.preventDefault()
 
       // Check if an input is valid given the current device state
-      if (!isValidInput(e, wordEntropy, recoveryCharacterIndex, recoveryWordIndex)) return
+      if (
+        !isValidInput(
+          e,
+          wordEntropy,
+          minInputLength,
+          maxInputLength,
+          recoveryCharacterIndex,
+          recoveryWordIndex,
+        )
+      )
+        return
 
       if (isLetter(e.key)) {
         // Handle a letter

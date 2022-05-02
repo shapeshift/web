@@ -110,7 +110,7 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell %{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

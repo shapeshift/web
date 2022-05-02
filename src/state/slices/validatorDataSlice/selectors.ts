@@ -13,7 +13,7 @@ export const selectAllValidatorsData = createSelector(
   (validatorData): ValidatorDataByPubKey => validatorData.byValidator,
 )
 
-export const selectSingleValidator = createSelector(
+export const selectValidatorByAddress = createSelector(
   selectValidatorData,
   selectValidatorAddress,
   (stakingData, validatorAddress): chainAdapters.cosmos.Validator | null => {

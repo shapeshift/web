@@ -14,7 +14,7 @@ import { Text } from 'components/Text'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectSingleValidator,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,7 +33,9 @@ export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: Unstake
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state => selectSingleValidator(state, { validatorAddress }))
+  const validatorInfo = useAppSelector(state =>
+    selectValidatorByAddress(state, { validatorAddress }),
+  )
 
   const translate = useTranslate()
 

@@ -11,8 +11,8 @@ import {
   ActiveStakingOpportunity,
   selectActiveStakingOpportunityDataByAssetId,
   selectNonloadedValidators,
-  selectSingleValidator,
   selectStakingDataIsLoaded,
+  selectValidatorByAddress,
   selectValidatorIsLoaded,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
@@ -68,7 +68,7 @@ export function useCosmosStakingBalances({
   )
 
   const shapeshiftValidator = useAppSelector(state =>
-    selectSingleValidator(state, {
+    selectValidatorByAddress(state, {
       validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
     }),
   )

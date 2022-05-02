@@ -356,7 +356,7 @@ export const selectAllValidators = createDeepEqualOutputSelector(
   stakingData => stakingData.byValidator,
 )
 
-export const selectSingleValidator = createSelector(
+export const selectValidatorByAddress = createSelector(
   selectStakingData,
   selectValidatorAddressParamFromFilter,
   (stakingData, validatorAddress) => {

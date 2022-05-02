@@ -34,7 +34,7 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectSingleValidator,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,7 +56,9 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const { handleSubmit, control } = methods
   const { cryptoAmount } = useWatch({ control })
 
-  const validatorInfo = useAppSelector(state => selectSingleValidator(state, { validatorAddress }))
+  const validatorInfo = useAppSelector(state =>
+    selectValidatorByAddress(state, { validatorAddress }),
+  )
   const {
     state: { wallet },
   } = useWallet()

@@ -22,17 +22,11 @@ import { StakingAction, StakingValues } from '../StakingCommon'
 
 type UnstakeBroadcastProps = {
   assetId: AssetId
-  accountSpecifier: string
   onClose: () => void
   validatorAddress: string
 }
 
-export const UnstakeBroadcast = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onClose,
-}: UnstakeBroadcastProps) => {
+export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: UnstakeBroadcastProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)

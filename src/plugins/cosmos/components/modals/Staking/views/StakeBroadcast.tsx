@@ -28,7 +28,6 @@ export enum InputType {
 
 type StakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onClose: () => void
   onCancel: () => void
@@ -39,13 +38,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-export const StakeBroadcast = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onClose,
-  onCancel,
-}: StakeProps) => {
+export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }: StakeProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)

@@ -47,7 +47,6 @@ export enum InputType {
 
 type StakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onCancel: () => void
 }
@@ -57,12 +56,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-export const StakeConfirm = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onCancel,
-}: StakeProps) => {
+export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,

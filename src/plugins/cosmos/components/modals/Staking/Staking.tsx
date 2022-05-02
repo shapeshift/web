@@ -111,7 +111,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
                 <StakeConfirm
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onCancel={handleCancel}
                 />
@@ -119,7 +118,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
                 <StakeBroadcast
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
                   onCancel={handleCancel}
@@ -128,7 +126,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
                 <UnstakeConfirm
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onCancel={handleCancel}
                 />
@@ -136,7 +133,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
                 <UnstakeBroadcast
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
                 />

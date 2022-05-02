@@ -41,7 +41,6 @@ Web3.mockImplementation(() => ({
 
 const mockQuoteResponse = {
   allowanceContract: 'allowanceTargetAddress',
-  allowanceGrantRequired: true,
   buyAmount: undefined,
   buyAsset: {
     assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -76,8 +75,6 @@ const mockQuoteResponse = {
       gasPrice: undefined
     }
   },
-  guaranteedPrice: undefined,
-  priceImpact: undefined,
   rate: undefined,
   receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   sellAmount: '1000000000000000000',
@@ -107,7 +104,6 @@ const mockQuoteResponse = {
   sellAssetAccountId: '0',
   slippage: DEFAULT_SLIPPAGE,
   sources: [{ name: '0x', proportion: '1' }],
-  statusCode: 0,
   success: true,
   txData: undefined
 }
@@ -296,7 +292,6 @@ describe('ZrxBuildQuoteTx', () => {
 
     expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
       success: false,
-      statusCode: 400,
       statusReason: 'Unknown Error',
       buyAsset: { ...mockQuoteResponse.buyAsset },
       sellAsset: { ...mockQuoteResponse.sellAsset }
@@ -310,7 +305,6 @@ describe('ZrxBuildQuoteTx', () => {
 
     expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
       success: false,
-      statusCode: 500,
       statusReason: 'Unknown Error',
       buyAsset: { ...mockQuoteResponse.buyAsset },
       sellAsset: { ...mockQuoteResponse.sellAsset }

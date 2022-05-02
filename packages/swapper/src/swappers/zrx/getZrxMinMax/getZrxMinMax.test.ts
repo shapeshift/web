@@ -14,7 +14,7 @@ jest.mock('../utils/helpers/helpers', () => ({
 }))
 
 describe('getZrxMinMax', () => {
-  it('returns minimum, maximum, and minimumPrice', async () => {
+  it('returns minimum and maximum', async () => {
     const minMax = await getZrxMinMax({ sellAsset: FOX, buyAsset: WETH })
     expect(minMax.minimum).toBe('1')
     expect(minMax.maximum).toBe(MAX_ZRX_TRADE)

@@ -46,7 +46,6 @@ describe('getZrxQuote', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(undefined))
     const quote = await swapper.getQuote(quoteInput)
-    expect(quote.statusCode).toBe(-1)
     expect(quote.success).toBe(false)
     expect(quote.statusReason).toBe('Unknown Error')
   })
@@ -57,7 +56,6 @@ describe('getZrxQuote', () => {
       response: { data: { code: 502, reason: 'Failed to do some stuff' } }
     } as never)
     const quote = await swapper.getQuote(quoteInput)
-    expect(quote.statusCode).toBe(502)
     expect(quote.success).toBe(false)
     expect(quote.statusReason).toBe('Failed to do some stuff')
   })

@@ -13,7 +13,6 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
     buyAsset,
     sellAmount,
     buyAmount,
-    minimumPrice,
     minimum: minQuoteSellAmount,
     slippage
   } = input
@@ -78,12 +77,6 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
     )
 
     const { data } = quoteResponse
-    const quotePrice = new BigNumber(data.price)
-    const priceDifference = quotePrice.minus(minimumPrice as string)
-    const priceImpact = priceDifference
-      .dividedBy(minimumPrice as string)
-      .abs()
-      .valueOf()
 
     const estimatedGas = data.estimatedGas
       ? new BigNumber(data.estimatedGas).times(1.5)
@@ -93,10 +86,8 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
     return {
       sellAsset,
       buyAsset,
-      priceImpact,
       slippage,
       success: true,
-      statusCode: 0,
       rate,
       minimum: minQuoteSellAmount, // $1 worth of the sell token.
       maximum: MAX_ZRX_TRADE, // Arbitrarily large value. 10e+28 here.
@@ -114,14 +105,11 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
       },
       sellAmount: data.sellAmount,
       buyAmount: data.buyAmount,
-      guaranteedPrice: data.guaranteedPrice,
       sources:
         data.sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
       allowanceContract: data.allowanceTarget
     }
   } catch (e) {
-    const statusCode =
-      e?.response?.data?.validationErrors?.[0]?.code || e?.response?.data?.code || -1
     const statusReason =
       e?.response?.data?.validationErrors?.[0]?.reason ||
       e?.response?.data?.reason ||
@@ -132,7 +120,6 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
       minimum: minQuoteSellAmount,
       maximum: MAX_ZRX_TRADE,
       success: false,
-      statusCode,
       statusReason
     }
   }

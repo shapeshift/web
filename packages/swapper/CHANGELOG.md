@@ -1,3 +1,11 @@
+# [@shapeshiftoss/swapper-v3.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v3.0.0...@shapeshiftoss/swapper-v3.0.1) (2022-05-02)
+
+
+### Bug Fixes
+
+* unbreak lib build ([#588](https://github.com/shapeshift/lib/issues/588)) ([bff0f3d](https://github.com/shapeshift/lib/commit/bff0f3d351f09ae9693b6b173782e8d8671ca3e4))
+* vscode tsconfig errors ([#577](https://github.com/shapeshift/lib/issues/577)) ([50138d0](https://github.com/shapeshift/lib/commit/50138d07b55b730f3bee68fae80414dc6578ee2a))
+
 # [@shapeshiftoss/swapper-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.3.0...@shapeshiftoss/swapper-v3.0.0) (2022-04-29)
 
 

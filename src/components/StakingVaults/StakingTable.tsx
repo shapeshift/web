@@ -82,9 +82,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
   )
 
   const handleRowClick = useCallback(
-    (row: Row<EarnOpportunityType>) => {
-      onClick(row.original)
-    },
+    (row: Row<EarnOpportunityType>) => onClick(row.original),
     [onClick],
   )
 

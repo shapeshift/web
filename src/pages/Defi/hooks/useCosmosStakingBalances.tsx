@@ -26,6 +26,7 @@ export type MergedActiveStakingOpportunity = ActiveStakingOpportunity & {
   assetId: AssetId
   chain: ChainTypes
   tvl: string
+  isLoaded?: boolean
 }
 
 export type MergedStakingOpportunity = chainAdapters.cosmos.Validator & {

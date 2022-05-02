@@ -28,8 +28,6 @@ export interface PrimaryChartProps {
   color?: string
 }
 
-export type TooltipData = HistoryData
-
 // accessors
 const getDate = (d: HistoryData) => new Date(d.date)
 const getStockValue = (d: HistoryData) => d?.price || 0

@@ -19,10 +19,7 @@ type StakingInputProps = {
 const cryptoInputValidation = {
   required: true,
   validate: {
-    validateCryptoAmount: (cryptoAmount: string) => {
-      if (bnOrZero(cryptoAmount).isZero()) return false
-      return true
-    },
+    validateCryptoAmount: (cryptoAmount: string) => Boolean(bn(cryptoAmount).gt(0)),
   },
 }
 const fiatInputValidation = {

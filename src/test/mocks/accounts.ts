@@ -205,10 +205,10 @@ export const mockCosmosAccountWithOnlyUndelegations = Object.freeze({
           apr: '0.1496681491',
           commission: '0.100000000000000000',
           moniker: 'ShapeShift DAO',
-        } as Validator,
+        },
       },
       {},
-    ],
+    ] as chainAdapters.cosmos.Undelegation[],
     sequence: '422',
     accountNumber: '424242',
   },
@@ -238,14 +238,16 @@ export const mockEthAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Et
     obj,
   )
 
-export const mockCosmosAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Cosmos>>) =>
+export const mockCosmosAccount = (obj?: {
+  chainSpecific: chainAdapters.Account<ChainTypes.Cosmos>['chainSpecific']
+}): chainAdapters.Account<ChainTypes.Cosmos> =>
   merge(
     {},
     {
       balance: '1000',
       caip2: cosmosCaip2,
       caip19: cosmosCaip19,
-      chain: ChainTypes.Cosmos,
+      chain: ChainTypes.Cosmos as const,
       chainSpecific: {
         sequence: '',
         accountNumber: '',

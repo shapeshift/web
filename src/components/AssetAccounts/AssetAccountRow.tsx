@@ -49,7 +49,7 @@ export const AssetAccountRow = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, rowAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.caip2),

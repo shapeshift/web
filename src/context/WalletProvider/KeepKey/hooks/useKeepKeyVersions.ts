@@ -84,7 +84,7 @@ export const useKeepKeyVersions = () => {
       }
       setVersions(versions)
     })()
-  }, [])
+  }, [wallet])
 
   return versions
 }

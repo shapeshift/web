@@ -1,14 +1,4 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Box,
-  CloseButton,
-  Link,
-  Text,
-  ToastId,
-  useToast,
-} from '@chakra-ui/react'
+import { ToastId, useToast } from '@chakra-ui/react'
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
@@ -20,12 +10,12 @@ import React, {
   useReducer,
   useRef,
 } from 'react'
-import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { getKeepKeyVersions } from './KeepKey/utils'
+import { UpdateAvailableToast } from './KeepKey/components/UpdateAvailableToast'
+import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
 export enum DeviceTimeout {
   TenMinutes = '600000',
@@ -119,6 +109,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
+  const versions = useKeepKeyVersions()
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
@@ -154,57 +145,23 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   useEffect(() => {
     if (!keepKeyWallet) return
     ;(async () => {
-      const features = await keepKeyWallet.getFeatures()
-      const versions = await getKeepKeyVersions(keepKeyWallet, features?.bootloaderHash)
-
       if (!versions) return
 
       if (
-        (versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
+        (!versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
         !toast.isActive(KeepKeyToastId)
       ) {
         toastRef.current = toast({
           render: () => {
             return (
-              <Alert status='info' variant='solid' colorScheme='blue'>
-                <Box alignSelf='flex-start' me={2}>
-                  <RiFlashlightLine size={24} />
-                </Box>
-                <Box>
-                  <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
-                  <AlertDescription>
-                    <Text>
-                      {translate('updateToast.keepKey.newVersion')}
-                      <span> </span>
-                      <Box as='span' fontWeight='bold' color='inherit'>
-                        {translate('updateToast.keepKey.firmwareOrBootloader')}
-                      </Box>
-                      <span> </span>
-                      {translate('updateToast.keepKey.isAvailable')}
-                    </Text>
-                  </AlertDescription>
-                  <Link
-                    href={'https://beta.shapeshift.com/updater-download'}
-                    display={'block'}
-                    fontWeight={'bold'}
-                    mt={2}
-                    isExternal
-                  >
-                    {translate('updateToast.keepKey.downloadCta')}
-                  </Link>
-                </Box>
-                <CloseButton
-                  alignSelf='flex-start'
-                  position='relative'
-                  right={-1}
-                  top={-1}
-                  onClick={() => {
-                    if (toastRef.current) {
-                      toast.close(toastRef.current)
-                    }
-                  }}
-                />
-              </Alert>
+              <UpdateAvailableToast
+                onClose={() => {
+                  if (toastRef.current) {
+                    toast.close(toastRef.current)
+                  }
+                }}
+                translate={translate}
+              />
             )
           },
           id: KeepKeyToastId,
@@ -214,7 +171,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
         })
       }
     })()
-  }, [keepKeyWallet, toast, translate])
+  }, [keepKeyWallet, toast, translate, versions])
 
   const value: IKeepKeyContext = useMemo(
     () => ({

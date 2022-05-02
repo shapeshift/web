@@ -1,6 +1,7 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Box, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
+import { KEEPKEY_UPDATE_URL } from 'constants/KeepKey'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
@@ -110,7 +111,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.bootloader.updateAvailable}
-            externalUrl='https://beta.shapeshift.com/updater-download'
+            externalUrl={KEEPKEY_UPDATE_URL}
           />
           <ExpandedMenuItem
             label='walletProvider.keepKey.settings.menuLabels.firmware'
@@ -119,7 +120,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.firmware.updateAvailable}
-            externalUrl='https://beta.shapeshift.com/updater-download'
+            externalUrl={KEEPKEY_UPDATE_URL}
           />
           <MenuDivider />
           <ExpandedMenuItem

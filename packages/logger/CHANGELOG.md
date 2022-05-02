@@ -1,3 +1,10 @@
+# [@shapeshiftoss/logger-v1.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/logger-v1.1.0...@shapeshiftoss/logger-v1.1.1) (2022-05-02)
+
+
+### Bug Fixes
+
+* vscode tsconfig errors ([#577](https://github.com/shapeshift/lib/issues/577)) ([50138d0](https://github.com/shapeshift/lib/commit/50138d07b55b730f3bee68fae80414dc6578ee2a))
+
 # [@shapeshiftoss/logger-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/logger-v1.0.4...@shapeshiftoss/logger-v1.1.0) (2022-04-26)
 
 

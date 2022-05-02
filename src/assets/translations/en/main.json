@@ -847,7 +847,9 @@
         "SegwitNative": "Segwit Native",
         "P2pkh": "Legacy",
         "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
-        "btcFormat": "BTC format"
+        "btcFormat": "BTC format",
+        "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
+        "loading": "Fetching price history, hang tight..."
       },
       "assetDescription": {
         "showMore": "Show More",

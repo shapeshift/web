@@ -164,7 +164,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           )}
         </Box>
       </Card.Header>
-      {view === View.Balance ? (
+      {view === View.Balance && marketData ? (
         <Box>
           <BalanceChart
             accountId={accountId}

@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -47,7 +47,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet, walletInfo },
+    state: { wallet, isConnected },
     dispatch,
   } = useWallet()
   const { chain, tokenId } = sellAsset.currency
@@ -80,9 +80,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       )?.[1] || defaultTradeError
     )
   }
-
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -138,13 +135,23 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push('/trade/input')
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    /**
+     * call handleBack to reset current form state
+     * before opening the connect wallet modal.
+     */
+    handleBack()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   return (
     <SlideTransition>
       <Box
         as='form'
-        onSubmit={() =>
-          walletInfo?.deviceId !== 'DemoWallet' ? handleSubmit(onSubmit) : handleWalletModalOpen()
-        }
+        onSubmit={(event: FormEvent<unknown>) => {
+          isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+        }}
       >
         <Card variant='unstyled'>
           <Card.Header px={0} pt={0}>

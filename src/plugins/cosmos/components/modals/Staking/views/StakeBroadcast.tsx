@@ -15,7 +15,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectSingleValidator,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -55,7 +55,7 @@ export const StakeBroadcast = ({
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, accountSpecifier, validatorAddress),
   )
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()

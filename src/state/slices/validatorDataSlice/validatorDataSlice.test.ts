@@ -1,7 +1,7 @@
 import merge from 'lodash/merge'
 import { clearState, store } from 'state/store'
 
-import { selectSingleValidator } from './selectors'
+import { selectValidatorByAddress } from './selectors'
 import { validatorData } from './validatorDataSlice'
 
 const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
@@ -86,9 +86,9 @@ describe('validatorDataSlice', () => {
   })
 
   describe('selectors', () => {
-    describe('selectSingleValidator', () => {
+    describe('selectValidatorByAddress', () => {
       it('returns null on initial state', async () => {
-        const selected = selectSingleValidator(store.getState(), SHAPESHIFT_VALIDATOR_ADDRESS)
+        const selected = selectValidatorByAddress(store.getState(), SHAPESHIFT_VALIDATOR_ADDRESS)
         expect(selected).toBeNull()
       })
 
@@ -108,7 +108,7 @@ describe('validatorDataSlice', () => {
             }),
           )
 
-          const selected = selectSingleValidator(
+          const selected = selectValidatorByAddress(
             store.getState(),
             'cosmosvaloper1xxjvzwjpsf6ktuffkcpx29ut9qfrn0my8xdtqd',
           )
@@ -122,7 +122,7 @@ describe('validatorDataSlice', () => {
             }),
           )
 
-          const selected = selectSingleValidator(store.getState(), SHAPESHIFT_VALIDATOR_ADDRESS)
+          const selected = selectValidatorByAddress(store.getState(), SHAPESHIFT_VALIDATOR_ADDRESS)
           expect(selected).toEqual(SHAPESHIFT_OPPORTUNITY)
         })
       })

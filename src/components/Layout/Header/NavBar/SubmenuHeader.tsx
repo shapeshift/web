@@ -10,7 +10,7 @@ type ExpandedMenuItemProps = {
   alert?: string
 }
 
-export const SubmenuHeader = ({ title, description, alert }: ExpandedMenuItemProps) => {
+export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => {
   const { handleBackClick } = useMenuRoutes()
   const headerColor = useColorModeValue('black', 'white')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')

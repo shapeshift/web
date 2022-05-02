@@ -62,7 +62,7 @@ const FoxyRoutes = ({ parentLocation, provider, earnType }: FoxyRouteProps) => {
           <Route path={FoxyPath.Overview} key={FoxyPath.Overview}>
             <MemoryRouter>
               <SlideTransition>
-                <FoxyOverview api={foxy} />
+                <FoxyOverview />
               </SlideTransition>
             </MemoryRouter>
           </Route>

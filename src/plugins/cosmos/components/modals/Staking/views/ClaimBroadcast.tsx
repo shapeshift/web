@@ -1,8 +1,7 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, Text as CText, Tooltip } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { AssetId } from '@shapeshiftoss/caip'
 import {
   StakingAction,
   StakingValues,
@@ -16,21 +15,17 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimBroadcastProps = {
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
   onClose: () => void
 }
 
 export enum Field {
   FeeType = 'feeType',
-}
-
-export type ClaimBroadcastParams = {
-  [Field.FeeType]: chainAdapters.FeeDataKey
 }
 
 export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroadcastProps) => {
@@ -43,7 +38,7 @@ export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroa
   const { control } = methods
   const { txFee, fiatFee, gasLimit, cryptoAmount } = useWatch({ control })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // TODO(gomes): This currently fires the broadcat once on component mount. Move this to something like useFormSend

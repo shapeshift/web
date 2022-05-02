@@ -114,7 +114,6 @@ export const Deposit = ({
   fiatInputValidation,
   enableSlippage = true,
   onContinue,
-  onCancel,
   percentOptions,
 }: DepositProps) => {
   const {
@@ -313,7 +312,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={value}
-                            onChange={e => {
+                            onChange={() => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null
@@ -340,7 +339,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={bnOrZero(value).toFixed(2)}
-                            onChange={e => {
+                            onChange={() => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null

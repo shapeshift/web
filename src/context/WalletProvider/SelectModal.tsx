@@ -36,7 +36,7 @@ export const SelectModal = () => {
                   py={8}
                   justifyContent='space-between'
                   onClick={() => connect(key)}
-                  data-test={`wallet-${key}-button`}
+                  data-test={`connect-wallet-${key}-button`}
                 >
                   <Flex alignItems='center'>
                     <RawText fontWeight='semibold'>{option.name}</RawText>
@@ -66,6 +66,7 @@ export const SelectModal = () => {
             borderTopRadius='none'
             colorScheme='blue'
             onClick={() => create(KeyManager.Native)}
+            data-test='connect-wallet-create-one-button'
           >
             {translate('walletProvider.selectModal.create')}
           </Button>

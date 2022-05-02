@@ -9,7 +9,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
@@ -30,7 +30,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectRewardsAmountByAssetId,
@@ -40,8 +40,8 @@ import { useAppSelector } from 'state/store'
 import { ClaimPath, Field, StakingValues } from '../StakingCommon'
 
 type ClaimConfirmProps = {
-  assetId: CAIP19
-  accountSpecifier: CAIP10
+  assetId: AssetId
+  accountSpecifier: AccountId
   validatorAddress: string
 }
 
@@ -54,7 +54,7 @@ export const ClaimConfirm = ({
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
   })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 

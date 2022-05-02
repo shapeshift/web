@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -8,13 +8,13 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
-  selectAssetByCAIP19,
+  selectAssetById,
   selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   useCompactMode?: boolean
   limit?: number
@@ -31,7 +31,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
     state: { wallet },
   } = useWallet()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const chainId = asset.caip2
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const filter = useMemo(

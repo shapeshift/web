@@ -9,12 +9,13 @@ import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRo
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
+  selectAssetById,
+  selectMarketDataById,
   selectRewardsByValidator,
   selectTotalBondingsBalanceByAssetId,
   selectUnbondingEntriesByAccountSpecifier,
-} from 'state/slices/portfolioSlice/selectors'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { selectSingleValidator } from 'state/slices/validatorDataSlice/selectors'
+  selectValidatorByAddress,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakedProps = {
@@ -31,7 +32,7 @@ export const Overview: React.FC<StakedProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const isLoaded = Boolean(validatorInfo)
 
   const totalBondings = useAppSelector(state =>

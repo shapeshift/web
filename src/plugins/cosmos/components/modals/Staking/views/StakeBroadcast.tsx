@@ -15,7 +15,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectSingleValidator,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,7 +39,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }: StakeProps) => {
-  const validatorInfo = useAppSelector(state => selectSingleValidator(state, validatorAddress))
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -48,6 +48,7 @@ export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }:
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods

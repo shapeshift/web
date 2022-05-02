@@ -27,7 +27,7 @@ import {
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectAllValidatorsData } from '../validatorDataSlice/selectors'
+import { selectValidators } from '../validatorDataSlice/selectors'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
@@ -839,7 +839,7 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
   selectValidatorIds,
-  selectAllValidatorsData,
+  selectValidators,
   selectAllStakingDataByValidator,
   selectAssetIdParamFromFilter,
   (validatorIds, validatorsData, stakingDataByValidator, assetId): OpportunitiesDataFull[] =>

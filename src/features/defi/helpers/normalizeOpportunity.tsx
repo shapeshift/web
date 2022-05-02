@@ -66,6 +66,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       assetId: assetCAIP19,
       fiatAmount,
       cryptoAmount,
+      // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
     // show vaults that are expired but have a balance
@@ -118,6 +119,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       assetId,
       fiatAmount,
       cryptoAmount,
+      // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
   })

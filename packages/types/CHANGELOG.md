@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v3.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v3.0.0...@shapeshiftoss/types-v3.0.1) (2022-05-02)
+
+
+### Bug Fixes
+
+* vscode tsconfig errors ([#577](https://github.com/shapeshift/lib/issues/577)) ([50138d0](https://github.com/shapeshift/lib/commit/50138d07b55b730f3bee68fae80414dc6578ee2a))
+
 # [@shapeshiftoss/types-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.11.0...@shapeshiftoss/types-v3.0.0) (2022-04-29)
 
 

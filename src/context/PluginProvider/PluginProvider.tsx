@@ -5,6 +5,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import React, { createContext } from 'react'
 import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
+import { logger } from 'lib/logger'
 import { partitionCompareWith } from 'lib/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
@@ -39,6 +40,8 @@ const PluginContext = createContext<PluginProviderContextProps>({
   routes: [],
 })
 
+const moduleLogger = logger.child({ namespace: ['PluginProvider'] })
+
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
   const [pluginManager] = useState(new PluginManager())
   const [plugins, setPlugins] = useState<[string, Plugin][] | null>(null)
@@ -67,7 +70,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
         setPlugins(pluginManager.entries())
       } catch (err) {
         // TODO(ryankk): show a global error screen in the future??
-        console.error('PluginProvider:', err)
+        moduleLogger.error(err, '')
       }
     })()
   }, [pluginManager])
@@ -106,7 +109,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
         add: chain => {
           const factory = newChainAdapters[chain]
           // TODO(0xdef1cafe): leave this here, change to debug logging
-          console.info('PluginProvider: adding chain', chain)
+          logger.info({ chain }, 'PluginProvider: adding chain')
           if (factory) getChainAdapters().addChain(chain, factory)
         },
         remove: chain => {
@@ -117,9 +120,10 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     )
 
     setRoutes(pluginRoutes)
+    const _supportedChains = getChainAdapters().getSupportedChains()
     // TODO(0xdef1cafe): leave this here, change to debug logging
-    console.info('PluginProvider: setting supported chains')
-    setSupportedChains(getChainAdapters().getSupportedChains())
+    moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
+    setSupportedChains(_supportedChains)
   }, [chainAdapterManager, featureFlags, plugins, pluginManager])
 
   if (!plugins) return <></>

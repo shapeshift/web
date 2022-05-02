@@ -116,7 +116,8 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
       buyAmount: data.buyAmount,
       guaranteedPrice: data.guaranteedPrice,
       sources:
-        data.sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE
+        data.sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+      allowanceContract: data.allowanceTarget
     }
   } catch (e) {
     const statusCode =

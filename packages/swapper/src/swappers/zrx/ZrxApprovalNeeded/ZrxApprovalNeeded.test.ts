@@ -60,9 +60,13 @@ describe('ZrxApprovalNeeded', () => {
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
     const allowanceOnChain = '50'
-    const data = { gasPrice: '1000', allowanceTarget: '10' }
+    const data = { allowanceTarget: '10' }
     const input = {
-      quote: { ...quoteInput, sellAmount: '10' },
+      quote: {
+        ...quoteInput,
+        sellAmount: '10',
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' } }
+      },
       wallet
     }
     ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
@@ -77,15 +81,19 @@ describe('ZrxApprovalNeeded', () => {
     expect(await ZrxApprovalNeeded(args, input)).toEqual({
       approvalNeeded: false,
       gas: APPROVAL_GAS_LIMIT,
-      gasPrice: data.gasPrice
+      gasPrice: input.quote.feeData.chainSpecific.gasPrice
     })
   })
 
   it('returns true if allowanceOnChain is less than quote.sellAmount', async () => {
     const allowanceOnChain = '5'
-    const data = { gasPrice: '1000', allowanceTarget: '10' }
+    const data = { allowanceTarget: '10' }
     const input = {
-      quote: { ...quoteInput, sellAmount: '10' },
+      quote: {
+        ...quoteInput,
+        sellAmount: '10',
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' } }
+      },
       wallet
     }
     ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
@@ -100,7 +108,7 @@ describe('ZrxApprovalNeeded', () => {
     expect(await ZrxApprovalNeeded(args, input)).toEqual({
       approvalNeeded: true,
       gas: APPROVAL_GAS_LIMIT,
-      gasPrice: data.gasPrice
+      gasPrice: input.quote.feeData.chainSpecific.gasPrice
     })
   })
 })

@@ -35,7 +35,7 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^2.0.0",
-    "@shapeshiftoss/types": "^2.1.0"
+    "@shapeshiftoss/types": "^3.0.0"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.5.2",

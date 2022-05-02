@@ -1,6 +1,6 @@
 import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import React, { useContext } from 'react'
+import React from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
@@ -43,10 +43,4 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
       </YearnProvider>
     </DefiManagerContext.Provider>
   )
-}
-
-export function useEarnManager() {
-  const context = useContext(DefiManagerContext)
-  if (!context) throw new Error("useEarnManager can't be used outside of EarnManagerProvider")
-  return context
 }

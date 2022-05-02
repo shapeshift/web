@@ -7,7 +7,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type GetStartedProps = {
@@ -40,7 +40,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
     cosmosGetStarted.close()
   }
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const maxApr = ASSET_ID_TO_MAX_APR[assetId]
 
   return (

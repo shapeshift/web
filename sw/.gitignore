@@ -1,0 +1,6 @@
+*
+!/.gitignore
+!/build.sh
+!/src/
+!/src/**
+!/tsconfig.json

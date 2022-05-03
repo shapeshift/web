@@ -10,8 +10,18 @@ const raw = require('multiformats/codecs/raw')
 const { sha256 } = require('multiformats/hashes/sha2')
 const ssri = require('ssri')
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
+const { execSync } = require('child_process')
+
+execSync('./sw/build.sh', { stdio: [0, 1, 2] })
+fs.writeFileSync('./public/sw.js', fs.readFileSync('./sw/bundle/sw.js'))
+fs.writeFileSync('./public/swStub.js', fs.readFileSync('./sw/bundle/swStub.js'))
+process.env.REACT_APP_SW_VERSION = fs
+  .readFileSync('./sw/bundle/version.txt')
+  .toString('utf8')
+  .trim()
 
 const headers = require('./headers')
 process.env.REACT_APP_CSP_META = headers.cspMeta ?? ''
@@ -41,6 +51,10 @@ for (const dirent of fs.readdirSync('./public', { withFileTypes: true })) {
 }
 
 module.exports = {
+  /**
+   * @param {webpack.Configuration} config
+   * @param {string} mode
+   */
   webpack: (config, mode) => {
     const isProduction = mode === 'production'
     const isDevelopment = mode === 'development'
@@ -132,7 +146,7 @@ module.exports = {
         const env = definitions['process.env'] || {}
 
         for (const key in env) {
-          if (/^REACT_APP_(CSP|SRI|CID)_.*$/.test(key)) delete env[key]
+          if (/^REACT_APP_(CSP|SRI|CID|SW)_.*$/.test(key)) delete env[key]
         }
 
         return new webpack.DefinePlugin(definitions)
@@ -302,12 +316,49 @@ module.exports = {
         : {},
     )
 
+    _.merge(config, {
+      plugins: [
+        ...config.plugins.map(plugin => {
+          if (plugin instanceof HtmlWebpackPlugin) {
+            /** @param {string} newType */
+            function scriptTagTypeChangerFactory(newType) {
+              /** @param {HtmlWebpackPlugin.HtmlTagObject[]} x */
+              return x =>
+                x.map(x =>
+                  _.merge(
+                    x,
+                    x.tagName === 'script'
+                      ? {
+                          attributes: {
+                            type: newType,
+                          },
+                        }
+                      : {},
+                  ),
+                )
+            }
+            _.merge(plugin.userOptions, {
+              inject: false,
+              templateParameters: {
+                headers: headers.headers,
+                onlyIfActive: scriptTagTypeChangerFactory('serviceworker/only-if-active'),
+                onlyIfHeadersInjected: scriptTagTypeChangerFactory(
+                  'serviceworker/only-if-headers-injected',
+                ),
+              },
+            })
+          }
+          return plugin
+        }),
+      ],
+    })
+
     return config
   },
   devServer: configFunction => {
     return (proxy, allowedHost) => {
       const config = configFunction(proxy, allowedHost)
-      config.headers = headers.headers
+      config.headers = headers.fallbackHeaders
       return config
     }
   },

@@ -30,3 +30,6 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+
+/public/sw.js
+/public/swStub.js

@@ -55,7 +55,7 @@ export const assetApi = createApi({
       // all assets
       queryFn: async () => {
         // @ts-ignore
-        const service = await getAssetService() 
+        const service = await getAssetService()
         const assetArray = service?.byNetwork()
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
           const { assetId } = cur

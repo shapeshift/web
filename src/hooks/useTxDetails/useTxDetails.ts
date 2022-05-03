@@ -91,7 +91,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const buyTransfer = getTransferByType(tx, chainAdapters.TxType.Receive)
   const sellTransfer = getTransferByType(tx, chainAdapters.TxType.Send)
   const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
-  // const tradeTx = activeAsset?.assetId === sellTransfer?.caip19 ? sellTransfer : buyTransfer
 
   const direction: Direction | undefined = (() => {
     switch (method) {

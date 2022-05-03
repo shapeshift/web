@@ -70,7 +70,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const feeAsset = useAppSelector(state =>
     sellAsset
-      ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
+      ? selectFeeAssetById(state, sellAsset?.currency?.assetId)
       : selectAssetById(state, 'eip155:1/slip44:60'),
   )
   const feeAssetBalance = useAppSelector(state =>

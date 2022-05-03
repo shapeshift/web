@@ -45,11 +45,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
   const { getValues, setValue } = useFormContext<SendInput>()
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
-  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const asset = useWatch<SendInput, SendFormFields.Asset>({
+    name: SendFormFields.Asset,
+  })
+  const address = useWatch<SendInput, SendFormFields.Address>({
+    name: SendFormFields.Address,
+  })
   const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
+
+  const { assetId } = asset
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.assetId)).price)
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
@@ -57,24 +63,23 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.assetId, accountId }),
+      selectPortfolioCryptoHumanBalanceByFilter(state, {
+        assetId,
+        accountId,
+      }),
     ),
   )
 
   const fiatBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.assetId, accountId }),
-    ),
+    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.assetId, accountId }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.assetId, accountId }),
-    ),
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId })),
   )
   const chainAdapterManager = useChainAdapters()
   const {
@@ -116,7 +121,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return ethereumChainAdapter.getFeeData({
           to,
           value,
-          chainSpecific: { from, contractAddress: values.asset.tokenId },
+          chainSpecific: {
+            from,
+            contractAddress: values.asset.tokenId,
+          },
           sendMax: values.sendMax,
         })
       }

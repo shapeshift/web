@@ -75,7 +75,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
   if (!asset || !accountSpecifier) return null

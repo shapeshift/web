@@ -1,6 +1,6 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle, useToast } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { useEffect, useRef, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -12,6 +12,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -45,7 +46,8 @@ export const Approval = () => {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
   const { quote, sellAsset, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
@@ -124,6 +126,16 @@ export const Approval = () => {
     })
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    /**
+     * call history.goBack() to reset current form state
+     * before opening the connect wallet modal.
+     */
+    history.goBack()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   useEffect(() => {
     // TODO: (ryankk) fix errors to reflect correct attribute
     const error = errors?.quote?.rate ?? null
@@ -148,7 +160,9 @@ export const Approval = () => {
             flexDirection='column'
             width='full'
             as='form'
-            onSubmit={handleSubmit(approve)}
+            onSubmit={(event: FormEvent<unknown>) => {
+              isConnected ? handleSubmit(approve) : handleWalletModalOpen(event)
+            }}
           >
             <CountdownCircleTimer
               isPlaying={!!approvalTxId || !!isSubmitting}

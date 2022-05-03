@@ -12,10 +12,10 @@ import {
   selectActiveStakingOpportunityDataByAssetId,
   selectNonloadedValidators,
   selectRewardsAmountByAssetId,
-  selectSingleValidator,
   selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAssetId,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
+  selectValidatorByAddress,
   selectValidatorIsLoaded,
 } from './selectors'
 import { stakingData } from './stakingDataSlice'
@@ -302,9 +302,9 @@ describe('stakingDataSlice', () => {
       })
     })
 
-    describe('selectSingleValidator', () => {
+    describe('selectValidatorByAddress', () => {
       it('returns null on initial state', async () => {
-        const selected = selectSingleValidator(
+        const selected = selectValidatorByAddress(
           store.getState(),
           cosmosAccountSpecifier,
           SHAPESHIFT_VALIDATOR_ADDRESS,
@@ -329,7 +329,7 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectSingleValidator(
+          const selected = selectValidatorByAddress(
             store.getState(),
             cosmosAccountSpecifier,
             'cosmosvaloper1xxjvzwjpsf6ktuffkcpx29ut9qfrn0my8xdtqd',
@@ -345,7 +345,7 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectSingleValidator(
+          const selected = selectValidatorByAddress(
             store.getState(),
             cosmosAccountSpecifier,
             SHAPESHIFT_VALIDATOR_ADDRESS,

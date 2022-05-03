@@ -2833,7 +2833,7 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.1.0":
+"@shapeshiftoss/types@^2.0.0":
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.11.0.tgz#b2c9a400b1467e645e290c9fd3d94b90d223006e"
   integrity sha512-a2DuYcgWNfMTGenytXZ/pn1peeiFBT8+5rziGu+uCWiOsOzK7OKpjhqRnolUXoLqymedps7IFZJVookEep9k/A==

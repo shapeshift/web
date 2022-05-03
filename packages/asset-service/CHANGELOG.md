@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v2.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.4.4...@shapeshiftoss/asset-service-v2.4.5) (2022-05-03)
+
+
+### Bug Fixes
+
+* blacklist 0xeee burn address ([#584](https://github.com/shapeshift/lib/issues/584)) ([86e2bad](https://github.com/shapeshift/lib/commit/86e2bad3e09a21918fa3b75bb8ead77b3432a5ba))
+
 # [@shapeshiftoss/asset-service-v2.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.4.3...@shapeshiftoss/asset-service-v2.4.4) (2022-05-02)
 
 

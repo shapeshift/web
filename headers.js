@@ -180,11 +180,29 @@ const makeHeaders = (...csps) => ({
   'Content-Security-Policy': `${serializeCsp(cspMerge(...csps))}`,
 })
 
+/** @param {...CspBase[]} */
+const makeCypressHeaders = (...csps) => ({
+  ...baseHeaders,
+  'Content-Security-Policy': `${serializeCsp(
+    cspMerge(...csps, {
+      'frame-ancestors': ["'self'"],
+    }),
+  )}`,
+  'Permissions-Policy': 'document-domain=(self)',
+})
+
+const useCypressRelaxedSecurity = process.env.CYPRESS_RELAXED_SECURITY === 'true'
+
 // These headers will be delivered via both _headers and the ServiceWorker.
-const fallbackHeaders = makeHeaders(cspHeaderOnly)
+const fallbackHeaders = (useCypressRelaxedSecurity ? makeCypressHeaders : makeHeaders)(
+  cspHeaderOnly,
+)
 
 // This is the full set of headers, which will be delivered via the ServiceWorker.
-const headers = makeHeaders(cspMeta, cspHeaderOnly)
+const headers = (useCypressRelaxedSecurity ? makeCypressHeaders : makeHeaders)(
+  cspMeta,
+  cspHeaderOnly,
+)
 
 module.exports = {
   headers,

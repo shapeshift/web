@@ -26,9 +26,9 @@ export const MaxPrice = ({ label, yText, xScale, stroke, width, xDate }: LineCha
     if (x < offsetWidth) {
       return { x: x + buffer, anchor: 'start' }
     } else if (x > end) {
-      return { x: x, anchor: 'end' }
+      return { x, anchor: 'end' }
     } else {
-      return { x: x, anchor: 'start' }
+      return { x, anchor: 'start' }
     }
   }
   return (

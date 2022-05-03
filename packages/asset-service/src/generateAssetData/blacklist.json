@@ -7,5 +7,6 @@
   "eip155:1/erc20:0x0f8b6440a1f7be3354fe072638a5c0f500b044be",
   "eip155:1/erc20:0x1412eca9dc7daef60451e3155bb8dbf9da349933",
   "eip155:1/erc20:0x34278f6f40079eae344cbac61a764bcf85afc949",
-  "eip155:1/erc20:0xc12d1c73ee7dc3615ba4e37e4abfdbddfa38907e"
+  "eip155:1/erc20:0xc12d1c73ee7dc3615ba4e37e4abfdbddfa38907e",
+  "eip155:1/erc20:0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 ]

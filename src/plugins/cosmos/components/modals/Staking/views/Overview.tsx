@@ -58,14 +58,14 @@ export const Overview: React.FC<StakedProps> = ({
     selectTotalBondingsBalanceByAssetId(state, {
       accountSpecifier,
       validatorAddress,
-      assetId: asset.caip19,
+      assetId: asset.assetId,
     }),
   )
   const undelegationEntries = useAppSelector(state =>
     selectAllUnbondingsEntriesByAssetIdAndValidator(state, {
       accountSpecifier,
       validatorAddress,
-      assetId: asset.caip19,
+      assetId: asset.assetId,
     }),
   )
 
@@ -73,7 +73,7 @@ export const Overview: React.FC<StakedProps> = ({
     selectRewardsAmountByAssetId(state, {
       accountSpecifier,
       validatorAddress,
-      assetId: asset.caip19,
+      assetId: asset.assetId,
     }),
   )
 

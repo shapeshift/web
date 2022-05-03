@@ -145,7 +145,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       await getQuote({
         sellAsset: currentSellAsset,
         buyAsset: currentBuyAsset,
-        feeAsset: feeAsset,
+        feeAsset,
         action,
         amount: maxSendAmount,
       })
@@ -179,7 +179,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       amount: currentBuyAsset.amount ?? '0',
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,
-      feeAsset: feeAsset,
+      feeAsset,
       action,
     })
   }

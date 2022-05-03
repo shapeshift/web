@@ -41,13 +41,6 @@ export type ValidatorDataByPubKey = {
   [k: PubKey]: chainAdapters.cosmos.Validator
 }
 
-export type StakingPayload = {
-  payload: {
-    pubKey: PubKey
-    stakingData: Staking
-  }
-}
-
 const initialState: StakingData = {
   byAccountSpecifier: {},
   byValidator: {},
@@ -205,7 +198,7 @@ export const stakingDataApi = createApi({
             }),
           )
           return {
-            data: data,
+            data,
           }
         } catch (e) {
           console.error('Error fetching single validator data', e)

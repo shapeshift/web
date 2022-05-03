@@ -16,7 +16,8 @@ const childIgnoredFields = Object.freeze([
   'level',
   'defaultFields',
   'timestamp',
-  'status'
+  'status',
+  'logFn'
 ])
 
 const rankedLogLevels = Object.freeze([
@@ -87,14 +88,15 @@ export default class Logger implements LoggerT {
     return new Logger(newOptions)
   }
 
-  log(level: LogLevel, error: Error, metadata: Record<string, unknown>, message: string): void
-  log(level: LogLevel, error: Error, message: string): void
+  log(level: LogLevel, error: unknown, metadata: Record<string, unknown>, message: string): void
+  log(level: LogLevel, error: unknown, message: string): void
+  log(level: LogLevel, error: unknown, message: string): void
   log(level: LogLevel, metadata: Record<string, unknown>, message: string): void
   log(level: LogLevel, message: string): void
   log(level: LogLevel, arg1: Arg1, arg2?: Arg2, arg3?: Arg3): void
   log(
     level: LogLevel,
-    arg1: Error | Record<string, unknown> | string,
+    arg1: unknown | Record<string, unknown> | string,
     arg2?: Record<string, unknown> | string,
     arg3?: string
   ) {
@@ -121,40 +123,40 @@ export default class Logger implements LoggerT {
     this.logFn(level, result)
   }
 
-  trace(error: Error, metadata: Record<string, unknown>, message: string): void
-  trace(error: Error, message: string): void
+  trace(error: unknown, metadata: Record<string, unknown>, message: string): void
+  trace(error: unknown, message: string): void
   trace(metadata: Record<string, unknown>, message: string): void
   trace(message: string): void
   trace(arg1: Arg1, arg2?: Arg2, arg3?: Arg3) {
     return this.log(LogLevel.TRACE, arg1, arg2, arg3)
   }
 
-  debug(error: Error, metadata: Record<string, unknown>, message: string): void
-  debug(error: Error, message: string): void
+  debug(error: unknown, metadata: Record<string, unknown>, message: string): void
+  debug(error: unknown, message: string): void
   debug(metadata: Record<string, unknown>, message: string): void
   debug(message: string): void
   debug(arg1: Arg1, arg2?: Arg2, arg3?: Arg3) {
     return this.log(LogLevel.DEBUG, arg1, arg2, arg3)
   }
 
-  info(error: Error, metadata: Record<string, unknown>, message: string): void
-  info(error: Error, message: string): void
+  info(error: unknown, metadata: Record<string, unknown>, message: string): void
+  info(error: unknown, message: string): void
   info(metadata: Record<string, unknown>, message: string): void
   info(message: string): void
   info(arg1: Arg1, arg2?: Arg2, arg3?: Arg3) {
     return this.log(LogLevel.INFO, arg1, arg2, arg3)
   }
 
-  warn(error: Error, metadata: Record<string, unknown>, message: string): void
-  warn(error: Error, message: string): void
+  warn(error: unknown, metadata: Record<string, unknown>, message: string): void
+  warn(error: unknown, message: string): void
   warn(metadata: Record<string, unknown>, message: string): void
   warn(message: string): void
   warn(arg1: Arg1, arg2?: Arg2, arg3?: Arg3) {
     return this.log(LogLevel.WARN, arg1, arg2, arg3)
   }
 
-  error(error: Error, metadata: Record<string, unknown>, message: string): void
-  error(error: Error, message: string): void
+  error(error: unknown, metadata: Record<string, unknown>, message: string): void
+  error(error: unknown, message: string): void
   error(metadata: Record<string, unknown>, message: string): void
   error(message: string): void
   error(arg1: Arg1, arg2?: Arg2, arg3?: Arg3) {

@@ -36,7 +36,7 @@ export interface LoggerOptions {
   logFn?: LoggerFunction
 }
 
-export type Arg1 = Error | Arg2
+export type Arg1 = unknown | Arg2
 export type Arg2 = Record<string, unknown> | Arg3
 export type Arg3 = string
 
@@ -48,8 +48,8 @@ export type LoggerMethod =
   | ((arg1: Arg1, arg2?: Arg2, arg3?: Arg3) => void)
   | ((message: string) => void)
   | ((fields: Record<string, unknown>, message: string) => void)
-  | ((e: Error, fields: Record<string, unknown>, message: string) => void)
-  | ((e: Error, message: string) => void)
+  | ((e: unknown, fields: Record<string, unknown>, message: string) => void)
+  | ((e: unknown, message: string) => void)
 
 // return values are any instead of void because
 // if they return the value provided then the

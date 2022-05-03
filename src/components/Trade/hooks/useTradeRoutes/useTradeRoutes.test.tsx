@@ -27,7 +27,7 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
   const setValue = jest.fn()
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
-    getQuote: getQuote,
+    getQuote,
     getBestSwapper: () => SwapperType.Zrx,
     getDefaultPair: () => [mockETH.caip19, mockFOX.caip19],
   }))

@@ -5,7 +5,7 @@ import { ChainTypes, GetQuoteInput } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 
-import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE, MAX_SLIPPAGE } from '../utils/constants'
+import { APPROVAL_GAS_LIMIT, MAX_SLIPPAGE } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
 import { ZrxBuildQuoteTx } from './ZrxBuildQuoteTx'
@@ -102,7 +102,6 @@ const mockQuoteResponse = {
     tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   },
   sellAssetAccountId: '0',
-  slippage: DEFAULT_SLIPPAGE,
   sources: [{ name: '0x', proportion: '1' }],
   success: true,
   txData: undefined

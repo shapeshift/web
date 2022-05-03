@@ -127,7 +127,6 @@ export async function ZrxBuildQuoteTx(
       sellAssetAccountId,
       buyAssetAccountId,
       receiveAddress,
-      slippage,
       success: true,
       rate: data.price,
       depositAddress: data.to,

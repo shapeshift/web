@@ -143,7 +143,6 @@ export type Quote<C extends ChainTypes> = {
   txData?: string
   value?: string
   allowanceContract?: string
-  slippage?: string
   sources?: Array<SwapSource>
 }
 
@@ -156,7 +155,7 @@ export type GetQuoteInput = {
   buyAssetAccountId?: string
   slippage?: string
   sendMax?: boolean
-  minimum?: string
+  priceImpact?: string // TODO this doesnt belong here but frontend needs it to not break (for now)
 }
 
 export type BuildQuoteTxInput = {

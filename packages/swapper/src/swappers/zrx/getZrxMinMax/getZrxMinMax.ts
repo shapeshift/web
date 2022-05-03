@@ -22,7 +22,7 @@ export const getZrxMinMax = async (
   const minimum = new BigNumber(1).dividedBy(new BigNumber(usdRate)).toString()
 
   return {
-    minimum,
-    maximum: MAX_ZRX_TRADE
+    minimum, // $1 worth of the sell token.
+    maximum: MAX_ZRX_TRADE // Arbitrarily large value. 10e+28 here.
   }
 }

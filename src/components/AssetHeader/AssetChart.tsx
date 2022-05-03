@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -27,7 +27,6 @@ import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -59,12 +58,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
-  const {
-    state: { walletInfo },
-  } = useWallet()
-  const initialTimeframe =
-    walletInfo?.deviceId === 'DemoWallet' ? HistoryTimeframe.MONTH : HistoryTimeframe.DAY
-  const [timeframe, setTimeframe] = useState(initialTimeframe)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -85,12 +79,6 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const delegationBalance = useAppSelector(state =>
     selectTotalStakingDelegationCryptoByFilter(state, filter),
   )
-
-  useEffect(() => {
-    if (walletInfo?.deviceId === 'DemoWallet') {
-      setTimeframe(HistoryTimeframe.MONTH)
-    }
-  }, [walletInfo?.deviceId])
 
   return (
     <Card>

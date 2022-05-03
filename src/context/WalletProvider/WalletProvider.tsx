@@ -265,27 +265,25 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 .get(KeyManager.Demo)
                 ?.pairDevice(localWalletDeviceId)
               if (localDemoWallet) {
-                if (!(await localDemoWallet.isInitialized())) {
-                  const { create } = native.crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
-                  await (localDemoWallet as NativeHDWallet).loadDevice({
-                    mnemonic: await create(PublicWalletXpubs),
+                const { create } = native.crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
+                await (localDemoWallet as NativeHDWallet).loadDevice({
+                  mnemonic: await create(PublicWalletXpubs),
+                  deviceId: localWalletDeviceId,
+                })
+                await localDemoWallet.initialize()
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Demo]
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: localDemoWallet,
+                    name,
+                    icon,
                     deviceId: localWalletDeviceId,
-                  })
-                  await localDemoWallet.initialize()
-                  const { name, icon } = SUPPORTED_WALLETS[KeyManager.Demo]
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localDemoWallet,
-                      name,
-                      icon,
-                      deviceId: localWalletDeviceId,
-                      meta: { label: name },
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
-                  dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-                }
+                    meta: { label: name },
+                  },
+                })
+                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+                dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               } else {
                 disconnect()
               }

@@ -14,7 +14,7 @@ export const useKeepKeyCancel = () => {
     dispatch,
   } = useWallet()
 
-  const cancelWalletRequests = useCallback(async () => {
+  const cancelWalletRequest = useCallback(async () => {
     await wallet?.cancel().catch(e => {
       console.error(e)
       toast({
@@ -29,7 +29,7 @@ export const useKeepKeyCancel = () => {
   const handleCancel = async () => {
     history.replace('/')
     dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
-    await cancelWalletRequests()
+    await cancelWalletRequest()
   }
 
   return handleCancel

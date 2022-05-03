@@ -6,7 +6,7 @@ export {}
 
 // create-react-app calls workbox-webpack-plugin.InjectManifest by default
 // and will throw an error if __WEB_MANIFEST isn't referenced in the service worker file
-// @ts-ignore
+// @ts-ignore: declaring manifest breaks the noUnusedLocals TS rule, but is required in this file as per the comments above
 const manifest = self.__WB_MANIFEST /* eslint-disable-line @typescript-eslint/no-unused-vars */
 
 self.addEventListener('activate', () => self.clients.claim())

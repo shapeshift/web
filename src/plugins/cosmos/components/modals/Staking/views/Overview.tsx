@@ -13,9 +13,9 @@ import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllUnbondingsEntriesByAssetIdAndValidator,
   selectRewardsAmountByAssetId,
-  selectSingleValidator,
   selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAssetId,
+  selectValidatorByAddress,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -51,7 +51,7 @@ export const Overview: React.FC<StakedProps> = ({
   }, [accountSpecifier, isLoaded, dispatch])
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, accountSpecifier, validatorAddress),
   )
 
   const totalBondings = useAppSelector(state =>

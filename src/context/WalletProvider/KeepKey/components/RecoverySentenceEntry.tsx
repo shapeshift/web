@@ -18,6 +18,7 @@ import { useHistory } from 'react-router-dom'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from 'components/Text'
 import { inputValuesReducer, isLetter, isValidInput } from 'context/WalletProvider/KeepKey/helpers'
+import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -37,6 +38,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
     },
   } = useWallet()
   const history = useHistory()
+  const handleCancel = useKeepKeyCancel()
   const [wordEntropy, setWordEntropy] = useState<12 | 18 | 24>(12)
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
@@ -186,8 +188,6 @@ export const KeepKeyRecoverySentenceEntry = () => {
     }
   }
 
-  const onCancel = () => history.goBack()
-
   const pinInputFieldProps: PinInputFieldProps = useMemo(
     () => ({
       background: inputBackgroundColor,
@@ -207,7 +207,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
         <Text color='gray.500' translation={'modals.keepKey.recoverySentenceEntry.body'} mb={4} />
         <AwaitKeepKey
           translation='modals.keepKey.recoverySentenceEntry.awaitingButtonPress'
-          onCancel={onCancel}
+          onCancel={handleCancel}
         >
           <HStack justifyContent='space-between'>
             {wordEntropyCircle}

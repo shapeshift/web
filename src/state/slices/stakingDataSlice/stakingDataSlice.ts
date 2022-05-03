@@ -82,14 +82,12 @@ export const stakingData = createSlice({
       stakingDataState,
       { payload }: { payload: { accountSpecifier: AccountId; stakingData: Staking } },
     ) => {
-      // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsert(stakingDataState, payload.accountSpecifier, payload.stakingData)
     },
     upsertValidatorData: (
       stakingDataState,
       { payload }: { payload: { validators: chainAdapters.cosmos.Validator[] } },
     ) => {
-      // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsertValidatorData(stakingDataState, payload.validators)
     },
   },

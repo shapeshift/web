@@ -25,6 +25,7 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   stakingDataApi: mockApiFactory('stakingDataApi' as const),
+  validatorDataApi: mockApiFactory('validatorDataApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -99,5 +100,9 @@ export const mockStore: ReduxState = {
     status: 'idle',
     validatorStatus: 'idle',
     byValidator: {},
+  },
+  validatorData: {
+    byValidator: {},
+    validatorIds: [],
   },
 }

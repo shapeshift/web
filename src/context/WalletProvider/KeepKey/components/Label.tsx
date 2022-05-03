@@ -39,7 +39,7 @@ export const KeepKeyLabel = () => {
 
   const handleRecoverSubmit = async () => {
     setLoading(true)
-    sendKeepKeyRecover(label)
+    await sendKeepKeyRecover(label)
   }
 
   return (

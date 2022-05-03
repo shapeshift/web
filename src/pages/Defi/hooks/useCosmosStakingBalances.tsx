@@ -57,13 +57,13 @@ export function useCosmosStakingBalances({
   const dispatch = useAppDispatch()
 
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+    selectFirstAccountSpecifierByChainId(state, asset.chainId),
   )
 
   const activeStakingOpportunities = useAppSelector(state =>
     selectActiveStakingOpportunityDataByAssetId(state, {
       accountSpecifier,
-      assetId: asset.caip19,
+      assetId: asset.assetId,
     }),
   )
 

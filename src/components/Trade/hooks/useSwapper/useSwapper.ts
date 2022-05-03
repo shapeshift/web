@@ -1,6 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
+import { BuiltTrade, SwapperManager, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
   Asset,
   chainAdapters,
@@ -39,7 +39,7 @@ type GetQuoteInput = {
 interface GetQuoteFromSwapper<C extends ChainTypes> extends GetQuoteInput {
   sellAsset: Asset
   buyAsset: Asset
-  onFinish: (quote: Quote<C>) => void
+  onFinish: (quote: TradeQuote<C>) => void
 }
 
 export enum TRADE_ERRORS {
@@ -132,7 +132,7 @@ export const useSwapper = () => {
     feeAsset: Asset
   }) => {
     const swapper = swapperManager.getSwapper(SwapperType.Zrx)
-    const maximumQuote = await swapper.getQuote(
+    const maximumQuote = await swapper.getTradeQuote(
       {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
@@ -191,16 +191,13 @@ export const useSwapper = () => {
       }
     }
 
-    const result = await swapper?.buildQuoteTx({
-      input: {
-        sellAmount,
-        sellAsset,
-        buyAsset,
-        sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-        buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-        slippage: trade?.slippage?.toString(),
-        priceImpact: quote?.priceImpact,
-      },
+    const result = await swapper?.buildTrade({
+      sellAmount,
+      sellAsset,
+      buyAsset,
+      sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+      buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+      slippage: trade?.slippage?.toString(),
       wallet,
     })
 
@@ -248,7 +245,7 @@ export const useSwapper = () => {
       sellAssetId: quote.sellAsset.assetId,
     })
 
-    const result = await swapper.executeQuote({ quote, wallet })
+    const result = await swapper.executeTrade({ builtTrade: quote, wallet })
     return result
   }
 
@@ -303,7 +300,7 @@ export const useSwapper = () => {
             minMax && setValue('trade', minMaxTrade)
           }
 
-          const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
+          const newQuote = await swapper.getTradeQuote({ ...quoteInput, ...minMax })
           if (!(newQuote && newQuote.success)) throw newQuote
 
           const sellAssetUsdRate = bnOrZero(

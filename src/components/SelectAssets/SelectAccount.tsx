@@ -20,7 +20,7 @@ type SelectAccountLocation = {
   assetId: AssetId
 }
 
-export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
+export const SelectAccount = ({ onClick }: SelectAccountProps) => {
   const location = useLocation<SelectAccountLocation>()
   const translate = useTranslate()
   const history = useHistory()

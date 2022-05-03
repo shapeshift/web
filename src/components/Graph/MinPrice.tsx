@@ -1,11 +1,8 @@
-import { HistoryData } from '@shapeshiftoss/types'
 import { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
 
 export interface LineChartProps {
-  data: HistoryData[]
   xScale: AxisScale<number>
-  yScale: AxisScale<number>
   width: number
   yMax: number
   xDate: Date
@@ -21,16 +18,7 @@ export interface LineChartProps {
   xTickFormat?: (d: any) => any
 }
 
-export const MinPrice = ({
-  data,
-  label,
-  yText,
-  yScale,
-  xScale,
-  stroke,
-  width,
-  xDate,
-}: LineChartProps) => {
+export const MinPrice = ({ label, yText, xScale, stroke, width, xDate }: LineChartProps) => {
   const xPos = xScale(xDate)
   const handleTextPos = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
     const offsetWidth = width / 2

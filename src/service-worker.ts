@@ -32,4 +32,4 @@ self.addEventListener('message', event => {
   }
 })
 
-self.addEventListener('fetch', event => {})
+self.addEventListener('fetch', _ => {})

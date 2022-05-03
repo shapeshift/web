@@ -55,14 +55,14 @@ const selectAccountSpecifierParam = (_state: ReduxState, accountSpecifier: Accou
 
 const selectValidatorAddress = (
   _state: ReduxState,
-  accountSpecifier: AccountId,
+  _accountSpecifier: AccountId,
   validatorAddress: PubKey,
 ) => validatorAddress
 
 const selectAssetIdParam = (
   _state: ReduxState,
-  accountSpecifier: AccountId,
-  validatorAddress: PubKey,
+  _accountSpecifier: AccountId,
+  _validatorAddress: PubKey,
   assetId: AssetId,
 ) => assetId
 

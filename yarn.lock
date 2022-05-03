@@ -3788,7 +3788,7 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^2.4.1":
+"@shapeshiftoss/asset-service@^2.4.5":
   version "2.4.5"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.4.5.tgz#313e811e5757607464d01240ce8b4a59fb77ef36"
   integrity sha512-l1M+2eTXbk4PbDAbNO/Q7wqPoxLEXp+jcxuVZT+6S0ZZez8sHAZWDwwW7Y1npmLdxe1RfFV5JEwQplTm25/5Uw==
@@ -4042,7 +4042,7 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^3.0.0":
+"@shapeshiftoss/swapper@^3.0.5":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-3.0.5.tgz#c37a3d70baf4aabc101b96fb4e2333914b2d8852"
   integrity sha512-hlDvRgojK0UHIYefxdnQvCUW+5cQLN1QHwDy2f65/zre78DtxVtnedOAIkdoSnSDDB+mlIJ4uqQ1jMkro3CQrw==
@@ -4058,7 +4058,7 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.10.0.tgz#7b1e4028ae048ea2a49c44d962bd0809ca1c4163"
   integrity sha512-WScuXKhuH5BzLQCcpnENN8s6zYaYzHy3F54FnOrjaocXkVZJe2//uUeT9aM0WcRl5I3d65giqPTTvbgBr+Yjug==
 
-"@shapeshiftoss/types@^3.0.0":
+"@shapeshiftoss/types@^3.1.2":
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.1.2.tgz#bc11fc2d09f3dd51cceb56ea055d7b28f92970f8"
   integrity sha512-vloQ+M3g/dzKe/WgwjZY1JxMlkPA9IHTju3joYk+8jSrYDldz9X4HCanZIFglkJW4WzLIagWOV7pmnzTP4GzjQ==

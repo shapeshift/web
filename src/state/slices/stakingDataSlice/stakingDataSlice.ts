@@ -200,7 +200,7 @@ export const stakingDataApi = createApi({
             }),
           )
           return {
-            data: data,
+            data,
           }
         } catch (e) {
           console.error('Error fetching single validator data', e)

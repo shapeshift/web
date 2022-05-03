@@ -48,7 +48,7 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
           {accountIds.map(accountId => (
             <AssetAccountRow
               accountId={accountId}
-              assetId={asset.caip19}
+              assetId={asset.assetId}
               key={accountId}
               isCompact
               onClick={() => onClick(asset, accountId)}

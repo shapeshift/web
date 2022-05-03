@@ -35,7 +35,7 @@ export const useTradeRoutes = (
       return (
         defaultBuyAssetId &&
         assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
-        assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
+        assets[defaultBuyAssetId]?.assetId !== ETHEREUM_CAIP19
       )
     }
 
@@ -70,7 +70,7 @@ export const useTradeRoutes = (
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (buyAsset.currency && asset.caip19 === buyAsset.currency.caip19)
+        if (buyAsset.currency && asset.assetId === buyAsset.currency.assetId)
           setValue('buyAsset.currency', sellAsset.currency)
         const action = buyAsset.amount ? TradeActions.SELL : undefined
         setValue('sellAsset.currency', asset)
@@ -96,7 +96,7 @@ export const useTradeRoutes = (
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (sellAsset.currency && asset.caip19 === sellAsset.currency.caip19)
+        if (sellAsset.currency && asset.assetId === sellAsset.currency.assetId)
           setValue('sellAsset.currency', buyAsset.currency)
         const action = sellAsset.amount ? TradeActions.BUY : undefined
         setValue('buyAsset.currency', asset)

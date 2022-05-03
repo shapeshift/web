@@ -56,7 +56,7 @@ export function useCosmosStakingBalances({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const dispatch = useAppDispatch()
 
-  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.caip2))
+  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.chainId))
   const accountSpecifier = accountSpecifiers?.[0]
 
   const activeStakingOpportunities = useAppSelector(state =>
@@ -64,7 +64,7 @@ export function useCosmosStakingBalances({
       state,
       accountSpecifier,
       SHAPESHIFT_VALIDATOR_ADDRESS,
-      asset.caip19,
+      asset.assetId,
     ),
   )
 
@@ -83,7 +83,7 @@ export function useCosmosStakingBalances({
     selectNonloadedValidators(state, accountSpecifier),
   )
 
-  const chainId = asset.caip2
+  const chainId = asset.chainId
 
   const mergedActiveStakingOpportunities = useMemo(() => {
     return Object.values(activeStakingOpportunities).map(opportunity => {

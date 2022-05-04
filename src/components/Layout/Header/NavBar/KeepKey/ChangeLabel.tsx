@@ -6,9 +6,14 @@ import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/Kee
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
+
+const moduleLogger = logger.child({
+  namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'ChangeLabel'],
+})
 
 export const ChangeLabel = () => {
   const translate = useTranslate()
@@ -24,8 +29,14 @@ export const ChangeLabel = () => {
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
   const handleChangeLabelInitializeEvent = async () => {
+    const fnLogger = moduleLogger.child({
+      namespace: ['handleChangeLabelInitializeEvent'],
+      keepKeyLabel,
+    })
+    fnLogger.trace('Applying Label...')
+
     await keepKeyWallet?.applySettings({ label: keepKeyLabel }).catch(e => {
-      console.error(e)
+      fnLogger.error(e, 'Error applying KeepKey settings')
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),
@@ -33,6 +44,8 @@ export const ChangeLabel = () => {
         isClosable: true,
       })
     })
+
+    fnLogger.trace('KeepKey Label Applied')
   }
   const setting = 'label'
   const inputBackground = useColorModeValue('white', 'gray.800')

@@ -4,6 +4,7 @@ import { mockMarketData } from 'test/mocks/marketData'
 import { emptyMockStakingData, mockStakingData, mockValidatorData } from 'test/mocks/stakingData'
 import { TestProviders } from 'test/TestProviders'
 import { ReduxState } from 'state/reducer'
+import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { stakingData as stakingDataSlice } from 'state/slices/stakingDataSlice/stakingDataSlice'
@@ -35,6 +36,12 @@ function setup() {
     marketDataSlice.actions.setMarketData({
       [cosmos.assetId]: cosmosMarketData,
     }),
+  )
+
+  store.dispatch(
+    accountSpecifiers.actions.setAccountSpecifiers([
+      { 'cosmos:cosmoshub-4': 'cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669' },
+    ]),
   )
 
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>

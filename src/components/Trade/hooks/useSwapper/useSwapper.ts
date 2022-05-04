@@ -117,7 +117,7 @@ export const useSwapper = () => {
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, sellAsset?.currency?.assetId),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellAsset?.currency?.assetId }),
   )
 
   const getSendMaxAmount = async ({

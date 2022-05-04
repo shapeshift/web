@@ -56,7 +56,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatAmountAvailable = cryptoBalanceHuman.times(bnOrZero(marketData.price)).toString()

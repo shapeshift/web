@@ -17,7 +17,7 @@ type AssetAccountsProps = {
 export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   const translate = useTranslate()
   const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetIdAboveBalanceThreshold(state, assetId),
+    selectAccountIdsByAssetIdAboveBalanceThreshold(state, { assetId }),
   )
   if ((accountIds && accountIds.length === 0) || accountId) return null
   return (

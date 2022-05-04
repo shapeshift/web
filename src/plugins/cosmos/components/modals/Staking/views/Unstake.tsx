@@ -59,12 +59,11 @@ export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: Unstake
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoStakeBalance = useAppSelector(state =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(
-      state,
+    selectDelegationCryptoAmountByAssetIdAndValidator(state, {
       accountSpecifier,
       validatorAddress,
       assetId,
-    ),
+    }),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 

@@ -60,24 +60,26 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
   useEffect(() => {
     ;(async () => {
-      try {
-        pluginManager.clear()
+      pluginManager.clear()
 
-        for (const plugin of activePlugins) {
+      for (const plugin of activePlugins) {
+        try {
           pluginManager.register(await import(`../../plugins/${plugin}/index.tsx`))
+        } catch (e) {
+          moduleLogger.error(e, { fn: 'register' }, 'Register Plugins')
         }
-
-        setPlugins(pluginManager.entries())
-      } catch (err) {
-        // TODO(ryankk): show a global error screen in the future??
-        moduleLogger.error(err, '')
       }
+
+      const plugins = pluginManager.entries()
+      setPlugins(plugins)
+      moduleLogger.debug({ plugins }, 'Plugins Registration Completed')
     })()
   }, [pluginManager])
 
   useEffect(() => {
     if (!plugins) return
 
+    const fnLogger = moduleLogger.child({ namespace: ['onFeatureFlags'] })
     let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
@@ -85,18 +87,21 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     // register providers from each plugin
     for (const [, plugin] of pluginManager.entries()) {
+      fnLogger.trace({ plugin }, 'Checking Plugin...')
       // Ignore plugins that have their feature flag disabled
       // If no featureFlag is present, then we assume it's enabled
       if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
         // routes providers
         if (plugin.routes) {
           pluginRoutes = pluginRoutes.concat(plugin.routes)
+          fnLogger.trace({ plugin: plugin.name }, 'Added Routes')
         }
 
         // chain adapters providers
         plugin.providers?.chainAdapters?.forEach(([chain, factory]) => {
           // track newly registered adapters by plugins
           newChainAdapters[chain] = factory
+          fnLogger.trace({ plugin: plugin.name, chain }, 'Added ChainAdapter')
         })
       }
     }
@@ -108,13 +113,16 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       {
         add: chain => {
           const factory = newChainAdapters[chain]
-          // TODO(0xdef1cafe): leave this here, change to debug logging
-          logger.info({ chain }, 'PluginProvider: adding chain')
-          if (factory) getChainAdapters().addChain(chain, factory)
+          if (factory) {
+            getChainAdapters().addChain(chain, factory)
+            moduleLogger.debug({ chain, fn: 'partitionCompareWith' }, 'Added ChainAdapter')
+          }
         },
         remove: chain => {
+          moduleLogger.trace({ chain, fn: 'partitionCompareWith' }, 'Closing Subscriptions')
           getChainAdapters().byChain(chain).closeTxs()
           getChainAdapters().removeChain(chain)
+          moduleLogger.debug({ chain, fn: 'partitionCompareWith' }, 'Removed ChainAdapter')
         },
       },
     )
@@ -136,6 +144,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     routes,
   }
 
+  moduleLogger.trace(values, 'Render')
   return <PluginContext.Provider value={values}>{children}</PluginContext.Provider>
 }
 

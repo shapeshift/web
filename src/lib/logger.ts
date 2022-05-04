@@ -1,40 +1,53 @@
 // eslint-disable no-console
 import { Logger, LoggerFunction, LogLevel } from '@shapeshiftoss/logger'
+import { getConfig } from 'config'
 
-import { getConfig } from '../config'
-
-const logLevelCSS: Record<Exclude<LogLevel, LogLevel.NONE>, string> = {
-  [LogLevel.TRACE]: 'background-color: blue; color: white;',
-  [LogLevel.DEBUG]: 'background-color: cyan; color: black;',
-  [LogLevel.INFO]: 'background-color: green; color: white;',
-  [LogLevel.WARN]: 'background-color: yellow; color: black;',
-  [LogLevel.ERROR]: 'background-color: red; color: white;',
+type LogStyle = {
+  title: string
+  message: string
+  icon: string
 }
 
-const logMessageCSS: Record<Exclude<LogLevel, LogLevel.NONE>, string> = {
-  [LogLevel.TRACE]: 'background-color: lightblue; color: darkblue;',
-  [LogLevel.DEBUG]: 'background-color: lightcyan; color: darkcyan;',
-  [LogLevel.INFO]: 'background-color: lightgreen; color: darkgreen;',
-  [LogLevel.WARN]: 'background-color: lightyellow; color: darkyellow',
-  [LogLevel.ERROR]: 'background-color: lightred; color: red;',
+const logStyles: Record<Exclude<LogLevel, LogLevel.NONE>, LogStyle> = {
+  [LogLevel.TRACE]: {
+    title: 'background-color: #463373; color: #9F7AEA; padding: 4px 8px;',
+    message: 'background-color: #29233f; color: white; padding: 4px 8px;',
+    icon: '🚜',
+  },
+  [LogLevel.DEBUG]: {
+    title: 'background-color: #295c5d; color: #38b2ac; padding: 4px 8px;',
+    message: 'background-color: #1f3034; color: white; padding: 4px 8px;',
+    icon: '🐞',
+  },
+  [LogLevel.INFO]: {
+    title: 'background-color: #222f63; color: #6a96ec; padding: 4px 8px;',
+    message: 'background-color: #1b2342; color: white; padding: 4px 8px;',
+    icon: '💭',
+  },
+  [LogLevel.WARN]: {
+    title: 'background-color: #332b00; color: #ECC94B; padding: 4px 8px;',
+    message: 'background-color: #493107; color: white; padding: 4px 8px;',
+    icon: '🚸',
+  },
+  [LogLevel.ERROR]: {
+    title: 'background-color: #621616; color: #f5624b; padding: 4px 8px;',
+    message: 'background-color: #460c0e; color: white; padding: 4px 8px;',
+    icon: '🚫',
+  },
 }
-
-const __console = { ...console }
 
 const browserLoggerFn: LoggerFunction = (level, data) => {
   const consoleFn = level === LogLevel.TRACE ? LogLevel.DEBUG : level
-  let msg = data._messages?.join(' ') || data.message
 
-  if (data.error) {
-    msg = `Error [Kind: ${data.error.kind}]${
-      data.error.code ? ` [Code: ${data.error?.code}]` : ''
-    } ${data.error.message} `
-  }
+  const msg = data.error
+    ? `Error [Kind: ${data.error.kind}] ${data.error.message} `
+    : data._messages?.join(' ') || data.message
 
-  __console[consoleFn](
-    `%c ${level}: [${data.namespace}] %c ${msg}`,
-    logLevelCSS[level],
-    logMessageCSS[level],
+  // eslint-disable-next-line no-console
+  console[consoleFn](
+    `%c${logStyles[level].icon} ${level}: [${data.namespace}]%c${msg}`,
+    logStyles[level].title,
+    logStyles[level].message,
     data,
   )
 }
@@ -45,11 +58,8 @@ export const logger = new Logger({
   logFn: browserLoggerFn,
 })
 
-const consoleReplacementLogger = logger.child({ namespace: ['Console'] })
-
-// @ts-expect-error
-console.error = (...args) => consoleReplacementLogger.error(...args)
-// @ts-expect-error
-console.warn = (...args) => consoleReplacementLogger.warn(...args)
-// @ts-expect-error
-console.info = (...args) => consoleReplacementLogger.info(...args)
+logger.error('test')
+logger.warn('test')
+logger.info('test')
+logger.debug('test')
+logger.trace('test')

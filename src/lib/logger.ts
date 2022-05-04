@@ -57,9 +57,3 @@ export const logger = new Logger({
   level: getConfig().REACT_APP_LOG_LEVEL,
   logFn: browserLoggerFn,
 })
-
-logger.error('test')
-logger.warn('test')
-logger.info('test')
-logger.debug('test')
-logger.trace('test')

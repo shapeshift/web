@@ -24,7 +24,7 @@ export const accountSpecifiers = createSlice({
   initialState: getInitialState(),
   reducers: {
     clear: () => {
-      console.info('accountSpecifiersSlice: clearing account specifiers')
+      moduleLogger.info('clearing account specifiers')
       return getInitialState()
     },
     setAccountSpecifiers(state, { payload }: { payload: AccountSpecifierMap[] }) {

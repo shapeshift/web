@@ -90,7 +90,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!wallet) return
-    if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
+    if (!(sellAsset.currency && buyAsset.currency && sellAsset.amount)) return
     const isERC20 = sellAsset.currency.contractType === AssetNamespace.ERC20
 
     try {
@@ -111,8 +111,8 @@ export const TradeInput = ({ history }: RouterProps) => {
 
       const result = await buildQuoteTx({
         wallet,
-        sellAsset: quote?.sellAsset,
-        buyAsset: quote?.buyAsset,
+        sellAsset: sellAsset.currency,
+        buyAsset: buyAsset.currency,
         amount: sellAsset?.amount,
       })
 

@@ -1,6 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SwapperManager, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
+import { BuiltTrade, SwapperManager, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
   Asset,
   chainAdapters,
@@ -14,7 +14,7 @@ import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { TradeAsset } from 'components/Trade/Trade'
+import { BuildQuoteTxOutput, TradeAsset } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponentMounted'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -72,8 +72,8 @@ export const useSwapper = () => {
   const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
-  const [quote, trade, sellAsset] = useWatch({
-    name: ['quote', 'trade', 'sellAsset'],
+  const [quote, trade, sellAsset, buyAsset] = useWatch({
+    name: ['quote', 'trade', 'sellAsset', 'buyAsset'],
   })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
@@ -137,6 +137,7 @@ export const useSwapper = () => {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
         sellAmount: sellAssetBalance,
+        sendMax: true,
       },
       wallet,
     )
@@ -169,7 +170,7 @@ export const useSwapper = () => {
     sellAsset: Asset
     buyAsset: Asset
     amount: string
-  }): Promise<Quote<ChainTypes> | undefined> => {
+  }): Promise<BuildQuoteTxOutput | undefined> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: buyAsset.assetId,
       sellAssetId: sellAsset.assetId,
@@ -186,7 +187,6 @@ export const useSwapper = () => {
       return {
         success: false,
         sellAsset,
-        buyAsset,
         statusReason: translate(TRADE_ERRORS.AMOUNT_TO_SMALL, { minLimit: minimum }),
       }
     }
@@ -199,6 +199,7 @@ export const useSwapper = () => {
       buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
       slippage: trade?.slippage?.toString(),
       wallet,
+      sendMax: true,
     })
 
     if (result?.success) {
@@ -241,8 +242,8 @@ export const useSwapper = () => {
     wallet: HDWallet
   }): Promise<ExecQuoteOutput | undefined> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.assetId,
-      sellAssetId: quote.sellAsset.assetId,
+      buyAssetId: buyAsset.currency.assetId,
+      sellAssetId: sellAsset.currency.assetId,
     })
 
     const result = await swapper.executeTrade({ builtTrade: quote, wallet })
@@ -300,7 +301,10 @@ export const useSwapper = () => {
             minMax && setValue('trade', minMaxTrade)
           }
 
-          const newQuote = await swapper.getTradeQuote({ ...quoteInput, ...minMax })
+          const newQuote = await swapper.getTradeQuote({
+            ...quoteInput,
+            ...minMax,
+          })
           if (!(newQuote && newQuote.success)) throw newQuote
 
           const sellAssetUsdRate = bnOrZero(
@@ -355,7 +359,7 @@ export const useSwapper = () => {
     }
     const feeAssetPrecision = feeAsset.precision
 
-    const onFinish = (quote: Quote<ChainTypes>) => {
+    const onFinish = (quote: TradeQuote<ChainTypes>) => {
       if (isComponentMounted.current) {
         const { sellAsset, buyAsset, action, fiatAmount } = getValues()
 
@@ -403,8 +407,8 @@ export const useSwapper = () => {
     tokenId?: string
   }): Promise<string> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.assetId,
-      sellAssetId: quote.sellAsset.assetId,
+      buyAssetId: buyAsset.currency.assetId,
+      sellAssetId: sellAsset.currency.assetId,
     })
     return swapper?.getUsdRate({
       symbol,
@@ -412,7 +416,10 @@ export const useSwapper = () => {
     })
   }
 
-  const setFees = async (result: Quote<ChainTypes>, sellAsset: Asset) => {
+  const setFees = async (
+    result: BuiltTrade<ChainTypes> | TradeQuote<ChainTypes>,
+    sellAsset: Asset,
+  ) => {
     const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
     const feeBN = bnOrZero(result?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feePrecision))
     const fee = feeBN.toString()
@@ -449,8 +456,8 @@ export const useSwapper = () => {
 
   const checkApprovalNeeded = async (wallet: HDWallet | NativeHDWallet): Promise<boolean> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.assetId,
-      sellAssetId: quote.sellAsset.assetId,
+      buyAssetId: buyAsset.currency.assetId,
+      sellAssetId: sellAsset.currency.assetId,
     })
     const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
@@ -458,8 +465,8 @@ export const useSwapper = () => {
 
   const approveInfinite = async (wallet: HDWallet | NativeHDWallet): Promise<string> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: quote.buyAsset.assetId,
-      sellAssetId: quote.sellAsset.assetId,
+      buyAssetId: buyAsset.currency.assetId,
+      sellAssetId: sellAsset.currency.assetId,
     })
     const txid = await swapper.approveInfinite({ quote, wallet })
     return txid

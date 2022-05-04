@@ -25,7 +25,7 @@ export const SelectAccount = ({ onClick }: SelectAccountProps) => {
   const translate = useTranslate()
   const history = useHistory()
   const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, location.state.assetId),
+    selectAccountIdsByAssetId(state, { assetId: location.state.assetId }),
   )
   const asset = useAppSelector(state => selectAssetById(state, location.state.assetId))
   return (

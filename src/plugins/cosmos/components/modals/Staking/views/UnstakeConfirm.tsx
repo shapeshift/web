@@ -42,17 +42,11 @@ import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 type UnstakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onCancel: () => void
 }
 
-export const UnstakeConfirm = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onCancel,
-}: UnstakeProps) => {
+export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -63,7 +57,7 @@ export const UnstakeConfirm = ({
   const { cryptoAmount } = useWatch({ control })
 
   const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, { validatorAddress }),
   )
   const {
     state: { wallet },
@@ -73,7 +67,7 @@ export const UnstakeConfirm = ({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatUnstakeAmount = useMemo(

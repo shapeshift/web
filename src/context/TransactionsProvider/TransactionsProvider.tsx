@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { logger } from 'lib/logger'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
@@ -21,6 +22,8 @@ import {
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
+
+const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -58,7 +61,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     // account specifiers changing will trigger this effect
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
     if (!isSubscribed) return
-    console.info('TransactionsProvider: unsubscribing from tx history')
+    moduleLogger.info('unsubscribing from tx history')
     supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
     dispatch(txHistory.actions.clear())
     setIsSubscribed(false)
@@ -117,13 +120,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               await Promise.all(
                 accountTypes.map(async accountType => {
                   const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
-                  console.info('subscribing txs for', chainId, accountType)
+                  moduleLogger.info({ chainId, accountType }, 'subscribing txs')
                   return adapter.subscribeTxs(
                     { wallet, accountType, ...accountParams },
                     msg => {
                       const caip10 = `${msg.caip2}:${msg.address}`
                       const state = store.getState()
-                      const accountId = selectAccountIdByAddress(state, caip10)
+                      const accountId = selectAccountIdByAddress(state, {
+                        accountSpecifier: caip10,
+                      })
                       dispatch(
                         txHistory.actions.onMessage({
                           message: { ...msg, accountType },
@@ -131,7 +136,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                         }),
                       )
                     },
-                    (err: any) => console.error(err),
+                    (err: any) => moduleLogger.error(err),
                   )
                 }),
               )
@@ -139,10 +144,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               // and need this to prevent resubscribing when switching wallets
               setIsSubscribed(true)
             } catch (e: unknown) {
-              console.error(
-                `TransactionProvider: Error subscribing to transaction history for chain: ${chain}`,
-                e,
-              )
+              moduleLogger.error(e, { chain }, 'Error subscribing to transaction history for chain')
             }
           }),
       ))()

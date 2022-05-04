@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
+import { logger } from 'lib/logger'
 
 export const App = () => {
   const shouldUpdate = useHasAppUpdated()
@@ -16,6 +17,7 @@ export const App = () => {
   const translate = useTranslate()
 
   useEffect(() => {
+    logger.debug({ shouldUpdate, updateId }, 'Update Check')
     if (shouldUpdate && !toast.isActive(updateId)) {
       const toastId = toast({
         render: () => {

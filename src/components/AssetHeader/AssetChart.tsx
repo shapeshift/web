@@ -67,7 +67,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
   const filter = useMemo(
     () => ({ assetId, accountId, accountSpecifier }),

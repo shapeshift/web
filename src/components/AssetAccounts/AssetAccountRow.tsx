@@ -52,7 +52,7 @@ export const AssetAccountRow = ({
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
   const filter = useMemo(

@@ -57,7 +57,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.caip2),
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
   const stakingOpportunitiesData = useAppSelector(state =>

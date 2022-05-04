@@ -87,7 +87,7 @@ export type OpportunitiesDataFull = {
   isLoaded: boolean
   address: string
   moniker: string
-  tokens: string
+  tokens?: string
   apr: string
   commission: string
 }
@@ -750,7 +750,7 @@ export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
   apr: string
-  tokens: string
+  tokens?: string
   cryptoAmount?: string
   rewards?: string
 }
@@ -767,7 +767,7 @@ export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
   (stakingData, validatorAddress, assetId): string => {
-    return stakingData?.[validatorAddress][assetId]?.delegations[0]?.amount ?? '0'
+    return stakingData?.[validatorAddress]?.[assetId]?.delegations[0]?.amount ?? '0'
   },
 )
 

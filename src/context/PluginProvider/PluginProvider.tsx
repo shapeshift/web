@@ -129,7 +129,6 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     setRoutes(pluginRoutes)
     const _supportedChains = getChainAdapters().getSupportedChains()
-    // TODO(0xdef1cafe): leave this here, change to debug logging
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
     setSupportedChains(_supportedChains)
   }, [chainAdapterManager, featureFlags, plugins, pluginManager])

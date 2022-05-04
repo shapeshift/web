@@ -285,8 +285,8 @@ export const useSwapper = () => {
             }
           }
           const quoteInput = {
-            sellAsset: sellAsset,
-            buyAsset: buyAsset,
+            sellAsset,
+            buyAsset,
             ...convertedAmount,
           }
 

@@ -26,6 +26,7 @@ const validators = {
   REACT_APP_GEM_ASSET_LOGO: url(),
   REACT_APP_GEM_ENV: str(),
   REACT_APP_GEM_API_KEY: str(),
+  REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   REACT_APP_FOXY_APY: num({ default: 0.15 }),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_COSMOS_INVESTOR: bool({ default: false }),

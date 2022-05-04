@@ -30,12 +30,12 @@ export const CosmosAsset = () => {
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetId))
 
   return !asset || loading ? (
-    <Page key={asset?.caip19}>
+    <Page key={asset?.assetId}>
       <Flex role='main' flex={1} height='100%'>
         <LoadingAsset />
       </Flex>
     </Page>
   ) : (
-    <CosmosAssetAccountDetails assetId={asset.caip19} />
+    <CosmosAssetAccountDetails assetId={asset.assetId} />
   )
 }

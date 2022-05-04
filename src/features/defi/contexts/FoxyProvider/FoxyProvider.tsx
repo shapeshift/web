@@ -34,7 +34,7 @@ export const FoxyProvider: React.FC = ({ children }) => {
         const api = new FoxyApi({
           adapter: chainAdapterManager.byChain(ChainTypes.Ethereum),
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-          foxyAddresses: foxyAddresses,
+          foxyAddresses,
         })
         setFoxy(api)
       } catch (error) {

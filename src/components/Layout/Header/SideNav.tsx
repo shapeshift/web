@@ -1,9 +1,6 @@
 import { chakra, useColorModeValue } from '@chakra-ui/react'
-import React from 'react'
 
 import { SideNavContent } from './SideNavContent'
-
-export const NAV_PADDING = { base: 6, lg: 16 }
 
 export const SideNav = () => {
   const bg = useColorModeValue('white', 'gray.850')

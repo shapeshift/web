@@ -74,13 +74,13 @@ const setup = ({
   )
   mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
     const fakeMarketData = {
-      [mockEthereum.caip19]: {
+      [mockEthereum.assetId]: {
         price: '3500',
         marketCap: 'bigly',
         volume: 'lots',
         changePercent24Hr: 420.69,
       },
-      [mockRune.caip19]: {
+      [mockRune.assetId]: {
         price: '69',
         marketCap: 'to the',
         volume: 'moon',

@@ -48,7 +48,7 @@ const main = async (): Promise<void> => {
       caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
     )) as ChainAdapter<ChainTypes.Ethereum>,
     providerUrl: process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
-    foxyAddresses: foxyAddresses
+    foxyAddresses
   })
 
   const userAddress = await api.adapter.getAddress({ wallet })

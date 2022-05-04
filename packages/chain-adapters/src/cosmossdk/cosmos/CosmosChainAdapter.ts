@@ -129,7 +129,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
               denom: 'uatom'
             }
           ],
-          gas: gas
+          gas
         },
         msg: [
           {
@@ -203,7 +203,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
               denom: 'uatom'
             }
           ],
-          gas: gas
+          gas
         },
         msg: [
           {
@@ -275,7 +275,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
               denom: 'uatom'
             }
           ],
-          gas: gas
+          gas
         },
         msg: [
           {
@@ -344,7 +344,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
               denom: 'uatom'
             }
           ],
-          gas: gas
+          gas
         },
         msg: [
           {
@@ -417,7 +417,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
               denom: 'uatom'
             }
           ],
-          gas: gas
+          gas
         },
         msg: [
           {

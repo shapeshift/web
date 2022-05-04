@@ -131,10 +131,10 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
         chain: this.getType(),
         chainSpecific: {
           accountNumber: data.accountNumber.toString(),
-          delegations: delegations,
-          redelegations: redelegations,
-          undelegations: undelegations,
-          rewards: rewards,
+          delegations,
+          redelegations,
+          undelegations,
+          rewards,
           sequence: data.sequence.toString()
         },
         pubkey: data.pubkey

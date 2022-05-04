@@ -111,7 +111,7 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
 
     try {
       const caip = await this.getCaip2()
-      const { data } = await this.providers.http.getAccount({ pubkey: pubkey })
+      const { data } = await this.providers.http.getAccount({ pubkey })
 
       const balance = bnOrZero(data.balance).plus(bnOrZero(data.unconfirmedBalance))
 

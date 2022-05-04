@@ -113,6 +113,14 @@ elif [[ "$1" == "merge" ]]; then
   echo "Deleting release branch..."
   git push --delete origin "releases/$2" &> /dev/null
 
+  echo ""
+  echo "${cyan}Updating local \"main\" branch...${reset}"
+
+  git fetch -q
+  git checkout -q main
+  git merge -q --ff-only origin/main
+
+  echo ""
   echo "${cyan}Release ${red}$2${cyan} has been successfully merged to main${reset}"
 else
   echo "${red}Unknown command: ${cyan}$1${reset}"

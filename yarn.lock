@@ -4012,10 +4012,10 @@
     web3-core "^1.7.0"
     web3-utils "^1.7.0"
 
-"@shapeshiftoss/logger@^1.0.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.0.tgz#d3f2dfe8b01938d857f0cd9d3081d9913672187b"
-  integrity sha512-UeUetdGa/sjsRnOn3tG0OIZD0ay0LTaMLms59d5Ebc7eOS9oxP8SkfoJpu1wzY5hX+ui1cdJ6lHzFKiJiwnMKA==
+"@shapeshiftoss/logger@^1.0.0", "@shapeshiftoss/logger@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
+  integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
 "@shapeshiftoss/market-service@^2.2.0":
   version "2.2.1"

@@ -17,7 +17,7 @@ type AccountAssetsProps = {
 
 export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const assetIds = useAppSelector(state =>
-    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId),
+    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 

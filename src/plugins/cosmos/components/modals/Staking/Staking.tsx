@@ -13,7 +13,7 @@ import { useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { selectAccountSpecifier, selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakeFormManager } from './forms/StakeFormManager'
@@ -74,10 +74,9 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
   const initialRef = useRef<HTMLInputElement>(null)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const accountSpecifiersForChainId = useAppSelector(state =>
-    selectAccountSpecifier(state, asset?.chainId),
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
-  const accountSpecifier = accountSpecifiersForChainId?.[0]
 
   if (!asset || !accountSpecifier) return null
 
@@ -112,7 +111,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
                 <StakeConfirm
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onCancel={handleCancel}
                 />
@@ -120,7 +118,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
                 <StakeBroadcast
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
                   onCancel={handleCancel}
@@ -129,7 +126,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
                 <UnstakeConfirm
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onCancel={handleCancel}
                 />
@@ -137,7 +133,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
                 <UnstakeBroadcast
                   assetId={assetId}
-                  accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
                 />

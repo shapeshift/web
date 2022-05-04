@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, AssetNamespace, caip2, caip10, caip19, ChainId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -286,7 +287,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = await adapters.byChainId(chainId)
+        const adapter = (await adapters.byChainId(chainId)) as ChainAdapter<ChainTypes.Ethereum>
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)

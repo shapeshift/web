@@ -47,4 +47,8 @@ export const loginErrors = {
     httpCode: 404,
     msg: 'no native wallet located for',
   },
+  invalidCaptcha: {
+    httpCode: 400,
+    msg: 'invalid captcha',
+  },
 }

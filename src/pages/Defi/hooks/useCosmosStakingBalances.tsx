@@ -57,7 +57,7 @@ export function useCosmosStakingBalances({
   const dispatch = useAppDispatch()
 
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset.chainId),
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
   const activeStakingOpportunities = useAppSelector(state =>
@@ -84,7 +84,7 @@ export function useCosmosStakingBalances({
     selectNonloadedValidators(state, { accountSpecifier }),
   )
 
-  const chainId = asset.caip2
+  const chainId = asset.chainId
 
   const mergedActiveStakingOpportunities = useMemo(() => {
     return Object.values(activeStakingOpportunities).map(opportunity => {

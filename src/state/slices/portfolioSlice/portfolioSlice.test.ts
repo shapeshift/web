@@ -793,16 +793,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
 
@@ -832,16 +832,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
         store.dispatch(
@@ -862,16 +862,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
         store.dispatch(
@@ -892,16 +892,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
 

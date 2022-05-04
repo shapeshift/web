@@ -31,7 +31,7 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
     } else if (selectedAsset && asset && !accountId) {
       history.push(ReceiveRoutes.Select, {
         toRoute: SelectAssetRoutes.Account,
-        assetId: asset.caip19,
+        assetId: asset.assetId,
       })
     } else if (asset && accountId) {
       setSelectedAccount(accountId)

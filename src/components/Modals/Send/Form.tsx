@@ -48,7 +48,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
-  const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.assetId))
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -84,7 +84,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     if (!accountId && initialAsset) {
       history.push(SendRoutes.Select, {
         toRoute: SelectAssetRoutes.Account,
-        assetId: initialAsset.caip19,
+        assetId: initialAsset.assetId,
       })
     }
   }, [accountId, initialAsset, history])

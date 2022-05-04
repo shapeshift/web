@@ -19,7 +19,7 @@ export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
   apr: string
-  tokens: string
+  tokens?: string
   cryptoAmount?: string
   rewards?: string
 }

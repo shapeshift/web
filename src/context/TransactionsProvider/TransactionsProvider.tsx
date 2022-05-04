@@ -61,7 +61,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     // account specifiers changing will trigger this effect
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
     if (!isSubscribed) return
-    moduleLogger.info('TransactionsProvider: unsubscribing from tx history')
+    moduleLogger.info('unsubscribing from tx history')
     supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
     dispatch(txHistory.actions.clear())
     setIsSubscribed(false)

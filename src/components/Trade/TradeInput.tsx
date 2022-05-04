@@ -63,23 +63,23 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useWallet()
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.caip19),
+    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.assetId),
   )
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
 
   const feeAsset = useAppSelector(state =>
     sellAsset
-      ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
+      ? selectFeeAssetById(state, sellAsset?.currency?.assetId)
       : selectAssetById(state, 'eip155:1/slip44:60'),
   )
   const feeAssetBalance = useAppSelector(state =>
-    feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null,
+    feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.assetId) : null,
   )
 
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
-    sellAsset && feeAsset && feeAsset.caip19 === sellAsset.currency.caip19
+    sellAsset && feeAsset && feeAsset.assetId === sellAsset.currency.assetId
       ? bnOrZero(sellAsset.amount)
       : bnOrZero(0)
 

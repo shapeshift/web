@@ -14,13 +14,13 @@ export const useSendFees = () => {
   const { asset, estimatedFees } = useWatch({
     control,
   })
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
   const {
     state: { wallet },
   } = useWallet()
 
   const price = bnOrZero(
-    useAppSelector(state => selectMarketDataById(state, feeAsset.caip19)).price,
+    useAppSelector(state => selectMarketDataById(state, feeAsset.assetId)).price,
   )
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export const useSendFees = () => {
     }
     // We only want this effect to run on mount or when the estimatedFees in state change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estimatedFees, asset.caip19])
+  }, [estimatedFees, asset.assetId])
 
   return { fees }
 }

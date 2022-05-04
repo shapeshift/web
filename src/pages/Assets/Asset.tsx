@@ -14,5 +14,5 @@ export const Asset = ({ route }: { route?: Route }) => {
   const params = useParams<MatchParams>()
   const assetId = `${params.chainId}/${params.assetSubId}`
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  return <AssetAccountDetails assetId={asset.caip19} route={route} />
+  return <AssetAccountDetails assetId={asset.assetId} route={route} />
 }

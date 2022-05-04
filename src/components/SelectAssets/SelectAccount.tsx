@@ -20,7 +20,7 @@ type SelectAccountLocation = {
   assetId: AssetId
 }
 
-export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
+export const SelectAccount = ({ onClick }: SelectAccountProps) => {
   const location = useLocation<SelectAccountLocation>()
   const translate = useTranslate()
   const history = useHistory()
@@ -48,7 +48,7 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
           {accountIds.map(accountId => (
             <AssetAccountRow
               accountId={accountId}
-              assetId={asset.caip19}
+              assetId={asset.assetId}
               key={accountId}
               isCompact
               onClick={() => onClick(asset, accountId)}

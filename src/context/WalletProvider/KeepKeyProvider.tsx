@@ -178,15 +178,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                 <Box>
                   <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
                   <AlertDescription>
-                    <Text>
-                      {translate('updateToast.keepKey.newVersion')}
-                      <span> </span>
-                      <Box as='span' fontWeight='bold' color='inherit'>
-                        {translate('updateToast.keepKey.firmwareOrBootloader')}
-                      </Box>
-                      <span> </span>
-                      {translate('updateToast.keepKey.isAvailable')}
-                    </Text>
+                    <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
                   </AlertDescription>
                   <Link
                     href={KEEPKEY_UPDATE_URL}

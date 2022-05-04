@@ -65,10 +65,8 @@
     "cta": "Reload App",
     "keepKey": {
       "title": "KeepKey Update Available",
-      "newVersion": "A new version of the",
-      "isAvailable": "is available",
-      "downloadCta": "Download Update",
-      "firmwareOrBootloader": "KeepKey Firmware and/or Bootloader"
+      "newUpdateAvailable": "A new KeepKey update is available.",
+      "downloadCta": "Download Update"
     }
   },
   "dashboard": {

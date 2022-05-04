@@ -40,7 +40,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray,
-    cosmosActiveStakingOpportunities: cosmosActiveStakingOpportunities,
+    cosmosActiveStakingOpportunities,
     cosmosStakingOpportunities: [],
   })
   // When staking, farming, lp, etc are added sum up the balances here

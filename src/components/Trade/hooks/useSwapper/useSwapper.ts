@@ -104,7 +104,7 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
         assetIds,
-        sellAssetId: sellAsset.currency.assetId,
+        sellAssetId: sellAsset?.currency?.assetId,
       })
       return filterAssetsByIds(assets, supportedBuyAssetIds)
     },
@@ -285,8 +285,8 @@ export const useSwapper = () => {
             }
           }
           const quoteInput = {
-            sellAsset: sellAsset,
-            buyAsset: buyAsset,
+            sellAsset,
+            buyAsset,
             ...convertedAmount,
           }
 

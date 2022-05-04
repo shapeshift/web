@@ -19,7 +19,7 @@ export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
   apr: string
-  tokens: string
+  tokens?: string
   cryptoAmount?: string
   rewards?: string
 }
@@ -55,14 +55,14 @@ const selectAccountSpecifierParam = (_state: ReduxState, accountSpecifier: Accou
 
 const selectValidatorAddress = (
   _state: ReduxState,
-  accountSpecifier: AccountId,
+  _accountSpecifier: AccountId,
   validatorAddress: PubKey,
 ) => validatorAddress
 
 const selectAssetIdParam = (
   _state: ReduxState,
-  accountSpecifier: AccountId,
-  validatorAddress: PubKey,
+  _accountSpecifier: AccountId,
+  _validatorAddress: PubKey,
   assetId: AssetId,
 ) => assetId
 
@@ -357,7 +357,7 @@ export const selectAllValidators = createDeepEqualOutputSelector(
   stakingData => stakingData.byValidator,
 )
 
-export const selectSingleValidator = createSelector(
+export const selectValidatorByAddress = createSelector(
   selectStakingData,
   selectValidatorAddress,
   (stakingData, validatorAddress) => {

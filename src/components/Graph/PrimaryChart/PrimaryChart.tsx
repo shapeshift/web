@@ -61,8 +61,6 @@ export const PrimaryChart = ({
   const xMax = Math.max(width - margin.left - margin.right, 0)
   const yMax = Math.max(height - margin.top - margin.bottom, 0)
 
-  const firstPoint = data[0]
-  const currentPoint = data[data.length - 1]
   const minPrice = Math.min(...data.map(getStockValue))
   const maxPrice = Math.max(...data.map(getStockValue))
   const maxPriceIndex = data.findIndex(x => x.price === maxPrice)
@@ -70,14 +68,6 @@ export const PrimaryChart = ({
   const maxPriceDate = getDate(data[maxPriceIndex])
   const minPriceDate = getDate(data[minPriceIndex])
 
-  const maxData = [
-    { date: getDate(firstPoint).valueOf(), price: maxPrice },
-    { date: getDate(currentPoint).valueOf(), price: maxPrice },
-  ]
-  const minData = [
-    { date: getDate(firstPoint).valueOf(), price: minPrice },
-    { date: getDate(currentPoint).valueOf(), price: minPrice },
-  ]
   // scales
   const dateScale = useMemo(() => {
     return scaleTime({
@@ -161,23 +151,17 @@ export const PrimaryChart = ({
         />
         <Group top={margin.top} left={margin.left}>
           <MaxPrice
-            data={maxData}
             yText={priceScale(maxPrice)}
-            xText={dateScale(maxPriceDate)}
             label={toFiat(maxPrice)}
             xDate={maxPriceDate}
-            yScale={priceScale}
             xScale={dateScale}
             width={width}
             yMax={yMax}
             stroke={chartColor}
-            margin={{ ...margin }}
           />
           <MinPrice
-            data={minData}
             yText={priceScale(minPrice)}
             label={toFiat(minPrice)}
-            yScale={priceScale}
             xScale={dateScale}
             xDate={minPriceDate}
             width={width}

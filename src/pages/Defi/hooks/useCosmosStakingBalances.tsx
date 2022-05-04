@@ -11,8 +11,8 @@ import {
   ActiveStakingOpportunity,
   selectActiveStakingOpportunityDataByAssetId,
   selectNonloadedValidators,
-  selectSingleValidator,
   selectStakingDataIsLoaded,
+  selectValidatorByAddress,
   selectValidatorIsLoaded,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
@@ -56,7 +56,7 @@ export function useCosmosStakingBalances({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const dispatch = useAppDispatch()
 
-  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.caip2))
+  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.chainId))
   const accountSpecifier = accountSpecifiers?.[0]
 
   const activeStakingOpportunities = useAppSelector(state =>
@@ -64,12 +64,12 @@ export function useCosmosStakingBalances({
       state,
       accountSpecifier,
       SHAPESHIFT_VALIDATOR_ADDRESS,
-      asset.caip19,
+      asset.assetId,
     ),
   )
 
   const shapeshiftValidator = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS),
+    selectValidatorByAddress(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS),
   )
   const stakingOpportunities = useMemo(() => {
     return [
@@ -83,7 +83,7 @@ export function useCosmosStakingBalances({
     selectNonloadedValidators(state, accountSpecifier),
   )
 
-  const chainId = asset.caip2
+  const chainId = asset.chainId
 
   const mergedActiveStakingOpportunities = useMemo(() => {
     return Object.values(activeStakingOpportunities).map(opportunity => {

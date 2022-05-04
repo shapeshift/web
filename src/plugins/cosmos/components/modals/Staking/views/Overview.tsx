@@ -13,9 +13,9 @@ import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllUnbondingsEntriesByAssetIdAndValidator,
   selectRewardsAmountByAssetId,
-  selectSingleValidator,
   selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAssetId,
+  selectValidatorByAddress,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -51,23 +51,23 @@ export const Overview: React.FC<StakedProps> = ({
   }, [accountSpecifier, isLoaded, dispatch])
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, accountSpecifier, validatorAddress),
   )
 
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
+    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.assetId),
   )
   const undelegationEntries = useAppSelector(state =>
     selectAllUnbondingsEntriesByAssetIdAndValidator(
       state,
       accountSpecifier,
       validatorAddress,
-      asset.caip19,
+      asset.assetId,
     ),
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.assetId),
   )
 
   // If it's loading, it will display the skeleton,

@@ -9,6 +9,7 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { Dispatch, useEffect } from 'react'
 import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
+import { generatePath, matchPath } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import Orbs from 'assets/orbs.svg'
 import OrbsStatic from 'assets/orbs-static.png'
@@ -68,7 +69,19 @@ export const ConnectWallet = () => {
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
-    hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
+    const match = matchPath<{ accountId?: string; chainId?: string; assetSubId?: string }>(
+      query.returnUrl,
+      {
+        path: '/accounts/:accountId/:chainId/:assetSubId',
+      },
+    )
+    const path = match
+      ? generatePath('/accounts/:accountId/:assetId', {
+          accountId: match?.params?.accountId ?? '',
+          assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
+        })
+      : query?.returnUrl
+    hasWallet && history.push(path ?? '/dashboard')
     // Programmatic login for Cypress tests
     // The first `!state.isConnected` filters any re-render if the wallet is already connected.
     if (isCypressTest && !state.isConnected) {

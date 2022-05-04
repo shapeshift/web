@@ -1,6 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BuiltTrade, SwapperManager, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
+import { SwapperManager, Trade, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
   Asset,
   chainAdapters,
@@ -138,6 +138,7 @@ export const useSwapper = () => {
         buyAsset: buyAsset.currency,
         sellAmount: sellAssetBalance,
         sendMax: true,
+        sellAssetAccountId: '0',
       },
       wallet,
     )
@@ -246,7 +247,7 @@ export const useSwapper = () => {
       sellAssetId: sellAsset.currency.assetId,
     })
 
-    const result = await swapper.executeTrade({ builtTrade: quote, wallet })
+    const result = await swapper.executeTrade({ trade: quote, wallet })
     return result
   }
 
@@ -416,10 +417,7 @@ export const useSwapper = () => {
     })
   }
 
-  const setFees = async (
-    result: BuiltTrade<ChainTypes> | TradeQuote<ChainTypes>,
-    sellAsset: Asset,
-  ) => {
+  const setFees = async (result: Trade<ChainTypes> | TradeQuote<ChainTypes>, sellAsset: Asset) => {
     const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
     const feeBN = bnOrZero(result?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feePrecision))
     const fee = feeBN.toString()

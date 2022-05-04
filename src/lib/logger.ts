@@ -45,7 +45,11 @@ export const logger = new Logger({
   logFn: browserLoggerFn,
 })
 
+const consoleReplacementLogger = logger.child({ namespace: ['Console'] })
+
 // @ts-expect-error
-console.error = (...args) => logger.warn(...args)
+console.error = (...args) => consoleReplacementLogger.error(...args)
 // @ts-expect-error
-console.info = (...args) => logger.info(...args)
+console.warn = (...args) => consoleReplacementLogger.warn(...args)
+// @ts-expect-error
+console.info = (...args) => consoleReplacementLogger.info(...args)

@@ -101,7 +101,7 @@ export const Overview: React.FC<StakedProps> = ({
           </Skeleton>
         </Flex>
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter flexDirection='column'>
         <Skeleton isLoaded={isLoaded} width='100%' justifyContent='space-between'>
           <Stack width='100%'>
             <Text translation={'defi.rewards'} color='gray.500' />

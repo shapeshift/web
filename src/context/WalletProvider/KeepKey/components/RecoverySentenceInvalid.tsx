@@ -13,7 +13,7 @@ export const KeepKeyRecoverySentenceInvalid = () => {
   } = useWallet()
   const sendKeepKeyRecover = useKeepKeyRecover()
 
-  const handleRetryPress = async () => {
+  const handleRetryClick = async () => {
     const label = await wallet?.getLabel()
     setLoading(true)
     // Due to security/firmware limitations, we are not able to pass in the previously collected PIN,
@@ -29,7 +29,7 @@ export const KeepKeyRecoverySentenceInvalid = () => {
       <ModalBody textAlign='center'>
         <WarningTwoIcon color='yellow.500' boxSize={20} mb={6} />
         <Text color='gray.500' translation={'modals.keepKey.recoveryInvalid.body'} mb={4} />
-        <Button isFullWidth colorScheme='blue' disabled={loading} onClick={handleRetryPress}>
+        <Button isFullWidth colorScheme='blue' disabled={loading} onClick={handleRetryClick}>
           <Text translation={'modals.keepKey.recoveryInvalid.button'} />
         </Button>
       </ModalBody>

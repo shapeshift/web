@@ -40,6 +40,7 @@ function setup({
       approvalNeeded: () => ({ approvalNeeded: approvalNeededBoolean }),
       approveInfinite: () => '0x023423093248420937',
       getQuote,
+      getTradeQuote: getQuote,
     }),
     addSwapper: jest.fn(),
   }))

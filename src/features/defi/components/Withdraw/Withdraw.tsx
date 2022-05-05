@@ -79,8 +79,9 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
+    borderBottomLeftRadius={0}
     borderTopLeftRadius={0}
+    borderTopRightRadius={0}
     placeholder='Enter amount'
     {...props}
   />

@@ -46,9 +46,8 @@ export const Approve = ({
     dispatch,
   } = useWallet()
 
-  const handleWalletModalOpen = () => {
+  const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
 
   return (
     <SlideTransition>

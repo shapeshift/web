@@ -54,5 +54,3 @@ await this.providers.ws.subscribeTxs(
   (err) => console.warn(err)
 )
 ```
-
-# Unchained Transaction Parser

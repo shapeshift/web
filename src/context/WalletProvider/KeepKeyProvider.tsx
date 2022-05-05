@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { KEEPKEY_UPDATE_URL } from 'constants/KeepKey'
 import React, {
   createContext,
   useCallback,
@@ -181,7 +180,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                     <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
                   </AlertDescription>
                   <Link
-                    href={KEEPKEY_UPDATE_URL}
+                    href={versions.updaterUrl}
                     display={'block'}
                     fontWeight={'bold'}
                     mt={2}

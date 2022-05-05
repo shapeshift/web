@@ -1,5 +1,5 @@
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
@@ -21,6 +21,9 @@ interface FirmwareReleases {
     bootloader: Record<string, string>
     firmware: Record<string, string>
   }
+  links: {
+    updater: string
+  }
 }
 
 interface VersionStatus {
@@ -32,6 +35,7 @@ interface VersionStatus {
 interface Versions {
   bootloader: VersionStatus
   firmware: VersionStatus
+  updaterUrl: string
 }
 
 export const useKeepKeyVersions = () => {
@@ -41,7 +45,7 @@ export const useKeepKeyVersions = () => {
   } = useWallet()
 
   useEffect(() => {
-    if (!wallet || !isKeepKey(wallet)) return
+    if (!wallet || !(wallet instanceof KeepKeyHDWallet)) return
 
     const getBootloaderVersion = (
       releases: FirmwareReleases,
@@ -81,6 +85,7 @@ export const useKeepKeyVersions = () => {
           latest: latestFirmware,
           updateAvailable: deviceFirmware !== latestFirmware,
         },
+        updaterUrl: releases.links.updater,
       }
       setVersions(versions)
     })()

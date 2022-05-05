@@ -132,7 +132,7 @@ export const Overview: React.FC<StakedProps> = ({
           </Stack>
         </Skeleton>
         {shouldDisplayUndelegationEntries && (
-          <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px'>
+          <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mt={4}>
             <Stack width='full'>
               <Text translation={'defi.unstaking'} color='gray.500' />
               <Box width='100%'>

@@ -119,6 +119,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return { ...ChainAdapter.defaultBIP44Params, ...params }
   }
 
+  // @ts-ignore: keep type signature with unimplemented state
   async getTxHistory({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     pubkey

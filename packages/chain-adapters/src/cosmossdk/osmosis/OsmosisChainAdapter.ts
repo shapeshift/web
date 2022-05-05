@@ -77,22 +77,22 @@ export class ChainAdapter
   }
 
   async buildSendTransaction(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods */
-    tx: chainAdapters.BuildSendTxInput<ChainTypes.Osmosis>
+    // @ts-ignore: keep type signature with unimplemented state
+    tx: chainAdapters.BuildSendTxInput<ChainTypes.Osmosis> // eslint-disable-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods
   ): Promise<{ txToSign: chainAdapters.ChainTxType<ChainTypes.Osmosis> }> {
     throw new Error('Method not implemented.')
   }
 
   async getFeeData(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods */
-    input: Partial<chainAdapters.GetFeeDataInput<ChainTypes.Osmosis>>
+    // @ts-ignore: keep type signature with unimplemented state
+    input: Partial<chainAdapters.GetFeeDataInput<ChainTypes.Osmosis>> // eslint-disable-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods
   ): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Osmosis>> {
     throw new Error('Method not implemented.')
   }
 
   async signAndBroadcastTransaction(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods */
-    signTxInput: chainAdapters.SignTxInput<OsmosisSignTx>
+    // @ts-ignore: keep type signature with unimplemented state
+    signTxInput: chainAdapters.SignTxInput<OsmosisSignTx> // eslint-disable-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods
   ): Promise<string> {
     throw new Error('Method not implemented.')
   }

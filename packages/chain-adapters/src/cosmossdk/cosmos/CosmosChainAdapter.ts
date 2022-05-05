@@ -450,6 +450,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
     }
   }
 
+  // @ts-ignore - keep type signature with unimplemented state
   async getFeeData({
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented variable */
     sendMax

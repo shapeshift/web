@@ -1,10 +1,10 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
-import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 
 import { erc20Abi } from '../abi/erc20-abi'
 import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
+import { bnOrZero } from '../bignumber'
 import {
   getAllowanceRequired,
   getUsdRate,
@@ -81,14 +81,22 @@ describe('utils', () => {
   })
 
   describe('getAllowanceRequired', () => {
+    const getAllowanceInput = {
+      receiveAddress: '0x0',
+      web3: web3Instance,
+      erc20AllowanceAbi,
+      allowanceContract: '0x0',
+      sellAmount: '100',
+      sellAsset
+    }
+
     it('should return 0 if the sellAsset symbol is ETH', async () => {
-      const quote = {
-        ...quoteInput,
-        sellAsset: { ...sellAsset, symbol: 'ETH' }
-      }
-      expect(await getAllowanceRequired({ quote, web3: web3Instance, erc20AllowanceAbi })).toEqual(
-        new BigNumber(0)
-      )
+      expect(
+        await getAllowanceRequired({
+          ...getAllowanceInput,
+          sellAsset: { ...sellAsset, symbol: 'ETH' }
+        })
+      ).toEqual(bnOrZero(0))
     })
 
     it('should return sellAmount if allowanceOnChain is 0', async () => {
@@ -101,9 +109,9 @@ describe('utils', () => {
         }
       }))
 
-      expect(
-        await getAllowanceRequired({ quote: quoteInput, web3: web3Instance, erc20AllowanceAbi })
-      ).toEqual(new BigNumber(quoteInput.sellAmount))
+      expect(await getAllowanceRequired(getAllowanceInput)).toEqual(
+        bnOrZero(getAllowanceInput.sellAmount)
+      )
     })
 
     it('should throw error if allowanceOnChain is undefined', async () => {
@@ -116,20 +124,14 @@ describe('utils', () => {
         }
       }))
 
-      await expect(
-        getAllowanceRequired({ quote: quoteInput, web3: web3Instance, erc20AllowanceAbi })
-      ).rejects.toThrow(
-        `No allowance data for ${quoteInput.allowanceContract} to ${quoteInput.receiveAddress}`
+      await expect(getAllowanceRequired(getAllowanceInput)).rejects.toThrow(
+        `No allowance data for ${getAllowanceInput.allowanceContract} to ${getAllowanceInput.receiveAddress}`
       )
     })
 
     it('should return 0 if sellAmount minus allowanceOnChain is negative', async () => {
-      const sellAmount = '100'
       const allowanceOnChain = '1000'
-      const quote = {
-        ...quoteInput,
-        sellAmount
-      }
+
       ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
@@ -138,18 +140,12 @@ describe('utils', () => {
         }
       }))
 
-      expect(await getAllowanceRequired({ quote, web3: web3Instance, erc20AllowanceAbi })).toEqual(
-        new BigNumber(0)
-      )
+      expect(await getAllowanceRequired(getAllowanceInput)).toEqual(bnOrZero(0))
     })
 
     it('should return sellAsset minus allowanceOnChain', async () => {
-      const sellAmount = '1000'
       const allowanceOnChain = '100'
-      const quote = {
-        ...quoteInput,
-        sellAmount
-      }
+
       ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
@@ -158,8 +154,8 @@ describe('utils', () => {
         }
       }))
 
-      expect(await getAllowanceRequired({ quote, web3: web3Instance, erc20AllowanceAbi })).toEqual(
-        new BigNumber(900)
+      expect(await getAllowanceRequired({ ...getAllowanceInput, sellAmount: '1000' })).toEqual(
+        bnOrZero(900)
       )
     })
   })

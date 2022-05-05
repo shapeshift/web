@@ -1,8 +1,9 @@
-import { BuildQuoteTxInput, ChainTypes, Quote, QuoteResponse } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
-import { SwapError } from '../../..'
+import { BuildTradeInput, SwapError, Trade } from '../../..'
+import { ZrxQuoteResponse } from '../types'
 import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { bnOrZero } from '../utils/bignumber'
@@ -17,10 +18,10 @@ import { getAllowanceRequired, normalizeAmount } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function ZrxBuildQuoteTx(
+export async function zrxBuildTrade(
   { adapterManager, web3 }: ZrxSwapperDeps,
-  { input, wallet }: BuildQuoteTxInput
-): Promise<Quote<ChainTypes>> {
+  input: BuildTradeInput
+): Promise<Trade<ChainTypes>> {
   const {
     sellAsset,
     buyAsset,
@@ -28,18 +29,19 @@ export async function ZrxBuildQuoteTx(
     buyAmount,
     slippage,
     sellAssetAccountId,
-    buyAssetAccountId
+    buyAssetAccountId,
+    wallet
   } = input
 
   if ((buyAmount && sellAmount) || (!buyAmount && !sellAmount)) {
     throw new SwapError(
-      'ZrxSwapper:ZrxBuildQuoteTx Exactly one of buyAmount or sellAmount is required'
+      'ZrxSwapper:ZrxBuildTrade Exactly one of buyAmount or sellAmount is required'
     )
   }
 
   if (!sellAssetAccountId || !buyAssetAccountId) {
     throw new SwapError(
-      'ZrxSwapper:ZrxBuildQuoteTx Both sellAssetAccountId and buyAssetAccountId are required'
+      'ZrxSwapper:ZrxBuildTrade Both sellAssetAccountId and buyAssetAccountId are required'
     )
   }
 
@@ -47,18 +49,18 @@ export async function ZrxBuildQuoteTx(
   const sellToken = sellAsset.tokenId || sellAsset.symbol || sellAsset.network
   if (!buyToken) {
     throw new SwapError(
-      'ZrxSwapper:ZrxBuildQuoteTx One of buyAssetContract or buyAssetSymbol or buyAssetNetwork are required'
+      'ZrxSwapper:ZrxBuildTrade One of buyAssetContract or buyAssetSymbol or buyAssetNetwork are required'
     )
   }
   if (!sellToken) {
     throw new SwapError(
-      'ZrxSwapper:ZrxBuildQuoteTx One of sellAssetContract or sellAssetSymbol or sellAssetNetwork are required'
+      'ZrxSwapper:ZrxBuildTrade One of sellAssetContract or sellAssetSymbol or sellAssetNetwork are required'
     )
   }
 
   if (buyAsset.chain !== ChainTypes.Ethereum) {
     throw new SwapError(
-      `ZrxSwapper:ZrxBuildQuoteTx buyAsset must be on chain [${ChainTypes.Ethereum}]`
+      `ZrxSwapper:ZrxBuildTrade buyAsset must be on chain [${ChainTypes.Ethereum}]`
     )
   }
 
@@ -68,7 +70,7 @@ export async function ZrxBuildQuoteTx(
 
   if (bnOrZero(slippage).gt(MAX_SLIPPAGE)) {
     throw new SwapError(
-      `ZrxSwapper:ZrxBuildQuoteTx slippage value of ${slippage} is greater than max slippage value of ${MAX_SLIPPAGE}`
+      `ZrxSwapper:ZrxBuildTrade slippage value of ${slippage} is greater than max slippage value of ${MAX_SLIPPAGE}`
     )
   }
 
@@ -100,7 +102,7 @@ export async function ZrxBuildQuoteTx(
         return rax.shouldRetryRequest(err)
       }
     })
-    const quoteResponse: AxiosResponse<QuoteResponse> = await zrxRetry.get<QuoteResponse>(
+    const quoteResponse: AxiosResponse<ZrxQuoteResponse> = await zrxRetry.get<ZrxQuoteResponse>(
       '/swap/v1/quote',
       {
         params: {
@@ -118,14 +120,15 @@ export async function ZrxBuildQuoteTx(
 
     const { data } = quoteResponse
 
-    const estimatedGas = bnOrZero(data.gas)
-    const quote: Quote<ChainTypes.Ethereum> = {
+    const estimatedGas = bnOrZero(data.gas || 0)
+
+    const trade: Trade<ChainTypes.Ethereum> = {
       sellAsset,
       buyAsset,
-      sellAssetAccountId,
-      buyAssetAccountId,
-      receiveAddress,
       success: true,
+      statusReason: '',
+      sellAssetAccountId,
+      receiveAddress,
       rate: data.price,
       depositAddress: data.to,
       feeData: {
@@ -142,9 +145,6 @@ export async function ZrxBuildQuoteTx(
       sources: data.sources?.filter((s) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE
     }
 
-    if (!data.allowanceTarget) throw new SwapError('ZrxSwapper:ZrxBuildQuoteTx no allowance target')
-    if (!data.sellAmount) throw new SwapError('ZrxSwapper:ZrxBuildQuoteTx no sell amount')
-
     const allowanceRequired = await getAllowanceRequired({
       sellAsset,
       allowanceContract: data.allowanceTarget,
@@ -155,25 +155,37 @@ export async function ZrxBuildQuoteTx(
     })
 
     if (allowanceRequired) {
-      quote.feeData = {
-        fee: quote.feeData?.fee || '0',
+      trade.feeData = {
+        fee: trade.feeData?.fee || '0',
         chainSpecific: {
-          ...quote.feeData?.chainSpecific,
+          ...trade.feeData?.chainSpecific,
           approvalFee: bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(data.gasPrice)).toString()
         }
       }
     }
-    return quote
+    return trade
   } catch (e) {
+    // eslint-disable-next-line no-console
     const statusReason =
       e?.response?.data?.validationErrors?.[0]?.reason ||
       e?.response?.data?.reason ||
       'Unknown Error'
+    // This hackyness will go away when we correctly handle errors
     return {
       sellAsset,
       buyAsset,
       success: false,
-      statusReason
+      statusReason,
+      sellAmount: '0',
+      buyAmount: '0',
+      depositAddress: '',
+      allowanceContract: '',
+      receiveAddress: '',
+      sellAssetAccountId,
+      txData: '',
+      rate: '0',
+      feeData: { fee: '0', chainSpecific: {} },
+      sources: []
     }
   }
 }

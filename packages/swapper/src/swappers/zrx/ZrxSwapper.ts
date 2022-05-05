@@ -1,9 +1,7 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import {
-  ApprovalNeededInput,
   ApprovalNeededOutput,
-  ApproveInfiniteInput,
   Asset,
   BuildQuoteTxInput,
   ChainTypes,
@@ -16,14 +14,27 @@ import {
 } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { BuyAssetBySellIdInput, Swapper } from '../../api'
+import {
+  ApprovalNeededInput,
+  ApproveInfiniteInput,
+  BuildTradeInput,
+  BuyAssetBySellIdInput,
+  ExecuteTradeInput,
+  GetTradeQuoteInput,
+  Swapper,
+  Trade,
+  TradeQuote
+} from '../../api'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxQuote } from './getZrxQuote/getZrxQuote'
+import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
 import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
 import { ZrxBuildQuoteTx } from './ZrxBuildQuoteTx/ZrxBuildQuoteTx'
+import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { ZrxExecuteQuote } from './ZrxExecuteQuote/ZrxExecuteQuote'
+import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
 export type ZrxSwapperDeps = {
   adapterManager: ChainAdapterManager
@@ -57,6 +68,14 @@ export class ZrxSwapper implements Swapper {
     return getZrxQuote(input)
   }
 
+  async buildTrade(args: BuildTradeInput): Promise<Trade<ChainTypes>> {
+    return zrxBuildTrade(this.deps, args)
+  }
+
+  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainTypes>> {
+    return getZrxTradeQuote(input)
+  }
+
   async getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> {
     return getUsdRate(input)
   }
@@ -67,6 +86,10 @@ export class ZrxSwapper implements Swapper {
 
   async executeQuote(args: ExecQuoteInput<ChainTypes>): Promise<ExecQuoteOutput> {
     return ZrxExecuteQuote(this.deps, args)
+  }
+
+  async executeTrade(args: ExecuteTradeInput<ChainTypes>): Promise<ExecQuoteOutput> {
+    return zrxExecuteTrade(this.deps, args)
   }
 
   async approvalNeeded(args: ApprovalNeededInput<ChainTypes>): Promise<ApprovalNeededOutput> {

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import Web3 from 'web3'
@@ -14,7 +15,7 @@ axios.create = jest.fn(() => axios)
 jest.mock('../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 
-describe('getZrxQuote', () => {
+describe('getZrxTradeQuote', () => {
   const sellAmount = '1000000000000000000'
   ;(normalizeAmount as jest.Mock<unknown>).mockReturnValue(sellAmount)
   const zrxSwapperDeps = {
@@ -149,7 +150,9 @@ describe('getZrxQuote', () => {
       sellAmount: '0'
     })
     expect(quote?.sellAmount).toBe(
-      bnOrZero(minimum).times(bnOrZero(10).exponentiatedBy(sellAsset.precision)).toString()
+      bnOrZero(minimum)
+        .times(bnOrZero(10).exponentiatedBy(sellAsset.precision))
+        .toString()
     )
   })
 })

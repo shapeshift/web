@@ -10,7 +10,7 @@ import {
   SwapperType
 } from '@shapeshiftoss/types'
 
-import { BuyAssetBySellIdInput, Swapper } from '../../api'
+import { BuyAssetBySellIdInput, Swapper, Trade, TradeQuote } from '../../api'
 
 /**
  * Playground for testing different scenarios of multiple swappers in the manager.
@@ -69,5 +69,17 @@ export class TestSwapper implements Swapper {
 
   filterAssetIdsBySellable(): CAIP19[] {
     return this.supportAssets
+  }
+
+  async buildTrade(): Promise<Trade<ChainTypes>> {
+    throw new Error('TestSwapper: buildTrade unimplemented')
+  }
+
+  async getTradeQuote(): Promise<TradeQuote<ChainTypes>> {
+    throw new Error('TestSwapper: getTradeQuote unimplemented')
+  }
+
+  async executeTrade(): Promise<ExecQuoteOutput> {
+    throw new Error('TestSwapper: executeTrade unimplemented')
   }
 }

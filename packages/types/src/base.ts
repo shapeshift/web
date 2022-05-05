@@ -172,18 +172,8 @@ export type ExecQuoteOutput = {
   txid: string
 }
 
-export type ApprovalNeededInput<C extends ChainTypes> = {
-  quote: Quote<C>
-  wallet: HDWallet
-}
-
 export type ApprovalNeededOutput = {
   approvalNeeded: boolean
   gas?: string
   gasPrice?: string
-}
-
-export type ApproveInfiniteInput<C extends ChainTypes> = {
-  quote: Quote<C>
-  wallet: HDWallet
 }

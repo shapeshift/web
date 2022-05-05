@@ -8,10 +8,14 @@ import { AbiItem, numberToHex } from 'web3-utils'
 
 import { SwapError } from '../../../../api'
 import { ZrxError } from '../../ZrxSwapper'
+import { bnOrZero } from '../bignumber'
 import { zrxService } from '../zrxService'
 
 export type GetAllowanceRequiredArgs = {
-  quote: Quote<ChainTypes>
+  receiveAddress: string
+  allowanceContract: string
+  sellAsset: Asset
+  sellAmount: string
   web3: Web3
   erc20AllowanceAbi: AbiItem[]
 }
@@ -42,7 +46,7 @@ type GrantAllowanceArgs = {
  */
 export const normalizeAmount = (amount: string | undefined): string | undefined => {
   if (!amount) return
-  return new BigNumber(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
+  return bnOrZero(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
 }
 
 export const getERC20Allowance = async ({
@@ -57,17 +61,20 @@ export const getERC20Allowance = async ({
 }
 
 export const getAllowanceRequired = async ({
-  quote,
+  receiveAddress,
+  allowanceContract,
+  sellAsset,
+  sellAmount,
   web3,
   erc20AllowanceAbi
 }: GetAllowanceRequiredArgs): Promise<BigNumber> => {
-  if (quote.sellAsset.symbol === 'ETH') {
-    return new BigNumber(0)
+  if (sellAsset.symbol === 'ETH') {
+    return bnOrZero(0)
   }
 
-  const ownerAddress = quote.receiveAddress
-  const spenderAddress = quote.allowanceContract
-  const tokenId = quote.sellAsset.tokenId
+  const ownerAddress = receiveAddress
+  const spenderAddress = allowanceContract
+  const tokenId = sellAsset.tokenId
 
   if (!ownerAddress || !spenderAddress || !tokenId) {
     throw new SwapError(
@@ -83,15 +90,13 @@ export const getAllowanceRequired = async ({
     tokenId
   })
   if (allowanceOnChain === '0') {
-    return new BigNumber(quote.sellAmount || 0)
+    return bnOrZero(sellAmount)
   }
   if (!allowanceOnChain) {
-    throw new SwapError(
-      `No allowance data for ${quote.allowanceContract} to ${quote.receiveAddress}`
-    )
+    throw new SwapError(`No allowance data for ${allowanceContract} to ${receiveAddress}`)
   }
-  const allowanceRequired = new BigNumber(quote.sellAmount || 0).minus(allowanceOnChain)
-  return allowanceRequired.lt(0) ? new BigNumber(0) : allowanceRequired
+  const allowanceRequired = bnOrZero(sellAmount).minus(allowanceOnChain)
+  return allowanceRequired.lt(0) ? bnOrZero(0) : allowanceRequired
 }
 
 export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> => {
@@ -108,11 +113,11 @@ export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Prom
     }
   )
 
-  const price = new BigNumber(rateResponse.data.price)
+  const price = bnOrZero(rateResponse.data.price)
 
   if (!price.gt(0)) throw new ZrxError('getUsdRate - Failed to get price data')
 
-  return new BigNumber(1).dividedBy(price).toString()
+  return bnOrZero(1).dividedBy(price).toString()
 }
 
 export const grantAllowance = async ({

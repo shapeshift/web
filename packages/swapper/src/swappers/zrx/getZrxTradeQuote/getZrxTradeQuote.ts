@@ -1,15 +1,19 @@
-import { ChainTypes, GetQuoteInput, Quote, QuoteResponse, SwapSource } from '@shapeshiftoss/types'
+import { ChainTypes, SwapSource } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
+import { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { getZrxMinMax } from '../getZrxMinMax/getZrxMinMax'
+import { ZrxPriceResponse } from '../types'
 import { bnOrZero } from '../utils/bignumber'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { normalizeAmount } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
 import { ZrxError } from '../ZrxSwapper'
 
-export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainTypes.Ethereum>> {
-  const { sellAsset, buyAsset, sellAmount, buyAmount } = input
+export async function getZrxTradeQuote(
+  input: GetTradeQuoteInput
+): Promise<TradeQuote<ChainTypes.Ethereum>> {
+  const { sellAsset, buyAsset, sellAmount, buyAmount, sellAssetAccountId } = input
   if (!buyAsset) {
     throw new ZrxError('getQuote - Missing buyAsset')
   }
@@ -56,7 +60,7 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
      *   buyAmount?: integer string value of the smallest incremtent of the buy token
      * }
      */
-    const quoteResponse: AxiosResponse<QuoteResponse> = await zrxService.get<QuoteResponse>(
+    const quoteResponse: AxiosResponse<ZrxPriceResponse> = await zrxService.get<ZrxPriceResponse>(
       '/swap/v1/price',
       {
         params: {
@@ -73,9 +77,8 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
     const rate = useSellAmount ? data.price : bnOrZero(1).div(data.price).toString()
 
     return {
-      sellAsset,
-      buyAsset,
       success: true,
+      statusReason: '',
       rate,
       minimum: minQuoteSellAmount,
       maximum: maxSellAmount,
@@ -93,18 +96,31 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote<ChainType
       buyAmount: data.buyAmount,
       sources:
         data.sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
-      allowanceContract: data.allowanceTarget
+      allowanceContract: data.allowanceTarget,
+      buyAsset,
+      sellAsset,
+      sellAssetAccountId
     }
   } catch (e) {
     const statusReason =
       e?.response?.data?.validationErrors?.[0]?.reason ||
       e?.response?.data?.reason ||
       'Unknown Error'
+    // This hackyness will go away when we correctly handle errors
     return {
-      sellAsset,
-      buyAsset,
       success: false,
-      statusReason
+      statusReason,
+      maximum: '0',
+      minimum: '0',
+      rate: '0',
+      feeData: { fee: '0', chainSpecific: {} },
+      buyAmount: '0',
+      sellAmount: '0',
+      sources: [],
+      allowanceContract: '0',
+      buyAsset,
+      sellAsset,
+      sellAssetAccountId
     }
   }
 }

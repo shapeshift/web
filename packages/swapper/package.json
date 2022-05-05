@@ -34,14 +34,14 @@
     "@shapeshiftoss/caip": "^2.0.0",
     "@shapeshiftoss/chain-adapters": "^2.0.0",
     "@shapeshiftoss/hdwallet-core": "1.20.0",
-    "@shapeshiftoss/types": "^3.0.0"
+    "@shapeshiftoss/types": "3.1.3"
   },
   "devDependencies": {
     "@shapeshiftoss/asset-service": "^2.0.0",
     "@shapeshiftoss/caip": "^2.0.0",
     "@shapeshiftoss/chain-adapters": "^2.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "^3.0.0",
+    "@shapeshiftoss/types": "3.1.3",
     "@types/readline-sync": "^1.4.4",
     "readline-sync": "^1.4.10",
     "web3-utils": "^1.5.2"

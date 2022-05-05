@@ -5,11 +5,13 @@ Provides a typescript axios client to interact with all supported unchained API'
 ## Installing
 
 Using npm:
+
 ```
 npm install @shapeshiftoss/unchained-client
 ```
 
 Using yarn:
+
 ```
 yarn add @shapeshiftoss/unchained-client
 ```
@@ -52,3 +54,5 @@ await this.providers.ws.subscribeTxs(
   (err) => console.warn(err)
 )
 ```
+
+# Unchained Transaction Parser

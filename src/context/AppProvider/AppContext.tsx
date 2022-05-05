@@ -138,19 +138,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsETH(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
-              acc.push({ [CAIP2]: pubkey.toLowerCase() })
+              const ChainId = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
+              acc.push({ [ChainId]: pubkey.toLowerCase() })
               break
             }
             case ChainTypes.Bitcoin: {
               if (!supportsBTC(wallet)) continue
-              const CAIP19 = caip19.toCAIP19({
+              const AssetId = caip19.toCAIP19({
                 chain,
                 network: NetworkTypes.MAINNET,
                 assetNamespace: AssetNamespace.Slip44,
                 assetReference: AssetReference.Bitcoin,
               })
-              const bitcoin = assetsById[CAIP19]
+              const bitcoin = assetsById[AssetId]
 
               if (!bitcoin) continue
               for (const accountType of supportedAccountTypes.bitcoin) {
@@ -170,8 +170,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
                 if (!pubkey) continue
-                const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
-                acc.push({ [CAIP2]: pubkey })
+                const ChainId = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
+                acc.push({ [ChainId]: pubkey })
               }
               break
             }
@@ -179,16 +179,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsCosmos(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
-              acc.push({ [CAIP2]: pubkey })
+              const ChainId = caip2.toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
+              acc.push({ [ChainId]: pubkey })
               break
             }
             case ChainTypes.Osmosis: {
               if (!supportsOsmosis(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
-              acc.push({ [CAIP2]: pubkey })
+              const ChainId = caip2.toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
+              acc.push({ [ChainId]: pubkey })
               break
             }
             default:
@@ -261,7 +261,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // always wear protection, or don't it's your choice really
     if (!tx) return
 
-    if (tx.caip2 === cosmosChainId) {
+    if (tx.chainId === cosmosChainId) {
       // @TODO: Remove this once stakingData slice is refactored into account data
       refetchStakingDataByTxId(txId)
 

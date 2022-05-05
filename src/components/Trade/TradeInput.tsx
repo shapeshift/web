@@ -46,7 +46,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const [quote, buyAsset, sellAsset, estimatedGasFees] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'estimatedGasFees'],
   }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['estimatedGasFees']]
-  const { getQuote, buildQuoteTx, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
+  const { updateQuote, buildQuoteTx, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
     useSwapper()
   const toast = useToast()
   const translate = useTranslate()
@@ -135,7 +135,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
       if (!maxSendAmount) return
 
-      await getQuote({
+      updateQuote({
         sellAsset: currentSellAsset,
         buyAsset: currentBuyAsset,
         feeAsset,
@@ -167,7 +167,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
-    getQuote({
+    updateQuote({
       amount: currentBuyAsset.amount ?? '0',
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,
@@ -225,7 +225,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     onValueChange={e => {
                       onChange(e.value)
                       if (e.value !== value) {
-                        getQuote({
+                        updateQuote({
                           amount: e.value,
                           sellAsset,
                           buyAsset,
@@ -253,7 +253,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
                 onInputChange={(amount: string) => {
-                  getQuote({
+                  updateQuote({
                     amount,
                     sellAsset,
                     buyAsset,
@@ -333,7 +333,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
                 onInputChange={(amount: string) => {
-                  getQuote({
+                  updateQuote({
                     amount,
                     sellAsset,
                     buyAsset,

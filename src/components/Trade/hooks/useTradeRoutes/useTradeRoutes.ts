@@ -21,7 +21,7 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<ChainTypes>>()
-  const { getQuote, getDefaultPair } = useSwapper()
+  const { updateQuote, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
@@ -52,18 +52,18 @@ export const useTradeRoutes = (
       if (sellAsset && buyAsset) {
         setValue('sellAsset.currency', sellAsset)
         setValue('buyAsset.currency', buyAsset)
-        await getQuote({
+        updateQuote({
           amount: '0',
           sellAsset: { currency: sellAsset },
           buyAsset: { currency: buyAsset },
           feeAsset,
-          action: TradeAmountInputField.SELL
+          action: TradeAmountInputField.SELL,
         })
       }
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, defaultBuyAssetId])
+  }, [assets, setValue, feeAsset, updateQuote, getDefaultPair, defaultBuyAssetId])
 
   useEffect(() => {
     setDefaultAssets()
@@ -79,7 +79,7 @@ export const useTradeRoutes = (
         setValue('buyAsset.amount', '')
         setValue('action', action)
         setValue('quote', undefined)
-        await getQuote({
+        updateQuote({
           amount: sellAsset.amount ?? '0',
           sellAsset,
           buyAsset,
@@ -92,7 +92,7 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, getQuote],
+    [buyAsset, sellAsset, feeAsset, history, setValue, updateQuote],
   )
 
   const handleBuyClick = useCallback(
@@ -105,7 +105,7 @@ export const useTradeRoutes = (
         setValue('sellAsset.amount', '')
         setValue('action', action)
         setValue('quote', undefined)
-        await getQuote({
+        updateQuote({
           amount: buyAsset.amount ?? '0',
           sellAsset,
           buyAsset,
@@ -118,7 +118,7 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, getQuote],
+    [buyAsset, sellAsset, feeAsset, history, setValue, updateQuote],
   )
 
   return { handleSellClick, handleBuyClick }

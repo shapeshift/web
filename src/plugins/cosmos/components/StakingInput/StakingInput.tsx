@@ -1,7 +1,7 @@
-import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Input, InputLeftElement, Tag, useColorModeValue } from '@chakra-ui/react'
+import { Button, Input, InputGroup, InputGroupProps, InputLeftElement } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { CSSProperties } from 'react'
 import { Control, Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -14,6 +14,7 @@ type StakingInputProps = {
   amountRef: string | null
   asset: Asset
   control: Control<StakingValues>
+  inputStyle?: CSSProperties
 }
 
 const cryptoInputValidation = {
@@ -30,15 +31,12 @@ const fiatInputValidation = {
 }
 const CryptoInput = (props: any) => (
   <Input
-    height='100%'
     pr='4.5rem'
     pl='0.5rem'
     ml='0.5rem'
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
-    borderTopLeftRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -51,27 +49,24 @@ export const StakingInput = ({
   isCryptoField,
   onInputToggle,
   onInputChange,
+  inputStyle,
   ...styleProps
-}: StakingInputProps & FlexProps) => {
+}: StakingInputProps & InputGroupProps) => {
   const {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const wrapperBgColor = useColorModeValue('gray.50', 'gray.850')
-  const tagBgColor = useColorModeValue('gray.200', 'gray.750')
   return (
-    <Flex bgColor={wrapperBgColor} borderRadius='12px' alignItems='center' {...styleProps}>
-      <InputLeftElement pos='relative' width='auto'>
-        <Tag
-          as='button'
-          type='button'
+    <InputGroup size='lg' {...styleProps}>
+      <InputLeftElement ml={2} pos='relative' width='auto'>
+        <Button
           onClick={onInputToggle}
-          color='gray.500'
-          bgColor={tagBgColor}
-          p='6px 12px'
-          fontWeight='bold'
+          size='sm'
+          variant='ghost'
+          textTransform='uppercase'
+          width='full'
         >
           {isCryptoField ? asset.symbol : 'USD'}
-        </Tag>
+        </Button>
       </InputLeftElement>
       {isCryptoField && (
         <Controller
@@ -79,6 +74,7 @@ export const StakingInput = ({
             return (
               <NumberFormat
                 customInput={CryptoInput}
+                style={inputStyle}
                 isNumericString={true}
                 decimalSeparator={localeParts.decimal}
                 inputMode='decimal'
@@ -106,6 +102,7 @@ export const StakingInput = ({
             return (
               <NumberFormat
                 customInput={CryptoInput}
+                style={inputStyle}
                 isNumericString={true}
                 decimalSeparator={localeParts.decimal}
                 inputMode='decimal'
@@ -127,6 +124,6 @@ export const StakingInput = ({
           rules={fiatInputValidation}
         />
       )}
-    </Flex>
+    </InputGroup>
   )
 }

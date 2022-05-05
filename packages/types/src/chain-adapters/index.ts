@@ -21,14 +21,14 @@ type ChainSpecificAccount<T> = ChainSpecific<
 export type Account<T extends ChainTypes> = {
   balance: string
   pubkey: string
-  caip2: string
-  caip19: string
+  chainId: string
+  assetId: string
   chain: T
 } & ChainSpecificAccount<T>
 
 export type AssetBalance = {
   balance: string
-  caip19: string
+  assetId: string
 }
 
 export enum FeeDataKey {
@@ -82,7 +82,7 @@ export type SubscribeTxsInput = {
 }
 
 export type TxFee = {
-  caip19: string
+  assetId: string
   value: string
 }
 
@@ -106,7 +106,7 @@ export type Transaction<T extends ChainTypes> = {
   blockHeight: number
   blockTime: number
   chain: T
-  caip2: string
+  chainId: string
   confirmations: number
   txid: string
   fee?: TxFee
@@ -133,7 +133,7 @@ export interface TxMetadata {
 }
 
 export type TxTransfer = {
-  caip19: string
+  assetId: string
   from: string
   to: string
   type: TxType

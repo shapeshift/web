@@ -20,12 +20,12 @@ export type HistoryData = {
 }
 
 export type PriceHistoryArgs = {
-  caip19: string
+  assetId: string
   timeframe: HistoryTimeframe
 }
 
 export type MarketDataArgs = {
-  caip19: string
+  assetId: string
 }
 
 export type FindAllMarketType = (args: FindAllMarketArgs) => Promise<MarketCapResult>

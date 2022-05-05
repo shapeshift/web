@@ -17,31 +17,25 @@ import { useSelector } from 'react-redux'
 import { BuildQuoteTxOutput, TradeAsset } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponentMounted'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import { selectAssetIds, selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const debounceTime = 1000
+import { asSellAmount } from './asSellAmount'
+import { TradeAmountInputField } from './types'
 
-export enum TradeAmountInputField {
-  BUY = 'BUY',
-  SELL = 'SELL',
-  FIAT = 'FIAT',
-}
+const debounceTime = 1000
 
 type GetQuoteInput = {
   amount: string
-  action?: TradeAmountInputField
+  action: TradeAmountInputField
 }
 
-interface GetQuoteFromSwapper<C extends ChainTypes> extends GetQuoteInput {
-  sellAsset: Asset
-  buyAsset: Asset
-  buyAssetUsdRate: BigNumber
-  sellAssetUsdRate: BigNumber
-  onFinish: (quote: TradeQuote<C>) => void
+interface GetQuoteFromSwapper extends GetQuoteInput {
+  sellAsset: TradeAsset
+  buyAsset: TradeAsset
 }
 
 export enum TRADE_ERRORS {
@@ -248,55 +242,83 @@ export const useSwapper = () => {
     return result
   }
 
-  const getQuoteFromSwapper = async <C extends ChainTypes>({
-    amount: sellAmount,
+  const getQuoteFromSwapper = async ({
+    amount,
     sellAsset,
     buyAsset,
-    sellAssetUsdRate,
-    buyAssetUsdRate,
     action,
-    onFinish,
-  }: GetQuoteFromSwapper<C>) => {
+    feeAsset,
+  }: GetQuoteFromSwapper & { feeAsset: Asset; action: TradeAmountInputField }) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
+      const swapper = await swapperManager.getBestSwapper({
+        buyAssetId: buyAsset.currency.assetId,
+        sellAssetId: sellAsset.currency.assetId,
+      })
+
+      const {
+        sellAmount: sellAmountUnparsed,
+        sellAssetUsdRate,
+        buyAssetUsdRate,
+      } = await asSellAmount({
+        buyAsset: buyAsset.currency,
+        sellAsset: sellAsset.currency,
+        swapper,
+        action,
+        amount,
+      })
+
       if (isComponentMounted.current) {
+        const sellAmount = toBaseUnit(sellAmountUnparsed, sellAsset.currency.precision)
+
         try {
-          const swapper = await swapperManager.getBestSwapper({
-            buyAssetId: buyAsset.assetId,
-            sellAssetId: sellAsset.assetId,
-          })
-
           const quoteInput = {
-            sellAsset,
-            buyAsset,
+            sellAsset: sellAsset.currency,
+            buyAsset: buyAsset.currency,
             sellAmount,
-          }
-
-          const { trade } = getValues()
-          let minMax = trade
-
-          if (
-            !quote ||
-            (quote?.sellAsset?.symbol !== sellAsset.symbol &&
-              quote?.buyAsset?.symbol !== buyAsset.symbol)
-          ) {
-            minMax = await swapper.getMinMax(quoteInput)
-            const minMaxTrade = { ...minMax, ...trade }
-            minMax && setValue('trade', minMaxTrade)
           }
 
           const newQuote = await swapper.getTradeQuote({
             ...quoteInput,
-            ...minMax,
+            sendMax: false,
+            sellAssetAccountId: '0',
           })
-          if (!(newQuote && newQuote.success)) throw newQuote
 
-          setFees(newQuote, sellAsset)
+          const minMax = { minimum: newQuote.maximum, maximum: newQuote.maximum }
+          // if (
+          //   !quote ||
+          //   (quote?.sellAsset?.symbol !== sellAsset.currency.symbol &&
+          //     quote?.buyAsset?.symbol !== buyAsset.currency.symbol)
+          // ) {
+          //   minMax = { minimum: newQuote.maximum, maximum: newQuote.maximum }
+          //   const minMaxTrade = { ...minMax, ...trade }
+          //   minMax && setValue('trade', minMaxTrade)
+          // }
+
+          console.log('newQuote is', newQuote)
+          console.log('minMax is', minMax)
+
+          const feeAssetPrecision = feeAsset.precision
+
+          const { fiatAmount } = getValues()
+
+          const buyAmount = fromBaseUnit(newQuote.buyAmount, buyAsset.currency.precision)
+          const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
+          const estimatedGasFee = fromBaseUnit(newQuote?.feeData?.fee || 0, feeAssetPrecision)
+          console.log('sellAmount!', sellAmount)
+          console.log('sellAmountUnparsed', sellAmountUnparsed.toString())
+          console.log('action', action)
+          console.log('buyAmount',  buyAmount)
+          setFees(newQuote, sellAsset.currency)
           setValue('quote', newQuote)
           setValue('sellAsset.fiatRate', sellAssetUsdRate.toString())
           setValue('buyAsset.fiatRate', buyAssetUsdRate.toString())
-          if (action) onFinish(newQuote)
+          setValue('buyAsset.amount', buyAmount)
+          setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.currency.precision))
+          setValue('fiatAmount', action === TradeAmountInputField.FIAT ? fiatAmount : newFiatAmount)
+          setValue('action', undefined)
+          setValue('estimatedGasFees', estimatedGasFee)
         } catch (e) {
           console.error(e)
         }
@@ -313,75 +335,14 @@ export const useSwapper = () => {
     feeAsset,
     action,
   }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset; feeAsset: Asset }) => {
-    console.log('getQuote action', action)
     if (!buyAsset?.currency || !sellAsset?.currency) return
 
-    const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: buyAsset.currency.assetId,
-      sellAssetId: sellAsset.currency.assetId,
-    })
-
-    const sellAssetUsdRate = bnOrZero(
-      await swapper.getUsdRate({
-        symbol: sellAsset.currency.symbol,
-        tokenId: sellAsset.currency.tokenId,
-      }),
-    )
-    const buyAssetUsdRate = bnOrZero(
-      await swapper.getUsdRate({
-        symbol: buyAsset.currency.symbol,
-        tokenId: buyAsset.currency.tokenId,
-      }),
-    )
-
-    let sellAssetAmount
-    if (action === TradeAmountInputField.SELL) sellAssetAmount = amount
-    if (action === TradeAmountInputField.BUY) {
-      const assetPriceRatio = buyAssetUsdRate.dividedBy(sellAssetUsdRate)
-      sellAssetAmount = assetPriceRatio.times(amount)
-    }
-    if (action === TradeAmountInputField.FIAT) {
-      console.log('is fiat2!!,', amount, sellAssetUsdRate.toString())
-      sellAssetAmount = bnOrZero(amount).dividedBy(sellAssetUsdRate)
-    }
-
-    const formattedAmount = toBaseUnit(sellAssetAmount, sellAsset.currency.precision)
-
-    const feeAssetPrecision = feeAsset.precision
-
-    const onFinish = (quote: TradeQuote<ChainTypes> & { action: TradeAmountInputField }) => {
-      console.log('onFinish')
-      if (isComponentMounted.current) {
-        const { sellAsset, buyAsset, fiatAmount } = getValues()
-
-        if (!(quote.buyAmount && quote.sellAmount)) return
-
-        const buyAmount = fromBaseUnit(quote.buyAmount, buyAsset.currency.precision)
-        const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
-        const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
-        const estimatedGasFee = fromBaseUnit(quote?.feeData?.fee || 0, feeAssetPrecision)
-
-        console.log('buyAmount', buyAmount)
-        console.log('sellAmount', sellAmount)
-        console.log('fiatAmount', fiatAmount)
-        console.log('newFiatAmount', newFiatAmount)
-
-        setValue('buyAsset.amount', buyAmount)
-        setValue('sellAsset.amount', sellAmount)
-        setValue('fiatAmount', action === TradeAmountInputField.FIAT ? fiatAmount : newFiatAmount)
-        setValue('action', undefined)
-        setValue('estimatedGasFees', estimatedGasFee)
-      }
-    }
-
-    await getQuoteFromSwapper<typeof sellAsset.currency.chain>({
-      amount: formattedAmount,
-      sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency,
+    await getQuoteFromSwapper({
+      amount,
+      sellAsset,
+      buyAsset,
       action,
-      buyAssetUsdRate,
-      sellAssetUsdRate,
-      onFinish,
+      feeAsset,
     })
   }
 

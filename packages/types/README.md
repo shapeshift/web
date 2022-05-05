@@ -1,4 +1,4 @@
-# ShapeShift Types
+## ShapeShift Types
 
 ## Getting Started
 

@@ -13,22 +13,16 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
-  selectSingleValidator,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingAction, StakingValues } from '../StakingCommon'
 
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat',
-}
-
 type StakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onClose: () => void
   onCancel: () => void
@@ -39,23 +33,17 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-export const StakeBroadcast = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onClose,
-  onCancel,
-}: StakeProps) => {
+export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }: StakeProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, { validatorAddress }),
   )
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()

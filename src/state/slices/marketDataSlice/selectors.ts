@@ -7,7 +7,7 @@ import { ReduxState } from 'state/reducer'
 
 export const selectMarketData = (state: ReduxState) => state.marketData.byId
 
-const selectAssetId = (_state: ReduxState, assetId: AssetId, ...args: any[]) => assetId
+const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 
 export const selectMarketDataById = createCachedSelector(
   selectMarketData,

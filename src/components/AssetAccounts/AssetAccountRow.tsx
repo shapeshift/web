@@ -18,7 +18,7 @@ import { RawText } from 'components/Text'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectPortfolioAllocationPercentByFilter,
   selectTotalCryptoBalanceWithDelegations,
   selectTotalFiatBalanceWithDelegations,
@@ -48,8 +48,8 @@ export const AssetAccountRow = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, rowAssetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
   const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
@@ -134,7 +134,7 @@ export const AssetAccountRow = ({
       </Flex>
       {showAllocation && (
         <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-          <Allocations value={allocation} color={'#000'} />
+          <Allocations value={allocation} />
         </Flex>
       )}
       {!isCompact && (

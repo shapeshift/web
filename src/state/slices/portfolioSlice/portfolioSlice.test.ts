@@ -263,8 +263,8 @@ describe('portfolioSlice', () => {
       const state = store.getState()
 
       it('can select account id by address (CAIP10)', () => {
-        const btcAccSpecifier = selectAccountIdByAddress(state, btcCaip10s[0])
-        const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0])
+        const btcAccSpecifier = selectAccountIdByAddress(state, { accountSpecifier: btcCaip10s[0] })
+        const ethAccSpecifier = selectAccountIdByAddress(state, { accountSpecifier: ethCaip10s[0] })
 
         expect(btcAccSpecifier).toEqual(btcAccountId)
         expect(ethAccSpecifier).toEqual(ethAccountId)
@@ -272,11 +272,13 @@ describe('portfolioSlice', () => {
 
       it('can select account id with address in non checksum format', () => {
         // caip10s in state in non checksum format
-        const btcAccSpecifier = selectAccountIdByAddress(state, btcCaip10s[0])
+        const btcAccSpecifier = selectAccountIdByAddress(state, { accountSpecifier: btcCaip10s[0] })
         expect(btcAccSpecifier).toEqual(btcAccountId)
 
         // caip10 argument in non checksum format
-        const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0].toUpperCase())
+        const ethAccSpecifier = selectAccountIdByAddress(state, {
+          accountSpecifier: ethCaip10s[0].toUpperCase(),
+        })
         expect(ethAccSpecifier).toEqual(ethAccountId)
       })
     })
@@ -293,7 +295,9 @@ describe('portfolioSlice', () => {
       const state = store.getState()
 
       it('can select crypto asset balance by asset Id', () => {
-        const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(state, ethCaip19)
+        const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(state, {
+          assetId: ethCaip19,
+        })
         expect(cryptoAssetBalanceByAccount).toBe(state.portfolio.assetBalances.byId[ethCaip19])
       })
     })
@@ -632,7 +636,7 @@ describe('portfolioSlice', () => {
 
       it('should return an array of assetIds (caip19) by accountId', () => {
         const expected = [ethCaip19, foxCaip19, usdcCaip19]
-        const result = selectPortfolioAssetIdsByAccountId(state, ethAccountId)
+        const result = selectPortfolioAssetIdsByAccountId(state, { accountId: ethAccountId })
 
         expect(result).toEqual(expected)
       })
@@ -730,7 +734,9 @@ describe('portfolioSlice', () => {
 
       it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
         const expected = [zeroCaip19, foxCaip19, usdcCaip19]
-        const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, ethAccountId)
+        const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, {
+          accountId: ethAccountId,
+        })
 
         expect(result).toEqual(expected)
       })
@@ -787,16 +793,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
 
@@ -826,16 +832,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
         store.dispatch(
@@ -856,16 +862,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
         store.dispatch(
@@ -886,16 +892,16 @@ describe('portfolioSlice', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
-            [cosmos.caip19]: cosmos,
+            [cosmos.assetId]: cosmos,
           },
-          ids: [cosmos.caip19],
+          ids: [cosmos.assetId],
         })
         store.dispatch(assetsSlice.actions.setAssets(assetData))
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [cosmos.caip19]: cosmosMarketData,
+            [cosmos.assetId]: cosmosMarketData,
           }),
         )
 

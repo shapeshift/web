@@ -12,10 +12,10 @@ import {
   selectActiveStakingOpportunityDataByAssetId,
   selectNonloadedValidators,
   selectRewardsAmountByAssetId,
-  selectSingleValidator,
   selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAssetId,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
+  selectValidatorByAddress,
   selectValidatorIsLoaded,
 } from './selectors'
 import { stakingData } from './stakingDataSlice'
@@ -154,12 +154,10 @@ describe('stakingDataSlice', () => {
   describe('selectors', () => {
     describe('selectActiveStakingOpportunityDataByAssetId', () => {
       it('returns empty array on initial state', async () => {
-        const selected = selectActiveStakingOpportunityDataByAssetId(
-          store.getState(),
-          cosmosAccountSpecifier,
-          SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId,
-        )
+        const selected = selectActiveStakingOpportunityDataByAssetId(store.getState(), {
+          accountSpecifier: cosmosAccountSpecifier,
+          assetId: cosmosAssetId,
+        })
         expect(selected).toEqual([])
       })
 
@@ -171,12 +169,10 @@ describe('stakingDataSlice', () => {
           }),
         )
 
-        const selected = selectActiveStakingOpportunityDataByAssetId(
-          store.getState(),
-          cosmosAccountSpecifier,
-          SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId,
-        )
+        const selected = selectActiveStakingOpportunityDataByAssetId(store.getState(), {
+          accountSpecifier: cosmosAccountSpecifier,
+          assetId: cosmosAssetId,
+        })
         expect(selected).toEqual([])
       })
 
@@ -197,12 +193,10 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectActiveStakingOpportunityDataByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId,
-          )
+          const selected = selectActiveStakingOpportunityDataByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            assetId: cosmosAssetId,
+          })
           expect(selected).toMatchSnapshot()
         })
 
@@ -214,12 +208,10 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectActiveStakingOpportunityDataByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId,
-          )
+          const selected = selectActiveStakingOpportunityDataByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            assetId: cosmosAssetId,
+          })
           expect(selected).toMatchSnapshot()
         })
 
@@ -231,12 +223,10 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectActiveStakingOpportunityDataByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId,
-          )
+          const selected = selectActiveStakingOpportunityDataByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            assetId: cosmosAssetId,
+          })
           expect(selected).toMatchSnapshot()
         })
       })
@@ -244,7 +234,9 @@ describe('stakingDataSlice', () => {
 
     describe('selectNonloadedValidators', () => {
       it('returns empty array on initial state', async () => {
-        const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
+        const selected = selectNonloadedValidators(store.getState(), {
+          accountSpecifier: cosmosAccountSpecifier,
+        })
         expect(selected).toEqual([])
       })
 
@@ -256,7 +248,9 @@ describe('stakingDataSlice', () => {
           }),
         )
 
-        const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
+        const selected = selectNonloadedValidators(store.getState(), {
+          accountSpecifier: cosmosAccountSpecifier,
+        })
         expect(selected).toEqual([
           'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
           'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
@@ -281,7 +275,9 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
+          const selected = selectNonloadedValidators(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+          })
           expect(selected).toEqual([])
         })
 
@@ -293,7 +289,9 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectNonloadedValidators(store.getState(), cosmosAccountSpecifier)
+          const selected = selectNonloadedValidators(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+          })
           expect(selected).toEqual([
             'cosmosvaloper1r9lxkpqre6j4487ut882xchgr7rdtx3x76gtdp',
             'cosmosvaloper1yvwqd5rdtuaw25mcqhz794dvgq9k9yeh8mjcdh',
@@ -302,13 +300,11 @@ describe('stakingDataSlice', () => {
       })
     })
 
-    describe('selectSingleValidator', () => {
+    describe('selectValidatorByAddress', () => {
       it('returns null on initial state', async () => {
-        const selected = selectSingleValidator(
-          store.getState(),
-          cosmosAccountSpecifier,
-          SHAPESHIFT_VALIDATOR_ADDRESS,
-        )
+        const selected = selectValidatorByAddress(store.getState(), {
+          validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+        })
         expect(selected).toBeNull()
       })
 
@@ -329,11 +325,9 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectSingleValidator(
-            store.getState(),
-            cosmosAccountSpecifier,
-            'cosmosvaloper1xxjvzwjpsf6ktuffkcpx29ut9qfrn0my8xdtqd',
-          )
+          const selected = selectValidatorByAddress(store.getState(), {
+            validatorAddress: 'cosmosvaloper1xxjvzwjpsf6ktuffkcpx29ut9qfrn0my8xdtqd',
+          })
           expect(selected).toBeNull()
         })
 
@@ -345,11 +339,9 @@ describe('stakingDataSlice', () => {
             }),
           )
 
-          const selected = selectSingleValidator(
-            store.getState(),
-            cosmosAccountSpecifier,
-            SHAPESHIFT_VALIDATOR_ADDRESS,
-          )
+          const selected = selectValidatorByAddress(store.getState(), {
+            validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+          })
           expect(selected).toEqual({
             address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
             tokens: '111116',
@@ -363,12 +355,11 @@ describe('stakingDataSlice', () => {
 
     describe('selectRewardsAmountByAssetId', () => {
       it('returns empty string on initial state', async () => {
-        const selected = selectRewardsAmountByAssetId(
-          store.getState(),
-          cosmosAccountSpecifier,
-          SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId,
-        )
+        const selected = selectRewardsAmountByAssetId(store.getState(), {
+          accountSpecifier: cosmosAccountSpecifier,
+          validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+          assetId: cosmosAssetId,
+        })
         expect(selected).toEqual('')
       })
 
@@ -388,30 +379,27 @@ describe('stakingDataSlice', () => {
         })
 
         it('returns empty string when there is no reward data', async () => {
-          const selected = selectRewardsAmountByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
-            cosmosAssetId,
-          )
+          const selected = selectRewardsAmountByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            validatorAddress: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
+            assetId: cosmosAssetId,
+          })
           expect(selected).toEqual('')
 
-          const selected2 = selectRewardsAmountByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            'cosmosvaloper1r9lxkpqre6j4487ut882xchgr7rdtx3x76gtdp',
-            cosmosAssetId,
-          )
+          const selected2 = selectRewardsAmountByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            validatorAddress: 'cosmosvaloper1r9lxkpqre6j4487ut882xchgr7rdtx3x76gtdp',
+            assetId: cosmosAssetId,
+          })
           expect(selected2).toEqual('')
         })
 
         it('returns the reward amount when there is a reward', async () => {
-          const selected = selectRewardsAmountByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId,
-          )
+          const selected = selectRewardsAmountByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+            assetId: cosmosAssetId,
+          })
           expect(selected).toEqual('3.831752143667562385')
         })
       })
@@ -419,12 +407,11 @@ describe('stakingDataSlice', () => {
 
     describe('selectTotalBondingsBalanceByAssetId', () => {
       it("returns '0' on initial state", async () => {
-        const selected = selectTotalBondingsBalanceByAssetId(
-          store.getState(),
-          cosmosAccountSpecifier,
-          SHAPESHIFT_VALIDATOR_ADDRESS,
-          cosmosAssetId,
-        )
+        const selected = selectTotalBondingsBalanceByAssetId(store.getState(), {
+          accountSpecifier: cosmosAccountSpecifier,
+          validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+          assetId: cosmosAssetId,
+        })
         expect(selected).toEqual('0')
       })
 
@@ -444,20 +431,18 @@ describe('stakingDataSlice', () => {
         })
 
         it('returns the reward amount when there is a reward', async () => {
-          const selected = selectTotalBondingsBalanceByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            SHAPESHIFT_VALIDATOR_ADDRESS,
-            cosmosAssetId,
-          )
+          const selected = selectTotalBondingsBalanceByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+            assetId: cosmosAssetId,
+          })
           expect(selected).toEqual('10115')
 
-          const selected2 = selectTotalBondingsBalanceByAssetId(
-            store.getState(),
-            cosmosAccountSpecifier,
-            'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
-            cosmosAssetId,
-          )
+          const selected2 = selectTotalBondingsBalanceByAssetId(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+            validatorAddress: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
+            assetId: cosmosAssetId,
+          })
           expect(selected2).toEqual('4')
         })
       })
@@ -465,10 +450,9 @@ describe('stakingDataSlice', () => {
 
     describe('selectTotalStakingDelegationCryptoByAccountSpecifier', () => {
       it('returns 0 on initial state', async () => {
-        const selected = selectTotalStakingDelegationCryptoByAccountSpecifier(
-          store.getState(),
-          cosmosAccountSpecifier,
-        )
+        const selected = selectTotalStakingDelegationCryptoByAccountSpecifier(store.getState(), {
+          accountSpecifier: cosmosAccountSpecifier,
+        })
         expect(selected).toEqual('0')
       })
 
@@ -488,10 +472,9 @@ describe('stakingDataSlice', () => {
         })
 
         it('returns the total staking delegations amount for the account specifier', async () => {
-          const selected = selectTotalStakingDelegationCryptoByAccountSpecifier(
-            store.getState(),
-            cosmosAccountSpecifier,
-          )
+          const selected = selectTotalStakingDelegationCryptoByAccountSpecifier(store.getState(), {
+            accountSpecifier: cosmosAccountSpecifier,
+          })
           expect(selected).toEqual('15019')
         })
       })

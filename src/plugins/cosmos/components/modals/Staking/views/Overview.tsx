@@ -9,13 +9,13 @@ import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRo
 import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllUnbondingsEntriesByAssetIdAndValidator,
   selectRewardsAmountByAssetId,
-  selectSingleValidator,
   selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAssetId,
+  selectValidatorByAddress,
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -32,7 +32,7 @@ export const Overview: React.FC<StakedProps> = ({
   accountSpecifier,
 }) => {
   const isLoaded = useAppSelector(selectStakingDataIsLoaded)
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const dispatch = useAppDispatch()
@@ -51,23 +51,30 @@ export const Overview: React.FC<StakedProps> = ({
   }, [accountSpecifier, isLoaded, dispatch])
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, { validatorAddress }),
   )
 
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
-  )
-  const undelegationEntries = useAppSelector(state =>
-    selectAllUnbondingsEntriesByAssetIdAndValidator(
-      state,
+    selectTotalBondingsBalanceByAssetId(state, {
       accountSpecifier,
       validatorAddress,
-      asset.caip19,
-    ),
+      assetId: asset.assetId,
+    }),
+  )
+  const undelegationEntries = useAppSelector(state =>
+    selectAllUnbondingsEntriesByAssetIdAndValidator(state, {
+      accountSpecifier,
+      validatorAddress,
+      assetId: asset.assetId,
+    }),
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19),
+    selectRewardsAmountByAssetId(state, {
+      accountSpecifier,
+      validatorAddress,
+      assetId: asset.assetId,
+    }),
   )
 
   // If it's loading, it will display the skeleton,

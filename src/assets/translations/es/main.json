@@ -24,6 +24,7 @@
     "getStarted": "Iniciar",
     "connectWallet": "Conectar Billetera",
     "connectedWallet": "Billetera Conectada",
+    "connectedWalletSettings": "Configuración de billetera",
     "noWallet": "Sin billetera conectada",
     "seeAll": "Ver Todo",
     "darkMode": "Modo Oscuro",
@@ -70,7 +71,8 @@
       "empty": {
         "title": "Ruido de grillos...",
         "cta": "Envíate algo de cripto!"
-      }
+      },
+      "stakedInfo": "No puede enviar ni intercambiar la cantidad staked"
     },
     "recentTransactions": {
       "recentTransactions": "Transacciones Recientes"
@@ -151,6 +153,8 @@
         "risks": "riesgos",
         "ofParticipating": "de participar en esta función y aceptar las",
         "terms": "términos",
+        "stakingYourTokens": "Staking sus tokens",
+        "unstakingYourTokens": "Retirar sus tokens de Staking",
         "tooltip": {
           "validator": "El Validador es responsable de procesar transacciones, almacenar datos y agregar bloques a la cadena de bloques.",
           "gasFees": "Las tarifas de gas en %{networkName} son mucho más bajas que las de Ethereum Mainnet. Esta tarifa se paga directamente a los validadores que aseguran y operan la red. No se paga a ShapeShift."
@@ -184,7 +188,9 @@
     "broadcastingTransaction": "Enviando Transacción",
     "transactionComplete": "Transacción Completa",
     "transactionFailed": "Transacción Fallida",
+    "notEnoughFundsInReserve": "No hay suficientes fondos en el contrato de reserva de liquidez",
     "validator": "Validador",
+    "validatorMoniker": "Validador de %{moniker}",
     "stakedAmount": "Monto en Stake",
     "unstakeFrom": "Unstake desde",
     "gasFee": "Tarifa de Gas",
@@ -364,6 +370,24 @@
         "header": "Ingrese su Frase de contraseña",
         "body": "Después de enviar su frase de contraseña, use el botón en KeepKey para aprobarla",
         "button": "Enviar Frase de contraseña"
+      },
+      "label": {
+        "header": "Etiquete su KeepKey",
+        "body": "Etiquetar cada uno de sus dispositivos le permite distinguir fácilmente uno de otro.",
+        "button": "Coloca una etiqueta"
+      },
+      "recoverySentence": {
+        "header": "Escriba la sentencia de recuperación",
+        "body": "En la pantalla de KeepKey, verá su frase de recuperación. Escríbelo. Si pierde acceso al dispositivo, SÓLO podrá acceder a sus activos mediante esta frase.",
+        "infoFirst": "Es fundamental que lo escriba exactamente como aparece en KeepKey.",
+        "infoSecond": "Nunca comparta su frase de recuperación, otorgara acceso a todos sus fondos.",
+        "awaitingButtonPress": "Siga los pasos en su KeepKey para ver su sentencia de recuperación. ¡Escríbelo!"
+      },
+      "wiped": {
+        "header": "KeepKey borrado con éxito",
+        "body": "Ha restablecido con éxito su KeepKey a los valores de fábrica predeterminados. Ahora puede restaurar utilizando una frase semilla de recuperación existente o crear una nueva billetera.",
+        "createButton": "Crear una nueva billetera",
+        "recoverButton": "Recuperar billetera"
       }
     },
     "shapeShift": {
@@ -449,6 +473,7 @@
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimateDisclaimer": "*Las estimaciones fluctúan con las condiciones del mercado.",
       "footerDisclaimer": "Al continuar aceptas nuestros términos de servicio.",
+      "footerDisclaimerLink": "términos de servicio.",
       "slippageSettings": "Ajustes de Deslizamiento"
     },
     "withdraw": {
@@ -563,6 +588,77 @@
         "header": "Confirme Su Nuevo PIN",
         "body": "Use el diseño de PIN que se muestra en su dispositivo para encontrar la ubicación en el teclado de PIN.",
         "button": "Guardar PIN"
+      },
+      "settings": {
+        "loadingText": "Cargando...",
+        "menuLabels": {
+          "bootloader": "Cargador de Arranque",
+          "firmware": "Firmware",
+          "pin": "PIN",
+          "pinCaching": "Almacenamiento en caché de PIN",
+          "advanced": "Avanzado",
+          "deviceTimeout": "Tiempo de espera del dispositivo",
+          "passphrase": "Frase de contraseña",
+          "wipeDevice": "Reestablecer dispositivo",
+          "label": "Etiqueta"
+        },
+        "status": {
+          "enabled": "Activado",
+          "disabled": "Desactivado",
+          "upToDate": "Actualizado",
+          "updateAvailable": "Actualización disponible"
+        },
+        "headings": {
+          "deviceSetting": "Dispositivo %{setting}",
+          "enterPin": "Ingrese el PIN actual",
+          "setPin": "Establecer un nuevo PIN",
+          "confirmPin": "Confirmar nuevo PIN",
+          "pinCaching": "Almacenamiento en caché de PIN",
+          "passphrase": "Frase de contraseña"
+        },
+        "descriptions": {
+          "pin": "El PIN es una combinación de hasta 9 números que selecciona después de inicializar su KeepKey. Un PIN protege su dispositivo contra el uso no autorizado en caso de que su KeepKey caiga en manos equivocadas.",
+          "pinCaching": "Cuando esta función está activada, el dispositivo recordará su PIN.",
+          "passphrase": "Habilite la capacidad de tener múltiples billeteras, accesibles mediante el uso de una frase de contraseña única para cada billetera.",
+          "label": "Etiquetar cada uno de los dispositivos le permite distinguir fácilmente uno de otro.",
+          "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puede cambiar esto.",
+          "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
+          "updateSuccess": "¡%{setting} actualizado con éxito!",
+          "updateFailed": "Ocurrió un error al actualizar %{setting}.",
+          "timeoutDuration": "%{minutes} minutos"
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "Utilizar con precaución",
+            "body": "Si olvida su frase de contraseña, perderá el acceso a sus fondos.",
+            "link": "Aprende más"
+          }
+        },
+        "placeholders": {
+          "label": "Introduzca una etiqueta de dispositivo"
+        },
+        "actions": {
+          "update": "Actualizar %{setting}",
+          "enable": "Habilitar %{setting}",
+          "learnMore": "Aprende más"
+        }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "Reestablezca su KeepKey"
+        },
+        "descriptions": {
+          "wipeKeepKey": "Entiendo que al borrar mi KeepKey perderé el acceso a mis fondos si no tengo mi frase de recuperación."
+        },
+        "actions": {
+          "wipeDevice": "Reestablecer dispositivo"
+        },
+        "confirmations": {
+          "wipeKeepKey": "Mantenga presionado el botón en su KeepKey para confirmar el restablecimiento a los valores predeterminados de fábrica."
+        },
+        "checkboxes": {
+          "wipeKeepKey": "He realizado una copia de seguridad de mi frase de recuperación y entiendo lo que estoy haciendo"
+        }
       }
     },
     "metaMask": {

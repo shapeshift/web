@@ -30,7 +30,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectRewardsAmountByAssetId,
@@ -54,8 +54,8 @@ export const ClaimConfirm = ({
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
   })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()
@@ -85,7 +85,7 @@ export const ClaimConfirm = ({
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, assetId),
+    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(

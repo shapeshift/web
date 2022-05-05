@@ -25,7 +25,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectFeeAssetById,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -63,23 +63,25 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useWallet()
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.caip19),
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellAsset?.currency?.assetId }),
   )
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
 
   const feeAsset = useAppSelector(state =>
     sellAsset
-      ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
-      : selectAssetByCAIP19(state, 'eip155:1/slip44:60'),
+      ? selectFeeAssetById(state, sellAsset?.currency?.assetId)
+      : selectAssetById(state, 'eip155:1/slip44:60'),
   )
   const feeAssetBalance = useAppSelector(state =>
-    feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null,
+    feeAsset
+      ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId })
+      : null,
   )
 
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
-    sellAsset && feeAsset && feeAsset.caip19 === sellAsset.currency.caip19
+    sellAsset && feeAsset && feeAsset.assetId === sellAsset.currency.assetId
       ? bnOrZero(sellAsset.amount)
       : bnOrZero(0)
 
@@ -145,7 +147,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       await getQuote({
         sellAsset: currentSellAsset,
         buyAsset: currentBuyAsset,
-        feeAsset: feeAsset,
+        feeAsset,
         action,
         amount: maxSendAmount,
       })
@@ -179,7 +181,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       amount: currentBuyAsset.amount ?? '0',
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,
-      feeAsset: feeAsset,
+      feeAsset,
       action,
     })
   }

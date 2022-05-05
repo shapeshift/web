@@ -192,11 +192,11 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const date = end.valueOf()
   const { crypto } = balance
 
-  return Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
-    const assetPriceHistoryData = priceHistoryData[caip19]
+  return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
+    const assetPriceHistoryData = priceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ assetPriceHistoryData, date })
-    const portfolioAsset = portfolioAssets[caip19]
+    const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) {
       return acc
     }
@@ -364,7 +364,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, [dispatch, cosmosCaip10])
 
   const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10),
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, { accountSpecifier: cosmosCaip10 }),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)

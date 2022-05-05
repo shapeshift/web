@@ -10,7 +10,7 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

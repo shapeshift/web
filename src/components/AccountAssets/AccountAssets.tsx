@@ -2,7 +2,7 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,9 +17,9 @@ type AccountAssetsProps = {
 
 export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const assetIds = useAppSelector(state =>
-    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId),
+    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   // @TODO: This filters for ETH to not show tokens component on tokens
   if (asset.tokenId || assetIds.length === 0) return null

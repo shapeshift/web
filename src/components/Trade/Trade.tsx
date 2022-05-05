@@ -2,7 +2,7 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes, Quote } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
-import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeAmountInputField } from 'components/Trade/hooks/useSwapper/useSwapper'
 
 import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 
@@ -35,7 +35,7 @@ export type TradeState<C extends ChainTypes> = {
   buyAsset: TradeAsset
   fees?: chainAdapters.QuoteFeeData<C>
   trade?: MinMax
-  action?: TradeActions
+  action?: TradeAmountInputField
   fiatAmount?: string
   quote?: Quote<C>
   estimatedGasFees?: string

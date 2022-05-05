@@ -8,7 +8,7 @@ import { useHistory } from 'react-router-dom'
 import { selectAssets } from 'state/slices/selectors'
 
 import { TradeState } from '../../Trade'
-import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
+import { TradeAmountInputField, useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
 
@@ -69,10 +69,12 @@ export const useTradeRoutes = (
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
+      console.log('handleSellClick')
+
       try {
         if (buyAsset.currency && asset.assetId === buyAsset.currency.assetId)
           setValue('buyAsset.currency', sellAsset.currency)
-        const action = buyAsset.amount ? TradeActions.SELL : undefined
+        const action = buyAsset.amount ? TradeAmountInputField.SELL : undefined
         setValue('sellAsset.currency', asset)
         setValue('buyAsset.amount', '')
         setValue('action', action)
@@ -95,10 +97,11 @@ export const useTradeRoutes = (
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
+      console.log('handleBuyClick')
       try {
         if (sellAsset.currency && asset.assetId === sellAsset.currency.assetId)
           setValue('sellAsset.currency', buyAsset.currency)
-        const action = sellAsset.amount ? TradeActions.BUY : undefined
+        const action = sellAsset.amount ? TradeAmountInputField.BUY : undefined
         setValue('buyAsset.currency', asset)
         setValue('sellAsset.amount', '')
         setValue('action', action)

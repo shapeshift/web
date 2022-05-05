@@ -25,7 +25,7 @@ import { useAppSelector } from 'state/store'
 
 const debounceTime = 1000
 
-export enum TradeActions {
+export enum TradeAmountInputField {
   BUY = 'BUY',
   SELL = 'SELL',
   FIAT = 'FIAT',
@@ -33,12 +33,14 @@ export enum TradeActions {
 
 type GetQuoteInput = {
   amount: string
-  action?: TradeActions
+  action?: TradeAmountInputField
 }
 
 interface GetQuoteFromSwapper<C extends ChainTypes> extends GetQuoteInput {
   sellAsset: Asset
   buyAsset: Asset
+  buyAssetUsdRate: BigNumber
+  sellAssetUsdRate: BigNumber
   onFinish: (quote: TradeQuote<C>) => void
 }
 
@@ -153,7 +155,7 @@ export const useSwapper = () => {
     )
 
     setValue('sellAsset.amount', maxAmount)
-    setValue('action', TradeActions.SELL)
+    setValue('action', TradeAmountInputField.SELL)
     return maxAmount
   }
 
@@ -266,7 +268,7 @@ export const useSwapper = () => {
           })
 
           let sellAmount = amount
-          if (action === TradeActions.FIAT) {
+          if (action === TradeAmountInputField.FIAT) {
             sellAmount = sellAssetUsdRate.gt(0)
               ? toBaseUnit(
                   bn(amount).div(sellAssetUsdRate).toString(),
@@ -320,6 +322,7 @@ export const useSwapper = () => {
     feeAsset,
     action,
   }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset; feeAsset: Asset }) => {
+    console.log('getQuote action', action)
     if (!buyAsset?.currency || !sellAsset?.currency) return
 
     const swapper = await swapperManager.getBestSwapper({
@@ -341,10 +344,18 @@ export const useSwapper = () => {
     )
 
     let sellAssetAmount
-    if (action === TradeActions.SELL) sellAssetAmount = amount
-    if (action === TradeActions.BUY) {
+    if (action === TradeAmountInputField.SELL) sellAssetAmount = amount
+    if (action === TradeAmountInputField.BUY) {
       const assetPriceRatio = buyAssetUsdRate.dividedBy(sellAssetUsdRate)
       sellAssetAmount = assetPriceRatio.times(amount)
+    }
+    if (action === TradeAmountInputField.FIAT) {
+      sellAssetAmount = sellAssetUsdRate.gt(0)
+        ? toBaseUnit(
+            bn(amount).div(sellAssetUsdRate).toString(),
+            sellAsset.currency.precision,
+          ).toString()
+        : '0'
     }
 
     const formattedAmount = toBaseUnit(sellAssetAmount, sellAsset.currency.precision)

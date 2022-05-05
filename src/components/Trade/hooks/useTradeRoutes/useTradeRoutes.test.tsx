@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
-import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeAmountInputField, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 
 import { useTradeRoutes } from './useTradeRoutes'
 
@@ -72,7 +72,7 @@ describe('useTradeRoutes', () => {
     const { result, setValue, getQuote } = setup({ buyAmount: '23' })
     await result.current.handleSellClick(WETH)
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', WETH)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.SELL)
+    expect(setValue).toHaveBeenCalledWith('action', TradeAmountInputField.SELL)
     expect(getQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on sell click', async () => {
@@ -93,7 +93,7 @@ describe('useTradeRoutes', () => {
     const { result, setValue, getQuote } = setup({ sellAmount: '234' })
     await result.current.handleBuyClick(mockFOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', mockFOX)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.BUY)
+    expect(setValue).toHaveBeenCalledWith('action', TradeAmountInputField.BUY)
     expect(getQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on buy click', async () => {

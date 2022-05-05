@@ -8,7 +8,7 @@ import { TestProviders } from 'test/TestProviders'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { fromBaseUnit } from 'lib/math'
 
-import { TradeActions, useSwapper } from './useSwapper'
+import { TradeAmountInputField, useSwapper } from './useSwapper'
 
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
@@ -17,7 +17,7 @@ jest.mock('@shapeshiftoss/swapper')
 jest.mock('context/PluginProvider/PluginProvider')
 
 function setup({
-  action = TradeActions.SELL,
+  action = TradeAmountInputField.SELL,
   approvalNeededBoolean = false,
   quote = {
     rate: '1.2',
@@ -98,14 +98,14 @@ describe('useSwapper', () => {
     expect(swapperManager).not.toBeNull()
   })
   it('getQuote gets quote with sellAmount', async () => {
-    const { result, setValue } = setup({ action: TradeActions.SELL })
+    const { result, setValue } = setup({ action: TradeAmountInputField.SELL })
     await act(async () => {
       result.current.getQuote({
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.SELL,
+        action: TradeAmountInputField.SELL,
       })
     })
     const buyAmount = fromBaseUnit(
@@ -122,14 +122,14 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(8, 'estimatedGasFees', '0.153244')
   })
   it('getQuote gets quote with buyAmount', async () => {
-    const { result, setValue } = setup({ action: TradeActions.BUY })
+    const { result, setValue } = setup({ action: TradeAmountInputField.BUY })
     await act(async () => {
       result.current.getQuote({
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.BUY,
+        action: TradeAmountInputField.BUY,
       })
     })
     const sellAmount = fromBaseUnit(
@@ -146,7 +146,7 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(8, 'estimatedGasFees', '0.153244')
   })
   it('getQuote needs buyAsset or sellAsset', async () => {
-    const { result, getQuote } = setup({ action: TradeActions.FIAT })
+    const { result, getQuote } = setup({ action: TradeAmountInputField.FIAT })
     await act(async () => {
       result.current.getQuote({
         amount: '20',
@@ -159,14 +159,14 @@ describe('useSwapper', () => {
     expect(getQuote).not.toHaveBeenCalled()
   })
   it('getQuote gets quote with fiatAmount', async () => {
-    const { result, setValue } = setup({ action: TradeActions.FIAT })
+    const { result, setValue } = setup({ action: TradeAmountInputField.FIAT })
     await act(async () => {
       result.current.getQuote({
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.FIAT,
+        action: TradeAmountInputField.FIAT,
       })
     })
     const buyAmount = fromBaseUnit(
@@ -196,7 +196,7 @@ describe('useSwapper', () => {
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
         feeAsset: ETH,
-        action: TradeActions.SELL,
+        action: TradeAmountInputField.SELL,
       })
     })
     const buyAmount = fromBaseUnit(

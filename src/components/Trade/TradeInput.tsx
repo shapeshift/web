@@ -16,7 +16,7 @@ import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import {
   TRADE_ERRORS,
-  TradeActions,
+  TradeAmountInputField,
   useSwapper,
 } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
@@ -45,8 +45,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, action, buyAsset, sellAsset, estimatedGasFees] = useWatch({
-    name: ['quote', 'action', 'buyAsset', 'sellAsset', 'estimatedGasFees'],
+  const [quote, buyAsset, sellAsset, estimatedGasFees] = useWatch({
+    name: ['quote', 'buyAsset', 'sellAsset', 'estimatedGasFees'],
   }) as Array<unknown> as [
     TS['quote'],
     TS['action'],
@@ -138,7 +138,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset,
         feeAsset,
       })
-      const action = TradeActions.SELL
+      const action = TradeAmountInputField.SELL
       const currentSellAsset = getValues('sellAsset')
       const currentBuyAsset = getValues('buyAsset')
 
@@ -172,7 +172,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const switchAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
-    const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
+    const action = currentBuyAsset.amount ? TradeAmountInputField.SELL : undefined
     setValue('action', action)
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
@@ -235,7 +235,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     onValueChange={e => {
                       onChange(e.value)
                       if (e.value !== value) {
-                        const action = !!e.value ? TradeActions.FIAT : undefined
+                        const action = !!e.value ? TradeAmountInputField.FIAT : undefined
                         if (action) {
                           setValue('action', action)
                         } else reset()
@@ -261,7 +261,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
                 onInputChange={(amount: string) => {
-                  const action = amount ? TradeActions.SELL : undefined
+                  const action = amount ? TradeAmountInputField.SELL : undefined
                   action ? setValue('action', action) : reset()
                   getQuote({ amount, sellAsset, buyAsset, feeAsset, action })
                 }}
@@ -279,7 +279,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     size='sm'
                     variant='ghost'
                     colorScheme='blue'
-                    isDisabled={isSendMaxLoading || !!action || !hasValidBalance}
+                    isDisabled={isSendMaxLoading || !hasValidBalance}
                     onClick={onSwapMax}
                     data-test='token-row-sell-max-button'
                   >
@@ -303,7 +303,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
-                isLoading={!quote || action || error ? true : false}
+                isLoading={!quote || error ? true : false}
                 _loading={{ color: 'blue.500' }}
                 data-test='swap-assets-button'
               />
@@ -314,7 +314,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fontSize='sm'
                 data-test='trade-rate-quote'
               >
-                {!quote || action || error ? (
+                {!quote || error ? (
                   <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
                 ) : (
                   <>
@@ -337,7 +337,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
                 onInputChange={(amount: string) => {
-                  const action = amount ? TradeActions.BUY : undefined
+                  const action = amount ? TradeAmountInputField.BUY : undefined
                   action ? setValue('action', action) : reset()
                   getQuote({ amount, sellAsset, buyAsset, feeAsset, action })
                 }}
@@ -357,18 +357,13 @@ export const TradeInput = ({ history }: RouterProps) => {
               size='lg'
               width='full'
               colorScheme={
-                error || (isValid && (!hasEnoughBalanceForGas || !hasValidTradeBalance) && !action)
+                error || (isValid && (!hasEnoughBalanceForGas || !hasValidTradeBalance))
                   ? 'red'
                   : 'blue'
               }
-              isLoading={isSubmitting || isSendMaxLoading || !!action}
+              isLoading={isSubmitting || isSendMaxLoading}
               isDisabled={
-                !isDirty ||
-                !isValid ||
-                !!action ||
-                !wallet ||
-                !hasValidTradeBalance ||
-                !hasEnoughBalanceForGas
+                !isDirty || !isValid || !wallet || !hasValidTradeBalance || !hasEnoughBalanceForGas
               }
               style={{
                 whiteSpace: 'normal',

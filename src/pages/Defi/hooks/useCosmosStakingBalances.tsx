@@ -3,8 +3,8 @@ import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAccountSpecifier,
   selectAssetById,
+  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import {
@@ -56,20 +56,21 @@ export function useCosmosStakingBalances({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const dispatch = useAppDispatch()
 
-  const accountSpecifiers = useAppSelector(state => selectAccountSpecifier(state, asset?.chainId))
-  const accountSpecifier = accountSpecifiers?.[0]
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+  )
 
   const activeStakingOpportunities = useAppSelector(state =>
-    selectActiveStakingOpportunityDataByAssetId(
-      state,
+    selectActiveStakingOpportunityDataByAssetId(state, {
       accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS,
-      asset.assetId,
-    ),
+      assetId: asset.assetId,
+    }),
   )
 
   const shapeshiftValidator = useAppSelector(state =>
-    selectValidatorByAddress(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS),
+    selectValidatorByAddress(state, {
+      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+    }),
   )
   const stakingOpportunities = useMemo(() => {
     return [
@@ -80,7 +81,7 @@ export function useCosmosStakingBalances({
   }, [shapeshiftValidator])
 
   const nonLoadedValidators = useAppSelector(state =>
-    selectNonloadedValidators(state, accountSpecifier),
+    selectNonloadedValidators(state, { accountSpecifier }),
   )
 
   const chainId = asset.chainId

@@ -28,9 +28,9 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoValue = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId),
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId }),
   )
-  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
+  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, { assetId }))
 
   if (!asset) return null // users may have assets we don't support
 

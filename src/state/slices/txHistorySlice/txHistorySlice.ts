@@ -8,12 +8,15 @@ import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { logger } from 'lib/logger'
 import {
   AccountSpecifier,
   AccountSpecifierMap,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER } from './utils'
+
+const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
 export type TxId = string
 export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
@@ -215,7 +218,7 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => {
-      console.info('txHistorySlice: clearing tx history')
+      moduleLogger.info('clearing tx history')
       return initialState
     },
     setStatus: (state, { payload }: TxHistoryStatusPayload) => {

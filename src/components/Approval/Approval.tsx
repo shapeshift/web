@@ -15,6 +15,7 @@ import { TradeState } from 'components/Trade/Trade'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { theme } from 'theme/theme'
 
 type ApprovalParams = {
@@ -22,6 +23,8 @@ type ApprovalParams = {
 }
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
+
+const moduleLogger = logger.child({ namespace: ['Approval'] })
 
 export const Approval = () => {
   const history = useHistory()
@@ -50,11 +53,14 @@ export const Approval = () => {
 
   const approve = async () => {
     if (!wallet) return
+    const fnLogger = logger.child({ name: 'approve' })
+    fnLogger.trace('Attempting Approval...')
+
     let txId
     try {
       txId = await approveInfinite(wallet)
     } catch (e) {
-      console.error(`Approval:approve - ${e}`)
+      fnLogger.error(e, 'Approval Failed')
       // TODO: (ryankk) this toast is currently assuming that the error is 'Not enough eth for tx fee' because we don't
       // get the full error response back from unchained (we get a 500 error). We can make this more precise by returning
       // the full error returned from unchained.
@@ -64,12 +70,13 @@ export const Approval = () => {
     if (!txId) return
     setApprovalTxId(txId)
 
-    const interval = setInterval(async () => {
+    approvalInterval.current = setInterval(async () => {
+      fnLogger.trace({ fn: 'checkApprovalNeeded' }, 'Checking Approval Needed...')
       try {
         const approvalNeeded = await checkApprovalNeeded(wallet)
         if (approvalNeeded) return
       } catch (e) {
-        console.error(`Approval:approve:checkApprovalNeeded - ${e}`)
+        fnLogger.error(e, { fn: 'checkApprovalNeeded' }, 'Check Approval Needed Failed')
         handleToast()
         approvalInterval.current && clearInterval(approvalInterval.current)
         return history.push('/trade/input')
@@ -78,6 +85,8 @@ export const Approval = () => {
       approvalInterval.current && clearInterval(approvalInterval.current)
       if (!sellAsset.amount) return
       if (!quote) return
+
+      fnLogger.trace({ fn: 'buildQuoteTx' }, 'Building Quote...')
       let result
       try {
         result = await buildQuoteTx({
@@ -86,8 +95,10 @@ export const Approval = () => {
           buyAsset: quote?.buyAsset,
           amount: sellAsset?.amount,
         })
+
+        fnLogger.debug({ fn: 'buildQuoteTx', result }, 'Building Quote Completed')
       } catch (e) {
-        console.error(`Approval:approve:buildQuoteTx - ${e}`)
+        fnLogger.error(e, { fn: 'buildQuoteTx' }, 'Building Quote Failed')
       }
 
       if (!result?.success && result?.statusReason) {
@@ -100,7 +111,6 @@ export const Approval = () => {
         history.push('/trade/input')
       }
     }, 5000)
-    approvalInterval.current = interval
   }
 
   const handleToast = (description: string = '') => {
@@ -117,7 +127,10 @@ export const Approval = () => {
   useEffect(() => {
     // TODO: (ryankk) fix errors to reflect correct attribute
     const error = errors?.quote?.rate ?? null
-    if (error) history.push('/trade/input')
+    if (error) {
+      moduleLogger.debug({ fn: 'validation', errors }, 'Form Validation Failed')
+      history.push('/trade/input')
+    }
   }, [errors, history])
 
   return (

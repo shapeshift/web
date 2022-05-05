@@ -55,7 +55,7 @@ export const ClaimConfirm = ({
     name: ConfirmFormFields.FeeType,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()
@@ -85,7 +85,7 @@ export const ClaimConfirm = ({
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, assetId),
+    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(

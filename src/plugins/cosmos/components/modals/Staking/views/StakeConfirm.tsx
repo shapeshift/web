@@ -42,7 +42,6 @@ import { Field, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onCancel: () => void
 }
@@ -52,12 +51,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-export const StakeConfirm = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onCancel,
-}: StakeProps) => {
+export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -65,13 +59,13 @@ export const StakeConfirm = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, { validatorAddress }),
   )
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()

@@ -36,13 +36,13 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+  const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
 
   // notify
   const toast = useToast()

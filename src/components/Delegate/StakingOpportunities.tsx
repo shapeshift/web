@@ -52,6 +52,8 @@ export const ValidatorName = ({ moniker, isStaking, validatorAddress }: Validato
   )
 }
 
+const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -67,6 +69,8 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const hasActiveStaking =
     // More than one opportunity data means we have more than the default opportunity
     size(stakingOpportunitiesData) > 1 ||
+    // If there's only one staking but it isn't the default opportunity, then it's an active staking
+    stakingOpportunitiesData[0]?.address !== SHAPESHIFT_VALIDATOR_ADDRESS ||
     bnOrZero(stakingOpportunitiesData[0]?.rewards).gt(0) ||
     bnOrZero(stakingOpportunitiesData[0]?.totalDelegations).gt(0)
 

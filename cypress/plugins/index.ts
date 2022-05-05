@@ -4,7 +4,6 @@ const { resolve } = require('path')
 const fs = require('fs')
 
 const execa = require('execa')
-const { install, ensureBrowserFlags } = require('@neuralegion/cypress-har-generator')
 const { installAutoRecord } = require('../support/autorecord/plugin')
 
 const findBrave = (): Cypress.Browser | undefined => {
@@ -53,13 +52,7 @@ const findBrave = (): Cypress.Browser | undefined => {
  * @type {Cypress.PluginConfig}
  */
 module.exports = async (on: any, config: any) => {
-  install(on, config)
   installAutoRecord(on, config, fs)
-
-  on('before:browser:launch', (browser = {}, launchOptions: any) => {
-    ensureBrowserFlags(browser, launchOptions)
-    return launchOptions
-  })
 
   if (config.testingType === 'component') {
     require('@cypress/react/plugins/react-scripts')(on, config)

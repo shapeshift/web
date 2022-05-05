@@ -11,7 +11,7 @@
   "scripts": {
     "local-ci": "yarn clean && yarn && yarn lint && yarn build && yarn type-check && yarn test",
     "build": "lerna run build --include-dependencies",
-    "clean": "rimraf node_modules dist packages/**/dist packages/**/node_modules packages/**/tsconfig.build.tsbuildinfo",
+    "clean": "rimraf node_modules dist packages/**/dist packages/**/node_modules packages/**/tsconfig.build.tsbuildinfo packages/unchained-client/src/generated",
     "dev": "lerna run dev --stream --parallel",
     "lint": "eslint --cache --max-warnings=0 .",
     "lint:fix": "yarn lint --fix",

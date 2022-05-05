@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# generated files
+packages/unchained-client/src/generated
+
 # dependencies
 node_modules
 /.pnp

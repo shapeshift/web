@@ -1,0 +1,37 @@
+{
+  "name": "@shapeshiftoss/unchained-client",
+  "version": "6.11.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "yarn clean && yarn generate && tsc -p tsconfig.build.json",
+    "build:public": "yarn clean && yarn generate:public && tsc -p tsconfig.build.json",
+    "build:local": "yarn clean && yarn generate:local && tsc -p tsconfig.build.json",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist node_modules src/generated tsconfig.build.tsbuildinfo",
+    "generate": "./generator/generate.sh -e dev",
+    "generate:public": "./generator/generate.sh -e public",
+    "generate:local": "./generator/generate.sh -e local",
+    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+  },
+  "dependencies": {
+    "@shapeshiftoss/blockbook": "^6.11.0",
+    "@shapeshiftoss/caip": "^2.2.3",
+    "@shapeshiftoss/logger": "^1.1.2",
+    "@shapeshiftoss/types": "^3.1.2",
+    "@yfi/sdk": "^1.0.30",
+    "bignumber.js": "^9.0.1",
+    "ethers": "^5.5.3",
+    "isomorphic-ws": "^4.0.1",
+    "ws": "^8.3.0"
+  },
+  "devDependencies": {
+    "@shapeshiftoss/common-api": "^6.11.0",
+    "@types/ws": "^8.2.1"
+  }
+}

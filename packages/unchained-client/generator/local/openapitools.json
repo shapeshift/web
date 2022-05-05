@@ -1,0 +1,39 @@
+{
+  "$schema": "usr/local/node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "5.4.0",
+    "generators": {
+      "ethereum": {
+        "inputSpec": "http://api.ethereum.localhost/swagger.json",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/../../src/generated/ethereum",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "bitcoin": {
+        "inputSpec": "http://api.bitcoin.localhost/swagger.json",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/../../src/generated/bitcoin",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "cosmos": {
+        "inputSpec": "http://api.cosmos.localhost/swagger",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/../../src/generated/cosmos",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      }
+    }
+  }
+}

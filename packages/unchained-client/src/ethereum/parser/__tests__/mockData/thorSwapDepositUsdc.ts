@@ -1,0 +1,46 @@
+export default {
+  tx: {
+    txid: '0xc88ccc23a6d5b23b67a093aa3f3c58416af34bb45f169b9e97a84fec2d15de87',
+    vin: [
+      {
+        n: 0,
+        addresses: ['0x5a8C5afbCC1A58cCbe17542957b587F46828B38E'],
+        isAddress: true
+      }
+    ],
+    vout: [
+      {
+        value: '0',
+        n: 0,
+        addresses: ['0xC145990E84155416144C532E31f89B840Ca8c2cE'],
+        isAddress: true
+      }
+    ],
+    blockHash: '0xd5eff3f2f132e0861398c207170d4bf85d09bc4dd9b234a64daaa9d7760c362e',
+    blockHeight: 12518044,
+    confirmations: 45680,
+    blockTime: 1622141232,
+    value: '0',
+    fees: '4700280000000000',
+    tokenTransfers: [
+      {
+        type: 'ERC20',
+        from: '0x5a8C5afbCC1A58cCbe17542957b587F46828B38E',
+        to: '0xC145990E84155416144C532E31f89B840Ca8c2cE',
+        token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        name: 'USD Coin',
+        symbol: 'USDC',
+        decimals: 6,
+        value: '16598881497'
+      }
+    ],
+    ethereumSpecific: {
+      status: 1,
+      nonce: 6,
+      gasLimit: 78338,
+      gasUsed: 78338,
+      gasPrice: '60000000000',
+      data: '0x1fece7b4000000000000000000000000fb43496982b951c36a27b2be21b3f7d5fa689ca9000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb4800000000000000000000000000000000000000000000000000000003dd5ed4d900000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000047535741503a54484f522e52554e453a74686f723168686a75706b7a793374366363656c687a377177386570797834726d386130366e6c6d3563653a31313039323836343231313100000000000000000000000000000000000000000000000000'
+    }
+  }
+}

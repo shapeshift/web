@@ -62,23 +62,14 @@ export const isSellAsset = (currency: SupportedCurrency) =>
   currency.transaction_direction === TransactionDirection.BlockchainToBank
 
 export const parseGemSellAssets = memoize((assets: SupportedCurrency[]): FiatRampAsset[] =>
-  parseGemAssets(
-    'source',
-    assets.filter(isSellAsset).map(asset => asset['source'].currencies),
-  ),
+  parseGemAssets(assets.filter(isSellAsset).map(asset => asset['source'].currencies)),
 )
 
 export const parseGemBuyAssets = memoize((assets: SupportedCurrency[]): FiatRampAsset[] =>
-  parseGemAssets(
-    'destination',
-    assets.filter(isBuyAsset).map(asset => asset['destination'].currencies),
-  ),
+  parseGemAssets(assets.filter(isBuyAsset).map(asset => asset['destination'].currencies)),
 )
 
-const parseGemAssets = (
-  key: 'destination' | 'source',
-  filteredList: GemCurrency[][],
-): FiatRampAsset[] => {
+const parseGemAssets = (filteredList: GemCurrency[][]): FiatRampAsset[] => {
   const results = uniqBy(flatten(filteredList), 'gem_asset_id')
     .filter(asset => Boolean(adapters.gemAssetIdToCAIP19(asset.gem_asset_id)))
     .map(asset => {

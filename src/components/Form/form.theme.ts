@@ -1,7 +1,7 @@
 export const FormStyle = {
   parts: ['container', 'requiredIndicator', 'helperText'],
   // Styles for the base style
-  baseStyle: (props: Record<string, any>) => ({
+  baseStyle: () => ({
     requiredIndicator: {
       color: 'red.500',
     },

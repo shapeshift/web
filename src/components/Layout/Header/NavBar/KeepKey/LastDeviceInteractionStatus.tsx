@@ -32,7 +32,7 @@ export const LastDeviceInteractionStatus = ({ setting }: LastDeviceInteractionSt
             setting: upperFirst(setting),
           })
         : translate('walletProvider.keepKey.settings.descriptions.updateFailed', {
-            setting: setting,
+            setting,
           })}
     </Alert>
   ) : null

@@ -160,7 +160,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         modal: true,
         type: KeyManager.KeepKey,
         showBackButton: showBackButton ?? false,
-        deviceId: deviceId,
+        deviceId,
         keepKeyPinRequestType: pinRequestType ?? null,
         initialRoute: KeepKeyRoutes.Pin,
       }

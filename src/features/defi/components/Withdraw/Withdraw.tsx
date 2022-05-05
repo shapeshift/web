@@ -79,8 +79,9 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
+    borderBottomLeftRadius={0}
     borderTopLeftRadius={0}
+    borderTopRightRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -118,7 +119,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   fiatInputValidation,
   onContinue,
   updateWithdraw,
-  onCancel,
   percentOptions,
   feePercentage,
   children,
@@ -392,7 +392,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           thousandSeparator={localeParts.group}
                           value={value}
                           disabled={values.withdrawType === WithdrawType.INSTANT}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             handleInputChange(amountRef.current as string)
                             amountRef.current = null
@@ -419,7 +419,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
                           value={bnOrZero(value).toFixed(2)}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             if (amountRef.current) handleInputChange(amountRef.current)
                             amountRef.current = null

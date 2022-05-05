@@ -74,7 +74,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   }, [setTestState, shuffledNumbers, vault, revoker, testCount])
 
   useEffect(() => {
-    shuffleMnemonic().catch(e => setError('walletProvider.shapeShift.create.error'))
+    shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
   }, [shuffleMnemonic])
 
   useEffect(() => {

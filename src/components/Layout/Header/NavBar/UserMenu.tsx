@@ -144,6 +144,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
         walletInfo={walletInfo}
         isConnected={isConnected}
         isLoadingLocalWallet={state.isLoadingLocalWallet}
+        data-test='navigation-wallet-dropdown-button'
       />
       <MenuList
         maxWidth={{ base: 'full', md: 'xs' }}

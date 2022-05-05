@@ -15,7 +15,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
@@ -25,7 +25,7 @@ type FoxyStatusProps = {
   apy: string
 }
 
-export const Status = ({ api, apy }: FoxyStatusProps) => {
+export const Status = ({ apy }: FoxyStatusProps) => {
   const { state } = useContext(DepositContext)
   const history = useHistory()
   const appDispatch = useAppDispatch()
@@ -42,10 +42,10 @@ export const Status = ({ api, apy }: FoxyStatusProps) => {
     assetReference: AssetReference.Ethereum,
   })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
   const contractAssetId = caip19.toCAIP19({
     chain,
@@ -53,7 +53,7 @@ export const Status = ({ api, apy }: FoxyStatusProps) => {
     assetNamespace,
     assetReference: rewardId,
   })
-  const contractAsset = useAppSelector(state => selectAssetByCAIP19(state, contractAssetId))
+  const contractAsset = useAppSelector(state => selectAssetById(state, contractAssetId))
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

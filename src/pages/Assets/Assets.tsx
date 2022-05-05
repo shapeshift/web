@@ -8,7 +8,7 @@ export const Assets = () => {
   const onClick = (asset: Asset) => {
     // CAIP19/AssetId has a `/` separator so the router will have to parse 2 variables
     // e.g., /assets/:chainId/:assetSubId
-    const url = `/assets/${asset.caip19}`
+    const url = `/assets/${asset.assetId}`
     history.push(url)
   }
   return (

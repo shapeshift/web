@@ -17,7 +17,6 @@ export enum StakeRoutes {
   Stake = '/stake',
   Unstake = '/unstake',
   Overview = '/stake/overview',
-  Claim = '/claim',
 }
 
 export enum UnstakingPath {

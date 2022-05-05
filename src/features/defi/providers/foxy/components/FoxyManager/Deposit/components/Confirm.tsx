@@ -18,7 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositPath } from '../DepositCommon'
@@ -47,10 +47,10 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
     assetReference: AssetReference.Ethereum,
   })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
   const contractAssetId = caip19.toCAIP19({
     chain,
@@ -58,7 +58,7 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
     assetNamespace,
     assetReference: rewardId,
   })
-  const contractAsset = useAppSelector(state => selectAssetByCAIP19(state, contractAssetId))
+  const contractAsset = useAppSelector(state => selectAssetById(state, contractAssetId))
 
   // user info
   const { state: walletState } = useWallet()

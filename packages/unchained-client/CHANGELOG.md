@@ -1,3 +1,5 @@
+# [@shapeshiftoss/unchained-client-v6.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v6.11.0...@shapeshiftoss/unchained-client-v6.11.1) (2022-05-05)
+
 # @shapeshiftoss/unchained-client-v6.11.0 (2022-05-05)
 
 ### Features

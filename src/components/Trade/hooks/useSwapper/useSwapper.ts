@@ -72,9 +72,9 @@ export const useSwapper = () => {
   const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
-  const [quote, trade, sellAsset, buyAsset] = useWatch({
-    name: ['quote', 'trade', 'sellAsset', 'buyAsset'],
-  })
+  const [quote, sellAsset, buyAsset] = useWatch({
+    name: ['quote', 'sellAsset', 'buyAsset'],
+  }) as [TradeQuote<ChainTypes> & Trade<ChainTypes>, TradeAsset, TradeAsset]
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -194,7 +194,6 @@ export const useSwapper = () => {
       buyAsset,
       sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
       buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-      slippage: trade?.slippage?.toString(),
       wallet,
       sendMax: true,
     })

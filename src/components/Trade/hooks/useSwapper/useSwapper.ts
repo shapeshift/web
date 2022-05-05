@@ -149,7 +149,6 @@ export const useSwapper = () => {
     )
 
     setValue('sellAsset.amount', maxAmount)
-    setValue('action', TradeAmountInputField.SELL)
     return maxAmount
   }
 
@@ -405,7 +404,6 @@ export const useSwapper = () => {
     setValue('buyAsset.amount', '')
     setValue('sellAsset.amount', '')
     setValue('fiatAmount', '')
-    setValue('action', undefined)
   }
 
   return {

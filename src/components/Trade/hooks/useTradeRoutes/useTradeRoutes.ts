@@ -74,10 +74,8 @@ export const useTradeRoutes = (
       try {
         if (buyAsset.currency && asset.assetId === buyAsset.currency.assetId)
           setValue('buyAsset.currency', sellAsset.currency)
-        const action = TradeAmountInputField.SELL
         setValue('sellAsset.currency', asset)
         setValue('buyAsset.amount', '')
-        setValue('action', action)
         setValue('quote', undefined)
         updateQuote({
           amount: sellAsset.amount ?? '0',
@@ -100,10 +98,8 @@ export const useTradeRoutes = (
       try {
         if (sellAsset.currency && asset.assetId === sellAsset.currency.assetId)
           setValue('sellAsset.currency', buyAsset.currency)
-        const action = sellAsset.amount ? TradeAmountInputField.BUY : undefined
         setValue('buyAsset.currency', asset)
         setValue('sellAsset.amount', '')
-        setValue('action', action)
         setValue('quote', undefined)
         updateQuote({
           amount: buyAsset.amount ?? '0',

@@ -163,7 +163,6 @@ export const TradeInput = ({ history }: RouterProps) => {
   const switchAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
-    setValue('action', TradeAmountInputField.SELL)
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)

@@ -72,9 +72,9 @@ export const useSwapper = () => {
   const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
-  const [quote, sellAsset, buyAsset] = useWatch({
-    name: ['quote', 'sellAsset', 'buyAsset'],
-  }) as [TradeQuote<ChainTypes> & Trade<ChainTypes>, TradeAsset, TradeAsset]
+  const [quote, sellAsset] = useWatch({
+    name: ['quote', 'sellAsset'],
+  }) as [TradeQuote<ChainTypes> & Trade<ChainTypes>, TradeAsset]
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -238,8 +238,8 @@ export const useSwapper = () => {
     wallet: HDWallet
   }): Promise<ExecQuoteOutput | undefined> => {
     const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: buyAsset.currency.assetId,
-      sellAssetId: sellAsset.currency.assetId,
+      buyAssetId: quote.buyAsset.assetId,
+      sellAssetId: quote.sellAsset.assetId,
     })
 
     const result = await swapper.executeTrade({ trade: quote, wallet })

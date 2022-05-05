@@ -23,6 +23,13 @@ export type MinMax = {
   name?: string
 }
 
+export type BuildQuoteTxOutput = {
+  success: boolean
+  sellAsset: Asset
+  buyAsset?: Asset
+  statusReason: string
+}
+
 export type TradeState<C extends ChainTypes> = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset

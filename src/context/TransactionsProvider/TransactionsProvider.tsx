@@ -24,6 +24,7 @@ import {
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -131,8 +132,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             } catch (e: unknown) {
               moduleLogger.error(e, { chain }, 'Error subscribing to transaction history for chain')
             }
-            const SHAPESHIFT_VALIDATOR_ADDRESS =
-              'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
             // RESTfully fetch all tx and rebase history for this chain.
             getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
               if (accountSpecifierMap[cosmosChainId]) {

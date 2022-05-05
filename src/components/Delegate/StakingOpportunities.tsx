@@ -19,6 +19,7 @@ import {
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
@@ -51,8 +52,6 @@ export const ValidatorName = ({ moniker, isStaking, validatorAddress }: Validato
     </Box>
   )
 }
-
-const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))

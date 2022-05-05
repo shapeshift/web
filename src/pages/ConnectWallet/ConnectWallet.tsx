@@ -190,7 +190,6 @@ export const ConnectWallet = () => {
             rightIcon={<ArrowForwardIcon />}
             onClick={connectDemo}
             isLoading={state.isLoadingLocalWallet}
-            data-test='view-a-demo-button'
           >
             <Text translation='connectWalletPage.orViewADemo' />
           </Button>

@@ -16,6 +16,11 @@ import { Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+
+const moduleLogger = logger.child({
+  namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'Modals', 'Wipe'],
+})
 
 export const WipeModal = () => {
   const initRef = useRef<HTMLInputElement | null>(null)
@@ -36,7 +41,7 @@ export const WipeModal = () => {
 
   const onClose = () => {
     keepKeyWallet?.cancel().catch(e => {
-      console.error(e)
+      moduleLogger.error(e, { fn: 'onClose' }, 'Error canceling KeepKey action')
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),
@@ -48,12 +53,13 @@ export const WipeModal = () => {
   }
 
   const wipeDevice = async () => {
+    moduleLogger.trace({ fn: 'wipeDevice' }, 'Wiping KeepKey...')
     try {
       await keepKeyWallet?.wipe()
       disconnect()
       close()
     } catch (e) {
-      console.error(e)
+      moduleLogger.error(e, { fn: 'wipeDevice' }, 'KeepKey Wipe Failed')
       toast({
         title: translate('common.error'),
         description: (e as { message: string })?.message ?? translate('common.somethingWentWrong'),

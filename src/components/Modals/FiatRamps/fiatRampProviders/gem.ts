@@ -5,6 +5,7 @@ import flatten from 'lodash/flatten'
 import memoize from 'lodash/memoize'
 import uniqBy from 'lodash/uniqBy'
 import queryString from 'querystring'
+import { logger } from 'lib/logger'
 
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 
@@ -34,22 +35,39 @@ export type SupportedCurrency = {
   transaction_direction: TransactionDirection
 }
 
+const moduleLogger = logger.child({
+  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'gem'],
+})
+
 export const fetchCoinifySupportedCurrencies = memoize(async (): Promise<SupportedCurrency[]> => {
+  moduleLogger.trace(
+    { fn: 'fetchCoinifySupportedCurrencies' },
+    'Getting Supporting Coins (Coinify)...',
+  )
   try {
     const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
     return data
   } catch (e: any) {
-    console.error(e)
+    moduleLogger.error(
+      e,
+      { fn: 'fetchCoinifySupportedCurrencies' },
+      'Get Supported Coins (Coinify) Failed',
+    )
     return []
   }
 })
 
 export const fetchWyreSupportedCurrencies = memoize(async (): Promise<SupportedCurrency[]> => {
+  moduleLogger.trace({ fn: 'fetchWyreSupportedCurrencies' }, 'Getting Supporting Coins (Wyre)...')
   try {
     const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
     return data
   } catch (e: any) {
-    console.error(e)
+    moduleLogger.error(
+      e,
+      { fn: 'fetchWyreSupportedCurrencies' },
+      'Get Supported Coins (Wyre) Failed',
+    )
     return []
   }
 })
@@ -82,9 +100,13 @@ const parseGemAssets = (filteredList: GemCurrency[][]): FiatRampAsset[] => {
         imageUrl: getGemAssetLogoUrl(asset),
       }
     })
+
+  moduleLogger.trace({ fn: 'parseGemAssets', filteredList, results }, 'Gem Assets Transformed')
   return results
 }
+
 const memoizeAllArgsResolver = (...args: any) => JSON.stringify(args)
+
 export const makeGemPartnerUrl = memoize(
   (intent: FiatRampAction, selectedAssetTicker: string | undefined, address: string) => {
     if (!selectedAssetTicker) return
@@ -106,7 +128,10 @@ export const makeGemPartnerUrl = memoize(
       intent,
       wallets: JSON.stringify([{ address, asset: selectedAssetTicker }]),
     })
-    return `${GEM_URL}?${queryConfig}`
+
+    const url = `${GEM_URL}?${queryConfig}`
+    moduleLogger.trace({ fn: 'makeGemPartnerUrl', url }, 'Gem Partner URL')
+    return url
   },
   memoizeAllArgsResolver,
 )

@@ -1,3 +1,17 @@
+# [@shapeshiftoss/types-v3.1.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v3.1.4...@shapeshiftoss/types-v3.1.5) (2022-05-05)
+
+
+### chore
+
+* **types:** trigger major version bump ([#616](https://github.com/shapeshift/lib/issues/616)) ([18f21ce](https://github.com/shapeshift/lib/commit/18f21ce9aba34597c0e4af361cddf62411536555))
+
+
+### BREAKING CHANGES
+
+* **types:** trigger the major version bump that should have occurred with the changes in 3.1.4
+
+Also fix the README header...
+
 # [@shapeshiftoss/types-v3.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v3.1.3...@shapeshiftoss/types-v3.1.4) (2022-05-05)
 
 # [@shapeshiftoss/types-v3.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v3.1.2...@shapeshiftoss/types-v3.1.3) (2022-05-05)

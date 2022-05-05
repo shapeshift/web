@@ -249,7 +249,7 @@ export const useSwapper = () => {
   }
 
   const getQuoteFromSwapper = async <C extends ChainTypes>({
-    amount,
+    amount: sellAmount,
     sellAsset,
     buyAsset,
     sellAssetUsdRate,
@@ -267,15 +267,6 @@ export const useSwapper = () => {
             sellAssetId: sellAsset.assetId,
           })
 
-          let sellAmount = amount
-          if (action === TradeAmountInputField.FIAT) {
-            sellAmount = sellAssetUsdRate.gt(0)
-              ? toBaseUnit(
-                  bn(amount).div(sellAssetUsdRate).toString(),
-                  sellAsset.precision,
-                ).toString()
-              : '0'
-          }
           const quoteInput = {
             sellAsset,
             buyAsset,
@@ -350,33 +341,34 @@ export const useSwapper = () => {
       sellAssetAmount = assetPriceRatio.times(amount)
     }
     if (action === TradeAmountInputField.FIAT) {
-      sellAssetAmount = sellAssetUsdRate.gt(0)
-        ? toBaseUnit(
-            bn(amount).div(sellAssetUsdRate).toString(),
-            sellAsset.currency.precision,
-          ).toString()
-        : '0'
+      console.log('is fiat2!!,', amount, sellAssetUsdRate.toString())
+      sellAssetAmount = bnOrZero(amount).dividedBy(sellAssetUsdRate)
     }
 
     const formattedAmount = toBaseUnit(sellAssetAmount, sellAsset.currency.precision)
 
     const feeAssetPrecision = feeAsset.precision
 
-    const onFinish = (quote: TradeQuote<ChainTypes>) => {
+    const onFinish = (quote: TradeQuote<ChainTypes> & { action: TradeAmountInputField }) => {
+      console.log('onFinish')
       if (isComponentMounted.current) {
-        const { sellAsset, buyAsset } = getValues()
+        const { sellAsset, buyAsset, fiatAmount } = getValues()
 
         if (!(quote.buyAmount && quote.sellAmount)) return
 
         const buyAmount = fromBaseUnit(quote.buyAmount, buyAsset.currency.precision)
         const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
-
         const estimatedGasFee = fromBaseUnit(quote?.feeData?.fee || 0, feeAssetPrecision)
+
+        console.log('buyAmount', buyAmount)
+        console.log('sellAmount', sellAmount)
+        console.log('fiatAmount', fiatAmount)
+        console.log('newFiatAmount', newFiatAmount)
 
         setValue('buyAsset.amount', buyAmount)
         setValue('sellAsset.amount', sellAmount)
-        setValue('fiatAmount', newFiatAmount)
+        setValue('fiatAmount', action === TradeAmountInputField.FIAT ? fiatAmount : newFiatAmount)
         setValue('action', undefined)
         setValue('estimatedGasFees', estimatedGasFee)
       }

@@ -47,13 +47,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
   const [quote, buyAsset, sellAsset, estimatedGasFees] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'estimatedGasFees'],
-  }) as Array<unknown> as [
-    TS['quote'],
-    TS['action'],
-    TS['buyAsset'],
-    TS['sellAsset'],
-    TS['estimatedGasFees'],
-  ]
+  }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['estimatedGasFees']]
   const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
     useSwapper()
   const toast = useToast()

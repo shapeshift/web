@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
@@ -45,13 +45,13 @@ import {
 } from './utils'
 
 type ParamFilter = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId: AccountSpecifier
   accountSpecifier: string
   validatorAddress: PubKey
 }
 type OptionalParamFilter = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   accountSpecifier?: string
   validatorAddress?: PubKey
@@ -238,9 +238,7 @@ export const selectPortfolioTotalFiatBalanceWithDelegations = createSelector(
 export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParamFromFilter,
-  (portfolioFiatBalances, assetId) => {
-    return portfolioFiatBalances[assetId]
-  },
+  (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId],
 )
 
 export const selectPortfolioFiatBalanceByFilter = createSelector(
@@ -276,7 +274,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
   selectAccountIdParamFromFilterOptional,
-  selectAssetIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
       return fromBaseUnit(
@@ -364,7 +362,7 @@ export const selectTotalFiatBalanceWithDelegations = createSelector(
   selectPortfolioCryptoHumanBalanceByFilter,
   selectTotalStakingDelegationCryptoByFilter,
   selectMarketData,
-  selectAssetIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
   (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
     const price = marketData[assetId]?.price
     const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
@@ -423,7 +421,7 @@ export const selectPortfolioCryptoBalancesByAccountIdAboveThreshold = createDeep
 export const selectPortfolioCryptoBalanceByFilter = createSelector(
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilter,
+  selectAccountIdParamFromFilterOptional,
   selectAssetIdParamFromFilter,
   (accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
@@ -634,7 +632,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
 export const selectAccountIdByAddress = createSelector(
   selectAccountIds,
   selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts: { [k: AccountSpecifier]: CAIP10[] }, caip10): string => {
+  (portfolioAccounts: { [k: AccountSpecifier]: AccountId[] }, caip10): string => {
     let accountSpecifier = ''
     for (const accountId in portfolioAccounts) {
       const isAccountSpecifier = !!portfolioAccounts[accountId].find(

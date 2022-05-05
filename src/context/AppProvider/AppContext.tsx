@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   AccountSpecifierMap,
   accountSpecifiers,
@@ -42,6 +43,8 @@ import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
+
+const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -100,9 +103,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // check the console logs in the browser for the ordering of actions to verify this logic
     const switched = Boolean(wallet && !isEmpty(accountSpecifiersList))
     const disconnected = !wallet
-    // TODO(0xdef1cafe): keep this - change to structured debug logging
-    switched && console.info('AppContext: wallet switched')
-    disconnected && console.info('AppContext: wallet disconnected')
+    switched && moduleLogger.info('Wallet switched')
+    disconnected && moduleLogger.info('Wallet disconnected')
     if (switched || disconnected) {
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())

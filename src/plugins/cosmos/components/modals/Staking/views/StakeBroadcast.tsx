@@ -43,7 +43,6 @@ export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }:
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods

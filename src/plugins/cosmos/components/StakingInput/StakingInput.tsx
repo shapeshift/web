@@ -19,19 +19,13 @@ type StakingInputProps = {
 const cryptoInputValidation = {
   required: true,
   validate: {
-    validateCryptoAmount: (_: string) => {
-      // TODO: Implement when we have cosmos/osmosis balance data
-      return true
-    },
+    validateCryptoAmount: (cryptoAmount: string) => bnOrZero(cryptoAmount).gt(0),
   },
 }
 const fiatInputValidation = {
   required: true,
   validate: {
-    validateFiatAmount: (_: string) => {
-      // TODO: Implement when we have cosmos/osmosis balance data
-      return true
-    },
+    validateFiatAmount: (fiatAmount: string) => bnOrZero(fiatAmount).gt(0),
   },
 }
 const CryptoInput = (props: any) => (

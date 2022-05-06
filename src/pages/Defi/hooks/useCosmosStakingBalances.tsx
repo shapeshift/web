@@ -16,7 +16,7 @@ type UseCosmosStakingBalancesProps = {
 }
 
 export type UseCosmosStakingBalancesReturn = {
-  stakingOpportunities: MergedActiveStakingOpportunity[]
+  cosmosStakingOpportunities: MergedActiveStakingOpportunity[]
   totalBalance: string
 }
 
@@ -91,7 +91,7 @@ export function useCosmosStakingBalances({
   )
 
   return {
-    stakingOpportunities: mergedActiveStakingOpportunities,
+    cosmosStakingOpportunities: mergedActiveStakingOpportunities,
     totalBalance: totalBalance.toString(),
   }
 }

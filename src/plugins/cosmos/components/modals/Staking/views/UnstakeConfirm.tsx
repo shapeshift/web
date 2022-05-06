@@ -21,7 +21,7 @@ import {
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { FeePrice } from 'plugins/cosmos/utils'
-import { useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -29,6 +29,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetById,
@@ -58,7 +59,8 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
 
   const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -102,6 +104,16 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
     history.push(UnstakingPath.Broadcast)
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    /**
+     * call onCancel to navigate back before
+     * opening the connect wallet modal.
+     */
+    onCancel()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   const translate = useTranslate()
 
   if (!validatorInfo || !cryptoAmount) return null
@@ -114,7 +126,9 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(event: FormEvent<unknown>) => {
+            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+          }}
           flexDirection='column'
           alignItems='center'
           justifyContent='space-between'

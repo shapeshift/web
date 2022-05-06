@@ -181,16 +181,14 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
           >
             <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
             <StakingInput
-              height='40px'
               width='100%'
-              px='8px'
-              py='8px'
               isCryptoField={activeField === InputType.Crypto}
               amountRef={amountRef.current}
               asset={asset}
               onInputToggle={handleInputToggle}
               onInputChange={handleInputChange}
               control={control}
+              inputStyle={{ borderRadius: 0 }}
             />
             <Box width='100%' pb='12px'>
               <EstimatedReturnsRow

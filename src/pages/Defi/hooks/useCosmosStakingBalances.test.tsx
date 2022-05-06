@@ -74,7 +74,7 @@ describe('useCosmosStakingBalances', () => {
     )
 
     const { result } = setup()
-    expect(result.current.stakingOpportunities).toMatchSnapshot()
+    expect(result.current.cosmosStakingOpportunities).toMatchSnapshot()
     expect(result.current.totalBalance).toEqual('0')
   })
 
@@ -92,7 +92,7 @@ describe('useCosmosStakingBalances', () => {
     )
 
     const { result } = setup()
-    expect(result.current.stakingOpportunities).toMatchSnapshot()
+    expect(result.current.cosmosStakingOpportunities).toMatchSnapshot()
     expect(result.current.totalBalance).toEqual('1.17')
   })
 })

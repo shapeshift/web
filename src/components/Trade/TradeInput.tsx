@@ -26,6 +26,8 @@ import { TradeAmountInputField } from './types'
 
 type TS = TradeState<ChainTypes>
 
+const moduleLogger = logger.child({ namespace: ['Trade', 'TradeInput'] })
+
 export const TradeInput = ({ history }: RouterProps) => {
   const {
     control,
@@ -102,8 +104,19 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSetMaxTrade = async () => {
     if (!wallet) return
+    const fnLogger = moduleLogger.child({ namespace: ['onSwapMax'] })
+
     try {
       setIsSendMaxLoading(true)
+      fnLogger.trace(
+        {
+          fn: 'getSendMaxAmount',
+          sellAsset: sellTradeAsset.asset,
+          buyAsset: buyTradeAsset.asset,
+          feeAsset,
+        },
+        'Getting Send Max Amount...',
+      )
       const maxSendAmount = await getSendMaxAmount({
         wallet,
         sellAsset: sellTradeAsset.asset,
@@ -122,8 +135,8 @@ export const TradeInput = ({ history }: RouterProps) => {
         action: TradeAmountInputField.SELL,
         amount: maxSendAmount,
       })
-    } catch (err) {
-      console.error(err)
+    } catch (e) {
+      fnLogger.error(e, 'Building Quote Failed')
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     } finally {
       setIsSendMaxLoading(false)

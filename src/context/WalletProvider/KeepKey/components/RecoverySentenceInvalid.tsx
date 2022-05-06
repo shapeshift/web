@@ -11,14 +11,14 @@ export const KeepKeyRecoverySentenceInvalid = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const sendKeepKeyRecover = useKeepKeyRecover()
+  const recoverKeepKey = useKeepKeyRecover()
 
   const handleRetryClick = async () => {
     const label = await wallet?.getLabel()
     setLoading(true)
     // Due to security/firmware limitations, we are not able to pass in the previously collected PIN,
     // we are forced to start the whole recover process again.
-    await sendKeepKeyRecover(label)
+    await recoverKeepKey(label)
   }
 
   return (

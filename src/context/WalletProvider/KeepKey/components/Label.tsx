@@ -20,7 +20,7 @@ export const KeepKeyLabel = () => {
   const toast = useToast()
   const translate = useTranslate()
   const [label, setLabel] = useState('')
-  const sendKeepKeyRecover = useKeepKeyRecover()
+  const recoverKeepKey = useKeepKeyRecover()
 
   const handleInitializeSubmit = async () => {
     setLoading(true)
@@ -39,7 +39,7 @@ export const KeepKeyLabel = () => {
 
   const handleRecoverSubmit = async () => {
     setLoading(true)
-    await sendKeepKeyRecover(label)
+    await recoverKeepKey(label)
   }
 
   return (

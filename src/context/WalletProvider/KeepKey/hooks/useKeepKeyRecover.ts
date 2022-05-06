@@ -15,7 +15,7 @@ export const useKeepKeyRecover = () => {
   const toast = useToast()
   const translate = useTranslate()
 
-  const sendKeepKeyRecover = async (label: string | undefined) => {
+  const recoverKeepKey = async (label: string | undefined) => {
     setDeviceState({ awaitingDeviceInteraction: true })
     const recoverParams: RecoverDevice = {
       entropy: parseIntToEntropy(recoveryEntropy),
@@ -35,5 +35,5 @@ export const useKeepKeyRecover = () => {
     })
   }
 
-  return sendKeepKeyRecover
+  return recoverKeepKey
 }

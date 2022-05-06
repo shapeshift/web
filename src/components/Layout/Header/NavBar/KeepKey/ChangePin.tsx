@@ -6,21 +6,31 @@ import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/Kee
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
+
+const moduleLogger = logger.child({
+  namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'ChangePin'],
+})
 
 export const ChangePin = () => {
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
   const {
-    state: { awaitingDeviceInteraction },
+    state: {
+      deviceState: { awaitingDeviceInteraction },
+    },
   } = useWallet()
   const toast = useToast()
 
   const handleChangePin = async () => {
+    const fnLogger = moduleLogger.child({ namespace: ['handleChangePin'] })
+    fnLogger.trace('Applying new PIN...')
+
     await keepKeyWallet?.changePin().catch(e => {
-      console.error(e)
+      fnLogger.error(e, 'Error applying new PIN')
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),
@@ -28,6 +38,8 @@ export const ChangePin = () => {
         isClosable: true,
       })
     })
+
+    fnLogger.trace('PIN Changed')
   }
   const setting = 'PIN'
 

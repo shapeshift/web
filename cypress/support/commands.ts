@@ -139,37 +139,35 @@ Cypress.Commands.add('backdropDismiss', () => {
 })
 
 // @ts-ignore
+Cypress.Commands.add('waitForAllGetRequests', () => {
+  cy.intercept({ method: 'GET' }).as('getRequests')
+  cy.wait(['@getRequests'])
+})
+
+// @ts-ignore
 Cypress.Commands.add('navigateToDashboard', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-dashboard-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}dashboard`)
+  cy.getBySel('full-width-header').findBySel('navigation-dashboard-button').click()
+
+  cy.url().should('equal', `${baseUrl}dashboard`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToAccounts', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-accounts-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}accounts`)
+  cy.getBySel('full-width-header').findBySel('navigation-accounts-button').click()
+
+  cy.url().should('equal', `${baseUrl}accounts`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToDefi', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-defi-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}defi`)
+  cy.getBySel('full-width-header').findBySel('navigation-defi-button').click()
+
+  cy.url().should('equal', `${baseUrl}defi`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToAssets', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-assets-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}assets`)
+  cy.getBySel('full-width-header').findBySel('navigation-assets-button').click()
+
+  cy.url().should('equal', `${baseUrl}assets`)
 })

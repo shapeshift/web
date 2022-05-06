@@ -18,7 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositPath, YearnDepositActionType } from '../DepositCommon'
@@ -45,10 +45,10 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
   const vaultCAIP19 = caip19.toCAIP19({
     chain,
@@ -56,7 +56,7 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const vaultAsset = useAppSelector(state => selectAssetByCAIP19(state, vaultCAIP19))
+  const vaultAsset = useAppSelector(state => selectAssetById(state, vaultCAIP19))
 
   // user info
   const { state: walletState } = useWallet()

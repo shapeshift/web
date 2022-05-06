@@ -3,7 +3,6 @@ import { ModalBody } from '@chakra-ui/react'
 import { Text } from 'components/Text'
 
 export const KeepKeySuccess = () => {
-  const isSuccessful = true
   return (
     <>
       <ModalBody textAlign='center' pb={8}>
@@ -13,9 +12,7 @@ export const KeepKeySuccess = () => {
           fontWeight='bold'
           translation={'walletProvider.shapeShift.success.success'}
         />
-        {isSuccessful && (
-          <Text color='gray.500' translation={'walletProvider.shapeShift.success.success'} />
-        )}
+        <Text color='gray.500' translation={'walletProvider.shapeShift.success.success'} />
       </ModalBody>
     </>
   )

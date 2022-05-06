@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
@@ -8,7 +8,7 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import { selectAccountSpecifierStrings } from 'state/slices/selectors'
 export type MatchParams = {
   accountId: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
 }
 
 type AccountTokenProps = {
@@ -28,6 +28,7 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
   const isCurrentAccountIdOwner = Boolean(
     accountSpecifierStrings.map(toLower).includes(toLower(accountId)),
   )
+  if (!accountSpecifierStrings.length) return null
   if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
 
   const caip19 = assetId ? decodeURIComponent(assetId) : null

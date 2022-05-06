@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -22,9 +22,9 @@ const getAssetService = async () => {
 
 export type AssetsState = {
   byId: {
-    [key: CAIP19]: Asset
+    [key: AssetId]: Asset
   }
-  ids: CAIP19[]
+  ids: AssetId[]
 }
 
 const initialState: AssetsState = {
@@ -58,9 +58,9 @@ export const assetApi = createApi({
         const service = await getAssetService()
         const assetArray = service?.byNetwork()
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
-          const { caip19 } = cur
-          acc.byId[caip19] = cur
-          acc.ids.push(caip19)
+          const { assetId } = cur
+          acc.byId[assetId] = cur
+          acc.ids.push(assetId)
           return acc
         }, cloneDeep(initialState))
         return { data }
@@ -71,7 +71,7 @@ export const assetApi = createApi({
         data && dispatch(assets.actions.setAssets(data))
       },
     }),
-    getAssetDescription: build.query<AssetsState, CAIP19>({
+    getAssetDescription: build.query<AssetsState, AssetId>({
       queryFn: async (assetId, { getState }) => {
         const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn

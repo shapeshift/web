@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 
 export enum StakingAction {
@@ -9,7 +9,7 @@ export enum StakingAction {
 }
 
 export type StakingModalProps = {
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
 }
 
@@ -17,7 +17,6 @@ export enum StakeRoutes {
   Stake = '/stake',
   Unstake = '/unstake',
   Overview = '/stake/overview',
-  Claim = '/claim',
 }
 
 export enum UnstakingPath {

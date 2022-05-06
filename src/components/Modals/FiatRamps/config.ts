@@ -22,6 +22,7 @@ export interface SupportedFiatRampConfig {
   isImplemented: boolean
   getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
+  minimumSellThreshold?: number
 }
 
 export enum FiatRamp {
@@ -49,6 +50,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       window.open(gemPartnerUrl, '_blank')?.focus()
     },
     isImplemented: true,
+    minimumSellThreshold: 5,
   },
   [FiatRamp.Banxa]: {
     label: 'fiatRamps.banxa',

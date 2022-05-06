@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
@@ -14,12 +14,12 @@ import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { PubKey } from './stakingDataSlice'
+import { PubKey, Staking } from './stakingDataSlice'
 export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
   apr: string
-  tokens: string
+  tokens?: string
   cryptoAmount?: string
   rewards?: string
 }
@@ -31,58 +31,57 @@ export type AmountByValidatorAddressType = {
   [k: PubKey]: string
 }
 
-// accountId is optional, but we should always pass an assetId when using these params
-type OptionalParamFilter = {
-  assetId: CAIP19
-  accountId?: AccountSpecifier
+type ParamFilter = {
+  assetId: AssetId
+  accountId: AccountSpecifier
+  accountSpecifier: string
+  validatorAddress: PubKey
 }
+type OptionalParamFilter = {
+  assetId: AssetId
+  accountId?: AccountSpecifier
+  accountSpecifier?: string
+  validatorAddress?: PubKey
+}
+type ParamFilterKey = keyof ParamFilter
+type OptionalParamFilterKey = keyof OptionalParamFilter
 
-const selectAssetIdParamFromFilterOptional = (
-  _state: ReduxState,
-  paramFilter: OptionalParamFilter,
-) => paramFilter.assetId
-const selectAccountIdParamFromFilterOptional = (
-  _state: ReduxState,
-  paramFilter: OptionalParamFilter,
-) => paramFilter.accountId
+const selectParamFromFilter =
+  <T extends ParamFilterKey>(param: T) =>
+  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] =>
+    filter[param]
+const selectParamFromFilterOptional =
+  <T extends OptionalParamFilterKey>(param: T) =>
+  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] =>
+    filter[param]
+
+const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
+const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
+const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpecifier')
+const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
 
 export const selectStakingDataIsLoaded = (state: ReduxState) =>
   state.stakingData.status === 'loaded'
 export const selectValidatorIsLoaded = (state: ReduxState) =>
   state.stakingData.validatorStatus === 'loaded'
-const selectAccountSpecifierParam = (_state: ReduxState, accountSpecifier: CAIP10) =>
-  accountSpecifier
-
-const selectValidatorAddress = (
-  _state: ReduxState,
-  accountSpecifier: CAIP10,
-  validatorAddress: PubKey,
-) => validatorAddress
-
-const selectAssetIdParam = (
-  _state: ReduxState,
-  accountSpecifier: CAIP10,
-  validatorAddress: PubKey,
-  assetId: CAIP19,
-) => assetId
 
 export const selectStakingData = (state: ReduxState) => state.stakingData
 
 export const selectStakingDataByAccountSpecifier = createSelector(
   selectStakingData,
-  selectAccountSpecifierParam,
+  selectAccountSpecifierParamFromFilter,
   (stakingData, accountSpecifier) => {
     return stakingData.byAccountSpecifier[accountSpecifier] || null
   },
 )
 
-export const selectStakingDataByFilter = createSelector(
+export const selectStakingDataByFilter = createDeepEqualOutputSelector(
   selectStakingData,
-  selectAssetIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilterOptional,
-  (stakingData, _, accountId) => {
-    if (!accountId) return null
-    return stakingData.byAccountSpecifier[accountId] || null
+  (stakingData, _, accountId): Staking[] => {
+    if (!accountId) return Object.values(stakingData.byAccountSpecifier)
+    return [stakingData.byAccountSpecifier[accountId]] || null
   },
 )
 
@@ -103,19 +102,38 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelect
 
 export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   selectStakingDataByFilter,
-  selectAssetIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilterOptional,
   (state: ReduxState) => state.assets.byId,
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
   (stakingData, assetId, _, assets) => {
     const amount = reduce(
-      stakingData?.delegations,
-      (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
+      stakingData,
+      (acc, singleStakingData) => {
+        const amountDelegations = reduce(
+          singleStakingData?.delegations,
+          (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
+          bn(0),
+        )
+
+        const amountUndelegations = reduce(
+          singleStakingData?.undelegations,
+          (acc, undelegation) => {
+            undelegation.entries.forEach(undelegationEntry => {
+              acc = acc.plus(bnOrZero(undelegationEntry.amount))
+            })
+            return acc
+          },
+          bn(0),
+        )
+
+        return acc.plus(amountDelegations).plus(amountUndelegations)
+      },
       bn(0),
     )
 
-    return fromBaseUnit(amount, assets[assetId].precision ?? 0).toString()
+    return fromBaseUnit(amount, assets[assetId]?.precision ?? 0).toString()
   },
 )
 
@@ -160,7 +178,7 @@ export const selectTotalStakingDelegationFiat = createSelector(
 
 export const selectAllDelegationsCryptoAmountByAssetId = createSelector(
   selectStakingDataByAccountSpecifier,
-  selectAssetIdParam,
+  selectAssetIdParamFromFilter,
   (stakingData, selectedAssetId): AmountByValidatorAddressType => {
     if (!stakingData || !stakingData.delegations?.length) return {}
 
@@ -179,7 +197,7 @@ export const selectAllDelegationsCryptoAmountByAssetId = createSelector(
 
 export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
   selectAllDelegationsCryptoAmountByAssetId,
-  selectValidatorAddress,
+  selectValidatorAddressParamFromFilter,
   (allDelegations, validatorAddress): string => {
     return allDelegations[validatorAddress] ?? '0'
   },
@@ -187,7 +205,7 @@ export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
 
 export const selectRedelegationEntriesByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  selectValidatorAddress,
+  selectValidatorAddressParamFromFilter,
   (stakingData, validatorAddress): chainAdapters.cosmos.RedelegationEntry[] => {
     if (!stakingData || !stakingData.redelegations?.length) return []
 
@@ -201,7 +219,7 @@ export const selectRedelegationEntriesByAccountSpecifier = createDeepEqualOutput
 
 export const selectRedelegationCryptoAmountByAssetId = createSelector(
   selectRedelegationEntriesByAccountSpecifier,
-  selectAssetIdParam,
+  selectAssetIdParamFromFilter,
   (redelegationEntries, selectedAssetId): string => {
     if (!redelegationEntries.length) return '0'
 
@@ -217,7 +235,7 @@ export const selectRedelegationCryptoAmountByAssetId = createSelector(
 
 export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  selectValidatorAddress,
+  selectValidatorAddressParamFromFilter,
   (stakingData, validatorAddress): chainAdapters.cosmos.UndelegationEntry[] => {
     if (!stakingData || !stakingData.undelegations) return []
 
@@ -230,7 +248,7 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
 
 export const selectAllUnbondingsEntriesByAssetId = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  selectAssetIdParam,
+  selectAssetIdParamFromFilter,
   (stakingData, selectedAssetId): Record<PubKey, chainAdapters.cosmos.UndelegationEntry[]> => {
     if (!stakingData || !stakingData.undelegations) return {}
 
@@ -250,13 +268,13 @@ export const selectAllUnbondingsEntriesByAssetId = createDeepEqualOutputSelector
 
 export const selectAllUnbondingsEntriesByAssetIdAndValidator = createSelector(
   selectAllUnbondingsEntriesByAssetId,
-  selectValidatorAddress,
+  selectValidatorAddressParamFromFilter,
   (unbondingEntries, validatorAddress) => unbondingEntries[validatorAddress],
 )
 
 export const selectUnbondingCryptoAmountByAssetIdAndValidator = createSelector(
   selectUnbondingEntriesByAccountSpecifier,
-  selectAssetIdParam,
+  selectAssetIdParamFromFilter,
   (unbondingEntries, selectedAssetId): string => {
     if (!unbondingEntries.length) return '0'
 
@@ -279,7 +297,7 @@ export const selectTotalBondingsBalanceByAssetId = createSelector(
 
 export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  selectValidatorAddress,
+  selectValidatorAddressParamFromFilter,
   (stakingData, validatorAddress): chainAdapters.cosmos.Reward[] => {
     if (!stakingData || !stakingData.rewards) return []
 
@@ -298,7 +316,7 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
 
 export const selectAllRewardsByAssetId = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  selectAssetIdParam,
+  selectAssetIdParamFromFilter,
   (stakingData, selectedAssetId): Record<PubKey, chainAdapters.cosmos.Reward[]> => {
     if (!stakingData || !stakingData.rewards) return {}
 
@@ -323,7 +341,7 @@ export const selectAllRewardsByAssetId = createDeepEqualOutputSelector(
 
 export const selectRewardsAmountByAssetId = createSelector(
   selectRewardsByAccountSpecifier,
-  selectAssetIdParam,
+  selectAssetIdParamFromFilter,
   (rewardsByAccountSpecifier, selectedAssetId): string => {
     if (!rewardsByAccountSpecifier.length) return ''
 
@@ -338,9 +356,9 @@ export const selectAllValidators = createDeepEqualOutputSelector(
   stakingData => stakingData.byValidator,
 )
 
-export const selectSingleValidator = createSelector(
+export const selectValidatorByAddress = createSelector(
   selectStakingData,
-  selectValidatorAddress,
+  selectValidatorAddressParamFromFilter,
   (stakingData, validatorAddress) => {
     return stakingData.byValidator[validatorAddress] || null
   },

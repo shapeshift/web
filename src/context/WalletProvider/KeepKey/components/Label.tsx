@@ -1,19 +1,59 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useToast } from '@chakra-ui/toast'
+import { RecoverDevice, ResetDevice } from '@shapeshiftoss/hdwallet-core'
+import { useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+import { parseIntToEntropy } from 'context/WalletProvider/KeepKey/helpers'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory()
+  const {
+    setDeviceState,
+    state: {
+      deviceState: { disposition, recoverWithPassphrase, recoveryEntropy },
+      wallet,
+    },
+  } = useWallet()
+  const toast = useToast()
+  const translate = useTranslate()
+  const [label, setLabel] = useState('')
 
-  const inputRef = useRef<HTMLInputElement | null>(null)
-
-  const handleSubmit = async () => {
+  const handleInitializeSubmit = async () => {
     setLoading(true)
-    const label = inputRef.current?.value
-    history.push({ pathname: KeepKeyRoutes.NewRecoverySentence, state: { label } })
+    const resetMessage: ResetDevice = { label: label ?? '', pin: true }
+    setDeviceState({ awaitingDeviceInteraction: true })
+    await wallet?.reset(resetMessage).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
+  }
+
+  const handleRecoverSubmit = async () => {
+    setLoading(true)
+    setDeviceState({ awaitingDeviceInteraction: true })
+    const recoverParams: RecoverDevice = {
+      entropy: parseIntToEntropy(recoveryEntropy),
+      label: label ?? '',
+      passphrase: recoverWithPassphrase || false,
+      pin: true,
+      autoLockDelayMs: 600000, // Ten minutes
+    }
+    await wallet?.recover(recoverParams).catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
   }
 
   return (
@@ -23,16 +63,29 @@ export const KeepKeyLabel = () => {
       </ModalHeader>
       <ModalBody>
         <Text color='gray.500' translation={'modals.keepKey.label.body'} mb={4} />
-        <Input type='text' ref={inputRef} size='lg' variant='filled' mt={3} mb={6} />
+        <Input
+          type='text'
+          value={label}
+          placeholder={translate('modals.keepKey.label.placeholder')}
+          onChange={e => setLabel(e.target.value)}
+          size='lg'
+          variant='filled'
+          mt={3}
+          mb={6}
+        />
         <Button
           isFullWidth
           size='lg'
           colorScheme='blue'
-          onClick={handleSubmit}
+          onClick={disposition === 'initializing' ? handleInitializeSubmit : handleRecoverSubmit}
           disabled={loading}
           mb={3}
         >
-          <Text translation={'modals.keepKey.label.button'} />
+          <Text
+            translation={
+              label ? 'modals.keepKey.label.setLabelButton' : 'modals.keepKey.label.skipLabelButton'
+            }
+          />
         </Button>
       </ModalBody>
     </>

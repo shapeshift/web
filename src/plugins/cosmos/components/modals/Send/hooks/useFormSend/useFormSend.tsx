@@ -61,28 +61,30 @@ export const useFormSend = () => {
           throw new Error('Bad hdwallet config')
         }
 
-        toast({
-          title: translate('modals.send.sent', { asset: data.asset.name }),
-          description: (
-            <Text>
+        setTimeout(() => {
+          toast({
+            title: translate('modals.send.sent', { asset: data.asset.name }),
+            description: (
               <Text>
-                {translate('modals.send.youHaveSent', {
-                  amount: data.cryptoAmount,
-                  symbol: data.cryptoSymbol,
-                })}
+                <Text>
+                  {translate('modals.send.youHaveSent', {
+                    amount: data.cryptoAmount,
+                    symbol: data.cryptoSymbol,
+                  })}
+                </Text>
+                {data.asset.explorerTxLink && (
+                  <Link href={`${data.asset.explorerTxLink}${broadcastTXID}`} isExternal>
+                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+                  </Link>
+                )}
               </Text>
-              {data.asset.explorerTxLink && (
-                <Link href={`${data.asset.explorerTxLink}${broadcastTXID}`} isExternal>
-                  {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-                </Link>
-              )}
-            </Text>
-          ),
-          status: 'success',
-          duration: 9000,
-          isClosable: true,
-          position: 'top-right',
-        })
+            ),
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: 'top-right',
+          })
+        }, 5000)
       } catch (error) {
         toast({
           title: translate('modals.send.errorTitle', {

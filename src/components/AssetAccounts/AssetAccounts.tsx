@@ -1,5 +1,5 @@
 import { Grid, Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -10,14 +10,14 @@ import { useAppSelector } from 'state/store'
 import { AssetAccountRow } from './AssetAccountRow'
 
 type AssetAccountsProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 
 export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   const translate = useTranslate()
   const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetIdAboveBalanceThreshold(state, assetId),
+    selectAccountIdsByAssetIdAboveBalanceThreshold(state, { assetId }),
   )
   if ((accountIds && accountIds.length === 0) || accountId) return null
   return (

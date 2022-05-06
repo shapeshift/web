@@ -1,4 +1,4 @@
-import { CAIP2, caip2 } from '@shapeshiftoss/caip'
+import { caip2, ChainId } from '@shapeshiftoss/caip'
 import {
   HDWallet,
   supportsBTC,
@@ -8,7 +8,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-type UseWalletSupportsChainArgs = { chainId: CAIP2; wallet: HDWallet | null }
+type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 
 // use outside react

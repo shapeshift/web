@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
-import { registerSelectors } from 'reselect-tools'
+import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { logging } from './middleware/logging'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
@@ -19,8 +19,6 @@ const persistConfig = {
   storage: localforage,
 }
 
-registerSelectors(selectors)
-
 const apiMiddleware = [
   portfolioApi.middleware,
   marketApi.middleware,
@@ -32,7 +30,7 @@ const apiMiddleware = [
 
 const persistedReducer = persistReducer(persistConfig, reducer)
 
-export const clearState = (opts?: { excludePreferences?: boolean }) => {
+export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
   store.dispatch(slices.marketData.actions.clear())
   store.dispatch(slices.txHistory.actions.clear())
@@ -46,6 +44,29 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.stakingDataApi.util.resetApiState())
 }
+
+/**
+ * These actions make the redux devtools crash. Blacklist them from the developer tools.
+ */
+const actionSanitizer = (action: any) => {
+  const blackList = [
+    'asset/setAssets',
+    'assetApi/executeQuery/fulfilled',
+    'marketData/setMarketData',
+    'marketData/setPriceHistory',
+  ]
+  return blackList.includes(action.type)
+    ? {
+        ...action,
+        payload: 'see actionSanitizer in store.ts',
+      }
+    : action
+}
+
+/**
+ * Remove data from state to improve developer tools experience
+ */
+const stateSanitizer = (state: any) => ({ ...state, assets: 'see stateSanitizer in store.ts' })
 
 /// This allows us to create an empty store for tests
 export const createStore = () =>
@@ -62,11 +83,17 @@ export const createStore = () =>
           ignoredActions: [PERSIST],
         },
       }).concat(apiMiddleware),
-    devTools: true,
+    devTools: {
+      actionSanitizer,
+      stateSanitizer,
+    },
   })
 
 export const store = createStore()
 export const persistor = persistStore(store)
+
+getStateWith(store.getState)
+registerSelectors(selectors)
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
 

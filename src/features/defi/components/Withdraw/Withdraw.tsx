@@ -32,7 +32,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData, WithdrawType } from '@shapeshiftoss/types'
-import { useRef, useState } from 'react'
+import { FormEvent, useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
 import { FaBolt, FaClock } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -44,7 +44,9 @@ import { SliderIcon } from 'components/Icons/Slider'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawProps = {
@@ -79,8 +81,9 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
+    borderBottomLeftRadius={0}
     borderTopLeftRadius={0}
+    borderTopRightRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -118,7 +121,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   fiatInputValidation,
   onContinue,
   updateWithdraw,
-  onCancel,
   percentOptions,
   feePercentage,
   children,
@@ -149,6 +151,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   })
 
   const values = useWatch({ control })
+
+  const {
+    state: { isConnected },
+    dispatch,
+  } = useWallet()
 
   const cryptoField = activeField === InputType.Crypto
   const cryptoError = errors?.cryptoAmount?.message ?? null
@@ -197,7 +204,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       setValue(Field.CryptoAmount, cryptoAmount.toString(), {
         shouldValidate: true,
       })
-      setPercent(1)
+      // TODO(0xdef1cafe): query the fee function from the liquidity reserve contract
+      // this is correct as at 2022-04-27
+      // https://etherscan.io/address/0x8EC637Fe2800940C7959f9BAd4fE69e41225CD39#readContract
+      setPercent(2.5)
       setValue(Field.WithdrawType, WithdrawType.INSTANT)
     } else {
       setValue(Field.WithdrawType, WithdrawType.DELAYED)
@@ -214,9 +224,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     onContinue(values)
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   return (
     <SlideTransition>
-      <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
+      <Box
+        as='form'
+        maxWidth='lg'
+        width='full'
+        onSubmit={(event: FormEvent<unknown>) => {
+          isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+        }}
+      >
         <ModalBody py={6}>
           <Card size='sm' width='full' variant='group' mb={6}>
             <Card.Body>
@@ -252,7 +274,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
               <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
               <ButtonGroup colorScheme='blue' width='full' variant='input'>
                 <Button
-                  disabled={true}
                   isFullWidth
                   flexDir='column'
                   height='auto'
@@ -390,7 +411,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           thousandSeparator={localeParts.group}
                           value={value}
                           disabled={values.withdrawType === WithdrawType.INSTANT}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             handleInputChange(amountRef.current as string)
                             amountRef.current = null
@@ -417,7 +438,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
                           value={bnOrZero(value).toFixed(2)}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             if (amountRef.current) handleInputChange(amountRef.current)
                             amountRef.current = null

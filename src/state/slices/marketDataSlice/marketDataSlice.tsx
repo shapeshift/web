@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 
 export type PriceHistoryData = {
-  [k: CAIP19]: HistoryData[]
+  [k: AssetId]: HistoryData[]
 }
 
 type PriceHistoryByTimeframe = {
@@ -15,9 +15,9 @@ type PriceHistoryByTimeframe = {
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
   byId: {
-    [k: CAIP19]: MarketData
+    [k: AssetId]: MarketData
   }
-  ids: CAIP19[]
+  ids: AssetId[]
   priceHistory: PriceHistoryByTimeframe
 }
 
@@ -59,7 +59,7 @@ export const marketData = createSlice({
   },
 })
 
-type FindPriceHistoryByCaip19Args = { assetId: CAIP19; timeframe: HistoryTimeframe }
+type FindPriceHistoryByCaip19Args = { assetId: AssetId; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
   reducerPath: 'marketApi',
@@ -77,8 +77,8 @@ export const marketApi = createApi({
         data && dispatch(marketData.actions.setMarketData(data))
       },
     }),
-    findByCaip19: build.query<MarketCapResult, CAIP19>({
-      queryFn: async (caip19: CAIP19, baseQuery) => {
+    findByCaip19: build.query<MarketCapResult, AssetId>({
+      queryFn: async (caip19: AssetId, baseQuery) => {
         try {
           const currentMarketData = await findByCaip19({ caip19 })
           if (!currentMarketData) throw new Error()

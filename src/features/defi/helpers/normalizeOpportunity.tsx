@@ -1,4 +1,4 @@
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, caip19 } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -25,7 +25,7 @@ export type EarnOpportunityType = {
   rewardAddress: string
   apy?: number | string
   tvl: string
-  assetId: CAIP19
+  assetId: AssetId
   fiatAmount: string
   cryptoAmount: string
   expired?: boolean

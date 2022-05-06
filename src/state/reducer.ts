@@ -9,6 +9,7 @@ import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { stakingData, stakingDataApi } from './slices/stakingDataSlice/stakingDataSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+import { validatorData, validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
 export const slices = {
   assets,
@@ -18,6 +19,7 @@ export const slices = {
   portfolio,
   preferences,
   accountSpecifiers,
+  validatorData,
 }
 
 const preferencesPersistConfig = {
@@ -34,6 +36,7 @@ export const sliceReducers = {
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   accountSpecifiers: accountSpecifiers.reducer,
+  validatorData: validatorData.reducer,
 }
 
 export const apiSlices = {
@@ -42,6 +45,7 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   stakingDataApi,
+  validatorData,
 }
 
 export const apiReducers = {
@@ -50,6 +54,7 @@ export const apiReducers = {
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [stakingDataApi.reducerPath]: stakingDataApi.reducer,
+  [validatorDataApi.reducerPath]: validatorDataApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

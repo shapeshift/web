@@ -17,7 +17,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -47,7 +47,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const assetNamespace = AssetNamespace.ERC20
   const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
 

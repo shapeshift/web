@@ -21,7 +21,7 @@ export const AssetList = ({ assets, type, handleClick }: AssetListProps) => {
       width='100%'
       itemData={{
         items: assets,
-        type: type,
+        type,
         handleClick,
       }}
       itemCount={assets.length}

@@ -1,4 +1,4 @@
-import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import {
   getSupportedVaults,
   SupportedYearnVault,
@@ -19,7 +19,7 @@ import {
 } from 'state/slices/selectors'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
-  SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }
+  SupportedYearnVault & { vaultCaip19: AssetId; tokenCaip19: AssetId; pricePerShare: BigNumber }
 
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVaultApi | null) {
   const acc: Record<string, EarnVault> = {}

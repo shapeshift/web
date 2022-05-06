@@ -1,13 +1,13 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
 import union from 'lodash/union'
 
 import { AccountSpecifier } from '../portfolioSlice/portfolioSliceCommon'
 import { Tx, TxId } from './txHistorySlice'
 
-export const getRelatedAssetIds = (tx: Tx): CAIP19[] => {
+export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
   // we only want unique ids
-  const relatedAssets = new Set<CAIP19>()
+  const relatedAssets = new Set<AssetId>()
   // we want tokens to display on the fee asset
   if (tx.fee?.caip19) relatedAssets.add(tx.fee?.caip19)
   // all related transfers in a tx

@@ -21,7 +21,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type OpportunityCardProps = {
@@ -46,7 +46,7 @@ export const OpportunityCard = ({
   const history = useHistory()
   const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
   const isCosmosStaking = chain === ChainTypes.Cosmos
 
@@ -59,7 +59,7 @@ export const OpportunityCard = ({
     if (isConnected) {
       if (isCosmosStaking) {
         cosmosStaking.open({
-          assetId: assetId,
+          assetId,
           validatorAddress: contractAddress,
         })
         return

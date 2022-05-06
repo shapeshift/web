@@ -1,13 +1,12 @@
-import { Box, Flex, Heading, Image, Skeleton, SkeletonCircle } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { Box, Flex, Heading, Image, SkeletonCircle } from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
-  selectAssetByCAIP19,
-  selectMarketDataById,
+  selectAssetById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -15,17 +14,15 @@ import { useAppSelector } from 'state/store'
 import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const chainId = asset.caip2
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const chainId = asset.chainId
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
-  const isLoaded = !!marketData
   const { name, symbol, icon } = asset || {}
 
   const {
@@ -44,20 +41,15 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
       <Flex alignItems='center' mr='auto'>
-        <SkeletonCircle boxSize='40px' isLoaded={isLoaded}>
-          <Image src={icon} boxSize='40px' fallback={<SkeletonCircle boxSize='40px' />} />
-        </SkeletonCircle>
+        <Image src={icon} boxSize='40px' fallback={<SkeletonCircle boxSize='40px' />} />
         <Box ml={3} textAlign='left'>
-          <Skeleton isLoaded={isLoaded}>
-            <Heading fontSize='2xl' lineHeight='shorter'>
-              {name} {`(${symbol})`}
-            </Heading>
-          </Skeleton>
+          <Heading fontSize='2xl' lineHeight='shorter'>
+            {name} {`(${symbol})`}
+          </Heading>
         </Box>
       </Flex>
       {walletSupportsChain ? (
         <AssetActions
-          isLoaded={isLoaded}
           assetId={assetId}
           accountId={accountId ? accountId : singleAccount}
           cryptoBalance={cryptoBalance}

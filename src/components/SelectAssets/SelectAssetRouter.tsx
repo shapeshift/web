@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
@@ -14,7 +14,7 @@ type SelectAssetRouterProps = {
 
 export type SelectAssetLocation = {
   toRoute: SelectAssetRoutes
-  assetId: CAIP19
+  assetId: AssetId
 }
 
 export const SelectAssetRouter = ({ onClick }: SelectAssetRouterProps) => {

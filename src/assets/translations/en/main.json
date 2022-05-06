@@ -37,6 +37,7 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
+    "success": "Success",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
@@ -55,7 +56,9 @@
     "approveOnWallet": "Approve On Wallet",
     "confirmOnWallet": "Confirm On Wallet",
     "login": "Log In",
-    "notRobot": "I am not a Robot"
+    "verify": "Verify",
+    "notRobot": "I am not a Robot",
+    "skip": "Skip"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -101,7 +104,8 @@
     "selectAnAssetToSell": "Select an asset to sell",
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
-    "headerLabel": "Buy/Sell Crypto"
+    "headerLabel": "Buy/Sell Crypto",
+    "insufficientCryptoAmountToSell": "Minimum amount to sell $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -110,7 +114,8 @@
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
-    "cta": "Connect Wallet"
+    "cta": "Connect Wallet",
+    "orViewADemo": "or view a demo"
   },
   "connectWallet": {
     "menu": {
@@ -384,12 +389,23 @@
         "button": "Submit Passphrase"
       },
       "label": {
-        "header": "Label Your KeepKey",
+        "header": "Label Your KeepKey (optional)",
         "body": "Labeling each of your devices allows you to easily distinguish one from the other.",
-        "button": "Set Label"
+        "setLabelButton": "Set Label",
+        "skipLabelButton": "Skip",
+        "placeholder": "Optional"
+      },
+      "recoverySettings": {
+        "header": "Recover Your Wallet",
+        "sentenceLengthLabel": "Recovery Sentence Length",
+        "recoveryPassphraseLabel": "Recovery Passphrase",
+        "recoveryPassphraseToggle": "Recover with passphrase?",
+        "recoveryPassphraseDescription": "If you are unsure if your recovery sentence is protected by a passphrase, leave this off.",
+        "wordEntropy": "%{wordEntropy} words",
+        "button": "Recover Wallet"
       },
       "recoverySentence": {
-        "header": "Write down Recovery Sentence",
+        "header": "Write Down Your Recovery Sentence",
         "body": "On your KeepKey screen, you will see your recovery sentence. Write it down. If you lose access to the device, your assets will ONLY be accessible by this sentence.",
         "infoFirst": "Its critical you write it down exactly as it appears on the KeepKey.",
         "infoSecond": "Never share your recovery sentence, it grants access to all of your funds.",
@@ -400,6 +416,17 @@
         "body": "You have successfully reset your KeepKey to factory defaults. You can now restore using an existing recovery seed, or create a new wallet.",
         "createButton": "Create a New Wallet",
         "recoverButton": "Recover Wallet"
+      },
+      "recoverySentenceEntry": {
+        "header": "Enter Your Recovery Sentence",
+        "body": "Using the scrambled keyboard legend on your KeepKey, enter the first 4 letters of each word. If there are less than 4 letters in the word, press Enter, hit the space bar, or click next when you're done typing.",
+        "button": "Next",
+        "awaitingButtonPress": "Follow the instructions on your KeepKey to continue.",
+        "toastMessage": "KeepKey restored successfully!"
+      },
+      "recoverySettingUp": {
+        "header": "Setting up device...",
+        "body": "Please wait while we initialize your device and sync your addresses."
       }
     },
     "shapeShift": {
@@ -587,18 +614,18 @@
         "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
       },
       "pin": {
-        "header": "Enter Your Pin",
-        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+        "header": "Enter Your PIN",
+        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
         "button": "Unlock"
       },
       "newPin": {
-        "header": "Enter Your New Pin",
-        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+        "header": "Enter Your New PIN",
+        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
         "button": "Confirm"
       },
       "newPinConfirm": {
-        "header": "Confirm Your New Pin",
-        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+        "header": "Confirm Your New PIN",
+        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
         "button": "Save PIN"
       },
       "settings": {
@@ -768,16 +795,29 @@
         "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
       },
       "legacy": {
+        "deprecatedWarning": "ShapeShift Log In is being Deprecated",
+        "learnMore": "Learn More",
+        "alreadySavedConfirm": "I confirm that my Secret Recovery Phrase is already backed up securely.",
+        "mobileWalletTitle": "ShapeShift Mobile Wallet",
+        "importInformations": "To continue using your ShapeShift Mobile Wallet, you'll need to import it.",
+        "importWallet": "Import Wallet",
         "haveMobileWallet": "Have a ShapeShift Mobile Wallet?",
         "loginWithAccount": "Log In with ShapeShift Account",
         "loginInformations": "Enter your email address and password you use to login to your ShapeShift Mobile App.",
+        "loginSuccess": "Successfully Logged In",
         "emailAddress": "Email Address",
         "password": "Password",
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
         "invalidLogin": "Invalid login",
-        "twoFactorRequired": "2FA is required"
+        "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
+        "decryptionError": "Something went wrong decrypting your wallet.",
+        "twoFactorAuthentication": "Two-Factor Authentication",
+        "twoFactorPlaceholder": "6-digit code",
+        "twoFactorRequired": "2FA is required",
+        "invalidTwoFactor": "6-digit code is invalid",
+        "twoFactorDescription": "Two-factor authentication is enabled for your account. Please enter the code from your authentication app."
       }
     },
     "selectModal": {
@@ -810,7 +850,9 @@
         "SegwitNative": "Segwit Native",
         "P2pkh": "Legacy",
         "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
-        "btcFormat": "BTC format"
+        "btcFormat": "BTC format",
+        "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
+        "loading": "Fetching price history, hang tight..."
       },
       "assetDescription": {
         "showMore": "Show More",

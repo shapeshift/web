@@ -1,5 +1,21 @@
 import { Alert } from '@chakra-ui/alert'
-import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import {
+  AlertIcon,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Select,
+  Stack,
+  StackDivider,
+  Tag,
+} from '@chakra-ui/react'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -33,6 +49,7 @@ export const Flags = () => {
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
+  const [logLevel, setLogLevel] = useState<string | string[] | undefined>('error')
 
   const handleApply = async () => {
     try {
@@ -67,12 +84,35 @@ export const Flags = () => {
           </Stack>
         </Card.Body>
       </Card>
-      <HStack my={4}>
+
+      <HStack my={4} width='full'>
         <Button onClick={handleApply} colorScheme='blue'>
           Apply
         </Button>
         <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            Log Level
+            <Tag size='sm' ml={2}>
+              {logLevel}
+            </Tag>
+          </MenuButton>
+          <MenuList>
+            <MenuOptionGroup
+              defaultValue={logLevel}
+              type='radio'
+              onChange={value => setLogLevel(value)}
+            >
+              <MenuItemOption value='error'>Error</MenuItemOption>
+              <MenuItemOption value='warning'>Warning</MenuItemOption>
+              <MenuItemOption value='info'>Info</MenuItemOption>
+              <MenuItemOption value='trace'>Trace</MenuItemOption>
+              <MenuItemOption value='debug'>Debug</MenuItemOption>
+            </MenuOptionGroup>
+          </MenuList>
+        </Menu>
       </HStack>
+
       {error && (
         <Alert status='error'>
           <AlertIcon />

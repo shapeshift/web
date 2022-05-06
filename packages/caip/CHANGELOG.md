@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.4.0...@shapeshiftoss/caip-v2.5.0) (2022-05-06)
+
+
+### Features
+
+* **caip:** banxa chain map ([#546](https://github.com/shapeshift/lib/issues/546)) ([337ba5c](https://github.com/shapeshift/lib/commit/337ba5c44fb52a7389e63372f3c12678dc5387ba))
+
 # [@shapeshiftoss/caip-v2.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.3.0...@shapeshiftoss/caip-v2.4.0) (2022-05-06)
 
 

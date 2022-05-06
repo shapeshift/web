@@ -1,5 +1,7 @@
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+
+import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
 // TODO(0xdef1cafe): this needs a better home, probably in chain adapters
 export const supportedAccountTypes = {
@@ -36,10 +38,26 @@ export const supportedAccountTypes = {
 // const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
 export type AccountSpecifier = string
 
+export type Staking = {
+  delegations: chainAdapters.cosmos.Delegation[]
+  redelegations: chainAdapters.cosmos.Redelegation[]
+  undelegations: chainAdapters.cosmos.UndelegationEntry[]
+  rewards: chainAdapters.cosmos.Reward[]
+}
+
+export type PortfolioAccount = {
+  /** The asset ids belonging to an account */
+  assetIds: AssetId[]
+  /** The list of validators this account is delegated to */
+  validatorIds?: PubKey[]
+  /** The staking data for per validator, so we can do a join from validatorDataSlice */
+  stakingDataByValidatorId?: Record<PubKey, StakingDataParsedByAccountSpecifier>
+}
+type StakingDataParsedByAccountSpecifier = Record<string, Staking>
+
 export type PortfolioAccounts = {
   byId: {
-    // asset ids belonging to an account
-    [k: AccountSpecifier]: AssetId[]
+    [k: AccountSpecifier]: PortfolioAccount
   }
   // a list of accounts in this portfolio
   ids: AccountSpecifier[]

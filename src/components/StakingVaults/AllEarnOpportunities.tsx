@@ -31,10 +31,7 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
-  const {
-    activeStakingOpportunities: cosmosActiveStakingOpportunities,
-    stakingOpportunities: cosmosStakingOpportunities,
-  } = useCosmosStakingBalances({
+  const { cosmosStakingOpportunities } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
@@ -45,7 +42,6 @@ export const AllEarnOpportunities = () => {
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosActiveStakingOpportunities,
     cosmosStakingOpportunities,
   })
 

@@ -58,9 +58,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, { validatorAddress }),
-  )
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const translate = useTranslate()
@@ -97,6 +95,8 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   const {
     state: { wallet },
   } = useWallet()
+
+  if (!validatorInfo || !cryptoAmount) return null
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
   const fiatYield = bnOrZero(cryptoYield).times(bnOrZero(marketData.price)).toPrecision()

@@ -3,8 +3,8 @@ import { Asset, chainAdapters, ChainTypes, Quote } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
-import { TradeAmountInputField } from './hooks/useSwapper/types'
 import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
+import { TradeAmountInputField } from './types'
 
 export type TradeAsset = {
   currency: Asset

@@ -10,13 +10,13 @@ import {
   SwapperType,
 } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { BuildQuoteTxOutput, TradeAsset } from 'components/Trade/Trade'
+import { TradeAmountInputField } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponentMounted'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
@@ -24,18 +24,11 @@ import { selectAssetIds, selectPortfolioCryptoBalanceByAssetId } from 'state/sli
 import { useAppSelector } from 'state/store'
 
 import { asSellAmount } from './asSellAmount'
-import { TradeAmountInputField } from './types'
 
 const debounceTime = 1000
 
 type GetQuoteInput = {
   amount: string
-}
-
-interface GetQuoteFromSwapper {
-  sellAsset: TradeAsset
-  buyAsset: TradeAsset
-  sellAmount: string
 }
 
 export enum TRADE_ERRORS {
@@ -65,9 +58,8 @@ export enum TRADE_ERRORS {
 }
 
 export const useSwapper = () => {
-  const { setValue, clearErrors, getValues } = useFormContext()
+  const { setValue } = useFormContext()
   const translate = useTranslate()
-  const isComponentMounted = useIsComponentMounted()
   const [quote, sellAsset] = useWatch({
     name: ['quote', 'sellAsset'],
   }) as [TradeQuote<ChainTypes> & Trade<ChainTypes>, TradeAsset]
@@ -78,8 +70,6 @@ export const useSwapper = () => {
     manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapterManager }))
     return manager
   })
-
-  const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -241,56 +231,50 @@ export const useSwapper = () => {
     return result
   }
 
-  const updateQuoteFromSwapper = async ({
-    sellAmount,
-    sellAsset,
-    buyAsset,
-    feeAsset,
-    swapper,
-    sellAssetUsdRate,
-    buyAssetUsdRate,
-    action,
-  }: GetQuoteFromSwapper & {
-    feeAsset: Asset
-    action: TradeAmountInputField
-    swapper: Swapper
-    sellAssetUsdRate: string
-    buyAssetUsdRate: string
-  }) => {
-    if (debounceObj?.cancel) debounceObj.cancel()
-    clearErrors()
-    const quoteDebounce = debounce(async () => {
-      if (isComponentMounted.current) {
-        try {
-          const tradeQuote = await swapper.getTradeQuote({
-            sellAsset: sellAsset.currency,
+  const updateQuoteDebounced = useRef(
+    debounce(async ({ amount, sellAsset, buyAsset, action, feeAsset }) => {
+      try {
+        const swapper = await swapperManager.getBestSwapper({
+          buyAssetId: buyAsset.currency.assetId,
+          sellAssetId: sellAsset.currency.assetId,
+        })
+
+        const { sellAmount, buyAmount, sellAssetUsdRate, buyAssetUsdRate, fiatAmount } =
+          await asSellAmount({
             buyAsset: buyAsset.currency,
-            sellAmount,
-            sendMax: false,
-            sellAssetAccountId: '0',
+            sellAsset: sellAsset.currency,
+            swapper,
+            action,
+            amount,
           })
 
-          const { fiatAmount } = getValues()
+        if (sellAmount === '0') return
 
-          const buyAmount = fromBaseUnit(tradeQuote.buyAmount, buyAsset.currency.precision)
-          const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
-          const estimatedGasFee = fromBaseUnit(tradeQuote?.feeData?.fee || 0, feeAsset.precision)
-          setFees(tradeQuote, sellAsset.currency)
-          setValue('quote', tradeQuote)
-          setValue('sellAsset.fiatRate', sellAssetUsdRate.toString())
-          setValue('buyAsset.fiatRate', buyAssetUsdRate.toString())
-          setValue('buyAsset.amount', buyAmount)
-          setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.currency.precision))
-          setValue('fiatAmount', action === TradeAmountInputField.FIAT ? fiatAmount : newFiatAmount)
-          setValue('estimatedGasFees', estimatedGasFee)
-        } catch (e) {
-          console.error(e)
-        }
+        const tradeQuote = await swapper.getTradeQuote({
+          sellAsset: sellAsset.currency,
+          buyAsset: buyAsset.currency,
+          sellAmount,
+          sendMax: false,
+          sellAssetAccountId: '0',
+        })
+
+        setFees(tradeQuote, sellAsset.currency)
+
+        setValue('quote', tradeQuote)
+        setValue('sellAsset.fiatRate', sellAssetUsdRate.toString())
+        setValue('buyAsset.fiatRate', buyAssetUsdRate.toString())
+        setValue(
+          'estimatedGasFees',
+          fromBaseUnit(bnOrZero(tradeQuote?.feeData?.fee), feeAsset.precision),
+        )
+        setValue('fiatAmount', fiatAmount)
+        setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.currency.precision))
+        setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.currency.precision))
+      } catch (e) {
+        console.error(e)
       }
-    }, debounceTime)
-    quoteDebounce()
-    setDebounceObj({ ...quoteDebounce })
-  }
+    }, debounceTime),
+  )
 
   const updateQuote = async ({
     amount,
@@ -305,28 +289,13 @@ export const useSwapper = () => {
     action: TradeAmountInputField
   }) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
-    const swapper = await swapperManager.getBestSwapper({
-      buyAssetId: buyAsset.currency.assetId,
-      sellAssetId: sellAsset.currency.assetId,
-    })
-
-    const { sellAmount, sellAssetUsdRate, buyAssetUsdRate } = await asSellAmount({
-      buyAsset: buyAsset.currency,
-      sellAsset: sellAsset.currency,
-      swapper,
-      action,
+    updateQuoteDebounced.current.cancel()
+    await updateQuoteDebounced.current({
       amount,
-    })
-
-    await updateQuoteFromSwapper({
-      sellAmount,
-      sellAssetUsdRate,
-      buyAssetUsdRate,
-      sellAsset,
-      buyAsset,
-      action,
       feeAsset,
-      swapper,
+      sellAsset,
+      action,
+      buyAsset,
     })
   }
 

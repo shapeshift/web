@@ -27,7 +27,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TradeAmountInputField } from './hooks/useSwapper/types'
+import { TradeAmountInputField } from './types'
 
 type TS = TradeState<ChainTypes>
 

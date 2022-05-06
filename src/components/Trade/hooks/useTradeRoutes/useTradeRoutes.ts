@@ -5,10 +5,10 @@ import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import { TradeAmountInputField } from 'components/Trade/types'
 import { selectAssets } from 'state/slices/selectors'
 
 import { TradeState } from '../../Trade'
-import { TradeAmountInputField } from '../useSwapper/types'
 import { useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'

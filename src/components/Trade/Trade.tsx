@@ -18,8 +18,6 @@ export type TradeProps = {
 
 export type BuildQuoteTxOutput = {
   success: boolean
-  sellAsset: Asset
-  buyAsset?: Asset
   statusReason: string
 }
 

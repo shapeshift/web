@@ -19,11 +19,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
-import {
-  selectAssetById,
-  selectFeeAssetById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
-} from 'state/slices/selectors'
+import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeAmountInputField } from './types'
@@ -42,10 +38,10 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyTradeAsset, sellAsset, sellAssetFiatRate] = useWatch({
+  const [quote, buyTradeAsset, sellTradeAsset, sellAssetFiatRate] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'sellAssetFiatRate'],
   }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['sellAssetFiatRate']]
-  const { updateQuote, checkApprovalNeeded, getSendMaxAmount } = useSwapper()
+  const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
   const {
@@ -53,16 +49,11 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useWallet()
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellAsset?.asset?.assetId }),
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId }),
   )
-  const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellAsset?.amount))
+  const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellTradeAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
 
-  const feeAsset = useAppSelector(state =>
-    sellAsset
-      ? selectFeeAssetById(state, sellAsset?.asset?.assetId)
-      : selectAssetById(state, 'eip155:1/slip44:60'),
-  )
   const feeAssetBalance = useAppSelector(state =>
     feeAsset
       ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId })
@@ -71,20 +62,27 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
-    sellAsset && feeAsset && feeAsset.assetId === sellAsset.asset.assetId
-      ? bnOrZero(sellAsset.amount)
+    feeAsset?.assetId === sellTradeAsset?.asset?.assetId
+      ? bnOrZero(sellTradeAsset.amount)
       : bnOrZero(0)
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset.precision))
+    .minus(fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset?.precision))
     .minus(tradeDeduction)
     .gte(0)
 
   const onSubmit = async () => {
     if (!wallet) return
-    if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
+    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
 
     try {
+      const result = await updateTrade({
+        wallet,
+        sellAsset: quote?.sellAsset,
+        buyAsset: quote?.buyAsset,
+        amount: quote?.sellAmount,
+      })
+      if (!result?.success && result?.statusReason) handleToast(result.statusReason)
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
         history.push({
@@ -108,7 +106,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       setIsSendMaxLoading(true)
       const maxSendAmount = await getSendMaxAmount({
         wallet,
-        sellAsset: sellAsset.asset,
+        sellAsset: sellTradeAsset.asset,
         buyAsset: buyTradeAsset.asset,
         feeAsset,
       })
@@ -142,14 +140,14 @@ export const TradeInput = ({ history }: RouterProps) => {
     })
   }
 
-  const switchAssets = () => {
+  const toggleAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
-    setValue('quote', undefined)
     updateQuote({
-      amount: currentBuyAsset.amount ?? '0',
+      forceQuote: true,
+      amount: bnOrZero(currentBuyAsset.amount).toString(),
       sellAsset: currentBuyAsset.asset,
       buyAsset: currentSellAsset.asset,
       feeAsset,
@@ -208,7 +206,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                       if (e.value !== value) {
                         updateQuote({
                           amount: e.value,
-                          sellAsset: sellAsset.asset,
+                          sellAsset: sellTradeAsset.asset,
                           buyAsset: buyTradeAsset.asset,
                           feeAsset,
                           action: TradeAmountInputField.FIAT,
@@ -238,7 +236,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 onInputChange={(amount: string) => {
                   updateQuote({
                     amount,
-                    sellAsset: sellAsset.asset,
+                    sellAsset: sellTradeAsset.asset,
                     buyAsset: buyTradeAsset.asset,
                     feeAsset,
                     action: TradeAmountInputField.SELL,
@@ -247,8 +245,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push('/trade/select/sell')}
-                    logo={sellAsset?.asset?.icon}
-                    symbol={sellAsset?.asset?.symbol}
+                    logo={sellTradeAsset?.asset?.icon}
+                    symbol={sellTradeAsset?.asset?.symbol}
                     data-test='token-row-sell-token-button'
                   />
                 }
@@ -278,7 +276,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               justifyContent='space-between'
             >
               <IconButton
-                onClick={switchAssets}
+                onClick={toggleAssets}
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
@@ -297,7 +295,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
                 ) : (
                   <>
-                    <RawText whiteSpace={'pre'}>{`1 ${sellAsset.asset?.symbol} = `}</RawText>
+                    <RawText whiteSpace={'pre'}>{`1 ${sellTradeAsset.asset?.symbol} = `}</RawText>
                     <NumberFormat
                       value={firstNonZeroDecimal(bnOrZero(quote?.rate))}
                       displayType={'text'}
@@ -318,7 +316,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 onInputChange={(amount: string) => {
                   updateQuote({
                     amount,
-                    sellAsset: sellAsset.asset,
+                    sellAsset: sellTradeAsset.asset,
                     buyAsset: buyTradeAsset.asset,
                     feeAsset,
                     action: TradeAmountInputField.BUY,

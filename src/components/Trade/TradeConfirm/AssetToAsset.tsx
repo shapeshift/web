@@ -5,16 +5,17 @@ import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 
 type AssetToAssetProps<C extends ChainTypes> = {
-  sellFiatRate: string
+  tradeFiatAmount: string
   buyIcon: string
   status?: chainAdapters.TxStatus
   trade?: Trade<C>
 } & FlexProps
 
 export const AssetToAsset = ({
-  sellFiatRate,
+  tradeFiatAmount,
   buyIcon,
   trade,
   boxSize = '24px',
@@ -24,7 +25,7 @@ export const AssetToAsset = ({
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const {
-    number: { toCrypto, toFiat },
+    number: { toCrypto },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const gray = useColorModeValue('white', 'gray.750')
   const red = useColorModeValue('white', 'red.500')
@@ -55,11 +56,12 @@ export const AssetToAsset = ({
         </Flex>
         <Box mt={2}>
           <Text fontWeight='medium'>
-            {toCrypto(Number(trade?.sellAmount), trade?.sellAsset.symbol)}
+            {toCrypto(
+              Number(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset?.precision ?? 0)),
+              trade?.sellAsset.symbol,
+            )}
           </Text>
-          <Text color='gray.500'>
-            {toFiat(bnOrZero(trade?.sellAmount).times(bnOrZero(sellFiatRate)).toNumber())}
-          </Text>
+          <Text color='gray.500'>{tradeFiatAmount}</Text>
         </Box>
       </Box>
       <Flex>
@@ -85,11 +87,12 @@ export const AssetToAsset = ({
           mt={2}
         >
           <Text fontWeight='medium'>
-            {toCrypto(Number(trade?.buyAmount), trade?.buyAsset.symbol)}
+            {toCrypto(
+              Number(fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0)),
+              trade?.buyAsset.symbol,
+            )}
           </Text>
-          <Text color='gray.500'>
-            {toFiat(bnOrZero(trade?.sellAmount).times(bnOrZero(sellFiatRate)).toNumber())}
-          </Text>
+          <Text color='gray.500'>{tradeFiatAmount}</Text>
         </Flex>
       </Flex>
     </Flex>

@@ -35,13 +35,13 @@ export const useTradeRoutes = (): {
       const buyAsset = assets[buyAssetId]
 
       if (sellAsset && buyAsset) {
-        setValue('sellAsset.asset', sellAsset)
         setValue('buyAsset.asset', buyAsset)
+        setValue('sellAsset.asset', sellAsset)
         updateQuote({
-          initialQuote: true,
+          forceQuote: true,
           amount: '0',
-          sellAsset: sellTradeAsset.asset,
-          buyAsset: buyTradeAsset.asset,
+          sellAsset,
+          buyAsset,
           feeAsset,
           action: TradeAmountInputField.SELL,
         })
@@ -49,7 +49,7 @@ export const useTradeRoutes = (): {
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, feeAsset, getDefaultPair, setValue, updateQuote, sellTradeAsset, buyTradeAsset])
+  }, [assets, feeAsset, getDefaultPair, setValue, updateQuote])
 
   useEffect(() => {
     setDefaultAssets()
@@ -59,11 +59,10 @@ export const useTradeRoutes = (): {
     async (asset: Asset) => {
       try {
         setValue('sellAsset.asset', asset)
-        setValue('buyAsset.amount', '')
-        setValue('quote', undefined)
         updateQuote({
+          forceQuote: true,
           amount: bnOrZero(sellTradeAsset.amount).toString(),
-          sellAsset: sellTradeAsset.asset,
+          sellAsset: asset,
           buyAsset: buyTradeAsset.asset,
           feeAsset,
           action: TradeAmountInputField.SELL,
@@ -74,19 +73,18 @@ export const useTradeRoutes = (): {
         history.push('/trade/input')
       }
     },
-    [buyTradeAsset, sellTradeAsset, feeAsset, history, setValue, updateQuote],
+    [buyTradeAsset, sellTradeAsset, feeAsset, history, updateQuote],
   )
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
         setValue('buyAsset.asset', asset)
-        setValue('sellAsset.amount', '')
-        setValue('quote', undefined)
         updateQuote({
+          forceQuote: true,
           amount: bnOrZero(buyTradeAsset.amount).toString(),
           sellAsset: sellTradeAsset.asset,
-          buyAsset: buyTradeAsset.asset,
+          buyAsset: asset,
           feeAsset,
           action: TradeAmountInputField.SELL,
         })
@@ -96,7 +94,7 @@ export const useTradeRoutes = (): {
         history.push('/trade/input')
       }
     },
-    [setValue, updateQuote, buyTradeAsset, sellTradeAsset, feeAsset, history],
+    [updateQuote, buyTradeAsset, sellTradeAsset, feeAsset, history],
   )
 
   return { handleSellClick, handleBuyClick }

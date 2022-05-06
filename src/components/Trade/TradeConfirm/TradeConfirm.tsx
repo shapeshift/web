@@ -15,7 +15,7 @@ import { TradeState } from 'components/Trade/Trade'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { ValueOf } from 'types/object'
@@ -38,7 +38,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<ChainTypes>>()
   const toast = useToast()
   const translate = useTranslate()
-  const { sellAsset: sellTradeAsset, buyAsset: buyTradeAsset, trade, fees } = getValues()
+  const {
+    sellAsset: sellTradeAsset,
+    buyAsset: buyTradeAsset,
+    trade,
+    fees,
+    sellAssetFiatRate,
+  } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -133,6 +139,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push('/trade/input')
   }
 
+  const tradeFiatAmount = toFiat(
+    bnOrZero(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0))
+      .times(bnOrZero(sellAssetFiatRate))
+      .toNumber(),
+  )
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -145,7 +157,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
             </WithBackButton>
             <AssetToAsset
               buyIcon={buyTradeAsset.asset.icon}
-              sellFiatRate={bnOrZero(fiatRate).toString()}
+              tradeFiatAmount={tradeFiatAmount}
               trade={trade}
               mt={6}
               status={status}

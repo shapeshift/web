@@ -201,10 +201,11 @@ export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: Unstake
                 percent={percent}
               />
               <StakingInput
-                height='40px'
-                width='100%'
-                px='8px'
-                py='8px'
+                inputStyle={{
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                  borderBottomLeftRadius: 0,
+                }}
                 isCryptoField={activeField === InputType.Crypto}
                 amountRef={amountRef.current}
                 asset={asset}

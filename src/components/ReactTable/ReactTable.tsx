@@ -49,34 +49,36 @@ export const ReactTable = <T extends {}>({
 
   return (
     <Table variant='clickable' {...getTableProps()}>
-      <Thead>
-        {headerGroups.map(headerGroup => (
-          <Tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              <Th
-                {...column.getHeaderProps(column.getSortByToggleProps())}
-                color='gray.500'
-                textAlign={column.textAlign}
-                display={column.display}
-                _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
-              >
-                <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
-                  {displayHeaders && column.render('Header')}
-                  <Flex>
-                    {column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <ArrowDownIcon ml={2} aria-label='sorted descending' />
-                      ) : (
-                        <ArrowUpIcon ml={2} aria-label='sorted ascending' />
-                      )
-                    ) : null}
+      {displayHeaders && (
+        <Thead>
+          {headerGroups.map(headerGroup => (
+            <Tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map(column => (
+                <Th
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                  color='gray.500'
+                  textAlign={column.textAlign}
+                  display={column.display}
+                  _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
+                >
+                  <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
+                    {column.render('Header')}
+                    <Flex>
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <ArrowDownIcon ml={2} aria-label='sorted descending' />
+                        ) : (
+                          <ArrowUpIcon ml={2} aria-label='sorted ascending' />
+                        )
+                      ) : null}
+                    </Flex>
                   </Flex>
-                </Flex>
-              </Th>
-            ))}
-          </Tr>
-        ))}
-      </Thead>
+                </Th>
+              ))}
+            </Tr>
+          ))}
+        </Thead>
+      )}
       <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
     </Table>
   )

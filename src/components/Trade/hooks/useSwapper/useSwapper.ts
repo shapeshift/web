@@ -1,12 +1,11 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { Swapper, SwapperManager, Trade, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
+import { SwapperManager, Trade, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
   Asset,
   chainAdapters,
   ChainTypes,
   ExecQuoteOutput,
-  Quote,
   SwapperType,
 } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
@@ -185,7 +184,7 @@ export const useSwapper = () => {
 
     if (result?.success) {
       setFees(result, sellAsset)
-      setValue('quote', result)
+      setValue('trade', result)
       return result
     } else {
       // TODO: (ryankk) Post bounty, these need to be revisited so the error messages can be more accurate.
@@ -232,7 +231,7 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action, feeAsset }) => {
+    debounce(async ({ amount, sellAsset, buyAsset, action }) => {
       try {
         const swapper = await swapperManager.getBestSwapper({
           buyAssetId: buyAsset.currency.assetId,
@@ -261,10 +260,6 @@ export const useSwapper = () => {
         setValue('quote', tradeQuote)
         setValue('sellAsset.fiatRate', sellAssetUsdRate.toString())
         setValue('buyAsset.fiatRate', buyAssetUsdRate.toString())
-        setValue(
-          'estimatedGasFees',
-          fromBaseUnit(bnOrZero(tradeQuote?.feeData?.fee), feeAsset.precision),
-        )
         setValue('fiatAmount', fiatAmount)
         setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.currency.precision))
         setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.currency.precision))
@@ -322,7 +317,7 @@ export const useSwapper = () => {
     switch (sellAsset.chain) {
       case ChainTypes.Ethereum:
         {
-          const ethResult = result as Quote<ChainTypes.Ethereum>
+          const ethResult = result as TradeQuote<ChainTypes.Ethereum>
           const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
             ? bn(ethResult.feeData.chainSpecific.approvalFee)
                 .dividedBy(bn(10).exponentiatedBy(18))

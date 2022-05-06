@@ -40,14 +40,14 @@ export const Approval = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useFormContext<TradeState<ChainTypes>>()
-  const { approveInfinite, checkApprovalNeeded, buildQuoteTx } = useSwapper()
+  const { approveInfinite, checkApprovalNeeded, } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
     state: { wallet },
   } = useWallet()
-  const { quote, sellAsset, fees } = getValues()
+  const { sellAsset, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
   const symbol = sellAsset.currency?.symbol
 
@@ -81,35 +81,8 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
         return history.push('/trade/input')
       }
-
       approvalInterval.current && clearInterval(approvalInterval.current)
-      if (!sellAsset.amount) return
-      if (!quote) return
-
-      fnLogger.trace({ fn: 'buildQuoteTx' }, 'Building Quote...')
-      let result
-      try {
-        result = await buildQuoteTx({
-          wallet,
-          sellAsset: quote?.sellAsset,
-          buyAsset: quote?.buyAsset,
-          amount: sellAsset?.amount,
-        })
-
-        fnLogger.debug({ fn: 'buildQuoteTx', result }, 'Building Quote Completed')
-      } catch (e) {
-        fnLogger.error(e, { fn: 'buildQuoteTx' }, 'Building Quote Failed')
-      }
-
-      if (!result?.success && result?.statusReason) {
-        handleToast(result.statusReason)
-      }
-
-      if (result?.success) {
-        history.push({ pathname: '/trade/confirm', state: { fiatRate } })
-      } else {
-        history.push('/trade/input')
-      }
+      history.push({ pathname: '/trade/confirm', state: { fiatRate } })
     }, 5000)
   }
 

@@ -1,9 +1,8 @@
-/* eslint-disable no-console */
 import { Swapper } from '@shapeshiftoss/swapper'
 import { Asset } from '@shapeshiftoss/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { toBaseUnit } from 'lib/math'
 
 export const asSellAmount = async ({
   amount,

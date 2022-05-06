@@ -1,14 +1,5 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import {
-  AvatarProps,
-  Box,
-  Circle,
-  Divider,
-  Flex,
-  FlexProps,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Box, Circle, Divider, Flex, FlexProps, Text, useColorModeValue } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -18,7 +9,7 @@ import { TradeAsset } from '../Trade'
 
 type AssetToAssetProps = {
   sellAsset: TradeAsset
-  buyAsset: TradeAsset & Pick<AvatarProps, 'boxSize'>
+  buyAsset: TradeAsset
   status?: chainAdapters.TxStatus
 } & FlexProps
 

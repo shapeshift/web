@@ -1,5 +1,4 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
-import { AssetNamespace } from '@shapeshiftoss/caip'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -19,7 +18,7 @@ import { TradeState } from 'components/Trade/Trade'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -43,11 +42,10 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyAsset, sellAsset, estimatedGasFees] = useWatch({
-    name: ['quote', 'buyAsset', 'sellAsset', 'estimatedGasFees'],
-  }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['estimatedGasFees']]
-  const { updateQuote, buildQuoteTx, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
-    useSwapper()
+  const [quote, buyAsset, sellAsset] = useWatch({
+    name: ['quote', 'buyAsset', 'sellAsset'],
+  }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset']]
+  const { updateQuote, checkApprovalNeeded, getSendMaxAmount } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
   const {
@@ -78,42 +76,32 @@ export const TradeInput = ({ history }: RouterProps) => {
       : bnOrZero(0)
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(estimatedGasFees))
+    .minus(fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset.precision))
     .minus(tradeDeduction)
     .gte(0)
+
+  console.log('fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset.precision)', fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset.precision))
+  console.log('feeAssetBalance', feeAssetBalance)
+  console.log('tradeDeduction', tradeDeduction)
 
   const onSubmit = async () => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
-    const isERC20 = sellAsset.currency.contractType === AssetNamespace.ERC20
 
     try {
-      const fiatRate = await getFiatRate({ symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol })
+      const fiatRate = sellAsset.fiatRate
 
-      if (isERC20) {
-        const approvalNeeded = await checkApprovalNeeded(wallet)
-        if (approvalNeeded) {
-          history.push({
-            pathname: '/trade/approval',
-            state: {
-              fiatRate,
-            },
-          })
-          return
-        }
+      const approvalNeeded = await checkApprovalNeeded(wallet)
+      if (approvalNeeded) {
+        history.push({
+          pathname: '/trade/approval',
+          state: {
+            fiatRate,
+          },
+        })
+        return
       }
-
-      const result = await buildQuoteTx({
-        wallet,
-        sellAsset: quote?.sellAsset,
-        buyAsset: quote?.buyAsset,
-        amount: sellAsset?.amount,
-      })
-
-      if (!result?.success && result?.statusReason) {
-        handleToast(result.statusReason)
-      }
-      result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
+      history.push({ pathname: '/trade/confirm', state: { fiatRate } })
     } catch (err) {
       console.error(`TradeInput:onSubmit - ${err}`)
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
@@ -184,6 +172,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.insufficientFunds'
     }
 
+    console.log('hasEnoughBalanceForGas', hasEnoughBalanceForGas)
+    console.log('hasValidTradeBalance', hasValidTradeBalance)
     if (isValid && hasValidTradeBalance && !hasEnoughBalanceForGas) {
       return 'common.insufficientAmountForGas'
     }
@@ -192,7 +182,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   // TODO:(ryankk) fix error handling
-  const error = errors?.quote?.value?.message ?? null
+  const error = null
 
   return (
     <SlideTransition>

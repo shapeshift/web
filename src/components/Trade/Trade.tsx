@@ -1,5 +1,6 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { Asset, chainAdapters, ChainTypes, Quote } from '@shapeshiftoss/types'
+import { Trade as FinalizedTrade,TradeQuote } from '@shapeshiftoss/swapper'
+import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
@@ -16,13 +17,6 @@ export type TradeProps = {
   defaultBuyAssetId?: AssetId
 }
 
-export type MinMax = {
-  minimum: string
-  maximum: string
-  minimumPrice?: string
-  name?: string
-}
-
 export type BuildQuoteTxOutput = {
   success: boolean
   sellAsset: Asset
@@ -33,12 +27,11 @@ export type BuildQuoteTxOutput = {
 export type TradeState<C extends ChainTypes> = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset
+  fiatAmount: string
   fees?: chainAdapters.QuoteFeeData<C>
-  trade?: MinMax
   action?: TradeAmountInputField
-  fiatAmount?: string
-  quote?: Quote<C>
-  estimatedGasFees?: string
+  quote?: TradeQuote<C>
+  trade?: FinalizedTrade<C>
 }
 
 export const Trade = ({ defaultBuyAssetId }: TradeProps) => {

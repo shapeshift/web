@@ -38,7 +38,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<ChainTypes>>()
   const toast = useToast()
   const translate = useTranslate()
-  const { sellAsset, buyAsset, quote, fees, trade } = getValues()
+  const { sellAsset, buyAsset, trade, fees } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -172,9 +172,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Box textAlign='right'>
                   <RawText>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(
-                    bnOrZero(quote?.rate),
+                    bnOrZero(trade?.rate),
                   )} ${buyAsset?.currency?.symbol}`}</RawText>
-                  <RawText color='gray.500'>@{trade?.name}</RawText>
                 </Box>
               </Row>
               <Row>

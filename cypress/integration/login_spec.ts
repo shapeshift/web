@@ -1,10 +1,13 @@
 import { translations } from 'assets/translations'
 
+import { autoRecord } from '../plugins/autorecord'
+
 const baseUrl = Cypress.config().baseUrl
 const seed = Cypress.env('testSeed')
 const password = Cypress.env('testPassword')
 
 describe('The Dashboard', () => {
+  autoRecord()
   before(() => {
     cy.clearIndexedDB()
   })

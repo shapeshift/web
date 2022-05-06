@@ -1,4 +1,4 @@
-import { autoRecord } from '../support/autorecord'
+import { autoRecord } from '../plugins/autorecord'
 
 const baseUrl = Cypress.config().baseUrl
 const linkContract = Cypress.env('linkContract')

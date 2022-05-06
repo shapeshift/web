@@ -4,7 +4,7 @@ const { resolve } = require('path')
 const fs = require('fs')
 
 const execa = require('execa')
-const { installAutoRecord } = require('../support/autorecord/plugin')
+const addAutoRecordPlugin = require('./autorecord/plugin')
 
 const findBrave = (): Cypress.Browser | undefined => {
   const browserPath: string | undefined = (() => {
@@ -52,7 +52,8 @@ const findBrave = (): Cypress.Browser | undefined => {
  * @type {Cypress.PluginConfig}
  */
 module.exports = async (on: any, config: any) => {
-  installAutoRecord(on, config, fs)
+  // adds cy.tasks provided by autorecord
+  addAutoRecordPlugin(on, config, fs)
 
   if (config.testingType === 'component') {
     require('@cypress/react/plugins/react-scripts')(on, config)

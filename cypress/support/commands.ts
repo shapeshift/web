@@ -24,6 +24,18 @@ const foxContract = Cypress.env('foxContract')
 const walletDb = getWalletDbInstance()
 
 // @ts-ignore
+class FakeDate extends Date {
+  constructor(date) {
+    super(date)
+    if (date) {
+      return new Date(date)
+    }
+    // The date you want
+    return new Date(Date.UTC(2022, 4, 1))
+  }
+}
+
+// @ts-ignore
 Cypress.Commands.add('getBySel', (selector: string, ...args: any) => {
   return cy.get(`[data-test=${selector}]`, ...args)
 })
@@ -66,7 +78,11 @@ Cypress.Commands.add('login', () => {
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
   cy.clearIndexedDB()
   cy.addWallet().then(() => {
-    cy.visit('')
+    cy.visit('', {
+      onLoad(win) {
+        win.Date = FakeDate
+      },
+    })
     cy.url().should('equal', `${baseUrl}dashboard`)
   })
 })

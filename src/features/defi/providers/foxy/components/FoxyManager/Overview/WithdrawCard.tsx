@@ -7,8 +7,6 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawCardProps = {
@@ -18,10 +16,6 @@ type WithdrawCardProps = {
 
 export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   const history = useHistory()
-  const {
-    state: { isConnected },
-    dispatch,
-  } = useWallet()
   const { amount, releaseTime } = rest
   const hasClaim = bnOrZero(amount).gt(0)
   const textColor = useColorModeValue('black', 'white')
@@ -31,9 +25,6 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   const handleClick = () => {
     history.push('/claim')
   }
-
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   if (!hasClaim) {
     return <Text color='gray.500' translation='defi.modals.foxyOverview.emptyWithdraws' />
@@ -49,7 +40,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
       justifyContent='flex-start'
       textAlign='left'
       isDisabled={!isAvailable}
-      onClick={() => (isConnected ? handleClick() : handleWalletModalOpen())}
+      onClick={handleClick}
       py={4}
       leftIcon={
         <IconCircle>

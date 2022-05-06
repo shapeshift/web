@@ -32,7 +32,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData, WithdrawType } from '@shapeshiftoss/types'
-import { FormEvent, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
 import { FaBolt, FaClock } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -44,9 +44,7 @@ import { SliderIcon } from 'components/Icons/Slider'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawProps = {
@@ -152,11 +150,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const values = useWatch({ control })
 
-  const {
-    state: { isConnected },
-    dispatch,
-  } = useWallet()
-
   const cryptoField = activeField === InputType.Crypto
   const cryptoError = errors?.cryptoAmount?.message ?? null
   const fiatError = errors?.fiatAmount?.message ?? null
@@ -224,21 +217,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     onContinue(values)
   }
 
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
   return (
     <SlideTransition>
-      <Box
-        as='form'
-        maxWidth='lg'
-        width='full'
-        onSubmit={(event: FormEvent<unknown>) => {
-          isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-        }}
-      >
+      <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
         <ModalBody py={6}>
           <Card size='sm' width='full' variant='group' mb={6}>
             <Card.Body>

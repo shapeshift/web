@@ -10,8 +10,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 type ApproveProps = {
   asset: Asset
@@ -40,15 +38,6 @@ export const Approve = ({
   onConfirm,
 }: ApproveProps) => {
   const translate = useTranslate()
-
-  const {
-    state: { isConnected },
-    dispatch,
-  } = useWallet()
-
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-
   return (
     <SlideTransition>
       <ModalBody
@@ -94,7 +83,7 @@ export const Approve = ({
           {translate('modals.approve.reject')}
         </Button>
         <Button
-          onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+          onClick={onConfirm}
           size='lg'
           colorScheme='blue'
           isLoading={loading}

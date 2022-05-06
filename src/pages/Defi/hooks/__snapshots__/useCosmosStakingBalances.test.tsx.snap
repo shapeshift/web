@@ -3,44 +3,75 @@
 exports[`useCosmosStakingBalances returns active and non active staking opportunities when staking and validators data are loaded 1`] = `
 Array [
   Object {
+    "address": "cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs",
+    "apr": "0.1662979435",
     "assetId": "cosmos:cosmoshub-4/slip44:118",
     "chain": "cosmos",
     "cryptoAmount": "0.000004",
     "fiatAmount": "0.00",
-    "isLoaded": false,
+    "moniker": "tokenpocket",
     "rewards": "0",
     "tokenAddress": "118",
-    "totalDelegations": "4",
-    "tvl": "0",
+    "tokens": "111115",
+    "tvl": "8.61696825",
   },
   Object {
     "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
-    "apr": "0.24",
+    "apr": "0.1496681491",
     "assetId": "cosmos:cosmoshub-4/slip44:118",
     "chain": "cosmos",
-    "commission": "0.100000000000000000",
     "cryptoAmount": "0.010115",
     "fiatAmount": "0.78",
-    "isLoaded": true,
-    "moniker": "Shapeshift DAO",
+    "moniker": "ShapeShift DAO",
     "rewards": "3.831752143667562385",
     "tokenAddress": "118",
-    "tokens": "111111",
-    "totalDelegations": "10115",
-    "tvl": "8.61665805",
+    "tokens": "111116",
+    "tvl": "8.6170458",
   },
   Object {
+    "address": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+    "apr": "0.1514974265",
     "assetId": "cosmos:cosmoshub-4/slip44:118",
     "chain": "cosmos",
     "cryptoAmount": "0.005",
     "fiatAmount": "0.39",
-    "isLoaded": false,
-    "rewards": "12.688084635379675000",
+    "moniker": "Cosmostation",
+    "rewards": "12.688084635379675",
     "tokenAddress": "118",
-    "totalDelegations": "5000",
-    "tvl": "0",
+    "tokens": "111117",
+    "tvl": "8.61712335",
   },
 ]
 `;
 
-exports[`useCosmosStakingBalances returns empty array for active opportunities and the shapeshift validator as a staking opportunity when staking data is empty and validators data are loaded 1`] = `Array []`;
+exports[`useCosmosStakingBalances returns active and non active staking opportunities when staking and validators data are loaded 2`] = `
+Array [
+  Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.1496681491",
+    "assetId": "cosmos:cosmoshub-4/slip44:118",
+    "chain": "cosmos",
+    "commission": "0.100000000000000000",
+    "moniker": "ShapeShift DAO",
+    "tokenAddress": "118",
+    "tokens": "111116",
+    "tvl": "8.6170458",
+  },
+]
+`;
+
+exports[`useCosmosStakingBalances returns empty array for active opportunities and the shapeshift validator as a staking opportunity when staking data is empty and validators data are loaded 1`] = `
+Array [
+  Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.1496681491",
+    "assetId": "cosmos:cosmoshub-4/slip44:118",
+    "chain": "cosmos",
+    "commission": "0.100000000000000000",
+    "moniker": "ShapeShift DAO",
+    "tokenAddress": "118",
+    "tokens": "111116",
+    "tvl": "8.6170458",
+  },
+]
+`;

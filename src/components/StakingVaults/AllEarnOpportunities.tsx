@@ -26,12 +26,15 @@ export const AllEarnOpportunities = () => {
   const location = useLocation()
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const {
-    state: { isConnected, walletInfo },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
-  const { cosmosStakingOpportunities } = useCosmosStakingBalances({
+  const {
+    activeStakingOpportunities: cosmosActiveStakingOpportunities,
+    stakingOpportunities: cosmosStakingOpportunities,
+  } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
@@ -42,6 +45,7 @@ export const AllEarnOpportunities = () => {
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
+    cosmosActiveStakingOpportunities,
     cosmosStakingOpportunities,
   })
 
@@ -57,7 +61,7 @@ export const AllEarnOpportunities = () => {
         assetId,
         cryptoAmount,
       } = opportunity
-      if (!isConnected && walletInfo?.deviceId !== 'DemoWallet') {
+      if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }

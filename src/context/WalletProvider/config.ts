@@ -8,7 +8,6 @@ import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/Rec
 import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
-import { DemoConfig } from './DemoWallet/config'
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPin } from './KeepKey/components/Pin'
@@ -86,9 +85,5 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/portis/connect', component: PortisConnect },
       { path: '/portis/failure', component: PortisFailure },
     ],
-  },
-  [KeyManager.Demo]: {
-    ...DemoConfig,
-    routes: [],
   },
 }

@@ -35,7 +35,6 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
   selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
@@ -59,20 +58,14 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-  const filter = useMemo(
-    () => ({ assetId, accountId, accountSpecifier }),
-    [assetId, accountId, accountSpecifier],
-  )
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const translate = useTranslate()
 
   const fiatBalanceWithDelegations = useAppSelector(state =>

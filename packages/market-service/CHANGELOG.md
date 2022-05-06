@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v2.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.2.3...@shapeshiftoss/market-service-v2.3.0) (2022-05-06)
+
+
+### Features
+
+* **caip:** flatten exports ([#560](https://github.com/shapeshift/lib/issues/560)) ([e326522](https://github.com/shapeshift/lib/commit/e3265223dca3c2126b2822395353f6650c4b0342))
+
 # [@shapeshiftoss/market-service-v2.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.2.2...@shapeshiftoss/market-service-v2.2.3) (2022-05-05)
 
 # [@shapeshiftoss/market-service-v2.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.2.1...@shapeshiftoss/market-service-v2.2.2) (2022-05-03)

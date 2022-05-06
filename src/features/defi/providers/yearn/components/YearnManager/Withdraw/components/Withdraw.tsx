@@ -33,23 +33,23 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = caip19.toCAIP19({
+  const underlyingAssetId = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const assetCAIP19 = caip19.toCAIP19({
+  const assetId = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
 
   if (!state || !dispatch) return null
 

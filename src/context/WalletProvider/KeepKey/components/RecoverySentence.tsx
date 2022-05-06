@@ -2,8 +2,10 @@ import { Alert, AlertIcon, Flex, useColorModeValue } from '@chakra-ui/react'
 import { ModalBody, ModalHeader } from '@chakra-ui/react'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
+import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
 
 export const KeepKeyRecoverySentence = () => {
+  const handleCancel = useKeepKeyCancel()
   const yellowShade = useColorModeValue('yellow.500', 'yellow.200')
 
   return (
@@ -22,6 +24,7 @@ export const KeepKeyRecoverySentence = () => {
         </Alert>
       </ModalBody>
       <AwaitKeepKey
+        onCancel={handleCancel}
         translation={'modals.keepKey.recoverySentence.awaitingButtonPress'}
         pl={6}
         pr={6}

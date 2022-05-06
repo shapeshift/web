@@ -20,7 +20,7 @@ import {
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -28,26 +28,21 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectSingleValidator,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Field, StakingPath, StakingValues } from '../StakingCommon'
 
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat',
-}
-
 type StakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onCancel: () => void
 }
@@ -57,12 +52,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-export const StakeConfirm = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onCancel,
-}: StakeProps) => {
+export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -70,13 +60,13 @@ export const StakeConfirm = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, { validatorAddress }),
   )
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()
@@ -106,7 +96,8 @@ export const StakeConfirm = ({
   }, [adapter, asset.precision, marketData.price])
 
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
@@ -125,6 +116,12 @@ export const StakeConfirm = ({
     memoryHistory.push(StakingPath.Broadcast)
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    onCancel()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   if (!cryptoAmount) return null
 
   return (
@@ -135,7 +132,9 @@ export const StakeConfirm = ({
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(event: FormEvent<unknown>) => {
+            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+          }}
           direction='column'
           alignItems='center'
           justifyContent='space-between'

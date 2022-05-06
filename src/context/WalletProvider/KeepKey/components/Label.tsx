@@ -4,16 +4,8 @@ import { RecoverDevice, ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { VALID_ENTROPY_NUMBERS } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
+import { parseIntToEntropy } from 'context/WalletProvider/KeepKey/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
-const isValidEntropyNumber = (entropy: number): entropy is RecoverDevice['entropy'] =>
-  VALID_ENTROPY_NUMBERS.some(validEntropy => validEntropy === entropy)
-
-const parseIntToEntropy = (entropy: string): RecoverDevice['entropy'] => {
-  const parsedInt = Math.floor(Number(entropy))
-  return isValidEntropyNumber(parsedInt) ? parsedInt : VALID_ENTROPY_NUMBERS[0]
-}
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)

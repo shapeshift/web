@@ -66,7 +66,7 @@ export const Address = () => {
         onClick={() =>
           history.push(SendRoutes.Select, {
             toRoute: SelectAssetRoutes.Account,
-            assetId: asset.caip19,
+            assetId: asset.assetId,
           })
         }
       />

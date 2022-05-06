@@ -21,7 +21,7 @@ import {
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { FeePrice } from 'plugins/cosmos/utils'
-import { useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -29,12 +29,13 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectSingleValidator,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,17 +43,11 @@ import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 type UnstakeProps = {
   assetId: AssetId
-  accountSpecifier: string
   validatorAddress: string
   onCancel: () => void
 }
 
-export const UnstakeConfirm = ({
-  assetId,
-  accountSpecifier,
-  validatorAddress,
-  onCancel,
-}: UnstakeProps) => {
+export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeProps) => {
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -63,17 +58,18 @@ export const UnstakeConfirm = ({
   const { cryptoAmount } = useWatch({ control })
 
   const validatorInfo = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, validatorAddress),
+    selectValidatorByAddress(state, { validatorAddress }),
   )
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatUnstakeAmount = useMemo(
@@ -110,6 +106,16 @@ export const UnstakeConfirm = ({
     history.push(UnstakingPath.Broadcast)
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    /**
+     * call onCancel to navigate back before
+     * opening the connect wallet modal.
+     */
+    onCancel()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   const translate = useTranslate()
 
   if (!cryptoAmount) return null
@@ -122,7 +128,9 @@ export const UnstakeConfirm = ({
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(event: FormEvent<unknown>) => {
+            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+          }}
           flexDirection='column'
           alignItems='center'
           justifyContent='space-between'

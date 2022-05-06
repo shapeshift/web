@@ -56,7 +56,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatAmountAvailable = cryptoBalanceHuman.times(bnOrZero(marketData.price)).toString()
@@ -112,7 +112,9 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
       const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
       const fiatAmount = bnOrZero(value).times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, value.length ? cryptoAmount.toString() : value, {
+        shouldValidate: true,
+      })
 
       if (cryptoAmount.gt(cryptoBalanceHuman)) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
@@ -179,16 +181,14 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
           >
             <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
             <StakingInput
-              height='40px'
               width='100%'
-              px='8px'
-              py='8px'
               isCryptoField={activeField === InputType.Crypto}
               amountRef={amountRef.current}
               asset={asset}
               onInputToggle={handleInputToggle}
               onInputChange={handleInputChange}
               control={control}
+              inputStyle={{ borderRadius: 0 }}
             />
             <Box width='100%' pb='12px'>
               <EstimatedReturnsRow

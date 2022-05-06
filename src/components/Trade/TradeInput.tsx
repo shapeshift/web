@@ -23,6 +23,7 @@ import { TradeState } from 'components/Trade/Trade'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { firstNonZeroDecimal } from 'lib/math'
 import {
   selectAssetById,
@@ -32,6 +33,8 @@ import {
 import { useAppSelector } from 'state/store'
 
 type TS = TradeState<ChainTypes>
+
+const moduleLogger = logger.child({ namespace: ['Trade', 'TradeInput'] })
 
 export const TradeInput = ({ history }: RouterProps) => {
   const {
@@ -63,23 +66,25 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useWallet()
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.caip19),
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellAsset?.currency?.assetId }),
   )
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
 
   const feeAsset = useAppSelector(state =>
     sellAsset
-      ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
+      ? selectFeeAssetById(state, sellAsset?.currency?.assetId)
       : selectAssetById(state, 'eip155:1/slip44:60'),
   )
   const feeAssetBalance = useAppSelector(state =>
-    feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null,
+    feeAsset
+      ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId })
+      : null,
   )
 
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
-    sellAsset && feeAsset && feeAsset.caip19 === sellAsset.currency.caip19
+    sellAsset && feeAsset && feeAsset.assetId === sellAsset.currency.assetId
       ? bnOrZero(sellAsset.amount)
       : bnOrZero(0)
 
@@ -91,9 +96,12 @@ export const TradeInput = ({ history }: RouterProps) => {
   const onSubmit = async () => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
+    const fnLogger = moduleLogger.child({ namespace: ['onSubmit'] })
+
     const isERC20 = sellAsset.currency.contractType === AssetNamespace.ERC20
 
     try {
+      fnLogger.trace({ fn: 'getFiatRate' }, 'Getting Fiat Rate...')
       const fiatRate = await getFiatRate({ symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol })
 
       if (isERC20) {
@@ -109,27 +117,35 @@ export const TradeInput = ({ history }: RouterProps) => {
         }
       }
 
+      fnLogger.trace({ fn: 'buildQuoteTx' }, 'Building Quote Tx...')
       const result = await buildQuoteTx({
         wallet,
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
         amount: sellAsset?.amount,
       })
+      fnLogger.trace({ fn: 'buildQuoteTx', result }, 'Quote Completed')
 
       if (!result?.success && result?.statusReason) {
         handleToast(result.statusReason)
       }
       result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
-    } catch (err) {
-      console.error(`TradeInput:onSubmit - ${err}`)
+    } catch (e) {
+      fnLogger.error(e, 'Quote Failed')
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     }
   }
 
   const onSwapMax = async () => {
     if (!wallet) return
+    const fnLogger = moduleLogger.child({ namespace: ['onSwapMax'] })
+
     try {
       setIsSendMaxLoading(true)
+      fnLogger.trace(
+        { fn: 'getSendMaxAmount', sellAsset, buyAsset, feeAsset },
+        'Getting Send Max Amount...',
+      )
       const maxSendAmount = await getSendMaxAmount({
         wallet,
         sellAsset,
@@ -142,15 +158,19 @@ export const TradeInput = ({ history }: RouterProps) => {
 
       if (!maxSendAmount) return
 
+      fnLogger.trace(
+        { fn: 'getQuote', currentSellAsset, currentBuyAsset, feeAsset, maxSendAmount },
+        'Getting Quote...',
+      )
       await getQuote({
         sellAsset: currentSellAsset,
         buyAsset: currentBuyAsset,
-        feeAsset: feeAsset,
+        feeAsset,
         action,
         amount: maxSendAmount,
       })
-    } catch (err) {
-      console.error(err)
+    } catch (e) {
+      fnLogger.error(e, 'Building Quote Failed')
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     } finally {
       setIsSendMaxLoading(false)
@@ -175,13 +195,13 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
-    getQuote({
+    void getQuote({
       amount: currentBuyAsset.amount ?? '0',
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,
-      feeAsset: feeAsset,
+      feeAsset,
       action,
-    })
+    }).catch(e => moduleLogger.error(e, { fn: 'switchAssets' }, 'GetQuote Failed'))
   }
 
   const getTranslationKey = () => {

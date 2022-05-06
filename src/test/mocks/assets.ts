@@ -169,12 +169,12 @@ export const mockAssetState = (obj?: Record<string, any>) =>
   merge(
     {
       byId: {
-        [ethereum.caip19]: ethereum,
-        [fox.caip19]: fox,
-        [usdc.caip19]: usdc,
-        [zero.caip19]: zero,
+        [ethereum.assetId]: ethereum,
+        [fox.assetId]: fox,
+        [usdc.assetId]: usdc,
+        [zero.assetId]: zero,
       },
-      ids: [ethereum.caip19, fox.caip19, usdc.caip19],
+      ids: [ethereum.assetId, fox.assetId, usdc.assetId],
     },
     obj,
   )

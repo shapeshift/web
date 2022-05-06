@@ -19,7 +19,7 @@ export const Account = ({ route }: { route?: Route }) => {
 
   return (
     feeAsset && (
-      <AssetAccountDetails assetId={feeAsset.caip19} accountId={accountId} route={route} />
+      <AssetAccountDetails assetId={feeAsset.assetId} accountId={accountId} route={route} />
     )
   )
 }

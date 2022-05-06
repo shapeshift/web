@@ -1,18 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, AssetNamespace, caip2, caip10, caip19, ChainId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { logger } from 'lib/logger'
 import {
   AccountSpecifier,
   AccountSpecifierMap,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER } from './utils'
+
+const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
 export type TxId = string
 export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
@@ -214,7 +218,7 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => {
-      console.info('txHistorySlice: clearing tx history')
+      moduleLogger.info('clearing tx history')
       return initialState
     },
     setStatus: (state, { payload }: TxHistoryStatusPayload) => {
@@ -286,7 +290,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = await adapters.byChainId(chainId)
+        const adapter = (await adapters.byChainId(chainId)) as ChainAdapter<ChainTypes.Ethereum>
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)

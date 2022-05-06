@@ -19,7 +19,7 @@ import {
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -27,6 +27,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -55,7 +56,7 @@ export const ClaimConfirm = ({
     name: ConfirmFormFields.FeeType,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const methods = useFormContext<StakingValues>()
@@ -81,11 +82,12 @@ export const ClaimConfirm = ({
   }, [adapter, asset.precision, marketData.price])
 
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, assetId),
+    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(
@@ -121,6 +123,11 @@ export const ClaimConfirm = ({
     cosmosStaking.close()
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   return (
     <FormProvider {...methods}>
       <SlideTransition>
@@ -129,7 +136,9 @@ export const ClaimConfirm = ({
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(event: FormEvent<unknown>) => {
+            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+          }}
           direction='column'
           alignItems='center'
           justifyContent='space-between'

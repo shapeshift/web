@@ -59,7 +59,7 @@ export const OpportunityCard = ({
     if (isConnected) {
       if (isCosmosStaking) {
         cosmosStaking.open({
-          assetId: assetId,
+          assetId,
           validatorAddress: contractAddress,
         })
         return

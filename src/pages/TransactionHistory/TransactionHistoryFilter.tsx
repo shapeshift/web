@@ -33,13 +33,6 @@ export enum FilterFormFields {
   Types = 'types',
 }
 
-export type FilterFormFieldsType = {
-  [FilterFormFields.FromDate]: string
-  [FilterFormFields.ToDate]: string
-  [FilterFormFields.DayRange]: string
-  [FilterFormFields.Types]: string[]
-}
-
 type TransactionHistoryFilterProps = {
   setFilters: Function
   resetFilters: Function

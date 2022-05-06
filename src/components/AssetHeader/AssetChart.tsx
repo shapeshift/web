@@ -58,7 +58,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -164,7 +164,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           )}
         </Box>
       </Card.Header>
-      {view === View.Balance ? (
+      {view === View.Balance && marketData ? (
         <Box>
           <BalanceChart
             accountId={accountId}

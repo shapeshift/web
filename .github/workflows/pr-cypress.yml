@@ -16,8 +16,8 @@ env:
   REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
   REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
-
-  REACT_APP_FEATURE_COSMOS_INVESTOR: true
+  REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
+  REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: FCMM7AFC0S6A8NUK
 
   REACT_APP_GEM_ASSET_LOGO: https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/
   REACT_APP_GEM_API_KEY: bb4164a72246dae1e03010d664d6cdae4e19b2554de02e3bf6c3cd30aa7e359e
@@ -79,8 +79,8 @@ jobs:
 
       # Because of "record" and "parallel" parameters
       # our workers will load balance all found tests among themselves
-      # 
-      # Testing: Local Docker resources in settings may need to be increased to 
+      #
+      # Testing: Local Docker resources in settings may need to be increased to
       # closer reflect Github runner resources.
       # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
       - name: Cypress Run

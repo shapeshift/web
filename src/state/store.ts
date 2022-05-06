@@ -30,7 +30,7 @@ const apiMiddleware = [
 
 const persistedReducer = persistReducer(persistConfig, reducer)
 
-export const clearState = (opts?: { excludePreferences?: boolean }) => {
+export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
   store.dispatch(slices.marketData.actions.clear())
   store.dispatch(slices.txHistory.actions.clear())

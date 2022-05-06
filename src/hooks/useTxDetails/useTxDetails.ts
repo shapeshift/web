@@ -61,7 +61,7 @@ export const getTransferByType = (tx: Tx, txType: chainAdapters.TxType) =>
 export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Receive)
 export const getSellTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Send)
 export const getTransferByAsset = (tx: Tx, asset: Asset) =>
-  tx.transfers.find(t => t.caip19 === asset.caip19)
+  tx.transfers.find(t => t.caip19 === asset.assetId)
 
 export const isSupportedContract = (tx: Tx) =>
   Object.values(ContractMethod).includes(tx.data?.method as ContractMethod)
@@ -91,7 +91,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const buyTransfer = getTransferByType(tx, chainAdapters.TxType.Receive)
   const sellTransfer = getTransferByType(tx, chainAdapters.TxType.Send)
   const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
-  // const tradeTx = activeAsset?.caip19 === sellTransfer?.caip19 ? sellTransfer : buyTransfer
 
   const direction: Direction | undefined = (() => {
     switch (method) {

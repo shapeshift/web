@@ -124,7 +124,7 @@ export const useSwapper = () => {
       sellAssetAccountId: '0',
     })
 
-    // Only subtract fee if sell asset is the see asset
+    // Only subtract fee if sell asset is the fee asset
     const isFeeAsset = feeAsset.assetId === sellAsset.assetId
     // Pad fee because estimations can be wrong
     const feePadded = bnOrZero(maximumQuote?.feeData?.fee)

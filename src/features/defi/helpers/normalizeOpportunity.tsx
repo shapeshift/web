@@ -5,10 +5,7 @@ import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  MergedActiveStakingOpportunity,
-  MergedStakingOpportunity,
-} from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
@@ -32,6 +29,7 @@ export type EarnOpportunityType = {
   chain: ChainTypes
   moniker?: string
   showAssetSymbol?: boolean
+  isLoaded: boolean
 }
 
 const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[] => {
@@ -68,6 +66,8 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       assetId: assetCAIP19,
       fiatAmount,
       cryptoAmount,
+      // DeFi foxy and yearn vaults are already loaded by the time they are transformed
+      isLoaded: true,
     }
     // show vaults that are expired but have a balance
     // show vaults that don't have an APY but have a balance
@@ -119,44 +119,21 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       assetId,
       fiatAmount,
       cryptoAmount,
+      // DeFi foxy and yearn vaults are already loaded by the time they are transformed
+      isLoaded: true,
     }
   })
 }
 
 const useTransformCosmosStaking = (
-  cosmosActiveStakingOpportunities: MergedActiveStakingOpportunity[],
-  cosmosStakingOpportunities: MergedStakingOpportunity[],
+  cosmosStakingOpportunities: MergedActiveStakingOpportunity[],
 ): EarnOpportunityType[] => {
   const translate = useTranslate()
-  if (cosmosActiveStakingOpportunities.length === 0) {
-    if (cosmosStakingOpportunities.length === 0) {
-      return []
-    }
-
-    return cosmosStakingOpportunities.map(staking => {
-      return {
-        type: DefiType.TokenStaking,
-        assetId: staking.assetId,
-        provider: chainTypeToLabel(staking.chain),
-        contractAddress: staking.address,
-        tokenAddress: staking.tokenAddress,
-        rewardAddress: '',
-        tvl: staking.tvl,
-        apy: staking.apr,
-        chain: staking.chain,
-        cryptoAmount: '',
-        fiatAmount: '',
-        showAssetSymbol: true,
-      }
-    })
-  }
-
-  return cosmosActiveStakingOpportunities
+  return cosmosStakingOpportunities
     .map(staking => {
       return {
         type: DefiType.TokenStaking,
         provider: chainTypeToLabel(staking.chain),
-        version: translate('defi.validatorMoniker', { moniker: staking.moniker }),
         contractAddress: staking.address,
         tokenAddress: staking.tokenAddress,
         rewardAddress: '',
@@ -167,7 +144,11 @@ const useTransformCosmosStaking = (
         fiatAmount: staking.fiatAmount ?? '',
         cryptoAmount: staking.cryptoAmount ?? '',
         moniker: staking.moniker,
-        showAssetSymbol: true,
+        version:
+          !bnOrZero(staking.cryptoAmount).isZero() &&
+          translate('defi.validatorMoniker', { moniker: staking.moniker }),
+        showAssetSymbol: bnOrZero(staking.cryptoAmount).isZero(),
+        isLoaded: Boolean(staking.isLoaded),
       }
     })
     .sort((opportunityA, opportunityB) => {
@@ -178,19 +159,17 @@ const useTransformCosmosStaking = (
 type NormalizeOpportunitiesProps = {
   vaultArray: SupportedYearnVault[]
   foxyArray: MergedFoxyOpportunity[]
-  cosmosActiveStakingOpportunities: MergedActiveStakingOpportunity[]
-  cosmosStakingOpportunities: MergedStakingOpportunity[]
+  cosmosStakingOpportunities: MergedActiveStakingOpportunity[]
 }
 
 export const useNormalizeOpportunities = ({
   vaultArray,
   foxyArray,
-  cosmosActiveStakingOpportunities = [],
   cosmosStakingOpportunities = [],
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
     ...transformFoxy(foxyArray),
-    ...useTransformCosmosStaking(cosmosActiveStakingOpportunities, cosmosStakingOpportunities),
+    ...useTransformCosmosStaking(cosmosStakingOpportunities),
     ...useTransformVault(vaultArray),
   ]
 }

@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import size from 'lodash/size'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { MouseEvent, useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -16,10 +15,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   OpportunitiesDataFull,
   selectFirstAccountSpecifierByChainId,
+  selectHasActiveStakingOpportunity,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
@@ -65,13 +64,9 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
   )
 
-  const hasActiveStaking =
-    // More than one opportunity data means we have more than the default opportunity
-    size(stakingOpportunitiesData) > 1 ||
-    // If there's only one staking but it isn't the default opportunity, then it's an active staking
-    stakingOpportunitiesData[0]?.address !== SHAPESHIFT_VALIDATOR_ADDRESS ||
-    bnOrZero(stakingOpportunitiesData[0]?.rewards).gt(0) ||
-    bnOrZero(stakingOpportunitiesData[0]?.totalDelegations).gt(0)
+  const hasActiveStaking = useAppSelector(state =>
+    selectHasActiveStakingOpportunity(state, { accountSpecifier, assetId }),
+  )
 
   const rows = stakingOpportunitiesData
   const { cosmosGetStarted, cosmosStaking } = useModal()

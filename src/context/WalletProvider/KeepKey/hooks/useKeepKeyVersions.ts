@@ -35,11 +35,11 @@ interface VersionStatus {
 interface Versions {
   bootloader: VersionStatus
   firmware: VersionStatus
-  updaterUrl: string
 }
 
 export const useKeepKeyVersions = () => {
   const [versions, setVersions] = useState<Versions>()
+  const [updaterUrl, setUpdaterUrl] = useState<string>()
   const {
     state: { wallet },
   } = useWallet()
@@ -85,11 +85,11 @@ export const useKeepKeyVersions = () => {
           latest: latestFirmware,
           updateAvailable: deviceFirmware !== latestFirmware,
         },
-        updaterUrl: releases.links.updater,
       }
       setVersions(versions)
+      setUpdaterUrl(releases.links.updater)
     })()
   }, [wallet])
 
-  return versions
+  return [versions, updaterUrl]
 }

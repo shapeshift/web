@@ -1,5 +1,5 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -54,7 +54,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const extra = tokenId
     ? { assetNamespace, assetReference: tokenId }
     : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
-  const caip = caip19.toCAIP19({ chain, network, ...extra })
+  const caip = toCAIP19({ chain, network, ...extra })
 
   const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
 
@@ -143,7 +143,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Text translation={txid ? 'trade.complete' : 'trade.confirmDetails'} />
               </Card.Heading>
             </WithBackButton>
-            <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} status={status} />
+            <AssetToAsset
+              buyAsset={buyAsset}
+              sellAsset={sellAsset}
+              mt={6}
+              status={txid ? status : undefined}
+            />
           </Card.Header>
           <Divider />
           <Card.Body pb={0} px={0}>

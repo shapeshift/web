@@ -78,7 +78,7 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
         },
         interval: 15000,
-        maxAttempts: 30,
+        maxAttempts: 60,
       })
       // Get deposit gas estimate
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)

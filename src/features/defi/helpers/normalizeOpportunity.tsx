@@ -1,4 +1,4 @@
-import { AssetId, AssetNamespace } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'

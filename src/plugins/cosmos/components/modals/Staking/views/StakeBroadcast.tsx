@@ -34,7 +34,6 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }: StakeProps) => {
-  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -43,12 +42,15 @@ export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }:
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const validatorInfo = useAppSelector(state =>
+    selectValidatorByAddress(state, { validatorAddress }),
+  )
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods
   const { txFee, fiatFee, cryptoAmount, gasLimit } = useWatch({ control })
 
-  if (!validatorInfo || !txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
+  if (!txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
 
   const onSubmit = async () => {
     if (broadcasted) {

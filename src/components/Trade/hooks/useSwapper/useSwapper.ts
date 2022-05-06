@@ -177,7 +177,6 @@ export const useSwapper = () => {
       sellAsset,
       buyAsset,
     })
-//    const sellAmount = toBaseUnit(amount, sellAsset.precision)
     const minSellAmount = toBaseUnit(minimum, sellAsset.precision)
 
     if (bnOrZero(amount).lt(minSellAmount)) {

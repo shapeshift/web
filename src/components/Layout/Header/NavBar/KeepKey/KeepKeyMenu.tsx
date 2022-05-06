@@ -24,7 +24,7 @@ export const KeepKeyMenu = () => {
   const {
     state: { deviceTimeout, features },
   } = useKeepKey()
-  const [versions, updaterUrl] = useKeepKeyVersions()
+  const { versions, updaterUrl } = useKeepKeyVersions()
   const {
     setDeviceState,
     state: { isConnected, walletInfo },

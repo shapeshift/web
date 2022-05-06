@@ -91,5 +91,5 @@ export const useKeepKeyVersions = () => {
     })()
   }, [wallet])
 
-  return [versions, updaterUrl]
+  return { versions, updaterUrl }
 }

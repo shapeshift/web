@@ -119,7 +119,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
-  const versions = useKeepKeyVersions()
+  const { versions, updaterUrl } = useKeepKeyVersions()
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
@@ -179,13 +179,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                   <AlertDescription>
                     <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
                   </AlertDescription>
-                  <Link
-                    href={versions.updaterUrl}
-                    display={'block'}
-                    fontWeight={'bold'}
-                    mt={2}
-                    isExternal
-                  >
+                  <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
                     {translate('updateToast.keepKey.downloadCta')}
                   </Link>
                 </Box>
@@ -206,7 +200,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
         })
       }
     })()
-  }, [keepKeyWallet, toast, translate, versions, onClose])
+  }, [keepKeyWallet, toast, translate, versions, onClose, updaterUrl])
 
   const value: IKeepKeyContext = useMemo(
     () => ({

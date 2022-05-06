@@ -1,6 +1,9 @@
 import entries from 'lodash/entries'
 import toLower from 'lodash/toLower'
 
+import { ChainId, toCAIP2 } from '../../caip2/caip2'
+import { fromCAIP19 } from '../../caip19/caip19'
+
 const CAIP19ToBanxaTickerMap = {
   'bip122:000000000019d6689c085ae165831e93/slip44:0': 'btc',
   'cosmos:cosmoshub-4/slip44:118': 'atom',
@@ -47,3 +50,29 @@ export const getSupportedBanxaAssets = () =>
     CAIP19,
     ticker
   }))
+
+/**
+ * map ChainIds to Banxa blockchain codes (ETH, BTC, COSMOS),
+ * since some Banxa assets could be on multiple chains and their default
+ * chain won't be exactly the same as ours.
+ */
+const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
+  'eip155:1': 'ETH',
+  'bip122:000000000019d6689c085ae165831e93': 'BTC',
+  'cosmos:cosmoshub-4': 'COSMOS'
+} as const
+
+/**
+ * Convert a banxa asset identifier to a Banxa chain identifier for use in Banxa HTTP URLs
+ *
+ * @param {string} banxaAssetId - a Banxa asset string referencing a specific asset; e.g., 'atom'
+ * @returns {string} - a Banxa chain identifier; e.g., 'cosmos'
+ */
+export const getBanxaBlockchainFromBanxaAssetTicker = (banxaAssetId: string): string => {
+  const assetCAIP19 = banxaTickerToCAIP19(banxaAssetId.toLowerCase())
+  if (!assetCAIP19)
+    throw new Error(`getBanxaBlockchainFromBanxaAssetTicker: ${banxaAssetId} is not supported`)
+  const { chain, network } = fromCAIP19(assetCAIP19)
+  const chainId = toCAIP2({ network, chain })
+  return chainIdToBanxaBlockchainCodeMap[chainId]
+}

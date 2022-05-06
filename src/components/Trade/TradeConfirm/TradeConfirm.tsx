@@ -38,13 +38,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<ChainTypes>>()
   const toast = useToast()
   const translate = useTranslate()
-  const {
-    sellAsset: sellTradeAsset,
-    buyAsset: buyTradeAsset,
-    trade,
-    fees,
-    sellAssetFiatRate,
-  } = getValues()
+  const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -54,7 +48,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  const { chain, tokenId } = sellTradeAsset.asset
+  const { chain, tokenId } = trade.sellAsset
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   const extra = tokenId
@@ -156,7 +150,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               </Card.Heading>
             </WithBackButton>
             <AssetToAsset
-              buyIcon={buyTradeAsset.asset.icon}
+              buyIcon={trade.buyAsset.icon}
               tradeFiatAmount={tradeFiatAmount}
               trade={trade}
               mt={6}
@@ -175,7 +169,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={`${sellTradeAsset.asset?.explorerTxLink}${txid}`}
+                      href={`${trade.sellAsset?.explorerTxLink}${txid}`}
                     >
                       <Text translation='trade.viewTransaction' />
                     </Link>
@@ -189,9 +183,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </Row.Label>
                 </HelperTooltip>
                 <Box textAlign='right'>
-                  <RawText>{`1 ${sellTradeAsset.asset.symbol} = ${firstNonZeroDecimal(
+                  <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
                     bnOrZero(trade?.rate),
-                  )} ${buyTradeAsset?.asset?.symbol}`}</RawText>
+                  )} ${trade?.buyAsset?.symbol}`}</RawText>
                 </Box>
               </Row>
               <Row>

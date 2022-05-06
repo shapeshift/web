@@ -40,16 +40,16 @@ export const Approval = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useFormContext<TradeState<ChainTypes>>()
-  const { approveInfinite, checkApprovalNeeded, } = useSwapper()
+  const { approveInfinite, checkApprovalNeeded } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
     state: { wallet },
   } = useWallet()
-  const { sellAsset, fees } = getValues()
+  const { quote, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
-  const symbol = sellAsset.asset?.symbol
+  const symbol = quote?.sellAsset?.symbol
 
   const approve = async () => {
     if (!wallet) return
@@ -138,7 +138,7 @@ export const Approval = () => {
               }}
             >
               <Image
-                src={sellAsset.asset?.icon}
+                src={quote?.sellAsset?.icon}
                 boxSize='60px'
                 fallback={<SkeletonCircle boxSize='60px' />}
               />
@@ -160,7 +160,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && sellAsset.asset?.explorerTxLink && (
+              {approvalTxId && quote?.sellAsset?.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -170,7 +170,7 @@ export const Approval = () => {
                       isExternal
                       color='blue.500'
                       // TODO:(ryankk) create explorer links given a link template and a value
-                      href={`${sellAsset.asset?.explorerTxLink}${approvalTxId}`}
+                      href={`${quote?.sellAsset?.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis address={approvalTxId} />
                     </Link>

@@ -28,8 +28,8 @@ export type TradeState<C extends ChainTypes> = {
   sellAssetFiatRate: string
   fees?: chainAdapters.QuoteFeeData<C>
   action?: TradeAmountInputField
-  quote?: TradeQuote<C>
-  trade?: FinalizedTrade<C>
+  quote: TradeQuote<C>
+  trade: FinalizedTrade<C>
 }
 
 export const Trade = () => {

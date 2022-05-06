@@ -20,7 +20,7 @@ import {
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -28,7 +28,6 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -96,8 +95,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   }, [adapter, asset.precision, marketData.price])
 
   const {
-    state: { wallet, isConnected },
-    dispatch,
+    state: { wallet },
   } = useWallet()
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
@@ -116,12 +114,6 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
     memoryHistory.push(StakingPath.Broadcast)
   }
 
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    onCancel()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
   if (!cryptoAmount) return null
 
   return (
@@ -132,9 +124,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={(event: FormEvent<unknown>) => {
-            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-          }}
+          onSubmit={handleSubmit(onSubmit)}
           direction='column'
           alignItems='center'
           justifyContent='space-between'

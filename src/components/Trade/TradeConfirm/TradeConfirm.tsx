@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -12,7 +12,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -47,8 +46,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet, isConnected },
-    dispatch,
+    state: { wallet },
   } = useWallet()
   const { chain, tokenId } = sellAsset.currency
   const network = NetworkTypes.MAINNET
@@ -135,24 +133,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push('/trade/input')
   }
 
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    /**
-     * call handleBack to reset current form state
-     * before opening the connect wallet modal.
-     */
-    handleBack()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
   return (
     <SlideTransition>
-      <Box
-        as='form'
-        onSubmit={(event: FormEvent<unknown>) => {
-          isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-        }}
-      >
+      <Box as='form' onSubmit={handleSubmit(onSubmit)}>
         <Card variant='unstyled'>
           <Card.Header px={0} pt={0}>
             <WithBackButton handleBack={handleBack}>

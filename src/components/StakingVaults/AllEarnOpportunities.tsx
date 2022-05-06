@@ -26,7 +26,7 @@ export const AllEarnOpportunities = () => {
   const location = useLocation()
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const {
-    state: { isConnected, walletInfo },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
@@ -61,7 +61,7 @@ export const AllEarnOpportunities = () => {
         assetId,
         cryptoAmount,
       } = opportunity
-      if (!isConnected && walletInfo?.deviceId !== 'DemoWallet') {
+      if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }

@@ -6,8 +6,6 @@ import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetToAsset, AssetToAssetProps } from 'components/AssetToAsset/AssetToAsset'
 import { SlideTransition } from 'components/SlideTransition'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 type ConfirmProps = {
   onCancel(): void
@@ -30,21 +28,6 @@ export const Confirm = ({
   ...rest
 }: ConfirmProps) => {
   const translate = useTranslate()
-
-  const {
-    state: { isConnected },
-    dispatch,
-  } = useWallet()
-
-  const handleWalletModalOpen = () => {
-    /**
-     * call onCancel to close the current modal
-     * before opening the connect wallet modal.
-     */
-    onCancel()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
   return (
     <SlideTransition>
       <ModalBody pt={0} flexDir={{ base: 'column', md: 'row' }}>
@@ -64,7 +47,7 @@ export const Confirm = ({
             <Button
               size='lg'
               colorScheme='blue'
-              onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+              onClick={onConfirm}
               isLoading={loading}
               loadingText={loadingText}
             >

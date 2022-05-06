@@ -18,7 +18,7 @@ const generateAssetData = async () => {
   // remove blacklisted assets
   const filteredAssetData = filterBlacklistedAssets(blacklist, unfilteredAssetData)
   // deterministic order so diffs are readable
-  const generatedAssetData = orderBy(filteredAssetData, 'caip19')
+  const generatedAssetData = orderBy(filteredAssetData, 'assetId')
 
   await fs.promises.writeFile(
     `./src/service/generatedAssetData.json`,

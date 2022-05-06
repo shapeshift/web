@@ -12,6 +12,6 @@ export type GetStartedRouterProps = {
 }
 
 export enum GetStartedManagerRoutes {
-  GetStarted = '/defi/modal/get-started',
-  LearnMore = '/defi/modal/learn-more',
+  GetStarted = '/cosmos/modal/get-started',
+  LearnMore = '/cosmos/modal/learn-more',
 }

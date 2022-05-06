@@ -1,7 +1,13 @@
 // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-19.md
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { ChainNamespace, ChainReference, toCAIP2 } from '../caip2/caip2'
+import {
+  ChainNamespace,
+  chainNamespaceToChainType,
+  ChainReference,
+  chainReferenceToNetworkType,
+  toCAIP2
+} from '../caip2/caip2'
 
 /**
  * @deprecated - Temporarily left in place for backwards compatibility, to be replaced with AssetId
@@ -51,24 +57,6 @@ const validAssetNamespaces = Object.freeze({
     AssetNamespace.NATIVE,
     AssetNamespace.Slip44
   ]
-})
-
-const chainReferenceToNetworkType: Record<string, NetworkTypes> = Object.freeze({
-  [ChainReference.BitcoinMainnet]: NetworkTypes.MAINNET,
-  [ChainReference.BitcoinTestnet]: NetworkTypes.TESTNET,
-  [ChainReference.EthereumMainnet]: NetworkTypes.MAINNET,
-  [ChainReference.EthereumRopsten]: NetworkTypes.ETH_ROPSTEN,
-  [ChainReference.EthereumRinkeby]: NetworkTypes.ETH_RINKEBY,
-  [ChainReference.CosmosHubMainnet]: NetworkTypes.COSMOSHUB_MAINNET,
-  [ChainReference.CosmosHubVega]: NetworkTypes.COSMOSHUB_VEGA,
-  [ChainReference.OsmosisMainnet]: NetworkTypes.OSMOSIS_MAINNET,
-  [ChainReference.OsmosisTestnet]: NetworkTypes.OSMOSIS_TESTNET
-})
-
-const chainNamespaceToChainType: Record<string, ChainTypes> = Object.freeze({
-  [ChainNamespace.Bitcoin]: ChainTypes.Bitcoin,
-  [ChainNamespace.Ethereum]: ChainTypes.Ethereum,
-  [ChainNamespace.Cosmos]: ChainTypes.Cosmos
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,8 +127,8 @@ export const fromCAIP19 = (caip19: string): FromCAIP19Return => {
 
   // We're okay casting these strings to enums because we check to make sure
   // they are valid enum values
-  let chain: ChainTypes = chainNamespaceToChainType[matches[1]]
-  const network = chainReferenceToNetworkType[matches[2]]
+  let chain: ChainTypes = chainNamespaceToChainType[matches[1] as ChainNamespace]
+  const network = chainReferenceToNetworkType[matches[2] as ChainReference]
   const assetNamespace = stringToEnum<AssetNamespace>(AssetNamespace, matches[3])
   let assetReference = matches[4]
 

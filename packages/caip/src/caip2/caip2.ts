@@ -1,6 +1,7 @@
 // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-2.md
 
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import invert from 'lodash/invert'
 
 /**
  * @deprecated - Temporarily left in place for backwards compatibility, to be replaced with ChainId
@@ -237,3 +238,26 @@ export const isCAIP2: IsCAIP2 = (caip2) => {
 
   throw new Error(`isCAIP2: invalid caip2 ${caip2}`)
 }
+
+export const chainReferenceToNetworkType: Record<ChainReference, NetworkTypes> = Object.freeze({
+  [ChainReference.BitcoinMainnet]: NetworkTypes.MAINNET,
+  [ChainReference.BitcoinTestnet]: NetworkTypes.TESTNET,
+  [ChainReference.EthereumMainnet]: NetworkTypes.MAINNET,
+  [ChainReference.EthereumRopsten]: NetworkTypes.ETH_ROPSTEN,
+  [ChainReference.EthereumRinkeby]: NetworkTypes.ETH_RINKEBY,
+  [ChainReference.CosmosHubMainnet]: NetworkTypes.COSMOSHUB_MAINNET,
+  [ChainReference.CosmosHubVega]: NetworkTypes.COSMOSHUB_VEGA,
+  [ChainReference.OsmosisMainnet]: NetworkTypes.OSMOSIS_MAINNET,
+  [ChainReference.OsmosisTestnet]: NetworkTypes.OSMOSIS_TESTNET
+})
+
+export const networkTypeToChainReference = invert(chainReferenceToNetworkType) as Record<
+  NetworkTypes,
+  ChainReference
+>
+
+export const chainNamespaceToChainType: Record<ChainNamespace, ChainTypes> = Object.freeze({
+  [ChainNamespace.Bitcoin]: ChainTypes.Bitcoin,
+  [ChainNamespace.Ethereum]: ChainTypes.Ethereum,
+  [ChainNamespace.Cosmos]: ChainTypes.Cosmos
+})

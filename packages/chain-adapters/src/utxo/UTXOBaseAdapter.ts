@@ -59,6 +59,7 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
   abstract unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void
   abstract closeTxs(): void
   abstract getType(): T
+  abstract getSupportedAccountTypes(): UtxoAccountType[]
 
   abstract getTxHistory(
     input: chainAdapters.TxHistoryInput

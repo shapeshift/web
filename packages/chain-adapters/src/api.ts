@@ -1,5 +1,5 @@
 import { CAIP2, ChainId } from '@shapeshiftoss/caip'
-import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
 export type ChainAdapter<T extends ChainTypes> = {
   /**
@@ -13,6 +13,12 @@ export type ChainAdapter<T extends ChainTypes> = {
   getCaip2(): ChainId | CAIP2
 
   getChainId(): ChainId | CAIP2
+  /**
+   * Get the supported account types for an adapter
+   * For UTXO coins, that's the list of UTXO account types
+   * For other networks, this is unimplemented, and left as a responsibility of the consumer.
+   */
+  getSupportedAccountTypes?(): Array<UtxoAccountType>
   /**
    * Get the balance of an address
    */

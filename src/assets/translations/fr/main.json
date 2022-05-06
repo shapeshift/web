@@ -112,7 +112,8 @@
     "defiUniverse": "Univers DeFi",
     "body": "100% Gratuit. Open Source. Propriété communautaire. Non-dépositaire. Privé.",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
-    "cta": "Connecter Porte-monnaie"
+    "cta": "Connecter Porte-monnaie",
+    "orViewADemo": "ou voir une démo"
   },
   "connectWallet": {
     "menu": {
@@ -847,7 +848,9 @@
         "SegwitNative": "Segwit Natif",
         "P2pkh": "Legacy",
         "SegwitNativeTooltip": "Recommandé pour la plupart des utilisateurs. N'utilisez les autres adresses uniquement si vous savez à quoi elles servent.",
-        "btcFormat": "Format BTC"
+        "btcFormat": "Format BTC",
+        "assetUnavailable": "Les données de marché pour cet actif ne sont pas encore disponibles. On y travaille, accrochez-vous !",
+        "loading": "Récupération de l'historique des prix, accrochez-vous..."
       },
       "assetDescription": {
         "showMore": "Montrer plus",

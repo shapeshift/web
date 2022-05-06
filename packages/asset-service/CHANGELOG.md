@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v2.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.4.6...@shapeshiftoss/asset-service-v2.5.0) (2022-05-06)
+
+
+### Features
+
+* regenerate asset data with assetId as sorting criteria ([#620](https://github.com/shapeshift/lib/issues/620)) ([716e2e1](https://github.com/shapeshift/lib/commit/716e2e13847f58eadd5ec90dbd0d2c52db6d62cf))
+
 # [@shapeshiftoss/asset-service-v2.4.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.4.5...@shapeshiftoss/asset-service-v2.4.6) (2022-05-05)
 
 # [@shapeshiftoss/asset-service-v2.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.4.4...@shapeshiftoss/asset-service-v2.4.5) (2022-05-03)

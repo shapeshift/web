@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/asset-service",
-  "version": "2.4.6",
+  "version": "2.5.0",
   "description": "Service to return supported asset details",
   "homepage": "",
   "license": "MIT",

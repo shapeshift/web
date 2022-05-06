@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.4.6...@shapeshiftoss/investor-foxy-v1.5.0) (2022-05-06)
+
+
+### Features
+
+* **caip:** flatten exports ([#560](https://github.com/shapeshift/lib/issues/560)) ([e326522](https://github.com/shapeshift/lib/commit/e3265223dca3c2126b2822395353f6650c4b0342))
+
 # [@shapeshiftoss/investor-foxy-v1.4.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.4.5...@shapeshiftoss/investor-foxy-v1.4.6) (2022-05-05)
 
 # [@shapeshiftoss/investor-foxy-v1.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.4.4...@shapeshiftoss/investor-foxy-v1.4.5) (2022-05-05)

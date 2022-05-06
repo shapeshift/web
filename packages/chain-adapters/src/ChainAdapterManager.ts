@@ -1,4 +1,4 @@
-import { CAIP2, caip2 } from '@shapeshiftoss/caip'
+import { CAIP2, isCAIP2 } from '@shapeshiftoss/caip'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -117,7 +117,7 @@ export class ChainAdapterManager {
 
   async byChainId(chainId: CAIP2) {
     // this function acts like a validation function and throws if the check doesn't pass
-    caip2.isCAIP2(chainId)
+    isCAIP2(chainId)
 
     for (const [chain] of this.supported) {
       // byChain calls the factory function so we need to call it to create the instances

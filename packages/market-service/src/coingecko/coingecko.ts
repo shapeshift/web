@@ -1,4 +1,4 @@
-import { adapters, caip19 as AssetId } from '@shapeshiftoss/caip'
+import { adapters, fromCAIP19 } from '@shapeshiftoss/caip'
 import {
   ChainTypes,
   FindAllMarketArgs,
@@ -19,7 +19,6 @@ import { isValidDate } from '../utils/isValidDate'
 import { rateLimitedAxios } from '../utils/rateLimiters'
 import { CoinGeckoMarketCap } from './coingecko-types'
 
-const { fromCAIP19 } = AssetId
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINGECKO)
 
 // tons more params here: https://www.coingecko.com/en/api/documentation

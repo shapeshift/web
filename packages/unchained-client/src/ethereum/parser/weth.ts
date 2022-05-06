@@ -1,5 +1,5 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
 
@@ -55,7 +55,7 @@ export class Parser implements SubParser {
     const sendAddress = tx.vin[0].addresses?.[0] ?? ''
     const contract = new ethers.Contract(this.wethContract, ERC20_ABI, this.provider)
 
-    const assetId = caip19.toCAIP19({
+    const assetId = toCAIP19({
       chain: ChainTypes.Ethereum,
       network: toNetworkType(this.network),
       assetNamespace: AssetNamespace.ERC20,

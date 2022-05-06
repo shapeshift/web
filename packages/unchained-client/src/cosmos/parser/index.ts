@@ -2,9 +2,9 @@ import {
   AssetId,
   AssetNamespace,
   AssetReference,
-  caip2,
-  caip19,
-  ChainId
+  ChainId,
+  fromCAIP2,
+  toCAIP19
 } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
@@ -24,8 +24,8 @@ export class TransactionParser {
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
 
-    this.assetId = caip19.toCAIP19({
-      ...caip2.fromCAIP2(this.chainId),
+    this.assetId = toCAIP19({
+      ...fromCAIP2(this.chainId),
       assetNamespace: AssetNamespace.Slip44,
       assetReference: AssetReference.Cosmos
     })

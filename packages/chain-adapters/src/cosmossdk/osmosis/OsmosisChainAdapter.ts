@@ -1,4 +1,4 @@
-import { AssetNamespace, AssetReference, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, CAIP19, fromCAIP2, toCAIP19 } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, OsmosisSignTx, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
@@ -23,9 +23,9 @@ export class ChainAdapter
   constructor(args: ChainAdapterArgs) {
     super(args)
 
-    const { chain, network } = caip2.fromCAIP2(this.chainId)
+    const { chain, network } = fromCAIP2(this.chainId)
 
-    this.assetId = caip19.toCAIP19({
+    this.assetId = toCAIP19({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,

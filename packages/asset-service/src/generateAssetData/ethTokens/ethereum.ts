@@ -1,4 +1,4 @@
-import { caip19 } from '@shapeshiftoss/caip'
+import { fromCAIP19 } from '@shapeshiftoss/caip'
 import { BaseAsset, TokenAsset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
@@ -43,7 +43,7 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
   for (const [i, batch] of tokenBatches.entries()) {
     console.info(`processing batch ${i + 1} of ${tokenBatches.length}`)
     const promises = batch.map(async (token) => {
-      const { chain } = caip19.fromCAIP19(token.assetId)
+      const { chain } = fromCAIP19(token.assetId)
       const { info } = generateTrustWalletUrl({ chain, tokenId: token.tokenId })
       return axios.head(info) // return promise
     })
@@ -70,7 +70,7 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
         }
         return uniqueTokens[key] // token without modified icon
       } else {
-        const { chain } = caip19.fromCAIP19(uniqueTokens[key].assetId)
+        const { chain } = fromCAIP19(uniqueTokens[key].assetId)
         const { icon } = generateTrustWalletUrl({ chain, tokenId: uniqueTokens[key].tokenId })
         return { ...uniqueTokens[key], icon }
       }

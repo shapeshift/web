@@ -1,4 +1,4 @@
-import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 
 import { YearnVaultMarketCapService } from './yearn-vaults'
@@ -37,7 +37,7 @@ describe('yearn market service', () => {
       const yvBTCAddress = '0x19D3364A399d251E894aC732651be8B0E4e85001'
       const result = await yearnVaultMarketCapService.findAll()
       expect(Object.keys(result)[0]).toEqual(
-        caip19.toCAIP19({
+        toCAIP19({
           chain: ChainTypes.Ethereum,
           network: NetworkTypes.MAINNET,
           assetNamespace: AssetNamespace.ERC20,
@@ -72,13 +72,13 @@ describe('yearn market service', () => {
 
     it('can map yearn to caip ids', async () => {
       const result = await yearnVaultMarketCapService.findAll()
-      const yvBtcCaip19 = caip19.toCAIP19({
+      const yvBtcCaip19 = toCAIP19({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         assetNamespace: AssetNamespace.ERC20,
         assetReference: mockYearnVaultRestData[0].address.toLowerCase()
       })
-      const yvDaiCaip19 = caip19.toCAIP19({
+      const yvDaiCaip19 = toCAIP19({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         assetNamespace: AssetNamespace.ERC20,

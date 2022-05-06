@@ -1,4 +1,4 @@
-import { AssetNamespace, caip2, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toCAIP2, toCAIP19 } from '@shapeshiftoss/caip'
 import { AssetDataSource, ChainTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
@@ -49,10 +49,10 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
       return acc
     }
     const result: TokenAsset = {
-      assetId: caip19.toCAIP19({ chain, network, assetNamespace, assetReference }),
-      chainId: caip2.toCAIP2({ chain, network }),
-      caip19: caip19.toCAIP19({ chain, network, assetNamespace, assetReference }),
-      caip2: caip2.toCAIP2({ chain, network }),
+      assetId: toCAIP19({ chain, network, assetNamespace, assetReference }),
+      chainId: toCAIP2({ chain, network }),
+      caip19: toCAIP19({ chain, network, assetNamespace, assetReference }),
+      caip2: toCAIP2({ chain, network }),
       dataSource: AssetDataSource.CoinGecko,
       name: token.name,
       precision: token.decimals,

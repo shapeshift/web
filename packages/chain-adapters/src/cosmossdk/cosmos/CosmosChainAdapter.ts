@@ -1,4 +1,11 @@
-import { AssetNamespace, AssetReference, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import {
+  AssetNamespace,
+  AssetReference,
+  CAIP19,
+  ChainReference,
+  fromCAIP2,
+  toCAIP19
+} from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   CosmosSignTx,
@@ -30,9 +37,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
   constructor(args: ChainAdapterArgs) {
     super(args)
 
-    const { chain, network } = caip2.fromCAIP2(this.chainId)
+    const { chain, network } = fromCAIP2(this.chainId)
 
-    this.assetId = caip19.toCAIP19({
+    this.assetId = toCAIP19({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,
@@ -153,7 +160,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
       const txToSign: CosmosSignTx = {
         addressNList,
         tx: utx,
-        chain_id: caip2.ChainReference.CosmosHubMainnet,
+        chain_id: ChainReference.CosmosHubMainnet,
         account_number: account.chainSpecific.accountNumber,
         sequence: account.chainSpecific.sequence
       }
@@ -225,7 +232,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
       const txToSign: CosmosSignTx = {
         addressNList,
         tx: utx,
-        chain_id: caip2.ChainReference.CosmosHubMainnet,
+        chain_id: ChainReference.CosmosHubMainnet,
         account_number: account.chainSpecific.accountNumber,
         sequence: account.chainSpecific.sequence
       }
@@ -296,7 +303,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
       const txToSign: CosmosSignTx = {
         addressNList,
         tx: utx,
-        chain_id: caip2.ChainReference.CosmosHubMainnet,
+        chain_id: ChainReference.CosmosHubMainnet,
         account_number: account.chainSpecific.accountNumber,
         sequence: account.chainSpecific.sequence
       }
@@ -361,7 +368,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
       const txToSign: CosmosSignTx = {
         addressNList,
         tx: utx,
-        chain_id: caip2.ChainReference.CosmosHubMainnet,
+        chain_id: ChainReference.CosmosHubMainnet,
         account_number: account.chainSpecific.accountNumber,
         sequence: account.chainSpecific.sequence
       }
@@ -440,7 +447,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
       const txToSign: CosmosSignTx = {
         addressNList,
         tx: utx,
-        chain_id: caip2.ChainReference.CosmosHubMainnet,
+        chain_id: ChainReference.CosmosHubMainnet,
         account_number: account.chainSpecific.accountNumber,
         sequence: account.chainSpecific.sequence
       }

@@ -4,6 +4,7 @@
     "next": "Suivant",
     "error": "Erreur",
     "cancel": "Annuler",
+    "close": "Fermer",
     "continue": "Continuer",
     "approve": "Approuver",
     "confirm": "Confirmer",
@@ -18,6 +19,8 @@
     "unresolvableEnsDomain": "Impossible de résoudre le domaine ENS",
     "deposit": "Déposer",
     "withdraw": "Retirer",
+    "withdrawal": "Retrait",
+    "overview": "Aperçu",
     "getStarted": "Commencer",
     "connectWallet": "Connecter Porte-monnaie",
     "connectedWallet": "Porte-monnaie Connecté",
@@ -34,6 +37,7 @@
     "or": "ou",
     "somethingWentWrong": "Il y a eu un problème",
     "somethingWentWrongBody": "Il y a eu un problème",
+    "success": "Succès",
     "transactionFailed": "Échec de la transaction",
     "transactionFailedBody": "Échec de la transaction",
     "submitFeedback": "Envoyer un commentaire",
@@ -50,7 +54,11 @@
     "settings": "Paramètres",
     "legalDated": "Daté: Janvier 2022",
     "approveOnWallet": "Approuver sur le porte-monnaie",
-    "confirmOnWallet": "Confirmer sur le porte-monnaie"
+    "confirmOnWallet": "Confirmer sur le porte-monnaie",
+    "login": "Connexion",
+    "verify": "Vérifier",
+    "notRobot": "Je ne suis pas un robot",
+    "skip": "Sauter"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -310,6 +318,7 @@
         "transferOut": "Transfert vers l'extérieur"
       },
       "foxy": {
+        "stake": "Miser",
         "unstake": "Démiser",
         "instantUnstake": "Démiser instantanément",
         "claimWithdraw": "Réclamer retrait"
@@ -378,12 +387,18 @@
       },
       "label": {
         "header": "Étiqueter votre KeepKey",
-        "body": "L'étiquetage de chacun de vos appareils vous permet de les distinguer facilement les uns des autres."
+        "body": "L'étiquetage de chacun de vos appareils vous permet de les distinguer facilement les uns des autres.",
+        "setLabelButton": "Définir l'étiquette",
+        "skipLabelButton": "Sauter",
+        "placeholder": "Optionnel"
       },
       "recoverySettings": {
         "header": "Récupérez votre porte-monnaie",
         "sentenceLengthLabel": "Longueur de la phrase de  récupération",
         "recoveryPassphraseLabel": "Phrase de passe de récupération",
+        "recoveryPassphraseToggle": "Récupérer avec la phrase secrète ?",
+        "recoveryPassphraseDescription": "Si vous ne savez pas si votre phrase de récupération est protégée par une phrase de passe, laissez cette option désactivée.",
+        "wordEntropy": "%{wordEntropy} mots",
         "button": "Récupérer le porte-monnaie"
       },
       "recoverySentence": {
@@ -400,9 +415,15 @@
         "recoverButton": "Récupérer le porte-monnaie"
       },
       "recoverySentenceEntry": {
-        "body": "À l'aide de la légende du clavier brouillé sur votre KeepKey, entrez les 4 premières lettres de chaque mot. S'il y a moins de 4 lettres dans le mot, appuyez sur Entrée, appuyez sur la barre d'espace ou cliquez sur Suivant lorsque vous avez fini de l'entrer."
+        "header": "Entrez votre phrase de récupération",
+        "body": "À l'aide de la légende du clavier brouillé sur votre KeepKey, entrez les 4 premières lettres de chaque mot. S'il y a moins de 4 lettres dans le mot, appuyez sur Entrée, appuyez sur la barre d'espace ou cliquez sur Suivant lorsque vous avez fini de l'entrer.",
+        "button": "Suivant",
+        "awaitingButtonPress": "Suivez les instructions sur votre KeepKey pour continuer.",
+        "toastMessage": "KeepKey restauré avec succès !"
       },
       "recoverySettingUp": {
+        "header": "Configuration de l'appareil...",
+        "body": "Veuillez patienter pendant que nous initialisons votre appareil et synchronisons vos adresses."
       }
     },
     "shapeShift": {
@@ -773,22 +794,27 @@
       "legacy": {
         "deprecatedWarning": "L'identification ShapeShift est obsolète",
         "learnMore": "En savoir plus",
+        "alreadySavedConfirm": "Je confirme que ma phrase secrète de récupération est déjà sauvegardée en toute sécurité.",
         "mobileWalletTitle": "Porte-monnaie mobile ShapeShift",
         "importInformations": "Pour continuer à utiliser votre porte-monnaie mobile ShapeShift, vous devrez l'importer.",
         "importWallet": "Importer un porte-monnaie",
         "haveMobileWallet": "Vous avez un porte-monnaie mobile ShapeShift ?",
         "loginWithAccount": "Se connecter avec un compte ShapeShift",
         "loginInformations": "Entrez votre adresse de courriel et le mot de passe que vous utilisez pour vous connecter à votre application mobile ShapeShift.",
+        "loginSuccess": "Connexion réussie",
         "emailAddress": "Adresse de courriel",
+        "password": "Mot de passe",
         "emailRequired": "L'adresse de courriel est requise",
         "invalidEmail": "L'adresse de courriel est invalide",
         "invalidCaptcha": "Le Capcha est invalide",
         "invalidLogin": "Identification invalide",
         "noWallet": "Impossible de trouver un porte-monnaie ShapeShift Natif pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
         "decryptionError": "Une erreur s'est produite lors du décryptage de votre porte-monnaie.",
+        "twoFactorAuthentication": "Authentification à deux facteurs",
         "twoFactorPlaceholder": "Code à 6 chiffres",
         "twoFactorRequired": "La 2FA est requise",
-        "invalidTwoFactor": "Le code à 6 chiffres est invalide"
+        "invalidTwoFactor": "Le code à 6 chiffres est invalide",
+        "twoFactorDescription": "L'authentification à deux facteurs est activée pour votre compte. Veuillez saisir le code de votre application d'authentification."
       }
     },
     "selectModal": {

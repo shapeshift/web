@@ -143,7 +143,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Text translation={txid ? 'trade.complete' : 'trade.confirmDetails'} />
               </Card.Heading>
             </WithBackButton>
-            <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} status={status} />
+            <AssetToAsset
+              buyIcon={buyAsset.currency.icon}
+              sellFiatRate={bnOrZero(sellAsset.fiatRate).toString()}
+              trade={trade}
+              mt={6}
+              status={status}
+            />
           </Card.Header>
           <Divider />
           <Card.Body pb={0} px={0}>

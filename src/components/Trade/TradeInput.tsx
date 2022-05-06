@@ -80,10 +80,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     .minus(tradeDeduction)
     .gte(0)
 
-  console.log('fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset.precision)', fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset.precision))
-  console.log('feeAssetBalance', feeAssetBalance)
-  console.log('tradeDeduction', tradeDeduction)
-
   const onSubmit = async () => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
@@ -172,8 +168,6 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.insufficientFunds'
     }
 
-    console.log('hasEnoughBalanceForGas', hasEnoughBalanceForGas)
-    console.log('hasValidTradeBalance', hasValidTradeBalance)
     if (isValid && hasValidTradeBalance && !hasEnoughBalanceForGas) {
       return 'common.insufficientAmountForGas'
     }

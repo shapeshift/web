@@ -1,25 +1,26 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Circle, Divider, Flex, FlexProps, Text, useColorModeValue } from '@chakra-ui/react'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { Trade } from '@shapeshiftoss/swapper'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { TradeAsset } from '../Trade'
-
-type AssetToAssetProps = {
-  sellAsset: TradeAsset
-  buyAsset: TradeAsset
+type AssetToAssetProps<C extends ChainTypes> = {
+  sellFiatRate: string
+  buyIcon: string
   status?: chainAdapters.TxStatus
+  trade?: Trade<C>
 } & FlexProps
 
 export const AssetToAsset = ({
-  sellAsset,
-  buyAsset,
+  sellFiatRate,
+  buyIcon,
+  trade,
   boxSize = '24px',
   status,
   ...rest
-}: AssetToAssetProps) => {
+}: AssetToAssetProps<ChainTypes>) => {
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const {
@@ -49,19 +50,15 @@ export const AssetToAsset = ({
     <Flex width='full' justifyContent='space-between' alignItems='stretch' {...rest}>
       <Box flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center'>
-          <AssetIcon src={sellAsset.currency.icon} boxSize={boxSize} />
+          <AssetIcon src={trade?.sellAsset.icon} boxSize={boxSize} />
           <Divider flex={1} bgColor={sellAssetColor} />
         </Flex>
         <Box mt={2}>
           <Text fontWeight='medium'>
-            {toCrypto(Number(sellAsset.amount), sellAsset.currency.symbol)}
+            {toCrypto(Number(trade?.sellAmount), trade?.sellAsset.symbol)}
           </Text>
           <Text color='gray.500'>
-            {toFiat(
-              bn(sellAsset.amount || '0')
-                .times(sellAsset.fiatRate || '0')
-                .toNumber(),
-            )}
+            {toFiat(bnOrZero(trade?.sellAmount).times(bnOrZero(sellFiatRate)).toNumber())}
           </Text>
         </Box>
       </Box>
@@ -78,7 +75,7 @@ export const AssetToAsset = ({
       <Flex flexDirection='column' flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center' flex={1} justify='flex-start'>
           <Divider flex={1} bgColor={buyAssetColor} />
-          <AssetIcon src={buyAsset.currency.icon} boxSize={boxSize} />
+          <AssetIcon src={buyIcon} boxSize={boxSize} />
         </Flex>
         <Flex
           flexDirection='column'
@@ -88,14 +85,10 @@ export const AssetToAsset = ({
           mt={2}
         >
           <Text fontWeight='medium'>
-            {toCrypto(Number(buyAsset.amount), buyAsset.currency.symbol)}
+            {toCrypto(Number(trade?.buyAmount), trade?.buyAsset.symbol)}
           </Text>
           <Text color='gray.500'>
-            {toFiat(
-              bn(sellAsset.amount || '0')
-                .times(sellAsset.fiatRate || '0')
-                .toNumber(),
-            )}
+            {toFiat(bnOrZero(trade?.sellAmount).times(bnOrZero(sellFiatRate)).toNumber())}
           </Text>
         </Flex>
       </Flex>

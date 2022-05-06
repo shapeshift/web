@@ -111,21 +111,21 @@ export const useSwapper = () => {
     feeAsset,
   }: {
     wallet: HDWallet
-    sellAsset: TradeAsset
-    buyAsset: TradeAsset
+    sellAsset: Asset
+    buyAsset: Asset
     feeAsset: Asset
   }) => {
     const swapper = swapperManager.getSwapper(SwapperType.Zrx)
     const maximumQuote = await swapper.getTradeQuote({
-      sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency,
+      sellAsset,
+      buyAsset,
       sellAmount: sellAssetBalance,
       sendMax: true,
       sellAssetAccountId: '0',
     })
 
     // Only subtract fee if sell asset is the see asset
-    const isFeeAsset = feeAsset.assetId === sellAsset.currency.assetId
+    const isFeeAsset = feeAsset.assetId === sellAsset.assetId
     // Pad fee because estimations can be wrong
     const feePadded = bnOrZero(maximumQuote?.feeData?.fee)
     // sell asset balance minus expected fee = maxTradeAmount
@@ -134,7 +134,7 @@ export const useSwapper = () => {
       bnOrZero(sellAssetBalance)
         .minus(isFeeAsset ? feePadded : 0)
         .toString(),
-      sellAsset.currency.precision,
+      sellAsset.precision,
     )
 
     setValue('sellAsset.amount', maxAmount)

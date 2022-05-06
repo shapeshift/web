@@ -34,29 +34,29 @@ export const asSellAmount = async ({
 
   let sellAmount
   let buyAmount
-  let fiatAmount
+  let fiatSellAmount
 
   if (action === TradeAmountInputField.SELL) {
     sellAmount = amount
     buyAmount = bnOrZero(amount).dividedBy(assetPriceRatio)
-    fiatAmount = bnOrZero(amount).times(bnOrZero(sellAssetUsdRate)).toFixed(2)
+    fiatSellAmount = bnOrZero(amount).times(bnOrZero(sellAssetUsdRate)).toFixed(2)
   } else if (action === TradeAmountInputField.BUY) {
     buyAmount = amount
     sellAmount = assetPriceRatio.times(amount)
-    fiatAmount = bnOrZero(amount).times(bnOrZero(buyAssetUsdRate)).toFixed(2)
+    fiatSellAmount = bnOrZero(amount).times(bnOrZero(buyAssetUsdRate)).toFixed(2)
   } else if (action === TradeAmountInputField.FIAT) {
     sellAmount = bnOrZero(amount).dividedBy(sellAssetUsdRate)
     buyAmount = bnOrZero(amount).dividedBy(buyAssetUsdRate)
-    fiatAmount = amount
+    fiatSellAmount = amount
   } else {
     sellAmount = '0'
     buyAmount = '0'
-    fiatAmount = '0'
+    fiatSellAmount = '0'
   }
   return {
     sellAmount: toBaseUnit(sellAmount, sellAsset.precision),
     buyAmount: toBaseUnit(buyAmount, buyAsset.precision),
-    fiatAmount,
+    fiatSellAmount,
     sellAssetUsdRate: sellAssetUsdRate.toString(),
     buyAssetUsdRate: sellAssetUsdRate.toString(),
   }

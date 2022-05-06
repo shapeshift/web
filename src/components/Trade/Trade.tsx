@@ -1,5 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { Trade as FinalizedTrade,TradeQuote } from '@shapeshiftoss/swapper'
+import { Trade as FinalizedTrade, TradeQuote } from '@shapeshiftoss/swapper'
 import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
@@ -8,9 +8,8 @@ import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 import { TradeAmountInputField } from './types'
 
 export type TradeAsset = {
-  currency: Asset
+  asset: Asset
   amount?: string
-  fiatRate?: string
 }
 
 export type TradeProps = {
@@ -27,18 +26,19 @@ export type BuildQuoteTxOutput = {
 export type TradeState<C extends ChainTypes> = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset
-  fiatAmount: string
+  fiatSellAmount: string
+  sellAssetFiatRate: string
   fees?: chainAdapters.QuoteFeeData<C>
   action?: TradeAmountInputField
   quote?: TradeQuote<C>
   trade?: FinalizedTrade<C>
 }
 
-export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
+export const Trade = () => {
   const methods = useForm<TradeState<ChainTypes>>({
     mode: 'onChange',
     defaultValues: {
-      fiatAmount: undefined,
+      fiatSellAmount: undefined,
     },
   })
 
@@ -47,7 +47,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       <MemoryRouter initialEntries={entries}>
         <Switch>
           <Route path='/'>
-            <TradeRoutes defaultBuyAssetId={defaultBuyAssetId} />
+            <TradeRoutes />
           </Route>
         </Switch>
       </MemoryRouter>

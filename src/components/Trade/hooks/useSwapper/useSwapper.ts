@@ -89,7 +89,7 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
         assetIds,
-        sellAssetId: sellAsset?.currency?.assetId,
+        sellAssetId: sellAsset?.asset?.assetId,
       })
       return filterAssetsByIds(assets, supportedBuyAssetIds)
     },
@@ -102,7 +102,7 @@ export const useSwapper = () => {
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellAsset?.currency?.assetId }),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellAsset?.asset?.assetId }),
   )
 
   const getSendMaxAmount = async ({
@@ -234,35 +234,33 @@ export const useSwapper = () => {
     debounce(async ({ amount, sellAsset, buyAsset, action }) => {
       try {
         const swapper = await swapperManager.getBestSwapper({
-          buyAssetId: buyAsset.currency.assetId,
-          sellAssetId: sellAsset.currency.assetId,
+          buyAssetId: buyAsset.assetId,
+          sellAssetId: sellAsset.assetId,
         })
 
-        const { sellAmount, buyAmount, sellAssetUsdRate, buyAssetUsdRate, fiatAmount } =
-          await asSellAmount({
-            buyAsset: buyAsset.currency,
-            sellAsset: sellAsset.currency,
-            swapper,
-            action,
-            amount,
-          })
+        const { sellAmount, buyAmount, sellAssetUsdRate, fiatSellAmount } = await asSellAmount({
+          buyAsset,
+          sellAsset,
+          swapper,
+          action,
+          amount,
+        })
 
         const tradeQuote = await swapper.getTradeQuote({
-          sellAsset: sellAsset.currency,
-          buyAsset: buyAsset.currency,
+          sellAsset,
+          buyAsset,
           sellAmount,
           sendMax: false,
           sellAssetAccountId: '0',
         })
 
-        setFees(tradeQuote, sellAsset.currency)
+        setFees(tradeQuote, sellAsset)
 
         setValue('quote', tradeQuote)
-        setValue('sellAsset.fiatRate', sellAssetUsdRate.toString())
-        setValue('buyAsset.fiatRate', buyAssetUsdRate.toString())
-        setValue('fiatAmount', fiatAmount)
-        setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.currency.precision))
-        setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.currency.precision))
+        setValue('sellAssetFiatRate', sellAssetUsdRate.toString())
+        setValue('fiatSellAmount', fiatSellAmount)
+        setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision))
+        setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision))
       } catch (e) {
         console.error(e)
       }
@@ -275,13 +273,16 @@ export const useSwapper = () => {
     buyAsset,
     feeAsset,
     action,
+    initialQuote,
   }: GetQuoteInput & {
-    sellAsset: TradeAsset
-    buyAsset: TradeAsset
+    sellAsset: Asset
+    buyAsset: Asset
     feeAsset: Asset
     action: TradeAmountInputField
+    initialQuote?: boolean
   }) => {
-    if (!amount) return
+    if (!initialQuote && amount === '0') return
+    setValue('quote', undefined)
     updateQuoteDebounced.current.cancel()
     await updateQuoteDebounced.current({
       amount,
@@ -365,7 +366,7 @@ export const useSwapper = () => {
   const reset = () => {
     setValue('buyAsset.amount', '')
     setValue('sellAsset.amount', '')
-    setValue('fiatAmount', '')
+    setValue('fiatSellAmount', '')
   }
 
   return {

@@ -1,4 +1,3 @@
-import { AssetId } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -6,6 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField } from 'components/Trade/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets } from 'state/slices/selectors'
 
 import { TradeState } from '../../Trade'
@@ -13,17 +13,15 @@ import { useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
 
-export const useTradeRoutes = (
-  defaultBuyAssetId?: AssetId,
-): {
+export const useTradeRoutes = (): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<ChainTypes>>()
   const { updateQuote, getDefaultPair } = useSwapper()
-  const buyAsset = getValues('buyAsset')
-  const sellAsset = getValues('sellAsset')
+  const buyTradeAsset = getValues('buyAsset')
+  const sellTradeAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
   const feeAsset = assets[ETHEREUM_CAIP19]
 
@@ -31,31 +29,19 @@ export const useTradeRoutes = (
     // wait for assets to be loaded
     if (isEmpty(assets) || !feeAsset) return
 
-    // TODO: Create a real whitelist when we support more chains
-    const shouldUseDefaultAsset = () => {
-      return (
-        defaultBuyAssetId &&
-        assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
-        assets[defaultBuyAssetId]?.assetId !== ETHEREUM_CAIP19
-      )
-    }
-
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-
-      const buyAsset =
-        defaultBuyAssetId && shouldUseDefaultAsset()
-          ? assets[defaultBuyAssetId]
-          : assets[buyAssetId]
+      const buyAsset = assets[buyAssetId]
 
       if (sellAsset && buyAsset) {
-        setValue('sellAsset.currency', sellAsset)
-        setValue('buyAsset.currency', buyAsset)
+        setValue('sellAsset.asset', sellAsset)
+        setValue('buyAsset.asset', buyAsset)
         updateQuote({
+          initialQuote: true,
           amount: '0',
-          sellAsset: { currency: sellAsset },
-          buyAsset: { currency: buyAsset },
+          sellAsset: sellTradeAsset.asset,
+          buyAsset: buyTradeAsset.asset,
           feeAsset,
           action: TradeAmountInputField.SELL,
         })
@@ -63,7 +49,7 @@ export const useTradeRoutes = (
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, feeAsset, updateQuote, getDefaultPair, defaultBuyAssetId])
+  }, [assets, feeAsset, getDefaultPair, setValue, updateQuote, sellTradeAsset, buyTradeAsset])
 
   useEffect(() => {
     setDefaultAssets()
@@ -72,15 +58,13 @@ export const useTradeRoutes = (
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (buyAsset.currency && asset.assetId === buyAsset.currency.assetId)
-          setValue('buyAsset.currency', sellAsset.currency)
-        setValue('sellAsset.currency', asset)
+        setValue('sellAsset.asset', asset)
         setValue('buyAsset.amount', '')
         setValue('quote', undefined)
         updateQuote({
-          amount: sellAsset.amount ?? '0',
-          sellAsset,
-          buyAsset,
+          amount: bnOrZero(sellTradeAsset.amount).toString(),
+          sellAsset: sellTradeAsset.asset,
+          buyAsset: buyTradeAsset.asset,
           feeAsset,
           action: TradeAmountInputField.SELL,
         })
@@ -90,21 +74,19 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, updateQuote],
+    [buyTradeAsset, sellTradeAsset, feeAsset, history, setValue, updateQuote],
   )
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (sellAsset.currency && asset.assetId === sellAsset.currency.assetId)
-          setValue('sellAsset.currency', buyAsset.currency)
-        setValue('buyAsset.currency', asset)
+        setValue('buyAsset.asset', asset)
         setValue('sellAsset.amount', '')
         setValue('quote', undefined)
         updateQuote({
-          amount: buyAsset.amount ?? '0',
-          sellAsset,
-          buyAsset,
+          amount: bnOrZero(buyTradeAsset.amount).toString(),
+          sellAsset: sellTradeAsset.asset,
+          buyAsset: buyTradeAsset.asset,
           feeAsset,
           action: TradeAmountInputField.SELL,
         })
@@ -114,7 +96,7 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, updateQuote],
+    [setValue, updateQuote, buyTradeAsset, sellTradeAsset, feeAsset, history],
   )
 
   return { handleSellClick, handleBuyClick }

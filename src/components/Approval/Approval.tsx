@@ -49,7 +49,7 @@ export const Approval = () => {
   } = useWallet()
   const { sellAsset, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
-  const symbol = sellAsset.currency?.symbol
+  const symbol = sellAsset.asset?.symbol
 
   const approve = async () => {
     if (!wallet) return
@@ -138,7 +138,7 @@ export const Approval = () => {
               }}
             >
               <Image
-                src={sellAsset.currency?.icon}
+                src={sellAsset.asset?.icon}
                 boxSize='60px'
                 fallback={<SkeletonCircle boxSize='60px' />}
               />
@@ -160,7 +160,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && sellAsset.currency?.explorerTxLink && (
+              {approvalTxId && sellAsset.asset?.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -170,7 +170,7 @@ export const Approval = () => {
                       isExternal
                       color='blue.500'
                       // TODO:(ryankk) create explorer links given a link template and a value
-                      href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
+                      href={`${sellAsset.asset?.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis address={approvalTxId} />
                     </Link>

@@ -1,16 +1,11 @@
-import { AssetId } from '@shapeshiftoss/caip'
 import { Card } from 'components/Card/Card'
 import { Trade } from 'components/Trade/Trade'
 
-type TradeCardProps = {
-  defaultBuyAssetId?: AssetId
-}
-
-export const TradeCard = ({ defaultBuyAssetId }: TradeCardProps) => {
+export const TradeCard = () => {
   return (
     <Card flex={1} variant='outline'>
       <Card.Body>
-        <Trade defaultBuyAssetId={defaultBuyAssetId} />
+        <Trade />
       </Card.Body>
     </Card>
   )

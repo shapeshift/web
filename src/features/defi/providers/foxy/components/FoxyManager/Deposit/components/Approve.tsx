@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -37,8 +37,8 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   const alertText = useColorModeValue('blue.800', 'white')
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetId = caip19.toCAIP19({
+  const assetId = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetId = toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,

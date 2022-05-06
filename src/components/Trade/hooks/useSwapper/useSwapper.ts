@@ -248,8 +248,6 @@ export const useSwapper = () => {
             amount,
           })
 
-        if (sellAmount === '0') return
-
         const tradeQuote = await swapper.getTradeQuote({
           sellAsset: sellAsset.currency,
           buyAsset: buyAsset.currency,
@@ -288,7 +286,7 @@ export const useSwapper = () => {
     feeAsset: Asset
     action: TradeAmountInputField
   }) => {
-    if (!buyAsset?.currency || !sellAsset?.currency) return
+    if (!amount) return
     updateQuoteDebounced.current.cancel()
     await updateQuoteDebounced.current({
       amount,

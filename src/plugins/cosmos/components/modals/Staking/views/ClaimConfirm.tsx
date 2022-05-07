@@ -102,6 +102,7 @@ export const ClaimConfirm = ({
   const onSubmit = async () => {
     if (!wallet || !feeData) return
     if (!isConnected) {
+      memoryHistory.goBack()
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }

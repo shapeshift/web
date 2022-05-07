@@ -751,6 +751,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Keplr",
+        "connectFailure": "Unable to connect Keplr wallet"
+      },
+      "connect": {
+        "header": "Pair Keplr",
+        "body": "Click Pair then select Keplr from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Keplr wallet"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",

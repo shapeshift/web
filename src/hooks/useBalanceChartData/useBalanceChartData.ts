@@ -1,4 +1,4 @@
-import { AssetId, caip2, caip10, ChainId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, toCAIP2, toCAIP10 } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import {
   chainAdapters,
@@ -332,7 +332,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // Get total delegation
   // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const cosmosCaip2: ChainId = caip2.toCAIP2({
+  const cosmosCaip2: ChainId = toCAIP2({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
   })
@@ -345,7 +345,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     return acc
   }, '')
 
-  const cosmosAccountSpecifier = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
+  const cosmosAccountSpecifier = account ? toCAIP10({ caip2: cosmosCaip2, account }) : ''
 
   const delegationTotal = useAppSelector(state =>
     selectTotalStakingDelegationCryptoByAccountSpecifier(state, {

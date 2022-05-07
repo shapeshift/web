@@ -28,6 +28,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -93,7 +94,8 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   }, [adapter, asset.precision, marketData.price])
 
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   if (!validatorInfo || !cryptoAmount) return null
@@ -103,6 +105,11 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
 
   const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      onCancel()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[feeType]
     const gas = fees.chainSpecific.gasLimit

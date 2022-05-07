@@ -27,6 +27,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -81,7 +82,8 @@ export const ClaimConfirm = ({
   }, [adapter, asset.precision, marketData.price])
 
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
@@ -99,6 +101,11 @@ export const ClaimConfirm = ({
 
   const onSubmit = async () => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      memoryHistory.goBack()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[activeFee]
     const gas = fees.chainSpecific.gasLimit

@@ -1,11 +1,11 @@
-import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { Bucket } from './useBalanceChartData'
 
-const cosmosCaip19 = caip19.toCAIP19({
+const cosmosCaip19 = toCAIP19({
   chain: ChainTypes.Cosmos,
   network: NetworkTypes.COSMOSHUB_MAINNET,
   assetNamespace: AssetNamespace.Slip44,

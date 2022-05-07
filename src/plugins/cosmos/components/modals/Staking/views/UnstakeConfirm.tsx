@@ -29,6 +29,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetById,
@@ -58,7 +59,8 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
 
   const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -91,6 +93,15 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const history = useHistory()
   const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      /**
+       * call onCancel to navigate back before
+       * opening the connect wallet modal.
+       */
+      onCancel()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[feeType]
     const gas = fees.chainSpecific.gasLimit

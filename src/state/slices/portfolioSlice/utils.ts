@@ -1,4 +1,4 @@
-import { AccountId, AssetId, caip2, caip10, caip19, ChainId } from '@shapeshiftoss/caip'
+import { AccountId, AssetId, ChainId, fromCAIP19, toCAIP2, toCAIP10 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
@@ -175,7 +175,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { caip2, caip19, pubkey } = account
         const accountSpecifier = `${caip2}:${toLower(pubkey)}`
-        const CAIP10 = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
+        const CAIP10 = toCAIP10({ caip2, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
@@ -260,7 +260,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         // For tx history, we need to have CAIP10/AccountIds of addresses that may have 0 balances
         // for accountSpecifier to CAIP10/AccountId mapping
         addresses.forEach(({ pubkey }) => {
-          const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
+          const CAIP10 = toCAIP10({ caip2, account: pubkey })
           if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
             portfolio.accountSpecifiers.byId[accountSpecifier] = []
           }
@@ -275,7 +275,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const cosmosAccount = account as chainAdapters.Account<ChainTypes.Cosmos>
         const { caip2, caip19 } = account
         const accountSpecifier = `${caip2}:${_xpubOrAccount}`
-        const accountId = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
+        const accountId = toCAIP10({ caip2, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
@@ -407,8 +407,8 @@ export const makeBalancesByChainBucketsFlattened = (
 
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
   if (!assetId) return false
-  const { chain, network } = caip19.fromCAIP19(assetId)
-  const chainId = caip2.toCAIP2({ chain, network })
+  const { chain, network } = fromCAIP19(assetId)
+  const chainId = toCAIP2({ chain, network })
   switch (chainId) {
     case ethChainId:
       return supportsETH(wallet)

@@ -21,7 +21,7 @@ import {
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { FeePrice } from 'plugins/cosmos/utils'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -95,6 +95,15 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const history = useHistory()
   const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      /**
+       * call onCancel to navigate back before
+       * opening the connect wallet modal.
+       */
+      onCancel()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[feeType]
     const gas = fees.chainSpecific.gasLimit
@@ -104,16 +113,6 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
     methods.setValue(Field.FiatFee, fees.fiatFee)
 
     history.push(UnstakingPath.Broadcast)
-  }
-
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    /**
-     * call onCancel to navigate back before
-     * opening the connect wallet modal.
-     */
-    onCancel()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   const translate = useTranslate()
@@ -128,9 +127,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={(event: FormEvent<unknown>) => {
-            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-          }}
+          onSubmit={handleSubmit(onSubmit)}
           flexDirection='column'
           alignItems='center'
           justifyContent='space-between'

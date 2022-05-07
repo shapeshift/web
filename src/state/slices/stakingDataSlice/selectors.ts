@@ -2,7 +2,6 @@ import { createSelector } from '@reduxjs/toolkit'
 import { AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
-import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import BigNumber from 'bignumber.js'
 import get from 'lodash/get'
 import memoize from 'lodash/memoize'
@@ -302,7 +301,7 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
     if (!stakingData || !stakingData.rewards) return []
 
     return stakingData.rewards.reduce(
-      (acc: chainAdapters.cosmos.Reward[], current: ValidatorReward) => {
+      (acc: chainAdapters.cosmos.Reward[], current: chainAdapters.cosmos.ValidatorReward) => {
         if (current.validator.address !== validatorAddress) return acc
 
         acc.push(...current.rewards)
@@ -321,7 +320,10 @@ export const selectAllRewardsByAssetId = createDeepEqualOutputSelector(
     if (!stakingData || !stakingData.rewards) return {}
 
     const rewards = stakingData.rewards.reduce(
-      (acc: Record<PubKey, chainAdapters.cosmos.Reward[]>, current: ValidatorReward) => {
+      (
+        acc: Record<PubKey, chainAdapters.cosmos.Reward[]>,
+        current: chainAdapters.cosmos.ValidatorReward,
+      ) => {
         if (!acc[current.validator.address]) {
           acc[current.validator.address] = []
         }

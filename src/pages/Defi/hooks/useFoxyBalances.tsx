@@ -1,6 +1,5 @@
 import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
-import { DefiType, FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { WithdrawInfo } from '@shapeshiftoss/investor-foxy/dist/api/foxy-types'
+import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'

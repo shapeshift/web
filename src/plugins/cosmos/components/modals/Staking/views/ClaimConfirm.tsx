@@ -10,9 +10,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import {
   ConfirmFormFields,
   ConfirmFormInput,
@@ -66,7 +65,7 @@ export const ClaimConfirm = ({
   const translate = useTranslate()
   const memoryHistory = useHistory()
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 

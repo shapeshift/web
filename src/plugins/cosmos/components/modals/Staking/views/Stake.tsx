@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
@@ -102,7 +102,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
 
       const txFees = getFormFees(averageTxFee, asset.precision, marketData.price)
 
-      setaverageTxFee(txFees[FeeDataKey.Average])
+      setaverageTxFee(txFees[chainAdapters.FeeDataKey.Average])
     })()
   }, [adapter, asset.precision, marketData.price])
 

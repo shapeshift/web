@@ -12,17 +12,21 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
-import { useRef, useState } from 'react'
+import { FeePriceValueHuman, getFormFees } from 'plugins/cosmos/utils'
+import { useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -52,6 +56,8 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
     handleSubmit,
     setValue,
   } = useFormContext<StakingValues>()
+
+  const [averageTxFee, setaverageTxFee] = useState<FeePriceValueHuman | null>(null)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -87,6 +93,19 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
 
   const translate = useTranslate()
 
+  const chainAdapterManager = useChainAdapters()
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
+
+  useEffect(() => {
+    ;(async () => {
+      const averageTxFee = await adapter.getFeeData({})
+
+      const txFees = getFormFees(averageTxFee, asset.precision, marketData.price)
+
+      setaverageTxFee(txFees[FeeDataKey.Average])
+    })()
+  }, [adapter, asset.precision, marketData.price])
+
   const handlePercentClick = (_percent: number) => {
     if (values.amountFieldError) {
       setValue(Field.AmountFieldError, '', { shouldValidate: true })
@@ -96,9 +115,28 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
       .times(_percent)
       .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+    const fiatAmountMinusTxFee = fiatAmount.minus(averageTxFee?.fiatFee ?? '0')
+    const cryptoAmountMinusTxFee = cryptoAmount.minus(averageTxFee?.txFee ?? '0')
+    const shouldSubtractFees = cryptoAmount
+      .plus(averageTxFee?.txFee ?? '0')
+      .gte(cryptoBalanceHuman.toString())
+
+    if (shouldSubtractFees && cryptoAmountMinusTxFee.isNegative()) {
+      setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+    }
     if (activeField === InputType.Crypto) {
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(
+        Field.FiatAmount,
+        shouldSubtractFees ? fiatAmountMinusTxFee.toString() : fiatAmount.toString(),
+        {
+          shouldValidate: true,
+        },
+      )
+      setValue(
+        Field.CryptoAmount,
+        shouldSubtractFees ? cryptoAmountMinusTxFee.toString() : cryptoAmount.toString(),
+        { shouldValidate: true },
+      )
     } else {
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
@@ -116,7 +154,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
         shouldValidate: true,
       })
 
-      if (cryptoAmount.gt(cryptoBalanceHuman)) {
+      if (cryptoBalanceHuman.lt(cryptoAmount.plus(averageTxFee?.txFee ?? '0'))) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
         return
       }
@@ -126,7 +164,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
         .dp(asset.precision, BigNumber.ROUND_DOWN)
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
 
-      if (bnOrZero(cryptoAmount).gt(bnOrZero(cryptoBalanceHuman))) {
+      if (cryptoBalanceHuman.lt(cryptoAmount.plus(averageTxFee?.txFee ?? '0'))) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
         return
       }

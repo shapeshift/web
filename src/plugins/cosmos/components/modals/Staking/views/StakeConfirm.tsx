@@ -80,7 +80,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   const hasEnoughBalance = useMemo(
     () =>
       feeData &&
-      bnOrZero(cryptoAmount).plus(bnOrZero(feeData[activeFee].txFee)).lt(cryptoBalanceHuman),
+      bnOrZero(cryptoAmount).plus(bnOrZero(feeData[activeFee].txFee)).lte(cryptoBalanceHuman),
     [cryptoBalanceHuman, feeData, activeFee, cryptoAmount],
   )
 

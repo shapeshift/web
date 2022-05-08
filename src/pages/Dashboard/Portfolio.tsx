@@ -16,7 +16,7 @@ import {
 import { AccountTable } from './components/AccountList/AccountTable'
 
 export const Portfolio = () => {
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useSelector(selectPortfolioAssetIds)

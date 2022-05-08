@@ -25,6 +25,7 @@ import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -82,7 +83,8 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   )
 
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
@@ -90,6 +92,11 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
 
   const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      onCancel()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[feeType]
     const gas = fees.chainSpecific.gasLimit

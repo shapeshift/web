@@ -1,6 +1,6 @@
 import { FailureModal } from 'context/WalletProvider/components/FailureModal'
 
-export const PortisFailure = () => {
+export const KeplrFailure = () => {
   return (
     <FailureModal
       headerText={'walletprovider.keplr.failure.header'}

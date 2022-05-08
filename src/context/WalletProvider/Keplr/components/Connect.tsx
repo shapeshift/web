@@ -46,7 +46,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Keplr, 'test')
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        console.error('Keplr Connect: There was an error initializing the wallet', e)
+        console.error('Keplr: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.keplr.errors.unknown')
         history.push('/keplr/failure')
       }

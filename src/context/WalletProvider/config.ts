@@ -37,6 +37,9 @@ import { PortisConfig } from './Portis/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
+import { KeplrConnect } from './Keplr/components/Connect'
+import { KeplrFailure } from './Keplr/components/Failure'
+import { KeplrConfig } from './Keplr/config'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -102,5 +105,12 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
+  },
+  [KeyManager.Keplr]: {
+    ...KeplrConfig,
+    routes: [
+      { path: '/Keplr/connect', component: KeplrConnect },
+      { path: '/Keplr/failure', component: KeplrFailure },
+    ],
   },
 }

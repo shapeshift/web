@@ -42,5 +42,6 @@ export const KeplrIcon = createIcon({
             <polygon id="K" fill="#FFFFFF" fill-rule="nonzero" points="70.4 170 70.4 108 129 170 161.6 170 161.6 168.4 94.2 97.8 156.4 30.8 156.4 30 123.6 30 70.4 89.2 70.4 30 44 30 44 170"></polygon>
         </g>
     </svg>
-  )
+  ),
+  viewBox: '0 0 200 200'
 })

@@ -1,27 +1,12 @@
 import { Alert } from '@chakra-ui/alert'
-import { ChevronDownIcon } from '@chakra-ui/icons'
-import {
-  AlertIcon,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-  Select,
-  Stack,
-  StackDivider,
-  Tag,
-} from '@chakra-ui/react'
+import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
+import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
 import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -49,7 +34,6 @@ export const Flags = () => {
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
-  const [logLevel, setLogLevel] = useState<string | string[] | undefined>('error')
 
   const handleApply = async () => {
     try {
@@ -90,28 +74,9 @@ export const Flags = () => {
           Apply
         </Button>
         <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
-        <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            Log Level
-            <Tag size='sm' ml={2}>
-              {logLevel}
-            </Tag>
-          </MenuButton>
-          <MenuList>
-            <MenuOptionGroup
-              defaultValue={logLevel}
-              type='radio'
-              onChange={value => setLogLevel(value)}
-            >
-              <MenuItemOption value='error'>Error</MenuItemOption>
-              <MenuItemOption value='warning'>Warning</MenuItemOption>
-              <MenuItemOption value='info'>Info</MenuItemOption>
-              <MenuItemOption value='trace'>Trace</MenuItemOption>
-              <MenuItemOption value='debug'>Debug</MenuItemOption>
-            </MenuOptionGroup>
-          </MenuList>
-        </Menu>
       </HStack>
+
+      <Debugging />
 
       {error && (
         <Alert status='error'>

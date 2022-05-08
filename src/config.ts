@@ -37,6 +37,7 @@ const validators = {
   REACT_APP_FEATURE_KEEPKEY_SETTINGS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
   REACT_APP_FEATURE_DEMO_WALLET: bool({ default: false }),
+  REACT_APP_FEATURE_BANXA_RAMP: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

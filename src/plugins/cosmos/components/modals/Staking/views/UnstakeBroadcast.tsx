@@ -33,7 +33,9 @@ export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: Unstake
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
+  const validatorInfo = useAppSelector(state =>
+    selectValidatorByAddress(state, { validatorAddress }),
+  )
 
   const translate = useTranslate()
 
@@ -42,7 +44,7 @@ export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: Unstake
   const { handleStakingAction } = useStakingAction()
   const { txFee, fiatFee, cryptoAmount, gasLimit } = useWatch({ control })
 
-  if (!validatorInfo || !txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
+  if (!txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
 
   // We will also need to listen to incoming Txs (which are currently not coming from the websocket) to determine broadcasted
   // state and react on broadcast errors instead of being optimistic

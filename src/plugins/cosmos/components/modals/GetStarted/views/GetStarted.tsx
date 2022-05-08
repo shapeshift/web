@@ -8,7 +8,6 @@ import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { selectAssetById } from 'state/slices/selectors'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 import { useAppSelector } from 'state/store'
 
 type GetStartedProps = {
@@ -19,6 +18,8 @@ type GetStartedProps = {
 const ASSET_ID_TO_MAX_APR: Record<AssetId, string> = {
   'cosmos:cosmoshub-4/slip44:118': '12',
 }
+
+const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
 export const GetStarted = ({ assetId }: GetStartedProps) => {
   const { cosmosGetStarted, cosmosStaking } = useModal()

@@ -19,7 +19,7 @@ import {
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -34,7 +34,7 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectRewardsByValidator,
+  selectRewardsAmountByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -87,7 +87,7 @@ export const ClaimConfirm = ({
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
+    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(
@@ -101,6 +101,11 @@ export const ClaimConfirm = ({
 
   const onSubmit = async () => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      memoryHistory.goBack()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[activeFee]
     const gas = fees.chainSpecific.gasLimit
@@ -123,11 +128,6 @@ export const ClaimConfirm = ({
     cosmosStaking.close()
   }
 
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
   return (
     <FormProvider {...methods}>
       <SlideTransition>
@@ -136,9 +136,7 @@ export const ClaimConfirm = ({
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={(event: FormEvent<unknown>) => {
-            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-          }}
+          onSubmit={handleSubmit(onSubmit)}
           direction='column'
           alignItems='center'
           justifyContent='space-between'

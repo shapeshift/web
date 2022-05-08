@@ -1,5 +1,6 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
+import { FeePrice } from 'plugins/cosmos/utils'
 
 export enum StakingAction {
   Stake = 'stake',
@@ -59,6 +60,7 @@ export enum Field {
   GasLimit = 'gasLimit',
   TxFee = 'txFee',
   FiatFee = 'fiatFee',
+  TxFees = 'txFees',
 }
 
 export type StakingValues = {
@@ -68,6 +70,7 @@ export type StakingValues = {
   [Field.GasLimit]: string
   [Field.TxFee]: string
   [Field.FiatFee]: string
+  [Field.TxFees]: FeePrice
   [Field.AmountFieldError]: string | [string, { asset: string }]
 }
 

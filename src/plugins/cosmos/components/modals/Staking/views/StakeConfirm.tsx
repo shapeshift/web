@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 // @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import {
@@ -19,15 +18,13 @@ import {
   ConfirmFormInput,
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
-import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -52,17 +49,17 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
-  const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
+  })
+  const feeData = useWatch<ConfirmFormInput, ConfirmFormFields.TxFees>({
+    name: ConfirmFormFields.TxFees,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state =>
     selectValidatorByAddress(state, { validatorAddress }),
   )
-  const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
@@ -83,16 +80,6 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
       bnOrZero(cryptoAmount).plus(bnOrZero(feeData[activeFee].txFee)).lte(cryptoBalanceHuman),
     [cryptoBalanceHuman, feeData, activeFee, cryptoAmount],
   )
-
-  useEffect(() => {
-    ;(async () => {
-      const feeData = await adapter.getFeeData({})
-
-      const txFees = getFormFees(feeData, asset.precision, marketData.price)
-
-      setFeeData(txFees)
-    })()
-  }, [adapter, asset.precision, marketData.price])
 
   const {
     state: { wallet },

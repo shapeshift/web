@@ -1,16 +1,10 @@
 import { Box, BoxProps, Button, ButtonGroup, Radio } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
+import { FeePrice } from 'plugins/cosmos/utils'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
-
-type FeePrice = {
-  [key in chainAdapters.FeeDataKey]: {
-    fiatFee: string
-    txFee: string
-  }
-}
 
 type TxFeeRadioGroupProps = {
   fees: FeePrice | null
@@ -19,10 +13,12 @@ type TxFeeRadioGroupProps = {
 
 export enum ConfirmFormFields {
   FeeType = 'feeType',
+  TxFees = 'txFees',
 }
 
 export type ConfirmFormInput = {
   [ConfirmFormFields.FeeType]: chainAdapters.FeeDataKey
+  [ConfirmFormFields.TxFees]: FeePrice
 }
 
 function getFeeColor(key: chainAdapters.FeeDataKey): string {

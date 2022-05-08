@@ -19,8 +19,8 @@ import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/A
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
-import { FeePriceValueHuman, getFormFees } from 'plugins/cosmos/utils'
-import { useEffect, useRef, useState } from 'react'
+import { getFormFees } from 'plugins/cosmos/utils'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -56,8 +56,6 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
     handleSubmit,
     setValue,
   } = useFormContext<StakingValues>()
-
-  const [averageTxFee, setaverageTxFee] = useState<FeePriceValueHuman | null>(null)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -102,9 +100,15 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
 
       const txFees = getFormFees(averageTxFee, asset.precision, marketData.price)
 
-      setaverageTxFee(txFees[chainAdapters.FeeDataKey.Average])
+      setValue(Field.TxFees, txFees, { shouldValidate: true })
+      setValue(Field.FeeType, chainAdapters.FeeDataKey.Average, { shouldValidate: true })
     })()
-  }, [adapter, asset.precision, marketData.price])
+  }, [setValue, adapter, asset.precision, marketData.price])
+
+  const averageTxFee = useMemo(
+    () => (values.txFees && values.feeType ? values.txFees[values.feeType] : null),
+    [values.feeType, values.txFees],
+  )
 
   const handlePercentClick = (_percent: number) => {
     if (values.amountFieldError) {

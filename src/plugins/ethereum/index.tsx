@@ -1,4 +1,4 @@
-import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/ethereum/EthereumChainAdapter'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -25,7 +25,7 @@ export function register(): Plugins {
                   getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
                 )
 
-                return new EthereumChainAdapter({ providers: { http, ws } })
+                return new ethereum.ChainAdapter({ providers: { http, ws } })
               },
             ],
           ],

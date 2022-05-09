@@ -1,4 +1,4 @@
-import { AssetNamespace, AssetReference, caip2, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toCAIP2, toCAIP19 } from '@shapeshiftoss/caip'
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   AccountSpecifierMap,
   accountSpecifiers,
@@ -41,6 +42,8 @@ import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 
+const moduleLogger = logger.child({ namespace: ['AppContext'] })
+
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
  * market data, and portfolio fetching, and we don't want to over or under fetch data,
@@ -55,7 +58,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch()
   const { chainAdapterManager, supportedChains } = usePlugins()
   const {
-    state: { wallet },
+    state: {
+      wallet,
+      deviceState: { disposition },
+    },
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
@@ -95,9 +101,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // check the console logs in the browser for the ordering of actions to verify this logic
     const switched = Boolean(wallet && !isEmpty(accountSpecifiersList))
     const disconnected = !wallet
-    // TODO(0xdef1cafe): keep this - change to structured debug logging
-    switched && console.info('AppContext: wallet switched')
-    disconnected && console.info('AppContext: wallet disconnected')
+    switched && moduleLogger.info('Wallet switched')
+    disconnected && moduleLogger.info('Wallet disconnected')
     if (switched || disconnected) {
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())
@@ -133,13 +138,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsETH(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
+              const CAIP2 = toCAIP2({ chain, network: NetworkTypes.MAINNET })
               acc.push({ [CAIP2]: pubkey.toLowerCase() })
               break
             }
             case ChainTypes.Bitcoin: {
               if (!supportsBTC(wallet)) continue
-              const CAIP19 = caip19.toCAIP19({
+              const CAIP19 = toCAIP19({
                 chain,
                 network: NetworkTypes.MAINNET,
                 assetNamespace: AssetNamespace.Slip44,
@@ -165,7 +170,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
                 if (!pubkey) continue
-                const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
+                const CAIP2 = toCAIP2({ chain, network: NetworkTypes.MAINNET })
                 acc.push({ [CAIP2]: pubkey })
               }
               break
@@ -174,7 +179,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsCosmos(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
+              const CAIP2 = toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
               acc.push({ [CAIP2]: pubkey })
               break
             }
@@ -182,7 +187,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsOsmosis(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
+              const CAIP2 = toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
               acc.push({ [CAIP2]: pubkey })
               break
             }
@@ -196,7 +201,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }
     })()
-  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains])
+  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
 
   const txIds = useSelector(selectTxIds)
   const txsById = useSelector(selectTxs)

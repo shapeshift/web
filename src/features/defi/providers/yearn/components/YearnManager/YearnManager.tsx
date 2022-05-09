@@ -67,14 +67,14 @@ const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) =>
       </ModalHeader>
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={parentLocation} key={parentLocation.key}>
-          <Route path={YearnPath.Deposit}>
+          <Route path={YearnPath.Deposit} key={YearnPath.Deposit}>
             <MemoryRouter>
               <SlideTransition>
                 <YearnDeposit api={yearn} />
               </SlideTransition>
             </MemoryRouter>
           </Route>
-          <Route path={YearnPath.Withdraw}>
+          <Route path={YearnPath.Withdraw} key={YearnPath.Withdraw}>
             <MemoryRouter>
               <SlideTransition>
                 <YearnWithdraw api={yearn} />

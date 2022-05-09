@@ -113,7 +113,7 @@ function variantInput(props: Record<string, any>) {
   return {
     border: '1px solid',
     bg,
-    borderColor: borderColor,
+    borderColor,
     transition: 'color fill border-color .5s ease-in-out',
     color: 'gray.500',
     _active: {

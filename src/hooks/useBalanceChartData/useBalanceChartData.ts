@@ -1,4 +1,4 @@
-import { CAIP2, caip2, caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, toCAIP2, toCAIP10 } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import {
   chainAdapters,
@@ -61,7 +61,7 @@ export const priceAtBlockTime: PriceAtBlockTime = ({ date, assetPriceHistoryData
 }
 
 type CryptoBalance = {
-  [k: CAIP19]: BigNumber // map of asset to base units
+  [k: AssetId]: BigNumber // map of asset to base units
 }
 
 type BucketBalance = {
@@ -90,7 +90,7 @@ type MakeBucketsReturn = {
 
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   balances: PortfolioBalancesById
 }
 
@@ -177,7 +177,7 @@ type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
   priceHistoryData: {
-    [k: CAIP19]: HistoryData[]
+    [k: AssetId]: HistoryData[]
   }
 }
 
@@ -192,11 +192,11 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const date = end.valueOf()
   const { crypto } = balance
 
-  return Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
-    const assetPriceHistoryData = priceHistoryData[caip19]
+  return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
+    const assetPriceHistoryData = priceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ assetPriceHistoryData, date })
-    const portfolioAsset = portfolioAssets[caip19]
+    const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) {
       return acc
     }
@@ -207,7 +207,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 }
 
 type CalculateBucketPricesArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
@@ -305,7 +305,7 @@ type UseBalanceChartDataReturn = {
 }
 
 type UseBalanceChartDataArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   accountId?: AccountSpecifier
   timeframe: HistoryTimeframe
 }
@@ -333,7 +333,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // Get total delegation
   // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const cosmosCaip2: CAIP2 = caip2.toCAIP2({
+  const cosmosCaip2: ChainId = toCAIP2({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
   })
@@ -347,7 +347,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, '')
 
   // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
-  const cosmosCaip10 = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
+  const cosmosCaip10 = account ? toCAIP10({ caip2: cosmosCaip2, account }) : ''
 
   // load staking data to redux state
   useEffect(() => {
@@ -364,7 +364,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, [dispatch, cosmosCaip10])
 
   const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10),
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, { accountSpecifier: cosmosCaip10 }),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)

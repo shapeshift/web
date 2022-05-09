@@ -85,7 +85,9 @@ export const useStakingAction = () => {
         } else {
           throw new Error('Bad hdwallet config')
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error('Cosmos:useStakingAction error: ', error)
+      }
     }
   }
   return {

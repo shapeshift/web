@@ -36,7 +36,7 @@ jest.mock('pages/Defi/hooks/useVaultBalances', () => {
       })
 
       return {
-        vaults: vaults,
+        vaults,
         totalBalance: '0',
         loading: false,
       }

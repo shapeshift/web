@@ -1,32 +1,86 @@
+import { useToast } from '@chakra-ui/toast'
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
-import { ActionTypes, Outcome, WalletActions } from 'context/WalletProvider/actions'
-import { InitialState } from 'context/WalletProvider/WalletProvider'
+import { useTranslate } from 'react-polyglot'
+import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
+import { logger } from 'lib/logger'
 
-import { FailureType, MessageType } from '../KeepKeyTypes'
+import { ButtonRequestType, FailureType, MessageType } from '../KeepKeyTypes'
 
-type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
+const moduleLogger = logger.child({ namespace: ['useKeepKeyEventHandler'] })
 
 export const useKeepKeyEventHandler = (
-  state: KeyringState,
+  state: InitialState,
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
-  setAwaitingDeviceInteraction: (awaitingDeviceInteraction: boolean) => void,
-  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome) => void,
+  setDeviceState: (deviceState: Partial<DeviceState>) => void,
 ) => {
-  const { keyring, modal } = state
+  const {
+    keyring,
+    modal,
+    deviceState: { disposition },
+  } = state
+
+  const toast = useToast()
+  const translate = useTranslate()
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
-      const deviceId = e[0]
-      switch (e[1].message_enum) {
+      const [deviceId, event] = e
+      const { message_enum, message, from_wallet } = event
+      const fnLogger = moduleLogger.child({
+        namespace: ['handleEvent'],
+        defaultFields: { deviceId, event },
+      })
+      fnLogger.trace('Handling Event')
+
+      switch (message_enum) {
         case MessageType.SUCCESS:
-          setAwaitingDeviceInteraction(false)
+          fnLogger.trace(message.message)
+          switch (message.message) {
+            case 'Device reset':
+              setDeviceState({
+                disposition: 'initialized',
+              })
+              if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              break
+            case 'Device recovered':
+              setDeviceState({
+                disposition: 'initialized',
+              })
+              if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              toast({
+                title: translate('common.success'),
+                description: translate('modals.keepKey.recoverySentenceEntry.toastMessage'),
+                status: 'success',
+                isClosable: true,
+              })
+              break
+            default:
+              break
+          }
+          setDeviceState({
+            awaitingDeviceInteraction: false,
+            lastDeviceInteractionStatus: 'success',
+          })
           loadWallet()
-          setLastDeviceInteractionStatus('success')
           break
         case MessageType.BUTTONREQUEST:
-          setAwaitingDeviceInteraction(true)
+          setDeviceState({ awaitingDeviceInteraction: true })
+          // This is a bit magic but KeepKey's recovery seed backup request in the reset flow sends
+          // an "other" code, so it's the best we can do unless we update the firmware
+          const isRecoverySeedBackupRequest =
+            from_wallet &&
+            message.code === ButtonRequestType.OTHER &&
+            disposition === 'initializing'
+          fnLogger.trace(
+            { disposition, from_wallet, isRecoverySeedBackupRequest },
+            'isRecoverySeedBackupRequest',
+          )
+          if (isRecoverySeedBackupRequest) {
+            dispatch({ type: WalletActions.OPEN_KEEPKEY_RECOVERY, payload: { deviceId } })
+          }
           break
         case MessageType.PASSPHRASEREQUEST:
           dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
@@ -36,12 +90,23 @@ export const useKeepKeyEventHandler = (
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           break
         case MessageType.PINMATRIXREQUEST:
-          setAwaitingDeviceInteraction(false)
+          setDeviceState({ awaitingDeviceInteraction: false })
           dispatch({
             type: WalletActions.OPEN_KEEPKEY_PIN,
             payload: {
               deviceId,
-              pinRequestType: e[1].message?.type,
+              pinRequestType: message?.type,
+              showBackButton: disposition !== 'initialized',
+            },
+          })
+          break
+        case MessageType.CHARACTERREQUEST:
+          setDeviceState({ awaitingDeviceInteraction: false })
+          dispatch({
+            type: WalletActions.OPEN_KEEPKEY_CHARACTER_REQUEST,
+            payload: {
+              characterPos: message?.characterPos,
+              wordPos: message?.wordPos,
             },
           })
           break
@@ -51,15 +116,16 @@ export const useKeepKeyEventHandler = (
           break
         // @TODO: What do we want to do with these events?
         case MessageType.FAILURE:
-          switch (e[1].message?.code) {
+          switch (message?.code) {
             case FailureType.PINCANCELLED:
-              console.warn('KeepKey Event [FAILURE]: PIN Cancelled')
+              fnLogger.warn('PIN Cancelled')
               break
             case FailureType.ACTIONCANCELLED:
-              setAwaitingDeviceInteraction(false)
+              fnLogger.debug('Action Cancelled')
+              setDeviceState({ awaitingDeviceInteraction: false })
               break
             case FailureType.NOTINITIALIZED:
-              console.warn('KeepKey Event [FAILURE]: Device not initialized')
+              fnLogger.warn('Device not initialized')
               dispatch({
                 type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
                 payload: {
@@ -68,18 +134,19 @@ export const useKeepKeyEventHandler = (
               })
               break
             default:
-              console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
-              setLastDeviceInteractionStatus('error')
+              fnLogger.warn('Unexpected MessageType')
+              setDeviceState({ lastDeviceInteractionStatus: 'error' })
               break
           }
           break
         default:
-        // Ignore unhandled events
+          // Ignore unhandled events
+          fnLogger.trace('Unhandled Event')
       }
     }
 
     const handleConnect = async (deviceId: string) => {
-      console.info('Device Connected: ', deviceId)
+      moduleLogger.info({ deviceId, fn: 'handleConnect' }, 'Device Connected')
       /*
         Understanding KeepKey DeviceID aliases:
 
@@ -112,19 +179,24 @@ export const useKeepKeyEventHandler = (
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
       } catch (e) {
-        console.error('Device Connected Error: ', e)
+        moduleLogger.error(e, { fn: 'handleConnect' }, 'Device Connected Error')
       }
     }
 
     const handleDisconnect = async (deviceId: string) => {
-      console.info('Device Disconnected: ', deviceId)
+      moduleLogger.info({ deviceId, fn: 'handleDisconnect' }, 'Device Disconnected')
       try {
         const id = keyring.getAlias(deviceId)
         if (id === state.walletInfo?.deviceId) {
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
         }
+        if (modal) {
+          // Little trick to send the user back to the wallet select route
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        }
       } catch (e) {
-        console.error('Device Disconnect Error:', e)
+        moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')
       }
     }
 
@@ -144,8 +216,10 @@ export const useKeepKeyEventHandler = (
     keyring,
     loadWallet,
     modal,
-    setAwaitingDeviceInteraction,
     state.walletInfo,
-    setLastDeviceInteractionStatus,
+    setDeviceState,
+    disposition,
+    toast,
+    translate,
   ])
 }

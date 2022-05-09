@@ -84,7 +84,6 @@ type TransactionGenericRowProps = {
 export const TransactionGenericRow = ({
   type,
   title,
-  showDateAndGuide,
   assets,
   fee,
   txid,

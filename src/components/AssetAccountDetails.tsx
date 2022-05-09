@@ -1,9 +1,11 @@
 import { Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectMarketDataById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -16,12 +18,13 @@ import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
 
 type AssetDetailsProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   route?: Route
 }
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
+  const marketData = useAppSelector(state => selectMarketDataById(state, caip19))
   return (
     <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
@@ -40,7 +43,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
           <TradeCard defaultBuyAssetId={caip19} />
-          <AssetMarketData assetId={caip19} />
+          {marketData && <AssetMarketData assetId={caip19} />}
           <AssetDescription assetId={caip19} />
         </Stack>
       </Stack>

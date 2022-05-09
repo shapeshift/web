@@ -57,6 +57,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           onClick={() => handleClick(() => settings.open({}))}
           label={translate('common.settings')}
           leftIcon={<SettingsIcon />}
+          data-test='navigation-settings-button'
         />
         <MainNavLink
           leftIcon={<ChatIcon />}

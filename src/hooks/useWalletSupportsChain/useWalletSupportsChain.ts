@@ -1,4 +1,4 @@
-import { CAIP2, caip2 } from '@shapeshiftoss/caip'
+import { ChainId, toCAIP2 } from '@shapeshiftoss/caip'
 import {
   HDWallet,
   supportsBTC,
@@ -8,20 +8,20 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-type UseWalletSupportsChainArgs = { chainId: CAIP2; wallet: HDWallet | null }
+type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 
 // use outside react
 export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
-  const ethCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
-  const btcCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
-  const cosmosCaip2 = caip2.toCAIP2({
+  const ethCAIP2 = toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+  const btcCAIP2 = toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
+  const cosmosCaip2 = toCAIP2({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
   })
 
-  const osmosisCaip2 = caip2.toCAIP2({
+  const osmosisCaip2 = toCAIP2({
     chain: ChainTypes.Osmosis,
     network: NetworkTypes.OSMOSIS_MAINNET,
   })

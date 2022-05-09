@@ -1,12 +1,12 @@
 import { FlexProps } from '@chakra-ui/layout'
 import { Button, ButtonProps } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { ClaimPath } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 type ClaimButtonProps = {
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
 }
 

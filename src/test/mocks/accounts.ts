@@ -15,6 +15,9 @@ export const unknown3Caip19 = 'eip155:1/erc20:0xecd18dbba2987608c094ed552fef3924
 export const btcCaip2 = 'bip122:000000000019d6689c085ae165831e93'
 export const btcCaip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
 
+export const cosmosCaip2 = 'cosmos:cosmoshub-4'
+export const cosmosCaip19 = 'cosmos:cosmoshub-4/slip44:118'
+
 export const assetIds = [ethCaip19, foxCaip19, usdcCaip19, yvusdcCaip19, zeroCaip19]
 
 export const btcCaip10s = Object.freeze([
@@ -49,6 +52,8 @@ export const btcAddresses = Object.freeze([
   'bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8',
 ])
 
+export const cosmosPubKeys = Object.freeze(['cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'])
+
 export const mockEthToken = (obj?: { balance?: string; caip19?: string }) => ({
   balance: '100',
   caip19: foxCaip19,
@@ -67,6 +72,27 @@ export const mockEthAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Et
         nonce: 1,
       },
       pubkey: ethPubKeys[0],
+    },
+    obj,
+  )
+
+export const mockCosmosAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Cosmos>>) =>
+  merge(
+    {},
+    {
+      balance: '1000',
+      caip2: cosmosCaip2,
+      caip19: cosmosCaip19,
+      chain: ChainTypes.Cosmos,
+      chainSpecific: {
+        sequence: '',
+        accountNumber: '',
+        delegations: [],
+        redelegations: [],
+        undelegations: [],
+        rewards: [],
+      },
+      pubkey: cosmosPubKeys[0],
     },
     obj,
   )

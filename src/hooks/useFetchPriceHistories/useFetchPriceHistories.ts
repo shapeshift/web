@@ -1,11 +1,11 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch } from 'state/store'
 
 type UseFetchPriceHistoriesArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   timeframe: HistoryTimeframe
 }
 

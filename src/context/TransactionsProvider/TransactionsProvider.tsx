@@ -1,4 +1,4 @@
-import { CAIP2 } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { logger } from 'lib/logger'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
@@ -21,6 +22,8 @@ import {
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
+
+const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -41,7 +44,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const txIds = useAppSelector(selectTxIds)
 
   const getAccountSpecifiersByChainId = useCallback(
-    (chainId: CAIP2): AccountSpecifierMap[] => {
+    (chainId: ChainId): AccountSpecifierMap[] => {
       return accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
         const [_chainId, accountSpecifier] = Object.entries(cur)[0]
         if (_chainId !== chainId) return acc
@@ -58,7 +61,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     // account specifiers changing will trigger this effect
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
     if (!isSubscribed) return
-    console.info('TransactionsProvider: unsubscribing from tx history')
+    moduleLogger.info('unsubscribing from tx history')
     supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
     dispatch(txHistory.actions.clear())
     setIsSubscribed(false)
@@ -89,41 +92,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             const asset = assets[chainIdToFeeAssetId(chainId)]
             const accountTypes = supportedAccountTypes[chain]
 
-            // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
-            // this state machine should be removed, and managed by the txHistory RTK query api
-            dispatch(txHistory.actions.setStatus('loading'))
-            try {
-              await Promise.all(
-                accountTypes.map(async accountType => {
-                  const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
-                  console.info('subscribing txs for', chainId, accountType)
-                  return adapter.subscribeTxs(
-                    { wallet, accountType, ...accountParams },
-                    msg => {
-                      const caip10 = `${msg.caip2}:${msg.address}`
-                      const state = store.getState()
-                      const accountId = selectAccountIdByAddress(state, caip10)
-                      dispatch(
-                        txHistory.actions.onMessage({
-                          message: { ...msg, accountType },
-                          accountSpecifier: accountId,
-                        }),
-                      )
-                    },
-                    (err: any) => console.error(err),
-                  )
-                }),
-              )
-              // manage subscription state - we can't request this from chain adapters,
-              // and need this to prevent resubscribing when switching wallets
-              setIsSubscribed(true)
-            } catch (e: unknown) {
-              console.error(
-                `TransactionProvider: Error subscribing to transaction history for chain: ${chain}`,
-                e,
-              )
-            }
-
             // RESTfully fetch all tx and rebase history for this chain.
             getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
               const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
@@ -144,6 +112,40 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               const payload = { accountSpecifierMap, portfolioAssetIds }
               dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
             })
+
+            // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
+            // this state machine should be removed, and managed by the txHistory RTK query api
+            dispatch(txHistory.actions.setStatus('loading'))
+            try {
+              await Promise.all(
+                accountTypes.map(async accountType => {
+                  const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+                  moduleLogger.info({ chainId, accountType }, 'subscribing txs')
+                  return adapter.subscribeTxs(
+                    { wallet, accountType, ...accountParams },
+                    msg => {
+                      const caip10 = `${msg.caip2}:${msg.address}`
+                      const state = store.getState()
+                      const accountId = selectAccountIdByAddress(state, {
+                        accountSpecifier: caip10,
+                      })
+                      dispatch(
+                        txHistory.actions.onMessage({
+                          message: { ...msg, accountType },
+                          accountSpecifier: accountId,
+                        }),
+                      )
+                    },
+                    (err: any) => moduleLogger.error(err),
+                  )
+                }),
+              )
+              // manage subscription state - we can't request this from chain adapters,
+              // and need this to prevent resubscribing when switching wallets
+              setIsSubscribed(true)
+            } catch (e: unknown) {
+              moduleLogger.error(e, { chain }, 'Error subscribing to transaction history for chain')
+            }
           }),
       ))()
     // assets causes unnecessary renders, but doesn't actually change

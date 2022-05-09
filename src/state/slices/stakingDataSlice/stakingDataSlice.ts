@@ -1,17 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { CAIP2, CAIP10, caip10 } from '@shapeshiftoss/caip'
+import { AccountId, ChainId, fromCAIP10 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { CosmosSdkBaseAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/CosmosSdkBaseAdapter'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 export type PubKey = string
-type AllStakingDataArgs = { accountSpecifier: CAIP10 }
+type AllStakingDataArgs = { accountSpecifier: AccountId }
 
-type AllValidatorDataArgs = { chainId: CAIP2 }
+type AllValidatorDataArgs = { chainId: ChainId }
 
-type SingleValidatorDataArgs = { chainId: CAIP2; validatorAddress: PubKey }
+type SingleValidatorDataArgs = { chainId: ChainId; validatorAddress: PubKey }
 
 export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
 
@@ -41,13 +41,6 @@ export type ValidatorDataByPubKey = {
   [k: PubKey]: chainAdapters.cosmos.Validator
 }
 
-export type StakingPayload = {
-  payload: {
-    pubKey: PubKey
-    stakingData: Staking
-  }
-}
-
 const initialState: StakingData = {
   byAccountSpecifier: {},
   byValidator: {},
@@ -57,7 +50,7 @@ const initialState: StakingData = {
 
 const updateOrInsert = (
   stakingDataState: StakingData,
-  accountSpecifier: CAIP10,
+  accountSpecifier: AccountId,
   currentStakingData: Staking,
 ) => {
   stakingDataState.byAccountSpecifier[accountSpecifier] = currentStakingData
@@ -87,16 +80,14 @@ export const stakingData = createSlice({
     },
     upsertStakingData: (
       stakingDataState,
-      { payload }: { payload: { accountSpecifier: CAIP10; stakingData: Staking } },
+      { payload }: { payload: { accountSpecifier: AccountId; stakingData: Staking } },
     ) => {
-      // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsert(stakingDataState, payload.accountSpecifier, payload.stakingData)
     },
     upsertValidatorData: (
       stakingDataState,
       { payload }: { payload: { validators: chainAdapters.cosmos.Validator[] } },
     ) => {
-      // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsertValidatorData(stakingDataState, payload.validators)
     },
   },
@@ -123,7 +114,7 @@ export const stakingDataApi = createApi({
         }
 
         try {
-          const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
+          const { caip2, account } = fromCAIP10(accountSpecifier)
           const chainAdapters = getChainAdapters()
           const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
           dispatch(stakingData.actions.setStatus('loading'))
@@ -207,7 +198,7 @@ export const stakingDataApi = createApi({
             }),
           )
           return {
-            data: data,
+            data,
           }
         } catch (e) {
           console.error('Error fetching single validator data', e)

@@ -1,5 +1,3 @@
-import { Listener } from 'eventemitter2'
-
 /**
  * Override the type definitions of EventEmitter2
  *

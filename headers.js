@@ -46,6 +46,8 @@ const cspMeta = Object.entries({
     'https://onramp.gem.co',
     // @shapeshiftoss/market-service@2.0.0: https://github.com/shapeshift/lib/blob/1efccc3401eccb3125e1f09b7f829b886b457b89/packages/market-service/src/osmosis/osmosis.ts#L21
     'https://api-osmosis.imperator.co/tokens/',
+    // captcha
+    'https://api.friendlycaptcha.com/api/v1/',
     process.env.REACT_APP_ETHEREUM_NODE_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
@@ -55,6 +57,7 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_UNCHAINED_COSMOS_WS_URL,
     // Explicitly whitelist our KeepKey versions file
     process.env.REACT_APP_KEEPKEY_VERSIONS_URL,
+    process.env.REACT_APP_WALLET_MIGRATION_URL,
   ],
   'frame-src': ['https://fwd.metamask.io/', 'https://widget.portis.io'],
   'img-src': [

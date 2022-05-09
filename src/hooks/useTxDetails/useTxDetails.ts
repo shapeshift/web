@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataById,
   selectTxById,
@@ -66,7 +66,7 @@ export const getTransferByType = (tx: Tx, txType: chainAdapters.TxType) =>
 export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Receive)
 export const getSellTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Send)
 export const getTransferByAsset = (tx: Tx, asset: Asset) =>
-  tx.transfers.find(t => t.caip19 === asset.caip19)
+  tx.transfers.find(t => t.caip19 === asset.assetId)
 
 export const isSupportedContract = (tx: Tx) =>
   Object.values(ContractMethod).includes(tx.data?.method as ContractMethod)
@@ -96,7 +96,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const buyTransfer = getTransferByType(tx, chainAdapters.TxType.Receive)
   const sellTransfer = getTransferByType(tx, chainAdapters.TxType.Send)
   const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
-  // const tradeTx = activeAsset?.caip19 === sellTransfer?.caip19 ? sellTransfer : buyTransfer
 
   const direction: Direction | undefined = (() => {
     switch (method) {
@@ -119,14 +118,14 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   })()
 
   const standardAsset = useAppSelector((state: ReduxState) =>
-    selectAssetByCAIP19(state, standardTx?.caip19 ?? ''),
+    selectAssetById(state, standardTx?.caip19 ?? ''),
   )
 
   // stables need precision of eth (18) rather than 10
   const defaultFeeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.caip2))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, tx.fee?.caip19 ?? ''))
-  const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTransfer?.caip19 ?? ''))
-  const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTransfer?.caip19 ?? ''))
+  const feeAsset = useAppSelector(state => selectAssetById(state, tx.fee?.caip19 ?? ''))
+  const buyAsset = useAppSelector(state => selectAssetById(state, buyTransfer?.caip19 ?? ''))
+  const sellAsset = useAppSelector(state => selectAssetById(state, sellTransfer?.caip19 ?? ''))
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
   const sourceMarketData = useAppSelector(state =>
     selectMarketDataById(state, sellTransfer?.caip19 ?? ''),

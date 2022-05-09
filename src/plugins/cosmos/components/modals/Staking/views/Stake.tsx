@@ -11,7 +11,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
@@ -23,9 +23,10 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -35,7 +36,7 @@ import { Field, InputType, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   apr: string
-  assetId: CAIP19
+  assetId: AssetId
   validatorAddress: string
 }
 
@@ -44,7 +45,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).div(100).toString()
 }
 
-export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
+export const Stake = ({ assetId, apr }: StakeProps) => {
   const {
     control,
     formState: { isValid },
@@ -52,10 +53,10 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
     setValue,
   } = useFormContext<StakingValues>()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatAmountAvailable = cryptoBalanceHuman.times(bnOrZero(marketData.price)).toString()
@@ -70,6 +71,8 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const memoryHistory = useHistory()
+
+  const { cosmosStaking } = useModal()
 
   const onSubmit = (_: any) => {
     memoryHistory.push(StakingPath.Confirm, {
@@ -109,7 +112,9 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
       const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
       const fiatAmount = bnOrZero(value).times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, value.length ? cryptoAmount.toString() : value, {
+        shouldValidate: true,
+      })
 
       if (cryptoAmount.gt(cryptoBalanceHuman)) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
@@ -176,16 +181,14 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
           >
             <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
             <StakingInput
-              height='40px'
               width='100%'
-              px='8px'
-              py='8px'
               isCryptoField={activeField === InputType.Crypto}
               amountRef={amountRef.current}
               asset={asset}
               onInputToggle={handleInputToggle}
               onInputChange={handleInputChange}
               control={control}
+              inputStyle={{ borderRadius: 0 }}
             />
             <Box width='100%' pb='12px'>
               <EstimatedReturnsRow
@@ -214,7 +217,13 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
               {`${translate('defi.modals.staking.risks')}`}
             </Link>
             {` ${translate('defi.modals.staking.ofParticipating')} `}
-            <Link color={'blue.200'} fontWeight='bold' target='_blank' href='/legal/privacy-policy'>
+            <Link
+              color={'blue.200'}
+              fontWeight='bold'
+              target='_blank'
+              href='/#/legal/privacy-policy'
+              onClick={cosmosStaking.close}
+            >
               {`${translate('defi.modals.staking.terms')}.`}
             </Link>
           </CText>

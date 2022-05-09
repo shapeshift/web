@@ -27,7 +27,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
               to={item.path}
               label={translate(item.label)}
               aria-label={translate(item.label)}
-              data-test={`navbar-${item.label.split('.')[1]}-button`}
+              data-test={`navigation-${item.label.split('.')[1]}-button`}
             />
           )
         })}

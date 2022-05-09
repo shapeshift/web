@@ -1,4 +1,4 @@
-import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
 // TODO(0xdef1cafe): this needs a better home, probably in chain adapters
@@ -39,7 +39,7 @@ export type AccountSpecifier = string
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
-    [k: AccountSpecifier]: CAIP19[]
+    [k: AccountSpecifier]: AssetId[]
   }
   // a list of accounts in this portfolio
   ids: AccountSpecifier[]
@@ -48,24 +48,24 @@ export type PortfolioAccounts = {
 export type PortfolioBalancesById = {
   // these are aggregated balances across all accounts in a portfolio for the same asset
   // balance in base units of asset - bn doesn't serialize
-  [k: CAIP19]: string
+  [k: AssetId]: string
 }
 
 export type PortfolioAssetBalances = {
   byId: PortfolioBalancesById
   // all asset ids in an account
-  ids: CAIP19[]
+  ids: AssetId[]
 }
 
 export type PortfolioAssets = {
-  [k: CAIP19]: Asset
+  [k: AssetId]: Asset
 }
 
 export type PortfolioAccountBalances = {
   byId: {
     [k: AccountSpecifier]: {
       // these are granular balances of this asset for this account
-      [k: CAIP19]: string // balance for asset in base units
+      [k: AssetId]: string // balance for asset in base units
     }
   }
   ids: AccountSpecifier[]
@@ -76,7 +76,7 @@ export type PortfolioAccountSpecifiers = {
     // this maps an account identifier to a list of addresses
     // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
     // in account based chains, this is a 1:1 mapping, i.e. the account is the address
-    [k: AccountSpecifier]: CAIP10[]
+    [k: AccountSpecifier]: AccountId[]
   }
   ids: AccountSpecifier[]
 }

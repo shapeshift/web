@@ -1,11 +1,11 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 
 import {
   accountIdToChainId,
   accountIdToLabel,
   accountIdToSpecifier,
-  assetIdtoChainId,
+  assetIdToChainId,
   btcChainId,
   ethChainId,
   findAccountsByAssetId,
@@ -73,18 +73,18 @@ describe('accountIdToLabel', () => {
   })
 })
 
-describe('assetIdtoChainId', () => {
+describe('assetIdToChainId', () => {
   it('returns a ETH chainId for a given ETH assetId', () => {
     const ethAssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
     const chainId = 'eip155:1'
-    const result = assetIdtoChainId(ethAssetId)
+    const result = assetIdToChainId(ethAssetId)
     expect(result).toEqual(chainId)
   })
 
   it('returns a BTC chainId for a given BTC assetId', () => {
     const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
     const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
-    const result = assetIdtoChainId(btcAssetId)
+    const result = assetIdToChainId(btcAssetId)
     expect(result).toEqual(btcChainId)
   })
 })
@@ -168,7 +168,7 @@ describe('makeBalancesByChainBucketsFlattened', () => {
     'eip155:1/slip44:60': {
       chain: 'ethereum',
     },
-  } as unknown as { [k: CAIP19]: Asset }
+  } as unknown as { [k: AssetId]: Asset }
 
   it('makes flattened balances by chain buckets - mixed assets', () => {
     const accountBalances = [

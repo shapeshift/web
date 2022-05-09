@@ -1,12 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetNamespace, CAIP2, caip2, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  AssetNamespace,
+  ChainId,
+  fromCAIP2,
+  toCAIP2,
+  toCAIP10,
+  toCAIP19,
+} from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { logger } from 'lib/logger'
 import {
   AccountSpecifier,
   AccountSpecifierMap,
@@ -14,15 +24,10 @@ import {
 
 import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER } from './utils'
 
+const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
+
 export type TxId = string
 export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
-
-export type TxFilter = {
-  accountType?: UtxoAccountType
-  caip19?: CAIP19
-  caip2?: CAIP2
-  txid?: TxId
-}
 
 export type TxHistoryById = {
   [k: TxId]: Tx
@@ -47,7 +52,7 @@ export type TxHistoryById = {
  */
 
 export type TxIdByAssetId = {
-  [k: CAIP19]: TxId[]
+  [k: AssetId]: TxId[]
 }
 
 export type TxIdByAccountId = {
@@ -65,7 +70,7 @@ type RebaseById = {
 }
 
 type RebaseByAssetId = {
-  [k: CAIP19]: RebaseId[]
+  [k: AssetId]: RebaseId[]
 }
 
 type RebaseByAccountId = {
@@ -198,7 +203,7 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
 
 type MakeRebaseIdArgs = {
   accountId: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
   rebase: RebaseHistory
 }
 
@@ -211,7 +216,7 @@ type TxHistoryStatusPayload = { payload: TxHistoryStatus }
 type RebaseHistoryPayload = {
   payload: {
     accountId: AccountSpecifier
-    assetId: CAIP19
+    assetId: AssetId
     data: RebaseHistory[]
   }
 }
@@ -221,7 +226,7 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => {
-      console.info('txHistorySlice: clearing tx history')
+      moduleLogger.info('clearing tx history')
       return initialState
     },
     setStatus: (state, { payload }: TxHistoryStatusPayload) => {
@@ -243,7 +248,7 @@ type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 type RebaseTxHistoryArgs = {
   accountSpecifierMap: AccountSpecifierMap
-  portfolioAssetIds: CAIP19[]
+  portfolioAssetIds: AssetId[]
 }
 
 export const txHistoryApi = createApi({
@@ -275,11 +280,11 @@ export const txHistoryApi = createApi({
         const chain = ChainTypes.Ethereum
         const network = NetworkTypes.MAINNET
         // foxy is only on eth mainnet
-        const chainId = caip2.toCAIP2({ chain, network })
+        const chainId = toCAIP2({ chain, network })
         const entries = Object.entries(accountSpecifierMap)[0]
         const [accountChainId, userAddress] = entries
 
-        const accountSpecifier = caip10.toCAIP10({ caip2: chainId, account: userAddress })
+        const accountSpecifier = toCAIP10({ caip2: chainId, account: userAddress })
         // [] is a valid return type and won't upsert anything
         if (chainId !== accountChainId) return { data: [] }
 
@@ -293,7 +298,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = await adapters.byChainId(chainId)
+        const adapter = (await adapters.byChainId(chainId)) as ChainAdapter<ChainTypes.Ethereum>
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
@@ -301,7 +306,7 @@ export const txHistoryApi = createApi({
         foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
           const assetReference = tokenContractAddress
           const assetNamespace = AssetNamespace.ERC20
-          const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })
+          const assetId = toCAIP19({ chain, network, assetNamespace, assetReference })
           const rebaseHistoryArgs = { userAddress, tokenContractAddress }
           const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
           const upsertPayload = { accountId: accountSpecifier, assetId, data }
@@ -321,12 +326,12 @@ export const txHistoryApi = createApi({
           const error = { data, status: 400 }
           return { error }
         }
-        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
         const accountSpecifier = `${CAIP2}:${pubkey}`
         try {
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
-          const { chain } = caip2.fromCAIP2(CAIP2)
+          const { chain } = fromCAIP2(CAIP2)
           const adapter = chainAdapters.byChain(chain)
           let currentCursor: string = ''
           const pageSize = 100

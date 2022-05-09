@@ -16,6 +16,10 @@ jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
   },
 }))
 
+jest.mock('friendly-challenge', () => ({
+  WidgetInstance: {},
+}))
+
 jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
   MetaMaskAdapter: {
     useKeyring: jest.fn(),

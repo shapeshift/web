@@ -13,7 +13,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -34,7 +34,7 @@ import {
   selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/portfolioSlice/selectors'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
@@ -49,7 +49,7 @@ enum View {
 
 type AssetChartProps = {
   accountId?: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
   isLoaded: boolean
 }
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
@@ -58,9 +58,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
@@ -135,7 +135,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(delegationBalance).gt(0) && (
+          {bnOrZero(delegationBalance).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}
@@ -164,7 +164,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           )}
         </Box>
       </Card.Header>
-      {view === View.Balance ? (
+      {view === View.Balance && marketData ? (
         <Box>
           <BalanceChart
             accountId={accountId}

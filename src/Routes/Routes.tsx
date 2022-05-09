@@ -35,9 +35,6 @@ export const Routes = () => {
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>
-      <Route path='/connect-wallet'>
-        <ConnectWallet />
-      </Route>
       <Route path={'/legal/terms-of-service'}>
         <Layout>
           <TermsOfService />

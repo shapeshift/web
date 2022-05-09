@@ -1,5 +1,5 @@
 // eslint-disable-next-line simple-import-sort/imports -- keep English import on top
-import en from './main.json'
+import en from './en/main.json'
 import es from './es/main.json'
 import fr from './fr/main.json'
 import id from './id/main.json'

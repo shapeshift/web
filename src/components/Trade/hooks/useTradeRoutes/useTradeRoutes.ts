@@ -67,12 +67,16 @@ export const useTradeRoutes = (
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {
-        // Handle scenario where same asset is selected
         const previousSellAsset = { ...getValues('sellAsset') }
         const previousBuyAsset = { ...getValues('buyAsset') }
+
+        // Handle scenario where same asset is selected for buy and sell
         if (asset.assetId === previousBuyAsset?.asset.assetId) {
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', previousSellAsset.asset)
+        } else {
+          setValue('sellAsset.asset', asset)
+          setValue('buyAsset.asset', buyTradeAsset?.asset)
         }
         updateQuote({
           forceQuote: true,
@@ -102,13 +106,18 @@ export const useTradeRoutes = (
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
-        // Handle scenario where same asset is selected
         const previousSellAsset = { ...getValues('sellAsset') }
         const previousBuyAsset = { ...getValues('buyAsset') }
+
+        // Handle scenario where same asset is selected for buy and sell
         if (asset.assetId === previousSellAsset?.asset.assetId) {
-          setValue('sellAsset.asset', previousBuyAsset.asset)
           setValue('buyAsset.asset', asset)
+          setValue('sellAsset.asset', previousBuyAsset.asset)
+        } else {
+          setValue('buyAsset.asset', asset)
+          setValue('sellAsset.asset', sellTradeAsset?.asset)
         }
+
         updateQuote({
           forceQuote: true,
           amount: bnOrZero(buyTradeAsset?.amount).toString(),

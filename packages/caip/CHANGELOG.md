@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.5.1...@shapeshiftoss/caip-v2.5.2) (2022-05-09)
+
+
+### Performance Improvements
+
+* **caip:** breaking readme change ([#627](https://github.com/shapeshift/lib/issues/627)) ([69a786d](https://github.com/shapeshift/lib/commit/69a786db0177d20ff874c8ce169b39c768a0008b))
+
 # [@shapeshiftoss/caip-v2.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.5.0...@shapeshiftoss/caip-v2.5.1) (2022-05-09)
 
 

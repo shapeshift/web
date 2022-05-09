@@ -17,6 +17,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
+import { logger } from 'lib/logger'
 import {
   ChainIdType,
   ethChainId,
@@ -51,6 +52,10 @@ type ManagerRouterProps = {
   fiatRampProvider: FiatRamp
 }
 
+const moduleLogger = logger.child({
+  namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
+})
+
 const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
@@ -77,23 +82,25 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   useEffect(() => {
     ;(async () => {
       if (!wallet) return
+      moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
       const payload = { wallet }
       try {
         supportsETH(wallet) && setEthAddress(await ethereumChainAdapter.getAddress(payload))
         supportsBTC(wallet) && setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
         supportsCosmos(wallet) && setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
-      } catch (error) {
-        console.error(error)
+      } catch (e) {
+        moduleLogger.error(e, { fn: 'getAddress' }, 'GetAddress Failed')
       }
     })()
   }, [wallet, bitcoinChainAdapter, ethereumChainAdapter, cosmosChainAdapter])
 
   useEffect(() => {
     ;(async () => {
+      moduleLogger.trace({ fn: 'ensReverseLookup' }, 'ENS Reverse Lookup...')
       try {
         !ensName && setEnsName((await ensReverseLookup(ethAddress)).name ?? '')
-      } catch (error) {
-        console.error(error)
+      } catch (e) {
+        moduleLogger.error(e, { fn: 'ensReverseLookup' }, 'ENS Reverse Lookup Failed')
       }
     })()
   }, [ensName, ethAddress])

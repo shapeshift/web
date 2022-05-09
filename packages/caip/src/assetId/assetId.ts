@@ -6,13 +6,8 @@ import {
   chainNamespaceToChainType,
   ChainReference,
   chainReferenceToNetworkType,
-  toCAIP2
-} from '../caip2/caip2'
-
-/**
- * @deprecated - Temporarily left in place for backwards compatibility, to be replaced with AssetId
- */
-export type CAIP19 = string
+  toChainId
+} from '../chainId/chainId'
 
 export type AssetId = string
 
@@ -33,7 +28,7 @@ export enum AssetReference {
   Osmosis = '118'
 }
 
-type ToCAIP19Args = {
+type ToAssetIdArgs = {
   chain: ChainTypes
   network: NetworkTypes | ChainReference
   assetNamespace: AssetNamespace
@@ -76,20 +71,20 @@ const isValidSlip44 = (value: string) => {
   return !isNaN(n) && n >= 0 && n < 4294967296
 }
 
-type ToCAIP19 = (args: ToCAIP19Args) => string
+type ToAssetId = (args: ToAssetIdArgs) => string
 
-export const toCAIP19: ToCAIP19 = (args: ToCAIP19Args): string => {
+export const toAssetId: ToAssetId = (args: ToAssetIdArgs): string => {
   const { chain, network, assetNamespace } = args
   let { assetReference } = args
-  if (!chain) throw new Error('toCAIP19: No chain provided')
-  if (!network) throw new Error('toCAIP19: No chainReference Provided')
-  if (!assetNamespace) throw new Error('toCAIP19: No assetNamespace provided')
-  if (!assetReference) throw new Error('toCAIP19: No assetReference provided')
+  if (!chain) throw new Error('toAssetId: No chain provided')
+  if (!network) throw new Error('toAssetId: No chainReference Provided')
+  if (!assetNamespace) throw new Error('toAssetId: No assetNamespace provided')
+  if (!assetReference) throw new Error('toAssetId: No assetReference provided')
 
-  const caip2 = toCAIP2({ chain, network })
+  const chainId = toChainId({ chain, network })
 
   if (!validAssetNamespaces[chain].includes(assetNamespace)) {
-    throw new Error(`toCAIP19: Asset Namespace ${assetNamespace} not supported for chain ${chain}`)
+    throw new Error(`toAssetId: Asset Namespace ${assetNamespace} not supported for chain ${chain}`)
   }
 
   if (assetNamespace === AssetNamespace.Slip44 && !isValidSlip44(String(assetReference))) {
@@ -98,11 +93,11 @@ export const toCAIP19: ToCAIP19 = (args: ToCAIP19Args): string => {
 
   if ([AssetNamespace.ERC20, AssetNamespace.ERC721].includes(assetNamespace)) {
     if (!assetReference.startsWith('0x')) {
-      throw new Error(`toCAIP19: assetReference must start with 0x: ${assetReference}`)
+      throw new Error(`toAssetId: assetReference must start with 0x: ${assetReference}`)
     }
     if (assetReference.length !== 42) {
       throw new Error(
-        `toCAIP19: assetReference length must be 42, length: ${assetReference.length}`
+        `toAssetId: assetReference length must be 42, length: ${assetReference.length}`
       )
     }
 
@@ -110,20 +105,20 @@ export const toCAIP19: ToCAIP19 = (args: ToCAIP19Args): string => {
     assetReference = assetReference.toLowerCase()
   }
 
-  return `${caip2}/${assetNamespace}:${assetReference}`
+  return `${chainId}/${assetNamespace}:${assetReference}`
 }
 
-type FromCAIP19Return = {
+type FromAssetIdReturn = {
   chain: ChainTypes
   network: NetworkTypes
   assetNamespace: AssetNamespace
   assetReference: AssetReference | string
 }
 
-const parseCaip19RegExp = /([-a-z\d]{3,8}):([-a-zA-Z\d]{1,32})\/([-a-z\d]{3,8}):([-a-zA-Z\d]+)/
+const parseAssetIdRegExp = /([-a-z\d]{3,8}):([-a-zA-Z\d]{1,32})\/([-a-z\d]{3,8}):([-a-zA-Z\d]+)/
 
-export const fromCAIP19 = (caip19: string): FromCAIP19Return => {
-  const matches = parseCaip19RegExp.exec(caip19) ?? []
+export const fromAssetId = (assetId: string): FromAssetIdReturn => {
+  const matches = parseAssetIdRegExp.exec(assetId) ?? []
 
   // We're okay casting these strings to enums because we check to make sure
   // they are valid enum values
@@ -149,5 +144,5 @@ export const fromCAIP19 = (caip19: string): FromCAIP19Return => {
     return { chain, network, assetNamespace, assetReference }
   }
 
-  throw new Error(`fromCAIP19: invalid CAIP19: ${caip19}`)
+  throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
 }

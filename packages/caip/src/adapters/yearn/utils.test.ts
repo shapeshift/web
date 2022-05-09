@@ -208,18 +208,18 @@ describe('adapters:yearn:utils', () => {
     it('can writeFiles', async () => {
       const data = {
         foo: {
-          caip19abc: 'bitcorn',
-          caip19def: 'efferium'
+          assetIdAbc: 'bitcorn',
+          assetIdDef: 'efferium'
         }
       }
-      const fooCaips = JSON.stringify(data.foo)
+      const fooAssetIds = JSON.stringify(data.foo)
       console.info = jest.fn()
       await writeFiles(data)
       expect(realFs.promises.writeFile).toBeCalledWith(
         './src/adapters/yearn/generated/foo/adapter.json',
-        fooCaips
+        fooAssetIds
       )
-      expect(console.info).toBeCalledWith('Generated Yearn CAIP19 adapter data.')
+      expect(console.info).toBeCalledWith('Generated Yearn AssetId adapter data.')
     })
   })
 })

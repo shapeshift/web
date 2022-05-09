@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip/src/caip19/caip19'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, WithdrawType } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'

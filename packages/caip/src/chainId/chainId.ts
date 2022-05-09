@@ -3,11 +3,6 @@
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import invert from 'lodash/invert'
 
-/**
- * @deprecated - Temporarily left in place for backwards compatibility, to be replaced with ChainId
- */
-export type CAIP2 = string
-
 export type ChainId = string
 
 export enum ChainNamespace {
@@ -20,9 +15,9 @@ export enum ChainReference {
   EthereumMainnet = '1',
   EthereumRopsten = '3',
   EthereumRinkeby = '4',
-  // EthereumKovan = '42', // currently unsupported by shapeshift
+  // EthereumKovan = '42', // currently unsupported by ShapeShift
   // https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki#definition-of-chain-id
-  // caip2 uses max length of 32 chars of the genesis block
+  // chainId uses max length of 32 chars of the genesis block
   BitcoinMainnet = '000000000019d6689c085ae165831e93',
   BitcoinTestnet = '000000000933ea01ad0ee984209779ba',
   CosmosHubMainnet = 'cosmoshub-4',
@@ -31,12 +26,12 @@ export enum ChainReference {
   OsmosisTestnet = 'osmo-testnet-1'
 }
 
-type ToCAIP2Args = {
+type ToChainIdArgs = {
   chain: ChainTypes
   network: NetworkTypes | ChainReference
 }
 
-const shapeShiftToCAIP2 = Object.freeze({
+const shapeShiftToChainId = Object.freeze({
   [ChainTypes.Ethereum]: {
     namespace: ChainNamespace.Ethereum,
     reference: {
@@ -68,13 +63,13 @@ const shapeShiftToCAIP2 = Object.freeze({
   }
 })
 
-export const toCAIP2 = (args: ToCAIP2Args): string => {
+export const toChainId = (args: ToChainIdArgs): string => {
   const { chain, network } = args
-  const namespace: ChainNamespace = shapeShiftToCAIP2[chain].namespace
+  const namespace: ChainNamespace = shapeShiftToChainId[chain].namespace
 
   switch (chain) {
     case ChainTypes.Ethereum: {
-      const referenceMap = shapeShiftToCAIP2[chain].reference
+      const referenceMap = shapeShiftToChainId[chain].reference
       switch (network) {
         case NetworkTypes.MAINNET:
         case NetworkTypes.ETH_ROPSTEN:
@@ -86,7 +81,7 @@ export const toCAIP2 = (args: ToCAIP2Args): string => {
       break
     }
     case ChainTypes.Bitcoin: {
-      const referenceMap = shapeShiftToCAIP2[chain].reference
+      const referenceMap = shapeShiftToChainId[chain].reference
       switch (network) {
         case NetworkTypes.MAINNET:
         case NetworkTypes.TESTNET: {
@@ -97,7 +92,7 @@ export const toCAIP2 = (args: ToCAIP2Args): string => {
       break
     }
     case ChainTypes.Cosmos: {
-      const referenceMap = shapeShiftToCAIP2[chain].reference
+      const referenceMap = shapeShiftToChainId[chain].reference
       switch (network) {
         case NetworkTypes.COSMOSHUB_MAINNET:
         case NetworkTypes.COSMOSHUB_VEGA: {
@@ -108,7 +103,7 @@ export const toCAIP2 = (args: ToCAIP2Args): string => {
       break
     }
     case ChainTypes.Osmosis: {
-      const referenceMap = shapeShiftToCAIP2[chain].reference
+      const referenceMap = shapeShiftToChainId[chain].reference
       switch (network) {
         case NetworkTypes.OSMOSIS_MAINNET:
         case NetworkTypes.OSMOSIS_TESTNET: {
@@ -120,20 +115,20 @@ export const toCAIP2 = (args: ToCAIP2Args): string => {
     }
   }
 
-  throw new Error(`toCAIP2: unsupported ${chain} network: ${network}`)
+  throw new Error(`toChainId: unsupported ${chain} network: ${network}`)
 }
 
-type FromCAIP2Return = {
+type FromChainIdReturn = {
   chain: ChainTypes
   network: NetworkTypes
 }
 
-type FromCAIP2 = (caip2: string) => FromCAIP2Return
+type FromChainId = (chainId: string) => FromChainIdReturn
 
-export const fromCAIP2: FromCAIP2 = (caip2) => {
-  const [c, n] = caip2.split(':')
+export const fromChainId: FromChainId = (chainId) => {
+  const [c, n] = chainId.split(':')
   if (!(c && n)) {
-    throw new Error(`fromCAIP19: error parsing caip19, chain: ${c}, network: ${n}`)
+    throw new Error(`fromChainId: error parsing chainId, chain: ${c}, network: ${n}`)
   }
   switch (c) {
     case ChainNamespace.Cosmos: {
@@ -151,7 +146,7 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
           return { chain: ChainTypes.Osmosis, network: NetworkTypes.OSMOSIS_TESTNET }
         }
         default: {
-          throw new Error(`fromCAIP19: unsupported ${c} network: ${n}`)
+          throw new Error(`fromChainId: unsupported ${c} network: ${n}`)
         }
       }
     }
@@ -172,7 +167,7 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
           return { chain, network }
         }
         default: {
-          throw new Error(`fromCAIP19: unsupported ${c} network: ${n}`)
+          throw new Error(`fromChainId: unsupported ${c} network: ${n}`)
         }
       }
     }
@@ -188,21 +183,21 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
           return { chain, network }
         }
         default: {
-          throw new Error(`fromCAIP19: unsupported ${c} network: ${n}`)
+          throw new Error(`fromChainId: unsupported ${c} network: ${n}`)
         }
       }
     }
   }
 
-  throw new Error(`fromCAIP19: unsupported chain: ${c}`)
+  throw new Error(`fromChainId: unsupported chain: ${c}`)
 }
 
-type IsCAIP2 = (caip2: string) => boolean
+type IsChainId = (chainId: string) => boolean
 
-export const isCAIP2: IsCAIP2 = (caip2) => {
-  const [c, n] = caip2.split(':')
+export const isChainId: IsChainId = (chainId) => {
+  const [c, n] = chainId.split(':')
   if (!(c && n)) {
-    throw new Error(`isCAIP2: error parsing caip19, chain: ${c}, network: ${n}`)
+    throw new Error(`isChainId: error parsing chainId, chain: ${c}, network: ${n}`)
   }
 
   switch (c) {
@@ -236,7 +231,7 @@ export const isCAIP2: IsCAIP2 = (caip2) => {
     }
   }
 
-  throw new Error(`isCAIP2: invalid caip2 ${caip2}`)
+  throw new Error(`isChainId: invalid ChainId ${chainId}`)
 }
 
 export const chainReferenceToNetworkType: Record<ChainReference, NetworkTypes> = Object.freeze({

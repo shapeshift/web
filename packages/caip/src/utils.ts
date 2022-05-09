@@ -1,6 +1,6 @@
-import { ChainId, fromCAIP2, networkTypeToChainReference, toCAIP2 } from './caip2/caip2'
-import { AccountId, fromCAIP10 } from './caip10/caip10'
-import { AssetId, fromCAIP19 } from './caip19/caip19'
+import { AccountId, fromAccountId } from './accountId/accountId'
+import { AssetId, fromAssetId } from './assetId/assetId'
+import { ChainId, fromChainId, networkTypeToChainReference, toChainId } from './chainId/chainId'
 
 export const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
 export const ethAssetId = 'eip155:1/slip44:60'
@@ -16,13 +16,15 @@ export const chainIdToAssetId: Record<ChainId, AssetId> = {
   [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118'
 }
 export const assetIdToChainId = (assetId: AssetId): string => {
-  const { chain, network } = fromCAIP19(assetId)
-  return toCAIP2({ chain, network })
+  const { chain, network } = fromAssetId(assetId)
+  return toChainId({ chain, network })
 }
 
-export const accountIdToChainId = (accountId: AccountId): ChainId => fromCAIP10(accountId).caip2
+export const accountIdToChainId = (accountId: AccountId): ChainId =>
+  fromAccountId(accountId).chainId
 
-export const accountIdToSpecifier = (accountId: AccountId): string => fromCAIP10(accountId).account
+export const accountIdToSpecifier = (accountId: AccountId): string =>
+  fromAccountId(accountId).account
 
 export const getChainReferenceFromChainId = (chainId: ChainId) =>
-  networkTypeToChainReference[fromCAIP2(chainId).network]
+  networkTypeToChainReference[fromChainId(chainId).network]

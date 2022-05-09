@@ -5,8 +5,8 @@ import fs from 'fs'
 import toLower from 'lodash/toLower'
 import uniqBy from 'lodash/uniqBy'
 
-import { toCAIP2 } from '../../caip2/caip2'
-import { AssetNamespace, toCAIP19 } from '../../caip19/caip19'
+import { AssetNamespace, toAssetId } from '../../assetId/assetId'
+import { toChainId } from '../../chainId/chainId'
 
 const network = 1 // 1 for mainnet
 const provider = new JsonRpcProvider(process.env.REACT_APP_ETHEREUM_NODE_URL)
@@ -18,7 +18,7 @@ export const writeFiles = async (data: Record<string, Record<string, string>>) =
   const writeFile = async ([k, v]: [string, unknown]) =>
     await fs.promises.writeFile(`${path}${k}${file}`.replace(':', '_'), JSON.stringify(v))
   await Promise.all(Object.entries(data).map(writeFile))
-  console.info('Generated Yearn CAIP19 adapter data.')
+  console.info('Generated Yearn AssetId adapter data.')
 }
 
 export const fetchData = async () => {
@@ -40,18 +40,18 @@ export const parseEthData = (data: (Token | Vault)[]) => {
     const { address } = datum
     const id = address
     const assetReference = toLower(address)
-    const caip19 = toCAIP19({
+    const assetId = toAssetId({
       chain,
       network: NetworkTypes.MAINNET,
       assetNamespace,
       assetReference
     })
-    acc[caip19] = id
+    acc[assetId] = id
     return acc
   }, {} as Record<string, string>)
 }
 
 export const parseData = (d: (Token | Vault)[]) => {
-  const ethMainnet = toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+  const ethMainnet = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
   return { [ethMainnet]: parseEthData(d) }
 }

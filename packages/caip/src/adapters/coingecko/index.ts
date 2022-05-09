@@ -4,7 +4,7 @@ import * as adapters from './generated'
 
 export const coingeckoUrl = 'https://api.coingecko.com/api/v3/coins/list?include_platform=true'
 
-const generatedCAIP19ToCoingeckoMap = Object.values(adapters).reduce((acc, cur) => ({
+const generatedAssetIdToCoingeckoMap = Object.values(adapters).reduce((acc, cur) => ({
   ...acc,
   ...cur
 })) as Record<string, string>
@@ -12,10 +12,12 @@ const generatedCAIP19ToCoingeckoMap = Object.values(adapters).reduce((acc, cur) 
 const invert = <T extends Record<string, string>>(data: T) =>
   Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
 
-const generatedCoingeckoToCAIP19Map: Record<string, string> = invert(generatedCAIP19ToCoingeckoMap)
+const generatedCoingeckoToAssetIdMap: Record<string, string> = invert(
+  generatedAssetIdToCoingeckoMap
+)
 
-export const coingeckoToCAIP19 = (id: string): string | undefined =>
-  generatedCoingeckoToCAIP19Map[id]
+export const coingeckoToAssetId = (id: string): string | undefined =>
+  generatedCoingeckoToAssetIdMap[id]
 
-export const CAIP19ToCoingecko = (caip19: string): string | undefined =>
-  generatedCAIP19ToCoingeckoMap[toLower(caip19)]
+export const assetIdToCoingecko = (assetId: string): string | undefined =>
+  generatedAssetIdToCoingeckoMap[toLower(assetId)]

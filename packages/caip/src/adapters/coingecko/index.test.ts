@@ -1,91 +1,91 @@
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { AssetNamespace, AssetReference, toCAIP19 } from '../../caip19/caip19'
-import { CAIP19ToCoingecko, coingeckoToCAIP19 } from '.'
+import { AssetNamespace, AssetReference, toAssetId } from '../../assetId/assetId'
+import { assetIdToCoingecko, coingeckoToAssetId } from '.'
 
 describe('adapters:coingecko', () => {
-  describe('coingeckoToCAIP19', () => {
-    it('can get CAIP19 for bitcoin', () => {
+  describe('coingeckoToAssetId', () => {
+    it('can get AssetId for bitcoin', () => {
       const chain = ChainTypes.Bitcoin
       const network = NetworkTypes.MAINNET
-      const caip19 = toCAIP19({
+      const assetId = toAssetId({
         chain,
         network,
         assetNamespace: AssetNamespace.Slip44,
         assetReference: AssetReference.Bitcoin
       })
-      expect(coingeckoToCAIP19('bitcoin')).toEqual(caip19)
+      expect(coingeckoToAssetId('bitcoin')).toEqual(assetId)
     })
 
-    it('can get CAIP19 id for ethereum', () => {
+    it('can get AssetId id for ethereum', () => {
       const chain = ChainTypes.Ethereum
       const network = NetworkTypes.MAINNET
-      const caip19 = toCAIP19({
+      const assetId = toAssetId({
         chain,
         network,
         assetNamespace: AssetNamespace.Slip44,
         assetReference: AssetReference.Ethereum
       })
-      expect(coingeckoToCAIP19('ethereum')).toEqual(caip19)
+      expect(coingeckoToAssetId('ethereum')).toEqual(assetId)
     })
 
-    it('can get CAIP19 id for FOX', () => {
+    it('can get AssetId id for FOX', () => {
       const chain = ChainTypes.Ethereum
       const network = NetworkTypes.MAINNET
       const assetNamespace = AssetNamespace.ERC20
       const assetReference = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      const caip19 = toCAIP19({ chain, network, assetNamespace, assetReference })
-      expect(coingeckoToCAIP19('shapeshift-fox-token')).toEqual(caip19)
+      const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+      expect(coingeckoToAssetId('shapeshift-fox-token')).toEqual(assetId)
     })
   })
 
-  it('can get CAIP19 for cosmos', () => {
+  it('can get AssetId for cosmos', () => {
     const chain = ChainTypes.Cosmos
     const network = NetworkTypes.COSMOSHUB_MAINNET
-    const caip19 = toCAIP19({
+    const assetId = toAssetId({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,
       assetReference: AssetReference.Cosmos
     })
-    expect(coingeckoToCAIP19('cosmos')).toEqual(caip19)
+    expect(coingeckoToAssetId('cosmos')).toEqual(assetId)
   })
 
-  it('can get CAIP19 for osmosis', () => {
+  it('can get AssetId for osmosis', () => {
     const chain = ChainTypes.Osmosis
     const network = NetworkTypes.OSMOSIS_MAINNET
-    const caip19 = toCAIP19({
+    const assetId = toAssetId({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,
       assetReference: AssetReference.Osmosis
     })
-    expect(coingeckoToCAIP19('osmosis')).toEqual(caip19)
+    expect(coingeckoToAssetId('osmosis')).toEqual(assetId)
   })
 
-  describe('CAIP19toCoingecko', () => {
-    it('can get coingecko id for bitcoin CAIP19', () => {
+  describe('AssetIdtoCoingecko', () => {
+    it('can get coingecko id for bitcoin AssetId', () => {
       const chain = ChainTypes.Bitcoin
       const network = NetworkTypes.MAINNET
-      const caip19 = toCAIP19({
+      const assetId = toAssetId({
         chain,
         network,
         assetNamespace: AssetNamespace.Slip44,
         assetReference: AssetReference.Bitcoin
       })
-      expect(CAIP19ToCoingecko(caip19)).toEqual('bitcoin')
+      expect(assetIdToCoingecko(assetId)).toEqual('bitcoin')
     })
 
-    it('can get coingecko id for ethereum CAIP19', () => {
+    it('can get coingecko id for ethereum AssetId', () => {
       const chain = ChainTypes.Ethereum
       const network = NetworkTypes.MAINNET
-      const caip19 = toCAIP19({
+      const assetId = toAssetId({
         chain,
         network,
         assetNamespace: AssetNamespace.Slip44,
         assetReference: AssetReference.Ethereum
       })
-      expect(CAIP19ToCoingecko(caip19)).toEqual('ethereum')
+      expect(assetIdToCoingecko(assetId)).toEqual('ethereum')
     })
 
     it('can get coingecko id for FOX', () => {
@@ -93,32 +93,32 @@ describe('adapters:coingecko', () => {
       const network = NetworkTypes.MAINNET
       const assetNamespace = AssetNamespace.ERC20
       const assetReference = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      const caip19 = toCAIP19({ chain, network, assetNamespace, assetReference })
-      expect(CAIP19ToCoingecko(caip19)).toEqual('shapeshift-fox-token')
+      const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+      expect(assetIdToCoingecko(assetId)).toEqual('shapeshift-fox-token')
     })
 
-    it('can get coingecko id for cosmos CAIP19', () => {
+    it('can get coingecko id for cosmos AssetId', () => {
       const chain = ChainTypes.Cosmos
       const network = NetworkTypes.COSMOSHUB_MAINNET
-      const caip19 = toCAIP19({
+      const assetId = toAssetId({
         chain,
         network,
         assetNamespace: AssetNamespace.Slip44,
         assetReference: AssetReference.Cosmos
       })
-      expect(CAIP19ToCoingecko(caip19)).toEqual('cosmos')
+      expect(assetIdToCoingecko(assetId)).toEqual('cosmos')
     })
 
-    it('can get coingecko id for osmosis CAIP19', () => {
+    it('can get coingecko id for osmosis AssetId', () => {
       const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
-      const caip19 = toCAIP19({
+      const assetId = toAssetId({
         chain,
         network,
         assetNamespace: AssetNamespace.Slip44,
         assetReference: AssetReference.Osmosis
       })
-      expect(CAIP19ToCoingecko(caip19)).toEqual('osmosis')
+      expect(assetIdToCoingecko(assetId)).toEqual('osmosis')
     })
   })
 })

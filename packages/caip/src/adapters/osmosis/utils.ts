@@ -2,8 +2,8 @@ import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
 import fs from 'fs'
 
-import { toCAIP2 } from '../../caip2/caip2'
-import { AssetNamespace, AssetReference, toCAIP19 } from './../../caip19/caip19'
+import { AssetNamespace, AssetReference, toAssetId } from '../../assetId/assetId'
+import { toChainId } from '../../chainId/chainId'
 
 export type OsmosisCoin = {
   price: number
@@ -23,7 +23,7 @@ export const writeFiles = async (data: Record<string, Record<string, string>>) =
   const writeFile = async ([k, v]: [string, unknown]) =>
     await fs.promises.writeFile(`${path}${k}${file}`.replace(':', '_'), JSON.stringify(v))
   await Promise.all(Object.entries(data).map(writeFile))
-  console.info('Generated Osmosis CAIP19 adapter data.')
+  console.info('Generated Osmosis AssetId adapter data.')
 }
 
 export const fetchData = async (URL: string) => (await axios.get<OsmosisCoin[]>(URL)).data
@@ -48,9 +48,9 @@ export const parseOsmosisData = (data: OsmosisCoin[]) => {
 
     const chain = ChainTypes.Osmosis
     const network = NetworkTypes.OSMOSIS_MAINNET
-    const caip19 = toCAIP19({ chain, network, assetNamespace, assetReference })
+    const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
 
-    acc[caip19] = symbol
+    acc[assetId] = symbol
     return acc
   }, {} as Record<string, string>)
 
@@ -58,7 +58,7 @@ export const parseOsmosisData = (data: OsmosisCoin[]) => {
 }
 
 export const parseData = (d: OsmosisCoin[]) => {
-  const osmosisMainnet = toCAIP2({
+  const osmosisMainnet = toChainId({
     chain: ChainTypes.Osmosis,
     network: NetworkTypes.OSMOSIS_MAINNET
   })

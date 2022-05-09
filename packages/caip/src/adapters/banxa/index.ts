@@ -1,10 +1,10 @@
 import entries from 'lodash/entries'
 import toLower from 'lodash/toLower'
 
-import { ChainId, toCAIP2 } from '../../caip2/caip2'
-import { fromCAIP19 } from '../../caip19/caip19'
+import { fromAssetId } from '../../assetId/assetId'
+import { ChainId, toChainId } from '../../chainId/chainId'
 
-const CAIP19ToBanxaTickerMap = {
+const AssetIdToBanxaTickerMap = {
   'bip122:000000000019d6689c085ae165831e93/slip44:0': 'btc',
   'cosmos:cosmoshub-4/slip44:118': 'atom',
   'eip155:1/slip44:60': 'eth',
@@ -38,16 +38,16 @@ const CAIP19ToBanxaTickerMap = {
 const invert = <T extends Record<string, string>>(data: T) =>
   Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
 
-const banxaTickerToCAIP19Map = invert(CAIP19ToBanxaTickerMap)
+const banxaTickerToAssetIdMap = invert(AssetIdToBanxaTickerMap)
 
-export const banxaTickerToCAIP19 = (id: string): string | undefined => banxaTickerToCAIP19Map[id]
+export const banxaTickerToAssetId = (id: string): string | undefined => banxaTickerToAssetIdMap[id]
 
-export const CAIP19ToBanxaTicker = (caip19: string): string | undefined =>
-  CAIP19ToBanxaTickerMap[toLower(caip19)]
+export const AssetIdToBanxaTicker = (assetId: string): string | undefined =>
+  AssetIdToBanxaTickerMap[toLower(assetId)]
 
 export const getSupportedBanxaAssets = () =>
-  entries(CAIP19ToBanxaTickerMap).map(([CAIP19, ticker]) => ({
-    CAIP19,
+  entries(AssetIdToBanxaTickerMap).map(([assetId, ticker]) => ({
+    assetId,
     ticker
   }))
 
@@ -69,10 +69,10 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
  * @returns {string} - a Banxa chain identifier; e.g., 'cosmos'
  */
 export const getBanxaBlockchainFromBanxaAssetTicker = (banxaAssetId: string): string => {
-  const assetCAIP19 = banxaTickerToCAIP19(banxaAssetId.toLowerCase())
-  if (!assetCAIP19)
+  const assetAssetId = banxaTickerToAssetId(banxaAssetId.toLowerCase())
+  if (!assetAssetId)
     throw new Error(`getBanxaBlockchainFromBanxaAssetTicker: ${banxaAssetId} is not supported`)
-  const { chain, network } = fromCAIP19(assetCAIP19)
-  const chainId = toCAIP2({ network, chain })
+  const { chain, network } = fromAssetId(assetAssetId)
+  const chainId = toChainId({ network, chain })
   return chainIdToBanxaBlockchainCodeMap[chainId]
 }

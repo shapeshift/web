@@ -13,7 +13,7 @@
     "build:public": "yarn clean && yarn generate:public && tsc -p tsconfig.build.json",
     "build:local": "yarn clean && yarn generate:local && tsc -p tsconfig.build.json",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist node_modules src/generated tsconfig.build.tsbuildinfo",
+    "clean": "rm -rf dist src/generated tsconfig.build.tsbuildinfo",
     "generate": "./generator/generate.sh -e dev",
     "generate:public": "./generator/generate.sh -e public",
     "generate:local": "./generator/generate.sh -e local",

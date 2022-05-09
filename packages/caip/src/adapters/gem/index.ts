@@ -1,6 +1,6 @@
 import toLower from 'lodash/toLower'
 
-const CAIP19ToGemAssetIdMap = {
+const assetIdToGemAssetIdMap = {
   'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin',
   'eip155:1/slip44:60': 'ethereum',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
@@ -27,9 +27,9 @@ const CAIP19ToGemAssetIdMap = {
 const invert = <T extends Record<string, string>>(data: T) =>
   Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
 
-const gemAssetIdToCAIP19Map = invert(CAIP19ToGemAssetIdMap)
+const gemAssetIdToAssetIdMap = invert(assetIdToGemAssetIdMap)
 
-export const gemAssetIdToCAIP19 = (id: string): string | undefined => gemAssetIdToCAIP19Map[id]
+export const gemAssetIdToAssetId = (id: string): string | undefined => gemAssetIdToAssetIdMap[id]
 
-export const CAIP19ToGemAssetId = (caip19: string): string | undefined =>
-  CAIP19ToGemAssetIdMap[toLower(caip19)]
+export const assetIdToGemAssetId = (assetId: string): string | undefined =>
+  assetIdToGemAssetIdMap[toLower(assetId)]

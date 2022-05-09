@@ -50,10 +50,6 @@ export const loginErrors = {
     httpCode: 412,
     msg: '2fa invalid',
   },
-  tooManyAttempts: {
-    httpCode: 429,
-    msg: 'Too many attempts, please try again later.'
-  },
   noWallet: {
     httpCode: 404,
     msg: 'no native wallet located for',

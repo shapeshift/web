@@ -164,7 +164,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       if (!versions || !updaterUrl) return
 
       if (
-        (!versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
+        (versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
         !toast.isActive(KEEPKEY_TOAST_ID)
       ) {
         toastRef.current = toast({

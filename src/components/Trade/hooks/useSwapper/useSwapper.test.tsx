@@ -8,7 +8,6 @@ import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, MIN_MAX, USDC, WETH } fr
 import { TestProviders } from 'test/TestProviders'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { fromBaseUnit } from 'lib/math'
 
 import { useSwapper } from './useSwapper'
 

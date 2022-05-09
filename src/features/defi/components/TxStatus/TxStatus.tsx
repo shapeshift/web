@@ -42,11 +42,16 @@ export const TxStatus = ({
       <ModalFooter flexDir='column' textAlign='center'>
         <Stack width='full'>
           {onContinue && (
-            <Button size='lg' colorScheme='blue' onClick={onContinue}>
+            <Button
+              size='lg'
+              colorScheme='blue'
+              data-test='defi-modal-status-continue'
+              onClick={onContinue}
+            >
               {translate(continueText)}
             </Button>
           )}
-          <Button size='lg' variant='ghost' onClick={onClose}>
+          <Button size='lg' variant='ghost' data-test='defi-modal-status-close' onClick={onClose}>
             {translate(closeText)}
           </Button>
         </Stack>

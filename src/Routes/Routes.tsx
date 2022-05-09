@@ -1,4 +1,4 @@
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -18,12 +18,29 @@ function useLocationBackground() {
 
 export const Routes = () => {
   const { background, location } = useLocationBackground()
-  const { state } = useWallet()
+  const { connectDemo, state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
 
   return (
     <Switch location={background || location}>
+      <Route path='/demo'>
+        {() => {
+          const matchDemoPath = matchPath<{ rest: string }>(location.pathname, {
+            path: '/demo/:rest(.*)',
+          })
+          // Don't reconnect demo wallet if already connected
+          if (state.walletInfo?.deviceId !== 'DemoWallet') {
+            connectDemo()
+          }
+          return (
+            <Redirect
+              from='/'
+              to={matchDemoPath?.params?.rest ? `/${matchDemoPath.params.rest}` : '/dashboard'}
+            />
+          )
+        }}
+      </Route>
       {appRoutes.map((route, index) => {
         const MainComponent = route.main
         return (

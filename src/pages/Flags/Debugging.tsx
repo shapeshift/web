@@ -39,12 +39,12 @@ export const Debugging = () => {
                       setLogLevel(getLogLevel())
                     }}
                   >
-                    <MenuItemOption value='error'>Error</MenuItemOption>
-                    <MenuItemOption value='warn'>Warning</MenuItemOption>
-                    <MenuItemOption value='info'>Info</MenuItemOption>
-                    <MenuItemOption value='debug'>Debug</MenuItemOption>
-                    <MenuItemOption value='trace'>Trace</MenuItemOption>
-                    <MenuItemOption value='none'>None</MenuItemOption>
+                    <MenuItemOption value='error'>error</MenuItemOption>
+                    <MenuItemOption value='warn'>warn</MenuItemOption>
+                    <MenuItemOption value='info'>info</MenuItemOption>
+                    <MenuItemOption value='debug'>debug</MenuItemOption>
+                    <MenuItemOption value='trace'>trace</MenuItemOption>
+                    <MenuItemOption value='none'>none</MenuItemOption>
                   </MenuOptionGroup>
                 </MenuList>
               </Menu>

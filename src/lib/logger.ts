@@ -108,7 +108,7 @@ export const saveLogLevel = (level: LogLevel | string) => {
 export const logger = createLogger()
 
 /*
- DOCUMENATION
+ DOCUMENTATION
 
  # Why
  The purpose of this logger is to allow us to log out information in a structured way that
@@ -127,7 +127,7 @@ export const logger = createLogger()
       By following this pattern we can make sure logs show which file they are coming from
 
     ```ts
-    // In the file 'src/plugins/cosmos/MyComponent.tsx', outside of the component function:
+    // In the file 'src/plugins/cosmos/MyComponent.tsx', outside the component function:
     const moduleLogger = logger.child({ namespace: ['Plugins', 'Cosmos', 'MyComponent'] })
 
     const MyComponent = () => {

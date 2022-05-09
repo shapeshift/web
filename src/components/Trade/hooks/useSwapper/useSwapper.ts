@@ -283,7 +283,7 @@ export const useSwapper = () => {
     action,
     forceQuote,
   }: GetQuoteInput) => {
-    if (!forceQuote && amount === '0') return
+    if (!forceQuote && bnOrZero(amount).isZero()) return
     setValue('quote', undefined)
     updateQuoteDebounced.current.cancel()
     await updateQuoteDebounced.current({

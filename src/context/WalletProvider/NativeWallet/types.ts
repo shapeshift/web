@@ -34,6 +34,13 @@ export interface LoginResponseError extends Error {
   }
 }
 
+export interface RateLimitError extends Error {
+  response: {
+    status: 429
+    data: string
+  }
+}
+
 export const loginErrors = {
   twoFactorRequired: {
     httpCode: 428,
@@ -42,6 +49,10 @@ export const loginErrors = {
   twoFactorInvalid: {
     httpCode: 412,
     msg: '2fa invalid',
+  },
+  tooManyAttempts: {
+    httpCode: 429,
+    msg: 'Too many attempts, please try again later.'
   },
   noWallet: {
     httpCode: 404,

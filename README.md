@@ -1,5 +1,9 @@
 # lib
 
+## Dependencies
+
+- [Docker](https://docs.docker.com/get-started/#download-and-install-docker) - used for dockerized code generation during `yarn build`
+
 ## Getting started
 
 ```bash
@@ -28,6 +32,7 @@ info You can now run `yarn link "@shapeshiftoss/types"` in the projects where yo
 ```
 
 Similarly you can unlink packages, which can be useful for debugging failing CI runs
+
 ```bash
 ➜ yarn unlink-packages
 yarn run v1.22.15

@@ -23,8 +23,8 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TradeAmountInputField } from './types'
 import { TradeRoutePaths } from './TradeRoutes/TradeRoutes'
+import { TradeAmountInputField } from './types'
 
 type TS = TradeState<ChainTypes>
 

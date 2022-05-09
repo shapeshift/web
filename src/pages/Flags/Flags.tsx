@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
+import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
 import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -67,12 +68,16 @@ export const Flags = () => {
           </Stack>
         </Card.Body>
       </Card>
-      <HStack my={4}>
+
+      <HStack my={4} width='full'>
         <Button onClick={handleApply} colorScheme='blue'>
           Apply
         </Button>
         <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
       </HStack>
+
+      <Debugging />
+
       {error && (
         <Alert status='error'>
           <AlertIcon />

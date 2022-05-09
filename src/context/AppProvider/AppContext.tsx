@@ -33,14 +33,16 @@ import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectAssets,
+  selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds,
   selectTxs,
 } from 'state/slices/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
+import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
+import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
@@ -230,24 +232,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     [accountSpecifiersList, dispatch],
   )
 
-  /**
-   * refetch an account given a newly confirmed txid
-   */
-  const refetchStakingDataByTxId = useCallback(
-    (txId: TxId) => {
-      // the accountSpecifier the tx came from
-      const { txAccountSpecifier } = deserializeUniqueTxId(txId)
-      if (!txAccountSpecifier.length) return
-
-      dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier: txAccountSpecifier },
-          { forceRefetch: true },
-        ),
-      )
-    },
-    [dispatch],
-  )
+  const portfolioAccounts = useAppSelector(state => selectPortfolioAccounts(state))
 
   /**
    * monitor for new pending txs, add them to a set, so we can monitor when they're confirmed
@@ -265,9 +250,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!tx) return
 
     if (tx.caip2 === cosmosChainId) {
-      // @TODO: Remove this once stakingData slice is refactored into account data
-      refetchStakingDataByTxId(txId)
-
+      // This block refetches validator data on subsequent Txs in case TVL or APR changed.
+      const validators = portfolioAccounts[`${cosmosChainId}:${tx.address}`]?.validatorIds
+      validators?.forEach(validatorAddress => {
+        dispatch(
+          validatorDataApi.endpoints.getValidatorData.initiate({
+            validatorAddress,
+          }),
+        )
+      })
       // cosmos txs only come in when they're confirmed, so refetch that account immediately
       return refetchAccountByTxId(txId)
     } else {

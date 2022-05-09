@@ -84,8 +84,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   )
 
   const nativeAssetBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId })),
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.assetId, accountId }),
+    ),
   )
+
   const chainAdapterManager = useChainAdapters()
   const {
     state: { wallet },

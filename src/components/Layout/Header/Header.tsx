@@ -1,4 +1,4 @@
-import { HamburgerIcon } from '@chakra-ui/icons'
+import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
   Drawer,
@@ -13,6 +13,9 @@ import {
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { FiatRamps } from './NavBar/FiatRamps'
@@ -24,6 +27,10 @@ export const Header = () => {
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const {
+    state: { walletInfo },
+    dispatch,
+  } = useWallet()
 
   /**
    * FOR DEVELOPERS:
@@ -43,10 +50,12 @@ export const Header = () => {
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
+  const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+
   return (
     <>
       <Flex
-        height='4.5rem'
+        direction='column'
         bg={bg}
         borderBottomWidth={1}
         borderColor={borderColor}
@@ -55,7 +64,16 @@ export const Header = () => {
         zIndex='banner'
         top={0}
       >
-        <HStack width='full' px={4}>
+        {walletInfo?.deviceId === 'DemoWallet' && (
+          <Box bg='blue.500' width='full' height='3rem' as='button' onClick={handleBannerClick}>
+            <HStack verticalAlign='middle' justifyContent='center' spacing={3}>
+              <InfoIcon h={6} w={6} color='white' />
+              <Text color='white' fontWeight='bold' translation='navBar.demoMode' />
+              <Text color='white' fontWeight='medium' translation='navBar.clickToConnect' />
+            </HStack>
+          </Box>
+        )}
+        <HStack height='4.5rem' width='full' px={4}>
           <Box flex={1} display={{ base: 'block', md: 'none' }}>
             <IconButton
               aria-label='Open menu'

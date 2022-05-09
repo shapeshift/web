@@ -293,7 +293,9 @@
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token",
-    "featureFlags": "Feature Flags"
+    "featureFlags": "Feature Flags",
+    "demoMode": "Demo Mode",
+    "clickToConnect": "Click to connect a wallet"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",

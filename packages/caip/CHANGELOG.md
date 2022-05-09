@@ -1,3 +1,15 @@
+# [@shapeshiftoss/caip-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.6.0...@shapeshiftoss/caip-v3.0.0) (2022-05-09)
+
+
+### Performance Improvements
+
+* **caip:** bump caip version ([#629](https://github.com/shapeshift/lib/issues/629)) ([acb7c29](https://github.com/shapeshift/lib/commit/acb7c290178d2a25f72ac52c62023006d0afaa10))
+
+
+### BREAKING CHANGES
+
+* **caip:** properly bump major version
+
 # [@shapeshiftoss/caip-v2.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.5.2...@shapeshiftoss/caip-v2.6.0) (2022-05-09)
 
 

@@ -1,9 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AccountId, ChainId, fromCAIP10 } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { CosmosSdkBaseAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/CosmosSdkBaseAdapter'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 export type PubKey = string
@@ -116,7 +115,7 @@ export const stakingDataApi = createApi({
         try {
           const { caip2, account } = fromCAIP10(accountSpecifier)
           const chainAdapters = getChainAdapters()
-          const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
+          const adapter = (await chainAdapters.byChainId(caip2)) as cosmossdk.cosmos.ChainAdapter
           dispatch(stakingData.actions.setStatus('loading'))
           const data = await adapter.getAccount(account)
 
@@ -154,9 +153,7 @@ export const stakingDataApi = createApi({
     getAllValidatorsData: build.query<Validators, AllValidatorDataArgs>({
       queryFn: async ({ chainId }, { dispatch }) => {
         const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(
-          chainId,
-        )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
+        const adapter = (await chainAdapters.byChainId(chainId)) as cosmossdk.cosmos.ChainAdapter
         dispatch(stakingData.actions.setValidatorStatus('loading'))
         try {
           const data = await adapter.getValidators()
@@ -186,9 +183,7 @@ export const stakingDataApi = createApi({
     getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
       queryFn: async ({ chainId, validatorAddress }, { dispatch }) => {
         const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(
-          chainId,
-        )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
+        const adapter = (await chainAdapters.byChainId(chainId)) as cosmossdk.cosmos.ChainAdapter
         dispatch(stakingData.actions.setValidatorStatus('loading'))
         try {
           const data = await adapter.getValidator(validatorAddress)

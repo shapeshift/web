@@ -5,7 +5,7 @@ import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
-import { TradeRoutePaths } from './TradeRoutes/TradeRoutes'
+import { TradeRoutePaths } from './types'
 import { WithBackButton } from './WithBackButton'
 
 type SelectAssetProps = {

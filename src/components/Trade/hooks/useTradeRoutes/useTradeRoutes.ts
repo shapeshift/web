@@ -1,15 +1,14 @@
+/* eslint-disable no-console */
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { TradeRoutePaths } from 'components/Trade/TradeRoutes/TradeRoutes'
-import { TradeAmountInputField } from 'components/Trade/types'
+import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets } from 'state/slices/selectors'
 
-import { TradeState } from '../../Trade'
 import { useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
@@ -59,12 +58,18 @@ export const useTradeRoutes = (): {
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {
-        setValue('sellAsset.asset', asset)
+        // Handle scenario where same asset is selected
+        const previousSellAsset = { ...getValues('sellAsset') }
+        const previousBuyAsset = { ...getValues('buyAsset') }
+        if (asset.assetId === previousBuyAsset?.asset.assetId) {
+          setValue('sellAsset.asset', asset)
+          setValue('buyAsset.asset', previousSellAsset.asset)
+        }
         updateQuote({
           forceQuote: true,
-          amount: bnOrZero(sellTradeAsset.amount).toString(),
+          amount: bnOrZero(sellTradeAsset?.amount).toString(),
           sellAsset: asset,
-          buyAsset: buyTradeAsset.asset,
+          buyAsset: buyTradeAsset?.asset,
           feeAsset,
           action: TradeAmountInputField.SELL,
         })
@@ -74,17 +79,31 @@ export const useTradeRoutes = (): {
         history.push(TradeRoutePaths.Input)
       }
     },
-    [setValue, updateQuote, sellTradeAsset.amount, buyTradeAsset.asset, feeAsset, history],
+    [
+      getValues,
+      updateQuote,
+      sellTradeAsset?.amount,
+      buyTradeAsset?.asset,
+      feeAsset,
+      setValue,
+      history,
+    ],
   )
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
-        setValue('buyAsset.asset', asset)
+        // Handle scenario where same asset is selected
+        const previousSellAsset = { ...getValues('sellAsset') }
+        const previousBuyAsset = { ...getValues('buyAsset') }
+        if (asset.assetId === previousSellAsset?.asset.assetId) {
+          setValue('sellAsset.asset', previousBuyAsset.asset)
+          setValue('buyAsset.asset', asset)
+        }
         updateQuote({
           forceQuote: true,
-          amount: bnOrZero(buyTradeAsset.amount).toString(),
-          sellAsset: sellTradeAsset.asset,
+          amount: bnOrZero(buyTradeAsset?.amount).toString(),
+          sellAsset: sellTradeAsset?.asset,
           buyAsset: asset,
           feeAsset,
           action: TradeAmountInputField.SELL,
@@ -95,7 +114,7 @@ export const useTradeRoutes = (): {
         history.push(TradeRoutePaths.Input)
       }
     },
-    [setValue, updateQuote, buyTradeAsset.amount, sellTradeAsset.asset, feeAsset, history],
+    [getValues, buyTradeAsset, sellTradeAsset, updateQuote, feeAsset, setValue, history],
   )
 
   return { handleSellClick, handleBuyClick }

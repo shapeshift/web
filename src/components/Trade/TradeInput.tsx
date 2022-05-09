@@ -14,7 +14,6 @@ import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeState } from 'components/Trade/Trade'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -23,8 +22,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TradeRoutePaths } from './TradeRoutes/TradeRoutes'
-import { TradeAmountInputField } from './types'
+import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
 type TS = TradeState<ChainTypes>
 

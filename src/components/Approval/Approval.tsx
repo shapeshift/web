@@ -11,8 +11,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeState } from 'components/Trade/Trade'
-import { TradeRoutePaths, TradeRoutes } from 'components/Trade/TradeRoutes/TradeRoutes'
+import { TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -91,7 +90,7 @@ export const Approval = () => {
         fnLogger.error(e, { fn: 'checkApprovalNeeded' }, 'Check Approval Needed Failed')
         handleToast()
         approvalInterval.current && clearInterval(approvalInterval.current)
-        return history.push(TradeRoutes.Input)
+        return history.push(TradeRoutePaths.Input)
       }
       approvalInterval.current && clearInterval(approvalInterval.current)
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })

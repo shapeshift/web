@@ -7,16 +7,9 @@ import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
+import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']
-
-export enum TradeRoutePaths {
-  Input = '/trade/input',
-  Confirm = '/trade/confirm',
-  Approval = '/trade/approval',
-  SellSelect = '/trade/select/sell',
-  BuySelect = '/trade/select/buy',
-}
 
 export const TradeRoutes = () => {
   const location = useLocation()

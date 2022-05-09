@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.5.0...@shapeshiftoss/caip-v2.5.1) (2022-05-09)
+
+
+### Performance Improvements
+
+* **caip:** remove caip vernacular ([#625](https://github.com/shapeshift/lib/issues/625)) ([f92b4f0](https://github.com/shapeshift/lib/commit/f92b4f0ed89f4f3352dd0130757fa686a214c6d4))
+
 # [@shapeshiftoss/caip-v2.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.4.0...@shapeshiftoss/caip-v2.5.0) (2022-05-06)
 
 

@@ -9,6 +9,7 @@ export type FeatureFlags = {
   KeepKeySettings: boolean
   WalletMigration: boolean
   DemoWallet: boolean
+  WalletConnectWallet: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -26,6 +27,7 @@ const initialState: Preferences = {
     KeepKeySettings: getConfig().REACT_APP_FEATURE_KEEPKEY_SETTINGS,
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
     DemoWallet: getConfig().REACT_APP_FEATURE_DEMO_WALLET,
+    WalletConnectWallet: getConfig().REACT_APP_FEATURE_WALLETCONNECT_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

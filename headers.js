@@ -37,6 +37,11 @@ const cspMeta = Object.entries({
     'https://api.coincap.io/v2/assets',
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
+    'https://registry.walletconnect.com/api/v2/wallets',
+    // WalletConnect Image CDN - Needed for icons inside WalletConnect
+    'https://imagedelivery.net/',
+    // Subdomain can change between loads
+    'wss://*.bridge.walletconnect.org',
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L40
     process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L50

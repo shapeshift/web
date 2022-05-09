@@ -54,6 +54,7 @@ export const mockStore: ReduxState = {
       KeepKeySettings: false,
       WalletMigration: false,
       DemoWallet: false,
+      WalletConnectWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

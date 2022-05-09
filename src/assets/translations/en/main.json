@@ -823,6 +823,21 @@
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
       "footer": "Don't have a wallet?",
       "create": "Create one"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with WalletConnect",
+        "connectFailure": "Unable to connect WalletConnect wallet"
+      },
+      "connect": {
+        "header": "Pair WalletConnect",
+        "body": "Click Pair then select WalletConnect from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect WalletConnect wallet"
+      }
     }
   },
   "graph": {

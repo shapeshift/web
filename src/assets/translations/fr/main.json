@@ -764,6 +764,21 @@
       "body": "En connectant un porte-monnaie, vous acceptez les conditions de service de ShapeShift et reconnaissez avoir lu et compris la clause de non-responsabilité de ShapeShift.",
       "footer": "Vous n'avez pas de porte-monnaie ?",
       "create": "Créez-en un"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec WalletConnect",
+        "connectFailure": "Impossible de connecter le porte-monnaie WalletConnect."
+      },
+      "connect": {
+        "header": "Appairer WalletConnect",
+        "body": "Cliquez sur Appairer et connectez-vous à WalletConnect à partir de la fenêtre popup",
+        "button": "Appairer"
+      },
+      "failure": {
+        "header": "Erreur",
+        "body": "Impossible de se connecter au porte-monnaie WalletConnect"
+      }
     }
   },
   "graph": {

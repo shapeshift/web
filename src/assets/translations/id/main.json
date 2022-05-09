@@ -470,6 +470,21 @@
       "body": "Dengan menghubungkan dompet, Anda menyetujui Persyaratan Layanan ShapeShift dan mengakui bahwa Anda telah membaca dan memahami penafian ShapeShift.",
       "footer": "Tidak punya dompet?",
       "create": "Buat Satu"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan WalletConnect",
+        "connectFailure": "Tidak dapat menghubungkan dompet WalletConnect"
+      },
+      "connect": {
+        "header": "Pasangkan WalletConnect",
+        "body": "Klik Pasangkan lalu pilih WalletConnect dari jendela popup",
+        "button": "Pasangkan"
+      },
+      "failure": {
+        "header": "Kesalahan",
+        "body": "Tidak dapat menghubungkan dompet WalletConnect"
+      }
     }
   },
   "graph": {

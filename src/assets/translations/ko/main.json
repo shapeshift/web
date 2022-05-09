@@ -764,6 +764,21 @@
       "body": "지갑을 연결하는 것으로, 셰이프시프트의 서비스 약관에 동의하며 셰이프시프트의 면책 및 면피 조항을 읽고 이해했음을 확인합니다.",
       "footer": "지갑이 없으신가요?",
       "create": "지갑 만들기"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "WalletConnect와 연동하는 도중에 예기치 못한 오류가 발생했습니다.",
+        "connectFailure": "WalletConnect 지갑을 연결할 수 없습니다."
+      },
+      "connect": {
+        "header": "WalletConnect 지갑 연동하기",
+        "body": "연결하기 버튼을 누른 후 팝업창에서 WalletConnect를 선택하세요.",
+        "button": "연결하기"
+      },
+      "failure": {
+        "header": "오류 발생",
+        "body": "WalletConnect 지갑을 연결할 수 없습니다."
+      }
     }
   },
   "graph": {

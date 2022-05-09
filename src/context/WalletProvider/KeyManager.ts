@@ -4,4 +4,5 @@ export enum KeyManager {
   MetaMask = 'metamask',
   Portis = 'portis',
   Demo = 'demo',
+  WalletConnect = 'walletconnect',
 }

@@ -667,6 +667,21 @@
       "body": "连接一个钱包代表您同意接受 ShapeShift 的服务条款并确认您已经阅读并理解 Shapeshift 的免责声明。",
       "footer": "还没有钱包？",
       "create": "创建一个"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "与您的 WalletConnect 通讯出现未知错误",
+        "connectFailure": "无法连接 WalletConnect"
+      },
+      "connect": {
+        "header": "与 WalletConnect 配对",
+        "body": "点击配对并在弹窗中选择 WalletConnect",
+        "button": "配对"
+      },
+      "failure": {
+        "header": "错误",
+        "body": "无法连接 WalletConnect"
+      }
     }
   },
   "graph": {

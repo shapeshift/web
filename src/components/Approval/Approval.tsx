@@ -12,6 +12,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -45,7 +46,8 @@ export const Approval = () => {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
   const { quote, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
@@ -53,6 +55,15 @@ export const Approval = () => {
 
   const approve = async () => {
     if (!wallet) return
+    if (!isConnected) {
+      /**
+       * call history.goBack() to reset current form state
+       * before opening the connect wallet modal.
+       */
+      history.goBack()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
     const fnLogger = logger.child({ name: 'approve' })
     fnLogger.trace('Attempting Approval...')
 

@@ -1,3 +1,4 @@
+import { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
@@ -11,9 +12,13 @@ import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']
 
-export const TradeRoutes = () => {
+type TradeRoutesProps = {
+  defaultBuyAssetId?: AssetId
+}
+
+export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
   const location = useLocation()
-  const { handleBuyClick, handleSellClick } = useTradeRoutes()
+  const { handleBuyClick, handleSellClick } = useTradeRoutes(defaultBuyAssetId)
   const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
 
   return (

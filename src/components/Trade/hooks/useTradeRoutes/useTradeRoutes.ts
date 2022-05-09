@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -13,7 +13,9 @@ import { useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
 
-export const useTradeRoutes = (): {
+export const useTradeRoutes = (
+  defaultBuyAssetId?: AssetId,
+): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
@@ -32,7 +34,14 @@ export const useTradeRoutes = (): {
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-      const buyAsset = assets[buyAssetId]
+
+      // ugly hack until we add proper error handling in another PR soon
+      const buyAsset =
+        assets[
+          defaultBuyAssetId?.startsWith('eip155:1') && defaultBuyAssetId !== 'eip155:1/slip44:60'
+            ? defaultBuyAssetId
+            : buyAssetId
+        ]
 
       if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
@@ -49,7 +58,7 @@ export const useTradeRoutes = (): {
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, feeAsset, getDefaultPair, setValue, updateQuote])
+  }, [assets, defaultBuyAssetId, feeAsset, getDefaultPair, setValue, updateQuote])
 
   useEffect(() => {
     setDefaultAssets()

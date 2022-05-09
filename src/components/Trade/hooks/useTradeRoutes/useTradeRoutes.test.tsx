@@ -4,8 +4,8 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeAmountInputField } from 'components/Trade/types'
 
-import { TradeAmountInputField } from '../useSwapper/types'
 import { useTradeRoutes } from './useTradeRoutes'
 
 jest.mock('react-router-dom', () => ({
@@ -97,11 +97,11 @@ describe('useTradeRoutes', () => {
     expect(setValue).toHaveBeenCalledWith('action', TradeAmountInputField.BUY)
     expect(getQuote).toHaveBeenCalled()
   })
-  it('swaps when same asset on buy click', async () => {
+  it.only('swaps when same asset on buy click', async () => {
     const { result, setValue, getQuote } = setup({})
     await result.current.handleBuyClick(WETH)
-    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', mockFOX)
-    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
+    expect(setValue).toHaveBeenCalledWith('buyAsset.asset', WETH)
+    expect(setValue).toHaveBeenCalledWith('sellAsset.asset', mockFOX)
     expect(getQuote).toHaveBeenCalled()
   })
 })

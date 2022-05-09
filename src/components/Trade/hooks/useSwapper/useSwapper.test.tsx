@@ -5,10 +5,10 @@ import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, MIN_MAX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
+import { TradeAmountInputField } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { fromBaseUnit } from 'lib/math'
 
-import { TradeAmountInputField } from './types'
 import { useSwapper } from './useSwapper'
 
 jest.mock('lib/web3-instance')
@@ -101,10 +101,10 @@ describe('useSwapper', () => {
   it('getQuote gets quote with sellAmount', async () => {
     const { result, setValue } = setup({ action: TradeAmountInputField.SELL })
     await act(async () => {
-      result.current.getQuote({
+      result.current.updateQuote({
         amount: '20',
-        sellAsset: { currency: WETH },
-        buyAsset: { currency: USDC },
+        sellAsset: WETH,
+        buyAsset: USDC,
         feeAsset: ETH,
         action: TradeAmountInputField.SELL,
       })
@@ -125,10 +125,10 @@ describe('useSwapper', () => {
   it('getQuote gets quote with buyAmount', async () => {
     const { result, setValue } = setup({ action: TradeAmountInputField.BUY })
     await act(async () => {
-      result.current.getQuote({
+      result.current.updateQuote({
         amount: '20',
-        sellAsset: { currency: WETH },
-        buyAsset: { currency: USDC },
+        sellAsset: WETH,
+        buyAsset: USDC,
         feeAsset: ETH,
         action: TradeAmountInputField.BUY,
       })
@@ -149,12 +149,12 @@ describe('useSwapper', () => {
   it('getQuote needs buyAsset or sellAsset', async () => {
     const { result, getQuote } = setup({ action: TradeAmountInputField.FIAT })
     await act(async () => {
-      result.current.getQuote({
+      result.current.updateQuote({
         amount: '20',
         //@ts-ignore
-        sellAsset: { currency: undefined },
+        sellAsset: undefined,
         //@ts-ignore
-        buyAsset: { currency: undefined },
+        buyAsset: undefined,
       })
     })
     expect(getQuote).not.toHaveBeenCalled()
@@ -162,10 +162,10 @@ describe('useSwapper', () => {
   it('getQuote gets quote with fiatAmount', async () => {
     const { result, setValue } = setup({ action: TradeAmountInputField.FIAT })
     await act(async () => {
-      result.current.getQuote({
+      result.current.updateQuote({
         amount: '20',
-        sellAsset: { currency: WETH },
-        buyAsset: { currency: USDC },
+        sellAsset: WETH,
+        buyAsset: USDC,
         feeAsset: ETH,
         action: TradeAmountInputField.FIAT,
       })
@@ -192,10 +192,10 @@ describe('useSwapper', () => {
     //@ts-ignore
     const { result, setValue } = setup({ quote: null, minMax })
     await act(async () => {
-      result.current.getQuote({
+      result.current.updateQuote({
         amount: '20',
-        sellAsset: { currency: WETH },
-        buyAsset: { currency: USDC },
+        sellAsset: WETH,
+        buyAsset: USDC,
         feeAsset: ETH,
         action: TradeAmountInputField.SELL,
       })

@@ -23,8 +23,8 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TradeRoutePaths } from './TradeRoutes/TradeRoutes'
 import { TradeAmountInputField } from './types'
+import { TradeRoutePaths } from './TradeRoutes/TradeRoutes'
 
 type TS = TradeState<ChainTypes>
 
@@ -90,7 +90,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
         history.push({
-          pathname: '/trade/approval',
+          pathname: TradeRoutePaths.Approval,
           state: {
             fiatRate: sellAssetFiatRate,
           },

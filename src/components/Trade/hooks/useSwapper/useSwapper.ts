@@ -237,7 +237,6 @@ export const useSwapper = () => {
 
   const updateQuoteDebounced = useRef(
     debounce(async ({ amount, sellAsset, buyAsset, action }) => {
-      console.log('calling db2')
       try {
         const swapper = await swapperManager.getBestSwapper({
           buyAssetId: buyAsset.assetId,
@@ -285,7 +284,6 @@ export const useSwapper = () => {
   }: GetQuoteInput) => {
     if (!forceQuote && bnOrZero(amount).isZero()) return
     setValue('quote', undefined)
-    console.log('updateQuoteDebounced', updateQuoteDebounced)
     await updateQuoteDebounced.current({
       amount,
       feeAsset,

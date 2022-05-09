@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { AccountId, caip10, ChainId } from '@shapeshiftoss/caip'
+import { AccountId, ChainId, fromCAIP10 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { CosmosSdkBaseAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/CosmosSdkBaseAdapter'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -39,13 +39,6 @@ export type StakingData = {
 
 export type ValidatorDataByPubKey = {
   [k: PubKey]: chainAdapters.cosmos.Validator
-}
-
-export type StakingPayload = {
-  payload: {
-    pubKey: PubKey
-    stakingData: Staking
-  }
 }
 
 const initialState: StakingData = {
@@ -89,14 +82,12 @@ export const stakingData = createSlice({
       stakingDataState,
       { payload }: { payload: { accountSpecifier: AccountId; stakingData: Staking } },
     ) => {
-      // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsert(stakingDataState, payload.accountSpecifier, payload.stakingData)
     },
     upsertValidatorData: (
       stakingDataState,
       { payload }: { payload: { validators: chainAdapters.cosmos.Validator[] } },
     ) => {
-      // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsertValidatorData(stakingDataState, payload.validators)
     },
   },
@@ -123,7 +114,7 @@ export const stakingDataApi = createApi({
         }
 
         try {
-          const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
+          const { caip2, account } = fromCAIP10(accountSpecifier)
           const chainAdapters = getChainAdapters()
           const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
           dispatch(stakingData.actions.setStatus('loading'))
@@ -207,7 +198,7 @@ export const stakingDataApi = createApi({
             }),
           )
           return {
-            data: data,
+            data,
           }
         } catch (e) {
           console.error('Error fetching single validator data', e)

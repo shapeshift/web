@@ -60,9 +60,7 @@ export enum FoxyDepositActionType {
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS',
 }
 
 type SetFoxyOpportunitiesAction = {

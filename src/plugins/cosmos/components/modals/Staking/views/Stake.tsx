@@ -26,7 +26,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -45,7 +45,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).div(100).toString()
 }
 
-export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
+export const Stake = ({ assetId, apr }: StakeProps) => {
   const {
     control,
     formState: { isValid },
@@ -53,10 +53,10 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
     setValue,
   } = useFormContext<StakingValues>()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const fiatAmountAvailable = cryptoBalanceHuman.times(bnOrZero(marketData.price)).toString()
@@ -112,7 +112,9 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
       const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
       const fiatAmount = bnOrZero(value).times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, value.length ? cryptoAmount.toString() : value, {
+        shouldValidate: true,
+      })
 
       if (cryptoAmount.gt(cryptoBalanceHuman)) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
@@ -179,16 +181,14 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
           >
             <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
             <StakingInput
-              height='40px'
               width='100%'
-              px='8px'
-              py='8px'
               isCryptoField={activeField === InputType.Crypto}
               amountRef={amountRef.current}
               asset={asset}
               onInputToggle={handleInputToggle}
               onInputChange={handleInputChange}
               control={control}
+              inputStyle={{ borderRadius: 0 }}
             />
             <Box width='100%' pb='12px'>
               <EstimatedReturnsRow
@@ -220,6 +220,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
             <Link
               color={'blue.200'}
               fontWeight='bold'
+              target='_blank'
               href='/#/legal/privacy-policy'
               onClick={cosmosStaking.close}
             >

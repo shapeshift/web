@@ -24,6 +24,7 @@
     "getStarted": "Commencer",
     "connectWallet": "Connecter Porte-monnaie",
     "connectedWallet": "Porte-monnaie Connecté",
+    "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
     "seeAll": "Voir tout",
     "darkMode": "Mode Sombre",
@@ -70,7 +71,8 @@
       "empty": {
         "title": "Bruits de grillons...",
         "cta": "Envoyez-vous un peu de crypto !"
-      }
+      },
+      "stakedInfo": "Vous ne pouvez pas envoyer ou échanger le montant misé"
     },
     "recentTransactions": {
       "recentTransactions": "Transactions Récentes"
@@ -107,6 +109,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connecter Porte-monnaie",
+      "switchWallet": "Changer Fournisseur Porte-monnaie",
       "disconnect": "Déconnecter",
       "disconnected": "(Déconnecté)"
     }
@@ -150,6 +153,8 @@
         "risks": "risques",
         "ofParticipating": "de participer à cette fonctionnalité et d'accepter les",
         "terms": "conditions",
+        "stakingYourTokens": "Miser vos jetons",
+        "unstakingYourTokens": "Démiser vos jetons",
         "tooltip": {
           "validator": "Le Validateur est chargé de traiter les transactions, de stocker les données et d'ajouter des blocs à la blockchain.",
           "gasFees": "Les frais de carburant sur %{networkName} sont beaucoup plus bas que ceux du réseau principal Ethereum. Ces frais sont versés directement aux validateurs qui sécurisent et exploitent le réseau et ne sont pas versés à ShapeShift."
@@ -183,7 +188,9 @@
     "broadcastingTransaction": "Diffuser la transaction",
     "transactionComplete": "Transaction complétée",
     "transactionFailed": "Transaction échouée",
+    "notEnoughFundsInReserve": "Pas assez de fonds dans le contrat de réserve de liquidité",
     "validator": "Validateur",
+    "validatorMoniker": "Validateur %{moniker}",
     "stakedAmount": "Montant misé",
     "unstakeFrom": "Démiser de",
     "gasFee": "Frais de carburant",
@@ -363,6 +370,24 @@
         "header": "Entrez votre phrase de sécurité",
         "body": "Après avoir envoyé votre phrase de sécurité, utilisez le bouton sur la KeepKey pour l'approuver",
         "button": "Envoyer la phrase de sécurité"
+      },
+      "label": {
+        "header": "Étiqueter votre KeepKey",
+        "body": "L'étiquetage de chacun de vos appareils vous permet de les distinguer facilement les uns des autres.",
+        "button": "Définir l'étiquette"
+      },
+      "recoverySentence": {
+        "header": "Écrivez la phrase de récupération",
+        "body": "Sur l'écran de votre KeepKey, vous verrez votre phrase de récupération. Écrivez-la. Si vous perdez l'accès à l'appareil, vos actifs seront UNIQUEMENT accessibles avec cette phrase.",
+        "infoFirst": "Il est essentiel que vous l'écriviez exactement telle qu'elle apparaît sur le KeepKey.",
+        "infoSecond": "Ne partagez jamais votre phrase de récupération, elle donne accès à tous vos fonds.",
+        "awaitingButtonPress": "Suivez les étapes sur votre KeepKey pour afficher votre phrase de récupération. Écrivez-la !"
+      },
+      "wiped": {
+        "header": "KeepKey effacé avec succès",
+        "body": "Vous avez réinitialisé avec succès votre KeepKey avec les paramètres d'usine. Vous pouvez maintenant restaurer à l'aide d'une phrase de récupération existante ou créer un nouveau porte-monnaie.",
+        "createButton": "Créer un nouveau porte-monnaie",
+        "recoverButton": "Récupérer le porte-monnaie"
       }
     },
     "shapeShift": {
@@ -448,6 +473,7 @@
       "estimatedReturns": "Rendement annuel estimé*",
       "estimateDisclaimer": "*Les estimations fluctuent en fonction des conditions du marché.",
       "footerDisclaimer": "En continuant, vous acceptez nos conditions d'utilisation.",
+      "footerDisclaimerLink": "conditions d'utilisation.",
       "slippageSettings": "Paramètres de glissement de taux"
     },
     "withdraw": {
@@ -544,7 +570,7 @@
       },
       "connect": {
         "header": "Appairer votre KeepKey",
-        "body": "Connectez un périphérique KeepKey et cliquez sur Appairer.",
+        "body": "Connectez un appareil KeepKey et cliquez sur Appairer.",
         "button": "Appairer",
         "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey."
       },
@@ -562,6 +588,77 @@
         "header": "Confirmer votre nouveau NIP",
         "body": "Utilisez la disposition du NIP indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier NIP.",
         "button": "Enregistrer le NIP"
+      },
+      "settings": {
+        "loadingText": "Chargement...",
+        "menuLabels": {
+          "bootloader": "Chargeur d'amorçage",
+          "firmware": "Micrologiciel",
+          "pin": "NIP",
+          "pinCaching": "Mise en cache du NIP",
+          "advanced": "Avancé",
+          "deviceTimeout": "Délai d'attente de l'appareil",
+          "passphrase": "Phrase de passe",
+          "wipeDevice": "Effacer l'appareil",
+          "label": "Étiqueter"
+        },
+        "status": {
+          "enabled": "Activé",
+          "disabled": "Désactivé",
+          "upToDate": "À jour",
+          "updateAvailable": "Mise à jour disponible"
+        },
+        "headings": {
+          "deviceSetting": "%{setting} de l'appareil",
+          "enterPin": "Entrez le NIP actuel",
+          "setPin": "Définir un nouveau NIP",
+          "confirmPin": "Confirmer le nouveau NIP",
+          "pinCaching": "Mise en cache NIP",
+          "passphrase": "Phrase de passe"
+        },
+        "descriptions": {
+          "pin": "Le NIP est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un NIP protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
+          "pinCaching": "Lorsque cette fonctionnalité est activée, l'appareil se souviendra de votre NIP.",
+          "passphrase": "Activer la possibilité d'avoir plusieurs porte-monnaie, accessibles en utilisant une phrase de passe unique pour chaque porte-monnaie.",
+          "label": "L'étiquetage de chacun des appareils vous permet de les distinguer facilement les uns des autres.",
+          "timeout": "Votre appareil se met en veille après 10 minutes d'activité par défaut. Cependant, vous pouvez changer cela.",
+          "buttonPrompt": "Appuyez longuement sur le bouton de votre KeepKey pour modifier le %{setting} de l'appareil.",
+          "updateSuccess": "%{setting} mis à jour avec succès !",
+          "updateFailed": "Une erreur s'est produite lors de la mise à jour de %{setting}.",
+          "timeoutDuration": "%{minutes} minutes"
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "À utiliser avec prudence",
+            "body": "Si vous oubliez votre phrase de passe, vous perdrez l'accès à vos fonds.",
+            "link": "Apprenez-en davantage"
+          }
+        },
+        "placeholders": {
+          "label": "Saisir une étiquette d'appareil"
+        },
+        "actions": {
+          "update": "Mettre à jour %{setting}",
+          "enable": "Activer %{setting}",
+          "learnMore": "Apprenez-en davantage"
+        }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "Effacer votre KeepKey"
+        },
+        "descriptions": {
+          "wipeKeepKey": "Je comprends qu'en effaçant mon KeepKey, je perdrai l'accès à mes fonds si je n'ai pas ma phrase de récupération."
+        },
+        "actions": {
+          "wipeDevice": "Effacer l'appareil"
+        },
+        "confirmations": {
+          "wipeKeepKey": "Appuyez longuement sur le bouton de votre KeepKey pour confirmer la réinitialisation aux paramètres d'usine."
+        },
+        "checkboxes": {
+          "wipeKeepKey": "J'ai sauvegardé ma phrase de récupération et je comprends ce que je suis en train de faire"
+        }
       }
     },
     "metaMask": {

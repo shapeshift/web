@@ -44,7 +44,9 @@ import { SliderIcon } from 'components/Icons/Slider'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawProps = {
@@ -79,8 +81,9 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
+    borderBottomLeftRadius={0}
     borderTopLeftRadius={0}
+    borderTopRightRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -118,7 +121,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   fiatInputValidation,
   onContinue,
   updateWithdraw,
-  onCancel,
   percentOptions,
   feePercentage,
   children,
@@ -149,6 +151,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   })
 
   const values = useWatch({ control })
+
+  const {
+    state: { isConnected },
+    dispatch,
+  } = useWallet()
 
   const cryptoField = activeField === InputType.Crypto
   const cryptoError = errors?.cryptoAmount?.message ?? null
@@ -214,6 +221,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const onSubmit = (values: WithdrawValues) => {
+    if (!isConnected) {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
     onContinue(values)
   }
 
@@ -392,7 +403,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           thousandSeparator={localeParts.group}
                           value={value}
                           disabled={values.withdrawType === WithdrawType.INSTANT}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             handleInputChange(amountRef.current as string)
                             amountRef.current = null
@@ -419,7 +430,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
                           value={bnOrZero(value).toFixed(2)}
-                          onChange={e => {
+                          onChange={() => {
                             onChange(amountRef.current)
                             if (amountRef.current) handleInputChange(amountRef.current)
                             amountRef.current = null

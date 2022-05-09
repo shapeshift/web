@@ -47,7 +47,6 @@ export enum YearnDepositActionType {
   SET_LOADING = 'SET_LOADING',
   SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS',
 }
 
 type SetVaultAction = {

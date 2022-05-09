@@ -1,6 +1,6 @@
 export const TooltipStyle = {
   // Styles for the base style
-  baseStyle: (props: Record<string, any>) => ({
+  baseStyle: () => ({
     borderRadius: 'lg',
   }),
   // Styles for the size variations

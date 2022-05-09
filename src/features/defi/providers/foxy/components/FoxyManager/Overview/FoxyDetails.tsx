@@ -1,6 +1,5 @@
 import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
-import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
+import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchPath } from 'react-router'
@@ -11,17 +10,13 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-type FoxyDetailsProps = {
-  api: FoxyApi
-}
-
-export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
+export const FoxyDetails = () => {
   const { opportunities, loading } = useFoxyBalances()
   const {
     query,
@@ -38,20 +33,20 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
   const foxyBalance = bnOrZero(opportunity?.balance)
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const stakingAssetCAIP19 = caip19.toCAIP19({
+  const stakingAssetCAIP19 = toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const stakingAsset = useAppSelector(state => selectAssetByCAIP19(state, stakingAssetCAIP19))
-  const rewardAssetCAIP19 = caip19.toCAIP19({
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetCAIP19))
+  const rewardAssetCAIP19 = toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const rewardAsset = useAppSelector(state => selectAssetByCAIP19(state, rewardAssetCAIP19))
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetCAIP19))
   const apy = bnOrZero(opportunity?.apy).times(100).toString()
   if (loading || !opportunity) {
     return (

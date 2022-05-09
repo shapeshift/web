@@ -19,7 +19,7 @@ describe('The Dashboard', () => {
 
   it('nav bar works', () => {
     // A proxy to understand if the Dashboard has initialised
-    cy.getBySel('account-row', { timeout: 60000 }).should('have.length.gt', 5)
+    cy.getBySel('defi-earn-asset-row', { timeout: 60000 }).should('have.length.gt', 5)
 
     cy.navigateToAccounts()
     cy.navigateToAssets()
@@ -29,7 +29,7 @@ describe('The Dashboard', () => {
 
   it('displays the expected account rows', () => {
     cy.waitForAllGetRequests()
-    cy.getBySel('account-row').should('have.length.gt', 5)
+    cy.getBySel('defi-earn-asset-row').should('have.length.gt', 5)
 
     // Check LINK - one asset is enough. Test all and our tests become brittle.
     // TODO - Mock API response and test account row name
@@ -41,22 +41,24 @@ describe('The Dashboard', () => {
 
   it('supports trades', () => {
     cy.getBySel('account-row-asset-name-ETH').click()
-    cy.getBySel('token-row-sell').find('input').type('89')
-    cy.getBySel('trade-preview-button').should('be.disabled')
+    cy.getBySel('trade-form-token-input-row-sell').find('input').type('89')
+    cy.getBySel('trade-form-preview-button').should('be.disabled')
     // cy.getBySel('trade-rate-quote').contains('1 ETH = 7,673.93 FOX') // TODO - mock response and test here
     cy.getBySel('swap-assets-button').click()
     // cy.getBySel('trade-rate-quote').contains('1 FOX = 0.00011 ETH') // TODO - mock response and test here
-    cy.getBySel('trade-preview-button').should('be.disabled')
+    cy.getBySel('trade-form-preview-button').should('be.disabled')
 
     // Clicking 'swap-assets-button' will cause XHR requests, lets wait for
-    // those requests to complete since the 'trade-preview-button' will have
+    // those requests to complete since the 'trade-form-preview-button' will have
     // the text "Loading..." (displays a spinner)
     cy.waitForAllGetRequests()
 
     cy.getBySel('token-row-sell-max-button').click()
     cy.waitForAllGetRequests()
     // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
-    cy.get('[data-test=trade-preview-button]').contains('Insufficient Funds', { timeout: 60000 })
+    cy.get('[data-test=trade-form-preview-button]').contains('Insufficient Funds', {
+      timeout: 60000,
+    })
     // TODO - We are now at the approval screen - test the rest of the flow
   })
 

@@ -29,13 +29,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SendInput } from '../Form'
 
-export type FeePrice = {
-  [key in chainAdapters.FeeDataKey]: {
-    fiatFee: string
-    txFee: string
-  }
-}
-
 export const Confirm = () => {
   const {
     control,

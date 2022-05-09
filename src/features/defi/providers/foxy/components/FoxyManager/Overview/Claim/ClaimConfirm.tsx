@@ -8,7 +8,7 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { AssetId, AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -23,7 +23,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
@@ -53,14 +53,14 @@ export const ClaimConfirm = ({
 
   // Asset Info
   const network = NetworkTypes.MAINNET
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const feeAssetCAIP19 = caip19.toCAIP19({
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAssetCAIP19 = toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
   const toast = useToast()

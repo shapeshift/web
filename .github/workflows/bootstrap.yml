@@ -17,7 +17,8 @@ jobs:
       REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
       REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
       REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
-      REACT_APP_FEATURE_COSMOS_INVESTOR: false
+      REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
+      REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: FCMM7AFC0S6A8NUK
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,7 +37,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.ref }}-
 
-      - name: Install Cypress & Build Project 
+      - name: Install Cypress & Build Project
         uses: cypress-io/github-action@v3
         with:
           # Disable running of tests within install job

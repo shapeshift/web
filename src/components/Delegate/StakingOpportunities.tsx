@@ -22,7 +22,7 @@ import { RawText, Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { ActiveStakingOpportunity } from 'state/slices/stakingDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,7 +54,7 @@ export const ValidatorName = ({ moniker, isStaking, validatorAddress }: Validato
               <TagLabel>{moniker}</TagLabel>
             </Tag>
           )}
-          {!isStaking && <RawText fontWeight='bold'>{`${moniker}`}</RawText>}
+          {!isStaking && <RawText>{`${moniker}`}</RawText>}
         </Skeleton>
       </Flex>
     </Box>
@@ -62,7 +62,7 @@ export const ValidatorName = ({ moniker, isStaking, validatorAddress }: Validato
 }
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const { activeStakingOpportunities, stakingOpportunities, isLoaded } = useCosmosStakingBalances({

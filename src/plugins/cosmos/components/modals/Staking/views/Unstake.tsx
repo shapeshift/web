@@ -23,7 +23,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectDelegationCryptoAmountByAssetIdAndValidator,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -46,7 +46,7 @@ type UnstakeProps = {
   validatorAddress: string
 }
 
-export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: UnstakeProps) => {
+export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: UnstakeProps) => {
   const {
     control,
     formState: { isValid },
@@ -56,15 +56,14 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
 
   const values = useWatch({ control })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoStakeBalance = useAppSelector(state =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(
-      state,
+    selectDelegationCryptoAmountByAssetIdAndValidator(state, {
       accountSpecifier,
       validatorAddress,
       assetId,
-    ),
+    }),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
@@ -121,7 +120,9 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
       const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
       const fiatAmount = bnOrZero(value).times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, value.length ? cryptoAmount.toString() : value, {
+        shouldValidate: true,
+      })
 
       if (cryptoAmount.gt(cryptoStakeBalanceHuman)) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
@@ -200,10 +201,11 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
                 percent={percent}
               />
               <StakingInput
-                height='40px'
-                width='100%'
-                px='8px'
-                py='8px'
+                inputStyle={{
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                  borderBottomLeftRadius: 0,
+                }}
                 isCryptoField={activeField === InputType.Crypto}
                 amountRef={amountRef.current}
                 asset={asset}

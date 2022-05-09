@@ -18,7 +18,7 @@ export const TransactionHistory = () => {
   const { filters, setFilters, resetFilters } = useFilters()
   const selectorFilters = useMemo(
     () => ({
-      matchingAssets: matchingAssets?.map(asset => asset.caip19) ?? null,
+      matchingAssets: matchingAssets?.map(asset => asset.assetId) ?? null,
       ...filters,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

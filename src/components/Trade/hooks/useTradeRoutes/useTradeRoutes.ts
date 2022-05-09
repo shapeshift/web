@@ -1,5 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -19,8 +19,8 @@ export const useTradeRoutes = (
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TradeState<ChainTypes, SwapperType>>()
-  const { getQuote, getBestSwapper, getDefaultPair } = useSwapper()
+  const { getValues, setValue } = useFormContext<TradeState<ChainTypes>>()
+  const { getQuote, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
@@ -35,7 +35,7 @@ export const useTradeRoutes = (
       return (
         defaultBuyAssetId &&
         assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
-        assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
+        assets[defaultBuyAssetId]?.assetId !== ETHEREUM_CAIP19
       )
     }
 
@@ -49,10 +49,6 @@ export const useTradeRoutes = (
           : assets[buyAssetId]
 
       if (sellAsset && buyAsset) {
-        await getBestSwapper({
-          sellAsset: { currency: sellAsset },
-          buyAsset: { currency: buyAsset },
-        })
         setValue('sellAsset.currency', sellAsset)
         setValue('buyAsset.currency', buyAsset)
         await getQuote({
@@ -65,7 +61,7 @@ export const useTradeRoutes = (
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper, defaultBuyAssetId])
+  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, defaultBuyAssetId])
 
   useEffect(() => {
     setDefaultAssets()
@@ -74,14 +70,13 @@ export const useTradeRoutes = (
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (buyAsset.currency && asset.caip19 === buyAsset.currency.caip19)
+        if (buyAsset.currency && asset.assetId === buyAsset.currency.assetId)
           setValue('buyAsset.currency', sellAsset.currency)
         const action = buyAsset.amount ? TradeActions.SELL : undefined
         setValue('sellAsset.currency', asset)
         setValue('buyAsset.amount', '')
         setValue('action', action)
         setValue('quote', undefined)
-        await getBestSwapper({ sellAsset, buyAsset })
         await getQuote({
           amount: sellAsset.amount ?? '0',
           sellAsset,
@@ -95,20 +90,19 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote],
+    [buyAsset, sellAsset, feeAsset, history, setValue, getQuote],
   )
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (sellAsset.currency && asset.caip19 === sellAsset.currency.caip19)
+        if (sellAsset.currency && asset.assetId === sellAsset.currency.assetId)
           setValue('sellAsset.currency', buyAsset.currency)
         const action = sellAsset.amount ? TradeActions.BUY : undefined
         setValue('buyAsset.currency', asset)
         setValue('sellAsset.amount', '')
         setValue('action', action)
         setValue('quote', undefined)
-        await getBestSwapper({ sellAsset, buyAsset })
         await getQuote({
           amount: buyAsset.amount ?? '0',
           sellAsset,
@@ -122,7 +116,7 @@ export const useTradeRoutes = (
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote],
+    [buyAsset, sellAsset, feeAsset, history, setValue, getQuote],
   )
 
   return { handleSellClick, handleBuyClick }

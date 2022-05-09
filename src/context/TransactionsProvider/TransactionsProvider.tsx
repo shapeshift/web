@@ -8,7 +8,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { logger } from 'lib/logger'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountIdByAddress,
@@ -86,11 +85,14 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           })
           .map(async chain => {
             const adapter = chainAdapterManager.byChain(chain)
+            // this looks funky, but we need a non zero length array to map over
+            // where we consume it - it either looks weird here or in the consumption
+            // so...  ¯\_(ツ)_/¯
+            const supportedAccountTypes = adapter.getSupportedAccountTypes?.() ?? [undefined]
             const chainId = adapter.getCaip2()
 
             // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
             const asset = assets[chainIdToFeeAssetId(chainId)]
-            const accountTypes = supportedAccountTypes[chain]
 
             // RESTfully fetch all tx and rebase history for this chain.
             getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
@@ -118,7 +120,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             dispatch(txHistory.actions.setStatus('loading'))
             try {
               await Promise.all(
-                accountTypes.map(async accountType => {
+                supportedAccountTypes.map(async accountType => {
                   const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
                   moduleLogger.info({ chainId, accountType }, 'subscribing txs')
                   return adapter.subscribeTxs(

@@ -5,6 +5,10 @@ import {
   utxoAccountParams,
 } from '@shapeshiftoss/chain-adapters'
 import {
+  UTXOBaseAdapter,
+  UTXOChainTypes,
+} from '@shapeshiftoss/chain-adapters/dist/utxo/UTXOBaseAdapter'
+import {
   bip32ToAddressNList,
   supportsBTC,
   supportsCosmos,
@@ -27,7 +31,6 @@ import {
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
@@ -153,7 +156,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               const bitcoin = assetsById[CAIP19]
 
               if (!bitcoin) continue
-              for (const accountType of supportedAccountTypes.bitcoin) {
+              const supportedAccountTypes = (
+                adapter as UTXOBaseAdapter<UTXOChainTypes>
+              ).getSupportedAccountTypes()
+              for (const accountType of supportedAccountTypes) {
                 const accountParams = utxoAccountParams(bitcoin, accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 const pubkeys = await wallet.getPublicKeys([

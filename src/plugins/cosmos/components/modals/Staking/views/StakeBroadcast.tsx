@@ -26,6 +26,7 @@ type StakeProps = {
   validatorAddress: string
   onClose: () => void
   onCancel: () => void
+  onStepCompleted: () => void
 }
 
 // TODO: Make this a derived selector after this is wired up
@@ -33,7 +34,13 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }: StakeProps) => {
+export const StakeBroadcast = ({
+  assetId,
+  validatorAddress,
+  onClose,
+  onCancel,
+  onStepCompleted,
+}: StakeProps) => {
   const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
@@ -75,6 +82,7 @@ export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }:
 
     setTxId(broadcastTx)
     setBroadcasted(true)
+    onStepCompleted()
   }
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())

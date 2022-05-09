@@ -8,8 +8,8 @@ import { TestProviders } from 'test/TestProviders'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { fromBaseUnit } from 'lib/math'
 
-import { useSwapper } from './useSwapper'
 import { TradeAmountInputField } from './types'
+import { useSwapper } from './useSwapper'
 
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')

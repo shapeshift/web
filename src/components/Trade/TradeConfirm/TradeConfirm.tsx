@@ -21,6 +21,7 @@ import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { ValueOf } from 'types/object'
 
+import { TradeRoutePaths } from '../TradeRoutes/TradeRoutes'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 
@@ -141,7 +142,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     if (txid) {
       reset()
     }
-    history.push('/trade/input')
+    history.push(TradeRoutePaths.Input)
   }
 
   const tradeFiatAmount = toFiat(

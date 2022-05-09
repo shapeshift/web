@@ -12,6 +12,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
+import { TradeRoutePaths, TradeRoutes } from 'components/Trade/TradeRoutes/TradeRoutes'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -90,10 +91,10 @@ export const Approval = () => {
         fnLogger.error(e, { fn: 'checkApprovalNeeded' }, 'Check Approval Needed Failed')
         handleToast()
         approvalInterval.current && clearInterval(approvalInterval.current)
-        return history.push('/trade/input')
+        return history.push(TradeRoutes.Input)
       }
       approvalInterval.current && clearInterval(approvalInterval.current)
-      history.push({ pathname: '/trade/confirm', state: { fiatRate } })
+      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
     }, 5000)
   }
 
@@ -113,7 +114,7 @@ export const Approval = () => {
     const error = errors?.quote?.rate ?? null
     if (error) {
       moduleLogger.debug({ fn: 'validation', errors }, 'Form Validation Failed')
-      history.push('/trade/input')
+      history.push(TradeRoutePaths.Input)
     }
   }, [errors, history])
 

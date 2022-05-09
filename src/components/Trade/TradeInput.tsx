@@ -23,6 +23,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { TradeRoutePaths } from './TradeRoutes/TradeRoutes'
 import { TradeAmountInputField } from './types'
 
 type TS = TradeState<ChainTypes>
@@ -96,7 +97,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         })
         return
       }
-      history.push({ pathname: '/trade/confirm', state: { fiatRate: sellAssetFiatRate } })
+      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: sellAssetFiatRate } })
     } catch (err) {
       console.error(`TradeInput:onSubmit - ${err}`)
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
@@ -258,7 +259,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 }}
                 inputLeftElement={
                   <TokenButton
-                    onClick={() => history.push('/trade/select/sell')}
+                    onClick={() => history.push(TradeRoutePaths.SellSelect)}
                     logo={sellTradeAsset?.asset?.icon}
                     symbol={sellTradeAsset?.asset?.symbol}
                     data-test='token-row-sell-token-button'
@@ -338,7 +339,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 }}
                 inputLeftElement={
                   <TokenButton
-                    onClick={() => history.push('/trade/select/buy')}
+                    onClick={() => history.push(TradeRoutePaths.BuySelect)}
                     logo={buyTradeAsset?.asset?.icon}
                     symbol={buyTradeAsset?.asset?.symbol}
                     data-test='token-row-buy-token-button'

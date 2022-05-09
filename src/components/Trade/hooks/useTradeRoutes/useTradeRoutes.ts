@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import { TradeRoutePaths } from 'components/Trade/TradeRoutes/TradeRoutes'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets } from 'state/slices/selectors'
@@ -70,10 +71,10 @@ export const useTradeRoutes = (): {
       } catch (e) {
         console.warn(e)
       } finally {
-        history.push('/trade/input')
+        history.push(TradeRoutePaths.Input)
       }
     },
-    [buyTradeAsset, sellTradeAsset, feeAsset, history, updateQuote],
+    [setValue, updateQuote, sellTradeAsset.amount, buyTradeAsset.asset, feeAsset, history],
   )
 
   const handleBuyClick = useCallback(
@@ -91,10 +92,10 @@ export const useTradeRoutes = (): {
       } catch (e) {
         console.warn(e)
       } finally {
-        history.push('/trade/input')
+        history.push(TradeRoutePaths.Input)
       }
     },
-    [updateQuote, buyTradeAsset, sellTradeAsset, feeAsset, history],
+    [setValue, updateQuote, buyTradeAsset.amount, sellTradeAsset.asset, feeAsset, history],
   )
 
   return { handleSellClick, handleBuyClick }

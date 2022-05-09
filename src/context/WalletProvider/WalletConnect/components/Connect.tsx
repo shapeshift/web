@@ -1,3 +1,4 @@
+import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import React, { useEffect, useState } from 'react'
@@ -12,7 +13,6 @@ import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { WalletConnectConfig } from '../config'
-import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 
 export interface WalletConnectSetupProps
   extends RouteComponentProps<
@@ -68,7 +68,9 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
-      const wallet = await state.adapters.get(KeyManager.WalletConnect)?.pairDevice() as WalletConnectHDWallet
+      const wallet = (await state.adapters
+        .get(KeyManager.WalletConnect)
+        ?.pairDevice()) as WalletConnectHDWallet
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-walletconnect::pairDevice returned null or undefined')

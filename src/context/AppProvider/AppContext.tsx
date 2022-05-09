@@ -4,10 +4,7 @@ import {
   toRootDerivationPath,
   utxoAccountParams,
 } from '@shapeshiftoss/chain-adapters'
-import {
-  UTXOBaseAdapter,
-  UTXOChainTypes,
-} from '@shapeshiftoss/chain-adapters/dist/utxo/UTXOBaseAdapter'
+import { bitcoin } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
   supportsBTC,
@@ -157,7 +154,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
               if (!bitcoin) continue
               const supportedAccountTypes = (
-                adapter as UTXOBaseAdapter<UTXOChainTypes>
+                adapter as bitcoin.ChainAdapter
               ).getSupportedAccountTypes()
               for (const accountType of supportedAccountTypes) {
                 const accountParams = utxoAccountParams(bitcoin, accountType, 0)

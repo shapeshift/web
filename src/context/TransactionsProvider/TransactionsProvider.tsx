@@ -86,8 +86,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           .map(async chain => {
             const adapter = chainAdapterManager.byChain(chain)
             // this looks funky, but we need a non zero length array to map over
-            // where we consume it - it either looks weird here or in the consumption
-            // so...  ¯\_(ツ)_/¯
             const supportedAccountTypes = adapter.getSupportedAccountTypes?.() ?? [undefined]
             const chainId = adapter.getCaip2()
 

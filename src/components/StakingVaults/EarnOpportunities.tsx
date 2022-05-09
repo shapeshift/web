@@ -55,13 +55,15 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       return
     }
 
-    const pathName =
+    // TODO remove this condition once staking modals are unified
+    // Currently vault staking modals do not have overview tab
+    const pathname =
       type === DefiType.TokenStaking
         ? `/defi/${type}/${provider}/overview`
         : `/defi/${type}/${provider}/deposit`
 
     history.push({
-      pathname: pathName,
+      pathname,
       search: qs.stringify({
         chain,
         contractAddress,

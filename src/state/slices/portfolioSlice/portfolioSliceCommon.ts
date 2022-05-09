@@ -1,22 +1,7 @@
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { Asset, chainAdapters } from '@shapeshiftoss/types'
 
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
-
-// TODO(0xdef1cafe): this needs a better home, probably in chain adapters
-export const supportedAccountTypes = {
-  [ChainTypes.Bitcoin]: [
-    UtxoAccountType.SegwitNative,
-    UtxoAccountType.SegwitP2sh,
-    UtxoAccountType.P2pkh,
-  ],
-  // this looks funky, but we need a non zero length array to map over
-  // where we consume it - it either looks weird here or in the consumption
-  // so...  ¯\_(ツ)_/¯
-  [ChainTypes.Ethereum]: [undefined],
-  [ChainTypes.Cosmos]: [undefined],
-  [ChainTypes.Osmosis]: [undefined],
-}
 
 /*
  * we can't retrieve an xpub from an address, but we can derive

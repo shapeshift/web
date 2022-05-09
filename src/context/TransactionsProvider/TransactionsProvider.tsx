@@ -9,7 +9,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { logger } from 'lib/logger'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -93,18 +92,19 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           })
           .map(async chain => {
             const adapter = chainAdapterManager.byChain(chain)
+            // this looks funky, but we need a non zero length array to map over
+            const supportedAccountTypes = adapter.getSupportedAccountTypes?.() ?? [undefined]
             const chainId = adapter.getCaip2()
 
             // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
             const asset = assets[chainIdToFeeAssetId(chainId)]
-            const accountTypes = supportedAccountTypes[chain]
 
             // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
             // this state machine should be removed, and managed by the txHistory RTK query api
             dispatch(txHistory.actions.setStatus('loading'))
             try {
               await Promise.all(
-                accountTypes.map(async accountType => {
+                supportedAccountTypes.map(async accountType => {
                   const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
                   moduleLogger.info({ chainId, accountType }, 'subscribing txs')
                   return adapter.subscribeTxs(

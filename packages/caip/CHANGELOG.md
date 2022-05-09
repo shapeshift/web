@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.5.2...@shapeshiftoss/caip-v2.6.0) (2022-05-09)
+
+
+### Features
+
+* **caip:** major bump commit ([#628](https://github.com/shapeshift/lib/issues/628)) ([c22a2dc](https://github.com/shapeshift/lib/commit/c22a2dc61448c338f8d4ac1000d60f59fdda5b25))
+
 # [@shapeshiftoss/caip-v2.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.5.1...@shapeshiftoss/caip-v2.5.2) (2022-05-09)
 
 

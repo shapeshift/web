@@ -26,8 +26,8 @@ export const Routes = () => {
     <Switch location={background || location}>
       <Route path='/demo'>
         {() => {
-          const matchDemoPath = matchPath<{ rest: string }>(location.pathname, {
-            path: '/demo/:rest(.*)',
+          const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
+            path: '/demo/:appRoute(.+)',
           })
           // Don't reconnect demo wallet if already connected
           if (state.walletInfo?.deviceId !== 'DemoWallet') {
@@ -36,7 +36,9 @@ export const Routes = () => {
           return (
             <Redirect
               from='/'
-              to={matchDemoPath?.params?.rest ? `/${matchDemoPath.params.rest}` : '/dashboard'}
+              to={
+                matchDemoPath?.params?.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'
+              }
             />
           )
         }}

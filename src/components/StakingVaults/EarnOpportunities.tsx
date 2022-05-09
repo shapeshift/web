@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -54,8 +55,13 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       return
     }
 
+    const pathName =
+      type === DefiType.TokenStaking
+        ? `/defi/${type}/${provider}/overview`
+        : `/defi/${type}/${provider}/deposit`
+
     history.push({
-      pathname: `/defi/${type}/${provider}/deposit`,
+      pathname: pathName,
       search: qs.stringify({
         chain,
         contractAddress,

@@ -1,3 +1,27 @@
+# [@shapeshiftoss/investor-foxy-v2.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.5.1...@shapeshiftoss/investor-foxy-v2.0.0) (2022-05-10)
+
+
+### Performance Improvements
+
+* **chainAdapters:** replace caip properties with their high-level counterparts ([#606](https://github.com/shapeshift/lib/issues/606)) ([49e8fef](https://github.com/shapeshift/lib/commit/49e8fefabb6eaaecb357ddc16e11ad2080eb3082))
+
+
+### BREAKING CHANGES
+
+* **chainAdapters:** updates chain adapters with caip-free types and vernacular.
+
+* cleanup unchained commit cherry-pick
+
+* Remove caip comment
+
+* bump chain-adapters version and regen yarn lock
+
+* chore: update yarn.lock
+
+* chore: update yarn.lock
+
+Co-authored-by: kaladinlight <35275952+kaladinlight@users.noreply.github.com>
+
 # [@shapeshiftoss/investor-foxy-v1.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.5.0...@shapeshiftoss/investor-foxy-v1.5.1) (2022-05-09)
 
 

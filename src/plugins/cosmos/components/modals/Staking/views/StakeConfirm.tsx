@@ -10,9 +10,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-// @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
-import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import {
   ConfirmFormFields,
@@ -59,11 +58,9 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, { validatorAddress }),
-  )
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
@@ -100,10 +97,12 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
     dispatch,
   } = useWallet()
 
+  if (!validatorInfo || !cryptoAmount) return null
+
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
   const fiatYield = bnOrZero(cryptoYield).times(bnOrZero(marketData.price)).toPrecision()
 
-  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
+  const onSubmit = async ({ feeType }: { feeType: chainAdapters.FeeDataKey }) => {
     if (!wallet || !feeData) return
     if (!isConnected) {
       onCancel()

@@ -16,7 +16,7 @@
     "@reduxjs/toolkit": "^1.8.0",
     "@shapeshiftoss/asset-service": "^2.4.5",
     "@shapeshiftoss/caip": "^2.4.0",
-    "@shapeshiftoss/chain-adapters": "^2.13.4",
+    "@shapeshiftoss/chain-adapters": "^2.15.0",
     "@shapeshiftoss/hdwallet-core": "^1.21.1",
     "@shapeshiftoss/hdwallet-keepkey": "^1.21.1",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.21.1",

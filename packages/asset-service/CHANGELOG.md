@@ -1,3 +1,18 @@
+# [@shapeshiftoss/asset-service-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.6.0...@shapeshiftoss/asset-service-v3.0.0) (2022-05-10)
+
+
+### Performance Improvements
+
+* **assetService:** replace caip properties with their high-level counterparts ([#605](https://github.com/shapeshift/lib/issues/605)) ([f714931](https://github.com/shapeshift/lib/commit/f714931c51c975946ac07efdeda9c27bd770b271))
+
+
+### BREAKING CHANGES
+
+* **assetService:** updates the asset service with caip-free types and vernacular.
+
+Co-authored-by: 0xdef1cafe <88504456+0xdef1cafe@users.noreply.github.com>
+Co-authored-by: kaladinlight <35275952+kaladinlight@users.noreply.github.com>
+
 # [@shapeshiftoss/asset-service-v2.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.5.0...@shapeshiftoss/asset-service-v2.6.0) (2022-05-06)
 
 

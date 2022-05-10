@@ -33,7 +33,7 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectRewardsAmountByAssetId,
+  selectRewardsByValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -86,7 +86,7 @@ export const ClaimConfirm = ({
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
+    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(

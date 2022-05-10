@@ -28,6 +28,7 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectTotalCryptoBalanceWithDelegations,
@@ -35,8 +36,8 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import {
   selectAssetById,
+  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
-  selectTotalStakingDelegationCryptoByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -65,7 +66,13 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+  )
+  const filter = useMemo(
+    () => ({ assetId, accountId, accountSpecifier }),
+    [assetId, accountId, accountSpecifier],
+  )
   const translate = useTranslate()
 
   const fiatBalanceWithDelegations = useAppSelector(state =>
@@ -76,9 +83,11 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectTotalCryptoBalanceWithDelegations(state, filter),
   )
 
-  const delegationBalance = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByFilter(state, filter),
-  )
+  const earnBalances = useEarnBalances()
+  const delegationBalance = useMemo(() => {
+    const assetEarnBalance = earnBalances.opportunities.find(balance => balance.assetId === assetId)
+    return assetEarnBalance?.cryptoAmount ?? '0'
+  }, [assetId, earnBalances.opportunities])
 
   useEffect(() => {
     if (bnOrZero(fiatBalanceWithDelegations).gt(0)) {

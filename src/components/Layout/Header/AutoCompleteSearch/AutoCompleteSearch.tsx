@@ -57,7 +57,7 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
         onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
       >
         <InputGroup size='lg'>
-          <InputLeftElement pointerEvents='none'>
+          <InputLeftElement pointerEvents='none' zIndex={1}>
             <SearchIcon color='gray.300' />
           </InputLeftElement>
           <Input

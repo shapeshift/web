@@ -97,6 +97,7 @@ export const Approve = ({
           onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
           size='lg'
           colorScheme='blue'
+          data-test='defi-modal-approve-button'
           isLoading={loading}
           loadingText={loadingText}
         >

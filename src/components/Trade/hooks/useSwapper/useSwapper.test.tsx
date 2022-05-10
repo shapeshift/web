@@ -174,19 +174,6 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(6, 'buyAsset.amount', '20')
     expect(setValue).toHaveBeenNthCalledWith(7, 'sellAsset.amount', '20')
   })
-  it('getQuote needs buyAsset or sellAsset', async () => {
-    const { result, getQuote } = setup({ action: TradeAmountInputField.FIAT })
-    await act(async () => {
-      result.current.updateQuote({
-        amount: '20',
-        //@ts-ignore
-        sellAsset: undefined,
-        //@ts-ignore
-        buyAsset: undefined,
-      })
-    })
-    expect(getQuote).not.toHaveBeenCalled()
-  })
   it('getQuote gets quote with fiatAmount', async () => {
     const { localMockState } = setup()
     ;(useSelector as jest.Mock).mockImplementation(callback => {

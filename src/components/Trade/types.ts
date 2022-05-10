@@ -14,7 +14,7 @@ export type TradeAsset = {
 }
 
 export type TradeProps = {
-  defaultBuyAssetId?: AssetId
+  defaultBuyAssetId: AssetId
 }
 
 export type BuildQuoteTxOutput = {

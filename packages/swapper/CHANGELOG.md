@@ -1,3 +1,27 @@
+# [@shapeshiftoss/swapper-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v3.0.7...@shapeshiftoss/swapper-v4.0.0) (2022-05-10)
+
+
+### Performance Improvements
+
+* **chainAdapters:** replace caip properties with their high-level counterparts ([#606](https://github.com/shapeshift/lib/issues/606)) ([49e8fef](https://github.com/shapeshift/lib/commit/49e8fefabb6eaaecb357ddc16e11ad2080eb3082))
+
+
+### BREAKING CHANGES
+
+* **chainAdapters:** updates chain adapters with caip-free types and vernacular.
+
+* cleanup unchained commit cherry-pick
+
+* Remove caip comment
+
+* bump chain-adapters version and regen yarn lock
+
+* chore: update yarn.lock
+
+* chore: update yarn.lock
+
+Co-authored-by: kaladinlight <35275952+kaladinlight@users.noreply.github.com>
+
 # [@shapeshiftoss/swapper-v3.0.7](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v3.0.6...@shapeshiftoss/swapper-v3.0.7) (2022-05-05)
 
 # [@shapeshiftoss/swapper-v3.0.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v3.0.5...@shapeshiftoss/swapper-v3.0.6) (2022-05-05)

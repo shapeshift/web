@@ -71,9 +71,8 @@ export const Overview: React.FC<StakedProps> = ({
   // overwise if there are some undelegationEntries it will display it.
   const shouldDisplayUndelegationEntries = undelegationEntries?.length || !isLoaded
 
-  // @TODO: Use a proper selector when staking data slice refactor is merged
   const shouldDisplayGetStarted =
-    hasActiveStaking || !undelegationEntries?.length || bnOrZero(rewardsAmount).gt(0)
+    !hasActiveStaking || !undelegationEntries?.length || bnOrZero(rewardsAmount).lte(0)
 
   if (!isLoaded) {
     return (

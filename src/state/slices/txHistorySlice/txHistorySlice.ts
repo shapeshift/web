@@ -1,14 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import {
-  AssetId,
-  AssetNamespace,
-  ChainId,
-  fromCAIP2,
-  toCAIP2,
-  toCAIP10,
-  toCAIP19,
-} from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, caip2, caip10, caip19, ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
@@ -280,11 +272,11 @@ export const txHistoryApi = createApi({
         const chain = ChainTypes.Ethereum
         const network = NetworkTypes.MAINNET
         // foxy is only on eth mainnet
-        const chainId = toCAIP2({ chain, network })
+        const chainId = caip2.toCAIP2({ chain, network })
         const entries = Object.entries(accountSpecifierMap)[0]
         const [accountChainId, userAddress] = entries
 
-        const accountSpecifier = toCAIP10({ caip2: chainId, account: userAddress })
+        const accountSpecifier = caip10.toCAIP10({ caip2: chainId, account: userAddress })
         // [] is a valid return type and won't upsert anything
         if (chainId !== accountChainId) return { data: [] }
 
@@ -306,7 +298,7 @@ export const txHistoryApi = createApi({
         foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
           const assetReference = tokenContractAddress
           const assetNamespace = AssetNamespace.ERC20
-          const assetId = toCAIP19({ chain, network, assetNamespace, assetReference })
+          const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })
           const rebaseHistoryArgs = { userAddress, tokenContractAddress }
           const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
           const upsertPayload = { accountId: accountSpecifier, assetId, data }
@@ -331,7 +323,7 @@ export const txHistoryApi = createApi({
         try {
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
-          const { chain } = fromCAIP2(CAIP2)
+          const { chain } = caip2.fromCAIP2(CAIP2)
           const adapter = chainAdapters.byChain(chain)
           let currentCursor: string = ''
           const pageSize = 100

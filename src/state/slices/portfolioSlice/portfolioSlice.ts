@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ChainId, fromCAIP2 } from '@shapeshiftoss/caip'
+import { caip2, ChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -100,7 +100,7 @@ export const portfolioApi = createApi({
           string,
         ]
         // TODO(0xdef1cafe): chainAdapters.byCAIP2()
-        const { chain } = fromCAIP2(CAIP2)
+        const { chain } = caip2.fromCAIP2(CAIP2)
         try {
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)

@@ -24,15 +24,9 @@ type UnstakeBroadcastProps = {
   assetId: AssetId
   onClose: () => void
   validatorAddress: string
-  onStepCompleted: () => void
 }
 
-export const UnstakeBroadcast = ({
-  assetId,
-  validatorAddress,
-  onClose,
-  onStepCompleted,
-}: UnstakeBroadcastProps) => {
+export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: UnstakeBroadcastProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -75,7 +69,6 @@ export const UnstakeBroadcast = ({
 
     setTxId(broadcastTx)
     setBroadcasted(true)
-    onStepCompleted()
   }
 
   return (

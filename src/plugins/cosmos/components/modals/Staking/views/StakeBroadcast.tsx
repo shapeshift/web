@@ -26,7 +26,6 @@ type StakeProps = {
   validatorAddress: string
   onClose: () => void
   onCancel: () => void
-  onStepCompleted: () => void
 }
 
 // TODO: Make this a derived selector after this is wired up
@@ -34,6 +33,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
+<<<<<<< HEAD
 export const StakeBroadcast = ({
   assetId,
   validatorAddress,
@@ -41,6 +41,9 @@ export const StakeBroadcast = ({
   onCancel,
   onStepCompleted,
 }: StakeProps) => {
+=======
+export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }: StakeProps) => {
+>>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -84,7 +87,6 @@ export const StakeBroadcast = ({
 
     setTxId(broadcastTx)
     setBroadcasted(true)
-    onStepCompleted()
   }
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())

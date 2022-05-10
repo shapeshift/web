@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -56,7 +56,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const extra = tokenId
     ? { assetNamespace, assetReference: tokenId }
     : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
-  const caip = toCAIP19({ chain, network, ...extra })
+  const caip = caip19.toCAIP19({ chain, network, ...extra })
 
   const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
 
@@ -83,15 +83,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!wallet) return
-    if (!isConnected) {
-      /**
-       * call handleBack to reset current form state
-       * before opening the connect wallet modal.
-       */
-      handleBack()
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
     try {
       const result = await executeQuote({ wallet })
       const transactionId = result?.txid
@@ -144,9 +135,27 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push('/trade/input')
   }
 
+<<<<<<< HEAD
+=======
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    /**
+     * call handleBack to reset current form state
+     * before opening the connect wallet modal.
+     */
+    handleBack()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
+>>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
   return (
     <SlideTransition>
-      <Box as='form' onSubmit={handleSubmit(onSubmit)}>
+      <Box
+        as='form'
+        onSubmit={(event: FormEvent<unknown>) => {
+          isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+        }}
+      >
         <Card variant='unstyled'>
           <Card.Header px={0} pt={0}>
             <WithBackButton handleBack={handleBack}>

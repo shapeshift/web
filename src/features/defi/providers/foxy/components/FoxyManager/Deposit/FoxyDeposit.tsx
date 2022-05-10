@@ -1,5 +1,5 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -45,7 +45,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const { chain, contractAddress, tokenId } = query
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetId = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

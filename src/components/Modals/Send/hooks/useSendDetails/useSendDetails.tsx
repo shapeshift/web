@@ -1,6 +1,7 @@
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { FeeDataEstimate } from '@shapeshiftoss/types/dist/chain-adapters'
 import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -83,11 +84,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   )
 
   const nativeAssetBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.assetId, accountId }),
-    ),
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId })),
   )
-
   const chainAdapterManager = useChainAdapters()
   const {
     state: { wallet },
@@ -115,7 +113,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
       case ChainTypes.Osmosis: {
         // TODO(gomes): implement Osmosis support
-        return {} as chainAdapters.FeeDataEstimate<ChainTypes>
+        return {} as FeeDataEstimate<ChainTypes>
       }
       case ChainTypes.Ethereum: {
         const from = await adapter.getAddress({

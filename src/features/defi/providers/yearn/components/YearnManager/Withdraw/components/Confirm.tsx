@@ -1,5 +1,5 @@
 import { Box, Stack } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -37,21 +37,21 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = toCAIP19({
+  const underlyingAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetCAIP19))
-  const assetCAIP19 = toCAIP19({
+  const assetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: vaultAddress,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const feeAssetCAIP19 = toCAIP19({
+  const feeAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,

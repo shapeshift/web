@@ -2,6 +2,10 @@ import { createSelector } from '@reduxjs/toolkit'
 import { AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
+<<<<<<< HEAD
+=======
+import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
+>>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
 import BigNumber from 'bignumber.js'
 import get from 'lodash/get'
 import memoize from 'lodash/memoize'
@@ -301,7 +305,11 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
     if (!stakingData || !stakingData.rewards) return []
 
     return stakingData.rewards.reduce(
+<<<<<<< HEAD
       (acc: chainAdapters.cosmos.Reward[], current: chainAdapters.cosmos.ValidatorReward) => {
+=======
+      (acc: chainAdapters.cosmos.Reward[], current: ValidatorReward) => {
+>>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
         if (current.validator.address !== validatorAddress) return acc
 
         acc.push(...current.rewards)
@@ -320,10 +328,14 @@ export const selectAllRewardsByAssetId = createDeepEqualOutputSelector(
     if (!stakingData || !stakingData.rewards) return {}
 
     const rewards = stakingData.rewards.reduce(
+<<<<<<< HEAD
       (
         acc: Record<PubKey, chainAdapters.cosmos.Reward[]>,
         current: chainAdapters.cosmos.ValidatorReward,
       ) => {
+=======
+      (acc: Record<PubKey, chainAdapters.cosmos.Reward[]>, current: ValidatorReward) => {
+>>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
         if (!acc[current.validator.address]) {
           acc[current.validator.address] = []
         }

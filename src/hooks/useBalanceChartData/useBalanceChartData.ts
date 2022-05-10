@@ -1,4 +1,4 @@
-import { AssetId, ChainId, toCAIP2, toCAIP10 } from '@shapeshiftoss/caip'
+import { AssetId, caip2, caip10, ChainId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import {
   chainAdapters,
@@ -333,7 +333,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // Get total delegation
   // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const cosmosCaip2: ChainId = toCAIP2({
+  const cosmosCaip2: ChainId = caip2.toCAIP2({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
   })
@@ -347,7 +347,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, '')
 
   // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
+<<<<<<< HEAD
   const cosmosCaip10 = account ? toCAIP10({ caip2: cosmosCaip2, account }) : ''
+=======
+  const cosmosCaip10 = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
+>>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
 
   // load staking data to redux state
   useEffect(() => {

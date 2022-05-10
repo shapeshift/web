@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import {
@@ -44,7 +44,7 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const assetId = toCAIP19({
+  const assetId = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,

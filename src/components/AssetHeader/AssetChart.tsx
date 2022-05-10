@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -79,12 +79,15 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const delegationBalance = useAppSelector(state =>
     selectTotalStakingDelegationCryptoByFilter(state, filter),
   )
+<<<<<<< HEAD
 
   useEffect(() => {
     if (bnOrZero(fiatBalanceWithDelegations).gt(0)) {
       setView(View.Balance)
     }
   }, [fiatBalanceWithDelegations])
+=======
+>>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
 
   return (
     <Card>

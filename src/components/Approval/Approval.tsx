@@ -1,6 +1,6 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle, useToast } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { useEffect, useRef, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -55,15 +55,6 @@ export const Approval = () => {
 
   const approve = async () => {
     if (!wallet) return
-    if (!isConnected) {
-      /**
-       * call history.goBack() to reset current form state
-       * before opening the connect wallet modal.
-       */
-      history.goBack()
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
     const fnLogger = logger.child({ name: 'approve' })
     fnLogger.trace('Attempting Approval...')
 
@@ -135,6 +126,16 @@ export const Approval = () => {
     })
   }
 
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    /**
+     * call history.goBack() to reset current form state
+     * before opening the connect wallet modal.
+     */
+    history.goBack()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   useEffect(() => {
     // TODO: (ryankk) fix errors to reflect correct attribute
     const error = errors?.quote?.rate ?? null
@@ -159,7 +160,9 @@ export const Approval = () => {
             flexDirection='column'
             width='full'
             as='form'
-            onSubmit={handleSubmit(approve)}
+            onSubmit={(event: FormEvent<unknown>) => {
+              isConnected ? handleSubmit(approve) : handleWalletModalOpen(event)
+            }}
           >
             <CountdownCircleTimer
               isPlaying={!!approvalTxId || !!isSubmitting}

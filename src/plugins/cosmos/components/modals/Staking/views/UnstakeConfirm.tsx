@@ -10,8 +10,10 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero, cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+// @ts-ignore this will fail at 'file differs in casing' error
+import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
+import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
 import {
   ConfirmFormFields,
   ConfirmFormInput,
@@ -19,7 +21,7 @@ import {
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { FeePrice } from 'plugins/cosmos/utils'
-import { useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -66,7 +68,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
@@ -91,17 +93,8 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   }, [adapter, asset.precision, marketData.price])
 
   const history = useHistory()
-  const onSubmit = async ({ feeType }: { feeType: chainAdapters.FeeDataKey }) => {
+  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
     if (!wallet || !feeData) return
-    if (!isConnected) {
-      /**
-       * call onCancel to navigate back before
-       * opening the connect wallet modal.
-       */
-      onCancel()
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
 
     const fees = feeData[feeType]
     const gas = fees.chainSpecific.gasLimit
@@ -111,6 +104,16 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
     methods.setValue(Field.FiatFee, fees.fiatFee)
 
     history.push(UnstakingPath.Broadcast)
+  }
+
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    /**
+     * call onCancel to navigate back before
+     * opening the connect wallet modal.
+     */
+    onCancel()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   const translate = useTranslate()
@@ -125,7 +128,9 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(event: FormEvent<unknown>) => {
+            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+          }}
           flexDirection='column'
           alignItems='center'
           justifyContent='space-between'

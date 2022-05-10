@@ -15,7 +15,7 @@ export const DefiModal = ({ children }: EarnModalProps) => {
     <Modal isOpen onClose={history.goBack} variant='fluid-footer'>
       <ModalOverlay />
       <ModalContent>
-        <ModalCloseButton data-test='defi-modal-close' />
+        <ModalCloseButton />
         {children}
       </ModalContent>
     </Modal>

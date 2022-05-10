@@ -8,7 +8,7 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { AssetId, AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -54,7 +54,7 @@ export const ClaimConfirm = ({
   // Asset Info
   const network = NetworkTypes.MAINNET
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetCAIP19 = toCAIP19({
+  const feeAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,

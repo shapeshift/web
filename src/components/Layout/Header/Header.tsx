@@ -65,9 +65,16 @@ export const Header = () => {
         top={0}
       >
         {walletInfo?.deviceId === 'DemoWallet' && (
-          <Box bg='blue.500' width='full' height='3rem' as='button' onClick={handleBannerClick}>
+          <Box
+            bg='blue.500'
+            width='full'
+            height={{ base: '2.5rem', md: '3rem' }}
+            fontSize={{ base: 'sm', md: 'md' }}
+            as='button'
+            onClick={handleBannerClick}
+          >
             <HStack verticalAlign='middle' justifyContent='center' spacing={3}>
-              <InfoIcon h={6} w={6} color='white' />
+              <InfoIcon boxSize='1.3em' color='white' />
               <Text color='white' fontWeight='bold' translation='navBar.demoMode' />
               <Text color='white' fontWeight='medium' translation='navBar.clickToConnect' />
             </HStack>

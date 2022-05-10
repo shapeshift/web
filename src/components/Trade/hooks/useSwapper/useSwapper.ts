@@ -1,14 +1,14 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SwapperManager, Trade, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
-  Asset,
-  chainAdapters,
-  ChainTypes,
-  ExecQuoteOutput,
-  Quote,
-  SwapperType,
-} from '@shapeshiftoss/types'
+  ChainIdTypes,
+  QuoteFeeData,
+  SwapperManager,
+  Trade,
+  TradeQuote,
+  ZrxSwapper,
+} from '@shapeshiftoss/swapper'
+import { Asset, ExecQuoteOutput, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -36,7 +36,7 @@ type GetQuoteInput = {
   action?: TradeActions
 }
 
-interface GetQuoteFromSwapper<C extends ChainTypes> extends GetQuoteInput {
+interface GetQuoteFromSwapper<C extends ChainIdTypes> extends GetQuoteInput {
   sellAsset: Asset
   buyAsset: Asset
   onFinish: (quote: TradeQuote<C>) => void
@@ -74,7 +74,7 @@ export const useSwapper = () => {
   const isComponentMounted = useIsComponentMounted()
   const [quote, sellAsset] = useWatch({
     name: ['quote', 'sellAsset'],
-  }) as [TradeQuote<ChainTypes> & Trade<ChainTypes>, TradeAsset]
+  }) as [TradeQuote<ChainIdTypes> & Trade<ChainIdTypes>, TradeAsset]
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -246,7 +246,7 @@ export const useSwapper = () => {
     return result
   }
 
-  const getQuoteFromSwapper = async <C extends ChainTypes>({
+  const getQuoteFromSwapper = async <C extends ChainIdTypes>({
     amount,
     sellAsset,
     buyAsset,
@@ -355,7 +355,7 @@ export const useSwapper = () => {
     }
     const feeAssetPrecision = feeAsset.precision
 
-    const onFinish = (quote: TradeQuote<ChainTypes>) => {
+    const onFinish = (quote: TradeQuote<ChainIdTypes>) => {
       if (isComponentMounted.current) {
         const { sellAsset, buyAsset, action, fiatAmount } = getValues()
 
@@ -386,7 +386,7 @@ export const useSwapper = () => {
       }
     }
 
-    await getQuoteFromSwapper<typeof sellAsset.currency.chain>({
+    await getQuoteFromSwapper<ChainIdTypes>({
       amount: formattedAmount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
@@ -412,15 +412,18 @@ export const useSwapper = () => {
     })
   }
 
-  const setFees = async (result: Trade<ChainTypes> | TradeQuote<ChainTypes>, sellAsset: Asset) => {
-    const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
+  const setFees = async (
+    result: Trade<ChainIdTypes> | TradeQuote<ChainIdTypes>,
+    sellAsset: Asset,
+  ) => {
+    const feePrecision = sellAsset.chainId === ChainIdTypes.Ethereum ? 18 : sellAsset.precision
     const feeBN = bnOrZero(result?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feePrecision))
     const fee = feeBN.toString()
 
-    switch (sellAsset.chain) {
-      case ChainTypes.Ethereum:
+    switch (sellAsset.chainId) {
+      case ChainIdTypes.Ethereum:
         {
-          const ethResult = result as Quote<ChainTypes.Ethereum>
+          const ethResult = result as TradeQuote<ChainIdTypes.Ethereum>
           const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
             ? bn(ethResult.feeData.chainSpecific.approvalFee)
                 .dividedBy(bn(10).exponentiatedBy(18))
@@ -430,7 +433,7 @@ export const useSwapper = () => {
           const gasPrice = bnOrZero(ethResult?.feeData?.chainSpecific.gasPrice).toString()
           const estimatedGas = bnOrZero(ethResult?.feeData?.chainSpecific.estimatedGas).toString()
 
-          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum> = {
+          const fees: QuoteFeeData<ChainIdTypes.Ethereum> = {
             fee,
             chainSpecific: {
               approvalFee,

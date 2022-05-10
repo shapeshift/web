@@ -8,6 +8,7 @@ import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
+import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']
 
@@ -24,7 +25,7 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
         <Route
-          path='/trade/select/sell'
+          path={TradeRoutePaths.SellSelect}
           render={(props: RouteComponentProps) => (
             <SelectAsset
               onClick={handleSellClick}
@@ -34,7 +35,7 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
           )}
         />
         <Route
-          path='/trade/select/buy'
+          path={TradeRoutePaths.BuySelect}
           render={(props: RouteComponentProps) => (
             <SelectAsset
               onClick={handleBuyClick}
@@ -43,10 +44,10 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
             />
           )}
         />
-        <Route path='/trade/input' component={TradeInput} />
-        <Route path='/trade/confirm' component={TradeConfirm} />
-        <Route path='/trade/approval' component={Approval} />
-        <Redirect from='/' to='/trade/input' />
+        <Route path={TradeRoutePaths.Input} component={TradeInput} />
+        <Route path={TradeRoutePaths.Confirm} component={TradeConfirm} />
+        <Route path={TradeRoutePaths.Approval} component={Approval} />
+        <Redirect from='/' to={TradeRoutePaths.Input} />
       </Switch>
     </AnimatePresence>
   )

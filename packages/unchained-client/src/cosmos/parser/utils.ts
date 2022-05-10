@@ -30,7 +30,6 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
         delegator: msg.origin,
         destinationValidator: msg.to,
         value: msg?.value?.amount,
-        caip19: assetId,
         assetId
       }
     case 'withdraw_delegator_reward':
@@ -39,7 +38,6 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
         method: msg.type,
         destinationValidator: msg.to,
         value: msg?.value?.amount,
-        caip19: assetId,
         assetId
       }
     case 'ibc_send':
@@ -49,7 +47,6 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
         method: msg.type,
         ibcDestination: msg.to,
         ibcSource: msg.from,
-        caip19: assetId,
         assetId,
         value: msg?.value?.amount
       }

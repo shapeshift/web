@@ -44,8 +44,6 @@ const mockQuoteResponse = {
   buyAsset: {
     assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     chainId: 'eip155:1',
-    caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    caip2: 'eip155:1',
     chain: 'ethereum',
     color: '#FFFFFF',
     contractType: AssetNamespace.ERC20,
@@ -80,8 +78,6 @@ const mockQuoteResponse = {
   sellAsset: {
     assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
     chainId: 'eip155:1',
-    caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip2: 'eip155:1',
     chain: 'ethereum',
     color: '#FFFFFF',
     contractType: AssetNamespace.ERC20,

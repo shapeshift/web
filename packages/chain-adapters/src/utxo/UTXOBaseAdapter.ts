@@ -1,4 +1,4 @@
-import { AssetId, CAIP2, CAIP19, ChainId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, HDWallet, PublicKey } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -26,7 +26,7 @@ export interface ChainAdapterArgs {
     ws: unchained.ws.Client<unchained.Tx>
   }
   coinName: string
-  chainId?: ChainId | CAIP2
+  chainId?: ChainId
 }
 
 /**
@@ -36,10 +36,10 @@ export interface ChainAdapterArgs {
  * `export type UTXOChainTypes = ChainTypes.Bitcoin | ChainTypes.Litecoin`
  */
 export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChainAdapter<T> {
-  protected chainId: ChainId | CAIP2
-  protected assetId: AssetId | CAIP19
+  protected chainId: ChainId
+  protected assetId: AssetId
   protected coinName: string
-  protected readonly supportedChainIds: ChainId | CAIP2[]
+  protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
     http: unchained.bitcoin.V1Api
     ws: unchained.ws.Client<unchained.Tx>
@@ -83,25 +83,11 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
 
   /* public methods */
 
-  /**
-   * @deprecated - use `getChainId()` instead
-   */
-  getCaip2(): ChainId | CAIP2 {
+  getChainId(): ChainId {
     return this.chainId
   }
 
-  /**
-   * @deprecated - use `getChainId()` instead
-   */
-  getCaip19(): AssetId | CAIP19 {
-    return this.assetId
-  }
-
-  getChainId(): ChainId | CAIP2 {
-    return this.chainId
-  }
-
-  getAssetId(): AssetId | CAIP19 {
+  getAssetId(): AssetId {
     return this.assetId
   }
 
@@ -111,7 +97,6 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
     }
 
     try {
-      const caip = await this.getCaip2()
       const { data } = await this.providers.http.getAccount({ pubkey })
 
       const balance = bnOrZero(data.balance).plus(bnOrZero(data.unconfirmedBalance))
@@ -119,8 +104,8 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
       return {
         balance: balance.toString(),
         chain: this.getType(),
-        caip2: caip,
-        caip19: this.getCaip19(),
+        chainId: this.chainId,
+        assetId: this.assetId,
         chainSpecific: {
           addresses: data.addresses,
           nextChangeAddressIndex: data.nextChangeAddressIndex,

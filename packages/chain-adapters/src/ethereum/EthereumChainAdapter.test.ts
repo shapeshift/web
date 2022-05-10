@@ -100,7 +100,7 @@ describe('EthereumChainAdapter', () => {
       nonce: 2,
       tokens: [
         {
-          caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
           balance: balance.erc20Balance,
           type: 'ERC20',
           contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'

@@ -41,7 +41,6 @@ export function aggregateTransfer(
       ...transfers,
       {
         type,
-        caip19: assetId,
         assetId,
         from,
         to,

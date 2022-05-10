@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, WithdrawType } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
@@ -154,7 +154,7 @@ export type RebaseEvent = {
 }
 
 export type RebaseHistory = {
-  assetId: CAIP19
+  assetId: AssetId
   balanceDiff: string
   blockTime: number
 }

@@ -1,22 +1,23 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-import { ChainId, Yearn } from '@yfi/sdk'
+import { ChainId } from '@shapeshiftoss/caip'
+import { ChainId as YearnChainId, Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'
 
 import { TxParser } from '../../types'
-import { Network, SubParser, TxSpecific } from '../types'
+import { SubParser, TxSpecific } from '../types'
 import shapeShiftRouter from './abi/shapeShiftRouter'
 import yearnVault from './abi/yearnVault'
 import { SHAPE_SHIFT_ROUTER_CONTRACT } from './constants'
 import { getSigHash } from './utils'
 
 interface ParserArgs {
-  network: Network
+  chainId: ChainId
   provider: ethers.providers.JsonRpcProvider
 }
 
 export class Parser implements SubParser {
   provider: ethers.providers.JsonRpcProvider
-  yearnSdk: Yearn<ChainId> | undefined
+  yearnSdk: Yearn<YearnChainId> | undefined
   yearnTokenVaultAddresses: string[] | undefined
 
   readonly shapeShiftInterface = new ethers.utils.Interface(shapeShiftRouter)
@@ -38,7 +39,7 @@ export class Parser implements SubParser {
     this.provider = args.provider
 
     // The only Yearn-supported chain we currently support is mainnet
-    if (args.network === 'mainnet') {
+    if (args.chainId === 'eip155:1') {
       // 1 for EthMain (@yfi/sdk/dist/chain.d.ts)
       this.yearnSdk = new Yearn(1, { provider: this.provider })
     }

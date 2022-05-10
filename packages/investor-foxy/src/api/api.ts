@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { AssetNamespace, ChainReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, ChainReference, toAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
@@ -1083,7 +1083,7 @@ export class FoxyApi {
     const assetNamespace = AssetNamespace.ERC20
     const assetReference = tokenContractAddress
     // foxy assetId
-    const assetId = toCAIP19({ chain, network, assetNamespace, assetReference })
+    const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
 
     const results = await Promise.allSettled(
       events.map(async (event) => {

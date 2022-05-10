@@ -3,8 +3,8 @@ import {
   AssetNamespace,
   AssetReference,
   ChainId,
-  fromCAIP2,
-  toCAIP19
+  fromChainId,
+  toAssetId
 } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
@@ -24,8 +24,8 @@ export class TransactionParser {
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
 
-    this.assetId = toCAIP19({
-      ...fromCAIP2(this.chainId),
+    this.assetId = toAssetId({
+      ...fromChainId(this.chainId),
       assetNamespace: AssetNamespace.Slip44,
       assetReference: AssetReference.Cosmos
     })
@@ -37,7 +37,6 @@ export class TransactionParser {
       blockHash: tx.blockHash,
       blockHeight: tx.blockHeight ?? -1,
       blockTime: tx.timestamp ?? Math.floor(Date.now() / 1000),
-      caip2: this.chainId,
       chainId: this.chainId,
       confirmations: tx.confirmations,
       status: tx.confirmations > 0 ? Status.Confirmed : Status.Pending, // TODO: handle failed case
@@ -59,7 +58,6 @@ export class TransactionParser {
       parsedTx.transfers = [
         {
           type: TransferType.Send,
-          caip19: this.assetId,
           assetId: this.assetId,
           from,
           to,
@@ -73,7 +71,6 @@ export class TransactionParser {
       parsedTx.transfers = [
         {
           type: TransferType.Receive,
-          caip19: this.assetId,
           assetId: this.assetId,
           from,
           to,
@@ -88,7 +85,7 @@ export class TransactionParser {
       // network fee
       const fees = new BigNumber(tx.fee.amount)
       if (fees.gt(0)) {
-        parsedTx.fee = { caip19: this.assetId, assetId: this.assetId, value: fees.toString(10) }
+        parsedTx.fee = { assetId: this.assetId, value: fees.toString(10) }
       }
     }
 

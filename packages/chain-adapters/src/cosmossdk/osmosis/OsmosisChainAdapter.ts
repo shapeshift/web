@@ -1,4 +1,10 @@
-import { AssetNamespace, AssetReference, CAIP19, fromCAIP2, toCAIP19 } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  AssetNamespace,
+  AssetReference,
+  fromChainId,
+  toAssetId
+} from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, OsmosisSignTx, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
@@ -12,7 +18,7 @@ export class ChainAdapter
 {
   protected readonly supportedChainIds = ['cosmos:osmosis-1', 'cosmos:osmo-testnet-1']
   protected readonly chainId = this.supportedChainIds[0]
-  protected readonly assetId: CAIP19
+  protected readonly assetId: AssetId
 
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
@@ -23,9 +29,9 @@ export class ChainAdapter
   constructor(args: ChainAdapterArgs) {
     super(args)
 
-    const { chain, network } = fromCAIP2(this.chainId)
+    const { chain, network } = fromChainId(this.chainId)
 
-    this.assetId = toCAIP19({
+    this.assetId = toAssetId({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,

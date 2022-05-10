@@ -1,4 +1,4 @@
-import { toCAIP2 } from '@shapeshiftoss/caip'
+import { toChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
@@ -45,7 +45,7 @@ const main = async (): Promise<void> => {
 
   const api = new FoxyApi({
     adapter: (await adapterManager.byChainId(
-      toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+      toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
     )) as ChainAdapter<ChainTypes.Ethereum>,
     providerUrl: process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
     foxyAddresses

@@ -2757,11 +2757,6 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^2.0.0", "@shapeshiftoss/caip@^2.1.2", "@shapeshiftoss/caip@^2.2.3":
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.5.0.tgz#f82f0fb16267d1bcfa80e31fd2708c89adbfda3a"
-  integrity sha512-CWL50ctseRvPWM1AdydZZ2yAjN/46e29xUwikVTXycbyNKV445i3I50iScjNfmNOUNM5u9Mq67FGsiDhvpNZOw==
-
 "@shapeshiftoss/common-api@^6.11.0":
   version "6.11.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-6.11.0.tgz#cea7fc9acc02645bef376ef77a8b4977b31441c4"

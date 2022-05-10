@@ -13,7 +13,7 @@ export const chainAdapterMockFuncs = {
   getAddress: jest.fn(() => Promise.resolve('address')),
   getAccount: jest.fn(() =>
     Promise.resolve({
-      chainSpecific: { tokens: [{ caip19: 'eip155:1/erc20:contractAddress', balance: '1000000' }] }
+      chainSpecific: { tokens: [{ assetId: 'eip155:1/erc20:contractAddress', balance: '1000000' }] }
     })
   ),
   getFeeData: jest.fn(() =>

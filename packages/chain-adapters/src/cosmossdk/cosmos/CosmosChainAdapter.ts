@@ -1,10 +1,10 @@
 import {
+  AssetId,
   AssetNamespace,
   AssetReference,
-  CAIP19,
   ChainReference,
-  fromCAIP2,
-  toCAIP19
+  fromChainId,
+  toAssetId
 } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
@@ -23,7 +23,7 @@ import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
   protected readonly supportedChainIds = ['cosmos:cosmoshub-4', 'cosmos:vega-testnet']
   protected readonly chainId = this.supportedChainIds[0]
-  protected readonly assetId: CAIP19
+  protected readonly assetId: AssetId
   protected readonly CHAIN_VALIDATOR_PREFIX_MAPPING = {
     [ChainTypes.Cosmos]: 'cosmosvaloper'
   }
@@ -37,9 +37,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
   constructor(args: ChainAdapterArgs) {
     super(args)
 
-    const { chain, network } = fromCAIP2(this.chainId)
+    const { chain, network } = fromChainId(this.chainId)
 
-    this.assetId = toCAIP19({
+    this.assetId = toAssetId({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,

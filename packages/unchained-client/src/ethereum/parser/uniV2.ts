@@ -1,24 +1,23 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { AssetNamespace, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { TransferType, TxParser } from '../../types'
-import { Network, SubParser, TxSpecific } from '../types'
+import { SubParser, TxSpecific } from '../types'
 import ERC20_ABI from './abi/erc20'
 import UNIV2_ABI from './abi/uniV2'
 import { UNI_V2_ROUTER_CONTRACT, WETH_CONTRACT_MAINNET, WETH_CONTRACT_ROPSTEN } from './constants'
-import { getSigHash, toNetworkType, txInteractsWithContract } from './utils'
+import { getSigHash, txInteractsWithContract } from './utils'
 
 export interface ParserArgs {
-  network: Network
+  chainId: ChainId
   provider: ethers.providers.JsonRpcProvider
 }
 
 export class Parser implements SubParser {
-  network: Network
   provider: ethers.providers.JsonRpcProvider
 
+  readonly chainId: ChainId
   readonly wethContract: string
   readonly abiInterface = new ethers.utils.Interface(UNIV2_ABI)
 
@@ -28,13 +27,19 @@ export class Parser implements SubParser {
   }
 
   constructor(args: ParserArgs) {
-    this.network = args.network
+    this.chainId = args.chainId
     this.provider = args.provider
 
-    this.wethContract = {
-      mainnet: WETH_CONTRACT_MAINNET,
-      ropsten: WETH_CONTRACT_ROPSTEN
-    }[this.network]
+    switch (args.chainId) {
+      case 'eip155:1':
+        this.wethContract = WETH_CONTRACT_MAINNET
+        break
+      case 'eip155:3':
+        this.wethContract = WETH_CONTRACT_ROPSTEN
+        break
+      default:
+        throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
+    }
   }
 
   async parse(tx: BlockbookTx): Promise<TxSpecific | undefined> {
@@ -66,9 +71,8 @@ export class Parser implements SubParser {
           const symbol = await contract.symbol()
           const value = decoded.args.amountTokenDesired.toString()
 
-          const assetId = toCAIP19({
-            chain: ChainTypes.Ethereum,
-            network: toNetworkType(this.network),
+          const assetId = toAssetId({
+            ...fromChainId(this.chainId),
             assetNamespace: AssetNamespace.ERC20,
             assetReference: tokenAddress
           })
@@ -78,7 +82,6 @@ export class Parser implements SubParser {
               type: TransferType.Send,
               from: sendAddress,
               to: lpTokenAddress,
-              caip19: assetId,
               assetId,
               totalValue: value,
               components: [{ value }],
@@ -93,9 +96,8 @@ export class Parser implements SubParser {
           const symbol = await contract.symbol()
           const value = decoded.args.liquidity.toString()
 
-          const assetId = toCAIP19({
-            chain: ChainTypes.Ethereum,
-            network: toNetworkType(this.network),
+          const assetId = toAssetId({
+            ...fromChainId(this.chainId),
             assetNamespace: AssetNamespace.ERC20,
             assetReference: lpTokenAddress
           })
@@ -105,7 +107,6 @@ export class Parser implements SubParser {
               type: TransferType.Send,
               from: sendAddress,
               to: lpTokenAddress,
-              caip19: assetId,
               assetId,
               totalValue: value,
               components: [{ value }],

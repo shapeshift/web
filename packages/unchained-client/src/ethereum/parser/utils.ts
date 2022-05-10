@@ -1,20 +1,7 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
 
-import { Network } from '../types'
 import MULTISIG_ABI from './abi/multiSig'
-
-export const toNetworkType = (network: Network): NetworkTypes => {
-  switch (network) {
-    case 'mainnet':
-      return NetworkTypes.MAINNET
-    case 'ropsten':
-      return NetworkTypes.ETH_ROPSTEN
-    default:
-      throw new Error('unsupported network')
-  }
-}
 
 export const getSigHash = (inputData: string | undefined): string | undefined => {
   if (!inputData) return

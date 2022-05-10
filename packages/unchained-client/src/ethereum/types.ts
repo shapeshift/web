@@ -25,8 +25,6 @@ export interface ParsedTx extends StandardTx {
 
 export type TxSpecific = Partial<Pick<ParsedTx, 'trade' | 'transfers' | 'data'>>
 
-export type Network = 'mainnet' | 'ropsten'
-
 export interface SubParser {
   parse(tx: BlockbookTx): Promise<TxSpecific | undefined>
 }

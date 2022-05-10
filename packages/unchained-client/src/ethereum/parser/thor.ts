@@ -1,8 +1,9 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
+import { ChainId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { Dex, TradeType, TxParser } from '../../types'
-import { Network, SubParser, TxSpecific } from '../types'
+import { SubParser, TxSpecific } from '../types'
 import THOR_ABI from './abi/thor'
 import { THOR_ROUTER_CONTRACT_MAINNET, THOR_ROUTER_CONTRACT_ROPSTEN } from './constants'
 import { getSigHash, txInteractsWithContract } from './utils'
@@ -10,7 +11,7 @@ import { getSigHash, txInteractsWithContract } from './utils'
 const SWAP_TYPES = ['SWAP', '=', 's']
 
 export interface ParserArgs {
-  network: Network
+  chainId: ChainId
   rpcUrl: string
 }
 
@@ -24,11 +25,18 @@ export class Parser implements SubParser {
   }
 
   constructor(args: ParserArgs) {
-    // TODO: Router contract can change, use /inbound_addresses endpoint to determine current router contract
-    this.routerContract = {
-      mainnet: THOR_ROUTER_CONTRACT_MAINNET,
-      ropsten: THOR_ROUTER_CONTRACT_ROPSTEN
-    }[args.network]
+    // TODO: Router contract can change, use /inbound_addresses endpoint to determine current router contract.
+    // We will also need to know all past router contract addresses if we intend on using receive address as the means for detection
+    switch (args.chainId) {
+      case 'eip155:1':
+        this.routerContract = THOR_ROUTER_CONTRACT_MAINNET
+        break
+      case 'eip155:3':
+        this.routerContract = THOR_ROUTER_CONTRACT_ROPSTEN
+        break
+      default:
+        throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
+    }
   }
 
   // detect address associated with transferOut internal transaction

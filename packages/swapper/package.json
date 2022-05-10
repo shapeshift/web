@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "3.0.7",
+  "version": "4.0.0",
   "description": "TODO: description",
   "repository": "https://github.com/shapeshift/lib",
   "license": "MIT",
@@ -31,17 +31,17 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/asset-service": "^2.0.0",
-    "@shapeshiftoss/caip": "^2.0.0",
-    "@shapeshiftoss/chain-adapters": "^2.0.0",
+    "@shapeshiftoss/caip": "^3.0.0",
+    "@shapeshiftoss/chain-adapters": "^3.0.0",
     "@shapeshiftoss/hdwallet-core": "1.20.0",
-    "@shapeshiftoss/types": "3.1.3"
+    "@shapeshiftoss/types": "^4.0.0"
   },
   "devDependencies": {
     "@shapeshiftoss/asset-service": "^2.0.0",
-    "@shapeshiftoss/caip": "^2.0.0",
-    "@shapeshiftoss/chain-adapters": "^2.0.0",
+    "@shapeshiftoss/caip": "^3.0.0",
+    "@shapeshiftoss/chain-adapters": "^3.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "3.1.3",
+    "@shapeshiftoss/types": "^4.0.0",
     "@types/readline-sync": "^1.4.4",
     "readline-sync": "^1.4.10",
     "web3-utils": "^1.5.2"

@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import {
   ApprovalNeededOutput,
@@ -100,13 +100,12 @@ export class ZrxSwapper implements Swapper {
     return ZrxApproveInfinite(this.deps, args)
   }
 
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): CAIP19[] {
+  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds, sellAssetId } = args
-    // TODO: pending changes to caip lib, we may want to import caip2 value instead.
     return assetIds.filter((id) => id.startsWith('eip155:1') && sellAssetId.startsWith('eip155:1'))
   }
 
-  filterAssetIdsBySellable(assetIds: CAIP19[]): CAIP19[] {
+  filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     return assetIds.filter((id) => id.startsWith('eip155:1'))
   }
 }

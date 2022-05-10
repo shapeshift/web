@@ -119,10 +119,10 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
       .times(_percent)
       .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    const fiatAmountMinusTxFee = fiatAmount.minus(averageTxFee?.fiatFee ?? '0')
-    const cryptoAmountMinusTxFee = cryptoAmount.minus(averageTxFee?.txFee ?? '0')
+    const fiatAmountMinusTxFee = fiatAmount.minus(bnOrZero(averageTxFee?.fiatFee))
+    const cryptoAmountMinusTxFee = cryptoAmount.minus(bnOrZero(averageTxFee?.txFee))
     const shouldSubtractFees = cryptoAmount
-      .plus(averageTxFee?.txFee ?? '0')
+      .plus(bnOrZero(averageTxFee?.txFee))
       .gte(cryptoBalanceHuman.toString())
 
     if (shouldSubtractFees && cryptoAmountMinusTxFee.isNegative()) {
@@ -158,7 +158,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
         shouldValidate: true,
       })
 
-      if (cryptoBalanceHuman.lt(cryptoAmount.plus(averageTxFee?.txFee ?? '0'))) {
+      if (cryptoBalanceHuman.lt(cryptoAmount.plus(bnOrZero(averageTxFee?.txFee)))) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
         return
       }
@@ -168,7 +168,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
         .dp(asset.precision, BigNumber.ROUND_DOWN)
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
 
-      if (cryptoBalanceHuman.lt(cryptoAmount.plus(averageTxFee?.txFee ?? '0'))) {
+      if (cryptoBalanceHuman.lt(cryptoAmount.plus(bnOrZero(averageTxFee?.txFee)))) {
         setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
         return
       }

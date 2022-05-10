@@ -1,4 +1,4 @@
-import { fromCAIP19 } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { BaseAsset, TokenAsset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
@@ -36,14 +36,14 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
     ...underlyingTokens,
     ...foxyToken
   ]
-  const uniqueTokens = orderBy(uniqBy(tokens, 'caip19'), 'caip19') // Remove dups and order for PR readability
+  const uniqueTokens = orderBy(uniqBy(tokens, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy
   const tokenBatches = chunk(uniqueTokens, batchSize)
   let modifiedTokens: TokenAsset[] = []
   for (const [i, batch] of tokenBatches.entries()) {
     console.info(`processing batch ${i + 1} of ${tokenBatches.length}`)
     const promises = batch.map(async (token) => {
-      const { chain } = fromCAIP19(token.assetId)
+      const { chain } = fromAssetId(token.assetId)
       const { info } = generateTrustWalletUrl({ chain, tokenId: token.tokenId })
       return axios.head(info) // return promise
     })
@@ -70,7 +70,7 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
         }
         return uniqueTokens[key] // token without modified icon
       } else {
-        const { chain } = fromCAIP19(uniqueTokens[key].assetId)
+        const { chain } = fromAssetId(uniqueTokens[key].assetId)
         const { icon } = generateTrustWalletUrl({ chain, tokenId: uniqueTokens[key].tokenId })
         return { ...uniqueTokens[key], icon }
       }

@@ -59,8 +59,6 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
     const assetDatum = {
       assetId: `cosmos:osmosis-1/${assetNamespace}:${assetReference}`,
       chainId: 'cosmos:osmosis-1',
-      caip19: `cosmos:osmosis-1/${assetNamespace}:${assetReference}`,
-      caip2: 'cosmos:osmosis-1',
       chain: ChainTypes.Osmosis,
       dataSource: AssetDataSource.CoinGecko,
       network: NetworkTypes.OSMOSIS_MAINNET,
@@ -90,7 +88,7 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
         }
       }
       assetDatum.icon = getRenderedIdenticonBase64(
-        assetDatum.caip19,
+        assetDatum.assetId,
         assetDatum.symbol.substring(0, 3),
         options
       )

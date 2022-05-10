@@ -5,8 +5,6 @@ import { IndexedAssetData } from '..'
 
 export const ETHMockedAsset: BaseAsset = {
   assetId: 'eip155:1/slip44:60',
-  caip19: 'eip155:1/slip44:60',
-  caip2: 'eip155:1',
   chainId: 'eip155:1',
   chain: ChainTypes.Ethereum,
   dataSource: AssetDataSource.CoinGecko,
@@ -26,8 +24,6 @@ export const ETHMockedAsset: BaseAsset = {
   tokens: [
     {
       assetId: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-      caip19: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-      caip2: 'eip155:1',
       chainId: 'eip155:1',
       name: 'Aave',
       precision: 18,
@@ -43,8 +39,6 @@ export const ETHMockedAsset: BaseAsset = {
     },
     {
       assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      caip2: 'eip155:1',
       chainId: 'eip155:1',
       name: 'Fox',
       precision: 18,
@@ -63,8 +57,6 @@ export const ETHMockedAsset: BaseAsset = {
 
 export const BTCMockedAsset: BaseAsset = {
   assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-  caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-  caip2: 'bip122:000000000019d6689c085ae165831e93',
   chainId: 'bip122:000000000019d6689c085ae165831e93',
   chain: ChainTypes.Bitcoin,
   dataSource: AssetDataSource.CoinGecko,
@@ -87,8 +79,6 @@ export const mockBaseAssets: BaseAsset[] = [
   ETHMockedAsset,
   {
     assetId: 'eip155:3/slip44:60',
-    caip19: 'eip155:3/slip44:60',
-    caip2: 'eip155:3',
     chainId: 'eip155:3',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
@@ -108,8 +98,6 @@ export const mockBaseAssets: BaseAsset[] = [
     tokens: [
       {
         assetId: 'eip155:3/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        caip19: 'eip155:3/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        caip2: 'eip155:3',
         chainId: 'eip155:3',
         name: 'Fox',
         precision: 18,
@@ -128,8 +116,6 @@ export const mockBaseAssets: BaseAsset[] = [
   BTCMockedAsset,
   {
     assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
-    caip19: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
-    caip2: 'bip122:000000000933ea01ad0ee984209779ba',
     chainId: 'bip122:000000000933ea01ad0ee984209779ba',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,
@@ -152,8 +138,6 @@ export const mockBaseAssets: BaseAsset[] = [
 export const mockAssets: Asset[] = [
   {
     assetId: 'eip155:1/slip44:60',
-    caip19: 'eip155:1/slip44:60',
-    caip2: 'eip155:1',
     chainId: 'eip155:1',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
@@ -173,8 +157,6 @@ export const mockAssets: Asset[] = [
   },
   {
     assetId: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-    caip19: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-    caip2: 'eip155:1',
     chainId: 'eip155:1',
     name: 'Aave',
     precision: 18,
@@ -196,8 +178,6 @@ export const mockAssets: Asset[] = [
   },
   {
     assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip2: 'eip155:1',
     chainId: 'eip155:1',
     name: 'Fox',
     precision: 18,
@@ -219,8 +199,6 @@ export const mockAssets: Asset[] = [
   },
   {
     assetId: 'eip155:3/slip44:60',
-    caip19: 'eip155:3/slip44:60',
-    caip2: 'eip155:3',
     chainId: 'eip155:3',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
@@ -240,8 +218,6 @@ export const mockAssets: Asset[] = [
   },
   {
     assetId: 'eip155:3/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip19: 'eip155:3/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip2: 'eip155:3',
     chainId: 'eip155:3',
     name: 'Fox',
     precision: 18,
@@ -263,8 +239,6 @@ export const mockAssets: Asset[] = [
   },
   {
     assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-    caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-    caip2: 'bip122:000000000019d6689c085ae165831e93',
     chainId: 'bip122:000000000019d6689c085ae165831e93',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,
@@ -284,8 +258,6 @@ export const mockAssets: Asset[] = [
   },
   {
     assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
-    caip19: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
-    caip2: 'bip122:000000000933ea01ad0ee984209779ba',
     chainId: 'bip122:000000000933ea01ad0ee984209779ba',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,
@@ -308,8 +280,6 @@ export const mockAssets: Asset[] = [
 export const mockIndexedAssetData: IndexedAssetData = {
   ethereum_MAINNET: {
     assetId: 'eip155:1/slip44:60',
-    caip19: 'eip155:1/slip44:60',
-    caip2: 'eip155:1',
     chainId: 'eip155:1',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
@@ -329,8 +299,6 @@ export const mockIndexedAssetData: IndexedAssetData = {
   },
   ethereum_MAINNET_0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9: {
     assetId: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-    caip19: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-    caip2: 'eip155:1',
     chainId: 'eip155:1',
     name: 'Aave',
     precision: 18,
@@ -352,8 +320,6 @@ export const mockIndexedAssetData: IndexedAssetData = {
   },
   ethereum_MAINNET_0xc770eefad204b5180df6a14ee197d99d808ee52d: {
     assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip2: 'eip155:1',
     chainId: 'eip155:1',
     name: 'Fox',
     precision: 18,
@@ -375,8 +341,6 @@ export const mockIndexedAssetData: IndexedAssetData = {
   },
   ethereum_ETH_ROPSTEN: {
     assetId: 'eip155:3/slip44:60',
-    caip19: 'eip155:3/slip44:60',
-    caip2: 'eip155:3',
     chainId: 'eip155:3',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
@@ -396,8 +360,6 @@ export const mockIndexedAssetData: IndexedAssetData = {
   },
   ethereum_ETH_ROPSTEN_0xc770eefad204b5180df6a14ee197d99d808ee52d: {
     assetId: 'eip155:3/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip19: 'eip155:3/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    caip2: 'eip155:3',
     chainId: 'eip155:3',
     name: 'Fox',
     precision: 18,
@@ -419,8 +381,6 @@ export const mockIndexedAssetData: IndexedAssetData = {
   },
   bitcoin_MAINNET: {
     assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-    caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-    caip2: 'bip122:000000000019d6689c085ae165831e93',
     chainId: 'bip122:000000000019d6689c085ae165831e93',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,
@@ -440,8 +400,6 @@ export const mockIndexedAssetData: IndexedAssetData = {
   },
   bitcoin_TESTNET: {
     assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
-    caip19: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
-    caip2: 'bip122:000000000933ea01ad0ee984209779ba',
     chainId: 'bip122:000000000933ea01ad0ee984209779ba',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,

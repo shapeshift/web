@@ -1,6 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack, useColorModeValue } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
 import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -28,14 +28,14 @@ export const Status = () => {
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = caip19.toCAIP19({
+  const underlyingAssetCAIP19 = toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetCAIP19))
-  const assetCAIP19 = caip19.toCAIP19({
+  const assetCAIP19 = toCAIP19({
     chain,
     network,
     assetNamespace,
@@ -44,7 +44,7 @@ export const Status = () => {
   const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAssetCAIP19 = caip19.toCAIP19({
+  const feeAssetCAIP19 = toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,

@@ -1,5 +1,5 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { AssetId, AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -75,7 +75,7 @@ export const ClaimStatus = () => {
   // Asset Info
   const network = NetworkTypes.MAINNET
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetCAIP19 = caip19.toCAIP19({
+  const feeAssetCAIP19 = toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
@@ -166,7 +166,6 @@ export const ClaimStatus = () => {
               <Link
                 isExternal
                 color='blue.500'
-                // TODO:(ryankk) create explorer links given a link template and a value
                 href={`${asset?.explorerAddressLink}${userAddress}`}
               >
                 <MiddleEllipsis address={userAddress} />

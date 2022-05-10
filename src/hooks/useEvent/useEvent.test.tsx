@@ -38,4 +38,20 @@ describe('useEvent', () => {
     expect(callback).toHaveBeenCalledTimes(2)
     expect(callback.mock.calls[1][0]).toEqual({ value: '2' })
   })
+
+  it('should return a referentially stable event handler identity', () => {
+    const callback = jest.fn()
+    const { result, rerender } = renderHook(value => useEvent(() => callback(value)), {
+      initialProps: { value: '1' },
+    })
+
+    const firstResult = result.current
+
+    // re-render with different value
+    rerender({ value: '2' })
+
+    const secondResult = result.current
+
+    expect(firstResult).toEqual(secondResult)
+  })
 })

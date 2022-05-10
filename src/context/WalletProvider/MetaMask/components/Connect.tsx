@@ -72,6 +72,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
         provider?.on?.('accountsChanged', resetState)
         provider?.on?.('chainChanged', resetState)
+        const isLocked = await wallet.isLocked()
 
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
@@ -87,6 +88,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           payload: { wallet, name, icon, deviceId },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {

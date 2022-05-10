@@ -1,4 +1,4 @@
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { YearnTokenMarketCapService } from './yearn-tokens'
@@ -66,15 +66,15 @@ describe('yearn token market service', () => {
       expect(Object.keys(result).length).toEqual(1)
     })
 
-    it('can map yearn to caip ids', async () => {
+    it('can map yearn to assetIds', async () => {
       const result = await yearnTokenMarketCapService.findAll()
-      const yvBtcCaip19 = toCAIP19({
+      const yvBtcAssetId = toAssetId({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         assetNamespace: AssetNamespace.ERC20,
         assetReference: mockYearnTokenRestData[0].address.toLowerCase()
       })
-      const yvDaiCaip19 = toCAIP19({
+      const yvDaiAssetId = toAssetId({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         assetNamespace: AssetNamespace.ERC20,
@@ -82,14 +82,14 @@ describe('yearn token market service', () => {
       })
       const [yvBtcKey, yvDaiKey] = Object.keys(result)
       console.log({ result })
-      expect(yvDaiKey).toEqual(yvDaiCaip19)
-      expect(yvBtcKey).toEqual(yvBtcCaip19)
+      expect(yvDaiKey).toEqual(yvDaiAssetId)
+      expect(yvBtcKey).toEqual(yvBtcAssetId)
     })
   })
 
-  describe('findByCaip19', () => {
+  describe('findByAssetId', () => {
     const args = {
-      caip19: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001' // yvDai
+      assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001' // yvDai
     }
     it('should return market data for yvDai', async () => {
       const result = {
@@ -98,7 +98,7 @@ describe('yearn token market service', () => {
         changePercent24Hr: 0,
         volume: '0'
       }
-      expect(await yearnTokenMarketCapService.findByCaip19(args)).toEqual(result)
+      expect(await yearnTokenMarketCapService.findByAssetId(args)).toEqual(result)
     })
 
     it('should return null on network error', async () => {
@@ -106,14 +106,14 @@ describe('yearn token market service', () => {
       mockedYearnSdk.ironBank.tokens.mockRejectedValueOnce(Error as never)
       mockedYearnSdk.tokens.supported.mockRejectedValueOnce(Error as never)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      expect(await yearnTokenMarketCapService.findByCaip19(args)).toEqual(null)
+      expect(await yearnTokenMarketCapService.findByAssetId(args)).toEqual(null)
     })
   })
 
-  describe('findPriceHistoryByCaip19', () => {
+  describe('findPriceHistoryByAssetId', () => {
     it('should return market empty array', async () => {
       const expected: [] = []
-      expect(await yearnTokenMarketCapService.findPriceHistoryByCaip19()).toEqual(expected)
+      expect(await yearnTokenMarketCapService.findPriceHistoryByAssetId()).toEqual(expected)
     })
   })
 })

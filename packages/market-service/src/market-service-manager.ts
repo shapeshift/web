@@ -26,12 +26,12 @@ export const findAll = async (args?: FindAllMarketArgs): Promise<MarketCapResult
   return result
 }
 
-export const findByCaip19 = async ({ caip19 }: MarketDataArgs) => {
+export const findByAssetId = async ({ assetId }: MarketDataArgs) => {
   let result: MarketData | null = null
   // Loop through market providers and look for asset market data. Once found, exit loop.
   for (let i = 0; i < MarketProviders.length && !result; i++) {
     try {
-      result = await MarketProviders[i].findByCaip19({ caip19 })
+      result = await MarketProviders[i].findByAssetId({ assetId })
     } catch (e) {
       // Swallow error, not every asset will be with every provider.
       continue
@@ -41,15 +41,15 @@ export const findByCaip19 = async ({ caip19 }: MarketDataArgs) => {
   return result
 }
 
-export const findPriceHistoryByCaip19: PriceHistoryType = async ({
-  caip19,
+export const findPriceHistoryByAssetId: PriceHistoryType = async ({
+  assetId,
   timeframe
 }: PriceHistoryArgs): Promise<HistoryData[]> => {
   let result: HistoryData[] | null = null
   // Loop through market providers and look for asset price history data. Once found, exit loop.
   for (let i = 0; i < MarketProviders.length && !result?.length; i++) {
     try {
-      result = await MarketProviders[i].findPriceHistoryByCaip19({ caip19, timeframe })
+      result = await MarketProviders[i].findPriceHistoryByAssetId({ assetId, timeframe })
     } catch (e) {
       // Swallow error, not every asset will be with every provider.
       continue

@@ -1,4 +1,4 @@
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 
 import { YearnVaultMarketCapService } from './yearn-vaults'
@@ -37,7 +37,7 @@ describe('yearn market service', () => {
       const yvBTCAddress = '0x19D3364A399d251E894aC732651be8B0E4e85001'
       const result = await yearnVaultMarketCapService.findAll()
       expect(Object.keys(result)[0]).toEqual(
-        toCAIP19({
+        toAssetId({
           chain: ChainTypes.Ethereum,
           network: NetworkTypes.MAINNET,
           assetNamespace: AssetNamespace.ERC20,
@@ -70,29 +70,29 @@ describe('yearn market service', () => {
       expect(Object.keys(result).length).toEqual(1)
     })
 
-    it('can map yearn to caip ids', async () => {
+    it('can map yearn to AssetIds', async () => {
       const result = await yearnVaultMarketCapService.findAll()
-      const yvBtcCaip19 = toCAIP19({
+      const yvBtcAssetId = toAssetId({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         assetNamespace: AssetNamespace.ERC20,
         assetReference: mockYearnVaultRestData[0].address.toLowerCase()
       })
-      const yvDaiCaip19 = toCAIP19({
+      const yvDaiAssetId = toAssetId({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         assetNamespace: AssetNamespace.ERC20,
         assetReference: mockYearnVaultRestData[1].address.toLowerCase()
       })
       const [yvDaiKey, yvBtcKey] = Object.keys(result)
-      expect(yvDaiKey).toEqual(yvDaiCaip19)
-      expect(yvBtcKey).toEqual(yvBtcCaip19)
+      expect(yvDaiKey).toEqual(yvDaiAssetId)
+      expect(yvBtcKey).toEqual(yvBtcAssetId)
     })
   })
 
-  describe('findByCaip19', () => {
+  describe('findByAssetId', () => {
     const args = {
-      caip19: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001' // yvDai
+      assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001' // yvDai
     }
     it('should return market data for yvDai', async () => {
       const result = {
@@ -101,21 +101,21 @@ describe('yearn market service', () => {
         changePercent24Hr: 0.00467104804294,
         volume: '100000'
       }
-      expect(await yearnVaultMarketCapService.findByCaip19(args)).toEqual(result)
+      expect(await yearnVaultMarketCapService.findByAssetId(args)).toEqual(result)
     })
 
     it('should return null on network error', async () => {
       mockedYearnSdk.vaults.get.mockRejectedValueOnce(Error as never)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(yearnVaultMarketCapService.findByCaip19(args)).rejects.toEqual(
-        new Error('YearnMarketService(findByCaip19): error fetching market data')
+      await expect(yearnVaultMarketCapService.findByAssetId(args)).rejects.toEqual(
+        new Error('YearnMarketService(findByAssetId): error fetching market data')
       )
     })
   })
 
-  describe('findPriceHistoryByCaip19', () => {
+  describe('findPriceHistoryByAssetId', () => {
     const args = {
-      caip19: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001', // yvDai
+      assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001', // yvDai
       timeframe: HistoryTimeframe.WEEK
     }
 
@@ -127,13 +127,13 @@ describe('yearn market service', () => {
         { date: 1639441831000, price: 1.085204 },
         { date: 1639530562000, price: 1.085871 }
       ]
-      expect(await yearnVaultMarketCapService.findPriceHistoryByCaip19(args)).toEqual(expected)
+      expect(await yearnVaultMarketCapService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 
     it('should return null on network error', async () => {
       mockedYearnSdk.services.subgraph.fetchQuery.mockRejectedValueOnce(Error as never)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(yearnVaultMarketCapService.findPriceHistoryByCaip19(args)).rejects.toEqual(
+      await expect(yearnVaultMarketCapService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error('YearnMarketService(getPriceHistory): error fetching price history')
       )
     })

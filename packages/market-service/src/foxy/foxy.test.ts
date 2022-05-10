@@ -1,7 +1,7 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import { FOXY_CAIP19, FoxyMarketService } from './foxy'
+import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
 
 const foxyMarketService = new FoxyMarketService()
@@ -31,28 +31,28 @@ describe('foxy market service', () => {
     })
   })
 
-  describe('findByCaip19', () => {
+  describe('findByAssetId', () => {
     const args = {
-      caip19: FOXY_CAIP19
+      assetId: FOXY_ASSET_ID
     }
 
     it('should return market data for FOXy', async () => {
       mockedAxios.get.mockResolvedValue({ data: { data: fox } })
-      expect(await foxyMarketService.findByCaip19(args)).toEqual(mockFoxyMarketData)
+      expect(await foxyMarketService.findByAssetId(args)).toEqual(mockFoxyMarketData)
     })
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(foxyMarketService.findByCaip19(args)).rejects.toEqual(
-        new Error('FoxyMarketService(findByCaip19): error fetching market data')
+      await expect(foxyMarketService.findByAssetId(args)).rejects.toEqual(
+        new Error('FoxyMarketService(findByAssetId): error fetching market data')
       )
     })
   })
 
-  describe('findPriceHistoryByCaip19', () => {
+  describe('findPriceHistoryByAssetId', () => {
     const args = {
-      caip19: FOXY_CAIP19,
+      assetId: FOXY_ASSET_ID,
       timeframe: HistoryTimeframe.HOUR
     }
 
@@ -71,14 +71,14 @@ describe('foxy market service', () => {
         { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 0.46897407484696146 }
       ]
       mockedAxios.get.mockResolvedValue({ data: { data: mockHistoryData } })
-      expect(await foxyMarketService.findPriceHistoryByCaip19(args)).toEqual(expected)
+      expect(await foxyMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(foxyMarketService.findPriceHistoryByCaip19(args)).rejects.toEqual(
-        new Error('FoxyMarketService(findPriceHistoryByCaip19): error fetching price history')
+      await expect(foxyMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
+        new Error('FoxyMarketService(findPriceHistoryByAssetId): error fetching price history')
       )
     })
   })

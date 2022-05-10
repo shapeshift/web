@@ -25,7 +25,7 @@ export const mockCGFindAllData = {
   }
 }
 
-export const mockCGFindByCaip19Data = {
+export const mockCGFindByAssetIdData = {
   price: '56378',
   marketCap: '1064743990968',
   volume: '40098748439',

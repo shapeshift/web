@@ -1,4 +1,4 @@
-import { adapters, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { adapters, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import {
   ChainTypes,
   FindAllMarketArgs,
@@ -56,13 +56,13 @@ export class YearnTokenMarketCapService implements MarketService {
       const tokens = uniqueTokens.slice(0, argsToUse.count)
 
       return tokens.reduce((acc, token) => {
-        const _caip19: string = toCAIP19({
+        const _assetId: string = toAssetId({
           chain: ChainTypes.Ethereum,
           network: NetworkTypes.MAINNET,
           assetNamespace: AssetNamespace.ERC20,
           assetReference: token.address
         })
-        acc[_caip19] = {
+        acc[_assetId] = {
           price: bnOrZero(token.priceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
           // TODO: figure out how to get these values.
           marketCap: '0',
@@ -78,8 +78,8 @@ export class YearnTokenMarketCapService implements MarketService {
     }
   }
 
-  findByCaip19 = async ({ caip19: _caip19 }: MarketDataArgs): Promise<MarketData | null> => {
-    const address = adapters.CAIP19ToYearn(_caip19)
+  findByAssetId = async ({ assetId: _assetId }: MarketDataArgs): Promise<MarketData | null> => {
+    const address = adapters.assetIdToYearn(_assetId)
     if (!address) return null
     try {
       // the yearnSdk caches the response to all of these calls and returns the cache if found.
@@ -111,11 +111,11 @@ export class YearnTokenMarketCapService implements MarketService {
       }
     } catch (e) {
       console.warn(e)
-      throw new Error('YearnMarketService(findByCaip19): error fetching market data')
+      throw new Error('YearnMarketService(findByAssetId): error fetching market data')
     }
   }
 
-  findPriceHistoryByCaip19 = async (): Promise<HistoryData[]> => {
+  findPriceHistoryByAssetId = async (): Promise<HistoryData[]> => {
     // TODO: figure out a way to get zapper, ironbank and underlying token historical data.
     return []
   }

@@ -281,7 +281,7 @@ export const mockYearnServiceFindAllData = {
   }
 }
 
-export const mockYearnFindByCaip19Data = {
+export const mockYearnFindByAssetIdData = {
   price: '1234',
   marketCap: '1564876159',
   volume: '509787461',

@@ -15,7 +15,7 @@ import { bn } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import { rateLimitedAxios } from '../utils/rateLimiters'
 
-export const FOXY_CAIP19 = 'eip155:1/erc20:0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
+export const FOXY_ASSET_ID = 'eip155:1/erc20:0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
 const FOX_COINCAP_ID = 'fox-token'
 
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINCAP)
@@ -25,20 +25,20 @@ export class FoxyMarketService implements MarketService {
 
   findAll = async () => {
     try {
-      const caip19 = FOXY_CAIP19
-      const marketData = await this.findByCaip19({ caip19 })
+      const assetId = FOXY_ASSET_ID
+      const marketData = await this.findByAssetId({ assetId })
 
-      return { [caip19]: marketData } as MarketCapResult
+      return { [assetId]: marketData } as MarketCapResult
     } catch (e) {
       console.warn(e)
       return {}
     }
   }
 
-  findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData | null> => {
+  findByAssetId = async ({ assetId }: MarketDataArgs): Promise<MarketData | null> => {
     try {
-      if (caip19.toLowerCase() !== FOXY_CAIP19.toLowerCase()) {
-        console.warn('FoxyMarketService(findByCaip19): Failed to find by Caip19')
+      if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
+        console.warn('FoxyMarketService(findByAssetId): Failed to find by AssetId')
         return null
       }
 
@@ -53,17 +53,17 @@ export class FoxyMarketService implements MarketService {
       }
     } catch (e) {
       console.warn(e)
-      throw new Error('FoxyMarketService(findByCaip19): error fetching market data')
+      throw new Error('FoxyMarketService(findByAssetId): error fetching market data')
     }
   }
 
-  findPriceHistoryByCaip19 = async ({
-    caip19,
+  findPriceHistoryByAssetId = async ({
+    assetId,
     timeframe
   }: PriceHistoryArgs): Promise<HistoryData[]> => {
-    if (caip19.toLowerCase() !== FOXY_CAIP19.toLowerCase()) {
+    if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
       console.warn(
-        'FoxyMarketService(findPriceHistoryByCaip19): Failed to find price history by Caip19'
+        'FoxyMarketService(findPriceHistoryByAssetId): Failed to find price history by AssetId'
       )
       return []
     }
@@ -135,7 +135,7 @@ export class FoxyMarketService implements MarketService {
       }, [])
     } catch (e) {
       console.warn(e)
-      throw new Error('FoxyMarketService(findPriceHistoryByCaip19): error fetching price history')
+      throw new Error('FoxyMarketService(findPriceHistoryByAssetId): error fetching price history')
     }
   }
 }

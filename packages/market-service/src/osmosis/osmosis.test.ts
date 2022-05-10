@@ -21,7 +21,7 @@ describe('osmosis market service', () => {
     it('should sort by market cap', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: [secretNetwork, ion, osmo] })
       const result = await osmosisMarketService.findAll()
-      expect(Object.keys(result)[0]).toEqual(adapters.osmosisToCAIP19(osmo.denom))
+      expect(Object.keys(result)[0]).toEqual(adapters.osmosisToAssetId(osmo.denom))
     })
 
     it('should handle api errors', async () => {
@@ -37,10 +37,10 @@ describe('osmosis market service', () => {
     })
   })
 
-  describe('findByCaip19', () => {
+  describe('findByAssetId', () => {
     it('should return market data for Secret Network', async () => {
       const args = {
-        caip19:
+        assetId:
           'cosmos:osmosis-1/ibc:0954E1C28EB7AF5B72D24F3BC2B47BBB2FDF91BDDFD57B74B99E133AED40972A'
       }
       const result: MarketData = {
@@ -51,11 +51,11 @@ describe('osmosis market service', () => {
       }
 
       mockedAxios.get.mockResolvedValue({ data: [secretNetwork] })
-      expect(await osmosisMarketService.findByCaip19(args)).toEqual(result)
+      expect(await osmosisMarketService.findByAssetId(args)).toEqual(result)
     })
 
     it('should return market data for Ion', async () => {
-      const args = { caip19: 'cosmos:osmosis-1/native:uion' }
+      const args = { assetId: 'cosmos:osmosis-1/native:uion' }
       const result: MarketData = {
         price: '7110.2708806483',
         marketCap: '8737040.33551496',
@@ -63,11 +63,11 @@ describe('osmosis market service', () => {
         changePercent24Hr: -15.5060091033
       }
       mockedAxios.get.mockResolvedValue({ data: [ion] })
-      expect(await osmosisMarketService.findByCaip19(args)).toEqual(result)
+      expect(await osmosisMarketService.findByAssetId(args)).toEqual(result)
     })
 
     it('should return market data for Osmosis', async () => {
-      const args = { caip19: 'cosmos:osmosis-1/slip44:118' }
+      const args = { assetId: 'cosmos:osmosis-1/slip44:118' }
       const result: MarketData = {
         price: '8.0939512289',
         marketCap: '513382677.98398143',
@@ -75,14 +75,14 @@ describe('osmosis market service', () => {
         changePercent24Hr: -8.5460553557
       }
       mockedAxios.get.mockResolvedValue({ data: [osmo] })
-      expect(await osmosisMarketService.findByCaip19(args)).toEqual(result)
+      expect(await osmosisMarketService.findByAssetId(args)).toEqual(result)
     })
   })
 
-  describe('findPriceHistoryByCaip19', () => {
+  describe('findPriceHistoryByAssetId', () => {
     it('should return market data for OSMO (v1 endpoint)', async () => {
       const args = {
-        caip19: 'cosmos:osmosis-1/slip44:118',
+        assetId: 'cosmos:osmosis-1/slip44:118',
         timeframe: HistoryTimeframe.HOUR
       }
 
@@ -93,12 +93,12 @@ describe('osmosis market service', () => {
         { date: new Date('2022-02-19T17:00:00.000Z').valueOf(), price: 8.7544961127 }
       ]
       mockedAxios.get.mockResolvedValue({ data: mockHourlyHistoryData })
-      expect(await osmosisMarketService.findPriceHistoryByCaip19(args)).toEqual(expected)
+      expect(await osmosisMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 
     it('should return market data for OSMO (v2 endpoint)', async () => {
       const args = {
-        caip19: 'cosmos:osmosis-1/slip44:118',
+        assetId: 'cosmos:osmosis-1/slip44:118',
         timeframe: HistoryTimeframe.YEAR
       }
 
@@ -109,18 +109,18 @@ describe('osmosis market service', () => {
         { date: new Date('2021-06-27T00:00:00.000Z').valueOf(), price: 5.3994292528 }
       ]
       mockedAxios.get.mockResolvedValue({ data: mockOsmosisYearlyHistoryData })
-      expect(await osmosisMarketService.findPriceHistoryByCaip19(args)).toEqual(expected)
+      expect(await osmosisMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 
     it('should return null on network error', async () => {
       const args = {
-        caip19: 'cosmos:osmosis-1/slip44:118',
+        assetId: 'cosmos:osmosis-1/slip44:118',
         timeframe: HistoryTimeframe.YEAR
       }
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(osmosisMarketService.findPriceHistoryByCaip19(args)).rejects.toEqual(
-        new Error('MarketService(findPriceHistoryByCaip19): error fetching price history')
+      await expect(osmosisMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
+        new Error('MarketService(findPriceHistoryByAssetId): error fetching price history')
       )
     })
   })

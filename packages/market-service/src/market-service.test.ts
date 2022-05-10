@@ -2,20 +2,20 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 
 import {
   mockCGFindAllData,
-  mockCGFindByCaip19Data,
+  mockCGFindByAssetIdData,
   mockCGPriceHistoryData
 } from './coingecko/coingeckoMockData'
-import { FOXY_CAIP19 } from './foxy/foxy'
+import { FOXY_ASSET_ID } from './foxy/foxy'
 import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
-import { findAll, findByCaip19, findPriceHistoryByCaip19 } from './index'
+import { findAll, findByAssetId, findPriceHistoryByAssetId } from './index'
 import { MarketProviders } from './market-providers'
 import {
   mockOsmosisFindAllData,
-  mockOsmosisFindByCaip19,
+  mockOsmosisFindByAssetId,
   mockOsmosisYearlyHistoryData
 } from './osmosis/osmosisMockData'
 import {
-  mockYearnFindByCaip19Data,
+  mockYearnFindByAssetIdData,
   mockYearnPriceHistoryData,
   mockYearnServiceFindAllData
 } from './yearn/yearnMockData'
@@ -24,8 +24,8 @@ jest.mock('./coingecko/coingecko', () => ({
   CoinGeckoMarketService: jest.fn().mockImplementation(() => {
     return {
       findAll: jest.fn(() => mockCGFindAllData),
-      findByCaip19: jest.fn(() => mockCGFindByCaip19Data),
-      findPriceHistoryByCaip19: jest.fn(() => mockCGPriceHistoryData)
+      findByAssetId: jest.fn(() => mockCGFindByAssetIdData),
+      findPriceHistoryByAssetId: jest.fn(() => mockCGPriceHistoryData)
     }
   })
 }))
@@ -34,8 +34,8 @@ jest.mock('./coincap/coincap', () => ({
   CoinCapMarketService: jest.fn().mockImplementation(() => {
     return {
       findAll: jest.fn(() => mockYearnServiceFindAllData),
-      findByCaip19: jest.fn(() => mockYearnFindByCaip19Data),
-      findPriceHistoryByCaip19: jest.fn(() => mockYearnPriceHistoryData)
+      findByAssetId: jest.fn(() => mockYearnFindByAssetIdData),
+      findPriceHistoryByAssetId: jest.fn(() => mockYearnPriceHistoryData)
     }
   })
 }))
@@ -44,8 +44,8 @@ jest.mock('./yearn/yearn-vaults', () => ({
   YearnVaultMarketCapService: jest.fn().mockImplementation(() => {
     return {
       findAll: jest.fn(() => mockYearnServiceFindAllData),
-      findByCaip19: jest.fn(() => mockYearnFindByCaip19Data),
-      findPriceHistoryByCaip19: jest.fn(() => mockYearnPriceHistoryData)
+      findByAssetId: jest.fn(() => mockYearnFindByAssetIdData),
+      findPriceHistoryByAssetId: jest.fn(() => mockYearnPriceHistoryData)
     }
   })
 }))
@@ -54,8 +54,8 @@ jest.mock('./yearn/yearn-tokens', () => ({
   YearnTokenMarketCapService: jest.fn().mockImplementation(() => {
     return {
       findAll: jest.fn(() => mockYearnServiceFindAllData),
-      findByCaip19: jest.fn(() => mockYearnFindByCaip19Data),
-      findPriceHistoryByCaip19: jest.fn(() => mockYearnPriceHistoryData)
+      findByAssetId: jest.fn(() => mockYearnFindByAssetIdData),
+      findPriceHistoryByAssetId: jest.fn(() => mockYearnPriceHistoryData)
     }
   })
 }))
@@ -64,8 +64,8 @@ jest.mock('./osmosis/osmosis', () => ({
   OsmosisMarketService: jest.fn().mockImplementation(() => {
     return {
       findAll: jest.fn(() => mockOsmosisFindAllData),
-      findByCaip19: jest.fn(() => mockOsmosisFindByCaip19),
-      findPriceHistoryByCaip19: jest.fn(() => mockOsmosisYearlyHistoryData)
+      findByAssetId: jest.fn(() => mockOsmosisFindByAssetId),
+      findPriceHistoryByAssetId: jest.fn(() => mockOsmosisYearlyHistoryData)
     }
   })
 }))
@@ -73,9 +73,9 @@ jest.mock('./osmosis/osmosis', () => ({
 jest.mock('./foxy/foxy', () => ({
   FoxyMarketService: jest.fn().mockImplementation(() => {
     return {
-      findAll: jest.fn(() => ({ [FOXY_CAIP19]: mockFoxyMarketData })),
-      findByCaip19: jest.fn(() => mockFoxyMarketData),
-      findPriceHistoryByCaip19: jest.fn(() => mockFoxyPriceHistoryData)
+      findAll: jest.fn(() => ({ [FOXY_ASSET_ID]: mockFoxyMarketData })),
+      findByAssetId: jest.fn(() => mockFoxyMarketData),
+      findPriceHistoryByAssetId: jest.fn(() => mockFoxyPriceHistoryData)
     }
   })
 }))
@@ -124,69 +124,69 @@ describe('market service', () => {
     })
   })
 
-  describe('findByCaip19', () => {
+  describe('findByAssetId', () => {
     const args = {
-      caip19: 'eip155:1/slip44:60'
+      assetId: 'eip155:1/slip44:60'
     }
     it('can return from first market service and skip the next', async () => {
-      const result = await findByCaip19(args)
-      expect(result).toEqual(mockCGFindByCaip19Data)
+      const result = await findByAssetId(args)
+      expect(result).toEqual(mockCGFindByAssetIdData)
     })
     it('can return from next market service if first is not found', async () => {
       // @ts-ignore
-      MarketProviders[0].findByCaip19.mockRejectedValueOnce({ error: 'error' })
-      const result = await findByCaip19(args)
-      expect(result).toEqual(mockYearnFindByCaip19Data)
+      MarketProviders[0].findByAssetId.mockRejectedValueOnce({ error: 'error' })
+      const result = await findByAssetId(args)
+      expect(result).toEqual(mockYearnFindByAssetIdData)
     })
     it('can return null if no data found', async () => {
       // @ts-ignore
-      MarketProviders[0].findByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[0].findByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[1].findByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[1].findByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[2].findByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[2].findByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[3].findByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[3].findByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[4].findByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[4].findByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[5].findByCaip19.mockRejectedValueOnce({ error: 'error' })
-      const result = await findByCaip19(args)
+      MarketProviders[5].findByAssetId.mockRejectedValueOnce({ error: 'error' })
+      const result = await findByAssetId(args)
       expect(result).toBeNull()
     })
   })
 
-  describe('findPriceHistoryByCaip19', () => {
+  describe('findPriceHistoryByAssetId', () => {
     const args = {
-      caip19: 'eip155:1/slip44:60',
+      assetId: 'eip155:1/slip44:60',
       timeframe: HistoryTimeframe.HOUR
     }
     it('can return from fist market service and skip the next', async () => {
-      const result = await findPriceHistoryByCaip19(args)
+      const result = await findPriceHistoryByAssetId(args)
       expect(result).toEqual(mockCGPriceHistoryData)
     })
     it('can return from the next market service if the first is not found', async () => {
       // @ts-ignore
-      MarketProviders[0].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[0].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[1].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
-      const result = await findPriceHistoryByCaip19(args)
+      MarketProviders[1].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      const result = await findPriceHistoryByAssetId(args)
       expect(result).toEqual(mockYearnPriceHistoryData)
     })
     it('can return null if no data found', async () => {
       // @ts-ignore
-      MarketProviders[0].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[0].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[1].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[1].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[2].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[2].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[3].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[3].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[4].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      MarketProviders[4].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
-      MarketProviders[5].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
-      const result = await findPriceHistoryByCaip19(args)
+      MarketProviders[5].findPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      const result = await findPriceHistoryByAssetId(args)
       expect(result).toEqual([])
     })
   })

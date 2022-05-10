@@ -42,7 +42,7 @@ export const mockOsmosisFindAllData = {
   data: [secretNetwork, ion, osmo]
 }
 
-export const mockOsmosisFindByCaip19: MarketData = {
+export const mockOsmosisFindByAssetId: MarketData = {
   price: '8.0939512289',
   marketCap: '513382677.98398143',
   volume: '169020038.66921267',

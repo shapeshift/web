@@ -84,7 +84,7 @@ describe('coingecko market service', () => {
     it('can sort by market cap', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result)[0]).toEqual(adapters.coingeckoToCAIP19(btc.id))
+      expect(Object.keys(result)[0]).toEqual(adapters.coingeckoToAssetId(btc.id))
     })
 
     it('can handle api errors', async () => {
@@ -126,20 +126,20 @@ describe('coingecko market service', () => {
       expect(mockedAxios.get).toHaveBeenCalledTimes(2)
     })
 
-    it('can map coingecko to caip ids', async () => {
+    it('can map coingecko to assetIds', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      const btcCaip19 = adapters.coingeckoToCAIP19('bitcoin')
-      const ethCaip19 = adapters.coingeckoToCAIP19('ethereum')
+      const btcAssetId = adapters.coingeckoToAssetId('bitcoin')
+      const ethAssetId = adapters.coingeckoToAssetId('ethereum')
       const [btcKey, ethKey] = Object.keys(result)
-      expect(btcKey).toEqual(btcCaip19)
-      expect(ethKey).toEqual(ethCaip19)
+      expect(btcKey).toEqual(btcAssetId)
+      expect(ethKey).toEqual(ethAssetId)
     })
   })
 
-  describe('findByCaip19', () => {
+  describe('findByAssetId', () => {
     const args = {
-      caip19: 'eip155:1/slip44:60'
+      assetId: 'eip155:1/slip44:60'
     }
 
     it('should return market data for ETH', async () => {
@@ -162,21 +162,21 @@ describe('coingecko market service', () => {
         }
       }
       mockedAxios.get.mockResolvedValue({ data: { market_data } })
-      expect(await coinGeckoMarketService.findByCaip19(args)).toEqual(result)
+      expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
     })
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(coinGeckoMarketService.findByCaip19(args)).rejects.toEqual(
-        new Error('CoinGeckoMarketService(findByCaip19): error fetching market data')
+      await expect(coinGeckoMarketService.findByAssetId(args)).rejects.toEqual(
+        new Error('CoinGeckoMarketService(findByAssetId): error fetching market data')
       )
     })
   })
 
-  describe('findPriceHistoryByCaip19', () => {
+  describe('findPriceHistoryByAssetId', () => {
     const args = {
-      caip19: 'eip155:1/slip44:60',
+      assetId: 'eip155:1/slip44:60',
       timeframe: HistoryTimeframe.HOUR
     }
 
@@ -195,14 +195,14 @@ describe('coingecko market service', () => {
         { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 }
       ]
       mockedAxios.get.mockResolvedValue({ data: { prices: mockHistoryData } })
-      expect(await coinGeckoMarketService.findPriceHistoryByCaip19(args)).toEqual(expected)
+      expect(await coinGeckoMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(coinGeckoMarketService.findPriceHistoryByCaip19(args)).rejects.toEqual(
-        new Error('CoinGeckoMarketService(findPriceHistoryByCaip19): error fetching price history')
+      await expect(coinGeckoMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
+        new Error('CoinGeckoMarketService(findPriceHistoryByAssetId): error fetching price history')
       )
     })
   })

@@ -180,7 +180,6 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      // TODO:(ryankk) create explorer links given a link template and a value
                       href={`${quote?.sellAsset?.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis address={approvalTxId} />

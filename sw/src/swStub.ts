@@ -1,4 +1,5 @@
 export { SimpleRpc } from './simpleRpc'
+export { FetchFilterClient } from './fetchFilters/FetchFilterClient'
 
 function showFallback() {
   console.info('swStub: showing fallback elements')

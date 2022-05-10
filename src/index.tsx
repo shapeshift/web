@@ -8,20 +8,25 @@ import { reportWebVitals } from 'lib/reportWebVitals'
 
 import { App } from './App'
 import { AppProviders } from './AppProviders'
+import { setupFetchFilters } from './fetchFilters'
 
-ReactDOM.render(
-  <React.StrictMode>
-    <AppProviders>
-      <App />
-    </AppProviders>
-  </React.StrictMode>,
-  document.getElementById('root'),
-)
+setupFetchFilters()
+  .then(async () => {
+    ReactDOM.render(
+      <React.StrictMode>
+        <AppProviders>
+          <App />
+        </AppProviders>
+      </React.StrictMode>,
+      document.getElementById('root'),
+    )
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals(vitals => logger.debug({ vitals }, 'Web Vitals'))
+    // If you want to start measuring performance in your app, pass a function
+    // to log results (for example: reportWebVitals(console.log))
+    // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+    reportWebVitals(vitals => logger.debug({ vitals }, 'Web Vitals'))
 
-// Because ASCII Art
-renderConsoleArt()
+    // Because ASCII Art
+    renderConsoleArt()
+  })
+  .catch(e => console.error(e))

@@ -12,6 +12,11 @@ yarn rollup --file ./sw/bundle/swStub.js --input ./sw/dist/swStub.js --format ii
 # Linting these is likely overkill, but it makes problems with these critical files easier to debug.
 yarn eslint -c .eslintrc ./sw/bundle/sw.js ./sw/bundle/swStub.js --fix
 
+# Poor main's shell-script SHA-256 SRI calculation. The printf here requires Bash.
+SWSTUB_INTEGRITY="sha256-$(printf "$(shasum -a 256 ./sw/bundle/swStub.js | cut -d ' ' -f 1 | sed -e 's/../\\x&/g')" | base64 | tr -d '\n')"
+printf 'swStub.js integrity value: %s\n' "$SWSTUB_INTEGRITY"
+sed -ri "s%SWSTUB_INTEGRITY_PLACEHOLDER%${SWSTUB_INTEGRITY}%g" ./sw/bundle/sw.js
+
 # This "version hash" includes hashes of both sw.js and swStub.js, since it's important they always match.
 SW_VERSION_HASH="$(shasum -a 256 ./sw/bundle/*.js | cut -d ' ' -f 1 | shasum -a 256 | cut -d ' ' -f 1)"
 printf 'sw.js version hash: %s\n' "$SW_VERSION_HASH"

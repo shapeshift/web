@@ -1,17 +1,30 @@
 /// <reference lib="WebWorker" />
 
-import { type HandlerContext, SimpleRpc } from './simpleRpc'
-import { swVersion } from './swVersion'
+import { type ExposedFetchFilterManager } from './fetchFilters'
+import { FetchFilterManagers } from './fetchFilters/FetchFilterManagers'
+import { type HandlerContext, type SimpleRpcWrapper, SimpleRpc } from './simpleRpc'
+import { swStubIntegrity, swVersion } from './swVersion'
 import { transformNavigation } from './transformNavigation'
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis
+
+// eslint-disable-next-line no-restricted-globals
+const fetchFilterManagers = new FetchFilterManagers(self.clients, 5 * 1000, [swStubIntegrity])
 
 const rpcMethods = {
   async getVersion(this: HandlerContext<Client>): Promise<string> {
     return swVersion
   },
+  async exposeFetchFilterManager(
+    this: HandlerContext<Client>,
+  ): Promise<SimpleRpcWrapper<ExposedFetchFilterManager>> {
+    console.info(
+      `sw: exposeFetchFilterManager: exposing fetch filter manager for ${this.source.id}`,
+    )
+    return this.transfer(fetchFilterManagers.get(this.source.id).expose())
+  },
   async stubLoaded(this: HandlerContext<Client>): Promise<void> {
-    // nothing yet
+    fetchFilterManagers.get(this.source.id).setReady()
   },
 }
 export type RpcMethods = typeof rpcMethods
@@ -62,5 +75,16 @@ self.addEventListener('fetch', event => {
         })
       })(),
     )
+    event.waitUntil(fetchFilterManagers.scrub())
+  } else {
+    const fetchFilterManager = fetchFilterManagers.get(event.clientId)
+    if (!fetchFilterManager.shouldBypassFilters(req)) {
+      event.respondWith(
+        fetchFilterManager.fetchWithFilters(req).catch(e => {
+          console.error('sw: fetch error', e)
+          return Response.error()
+        }),
+      )
+    }
   }
 })

@@ -1,3 +1,4 @@
+import merge from 'lodash/merge'
 import {
   assetIds,
   btcAddresses,
@@ -11,6 +12,8 @@ import {
   mockBtcAccount,
   mockBtcAddress,
   mockCosmosAccount,
+  mockCosmosAccountWithOnlyUndelegations,
+  mockCosmosAccountWithStakingData,
   mockEthAccount,
   mockETHandBTCAccounts,
   mockEthToken,
@@ -24,12 +27,10 @@ import {
 import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockUpsertPortfolio } from 'test/mocks/portfolio'
-import { mockStakingData, mockStakingDataWithOnlyUndelegations } from 'test/mocks/stakingData'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
-import { stakingData as stakingDataSlice } from '../stakingDataSlice/stakingDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectAccountIdByAddress,
@@ -806,7 +807,9 @@ describe('portfolioSlice', () => {
           }),
         )
 
-        const cosmosAccount = mockCosmosAccount()
+        const cosmosAccount = merge(mockCosmosAccount(mockCosmosAccountWithStakingData), {
+          balance: '1000',
+        })
 
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
@@ -814,16 +817,9 @@ describe('portfolioSlice', () => {
           ),
         )
 
-        store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData,
-          }),
-        )
-
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.25002845')
       })
@@ -844,21 +840,22 @@ describe('portfolioSlice', () => {
             [cosmos.assetId]: cosmosMarketData,
           }),
         )
+
+        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
         store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData,
-          }),
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
+          ),
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.17247845')
       })
 
-      it('should return non zero fiat balance in case there are only undelegations', () => {
+      it('should return non zero fiat balance in case there are only undelegations but no asset balance', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
@@ -874,16 +871,18 @@ describe('portfolioSlice', () => {
             [cosmos.assetId]: cosmosMarketData,
           }),
         )
+
+        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithOnlyUndelegations)
+
         store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingDataWithOnlyUndelegations,
-          }),
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
+          ),
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0.0271425')
       })
@@ -907,7 +906,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0')
       })

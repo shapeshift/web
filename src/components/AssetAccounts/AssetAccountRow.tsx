@@ -19,6 +19,7 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectFirstAccountSpecifierByChainId,
   selectPortfolioAllocationPercentByFilter,
   selectTotalCryptoBalanceWithDelegations,
   selectTotalFiatBalanceWithDelegations,
@@ -50,7 +51,14 @@ export const AssetAccountRow = ({
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+  )
+
+  const filter = useMemo(
+    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
+    [rowAssetId, accountId, accountSpecifier],
+  )
   const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
     selectTotalCryptoBalanceWithDelegations(state, filter),

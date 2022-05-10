@@ -1,8 +1,25 @@
 /// <reference lib="WebWorker" />
 
+import { type HandlerContext, SimpleRpc } from './simpleRpc'
+import { swVersion } from './swVersion'
 import { transformNavigation } from './transformNavigation'
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis
+
+const rpcMethods = {
+  async getVersion(this: HandlerContext<Client>): Promise<string> {
+    return swVersion
+  },
+  async stubLoaded(this: HandlerContext<Client>): Promise<void> {
+    // nothing yet
+  },
+}
+export type RpcMethods = typeof rpcMethods
+
+// eslint-disable-next-line no-restricted-globals
+const rpcServer = new SimpleRpc<ExtendableMessageEvent & { source: Client }>(rpcMethods, self)
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+rpcServer
 
 // eslint-disable-next-line no-restricted-globals
 self.addEventListener('install', event => {

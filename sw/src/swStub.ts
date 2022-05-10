@@ -1,3 +1,5 @@
+export { SimpleRpc } from './simpleRpc'
+
 function showFallback() {
   console.info('swStub: showing fallback elements')
   // This stylesheet will be injected after the 'display: none' one, so it will take precedence.
@@ -85,6 +87,8 @@ function getSwMetaTag(name: string) {
         'version',
       )} ready, and the page has been transformed.`,
     )
+    navigator.serviceWorker.startMessages()
+    registration.active?.postMessage({ method: 'stubLoaded' })
   } catch (e) {
     console.error('swStub:', e)
     // We don't want to display fallback elements if the service worker's active, even if we

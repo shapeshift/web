@@ -106,15 +106,12 @@ const main = async (): Promise<void> => {
   const swapper = manager.getSwapper(SwapperType.Zrx)
   const sellAmountBase = toBaseUnit(sellAmount, sellAsset.precision)
 
-  const quote = await swapper.buildQuoteTx({
-    input: {
-      sellAsset,
-      buyAsset,
-      sellAmount: sellAmountBase,
-      sellAssetAccountId: '0',
-      buyAssetAccountId: '0'
-    },
-    wallet
+  const quote = await swapper.getTradeQuote({
+    sellAsset,
+    buyAsset,
+    sellAmount: sellAmountBase,
+    sellAssetAccountId: '0',
+    sendMax: false
   })
 
   console.info('quote = ', JSON.stringify(quote))
@@ -132,7 +129,16 @@ const main = async (): Promise<void> => {
     } on ${swapper.getType()}? (y/n): `
   )
   if (answer === 'y') {
-    const txid = await swapper.executeQuote({ quote, wallet })
+    const trade = await swapper.buildTrade({
+      wallet,
+      buyAsset,
+      sendMax: false,
+      sellAmount: sellAmountBase,
+      sellAsset,
+      sellAssetAccountId: '0',
+      buyAssetAccountId: '0'
+    })
+    const txid = await swapper.executeTrade({ trade, wallet })
     console.info('broadcast tx with id: ', txid)
   }
 }

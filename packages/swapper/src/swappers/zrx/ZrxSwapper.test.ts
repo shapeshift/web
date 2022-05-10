@@ -1,31 +1,31 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
+import { ChainTypes, Quote, SwapperType } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { ZrxError } from '../..'
 import { ZrxSwapper } from '..'
-import { ZrxBuildQuoteTx } from '../zrx/ZrxBuildQuoteTx/ZrxBuildQuoteTx'
+import { zrxBuildTrade } from '../zrx/zrxBuildTrade/zrxBuildTrade'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
-import { getZrxQuote } from './getZrxQuote/getZrxQuote'
+import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { FOX } from './utils/test-data/assets'
-import { setupQuote } from './utils/test-data/setupSwapQuote'
+import { setupBuildTrade, setupExecuteTrade, setupQuote } from './utils/test-data/setupSwapQuote'
 import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
 import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
-import { ZrxExecuteQuote } from './ZrxExecuteQuote/ZrxExecuteQuote'
+import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
 jest.mock('./utils/helpers/helpers')
-jest.mock('../zrx/ZrxExecuteQuote/ZrxExecuteQuote', () => ({
-  ZrxExecuteQuote: jest.fn()
+jest.mock('../zrx/zrxExecuteTrade/zrxExecuteTrade', () => ({
+  zrxExecuteTrade: jest.fn()
 }))
 
-jest.mock('../zrx/ZrxBuildQuoteTx/ZrxBuildQuoteTx', () => ({
-  ZrxBuildQuoteTx: jest.fn()
+jest.mock('../zrx/zrxBuildTrade/zrxBuildTrade', () => ({
+  zrxBuildTrade: jest.fn()
 }))
 
-jest.mock('./getZrxQuote/getZrxQuote', () => ({
-  getZrxQuote: jest.fn()
+jest.mock('./getZrxTradeQuote/getZrxTradeQuote', () => ({
+  getZrxTradeQuote: jest.fn()
 }))
 
 jest.mock('./getZrxMinMax/getZrxMinMax', () => ({
@@ -41,18 +41,17 @@ jest.mock('./ZrxApproveInfinite/ZrxApproveInfinite', () => ({
 }))
 
 describe('ZrxSwapper', () => {
-  const input = <GetQuoteInput>{}
   const quote = <Quote<ChainTypes>>{}
   const wallet = <HDWallet>{}
   const web3 = <Web3>{}
   const adapterManager = <ChainAdapterManager>{}
   const zrxSwapperDeps = { web3, adapterManager }
 
-  it('calls getZrxQuote on getQuote', async () => {
+  it('calls getZrxTradeQuote on getTradeQuote', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    await swapper.getQuote(quoteInput)
-    expect(getZrxQuote).toHaveBeenCalled()
+    await swapper.getTradeQuote(quoteInput)
+    expect(getZrxTradeQuote).toHaveBeenCalled()
   })
   it('returns Zrx type', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
@@ -64,17 +63,19 @@ describe('ZrxSwapper', () => {
     const error = new ZrxError(message)
     expect(error.message).toBe(`ZrxError:${message}`)
   })
-  it('calls ZrxBuildQuoteTx on swapper.buildQuoteTx', async () => {
+  it('calls zrxBuildTrade on swapper.buildQuoteTx', async () => {
+    const { buildTradeInput } = setupBuildTrade()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const args = { input, wallet }
-    await swapper.buildQuoteTx(args)
-    expect(ZrxBuildQuoteTx).toHaveBeenCalled()
+    const args = { ...buildTradeInput, wallet }
+    await swapper.buildTrade(args)
+    expect(zrxBuildTrade).toHaveBeenCalled()
   })
-  it('calls ZrxExecuteQuote on swapper.executeQuote', async () => {
+  it('calls ZrxExecuteTrade on swapper.executeTrade', async () => {
+    const { executeTradeInput } = setupExecuteTrade()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const args = { quote, wallet }
-    await swapper.executeQuote(args)
-    expect(ZrxExecuteQuote).toHaveBeenCalled()
+    const args = { trade: executeTradeInput, wallet }
+    await swapper.executeTrade(args)
+    expect(zrxExecuteTrade).toHaveBeenCalled()
   })
   it('calls getUsdRate on swapper.getUsdRate', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)

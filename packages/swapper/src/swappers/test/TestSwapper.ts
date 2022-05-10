@@ -6,7 +6,6 @@ import {
   ExecQuoteOutput,
   GetQuoteInput,
   MinMaxOutput,
-  Quote,
   SwapperType
 } from '@shapeshiftoss/types'
 
@@ -31,14 +30,6 @@ export class TestSwapper implements Swapper {
     ]
   }
 
-  async getQuote(): Promise<Quote<ChainTypes>> {
-    throw new Error('TestSwapper: getQuote unimplemented')
-  }
-
-  async buildQuoteTx(): Promise<Quote<ChainTypes>> {
-    throw new Error('TestSwapper: getQuote unimplemented')
-  }
-
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> {
     console.info(input)
     throw new Error('TestSwapper: getUsdRate unimplemented')
@@ -47,10 +38,6 @@ export class TestSwapper implements Swapper {
   getMinMax(input: GetQuoteInput): Promise<MinMaxOutput> {
     console.info(input)
     throw new Error('TestSwapper: getMinMax unimplemented')
-  }
-
-  async executeQuote(): Promise<ExecQuoteOutput> {
-    throw new Error('TestSwapper: executeQuote unimplemented')
   }
 
   async approvalNeeded(): Promise<ApprovalNeededOutput> {

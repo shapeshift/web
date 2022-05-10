@@ -3,10 +3,8 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   ApprovalNeededOutput,
   Asset,
-  BuildQuoteTxInput,
   chainAdapters,
   ChainTypes,
-  ExecQuoteInput,
   ExecQuoteOutput,
   GetQuoteInput,
   MinMaxOutput,
@@ -113,18 +111,6 @@ export interface Swapper {
   getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainTypes>>
 
   /**
-   * Get a Quote along with an unsigned transaction that can be signed and broadcast to execute the swap
-   * @deprecated The method is going away soon.
-   **/
-  buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes>>
-
-  /**
-   * Get a basic quote (rate) for a trading pair
-   * @deprecated The method is going away soon.
-   */
-  getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote<ChainTypes>>
-
-  /**
    * Get the usd rate from either the assets symbol or tokenId
    */
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>
@@ -133,11 +119,6 @@ export interface Swapper {
    * Get the minimum and maximum trade value of the sellAsset and buyAsset
    */
   getMinMax(input: GetQuoteInput): Promise<MinMaxOutput>
-
-  /**
-   * Execute a quote built with buildQuoteTx by signing and broadcasting
-   */
-  executeQuote(args: ExecQuoteInput<ChainTypes>): Promise<ExecQuoteOutput>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

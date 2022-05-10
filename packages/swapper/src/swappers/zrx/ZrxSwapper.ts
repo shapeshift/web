@@ -3,13 +3,10 @@ import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import {
   ApprovalNeededOutput,
   Asset,
-  BuildQuoteTxInput,
   ChainTypes,
-  ExecQuoteInput,
   ExecQuoteOutput,
   GetQuoteInput,
   MinMaxOutput,
-  Quote,
   SwapperType
 } from '@shapeshiftoss/types'
 import Web3 from 'web3'
@@ -26,14 +23,11 @@ import {
   TradeQuote
 } from '../../api'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
-import { getZrxQuote } from './getZrxQuote/getZrxQuote'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
 import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
-import { ZrxBuildQuoteTx } from './ZrxBuildQuoteTx/ZrxBuildQuoteTx'
 import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
-import { ZrxExecuteQuote } from './ZrxExecuteQuote/ZrxExecuteQuote'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
 export type ZrxSwapperDeps = {
@@ -60,14 +54,6 @@ export class ZrxSwapper implements Swapper {
     return SwapperType.Zrx
   }
 
-  async buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes>> {
-    return ZrxBuildQuoteTx(this.deps, args)
-  }
-
-  async getQuote(input: GetQuoteInput): Promise<Quote<ChainTypes>> {
-    return getZrxQuote(input)
-  }
-
   async buildTrade(args: BuildTradeInput): Promise<Trade<ChainTypes>> {
     return zrxBuildTrade(this.deps, args)
   }
@@ -82,10 +68,6 @@ export class ZrxSwapper implements Swapper {
 
   async getMinMax(input: GetQuoteInput): Promise<MinMaxOutput> {
     return getZrxMinMax(input)
-  }
-
-  async executeQuote(args: ExecQuoteInput<ChainTypes>): Promise<ExecQuoteOutput> {
-    return ZrxExecuteQuote(this.deps, args)
   }
 
   async executeTrade(args: ExecuteTradeInput<ChainTypes>): Promise<ExecQuoteOutput> {

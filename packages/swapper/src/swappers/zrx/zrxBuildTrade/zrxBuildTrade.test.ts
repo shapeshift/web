@@ -6,7 +6,7 @@ import Web3 from 'web3'
 import { BuildTradeInput } from '../../../api'
 import { bnOrZero } from '../utils/bignumber'
 import { APPROVAL_GAS_LIMIT, MAX_SLIPPAGE } from '../utils/constants'
-import { setupZrxQuoteResponse } from '../utils/test-data/setupSwapQuote'
+import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
 import { zrxBuildTrade } from './zrxBuildTrade'
 jest.mock('web3')
@@ -54,7 +54,7 @@ const setup = () => {
 }
 
 describe('ZrxBuildTrade', () => {
-  const { quoteResponse, sellAsset, buyAsset } = setupZrxQuoteResponse()
+  const { quoteResponse, sellAsset, buyAsset } = setupZrxTradeQuoteResponse()
   const { web3Instance, adapterManager } = setup()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {

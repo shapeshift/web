@@ -30,7 +30,7 @@ describe('getZrxTradeQuote', () => {
         data: { success: true, price: '100', gasPrice: '1000', estimatedGas: '1000000' }
       })
     )
-    const quote = await swapper.getQuote(quoteInput)
+    const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote.success).toBeTruthy()
     expect(quote.feeData).toStrictEqual({
       fee: '1500000000',
@@ -46,7 +46,7 @@ describe('getZrxTradeQuote', () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(undefined))
-    const quote = await swapper.getQuote(quoteInput)
+    const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote.success).toBe(false)
     expect(quote.statusReason).toBe('Unknown Error')
   })
@@ -56,7 +56,7 @@ describe('getZrxTradeQuote', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockRejectedValue({
       response: { data: { code: 502, reason: 'Failed to do some stuff' } }
     } as never)
-    const quote = await swapper.getQuote(quoteInput)
+    const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote.success).toBe(false)
     expect(quote.statusReason).toBe('Failed to do some stuff')
   })
@@ -68,7 +68,7 @@ describe('getZrxTradeQuote', () => {
         data: { success: true, price: '100' }
       })
     )
-    const quote = await swapper.getQuote(quoteInput)
+    const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote?.success).toBeTruthy()
     expect(quote?.feeData).toStrictEqual({
       fee: '0',
@@ -82,7 +82,7 @@ describe('getZrxTradeQuote', () => {
   it('fails on no sellAmount or buyAmount', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    await expect(swapper.getQuote({ ...quoteInput, sellAmount: undefined })).rejects.toThrow(
+    await expect(swapper.getTradeQuote({ ...quoteInput, sellAmount: undefined })).rejects.toThrow(
       'ZrxError:getQuote - sellAmount or buyAmount amount is required'
     )
   })
@@ -93,7 +93,7 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve({ data: { success: false } })
     )
     await expect(
-      swapper.getQuote({
+      swapper.getTradeQuote({
         ...quoteInput,
         buyAsset: { ...buyAsset, chain: ChainTypes.Bitcoin }
       })
@@ -106,7 +106,7 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve({ data: { success: false } })
     )
     await expect(
-      swapper.getQuote({
+      swapper.getTradeQuote({
         ...quoteInput,
         sellAsset: { ...sellAsset, chain: ChainTypes.Bitcoin }
       })
@@ -118,7 +118,7 @@ describe('getZrxTradeQuote', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({ data: { success: true } })
     )
-    const quote = await swapper.getQuote({
+    const quote = await swapper.getTradeQuote({
       ...quoteInput,
       buyAsset: { ...buyAsset, tokenId: undefined }
     })
@@ -131,7 +131,7 @@ describe('getZrxTradeQuote', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({ data: { success: true } })
     )
-    const quote = await swapper.getQuote({
+    const quote = await swapper.getTradeQuote({
       ...quoteInput,
       sellAsset: { ...sellAsset, tokenId: undefined }
     })
@@ -145,7 +145,7 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve({ data: { sellAmount: '20000000000000000000' } })
     )
     const minimum = '20'
-    const quote = await swapper.getQuote({
+    const quote = await swapper.getTradeQuote({
       ...quoteInput,
       sellAmount: '0'
     })

@@ -5,11 +5,10 @@ import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets } from 'state/slices/selectors'
 
-import { useSwapper } from '../useSwapper/useSwapper'
+import { TradeState } from '../../Trade'
+import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
 
@@ -21,9 +20,9 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<ChainTypes>>()
-  const { updateQuote, getDefaultPair } = useSwapper()
-  const buyTradeAsset = getValues('buyAsset')
-  const sellTradeAsset = getValues('sellAsset')
+  const { getQuote, getDefaultPair } = useSwapper()
+  const buyAsset = getValues('buyAsset')
+  const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
   const feeAsset = assets[ETHEREUM_CAIP19]
 
@@ -31,34 +30,38 @@ export const useTradeRoutes = (
     // wait for assets to be loaded
     if (isEmpty(assets) || !feeAsset) return
 
+    // TODO: Create a real whitelist when we support more chains
+    const shouldUseDefaultAsset = () => {
+      return (
+        defaultBuyAssetId &&
+        assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
+        assets[defaultBuyAssetId]?.assetId !== ETHEREUM_CAIP19
+      )
+    }
+
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
 
-      // ugly hack until we add proper error handling in another PR soon
       const buyAsset =
-        assets[
-          defaultBuyAssetId?.startsWith('eip155:1') && defaultBuyAssetId !== 'eip155:1/slip44:60'
-            ? defaultBuyAssetId
-            : buyAssetId
-        ]
+        defaultBuyAssetId && shouldUseDefaultAsset()
+          ? assets[defaultBuyAssetId]
+          : assets[buyAssetId]
 
       if (sellAsset && buyAsset) {
-        setValue('buyAsset.asset', buyAsset)
-        setValue('sellAsset.asset', sellAsset)
-        updateQuote({
-          forceQuote: true,
+        setValue('sellAsset.currency', sellAsset)
+        setValue('buyAsset.currency', buyAsset)
+        await getQuote({
           amount: '0',
-          sellAsset,
-          buyAsset,
+          sellAsset: { currency: sellAsset },
+          buyAsset: { currency: buyAsset },
           feeAsset,
-          action: TradeAmountInputField.SELL,
         })
       }
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, defaultBuyAssetId, feeAsset, getDefaultPair, setValue, updateQuote])
+  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, defaultBuyAssetId])
 
   useEffect(() => {
     setDefaultAssets()
@@ -67,72 +70,53 @@ export const useTradeRoutes = (
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {
-        const previousSellAsset = { ...getValues('sellAsset') }
-        const previousBuyAsset = { ...getValues('buyAsset') }
-
-        // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousBuyAsset?.asset.assetId) {
-          setValue('sellAsset.asset', asset)
-          setValue('buyAsset.asset', previousSellAsset.asset)
-        } else {
-          setValue('sellAsset.asset', asset)
-          setValue('buyAsset.asset', buyTradeAsset?.asset)
-        }
-        updateQuote({
-          forceQuote: true,
-          amount: bnOrZero(sellTradeAsset?.amount).toString(),
-          sellAsset: asset,
-          buyAsset: buyTradeAsset?.asset,
+        if (buyAsset.currency && asset.assetId === buyAsset.currency.assetId)
+          setValue('buyAsset.currency', sellAsset.currency)
+        const action = buyAsset.amount ? TradeActions.SELL : undefined
+        setValue('sellAsset.currency', asset)
+        setValue('buyAsset.amount', '')
+        setValue('action', action)
+        setValue('quote', undefined)
+        await getQuote({
+          amount: sellAsset.amount ?? '0',
+          sellAsset,
+          buyAsset,
           feeAsset,
-          action: TradeAmountInputField.SELL,
+          action,
         })
       } catch (e) {
         console.warn(e)
       } finally {
-        history.push(TradeRoutePaths.Input)
+        history.push('/trade/input')
       }
     },
-    [
-      getValues,
-      updateQuote,
-      sellTradeAsset?.amount,
-      buyTradeAsset?.asset,
-      feeAsset,
-      setValue,
-      history,
-    ],
+    [buyAsset, sellAsset, feeAsset, history, setValue, getQuote],
   )
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
-        const previousSellAsset = { ...getValues('sellAsset') }
-        const previousBuyAsset = { ...getValues('buyAsset') }
-
-        // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousSellAsset?.asset.assetId) {
-          setValue('buyAsset.asset', asset)
-          setValue('sellAsset.asset', previousBuyAsset.asset)
-        } else {
-          setValue('buyAsset.asset', asset)
-          setValue('sellAsset.asset', sellTradeAsset?.asset)
-        }
-
-        updateQuote({
-          forceQuote: true,
-          amount: bnOrZero(buyTradeAsset?.amount).toString(),
-          sellAsset: sellTradeAsset?.asset,
-          buyAsset: asset,
+        if (sellAsset.currency && asset.assetId === sellAsset.currency.assetId)
+          setValue('sellAsset.currency', buyAsset.currency)
+        const action = sellAsset.amount ? TradeActions.BUY : undefined
+        setValue('buyAsset.currency', asset)
+        setValue('sellAsset.amount', '')
+        setValue('action', action)
+        setValue('quote', undefined)
+        await getQuote({
+          amount: buyAsset.amount ?? '0',
+          sellAsset,
+          buyAsset,
           feeAsset,
-          action: TradeAmountInputField.SELL,
+          action,
         })
       } catch (e) {
         console.warn(e)
       } finally {
-        history.push(TradeRoutePaths.Input)
+        history.push('/trade/input')
       }
     },
-    [getValues, buyTradeAsset, sellTradeAsset, updateQuote, feeAsset, setValue, history],
+    [buyAsset, sellAsset, feeAsset, history, setValue, getQuote],
   )
 
   return { handleSellClick, handleBuyClick }

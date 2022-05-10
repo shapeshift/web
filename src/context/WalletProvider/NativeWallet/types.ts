@@ -34,13 +34,6 @@ export interface LoginResponseError extends Error {
   }
 }
 
-export interface RateLimitError extends Error {
-  response: {
-    status: 429
-    data: string
-  }
-}
-
 export const loginErrors = {
   twoFactorRequired: {
     httpCode: 428,

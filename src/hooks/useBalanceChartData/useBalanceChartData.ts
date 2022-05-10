@@ -23,24 +23,24 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioAssets,
   PortfolioBalancesById,
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { cosmosAssetId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAccountSpecifiers,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryTimeframe,
-  selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
 } from 'state/slices/selectors'
+import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
+import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
@@ -322,6 +322,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
+  const dispatch = useAppDispatch()
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
@@ -345,13 +346,25 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     return acc
   }, '')
 
-  const cosmosAccountSpecifier = account ? toCAIP10({ caip2: cosmosCaip2, account }) : ''
+  // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
+  const cosmosCaip10 = account ? toCAIP10({ caip2: cosmosCaip2, account }) : ''
+
+  // load staking data to redux state
+  useEffect(() => {
+    ;(async () => {
+      if (!cosmosCaip10?.length) return
+
+      dispatch(
+        stakingDataApi.endpoints.getStakingData.initiate(
+          { accountSpecifier: cosmosCaip10 },
+          { forceRefetch: true },
+        ),
+      )
+    })()
+  }, [dispatch, cosmosCaip10])
 
   const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
-      accountSpecifier: cosmosAccountSpecifier,
-      assetId: cosmosAssetId,
-    }),
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, { accountSpecifier: cosmosCaip10 }),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)

@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -44,6 +43,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
     foxyArray: foxyRows,
+    cosmosActiveStakingOpportunities: [],
     cosmosStakingOpportunities: [],
   }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
 
@@ -54,15 +54,8 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       return
     }
 
-    // TODO remove this condition once staking modals are unified
-    // Currently vault staking modals do not have overview tab
-    const pathname =
-      type === DefiType.TokenStaking
-        ? `/defi/${type}/${provider}/overview`
-        : `/defi/${type}/${provider}/deposit`
-
     history.push({
-      pathname,
+      pathname: `/defi/${type}/${provider}/deposit`,
       search: qs.stringify({
         chain,
         contractAddress,

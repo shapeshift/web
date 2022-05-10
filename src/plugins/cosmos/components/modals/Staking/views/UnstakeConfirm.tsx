@@ -55,7 +55,9 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const { handleSubmit, control } = methods
   const { cryptoAmount } = useWatch({ control })
 
-  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
+  const validatorInfo = useAppSelector(state =>
+    selectValidatorByAddress(state, { validatorAddress }),
+  )
   const {
     state: { wallet, isConnected },
     dispatch,
@@ -113,7 +115,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
 
   const translate = useTranslate()
 
-  if (!validatorInfo || !cryptoAmount) return null
+  if (!cryptoAmount) return null
 
   return (
     <FormProvider {...methods}>

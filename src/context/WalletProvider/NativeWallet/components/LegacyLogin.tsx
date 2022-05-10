@@ -19,7 +19,7 @@ import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
 
-import { loginErrors, LoginResponseError, RateLimitError } from '../types'
+import { loginErrors, LoginResponseError } from '../types'
 import { FriendlyCaptcha } from './Captcha'
 
 export const LegacyLogin = () => {
@@ -39,9 +39,6 @@ export const LegacyLogin = () => {
 
   const isLoginError = (err: any): err is LoginResponseError =>
     typeof err?.response?.data?.error?.msg === 'string' && typeof err.response.status === 'number'
-
-  const isRateLimitError = (err: any): err is RateLimitError =>
-    typeof err?.response.data === 'string' && err.response.status === 429
 
   const isDecryptionError = (err: any): err is Error =>
     typeof err?.message === 'string' && err.message.startsWith('Native wallet decryption failed')
@@ -76,14 +73,10 @@ export const LegacyLogin = () => {
     } catch (err) {
       setError(false)
       setCaptchaSolution(null)
-      if (isRateLimitError(err)) {
-        setError(translate('walletProvider.shapeShift.legacy.tooManyAttempts'))
-        return
-      }
       if (isLoginError(err)) {
         if (
           err.response.status === loginErrors.twoFactorRequired.httpCode &&
-          err.response.data.error?.msg === loginErrors.twoFactorRequired.msg
+          err.response.data.error.msg === loginErrors.twoFactorRequired.msg
         ) {
           setTwoFactorRequired(true)
           return

@@ -11,16 +11,16 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeState } from 'components/Trade/Trade'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal } from 'lib/math'
 import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { ValueOf } from 'types/object'
 
-import { TradeRoutePaths, TradeState } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 
@@ -39,7 +39,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<ChainTypes>>()
   const toast = useToast()
   const translate = useTranslate()
-  const { trade, fees, sellAssetFiatRate } = getValues()
+  const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -50,7 +50,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { wallet, isConnected },
     dispatch,
   } = useWallet()
-  const { chain, tokenId } = trade.sellAsset
+  const { chain, tokenId } = sellAsset.currency
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   const extra = tokenId
@@ -141,14 +141,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     if (txid) {
       reset()
     }
-    history.push(TradeRoutePaths.Input)
+    history.push('/trade/input')
   }
-
-  const tradeFiatAmount = toFiat(
-    bnOrZero(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0))
-      .times(bnOrZero(sellAssetFiatRate))
-      .toNumber(),
-  )
 
   return (
     <SlideTransition>
@@ -161,11 +155,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               </Card.Heading>
             </WithBackButton>
             <AssetToAsset
-              buyIcon={trade.buyAsset.icon}
-              tradeFiatAmount={tradeFiatAmount}
-              trade={trade}
+              buyAsset={buyAsset}
+              sellAsset={sellAsset}
               mt={6}
-              status={status}
+              status={txid ? status : undefined}
             />
           </Card.Header>
           <Divider />
@@ -180,7 +173,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={`${trade.sellAsset?.explorerTxLink}${txid}`}
+                      href={`${sellAsset.currency?.explorerTxLink}${txid}`}
                     >
                       <Text translation='trade.viewTransaction' />
                     </Link>
@@ -194,9 +187,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </Row.Label>
                 </HelperTooltip>
                 <Box textAlign='right'>
-                  <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
-                    bnOrZero(trade?.rate),
-                  )} ${trade?.buyAsset?.symbol}`}</RawText>
+                  <RawText>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(
+                    bnOrZero(quote?.rate),
+                  )} ${buyAsset?.currency?.symbol}`}</RawText>
+                  <RawText color='gray.500'>@{trade?.name}</RawText>
                 </Box>
               </Row>
               <Row>

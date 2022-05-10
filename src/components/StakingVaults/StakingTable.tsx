@@ -1,4 +1,4 @@
-import { Skeleton, Tag } from '@chakra-ui/react'
+import { Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
@@ -30,15 +30,13 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: 'Asset',
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            <AssetCell
-              assetId={row.original.assetId}
-              subText={row.original.provider}
-              showTeaser={showTeaser}
-              showAssetSymbol={row.original.showAssetSymbol}
-              postFix={row.original.version && `(${row.original.version})`}
-            />
-          </Skeleton>
+          <AssetCell
+            assetId={row.original.assetId}
+            subText={row.original.provider}
+            showTeaser={showTeaser}
+            showAssetSymbol={row.original.showAssetSymbol}
+            postFix={row.original.version && `(${row.original.version})`}
+          />
         ),
         disableSortBy: true,
       },
@@ -46,10 +44,8 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: 'Type',
         accessor: 'type',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize'>{value.replace('_', ' ')}</Tag>
-          </Skeleton>
+        Cell: ({ value }: { value: string }) => (
+          <Tag textTransform='capitalize'>{value.replace('_', ' ')}</Tag>
         ),
       },
       {
@@ -58,11 +54,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         isNumeric: true,
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
-              <Amount.Percent value={value} />
-            </Tag>
-          </Skeleton>
+          <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
+            <Amount.Percent value={value} />
+          </Tag>
         ),
         sortType: (a: RowProps, b: RowProps): number =>
           bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1,
@@ -71,24 +65,17 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: 'TVL',
         accessor: 'tvl',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            <Amount.Fiat value={value} />
-          </Skeleton>
-        ),
+        Cell: ({ value }: { value: string }) => <Amount.Fiat value={value} />,
       },
       {
         Header: 'Balance',
         accessor: 'fiatAmount',
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            {bnOrZero(value).gt(0) ? (
-              <Amount.Fiat value={value} color='green.500' />
-            ) : (
-              <RawText>-</RawText>
-            )}
-          </Skeleton>
-        ),
+        Cell: ({ value }: { value: string }) =>
+          bnOrZero(value).gt(0) ? (
+            <Amount.Fiat value={value} color='green.500' />
+          ) : (
+            <RawText>-</RawText>
+          ),
       },
     ],
     [showTeaser],

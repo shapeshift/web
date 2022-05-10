@@ -11,7 +11,6 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
@@ -65,16 +64,8 @@ export const OpportunityCard = ({
         })
         return
       }
-
-      // TODO remove this condition once staking modals are unified
-      // Currently vault staking modals do not have overview tab
-      const pathname =
-        type === DefiType.TokenStaking
-          ? `/defi/${type}/${provider}/overview`
-          : `/defi/${type}/${provider}/withdraw`
-
       history.push({
-        pathname,
+        pathname: `/defi/${type}/${provider}/withdraw`,
         search: qs.stringify({
           chain,
           contractAddress,

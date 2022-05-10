@@ -169,7 +169,7 @@ export const ConnectWallet = () => {
         />
         <Stack
           alignItems='center'
-          spacing={{ base: 4, md: 8 }}
+          spacing={{ base: 2, md: 8 }}
           mx='auto'
           direction={{ base: 'column', md: 'row' }}
         >

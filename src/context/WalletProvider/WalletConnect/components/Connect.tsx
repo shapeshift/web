@@ -70,7 +70,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
       const wallet = (await state.adapters
         .get(KeyManager.WalletConnect)
-        ?.pairDevice()) as WalletConnectHDWallet
+        ?.pairDevice(provider)) as WalletConnectHDWallet
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-walletconnect::pairDevice returned null or undefined')
@@ -80,13 +80,13 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       try {
         const deviceId = await wallet.getDeviceID()
 
-        provider.onConnect(async () => {
+        wallet.provider.onConnect(async () => {
           const { connected } = await provider.getWalletConnector()
           console.info(`connector connected: ${connected}`)
         })
 
         //  Enable session (triggers QR Code modal)
-        await provider.enable()
+        await wallet.provider.enable()
 
         dispatch({
           type: WalletActions.SET_WALLET,

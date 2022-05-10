@@ -1,23 +1,27 @@
 import { renderHook } from '@testing-library/react-hooks'
+import {
+  cosmosCaip19,
+  mockCosmosAccount,
+  mockCosmosAccountWithStakingData,
+} from 'test/mocks/accounts'
 import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
-import { emptyMockStakingData, mockStakingData, mockValidatorData } from 'test/mocks/stakingData'
+import { mockUpsertPortfolio } from 'test/mocks/portfolio'
+import { MOCK_VALIDATORS } from 'test/mocks/validators'
 import { TestProviders } from 'test/TestProviders'
 import { ReduxState } from 'state/reducer'
 import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
-import { stakingData as stakingDataSlice } from 'state/slices/stakingDataSlice/stakingDataSlice'
+import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
+import { validatorData } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store } from 'state/store'
 
 import { useCosmosStakingBalances } from './useCosmosStakingBalances'
 
-const cosmosAccountSpecifier: string =
-  'cosmos:cosmoshub-4:cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'
-
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
-  selectAccountSpecifier: (_state: ReduxState) => [
+  selectFirstAccountSpecifierByChainId: (_state: ReduxState) => [
     'cosmos:cosmoshub-4:cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669',
   ],
 }))
@@ -55,48 +59,40 @@ function setup() {
   return { result }
 }
 
+// TODO: Will unskip
 describe('useCosmosStakingBalances', () => {
   it('returns empty array for active opportunities and the shapeshift validator as a staking opportunity when staking data is empty and validators data are loaded', async () => {
     store.dispatch(
-      stakingDataSlice.actions.upsertStakingData({
-        stakingData: emptyMockStakingData,
-        accountSpecifier: cosmosAccountSpecifier,
+      validatorData.actions.upsertValidatorData({
+        validators: MOCK_VALIDATORS,
       }),
     )
     store.dispatch(
-      stakingDataSlice.actions.upsertValidatorData({
-        validators: mockValidatorData,
+      validatorData.actions.upsertValidatorData({
+        validators: MOCK_VALIDATORS,
       }),
     )
-    store.dispatch(stakingDataSlice.actions.setStatus('loaded'))
-    store.dispatch(stakingDataSlice.actions.setValidatorStatus('loaded'))
 
     const { result } = setup()
-    expect(result.current.activeStakingOpportunities).toEqual([])
-    expect(result.current.stakingOpportunities).toMatchSnapshot()
-    expect(result.current.isLoaded).toBeTruthy()
+    expect(result.current.cosmosStakingOpportunities).toMatchSnapshot()
     expect(result.current.totalBalance).toEqual('0')
   })
 
   it('returns active and non active staking opportunities when staking and validators data are loaded', async () => {
     store.dispatch(
-      stakingDataSlice.actions.upsertStakingData({
-        stakingData: mockStakingData,
-        accountSpecifier: cosmosAccountSpecifier,
+      validatorData.actions.upsertValidatorData({
+        validators: MOCK_VALIDATORS,
       }),
     )
+
+    const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
+
     store.dispatch(
-      stakingDataSlice.actions.upsertValidatorData({
-        validators: mockValidatorData,
-      }),
+      portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([cosmosAccount], [cosmosCaip19])),
     )
-    store.dispatch(stakingDataSlice.actions.setStatus('loaded'))
-    store.dispatch(stakingDataSlice.actions.setValidatorStatus('loaded'))
 
     const { result } = setup()
-    expect(result.current.activeStakingOpportunities).toMatchSnapshot()
-    expect(result.current.stakingOpportunities).toMatchSnapshot()
-    expect(result.current.isLoaded).toBeTruthy()
+    expect(result.current.cosmosStakingOpportunities).toMatchSnapshot()
     expect(result.current.totalBalance).toEqual('1.17')
   })
 })

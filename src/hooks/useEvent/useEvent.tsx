@@ -1,6 +1,5 @@
 import { useCallback, useLayoutEffect, useRef } from 'react'
-
-type AnyFunction = (...args: any[]) => any
+import { AnyFunction } from 'types/common'
 
 /**
  * A Hook to define an event handler with an always-stable function identity.

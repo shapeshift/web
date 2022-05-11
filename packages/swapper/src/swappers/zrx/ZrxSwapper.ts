@@ -83,11 +83,11 @@ export class ZrxSwapper implements Swapper {
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    const { assetIds, sellAssetId } = args
-    return assetIds.filter((id) => id.startsWith('eip155:1') && sellAssetId.startsWith('eip155:1'))
+    const { assetIds = [], sellAssetId } = args
+    return assetIds.filter((id) => id.startsWith('eip155:1') && sellAssetId?.startsWith('eip155:1'))
   }
 
-  filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
+  filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
     return assetIds.filter((id) => id.startsWith('eip155:1'))
   }
 }

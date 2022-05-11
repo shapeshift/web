@@ -1,24 +1,26 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
-import { RecoverDevice, ResetDevice } from '@shapeshiftoss/hdwallet-core'
+import { ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { parseIntToEntropy } from 'context/WalletProvider/KeepKey/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
   const {
     setDeviceState,
     state: {
-      deviceState: { disposition, recoverWithPassphrase, recoveryEntropy },
+      deviceState: { disposition },
       wallet,
     },
   } = useWallet()
   const toast = useToast()
   const translate = useTranslate()
   const [label, setLabel] = useState('')
+  const recoverKeepKey = useKeepKeyRecover()
 
   const handleInitializeSubmit = async () => {
     setLoading(true)
@@ -37,23 +39,7 @@ export const KeepKeyLabel = () => {
 
   const handleRecoverSubmit = async () => {
     setLoading(true)
-    setDeviceState({ awaitingDeviceInteraction: true })
-    const recoverParams: RecoverDevice = {
-      entropy: parseIntToEntropy(recoveryEntropy),
-      label: label ?? '',
-      passphrase: recoverWithPassphrase || false,
-      pin: true,
-      autoLockDelayMs: 600000, // Ten minutes
-    }
-    await wallet?.recover(recoverParams).catch(e => {
-      console.error(e)
-      toast({
-        title: translate('common.error'),
-        description: e?.message ?? translate('common.somethingWentWrong'),
-        status: 'error',
-        isClosable: true,
-      })
-    })
+    await recoverKeepKey(label)
   }
 
   return (

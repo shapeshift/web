@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v4.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v4.0.1...@shapeshiftoss/swapper-v4.0.2) (2022-05-11)
+
+
+### Bug Fixes
+
+* dont crash when passing undefined to filterBuyAssetsBySellAssetId ([#634](https://github.com/shapeshift/lib/issues/634)) ([c014a7b](https://github.com/shapeshift/lib/commit/c014a7b0bc3616a34fa4aeac11e56e7470b98ac0))
+
 # [@shapeshiftoss/swapper-v4.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v4.0.0...@shapeshiftoss/swapper-v4.0.1) (2022-05-10)
 
 # [@shapeshiftoss/swapper-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v3.0.7...@shapeshiftoss/swapper-v4.0.0) (2022-05-10)

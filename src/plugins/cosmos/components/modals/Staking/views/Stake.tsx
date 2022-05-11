@@ -119,26 +119,26 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
       .times(_percent)
       .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    const fiatAmountMinusTxFee = fiatAmount.minus(bnOrZero(averageTxFee?.fiatFee))
-    const cryptoAmountMinusTxFee = cryptoAmount.minus(bnOrZero(averageTxFee?.txFee))
+    const maxFiatStakeAmount = fiatAmount.minus(bnOrZero(averageTxFee?.fiatFee))
+    const maxCryptoStakeAmount = cryptoAmount.minus(bnOrZero(averageTxFee?.txFee))
     const shouldSubtractFees = cryptoAmount
       .plus(bnOrZero(averageTxFee?.txFee))
       .gte(cryptoBalanceHuman.toString())
 
-    if (shouldSubtractFees && cryptoAmountMinusTxFee.isNegative()) {
+    if (shouldSubtractFees && maxCryptoStakeAmount.isNegative()) {
       setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
     }
     if (activeField === InputType.Crypto) {
       setValue(
         Field.FiatAmount,
-        shouldSubtractFees ? fiatAmountMinusTxFee.toString() : fiatAmount.toString(),
+        shouldSubtractFees ? maxFiatStakeAmount.toString() : fiatAmount.toString(),
         {
           shouldValidate: true,
         },
       )
       setValue(
         Field.CryptoAmount,
-        shouldSubtractFees ? cryptoAmountMinusTxFee.toString() : cryptoAmount.toString(),
+        shouldSubtractFees ? maxCryptoStakeAmount.toString() : cryptoAmount.toString(),
         { shouldValidate: true },
       )
     } else {

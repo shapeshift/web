@@ -1,5 +1,4 @@
 import { adapters } from '@shapeshiftoss/caip'
-import queryString from 'querystring'
 
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 
@@ -15,24 +14,23 @@ export const getBanxaAssets = () => {
 }
 
 export const createBanxaUrl = (action: FiatRampAction, asset: string, address: string): string => {
-  const BANXA_BASE_URL = 'https://shapeshift.banxa.com/'
+  const BANXA_BASE_URL = new URL('https://shapeshift.banxa.com/')
 
-  const queryConfig = queryString.stringify({
-    fiatType: 'USD',
-    coinType: asset,
-    walletAddress: address,
-    /**
-     * based on https://docs.banxa.com/docs/referral-method
-     * if sellMode query parameter is not passed `buyMode` will be used by default
-     */
-    [action === FiatRampAction.Sell ? 'sellMode' : 'buyMode']: '',
-    /**
-     * select the blockchain from asset and pass it to the banxa,
-     * since some Banxa assets could be on multiple chains and their default
-     * chain won't be exactly the same as ours.
-     */
-    blockchain: adapters.getBanxaBlockchainFromBanxaAssetTicker(asset),
-  })
+  const params = new URLSearchParams()
+  params.set('fiatType', 'USD')
+  params.set('coinType', asset)
+  params.set('walletAddress', address)
+  /**
+   * select the blockchain from asset and pass it to the banxa,
+   * since some Banxa assets could be on multiple chains and their default
+   * chain won't be exactly the same as ours.
+   */
+  params.set('blockchain', adapters.getBanxaBlockchainFromBanxaAssetTicker(asset))
+  /**
+   * based on https://docs.banxa.com/docs/referral-method
+   * if sellMode query parameter is not passed `buyMode` will be used by default
+   */
+  params.set(action === FiatRampAction.Sell ? 'sellMode' : 'buyMode', '')
 
-  return `${BANXA_BASE_URL}?${queryConfig}`
+  return `${BANXA_BASE_URL.toString()}?${params.toString()}`
 }

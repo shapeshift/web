@@ -110,10 +110,10 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                   return adapter.subscribeTxs(
                     { wallet, accountType, ...accountParams },
                     msg => {
-                      const caip10 = `${msg.chainId}:${msg.address}`
+                      const accountSpecifier = `${msg.chainId}:${msg.address}`
                       const state = store.getState()
                       const accountId = selectAccountIdByAddress(state, {
-                        accountSpecifier: caip10,
+                        accountSpecifier,
                       })
                       dispatch(
                         txHistory.actions.onMessage({

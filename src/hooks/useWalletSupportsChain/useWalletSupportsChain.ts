@@ -14,8 +14,8 @@ type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 // use outside react
 export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
-  const ethCAIP2 = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
-  const btcCAIP2 = toChainId({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
+  const ethChainId = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+  const btcChainId = toChainId({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
   const cosmosCaip2 = toChainId({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
@@ -26,10 +26,10 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     network: NetworkTypes.OSMOSIS_MAINNET,
   })
   switch (chainId) {
-    case ethCAIP2: {
+    case ethChainId: {
       return supportsETH(wallet)
     }
-    case btcCAIP2: {
+    case btcChainId: {
       return supportsBTC(wallet)
     }
     case cosmosCaip2: {

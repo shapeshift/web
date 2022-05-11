@@ -95,12 +95,12 @@ export const portfolioApi = createApi({
         const untypedState = getState()
         const assetIds = (untypedState as ReduxState).assets.ids
         const chainAdapters = getChainAdapters()
-        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
+        const [chainId, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
           ChainId,
           string,
         ]
-        // TODO(0xdef1cafe): chainAdapters.byCAIP2()
-        const { chain } = fromChainId(CAIP2)
+        // TODO(0xdef1cafe): chainAdapters.ChainId()
+        const { chain } = fromChainId(chainId)
         try {
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)

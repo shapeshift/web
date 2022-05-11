@@ -43,8 +43,8 @@ describe('txHistorySlice', () => {
     it('can sort txs going into store', async () => {
       // testTxs are in ascending order by time
       const transactions = reverse([...ethereumTransactions])
-      const ethCAIP2 = EthSend.chainId
-      const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
+      const ethchainId = EthSend.chainId
+      const accountSpecifier = `${ethchainId}:0xdef1cafe`
       // expected transaction order
       const expected = map(transactions, tx => makeUniqueTxId(tx, accountSpecifier))
 

@@ -33,20 +33,20 @@ export const FoxyDetails = () => {
   const foxyBalance = bnOrZero(opportunity?.balance)
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const stakingAssetCAIP19 = toAssetId({
+  const stakingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetCAIP19))
-  const rewardAssetCAIP19 = toAssetId({
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const rewardAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetCAIP19))
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   const apy = bnOrZero(opportunity?.apy).times(100).toString()
   if (loading || !opportunity) {
     return (

@@ -59,33 +59,33 @@ async function getFoxyOpportunities(
       contractAddress: opportunity.contractAddress,
       userAddress,
     })
-    const rewardTokenCaip19 = toAssetId({
+    const rewardTokenAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
       assetReference: opportunity.rewardToken,
     })
-    const contractCaip19 = toAssetId({
+    const contractAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
       assetReference: opportunity.contractAddress,
     })
-    const tokenCaip19 = toAssetId({
+    const tokenAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
       assetReference: opportunity.stakingToken,
     })
-    const balance = balances[rewardTokenCaip19]
+    const balance = balances[rewardTokenAssetId]
 
     const pricePerShare = api.pricePerShare()
     acc[opportunity.contractAddress] = {
       ...opportunity,
       balance: bnOrZero(balance).toString(),
-      contractCaip19,
-      tokenCaip19,
-      rewardTokenCaip19,
+      contractCaip19: contractAssetId,
+      tokenCaip19: tokenAssetId,
+      rewardTokenCaip19: rewardTokenAssetId,
       pricePerShare: bnOrZero(pricePerShare),
       withdrawInfo,
     }

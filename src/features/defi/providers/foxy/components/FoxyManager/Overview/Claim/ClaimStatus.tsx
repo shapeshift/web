@@ -75,14 +75,14 @@ export const ClaimStatus = () => {
   // Asset Info
   const network = NetworkTypes.MAINNET
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetCAIP19 = toAssetId({
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   useEffect(() => {
     ;(async () => {

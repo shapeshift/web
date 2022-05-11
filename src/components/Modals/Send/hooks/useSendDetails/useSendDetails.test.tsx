@@ -22,11 +22,11 @@ import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service', () => ({
   findAll: jest.fn,
-  findByCaip19: () => ({
+  findByAssetId: () => ({
     price: 3500,
     network: 'ethereum',
   }),
-  findPriceHistoryByCaip19: jest.fn,
+  findPriceHistoryByAssetId: jest.fn,
 }))
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
@@ -43,12 +43,12 @@ jest.mock('state/slices/selectors', () => ({
   selectMarketDataById: jest.fn(),
 }))
 
-const ethCaip19 = 'eip155:1/slip44:60'
-const runeCaip19 = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
+const ethAssetId = 'eip155:1/slip44:60'
+const runeAssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
 
 const balances: PortfolioBalancesById = {
-  [ethCaip19]: '5000000000000000000',
-  [runeCaip19]: '21000000000000000000',
+  [ethAssetId]: '5000000000000000000',
+  [runeAssetId]: '21000000000000000000',
 }
 
 const runeFiatAmount = '14490.00'
@@ -143,7 +143,7 @@ describe('useSendDetails', () => {
   it('returns the default useSendDetails state', async () => {
     return await act(async () => {
       const { result } = setup({
-        assetBalance: balances[ethCaip19],
+        assetBalance: balances[ethAssetId],
       })
       expect(result.current.balancesLoading).toBe(false)
       expect(result.current.fieldName).toBe('cryptoAmount')
@@ -155,7 +155,7 @@ describe('useSendDetails', () => {
     // eslint-disable-next-line testing-library/no-unnecessary-act
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances[ethCaip19],
+        assetBalance: balances[ethAssetId],
       })
       expect(result.current.fieldName).toBe('cryptoAmount')
       act(() => {
@@ -171,7 +171,7 @@ describe('useSendDetails', () => {
     return await act(async () => {
       let setError = jest.fn()
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances[ethCaip19],
+        assetBalance: balances[ethAssetId],
         formErrors: {
           fiatAmount: { message: 'common.insufficientFunds' },
         },
@@ -192,7 +192,7 @@ describe('useSendDetails', () => {
     jest.useFakeTimers()
     const setValue = jest.fn()
     const { result } = setup({
-      assetBalance: balances[ethCaip19],
+      assetBalance: balances[ethAssetId],
       setValue,
     })
     // Field is set to fiatAmount
@@ -220,7 +220,7 @@ describe('useSendDetails', () => {
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances[ethCaip19],
+        assetBalance: balances[ethAssetId],
         setValue,
       })
       // Field is set to fiatAmount
@@ -247,7 +247,7 @@ describe('useSendDetails', () => {
   it('handles setting up send max for network asset', async () => {
     const setValue = jest.fn()
     const { result } = setup({
-      assetBalance: balances[ethCaip19],
+      assetBalance: balances[ethAssetId],
       setValue,
     })
     await act(async () => {
@@ -265,7 +265,7 @@ describe('useSendDetails', () => {
     const setValue = jest.fn()
     const { result } = setup({
       asset: mockRune,
-      assetBalance: balances[runeCaip19],
+      assetBalance: balances[runeAssetId],
       setValue,
     })
     await act(async () => {

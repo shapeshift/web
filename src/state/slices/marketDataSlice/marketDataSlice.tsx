@@ -51,7 +51,7 @@ export const marketData = createSlice({
       state,
       {
         payload: { data, args },
-      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } },
+      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
     ) => {
       const { assetId, timeframe } = args
       state.priceHistory[timeframe][assetId] = data
@@ -59,7 +59,7 @@ export const marketData = createSlice({
   },
 })
 
-type FindPriceHistoryByCaip19Args = { assetId: AssetId; timeframe: HistoryTimeframe }
+type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
   reducerPath: 'marketApi',
@@ -77,7 +77,7 @@ export const marketApi = createApi({
         data && dispatch(marketData.actions.setMarketData(data))
       },
     }),
-    findByCaip19: build.query<MarketCapResult, AssetId>({
+    findByAssetId: build.query<MarketCapResult, AssetId>({
       queryFn: async (assetId: AssetId, baseQuery) => {
         try {
           const currentMarketData = await findByAssetId({ assetId })
@@ -88,19 +88,19 @@ export const marketApi = createApi({
           baseQuery.dispatch(marketData.actions.setMarketData(data))
           return { data }
         } catch (e) {
-          const error = { data: `findByCaip19: no market data for ${assetId}`, status: 404 }
+          const error = { data: `findByAssetId: no market data for ${assetId}`, status: 404 }
           return { error }
         }
       },
     }),
-    findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({
+    findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
       queryFn: async ({ assetId, timeframe }) => {
         try {
           const data = await findPriceHistoryByAssetId({ timeframe, assetId })
           return { data }
         } catch (e) {
           const error = {
-            data: `findPriceHistoryByCaip19: error fetching price history for ${assetId}`,
+            data: `findPriceHistoryByAssetId: error fetching price history for ${assetId}`,
             status: 400,
           }
           return { error }
@@ -124,4 +124,5 @@ export const marketApi = createApi({
   }),
 })
 
-export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi
+export const { useFindAllQuery, useFindByAssetIdQuery, useFindPriceHistoryByAssetIdQuery } =
+  marketApi

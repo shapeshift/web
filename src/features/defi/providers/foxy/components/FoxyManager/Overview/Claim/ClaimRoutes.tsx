@@ -30,7 +30,7 @@ export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
   const { contractAddress, tokenId, chain } = query
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const stakingAssetCAIP19 = toAssetId({
+  const stakingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
@@ -47,7 +47,7 @@ export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm
-              assetId={stakingAssetCAIP19}
+              assetId={stakingAssetId}
               chain={chain}
               contractAddress={contractAddress}
               onBack={onBack}

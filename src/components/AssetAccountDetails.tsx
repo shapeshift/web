@@ -23,10 +23,10 @@ type AssetDetailsProps = {
   route?: Route
 }
 
-export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
-  const marketData = useAppSelector(state => selectMarketDataById(state, caip19))
+export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   return (
-    <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
+    <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack
         alignItems='flex-start'
         spacing={4}
@@ -34,17 +34,17 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
         direction={{ base: 'column', xl: 'row' }}
       >
         <Stack spacing={4} flex='1 1 0%' width='full'>
-          <AssetChart accountId={accountId} assetId={caip19} isLoaded={true} />
-          {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
-          <AssetAccounts assetId={caip19} accountId={accountId} />
-          <EarnOpportunities assetId={caip19} accountId={accountId} />
-          <UnderlyingToken assetId={caip19} accountId={accountId} />
-          <AssetTransactionHistory limit={3} assetId={caip19} accountId={accountId} />
+          <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
+          {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
+          <AssetAccounts assetId={assetId} accountId={accountId} />
+          <EarnOpportunities assetId={assetId} accountId={accountId} />
+          <UnderlyingToken assetId={assetId} accountId={accountId} />
+          <AssetTransactionHistory limit={3} assetId={assetId} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-          <TradeCard defaultBuyAssetId={caip19} />
-          {marketData && <AssetMarketData assetId={caip19} />}
-          <AssetDescription assetId={caip19} />
+          <TradeCard defaultBuyAssetId={assetId} />
+          {marketData && <AssetMarketData assetId={assetId} />}
+          <AssetDescription assetId={assetId} />
         </Stack>
       </Stack>
     </Main>

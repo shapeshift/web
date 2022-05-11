@@ -40,9 +40,9 @@ export type TxHistoryById = {
  * three related assets
  *
  * {
- *   foxCAIP19: [txid] // sell asset
- *   usdcCAIP19: [txid] // buy asset
- *   ethCAIP19: [txid] // fee asset
+ *   foxAssetId: [txid] // sell asset
+ *   usdcAssetId: [txid] // buy asset
+ *   ethAssetId: [txid] // fee asset
  * }
  *
  * where txid is the same txid related to all the above assets, as the
@@ -326,12 +326,12 @@ export const txHistoryApi = createApi({
           const error = { data, status: 400 }
           return { error }
         }
-        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
-        const accountSpecifier = `${CAIP2}:${pubkey}`
+        const [chainId, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
+        const accountSpecifier = `${chainId}:${pubkey}`
         try {
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
-          const { chain } = fromChainId(CAIP2)
+          const { chain } = fromChainId(chainId)
           const adapter = chainAdapters.byChain(chain)
           let currentCursor: string = ''
           const pageSize = 100

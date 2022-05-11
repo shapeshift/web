@@ -25,28 +25,28 @@ export const Status = () => {
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = toAssetId({
+  const underlyingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetCAIP19))
-  const assetCAIP19 = toAssetId({
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  const assetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const feeAssetCAIP19 = toAssetId({
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

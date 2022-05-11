@@ -25,7 +25,7 @@ export const CosmosAsset = () => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  if (!marketData) dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
+  if (!marketData) dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
 
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetId))
 

@@ -3,8 +3,6 @@ import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { useContext, useEffect, useState } from 'react'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 type FoxyContextProps = {
   loading: boolean
@@ -22,13 +20,11 @@ export const useFoxy = () => {
 export const FoxyProvider: React.FC = ({ children }) => {
   const [foxy, setFoxy] = useState<FoxyApi | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const { supportedChains, chainAdapterManager } = usePlugins()
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!foxyInvestorFeatureFlag) return
         if (!supportedChains.includes(ChainTypes.Ethereum)) return
         setLoading(true)
         const api = new FoxyApi({
@@ -43,7 +39,7 @@ export const FoxyProvider: React.FC = ({ children }) => {
         setLoading(false)
       }
     })()
-  }, [chainAdapterManager, foxyInvestorFeatureFlag, supportedChains])
+  }, [chainAdapterManager, supportedChains])
 
   return <FoxyContext.Provider value={{ foxy, loading }}>{children}</FoxyContext.Provider>
 }

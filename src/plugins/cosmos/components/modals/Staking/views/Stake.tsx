@@ -115,13 +115,13 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
       setValue(Field.AmountFieldError, '', { shouldValidate: true })
     }
 
-    // Initial user-input / percentage-calculated amounts
+    // Initial percentage-calculated amounts
     const cryptoAmount = bnOrZero(cryptoBalanceHuman)
       .times(_percent)
       .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
 
-    // Max possible to stake amount (percent/user-input amount - gas fees)
+    // Max possible to stake amount (percent amount - gas fees)
     const maxFiatStakeAmount = fiatAmount.minus(bnOrZero(averageTxFee?.fiatFee))
     const maxCryptoStakeAmount = cryptoAmount.minus(bnOrZero(averageTxFee?.txFee))
 
@@ -129,7 +129,7 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
       setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
       return
     }
-    // Percent/Input amount if possible, else fallback to max amount
+    // Percent amount if possible, else fallback to max amount
     const cryptoStakeAmount = fiatAmount.gte(maxCryptoStakeAmount)
       ? maxCryptoStakeAmount
       : fiatAmount

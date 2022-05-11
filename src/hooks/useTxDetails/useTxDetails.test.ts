@@ -129,7 +129,7 @@ describe('isSupportedContract', () => {
   it('returns false when unsupported', () => {
     createMockEthTxs('0xface').forEach((tx, idx) => {
       expect(tx.data).toHaveProperty('method')
-      tx.data.method += `-fail-${idx}`
+      if (tx.data?.method) tx.data.method += `-fail-${idx}`
       expect(isSupportedContract(tx)).toBe(false)
     })
   })

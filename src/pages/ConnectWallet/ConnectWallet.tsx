@@ -21,8 +21,6 @@ import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 async function connectCypressWallet(
@@ -70,7 +68,6 @@ export const ConnectWallet = () => {
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
-  const demoWalletFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'DemoWallet'))
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
     // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
@@ -180,20 +177,18 @@ export const ConnectWallet = () => {
         >
           <Text translation='connectWalletPage.cta' />
         </Button>
-        {demoWalletFeatureFlag && (
-          <Button
-            size='md'
-            zIndex={1}
-            colorScheme='blue'
-            variant='ghost'
-            mt={6}
-            rightIcon={<ArrowForwardIcon />}
-            onClick={connectDemo}
-            isLoading={state.isLoadingLocalWallet}
-          >
-            <Text translation='connectWalletPage.orViewADemo' />
-          </Button>
-        )}
+        <Button
+          size='md'
+          zIndex={1}
+          colorScheme='blue'
+          variant='ghost'
+          mt={6}
+          rightIcon={<ArrowForwardIcon />}
+          onClick={connectDemo}
+          isLoading={state.isLoadingLocalWallet}
+        >
+          <Text translation='connectWalletPage.orViewADemo' />
+        </Button>
       </Center>
     </Page>
   )

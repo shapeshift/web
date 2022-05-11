@@ -49,7 +49,6 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       ReduxLogging: false,
-      KeepKeySettings: false,
       WalletMigration: false,
     },
     selectedLocale: 'en',

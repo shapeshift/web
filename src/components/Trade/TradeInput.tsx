@@ -177,7 +177,12 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.insufficientFunds'
     }
 
-    if (isValid && hasValidTradeBalance && !hasEnoughBalanceForGas) {
+    if (
+      isValid &&
+      hasValidTradeBalance &&
+      !hasEnoughBalanceForGas &&
+      bnOrZero(sellTradeAsset.amount).gt(0)
+    ) {
       return 'common.insufficientAmountForGas'
     }
 
@@ -351,7 +356,10 @@ export const TradeInput = ({ history }: RouterProps) => {
               size='lg'
               width='full'
               colorScheme={
-                error || (isValid && (!hasEnoughBalanceForGas || !hasValidTradeBalance))
+                error ||
+                (isValid &&
+                  (!hasEnoughBalanceForGas || !hasValidTradeBalance) &&
+                  !bnOrZero(sellTradeAsset.amount).eq(0))
                   ? 'red'
                   : 'blue'
               }

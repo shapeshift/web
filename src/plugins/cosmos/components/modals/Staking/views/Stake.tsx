@@ -115,36 +115,30 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
       setValue(Field.AmountFieldError, '', { shouldValidate: true })
     }
 
+    // Initial user-input / percentage-calculated amounts
     const cryptoAmount = bnOrZero(cryptoBalanceHuman)
       .times(_percent)
       .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+
+    // Max possible to stake amount (percent/user-input amount - gas fees)
     const maxFiatStakeAmount = fiatAmount.minus(bnOrZero(averageTxFee?.fiatFee))
     const maxCryptoStakeAmount = cryptoAmount.minus(bnOrZero(averageTxFee?.txFee))
-    const shouldSubtractFees = cryptoAmount
-      .plus(bnOrZero(averageTxFee?.txFee))
-      .gte(cryptoBalanceHuman.toString())
 
-    if (shouldSubtractFees && maxCryptoStakeAmount.isNegative()) {
+    if (maxCryptoStakeAmount.isNegative()) {
       setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+      return
     }
-    if (activeField === InputType.Crypto) {
-      setValue(
-        Field.FiatAmount,
-        shouldSubtractFees ? maxFiatStakeAmount.toString() : fiatAmount.toString(),
-        {
-          shouldValidate: true,
-        },
-      )
-      setValue(
-        Field.CryptoAmount,
-        shouldSubtractFees ? maxCryptoStakeAmount.toString() : cryptoAmount.toString(),
-        { shouldValidate: true },
-      )
-    } else {
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-    }
+    // Percent/Input amount if possible, else fallback to max amount
+    const cryptoStakeAmount = fiatAmount.gte(maxCryptoStakeAmount)
+      ? maxCryptoStakeAmount
+      : fiatAmount
+    const fiatStakeAmount = fiatAmount.gte(maxFiatStakeAmount) ? maxFiatStakeAmount : fiatAmount
+
+    setValue(Field.FiatAmount, fiatStakeAmount.toString(), {
+      shouldValidate: true,
+    })
+    setValue(Field.CryptoAmount, cryptoStakeAmount.toString(), { shouldValidate: true })
     setPercent(_percent)
   }
 

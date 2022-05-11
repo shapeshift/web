@@ -118,8 +118,11 @@ export const NativeCreate = () => {
             <AlertIcon />
             <AlertDescription fontSize='md'>
               <Text translation={'walletProvider.shapeShift.legacy.deprecatedWarning'} />
-              {/* @TODO(NeOMakinG): Use the right link for the learn more */}
-              <Link href='#' fontWeight='normal' isExternal>
+              <Link
+                href={'https://shapeshift.zendesk.com/hc/en-us/articles/6161030693517'}
+                fontWeight='normal'
+                isExternal
+              >
                 {translate('walletProvider.shapeShift.legacy.learnMore')}
               </Link>
             </AlertDescription>

@@ -430,6 +430,11 @@
       "recoverySettingUp": {
         "header": "Setting up device...",
         "body": "Please wait while we initialize your device and sync your addresses."
+      },
+      "recoveryInvalid": {
+        "header": "Invalid Recovery Phrase",
+        "body": "The Recovery Phrase you have entered is invalid.",
+        "button": "Try Again"
       }
     },
     "shapeShift": {

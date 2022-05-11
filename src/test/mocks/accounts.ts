@@ -341,10 +341,10 @@ export const mockETHandBTCAccounts = ({
     btcAccount2Obj,
   )
 
-  const ethAccountId = `${ethAccount.assetId}:${toLower(ethAccount.pubkey)}`
-  const ethAccount2Id = `${ethAccount2.assetId}:${toLower(ethAccount2.pubkey)}`
-  const btcAccountId = `${btcAccount.assetId}:${btcAccount.pubkey}`
-  const btcAccount2Id = `${btcAccount2.assetId}:${btcAccount2.pubkey}`
+  const ethAccountId = `${ethAccount.chainId}:${toLower(ethAccount.pubkey)}`
+  const ethAccount2Id = `${ethAccount2.chainId}:${toLower(ethAccount2.pubkey)}`
+  const btcAccountId = `${btcAccount.chainId}:${btcAccount.pubkey}`
+  const btcAccount2Id = `${btcAccount2.chainId}:${btcAccount2.pubkey}`
 
   return {
     ethAccount,

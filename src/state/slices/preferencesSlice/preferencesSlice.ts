@@ -8,7 +8,6 @@ export type FeatureFlags = {
   ReduxLogging: boolean
   KeepKeySettings: boolean
   WalletMigration: boolean
-  DemoWallet: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -25,7 +24,6 @@ const initialState: Preferences = {
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
     KeepKeySettings: getConfig().REACT_APP_FEATURE_KEEPKEY_SETTINGS,
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
-    DemoWallet: getConfig().REACT_APP_FEATURE_DEMO_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

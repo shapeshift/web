@@ -16,7 +16,7 @@ export type StakingModalProps = {
 export enum StakeRoutes {
   Stake = '/stake',
   Unstake = '/unstake',
-  Overview = '/stake/overview',
+  Overview = '/overview',
 }
 
 export enum UnstakingPath {

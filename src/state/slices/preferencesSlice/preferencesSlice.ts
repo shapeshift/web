@@ -6,7 +6,6 @@ import { getConfig } from '../../../config'
 export type FeatureFlags = {
   FoxyInvestor: boolean
   ReduxLogging: boolean
-  KeepKeySettings: boolean
   WalletMigration: boolean
 }
 
@@ -22,7 +21,6 @@ const initialState: Preferences = {
   featureFlags: {
     FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR,
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
-    KeepKeySettings: getConfig().REACT_APP_FEATURE_KEEPKEY_SETTINGS,
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
   },
   selectedLocale: simpleLocale(),

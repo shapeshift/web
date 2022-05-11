@@ -55,6 +55,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   )
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellTradeAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
+  const hasValidSellAmount = bnOrZero(sellTradeAsset.amount).gt(0)
 
   const feeAssetBalance = useAppSelector(state =>
     feeAsset
@@ -177,12 +178,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.insufficientFunds'
     }
 
-    if (
-      isValid &&
-      hasValidTradeBalance &&
-      !hasEnoughBalanceForGas &&
-      bnOrZero(sellTradeAsset.amount).gt(0)
-    ) {
+    if (isValid && hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount) {
       return 'common.insufficientAmountForGas'
     }
 
@@ -359,7 +355,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 error ||
                 (isValid &&
                   (!hasEnoughBalanceForGas || !hasValidTradeBalance) &&
-                  !bnOrZero(sellTradeAsset.amount).eq(0))
+                  hasValidSellAmount)
                   ? 'red'
                   : 'blue'
               }

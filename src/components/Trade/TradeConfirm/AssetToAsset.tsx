@@ -1,13 +1,13 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Circle, Divider, Flex, FlexProps, Text, useColorModeValue } from '@chakra-ui/react'
 import { Trade } from '@shapeshiftoss/swapper'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, SupportedChainIds } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
-type AssetToAssetProps<C extends ChainTypes> = {
+type AssetToAssetProps<C extends SupportedChainIds> = {
   tradeFiatAmount: string
   buyIcon: string
   status?: chainAdapters.TxStatus
@@ -21,7 +21,7 @@ export const AssetToAsset = ({
   boxSize = '24px',
   status,
   ...rest
-}: AssetToAssetProps<ChainTypes>) => {
+}: AssetToAssetProps<SupportedChainIds>) => {
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const {

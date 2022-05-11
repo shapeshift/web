@@ -1,6 +1,5 @@
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import { FeeDataEstimate } from '@shapeshiftoss/types/dist/chain-adapters'
 
 export type FeePriceValueHuman = {
   fiatFee: string
@@ -12,7 +11,7 @@ export type FeePrice = {
 }
 
 export const getFormFees = (
-  feeData: FeeDataEstimate<ChainTypes.Cosmos>,
+  feeData: chainAdapters.FeeDataEstimate<ChainTypes.Cosmos>,
   precision: number,
   fiatRate: string,
 ) => {

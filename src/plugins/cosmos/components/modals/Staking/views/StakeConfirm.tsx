@@ -10,9 +10,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-// @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
-import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import {
   ConfirmFormFields,
@@ -20,7 +19,7 @@ import {
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -59,11 +58,9 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, { validatorAddress }),
-  )
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
@@ -100,11 +97,18 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
     dispatch,
   } = useWallet()
 
+  if (!validatorInfo || !cryptoAmount) return null
+
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
   const fiatYield = bnOrZero(cryptoYield).times(bnOrZero(marketData.price)).toPrecision()
 
-  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
+  const onSubmit = async ({ feeType }: { feeType: chainAdapters.FeeDataKey }) => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      onCancel()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[feeType]
     const gas = fees.chainSpecific.gasLimit
@@ -114,12 +118,6 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
     methods.setValue(Field.FiatFee, fees.fiatFee)
 
     memoryHistory.push(StakingPath.Broadcast)
-  }
-
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    onCancel()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   if (!cryptoAmount) return null
@@ -132,9 +130,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={(event: FormEvent<unknown>) => {
-            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-          }}
+          onSubmit={handleSubmit(onSubmit)}
           direction='column'
           alignItems='center'
           justifyContent='space-between'

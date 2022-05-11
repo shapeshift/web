@@ -10,8 +10,8 @@ import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
-import { stakingDataApi } from './slices/stakingDataSlice/stakingDataSlice'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
 const persistConfig = {
   key: 'root',
@@ -24,7 +24,7 @@ const apiMiddleware = [
   marketApi.middleware,
   assetApi.middleware,
   txHistoryApi.middleware,
-  stakingDataApi.middleware,
+  validatorDataApi.middleware,
   logging,
 ]
 
@@ -34,7 +34,7 @@ export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
   store.dispatch(slices.marketData.actions.clear())
   store.dispatch(slices.txHistory.actions.clear())
-  store.dispatch(slices.stakingData.actions.clear())
+  store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.accountSpecifiers.actions.clear())
 
@@ -42,7 +42,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.marketApi.util.resetApiState())
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
-  store.dispatch(apiSlices.stakingDataApi.util.resetApiState())
+  store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
 }
 
 /**

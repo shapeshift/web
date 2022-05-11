@@ -1,5 +1,5 @@
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import { merge } from 'lodash'
+import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
 
 export const ethChainId = 'eip155:1'
@@ -52,6 +52,167 @@ export const btcAddresses = Object.freeze([
   'bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8',
 ])
 
+export const mockCosmosAccountWithStakingData = Object.freeze({
+  chainSpecific: {
+    delegations: [
+      {
+        amount: '4',
+        assetId: 'cosmos:cosmoshub-4/slip44:118',
+        validator: {
+          address: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
+          tokens: '111115',
+          apr: '0.1662979435',
+          commission: '0.000000000000000000',
+          moniker: 'tokenpocket',
+        },
+      },
+      {
+        amount: '10015',
+        assetId: 'cosmos:cosmoshub-4/slip44:118',
+        validator: {
+          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+          tokens: '111116',
+          apr: '0.1496681491',
+          commission: '0.100000000000000000',
+          moniker: 'ShapeShift DAO',
+        },
+      },
+      {
+        amount: '5000',
+        assetId: 'cosmos:cosmoshub-4/slip44:118',
+        validator: {
+          address: 'cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn',
+          tokens: '111117',
+          apr: '0.1514974265',
+          commission: '0.089000000000000000',
+          moniker: 'Cosmostation',
+        },
+      },
+    ],
+    redelegations: [
+      {
+        destinationValidator: {
+          address: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
+          tokens: '111115',
+          apr: '0.1662979435',
+          commission: '0.000000000000000000',
+          moniker: 'tokenpocket',
+        },
+        entries: [
+          {
+            amount: '4',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+            completionTime: 1650470407,
+          },
+        ],
+        sourceValidator: {
+          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+          tokens: '111116',
+          apr: '0.1496681491',
+          commission: '0.100000000000000000',
+          moniker: 'ShapeShift DAO',
+        },
+      },
+    ],
+    rewards: [
+      {
+        rewards: [],
+        validator: {
+          address: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
+          tokens: '111115',
+          apr: '0.1662979435',
+          commission: '0.000000000000000000',
+          moniker: 'tokenpocket',
+        },
+      },
+      {
+        rewards: [
+          {
+            amount: '3.831752143667562385',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+          },
+        ],
+        validator: {
+          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+          tokens: '111116',
+          apr: '0.1496681491',
+          commission: '0.100000000000000000',
+          moniker: 'ShapeShift DAO',
+        },
+      },
+      {
+        rewards: [
+          {
+            amount: '12.688084635379675000',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+          },
+        ],
+        validator: {
+          address: 'cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn',
+          tokens: '111117',
+          apr: '0.1514974265',
+          commission: '0.089000000000000000',
+          moniker: 'Cosmostation',
+        },
+      },
+    ],
+    undelegations: [
+      {
+        entries: [
+          {
+            amount: '100',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+            completionTime: 1650472940,
+          },
+        ],
+        validator: {
+          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+          tokens: '111116',
+          apr: '0.1496681491',
+          commission: '0.100000000000000000',
+          moniker: 'ShapeShift DAO',
+        },
+      },
+    ],
+    sequence: '422',
+    accountNumber: '424242',
+  },
+})
+
+export const mockCosmosAccountWithOnlyUndelegations = Object.freeze({
+  chainSpecific: {
+    delegations: [],
+    redelegations: [],
+    rewards: [],
+    undelegations: [
+      {
+        entries: [
+          {
+            amount: '100',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+            completionTime: 1650472940,
+          },
+          {
+            amount: '250',
+            assetId: 'cosmos:cosmoshub-4/slip44:118',
+            completionTime: 1650472941,
+          },
+        ],
+        validator: {
+          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
+          tokens: '111116',
+          apr: '0.1496681491',
+          commission: '0.100000000000000000',
+          moniker: 'ShapeShift DAO',
+        },
+      },
+      {},
+    ] as chainAdapters.cosmos.Undelegation[],
+    sequence: '422',
+    accountNumber: '424242',
+  },
+})
+
 export const cosmosPubKeys = Object.freeze(['cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'])
 
 export const mockEthToken = (obj?: { balance?: string; assetId?: string }) => ({
@@ -76,14 +237,16 @@ export const mockEthAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Et
     obj,
   )
 
-export const mockCosmosAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Cosmos>>) =>
+export const mockCosmosAccount = (obj?: {
+  chainSpecific: chainAdapters.Account<ChainTypes.Cosmos>['chainSpecific']
+}): chainAdapters.Account<ChainTypes.Cosmos> =>
   merge(
     {},
     {
-      balance: '1000',
+      balance: '0',
       chainId: cosmosChainId,
       assetId: cosmosAssetId,
-      chain: ChainTypes.Cosmos,
+      chain: ChainTypes.Cosmos as const,
       chainSpecific: {
         sequence: '',
         accountNumber: '',

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
+import { findAll, findByAssetId, findPriceHistoryByAssetId } from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 
 export type PriceHistoryData = {
@@ -78,17 +78,17 @@ export const marketApi = createApi({
       },
     }),
     findByCaip19: build.query<MarketCapResult, AssetId>({
-      queryFn: async (caip19: AssetId, baseQuery) => {
+      queryFn: async (assetId: AssetId, baseQuery) => {
         try {
-          const currentMarketData = await findByCaip19({ caip19 })
+          const currentMarketData = await findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
-          const data = { [caip19]: currentMarketData }
+          const data = { [assetId]: currentMarketData }
           // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
           // to prevent edge cases like #858
           baseQuery.dispatch(marketData.actions.setMarketData(data))
           return { data }
         } catch (e) {
-          const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
+          const error = { data: `findByCaip19: no market data for ${assetId}`, status: 404 }
           return { error }
         }
       },
@@ -96,7 +96,7 @@ export const marketApi = createApi({
     findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({
       queryFn: async ({ assetId, timeframe }) => {
         try {
-          const data = await findPriceHistoryByCaip19({ timeframe, caip19: assetId })
+          const data = await findPriceHistoryByAssetId({ timeframe, assetId })
           return { data }
         } catch (e) {
           const error = {

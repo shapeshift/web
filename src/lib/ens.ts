@@ -17,7 +17,7 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
   }
 
   const ethereumChainAdapter = new ChainAdapterManager(unchainedUrls).byChain(ChainTypes.Ethereum)
-  const caip2 = await ethereumChainAdapter.getCaip2()
+  const caip2 = await ethereumChainAdapter.getChainId()
   const caip2Reference = caip2.match(
     /^(?<caip2Namespace>[-a-z0-9]{3,8}):(?<caip2Reference>[-a-zA-Z0-9]{1,32})$/,
   )?.groups?.caip2Reference

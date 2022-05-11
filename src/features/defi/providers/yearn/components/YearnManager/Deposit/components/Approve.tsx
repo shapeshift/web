@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -36,8 +36,8 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetCAIP19 = toCAIP19({
+  const assetCAIP19 = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetCAIP19 = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,

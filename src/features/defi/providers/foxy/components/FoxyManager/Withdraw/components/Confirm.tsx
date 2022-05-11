@@ -1,5 +1,5 @@
 import { Box, Stack } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -39,14 +39,14 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = toCAIP19({
+  const underlyingAssetCAIP19 = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetCAIP19))
-  const assetCAIP19 = toCAIP19({
+  const assetCAIP19 = toAssetId({
     chain,
     network,
     assetNamespace,
@@ -55,7 +55,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAssetCAIP19 = toCAIP19({
+  const feeAssetCAIP19 = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,

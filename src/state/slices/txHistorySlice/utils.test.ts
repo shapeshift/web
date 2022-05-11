@@ -64,7 +64,7 @@ describe('txHistorySlice:utils', () => {
 
   describe('deserializeUniqueTxId', () => {
     it('can deserialize a txId', () => {
-      const ethCAIP2 = EthSend.caip2
+      const ethCAIP2 = EthSend.chainId
       const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
       const txId = makeUniqueTxId(EthSend, accountSpecifier)
 

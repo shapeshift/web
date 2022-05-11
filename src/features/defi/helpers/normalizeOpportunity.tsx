@@ -1,4 +1,4 @@
-import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -46,7 +46,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       cryptoAmount = balances.cryptoAmount
       fiatAmount = balances.fiatAmount
     }
-    const assetCAIP19 = toCAIP19({
+    const assetCAIP19 = toAssetId({
       chain: vault.chain,
       network,
       assetNamespace,

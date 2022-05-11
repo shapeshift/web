@@ -59,7 +59,7 @@ describe('portfolioSlice', () => {
           const ethAccount = mockEthAccount({
             chainSpecific: {
               nonce: 1,
-              tokens: [mockEthToken({ balance: '1', caip19: foxCaip19 })],
+              tokens: [mockEthToken({ balance: '1', assetId: foxCaip19 })],
             },
           })
 
@@ -75,7 +75,7 @@ describe('portfolioSlice', () => {
           const ethAccount = mockEthAccount({
             chainSpecific: {
               nonce: 1,
-              tokens: [mockEthToken({ balance: '1', caip19: foxCaip19 })],
+              tokens: [mockEthToken({ balance: '1', assetId: foxCaip19 })],
             },
           })
 
@@ -84,7 +84,7 @@ describe('portfolioSlice', () => {
             pubkey: ethPubKeys[1],
             chainSpecific: {
               nonce: 1,
-              tokens: [mockEthToken({ balance: '2', caip19: usdcCaip19 })],
+              tokens: [mockEthToken({ balance: '2', assetId: usdcCaip19 })],
             },
           })
 
@@ -148,9 +148,9 @@ describe('portfolioSlice', () => {
               chainSpecific: {
                 nonce: 5,
                 tokens: [
-                  mockEthToken({ balance: '42729243327349401946', caip19: foxCaip19 }),
-                  mockEthToken({ balance: '41208456', caip19: usdcCaip19 }),
-                  mockEthToken({ balance: '8178352', caip19: yvusdcCaip19 }),
+                  mockEthToken({ balance: '42729243327349401946', assetId: foxCaip19 }),
+                  mockEthToken({ balance: '41208456', assetId: usdcCaip19 }),
+                  mockEthToken({ balance: '8178352', assetId: yvusdcCaip19 }),
                 ],
               },
               pubkey: ethPubKeys[0],
@@ -160,9 +160,9 @@ describe('portfolioSlice', () => {
               chainSpecific: {
                 nonce: 5,
                 tokens: [
-                  mockEthToken({ balance: '40729243327349401946', caip19: foxCaip19 }),
-                  mockEthToken({ balance: '41208456', caip19: usdcCaip19 }),
-                  mockEthToken({ balance: '8178352', caip19: yvusdcCaip19 }),
+                  mockEthToken({ balance: '40729243327349401946', assetId: foxCaip19 }),
+                  mockEthToken({ balance: '41208456', assetId: usdcCaip19 }),
+                  mockEthToken({ balance: '8178352', assetId: yvusdcCaip19 }),
                 ],
               },
               pubkey: ethPubKeys[1],
@@ -197,13 +197,13 @@ describe('portfolioSlice', () => {
               chainSpecific: {
                 nonce: 5,
                 tokens: [
-                  mockEthToken({ balance: '4516123', caip19: unknown1Caip19 }),
-                  mockEthToken({ balance: '8178312', caip19: yvusdcCaip19 }),
-                  mockEthToken({ balance: '4516124', caip19: unknown2Caip19 }),
-                  mockEthToken({ balance: '41208442', caip19: usdcCaip19 }),
-                  mockEthToken({ balance: '4516125', caip19: unknown3Caip19 }),
-                  mockEthToken({ balance: '40729243327349401958', caip19: foxCaip19 }),
-                  mockEthToken({ balance: '4516126', caip19: zeroCaip19 }),
+                  mockEthToken({ balance: '4516123', assetId: unknown1Caip19 }),
+                  mockEthToken({ balance: '8178312', assetId: yvusdcCaip19 }),
+                  mockEthToken({ balance: '4516124', assetId: unknown2Caip19 }),
+                  mockEthToken({ balance: '41208442', assetId: usdcCaip19 }),
+                  mockEthToken({ balance: '4516125', assetId: unknown3Caip19 }),
+                  mockEthToken({ balance: '40729243327349401958', assetId: foxCaip19 }),
+                  mockEthToken({ balance: '4516126', assetId: zeroCaip19 }),
                 ],
               },
               pubkey: ethPubKeys[2],
@@ -552,8 +552,8 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxCaip19 }),
+              mockEthToken({ balance: '1000000', assetId: usdcCaip19 }),
             ],
           },
         },
@@ -603,8 +603,8 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxCaip19 }),
+              mockEthToken({ balance: '1000000', assetId: usdcCaip19 }),
             ],
           },
         },
@@ -650,8 +650,8 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxCaip19 }),
+              mockEthToken({ balance: '1000000', assetId: usdcCaip19 }),
             ],
           },
         },
@@ -698,9 +698,9 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
-              mockEthToken({ balance: '1000000000000000000', caip19: zeroCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxCaip19 }),
+              mockEthToken({ balance: '1000000', assetId: usdcCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: zeroCaip19 }),
             ],
           },
         },
@@ -750,8 +750,8 @@ describe('portfolioSlice', () => {
           balance: '0',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '123456123456315537', caip19: foxCaip19 }),
-              mockEthToken({ balance: '0', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '123456123456315537', assetId: foxCaip19 }),
+              mockEthToken({ balance: '0', assetId: usdcCaip19 }),
             ],
           },
         },

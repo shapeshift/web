@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, Tag, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -38,8 +38,8 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetCAIP19 = toCAIP19({
+  const assetCAIP19 = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetCAIP19 = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
@@ -50,7 +50,7 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
-  const vaultCAIP19 = toCAIP19({
+  const vaultCAIP19 = toAssetId({
     chain,
     network,
     assetNamespace,

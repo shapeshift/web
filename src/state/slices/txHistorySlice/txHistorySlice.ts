@@ -4,10 +4,10 @@ import {
   AssetId,
   AssetNamespace,
   ChainId,
-  fromCAIP2,
-  toCAIP2,
-  toCAIP10,
-  toCAIP19,
+  fromChainId,
+  toAccountId,
+  toAssetId,
+  toChainId,
 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
@@ -280,11 +280,11 @@ export const txHistoryApi = createApi({
         const chain = ChainTypes.Ethereum
         const network = NetworkTypes.MAINNET
         // foxy is only on eth mainnet
-        const chainId = toCAIP2({ chain, network })
+        const chainId = toChainId({ chain, network })
         const entries = Object.entries(accountSpecifierMap)[0]
         const [accountChainId, userAddress] = entries
 
-        const accountSpecifier = toCAIP10({ caip2: chainId, account: userAddress })
+        const accountSpecifier = toAccountId({ chainId, account: userAddress })
         // [] is a valid return type and won't upsert anything
         if (chainId !== accountChainId) return { data: [] }
 
@@ -306,7 +306,7 @@ export const txHistoryApi = createApi({
         foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
           const assetReference = tokenContractAddress
           const assetNamespace = AssetNamespace.ERC20
-          const assetId = toCAIP19({ chain, network, assetNamespace, assetReference })
+          const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
           const rebaseHistoryArgs = { userAddress, tokenContractAddress }
           const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
           const upsertPayload = { accountId: accountSpecifier, assetId, data }
@@ -331,7 +331,7 @@ export const txHistoryApi = createApi({
         try {
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
-          const { chain } = fromCAIP2(CAIP2)
+          const { chain } = fromChainId(CAIP2)
           const adapter = chainAdapters.byChain(chain)
           let currentCursor: string = ''
           const pageSize = 100

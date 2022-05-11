@@ -1,5 +1,5 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -46,7 +46,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetCAIP19 = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
   const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))

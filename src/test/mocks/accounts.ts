@@ -215,9 +215,9 @@ export const mockCosmosAccountWithOnlyUndelegations = Object.freeze({
 
 export const cosmosPubKeys = Object.freeze(['cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'])
 
-export const mockEthToken = (obj?: { balance?: string; caip19?: string }) => ({
+export const mockEthToken = (obj?: { balance?: string; assetId?: string }) => ({
   balance: '100',
-  caip19: foxCaip19,
+  assetId: foxCaip19,
   ...obj,
 })
 
@@ -226,8 +226,8 @@ export const mockEthAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Et
     {},
     {
       balance: '1000',
-      caip2: ethCaip2,
-      caip19: ethCaip19,
+      chainId: ethCaip2,
+      assetId: ethCaip19,
       chain: ChainTypes.Ethereum,
       chainSpecific: {
         nonce: 1,
@@ -244,8 +244,8 @@ export const mockCosmosAccount = (obj?: {
     {},
     {
       balance: '0',
-      caip2: cosmosCaip2,
-      caip19: cosmosCaip19,
+      chainId: cosmosCaip2,
+      assetId: cosmosCaip19,
       chain: ChainTypes.Cosmos as const,
       chainSpecific: {
         sequence: '',
@@ -271,8 +271,8 @@ export const mockBtcAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Bi
     {},
     {
       balance: '100',
-      caip2: btcCaip2,
-      caip19: btcCaip19,
+      chainId: btcCaip2,
+      assetId: btcCaip19,
       chain: ChainTypes.Bitcoin,
       chainSpecific: {
         addresses: [],
@@ -300,8 +300,8 @@ export const mockETHandBTCAccounts = ({
       chainSpecific: {
         nonce: 1,
         tokens: [
-          mockEthToken({ balance: '3000000000000000000', caip19: foxCaip19 }),
-          mockEthToken({ balance: '10000000', caip19: usdcCaip19 }),
+          mockEthToken({ balance: '3000000000000000000', assetId: foxCaip19 }),
+          mockEthToken({ balance: '10000000', assetId: usdcCaip19 }),
         ],
       },
     }),
@@ -314,7 +314,7 @@ export const mockETHandBTCAccounts = ({
       pubkey: ethPubKeys[1],
       chainSpecific: {
         nonce: 1,
-        tokens: [mockEthToken({ balance: '2000000000000000000', caip19: foxCaip19 })],
+        tokens: [mockEthToken({ balance: '2000000000000000000', assetId: foxCaip19 })],
       },
     }),
     ethAccount2Obj,
@@ -341,10 +341,10 @@ export const mockETHandBTCAccounts = ({
     btcAccount2Obj,
   )
 
-  const ethAccountId = `${ethAccount.caip2}:${toLower(ethAccount.pubkey)}`
-  const ethAccount2Id = `${ethAccount2.caip2}:${toLower(ethAccount2.pubkey)}`
-  const btcAccountId = `${btcAccount.caip2}:${btcAccount.pubkey}`
-  const btcAccount2Id = `${btcAccount2.caip2}:${btcAccount2.pubkey}`
+  const ethAccountId = `${ethAccount.assetId}:${toLower(ethAccount.pubkey)}`
+  const ethAccount2Id = `${ethAccount2.assetId}:${toLower(ethAccount2.pubkey)}`
+  const btcAccountId = `${btcAccount.assetId}:${btcAccount.pubkey}`
+  const btcAccount2Id = `${btcAccount2.assetId}:${btcAccount2.pubkey}`
 
   return {
     ethAccount,

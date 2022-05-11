@@ -1,4 +1,4 @@
-import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -59,19 +59,19 @@ async function getFoxyOpportunities(
       contractAddress: opportunity.contractAddress,
       userAddress,
     })
-    const rewardTokenCaip19 = toCAIP19({
+    const rewardTokenCaip19 = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
       assetReference: opportunity.rewardToken,
     })
-    const contractCaip19 = toCAIP19({
+    const contractCaip19 = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
       assetReference: opportunity.contractAddress,
     })
-    const tokenCaip19 = toCAIP19({
+    const tokenCaip19 = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,

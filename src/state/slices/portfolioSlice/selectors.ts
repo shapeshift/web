@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { AccountId, AssetId, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
@@ -443,7 +443,7 @@ export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
   selectMarketData,
   selectPortfolioAssetBalances,
   (assets, marketData, balances) =>
-    Object.entries(balances).reduce<{ [k: CAIP19]: { crypto: string; fiat: string } }>(
+    Object.entries(balances).reduce<{ [k: AssetId]: { crypto: string; fiat: string } }>(
       (acc, [assetId, balance]) => {
         const precision = assets[assetId]?.precision
         const price = marketData[assetId]?.price
@@ -459,7 +459,7 @@ export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
 export const selectPortfolioAssets = createSelector(
   selectAssets,
   selectPortfolioAssetIds,
-  (assetsById, portfolioAssetIds): { [k: CAIP19]: Asset } =>
+  (assetsById, portfolioAssetIds): { [k: AssetId]: Asset } =>
     portfolioAssetIds.reduce<PortfolioAssets>((acc, cur) => {
       acc[cur] = assetsById[cur]
       return acc
@@ -477,7 +477,7 @@ export const selectPortfolioLoading = createSelector(
 
 export const selectPortfolioAssetBalancesSortedFiat = createSelector(
   selectPortfolioFiatBalances,
-  (portfolioFiatBalances): { [k: CAIP19]: string } =>
+  (portfolioFiatBalances): { [k: AssetId]: string } =>
     Object.entries(portfolioFiatBalances)
       .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
       .reduce<PortfolioAssetBalances['byId']>((acc, [assetId, assetFiatBalance]) => {
@@ -492,13 +492,13 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
   (
     portfolioFiatAccountBalances,
     balanceThreshold,
-  ): { [k: AccountSpecifier]: { [k: CAIP19]: string } } => {
+  ): { [k: AccountSpecifier]: { [k: AssetId]: string } } => {
     return Object.entries(portfolioFiatAccountBalances).reduce<{
-      [k: AccountSpecifier]: { [k: CAIP19]: string }
+      [k: AccountSpecifier]: { [k: AssetId]: string }
     }>((acc, [accountId, assetBalanceObj]) => {
       const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
         .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
-        .reduce<{ [k: CAIP19]: string }>((acc, [assetId, assetFiatBalance]) => {
+        .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetFiatBalance]) => {
           if (bnOrZero(assetFiatBalance).lt(bnOrZero(balanceThreshold))) return acc
           acc[assetId] = assetFiatBalance
           return acc
@@ -512,14 +512,14 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
 
 export const selectPortfolioAssetIdsSortedFiat = createSelector(
   selectPortfolioAssetBalancesSortedFiat,
-  (sortedBalances): CAIP19[] => Object.keys(sortedBalances),
+  (sortedBalances): AssetId[] => Object.keys(sortedBalances),
 )
 
 export const selectPortfolioAllocationPercent = createSelector(
   selectPortfolioTotalFiatBalance,
   selectPortfolioFiatBalances,
-  (totalBalance, fiatBalances): { [k: CAIP19]: number } =>
-    Object.entries(fiatBalances).reduce<{ [k: CAIP19]: number }>((acc, [assetId, fiatBalance]) => {
+  (totalBalance, fiatBalances): { [k: AssetId]: number } =>
+    Object.entries(fiatBalances).reduce<{ [k: AssetId]: number }>((acc, [assetId, fiatBalance]) => {
       acc[assetId] = bnOrZero(fiatBalance).div(bnOrZero(totalBalance)).times(100).toNumber()
       return acc
     }, {}),
@@ -588,7 +588,7 @@ export const selectPortfolioIsEmpty = createSelector(
 
 export const selectPortfolioAssetAccounts = createSelector(
   selectPortfolioAccounts,
-  (_state: ReduxState, assetId: CAIP19) => assetId,
+  (_state: ReduxState, assetId: AssetId) => assetId,
   (portfolioAccounts, assetId): AccountSpecifier[] =>
     Object.keys(portfolioAccounts).filter(accountSpecifier =>
       portfolioAccounts[accountSpecifier].assetIds.find(

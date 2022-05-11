@@ -67,11 +67,11 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
         : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
       const buyTransfer = getBuyTransfer(transaction)
       const sellTransfer = getSellTransfer(transaction)
-      const feeAsset = assets.find(asset => asset.assetId === transaction.fee?.caip19)
+      const feeAsset = assets.find(asset => asset.assetId === transaction.fee?.assetId)
       const input = standardTx ?? sellTransfer ?? null
-      const inputCaip19 = input?.caip19 ?? null
+      const inputCaip19 = input?.assetId ?? null
       const output = standardTx ?? buyTransfer ?? null
-      const outputCaip19 = output?.caip19 ?? null
+      const outputCaip19 = output?.assetId ?? null
       const inputAsset = inputCaip19 ? assets.find(asset => asset.assetId === inputCaip19) : null
       const outputAsset = outputCaip19 ? assets.find(asset => asset.assetId === outputCaip19) : null
       report.push({

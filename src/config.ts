@@ -32,9 +32,7 @@ const validators = {
   REACT_APP_FOXY_APY: num({ default: 0.15 }),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
-  REACT_APP_FEATURE_FOXY_INVESTOR: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
-  REACT_APP_FEATURE_KEEPKEY_SETTINGS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
   REACT_APP_FEATURE_BANXA_RAMP: bool({ default: false }),
 }

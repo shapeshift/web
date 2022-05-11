@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import {
   EarnOpportunityType,
@@ -31,51 +30,35 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
-  const {
-    activeStakingOpportunities: cosmosActiveStakingOpportunities,
-    stakingOpportunities: cosmosStakingOpportunities,
-  } = useCosmosStakingBalances({
+  const { cosmosStakingOpportunities } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
-  const { cosmosGetStarted, cosmosStaking } = useModal()
+  const { cosmosStaking } = useModal()
 
   const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosActiveStakingOpportunities,
     cosmosStakingOpportunities,
   })
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const {
-        type,
-        provider,
-        contractAddress,
-        chain,
-        tokenAddress,
-        rewardAddress,
-        assetId,
-        cryptoAmount,
-      } = opportunity
+      const { type, provider, contractAddress, chain, tokenAddress, rewardAddress, assetId } =
+        opportunity
       if (!isConnected && walletInfo?.deviceId !== 'DemoWallet') {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
 
       if (chain === ChainTypes.Cosmos) {
-        if (bnOrZero(cryptoAmount).gt(0)) {
-          cosmosStaking.open({
-            assetId,
-            validatorAddress: contractAddress,
-          })
-          return
-        }
+        cosmosStaking.open({
+          assetId,
+          validatorAddress: contractAddress,
+        })
 
-        cosmosGetStarted.open({ assetId })
         return
       }
 

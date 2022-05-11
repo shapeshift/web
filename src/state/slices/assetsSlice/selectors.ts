@@ -3,9 +3,10 @@ import {
   AssetId,
   AssetNamespace,
   AssetReference,
-  caip2,
-  caip19,
   ChainId,
+  fromCAIP2,
+  fromCAIP19,
+  toCAIP19,
 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
@@ -68,8 +69,8 @@ export const selectFeeAssetByChainId = createSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
   (assetsById, chainId): Asset => {
-    const { chain, network } = caip2.fromCAIP2(chainId)
-    const feeAssetId = caip19.toCAIP19({
+    const { chain, network } = fromCAIP2(chainId)
+    const feeAssetId = toCAIP19({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,
@@ -83,8 +84,8 @@ export const selectFeeAssetById = createSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset => {
-    const { chain, network } = caip19.fromCAIP19(assetId)
-    const feeAssetId = caip19.toCAIP19({
+    const { chain, network } = fromCAIP19(assetId)
+    const feeAssetId = toCAIP19({
       chain,
       network,
       assetNamespace: AssetNamespace.Slip44,

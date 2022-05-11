@@ -11,7 +11,6 @@ import withdraw from 'assets/withdraw.svg'
 import { CarouselDots } from 'components/CarouselDots/CarouselDots'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {
@@ -40,11 +39,11 @@ const STEP_TO_ELEMENTS_MAPPING = [
 
 type LearnMoreProps = {
   assetId: AssetId
+  onClose: () => void
 }
 
-export const LearnMore = ({ assetId }: LearnMoreProps) => {
+export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
   const history = useHistory()
-  const { cosmosGetStarted } = useModal()
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
     name: 'Osmo',
@@ -59,7 +58,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
   const isLastStep = activeStep === stepsLength
 
   const handleNextOrCloseClick = () => {
-    if (isLastStep) return cosmosGetStarted.close()
+    if (isLastStep) return onClose()
 
     nextStep()
   }

@@ -10,16 +10,15 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import {
   ConfirmFormFields,
   ConfirmFormInput,
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -34,7 +33,7 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectRewardsAmountByAssetId,
+  selectRewardsByValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -67,7 +66,7 @@ export const ClaimConfirm = ({
   const translate = useTranslate()
   const memoryHistory = useHistory()
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -87,7 +86,7 @@ export const ClaimConfirm = ({
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
+    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(
@@ -101,6 +100,11 @@ export const ClaimConfirm = ({
 
   const onSubmit = async () => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      memoryHistory.goBack()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[activeFee]
     const gas = fees.chainSpecific.gasLimit
@@ -123,11 +127,6 @@ export const ClaimConfirm = ({
     cosmosStaking.close()
   }
 
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
   return (
     <FormProvider {...methods}>
       <SlideTransition>
@@ -136,9 +135,7 @@ export const ClaimConfirm = ({
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={(event: FormEvent<unknown>) => {
-            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-          }}
+          onSubmit={handleSubmit(onSubmit)}
           direction='column'
           alignItems='center'
           justifyContent='space-between'

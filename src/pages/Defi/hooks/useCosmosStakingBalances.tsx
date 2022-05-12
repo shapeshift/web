@@ -1,7 +1,7 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   ActiveStakingOpportunity,
   selectAssetById,
@@ -85,7 +85,7 @@ export function useCosmosStakingBalances({
         (acc: BigNumber, opportunity: MergedActiveStakingOpportunity) => {
           return acc.plus(bnOrZero(opportunity.fiatAmount))
         },
-        bnOrZero(0),
+        bn(0),
       ),
     [mergedActiveStakingOpportunities],
   )

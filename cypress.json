@@ -10,20 +10,20 @@
       "whitelistHeaders": [
         "content-type"
       ],
-    "includeHosts": [
-      "dev-api.ethereum.shapeshift.com",
-      "assets.coincap.io",
-      "raw.githubusercontent.com",
-      "api.0x.org",
-      "api.github.com",
-      "dev-api.bitcoin.shapeshift.com",
-      "dev-api.cosmos.shapeshift.com",
-      "static.coincap.io",
-      "mainnet.infura.io",
-      "raw.githack.com",
-      "rawcdn.githack.com",
-      "api.coingecko.com",
-      "cache.yearn.finance"
+      "includeHosts": [
+        "dev-api.ethereum.shapeshift.com",
+        "assets.coincap.io",
+        "raw.githubusercontent.com",
+        "api.0x.org",
+        "api.github.com",
+        "dev-api.bitcoin.shapeshift.com",
+        "dev-api.cosmos.shapeshift.com",
+        "static.coincap.io",
+        "mainnet.infura.io",
+        "raw.githack.com",
+        "rawcdn.githack.com",
+        "api.coingecko.com",
+        "cache.yearn.finance"
       ]
     },
     "testPublicKey": "0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde",

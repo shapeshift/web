@@ -58,6 +58,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     info: 'fiatRamps.banxaMessage',
     logo: banxalogo,
     isImplemented: true,
+    minimumSellThreshold: 50,
     getBuyAndSellList: async () => {
       const buyAssets = getBanxaAssets()
       /**

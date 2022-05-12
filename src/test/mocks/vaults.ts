@@ -1,6 +1,6 @@
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { YearnVaultWithApyAndTvl } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
 
 export const mockVault = (obj?: {

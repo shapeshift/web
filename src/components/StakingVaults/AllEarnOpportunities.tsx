@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import {
   EarnOpportunityType,
@@ -14,6 +13,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectFeatureFlag } from 'state/slices/selectors'

@@ -51,6 +51,7 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
             {...register('search')}
             type='text'
             placeholder='Search'
+            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
             pl={10}
             variant='filled'
           />

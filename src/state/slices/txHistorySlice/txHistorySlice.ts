@@ -260,9 +260,6 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap, portfolioAssetIds }, { dispatch }) => {
-        // only fetch with foxy flag on
-        if (!getConfig().REACT_APP_FEATURE_FOXY_INVESTOR) return { data: [] }
-
         // foxy contract address, note not caip19s
         const foxyTokenContractAddressWithBalances = foxyAddresses.reduce<string[]>(
           (acc, { foxy }) => {

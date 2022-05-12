@@ -13,31 +13,25 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
 export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
-  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const {
     state: { isConnected, walletInfo },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
-  const { opportunities } = useFoxyBalances()
+  const { opportunities: foxyRows } = useFoxyBalances()
   const { cosmosStakingOpportunities } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
-  const { cosmosGetStarted, cosmosStaking } = useModal()
-
-  const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
+  const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
@@ -47,31 +41,19 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const {
-        type,
-        provider,
-        contractAddress,
-        chain,
-        tokenAddress,
-        rewardAddress,
-        assetId,
-        cryptoAmount,
-      } = opportunity
+      const { type, provider, contractAddress, chain, tokenAddress, rewardAddress, assetId } =
+        opportunity
       if (!isConnected && walletInfo?.deviceId !== 'DemoWallet') {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
 
       if (chain === ChainTypes.Cosmos) {
-        if (bnOrZero(cryptoAmount).gt(0)) {
-          cosmosStaking.open({
-            assetId,
-            validatorAddress: contractAddress,
-          })
-          return
-        }
+        cosmosStaking.open({
+          assetId,
+          validatorAddress: contractAddress,
+        })
 
-        cosmosGetStarted.open({ assetId })
         return
       }
 

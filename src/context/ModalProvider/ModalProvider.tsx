@@ -1,6 +1,5 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
-import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
@@ -18,7 +17,6 @@ const MODALS = {
   receive: ReceiveModal,
   send: SendModal,
   fiatRamps: FiatRampsModal,
-  cosmosGetStarted: GetStartedModal,
   cosmosStaking: StakingModal,
   settings: SettingsModal,
   keepKeyWipe: WipeModal,

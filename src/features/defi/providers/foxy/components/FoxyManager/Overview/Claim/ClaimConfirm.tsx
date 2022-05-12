@@ -155,7 +155,6 @@ export const ClaimConfirm = ({
                 <Link
                   isExternal
                   color='blue.500'
-                  // TODO:(ryankk) create explorer links given a link template and a value
                   href={`${asset?.explorerAddressLink}${userAddress}`}
                 >
                   <MiddleEllipsis address={userAddress} />

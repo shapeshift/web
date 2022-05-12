@@ -148,7 +148,7 @@ export const Deposit = ({
   const fieldError = cryptoError || fiatError
 
   const handleTosLink = () => {
-    window.open('/legal/terms-of-service')
+    window.open('/#/legal/terms-of-service')
   }
 
   const handleInputToggle = () => {

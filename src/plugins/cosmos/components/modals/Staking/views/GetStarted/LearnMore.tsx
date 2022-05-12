@@ -11,7 +11,8 @@ import withdraw from 'assets/withdraw.svg'
 import { CarouselDots } from 'components/CarouselDots/CarouselDots'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
+import { selectAssetNameById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {
@@ -40,15 +41,12 @@ const STEP_TO_ELEMENTS_MAPPING = [
 
 type LearnMoreProps = {
   assetId: AssetId
+  onClose: () => void
 }
 
-export const LearnMore = ({ assetId }: LearnMoreProps) => {
+export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
   const history = useHistory()
-  const { cosmosGetStarted } = useModal()
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmo',
-  }))(assetId)
+  const assetName = useAppSelector(state => selectAssetNameById(state, assetId))
 
   const { nextStep, prevStep, setStep, activeStep } = useSteps({
     initialStep: 1,
@@ -59,7 +57,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
   const isLastStep = activeStep === stepsLength
 
   const handleNextOrCloseClick = () => {
-    if (isLastStep) return cosmosGetStarted.close()
+    if (isLastStep) return onClose()
 
     nextStep()
   }
@@ -99,7 +97,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
             <Flex direction='column' alignItems='center'>
               <DefiModalHeader
                 headerImageSrc={currentElement.headerImageSrc}
-                headerText={[currentElement.header, { assetName: asset.name }]}
+                headerText={[currentElement.header, { assetName }]}
                 headerImageMaxWidth={120}
               />
               <Box>
@@ -107,7 +105,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
                   {currentElement.bodies.map((body, i) => (
                     <Box textAlign='left' key={i} mb='18px'>
                       <Text
-                        translation={[body, { assetName: asset.name }]}
+                        translation={[body, { assetName }]}
                         color='gray.500'
                         fontWeight='semibold'
                         fontSize='15px'

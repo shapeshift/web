@@ -48,11 +48,9 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
-      FoxyInvestor: false,
       ReduxLogging: false,
-      KeepKeySettings: false,
       WalletMigration: false,
-      DemoWallet: false,
+      FoxPage: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

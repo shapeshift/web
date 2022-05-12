@@ -84,7 +84,7 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
           return bnOrZero(allowance).gt(state.withdraw.cryptoAmount)
         },
         interval: 15000,
-        maxAttempts: 30,
+        maxAttempts: 60,
       })
       // Get withdraw gas estimate
       const estimatedGasCrypto = await getWithdrawGasEstimate(state.withdraw)

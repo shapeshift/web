@@ -7,6 +7,7 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -18,7 +19,7 @@ const DefiHeader = () => {
 }
 
 const FoxFarmCTA = () => {
-  const apr = getConfig().REACT_APP_ETH_FOX_APR
+  const apr = bnOrZero(getConfig().REACT_APP_ETH_FOX_APR).times(100).toString()
   const ethLogoSrc = 'https://assets.coincap.io/assets/icons/eth@2x.png'
   const foxLogoSrc = 'https://assets.coincap.io/assets/icons/fox@2x.png'
   const hoverBg = useColorModeValue('gray.100', 'gray.750')

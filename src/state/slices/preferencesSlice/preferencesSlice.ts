@@ -4,10 +4,9 @@ import { simpleLocale } from 'lib/browserLocale'
 import { getConfig } from '../../../config'
 
 export type FeatureFlags = {
-  FoxyInvestor: boolean
   ReduxLogging: boolean
-  KeepKeySettings: boolean
   WalletMigration: boolean
+  FoxPage: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -20,10 +19,9 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR,
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
-    KeepKeySettings: getConfig().REACT_APP_FEATURE_KEEPKEY_SETTINGS,
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
+    FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

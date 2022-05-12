@@ -15,28 +15,23 @@ import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnV
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
 export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
-  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const {
     state: { isConnected, walletInfo },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
-  const { opportunities } = useFoxyBalances()
+  const { opportunities: foxyRows } = useFoxyBalances()
   const { cosmosStakingOpportunities } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
   const { cosmosStaking } = useModal()
-
-  const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,

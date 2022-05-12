@@ -1,3 +1,10 @@
+# [@shapeshiftoss/errors-v1.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/errors-v1.1.0...@shapeshiftoss/errors-v1.1.1) (2022-05-12)
+
+
+### Bug Fixes
+
+* **errors:** update tsconfigs to match other packages ([#643](https://github.com/shapeshift/lib/issues/643)) ([53ad3fe](https://github.com/shapeshift/lib/commit/53ad3fef4f4a98ed292c8e6c14af2cb6047205a0))
+
 # [@shapeshiftoss/errors-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/errors-v1.0.1...@shapeshiftoss/errors-v1.1.0) (2022-04-21)
 
 

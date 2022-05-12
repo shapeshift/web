@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v4.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v4.0.1...@shapeshiftoss/types-v4.1.0) (2022-05-12)
+
+
+### Features
+
+* replace ChainTypes to SupportedChainIds in Swapper ([#630](https://github.com/shapeshift/lib/issues/630)) ([9c86118](https://github.com/shapeshift/lib/commit/9c86118b4766b11467c08fad0bed7017ecba40ac))
+
 # [@shapeshiftoss/types-v4.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v4.0.0...@shapeshiftoss/types-v4.0.1) (2022-05-12)
 
 # [@shapeshiftoss/types-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v3.1.5...@shapeshiftoss/types-v4.0.0) (2022-05-05)

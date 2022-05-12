@@ -3,20 +3,16 @@ import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
+import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
 import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { AppDispatch, clearState, useAppSelector } from 'state/store'
 
 import { FlagRow } from './FlagRow'
-
-type FlagsPageProps = {
-  route?: Route
-}
 
 const FlagHeader = () => {
   return (
@@ -33,7 +29,7 @@ const FlagHeader = () => {
   )
 }
 
-export const Flags = ({ route }: FlagsPageProps) => {
+export const Flags = () => {
   const history = useHistory()
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
@@ -72,12 +68,16 @@ export const Flags = ({ route }: FlagsPageProps) => {
           </Stack>
         </Card.Body>
       </Card>
-      <HStack my={4}>
+
+      <HStack my={4} width='full'>
         <Button onClick={handleApply} colorScheme='blue'>
           Apply
         </Button>
         <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
       </HStack>
+
+      <Debugging />
+
       {error && (
         <Alert status='error'>
           <AlertIcon />

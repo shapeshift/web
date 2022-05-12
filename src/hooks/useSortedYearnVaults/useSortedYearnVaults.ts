@@ -27,9 +27,9 @@ export function useSortedYearnVaults(): SupportedYearnVault[] {
             ...x,
             apy: vaults[x.vaultAddress].apy,
             underlyingTokenBalanceUsdc: vaults[x.vaultAddress].underlyingTokenBalanceUsdc,
-            fiatAmount: vaults[x.vaultAddress].fiatAmount
+            fiatAmount: vaults[x.vaultAddress].fiatAmount,
           }
-        : x
+        : x,
     )
 
     return updatedVaults.sort((vaultA, vaultB) => {
@@ -76,7 +76,7 @@ export function useSortedYearnVaults(): SupportedYearnVault[] {
 
   function compareVaultApy(
     vaultA: YearnVaultWithApyAndTvl,
-    vaultB: YearnVaultWithApyAndTvl
+    vaultB: YearnVaultWithApyAndTvl,
   ): number {
     return bnOrZero(vaultA.apy).gt(bnOrZero(vaultB.apy)) ? -1 : 1
   }

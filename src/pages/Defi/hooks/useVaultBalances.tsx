@@ -1,25 +1,25 @@
-import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
 import {
   getSupportedVaults,
   SupportedYearnVault,
-  YearnVaultApi
+  YearnVaultApi,
 } from '@shapeshiftoss/investor-yearn'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
-  SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }
+  SupportedYearnVault & { vaultCaip19: AssetId; tokenCaip19: AssetId; pricePerShare: BigNumber }
 
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVaultApi | null) {
   const acc: Record<string, EarnVault> = {}
@@ -27,17 +27,17 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
   for (let index = 0; index < vaults.length; index++) {
     // TODO: caip indentifiers in vaults
     const vault = vaults[index]
-    const vaultCaip19 = caip19.toCAIP19({
+    const vaultCaip19 = toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
-      assetReference: vault.vaultAddress
+      assetReference: vault.vaultAddress,
     })
-    const tokenCaip19 = caip19.toCAIP19({
+    const tokenCaip19 = toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
-      assetReference: vault.tokenAddress
+      assetReference: vault.tokenAddress,
     })
     const balance = balances[vaultCaip19]
 
@@ -48,7 +48,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
         balance,
         vaultCaip19,
         tokenCaip19,
-        pricePerShare: bnOrZero(pricePerShare)
+        pricePerShare: bnOrZero(pricePerShare),
       }
     }
   }
@@ -71,7 +71,7 @@ export type UseVaultBalancesReturn = {
 export function useVaultBalances(): UseVaultBalancesReturn {
   const USDC_PRECISION = 6
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
   const [loading, setLoading] = useState(false)
   const [vaults, setVaults] = useState<Record<string, EarnVault>>({})
@@ -108,7 +108,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         .times(pricePerShare)
         .times(bnOrZero(marketPrice))
     },
-    [assets, marketData]
+    [assets, marketData],
   )
 
   const totalBalance = useMemo(
@@ -116,8 +116,8 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       Object.values(vaults).reduce((acc: BigNumber, vault: EarnVault) => {
         const amount = makeVaultFiatAmount(vault)
         return acc.plus(bnOrZero(amount))
-      }, bnOrZero(0)),
-    [makeVaultFiatAmount, vaults]
+      }, bn(0)),
+    [makeVaultFiatAmount, vaults],
   )
 
   const mergedVaults = useMemo(() => {
@@ -133,17 +133,17 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           apy: yearnVault?.metadata?.apy?.net_apy,
           underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
             .div(`1e+${USDC_PRECISION}`)
-            .toString()
+            .toString(),
         }
         return acc
       },
-      {}
+      {},
     )
   }, [assets, makeVaultFiatAmount, vaults, yearn])
 
   return {
     vaults: mergedVaults,
     totalBalance: totalBalance.toString(),
-    loading: loading || yearnLoading || balancesLoading
+    loading: loading || yearnLoading || balancesLoading,
   }
 }

@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
+import { logger } from 'lib/logger'
 
 export const App = () => {
   const shouldUpdate = useHasAppUpdated()
@@ -16,22 +17,18 @@ export const App = () => {
   const translate = useTranslate()
 
   useEffect(() => {
+    logger.debug({ shouldUpdate, updateId }, 'Update Check')
     if (shouldUpdate && !toast.isActive(updateId)) {
       const toastId = toast({
         render: () => {
           return (
-            <Alert status='info' variant='subtle' borderRadius='lg'>
-              <IconCircle boxSize={8} color='blue.300'>
+            <Alert status='info' variant='update-box' borderRadius='lg'>
+              <IconCircle boxSize={8} color='gray.500'>
                 <FaSync />
               </IconCircle>
               <AlertDescription ml={3}>{translate('updateToast.body')}</AlertDescription>
-              <Button
-                variant='solid'
-                colorScheme='blue'
-                size='sm'
-                onClick={() => window.location.reload()}
-                ml={4}
-              >
+
+              <Button colorScheme='blue' size='sm' onClick={() => window.location.reload()} ml={4}>
                 {translate('updateToast.cta')}
               </Button>
             </Alert>
@@ -40,7 +37,7 @@ export const App = () => {
         id: updateId,
         duration: null,
         isClosable: false,
-        position: 'bottom-right'
+        position: 'bottom-right',
       })
       if (!toastId) return
       toastIdRef.current = toastId

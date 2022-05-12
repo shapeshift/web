@@ -7,6 +7,6 @@ export const makeBtcAccount = (): bitcoin.BitcoinAccount => {
     unconfirmedBalance: '0',
     addresses: [],
     nextReceiveAddressIndex: 0,
-    nextChangeAddressIndex: 0
+    nextChangeAddressIndex: 0,
   }
 }

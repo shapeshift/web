@@ -1,29 +1,25 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
-import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
-import React, { useContext, useMemo, useReducer } from 'react'
+import React, { useMemo, useReducer } from 'react'
+import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
-import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
-import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
-import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
+
+import { ModalContext } from './ModalContext'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the
 // component is the modal to be rendered
 const MODALS = {
-  nativePassword: PasswordModal,
-  keepkeyPin: PinModal,
-  keepkeyPassphrase: PassphraseModal,
   receive: ReceiveModal,
   send: SendModal,
   fiatRamps: FiatRampsModal,
-  cosmosGetStarted: GetStartedModal,
   cosmosStaking: StakingModal,
-  settings: SettingsModal
+  settings: SettingsModal,
+  keepKeyWipe: WipeModal,
 }
 
 // state
@@ -74,10 +70,10 @@ export function createInitialState<S>(modalSetup: S): ModalState<S> {
       ...acc,
       [modalName]: {
         ...modalMethods,
-        Component: modalSetup[modalName]
-      }
+        Component: modalSetup[modalName],
+      },
     }),
-    {} as ModalState<S>
+    {} as ModalState<S>,
   )
   return result
 }
@@ -91,7 +87,7 @@ export function modalReducer<S>(state: S, action: ModalActions<S>): S {
     case OPEN_MODAL:
       return {
         ...state,
-        [action.name]: { ...state[action.name], isOpen: true, props: action.props }
+        [action.name]: { ...state[action.name], isOpen: true, props: action.props },
       }
     case CLOSE_MODAL:
       return { ...state, [action.name]: { ...state[action.name], isOpen: false } }
@@ -99,15 +95,6 @@ export function modalReducer<S>(state: S, action: ModalActions<S>): S {
       return state
   }
 }
-
-// testability
-export function createModalContext<M>(state: M) {
-  return React.createContext<M>(state)
-}
-
-// context
-// If initial state is removed/set to null, the KeepKey wallet modals will break
-export const ModalContext = createModalContext(initialState)
 
 type ModalProviderProps = {
   children: React.ReactNode
@@ -118,11 +105,12 @@ type CreateModalProviderProps<M> = {
   instanceReducer: (state: M, action: ModalActions<M>) => M
   InstanceModalContext: React.Context<M>
 }
+export type ModalStateType = typeof initialState
 // provider
 export function createModalProvider<M>({
   instanceInitialState,
   instanceReducer,
-  InstanceModalContext
+  InstanceModalContext,
 }: CreateModalProviderProps<M>) {
   return ({ children }: ModalProviderProps) => {
     const [state, dispatch] = useReducer(instanceReducer, instanceInitialState)
@@ -130,12 +118,12 @@ export function createModalProvider<M>({
     const openFactory = useMemo(
       () => (name: keyof M) => (props: ModalProps<M>) =>
         dispatch({ type: OPEN_MODAL, name, props }),
-      []
+      [],
     )
 
     const closeFactory = useMemo(
       () => (name: keyof M) => () => dispatch({ type: CLOSE_MODAL, name }),
-      []
+      [],
     )
 
     const value = useMemo(() => {
@@ -147,7 +135,7 @@ export function createModalProvider<M>({
       }, state)
       const result = merge(state, fns)
       return result
-    }, [state, closeFactory, openFactory])
+    }, [state, openFactory, closeFactory])
 
     return (
       <InstanceModalContext.Provider value={value}>
@@ -163,17 +151,5 @@ export function createModalProvider<M>({
 export const ModalProvider = createModalProvider({
   instanceInitialState: initialState,
   instanceReducer: modalReducer,
-  InstanceModalContext: ModalContext
+  InstanceModalContext: ModalContext,
 })
-
-// for testing
-export function makeUseModal<C extends ModalState<T>, T>(context: React.Context<C>) {
-  return function () {
-    const c = useContext<C>(context)
-    if (!c) throw new Error('useModal hook cannot be used outside of the modal provider')
-    return c
-  }
-}
-
-// hook
-export const useModal = makeUseModal(ModalContext)

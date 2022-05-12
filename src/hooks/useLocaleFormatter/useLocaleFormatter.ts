@@ -80,7 +80,7 @@ const getParts = (locale: string, fiatType = 'USD') => {
     groupSize: 3,
     secondaryGroupSize: 3,
     prefix: '$',
-    postfix: ''
+    postfix: '',
   }
 
   try {
@@ -88,7 +88,7 @@ const getParts = (locale: string, fiatType = 'USD') => {
     const groupFormatter = new Intl.NumberFormat(locale, {
       currency: fiatType,
       style: 'currency',
-      useGrouping: true
+      useGrouping: true,
     })
     const parts = groupFormatter.formatToParts(1234567.1234567890123456789)
     const groups = parts.filter(p => p.type === 'integer')
@@ -113,12 +113,12 @@ const getParts = (locale: string, fiatType = 'USD') => {
 
 export const getBrowserLocales = (options = {}) => {
   const defaultOptions = {
-    languageCodeOnly: false
+    languageCodeOnly: false,
   }
 
   const opt = {
     ...defaultOptions,
-    ...options
+    ...options,
   }
 
   const browserLocales =
@@ -168,7 +168,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     return {
       number: parts?.[2],
       prefix: parts?.[1],
-      postfix: parts?.[3]?.trim()
+      postfix: parts?.[3]?.trim(),
     }
   }
 
@@ -196,7 +196,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     const minimumFractionDigits = noDecimals ? 0 : 2
     const maximumFractionDigits = Math.max(
       minimumFractionDigits,
-      lessThanMin ? 6 : getFiatNumberFractionDigits(number)
+      lessThanMin ? 6 : getFiatNumberFractionDigits(number),
     )
     const formatter = new Intl.NumberFormat(deviceLocale, {
       notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
@@ -205,7 +205,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       currency: fiatType,
       minimumFractionDigits,
       maximumFractionDigits: 10,
-      ...options
+      ...options,
     })
 
     const parts = formatter.formatToParts(formatNumber)
@@ -223,18 +223,18 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       }
       return `${parts.prefix}${parts.number} ${parts.postfix}`
     },
-    [localeParts]
+    [localeParts],
   )
 
   /** Format a number as a crypto display value */
   const numberToCrypto = (
     num: NumberValue,
     symbol = 'BTC',
-    options?: NumberFormatOptions
+    options?: NumberFormatOptions,
   ): string => {
     return `${toNumber(num).toLocaleString(deviceLocale, {
       maximumFractionDigits: CRYPTO_PRECISION,
-      ...options
+      ...options,
     })} ${symbol}`
   }
 
@@ -245,7 +245,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   const numberToCryptoInput = (
     num: NumberValue,
     symbol = 'BTC',
-    options?: NumberFormatOptions
+    options?: NumberFormatOptions,
   ): string => {
     const fractionDigits = (String(num).split('.')?.[1] ?? '').length
     const minimumFractionDigits =
@@ -267,7 +267,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         return String(value)
       }
     },
-    [fiatTypeToUse, deviceLocale] // eslint-disable-line react-hooks/exhaustive-deps
+    [fiatTypeToUse, deviceLocale], // eslint-disable-line react-hooks/exhaustive-deps
   )
 
   /**
@@ -288,7 +288,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         return String(num)
       }
     },
-    [localeParts, numberToFiat] // eslint-disable-line react-hooks/exhaustive-deps
+    [localeParts, numberToFiat], // eslint-disable-line react-hooks/exhaustive-deps
   )
 
   const numberToPercent = (number: NumberValue, options: NumberFormatOptions = {}): string => {
@@ -297,7 +297,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       minimumIntegerDigits: 1,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-      ...options
+      ...options,
     })
   }
 
@@ -331,11 +331,11 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       toFiatInput: numberToFiatInput,
       toParts: numberToParts,
       toPercent: numberToPercent,
-      toString: numberToString
+      toString: numberToString,
     },
     date: {
       toDateTime,
-      toShortDate
-    }
+      toShortDate,
+    },
   }
 }

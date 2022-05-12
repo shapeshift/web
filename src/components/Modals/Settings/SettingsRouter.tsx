@@ -3,7 +3,7 @@ import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-do
 
 import { FiatCurrencies } from './FiatCurrencies'
 import { Languages } from './Languages'
-import { SettingsRoutes } from './Settings'
+import { SettingsRoutes } from './SettingsCommon'
 import { SettingsList } from './SettingsList'
 
 export const SettingsRouter = ({ appHistory }: { appHistory: RouteComponentProps['history'] }) => {

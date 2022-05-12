@@ -12,7 +12,7 @@ type AccountRowWithTokensProps = {
 
 export const AccountRowWithTokens = ({ accountId }: AccountRowWithTokensProps) => {
   const assetIds = useAppSelector(state =>
-    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId)
+    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
   return (
     <Card variant='outline'>

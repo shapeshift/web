@@ -1,20 +1,20 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
-  selectAssetByCAIP19,
-  selectTxIdsByFilter
+  selectAssetById,
+  selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   useCompactMode?: boolean
   limit?: number
@@ -24,21 +24,21 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   assetId,
   accountId,
   useCompactMode = false,
-  limit
+  limit,
 }) => {
   const translate = useTranslate()
   const {
-    state: { wallet }
+    state: { wallet },
   } = useWallet()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const chainId = asset.caip2
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const chainId = asset.chainId
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const filter = useMemo(
-    // if we are passed an accountId, we're on an asset accoutn page, use that specifically.
+    // if we are passed an accountId, we're on an asset account page, use that specifically.
     // otherwise, we're on an asset page, use all accountIds related to this asset
     () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
-    [assetId, accountId, accountIds]
+    [assetId, accountId, accountIds],
   )
 
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
@@ -54,7 +54,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
           {translate(
             useCompactMode
               ? 'transactionHistory.recentTransactions'
-              : 'transactionHistory.transactionHistory'
+              : 'transactionHistory.transactionHistory',
           )}
         </Card.Heading>
       </Card.Header>

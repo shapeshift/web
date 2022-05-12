@@ -4,7 +4,7 @@ import { Row } from './Row'
 
 export const TransactionId = ({
   explorerTxLink,
-  txid
+  txid,
 }: {
   explorerTxLink: string
   txid: string

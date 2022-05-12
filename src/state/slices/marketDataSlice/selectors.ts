@@ -1,7 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryData, HistoryTimeframe, MarketCapResult } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
+import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtBlockTime } from 'lib/charts'
 import { ReduxState } from 'state/reducer'
@@ -21,16 +22,16 @@ export const selectMarketData = createDeepEqualOutputSelector(
       acc[caip19] = {
         ...assetMarketData,
         price: bnOrZero(assetMarketData.price).times(fiatPrice).toString(),
-        marketCap: bnOrZero(assetMarketData.marketCap).times(fiatPrice).toString()
+        marketCap: bnOrZero(assetMarketData.marketCap).times(fiatPrice).toString(),
       }
       return acc
     }, {})
-  }
+  },
 )
 
-const selectAssetId = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => assetId
+const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 
-export const selectMarketDataById = createSelector(
+export const selectMarketDataById = createCachedSelector(
   selectMarketData,
   selectAssetId,
   selectFiatMarketData,
@@ -43,9 +44,9 @@ export const selectMarketDataById = createSelector(
       ...assetMarketData,
       price: bnOrZero(assetMarketData?.price ?? 0)
         .times(fiatPrice)
-        .toString()
+        .toString(),
     }
-  }
+  },
 )
 
 // assets we have loaded market data for
@@ -54,7 +55,7 @@ export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids
 // if we don't have it it's loading
 export const selectMarketDataLoadingById = createSelector(
   selectMarketDataById,
-  (assetMarketData): boolean => isEmpty(assetMarketData)
+  (assetMarketData): boolean => isEmpty(assetMarketData),
 )
 
 export const selectPriceHistory = (state: ReduxState) => state.marketData.priceHistory
@@ -65,7 +66,7 @@ export const selectPriceHistoryByAssetTimeframe = createDeepEqualOutputSelector(
   selectSelectedCurrency,
   selectFiatPriceHistory,
   selectAssetId,
-  (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
+  (_state: ReduxState, _assetId: AssetId, timeframe: HistoryTimeframe) => timeframe,
   (priceHistory, selectedCurrency, fiatPriceHistoryData, assetId, timeframe) => {
     const assetPriceHistoryData = priceHistory[timeframe][assetId] ?? []
     if (selectedCurrency === 'USD') return assetPriceHistoryData
@@ -76,42 +77,42 @@ export const selectPriceHistoryByAssetTimeframe = createDeepEqualOutputSelector(
       const { price, date } = assetHistoryDate
       const fiatToUsdRate = priceAtBlockTime({
         priceHistoryData: fiatPriceHistory,
-        date
+        date,
       })
       acc.push({
         price: bnOrZero(price).times(fiatToUsdRate).toNumber(),
-        date
+        date,
       })
       return acc
     }, [])
-  }
+  },
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
   selectPriceHistory,
   selectFiatPriceHistory,
   selectSelectedCurrency,
-  (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
-  (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
+  (_state: ReduxState, assetIds: AssetId[], _timeframe: HistoryTimeframe) => assetIds,
+  (_state: ReduxState, _assetIds: AssetId[], timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
   (priceHistory, fiatPriceHistory, selectedCurrency, assetIds, timeframe) =>
     !(
       assetIds.every(assetId => Boolean(priceHistory[timeframe][assetId])) &&
       Boolean(fiatPriceHistory[timeframe][selectedCurrency])
-    )
+    ),
 )
 
 export const selectPriceHistoryTimeframe = createSelector(
   selectPriceHistory,
   (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, timeframe) => priceHistory[timeframe]
+  (priceHistory, timeframe) => priceHistory[timeframe],
 )
 
 export const selectFiatPriceHistoryTimeframe = createSelector(
   selectFiatPriceHistory,
   selectSelectedCurrency,
   (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
-  (fiatPriceHistory, selectedCurrency, timeframe) => fiatPriceHistory[timeframe][selectedCurrency]
+  (fiatPriceHistory, selectedCurrency, timeframe) => fiatPriceHistory[timeframe][selectedCurrency],
 )
 
 export const selectPriceHistoriesLoadingByFiatTimeframe = createSelector(
@@ -120,5 +121,5 @@ export const selectPriceHistoriesLoadingByFiatTimeframe = createSelector(
   (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
   (fiatPriceHistory, selectedCurrency, timeframe) =>
-    selectedCurrency === 'USD' ? false : !Boolean(fiatPriceHistory[timeframe][selectedCurrency])
+    selectedCurrency === 'USD' ? false : !Boolean(fiatPriceHistory[timeframe][selectedCurrency]),
 )

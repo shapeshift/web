@@ -8,20 +8,22 @@ import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+import { validatorData, validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
 export const slices = {
   assets,
   marketData,
   txHistory,
+  validatorData,
   portfolio,
   preferences,
-  accountSpecifiers
+  accountSpecifiers,
 }
 
 const preferencesPersistConfig = {
   key: 'preferences',
   storage: localforage,
-  blacklist: ['featureFlags']
+  blacklist: ['featureFlags'],
 }
 
 export const sliceReducers = {
@@ -30,21 +32,24 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  accountSpecifiers: accountSpecifiers.reducer
+  accountSpecifiers: accountSpecifiers.reducer,
+  validatorData: validatorData.reducer,
 }
 
 export const apiSlices = {
   assetApi,
   portfolioApi,
   marketApi,
-  txHistoryApi
+  txHistoryApi,
+  validatorDataApi,
 }
 
 export const apiReducers = {
   [assetApi.reducerPath]: assetApi.reducer,
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer,
-  [txHistoryApi.reducerPath]: txHistoryApi.reducer
+  [txHistoryApi.reducerPath]: txHistoryApi.reducer,
+  [validatorDataApi.reducerPath]: validatorDataApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

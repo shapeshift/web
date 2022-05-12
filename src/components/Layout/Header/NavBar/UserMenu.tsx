@@ -1,29 +1,21 @@
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  CloseIcon,
-  RepeatIcon,
-  WarningTwoIcon
-} from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
+import { ChevronDownIcon, ChevronRightIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Button, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
+import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
-import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import type { InitialState } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
 
-type WalletImageProps = Pick<InitialState, 'walletInfo'>
-
-export const WalletImage = ({ walletInfo }: WalletImageProps) => {
-  const Icon = walletInfo?.icon
-  if (Icon) {
-    return <Icon width='6' height='auto' />
-  }
-  return null
-}
+export const entries = [WalletConnectedRoutes.Connected]
 
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()
@@ -37,40 +29,26 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
   )
 }
 
-type WalletConnectedProps = {
+export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
-} & Pick<InitialState, 'walletInfo' | 'isConnected'>
+} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
 
-const WalletConnected = ({
-  walletInfo,
-  isConnected,
-  onDisconnect,
-  onSwitchProvider
-}: WalletConnectedProps) => {
-  const translate = useTranslate()
+export const WalletConnected = (props: WalletConnectedProps) => {
   return (
-    <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
-      <MenuItem icon={<WalletImage walletInfo={walletInfo} />}>
-        <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-          <RawText>{walletInfo?.name}</RawText>
-          {!isConnected && (
-            <Text
-              translation={'connectWallet.menu.disconnected'}
-              fontSize='sm'
-              color='yellow.500'
-            />
-          )}
-        </Flex>
-      </MenuItem>
-      <MenuDivider ml={3} />
-      <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
-        {translate('connectWallet.menu.switchWallet')}
-      </MenuItem>
-      <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={onDisconnect} color='red.500'>
-        {translate('connectWallet.menu.disconnect')}
-      </MenuItem>
-    </MenuGroup>
+    <MemoryRouter initialEntries={entries}>
+      <Switch>
+        <Route path='/'>
+          <WalletConnectedMenu
+            isConnected={props.isConnected}
+            walletInfo={props.walletInfo}
+            onDisconnect={props.onDisconnect}
+            onSwitchProvider={props.onSwitchProvider}
+            type={props.type}
+          />
+        </Route>
+      </Switch>
+    </MemoryRouter>
   )
 }
 
@@ -84,7 +62,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   isConnected,
   walletInfo,
   onConnect,
-  isLoadingLocalWallet
+  isLoadingLocalWallet,
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
@@ -120,7 +98,9 @@ const WalletButton: FC<WalletButtonProps> = ({
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
-          {isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
+          {!(isConnected || walletInfo?.deviceId === 'DemoWallet') && (
+            <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />
+          )}
           <WalletImage walletInfo={walletInfo} />
         </HStack>
       }
@@ -150,11 +130,12 @@ const WalletButton: FC<WalletButtonProps> = ({
   )
 }
 
-export const UserMenu = () => {
+export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, walletInfo } = state
+  const { isConnected, walletInfo, type } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = () => {
+    onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
@@ -166,13 +147,18 @@ export const UserMenu = () => {
         isConnected={isConnected}
         isLoadingLocalWallet={state.isLoadingLocalWallet}
       />
-      <MenuList maxWidth='100%' minWidth={0}>
+      <MenuList
+        maxWidth={{ base: 'full', md: 'xs' }}
+        minWidth={{ base: 0, md: 'xs' }}
+        overflow='hidden'
+      >
         {hasWallet ? (
           <WalletConnected
-            isConnected={isConnected}
+            isConnected={isConnected || walletInfo?.deviceId === 'DemoWallet'}
             walletInfo={walletInfo}
             onDisconnect={disconnect}
             onSwitchProvider={handleConnect}
+            type={type}
           />
         ) : (
           <NoWallet onClick={handleConnect} />

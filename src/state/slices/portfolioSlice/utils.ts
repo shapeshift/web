@@ -1,44 +1,47 @@
-import { CAIP2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { AccountId, AssetId, ChainId, fromCAIP19, toCAIP2, toCAIP10 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import {
-  Asset,
-  BIP44Params,
-  chainAdapters,
-  ChainTypes,
-  UtxoAccountType
-} from '@shapeshiftoss/types'
+import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
+import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { initialState, Portfolio } from './portfolioSlice'
+import { PubKey } from '../validatorDataSlice/validatorDataSlice'
+import {
+  initialState,
+  Portfolio,
+  PortfolioAccounts as PortfolioSliceAccounts,
+} from './portfolioSliceCommon'
 
-export type UtxoParamsAndAccountType = {
-  utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
-  accountType: UtxoAccountType
-}
-
-// TODO(0xdef1cafe): these should be exported from caip2
+// TODO(gomes): Import from caip after lib#572 is merged
 export const ethChainId = 'eip155:1'
 export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const cosmosChainId = 'cosmos:cosmoshub-4'
+const osmosisChainId = 'cosmos:osmosis-1'
+export const ethAssetId = 'eip155:1/slip44:60'
+export const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+export const cosmosAssetId = 'cosmos:cosmoshub-4/slip44:118'
+export const osmosisAssetId = 'cosmos:osmosis-1/slip44:118'
+
+export const chainIds = [ethChainId, btcChainId, cosmosChainId] as const
+export type ChainIdType = typeof chainIds[number]
 
 // we only need to update this when we support additional chains, which is infrequent
 // so it's ok to hardcode this map here
 const caip2toCaip19: Record<string, string> = {
-  [ethChainId]: 'eip155:1/slip44:60',
-  [btcChainId]: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-  [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118'
+  [ethChainId]: ethAssetId,
+  [btcChainId]: btcAssetId,
+  [cosmosChainId]: cosmosAssetId,
+  [osmosisChainId]: osmosisAssetId,
 }
 
-export const assetIdtoChainId = (caip19: CAIP19): string => {
-  return caip19.split('/')[0]
-}
+export const assetIdToChainId = (caip19: AssetId): ChainIdType =>
+  caip19.split('/')[0] as ChainIdType
 
-export const accountIdToChainId = (accountId: AccountSpecifier): CAIP2 => {
+export const accountIdToChainId = (accountId: AccountSpecifier): ChainId => {
   // accountId = 'eip155:1:0xdef1...cafe
   const [chain, network] = accountId.split(':')
   return `${chain}:${network}`
@@ -95,9 +98,11 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
+export const chainIdToFeeAssetId = (chainId: ChainId): AssetId => caip2toCaip19[chainId]
+
 // note - this is not really a selector, more of a util
-export const accountIdToFeeAssetId = (accountId: AccountSpecifier) =>
-  caip2toCaip19[accountIdToChainId(accountId)]
+export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
+  chainIdToFeeAssetId(accountIdToChainId(accountId))
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
@@ -110,7 +115,7 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
 export const accountIdToUtxoParams = (
   asset: Asset,
   accountId: AccountSpecifier,
-  accountIndex: number
+  accountIndex: number,
 ) => {
   const accountType = accountIdToAccountType(accountId)
   // for eth, we don't return a UtxoAccountType or utxoParams
@@ -120,29 +125,29 @@ export const accountIdToUtxoParams = (
 }
 
 export const findAccountsByAssetId = (
-  portfolioAccounts: { [k: string]: string[] },
-  assetId: CAIP19
+  portfolioAccounts: PortfolioSliceAccounts['byId'],
+  assetId: AssetId,
 ): AccountSpecifier[] => {
   const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
-    (acc, [accountId, accountAssets]) => {
-      if (accountAssets.includes(assetId)) acc.push(accountId)
+    (acc, [accountId, account]) => {
+      if (account.assetIds.includes(assetId)) acc.push(accountId)
       return acc
     },
-    []
+    [],
   )
 
   // If we don't find an account that has the given asset,
   // return the account(s) for that given assets chain
   if (result.length === 0) {
     return Object.keys(portfolioAccounts).filter(
-      accountId => assetIdtoChainId(assetId) === accountIdToChainId(accountId)
+      accountId => assetIdToChainId(assetId) === accountIdToChainId(accountId),
     )
   }
   return result
 }
 
 type PortfolioAccounts = {
-  [k: CAIP10]: chainAdapters.Account<ChainTypes>
+  [k: AccountId]: chainAdapters.Account<ChainTypes>
 }
 
 type AccountToPortfolioArgs = {
@@ -170,24 +175,24 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { caip2, caip19, pubkey } = account
         const accountSpecifier = `${caip2}:${toLower(pubkey)}`
-        const CAIP10 = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
+        const CAIP10 = toCAIP10({ caip2, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
-        portfolio.accounts.byId[accountSpecifier] = []
-        portfolio.accounts.byId[accountSpecifier].push(caip19)
+        portfolio.accounts.byId[accountSpecifier] = { assetIds: [] }
+        portfolio.accounts.byId[accountSpecifier].assetIds.push(caip19)
         portfolio.accounts.ids.push(accountSpecifier)
 
         portfolio.assetBalances.byId[caip19] = sumBalance(
           portfolio.assetBalances.byId[caip19] ?? '0',
-          ethAccount.balance
+          ethAccount.balance,
         )
 
         // add assetId without dupes
         portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
 
         portfolio.accountBalances.byId[accountSpecifier] = {
-          [caip19]: ethAccount.balance
+          [caip19]: ethAccount.balance,
         }
 
         portfolio.accountSpecifiers.byId[accountSpecifier] = [CAIP10]
@@ -197,21 +202,21 @@ export const accountToPortfolio: AccountToPortfolio = args => {
             return
           }
 
-          portfolio.accounts.byId[CAIP10].push(token.caip19)
+          portfolio.accounts.byId[CAIP10].assetIds.push(token.caip19)
           // add assetId without dupes
           portfolio.assetBalances.ids = Array.from(
-            new Set([...portfolio.assetBalances.ids, token.caip19])
+            new Set([...portfolio.assetBalances.ids, token.caip19]),
           )
 
           // if token already exist inside assetBalances, add balance to existing balance
           portfolio.assetBalances.byId[token.caip19] = sumBalance(
             portfolio.assetBalances.byId[token.caip19] ?? '0',
-            token.balance
+            token.balance,
           )
 
           portfolio.accountBalances.byId[accountSpecifier] = {
             ...portfolio.accountBalances.byId[accountSpecifier],
-            [token.caip19]: token.balance
+            [token.caip19]: token.balance,
           }
         })
         break
@@ -234,14 +239,16 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountBalances.byId[accountSpecifier][caip19] = balance
 
         // initialize
-        if (!portfolio.accounts.byId[accountSpecifier]?.length) {
-          portfolio.accounts.byId[accountSpecifier] = []
+        if (!portfolio.accounts.byId[accountSpecifier]?.assetIds.length) {
+          portfolio.accounts.byId[accountSpecifier] = {
+            assetIds: [],
+          }
         }
 
         portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountSpecifier]))
 
-        portfolio.accounts.byId[accountSpecifier] = Array.from(
-          new Set([...portfolio.accounts.byId[accountSpecifier], caip19])
+        portfolio.accounts.byId[accountSpecifier].assetIds = Array.from(
+          new Set([...portfolio.accounts.byId[accountSpecifier].assetIds, caip19]),
         )
 
         portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
@@ -250,10 +257,10 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           .plus(bnOrZero(balance))
           .toString()
 
-        // For tx history, we need to have CAIP10's of addresses that may have 0 balances
-        // for accountSpecifier to CAIP10 mapping
+        // For tx history, we need to have CAIP10/AccountIds of addresses that may have 0 balances
+        // for accountSpecifier to CAIP10/AccountId mapping
         addresses.forEach(({ pubkey }) => {
-          const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
+          const CAIP10 = toCAIP10({ caip2, account: pubkey })
           if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
             portfolio.accountSpecifiers.byId[accountSpecifier] = []
           }
@@ -265,26 +272,99 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       }
       case ChainTypes.Cosmos:
       case ChainTypes.Osmosis: {
+        const cosmosAccount = account as chainAdapters.Account<ChainTypes.Cosmos>
         const { caip2, caip19 } = account
         const accountSpecifier = `${caip2}:${_xpubOrAccount}`
-        const accountId = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
+        const accountId = toCAIP10({ caip2, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
-        portfolio.accounts.byId[accountSpecifier] = []
-        portfolio.accounts.byId[accountSpecifier].push(caip19)
+        portfolio.accounts.byId[accountSpecifier] = {
+          assetIds: [],
+          validatorIds: [],
+          stakingDataByValidatorId: {},
+        }
+
+        portfolio.accounts.byId[accountSpecifier].assetIds.push(caip19)
+        const uniqueValidatorAddresses: PubKey[] = Array.from(
+          new Set(
+            [
+              cosmosAccount.chainSpecific.delegations.map(
+                delegation => delegation.validator.address,
+              ),
+              cosmosAccount.chainSpecific.undelegations
+                .map(undelegation => {
+                  return undelegation?.validator?.address
+                })
+                .filter(Boolean),
+              cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
+            ].flat(),
+          ),
+        )
+
+        portfolio.accounts.byId[accountSpecifier].validatorIds = uniqueValidatorAddresses
+        portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId = {}
+
+        // This block loads staking data at validator into the portfolio state
+        // This is only ran once on portfolio load and after caching ends so the addditional time complexity isn't so relevant, but it can probably be simplified
+        uniqueValidatorAddresses.forEach(validatorAddress => {
+          const validatorRewards = cosmosAccount.chainSpecific.rewards.find(
+            validatorRewards => validatorRewards.validator.address === validatorAddress,
+          )
+          const rewards = groupBy(validatorRewards?.rewards, rewardEntry => rewardEntry.assetId)
+          // TODO: Do we need this? There might only be one entry per validator address actually
+          const delegationEntries = cosmosAccount.chainSpecific.delegations.filter(
+            delegation => delegation.validator.address === validatorAddress,
+          )
+          // TODO: Do we need this? There might only be one entry per validator address actually
+          const undelegationEntries = cosmosAccount.chainSpecific.undelegations.find(
+            undelegation => undelegation.validator.address === validatorAddress,
+          )
+          const delegations = groupBy(delegationEntries, delegationEntry => delegationEntry.assetId)
+          const undelegations = groupBy(
+            undelegationEntries?.entries,
+            undelegationEntry => undelegationEntry.assetId,
+          )
+
+          const uniqueAssetIds = Array.from(
+            new Set([
+              ...Object.keys(delegations),
+              ...Object.keys(undelegations),
+              ...Object.keys(rewards),
+            ]),
+          )
+
+          let portfolioAccount = portfolio.accounts.byId[accountSpecifier]
+          if (portfolioAccount.stakingDataByValidatorId) {
+            portfolioAccount.stakingDataByValidatorId[validatorAddress] = {}
+
+            uniqueAssetIds.forEach(assetId => {
+              // Useless check just to make TS happy, we are sure this is defined because of the assignment before the forEach
+              // However, forEach being its own scope loses the narrowing
+              if (portfolioAccount?.stakingDataByValidatorId?.[validatorAddress]) {
+                portfolioAccount.stakingDataByValidatorId[validatorAddress][assetId] = {
+                  delegations: delegations[assetId] ?? [],
+                  undelegations: undelegations[assetId] ?? [],
+                  rewards: rewards[assetId] ?? [],
+                  redelegations: [], // We don't need redelegations in web, let's not store them in store but keep them for unchained/chain-adapters parity
+                }
+              }
+            })
+          }
+        })
+
         portfolio.accounts.ids.push(accountSpecifier)
 
         portfolio.assetBalances.byId[caip19] = sumBalance(
           portfolio.assetBalances.byId[caip19] ?? '0',
-          account.balance
+          account.balance,
         )
 
         // add assetId without dupes
         portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
 
         portfolio.accountBalances.byId[accountSpecifier] = {
-          [caip19]: account.balance
+          [caip19]: account.balance,
         }
 
         portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
@@ -297,4 +377,46 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   })
 
   return portfolio
+}
+
+export const makeSortedAccountBalances = (totalAccountBalances: {
+  [k: AccountSpecifier]: string
+}) =>
+  Object.entries(totalAccountBalances)
+    .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
+      bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1,
+    )
+    .map(([accountId, _]) => accountId)
+
+export const makeBalancesByChainBucketsFlattened = (
+  accountBalances: string[],
+  assets: { [k: AssetId]: Asset },
+) => {
+  const initial = {} as Record<ChainTypes, AccountId[]>
+  const balancesByChainBuckets = accountBalances.reduce<Record<ChainTypes, AccountId[]>>(
+    (acc: Record<ChainTypes, AccountId[]>, accountId) => {
+      const assetId = accountIdToFeeAssetId(accountId)
+      const asset = assets[assetId]
+      acc[asset.chain] = [...(acc[asset.chain] ?? []), accountId]
+      return acc
+    },
+    initial,
+  )
+  return Object.values(balancesByChainBuckets).flat()
+}
+
+export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
+  if (!assetId) return false
+  const { chain, network } = fromCAIP19(assetId)
+  const chainId = toCAIP2({ chain, network })
+  switch (chainId) {
+    case ethChainId:
+      return supportsETH(wallet)
+    case btcChainId:
+      return supportsBTC(wallet)
+    case cosmosChainId:
+      return supportsCosmos(wallet)
+    default:
+      return false
+  }
 }

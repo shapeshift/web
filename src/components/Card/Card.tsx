@@ -4,7 +4,7 @@ import {
   StylesProvider,
   ThemingProps,
   useMultiStyleConfig,
-  useStyles
+  useStyles,
 } from '@chakra-ui/react'
 
 export type CardProps = BoxProps & ThemingProps

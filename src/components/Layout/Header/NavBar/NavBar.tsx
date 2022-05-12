@@ -1,7 +1,7 @@
 import { Stack, StackProps } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
-import { routes } from 'Routes/Routes'
+import { routes } from 'Routes/RoutesCommon'
 
 import { MainNavLink } from './MainNavLink'
 
@@ -27,7 +27,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
               to={item.path}
               label={translate(item.label)}
               aria-label={translate(item.label)}
-              data-test={`navbar-${item.label.split('.')[1]}-button`}
+              data-test={`navigation-${item.label.split('.')[1]}-button`}
             />
           )
         })}

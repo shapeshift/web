@@ -1,40 +1,48 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
-import { Button, FormControl, ModalHeader, Text as CText, Tooltip } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import {
+  Button,
+  FormControl,
+  Link,
+  ModalFooter,
+  Stack,
+  Text as CText,
+  Tooltip,
+} from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
-import { Asset } from '@shapeshiftoss/types'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
-import { FormProvider, useForm } from 'react-hook-form'
+import {
+  ConfirmFormFields,
+  ConfirmFormInput,
+  TxFeeRadioGroup,
+} from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
+import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
+import { useEffect, useMemo, useState } from 'react'
+import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId,
+  selectValidatorByAddress,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import { StakingPath } from './StakeConfirmRouter'
-
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat'
-}
-
-export enum Field {
-  FeeType = 'feeType'
-}
-
-export type StakingValues = {
-  [Field.FeeType]: chainAdapters.FeeDataKey
-}
+import { Field, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
-  assetId: CAIP19
-  apr: string
-  fiatRate: BigNumber
-  cryptoStakeAmount: BigNumber
+  assetId: AssetId
+  validatorAddress: string
   onCancel: () => void
 }
 
@@ -43,42 +51,77 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-const DEFAULT_VALIDATOR_NAME = 'Shapeshift Validator'
-
-// TODO: Wire up the whole component with staked data
-export const StakeConfirm = ({
-  apr,
-  assetId,
-  cryptoStakeAmount,
-  fiatRate,
-  onCancel
-}: StakeProps) => {
-  const methods = useForm<StakingValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FeeType]: chainAdapters.FeeDataKey.Average
-    }
+export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
+  const [feeData, setFeeData] = useState<FeePrice | null>(null)
+  const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
+    name: ConfirmFormFields.FeeType,
   })
-
-  const { handleSubmit } = methods
-
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
+  const chainAdapterManager = useChainAdapters()
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
+  const translate = useTranslate()
   const memoryHistory = useHistory()
-  const onSubmit = (_: any) => {
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
+
+  const methods = useFormContext<StakingValues>()
+  const { handleSubmit, control } = methods
+  const { cryptoAmount } = useWatch({ control })
+
+  const fiatStakeAmount = useMemo(
+    () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
+    [cryptoAmount, marketData.price],
+  )
+
+  const hasEnoughBalance = useMemo(
+    () =>
+      feeData &&
+      bnOrZero(cryptoAmount).plus(bnOrZero(feeData[activeFee].txFee)).lt(cryptoBalanceHuman),
+    [cryptoBalanceHuman, feeData, activeFee, cryptoAmount],
+  )
+
+  useEffect(() => {
+    ;(async () => {
+      const feeData = await adapter.getFeeData({})
+
+      const txFees = getFormFees(feeData, asset.precision, marketData.price)
+
+      setFeeData(txFees)
+    })()
+  }, [adapter, asset.precision, marketData.price])
+
+  const {
+    state: { wallet, isConnected },
+    dispatch,
+  } = useWallet()
+
+  if (!validatorInfo || !cryptoAmount) return null
+
+  const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
+  const fiatYield = bnOrZero(cryptoYield).times(bnOrZero(marketData.price)).toPrecision()
+
+  const onSubmit = async ({ feeType }: { feeType: chainAdapters.FeeDataKey }) => {
+    if (!wallet || !feeData) return
+    if (!isConnected) {
+      onCancel()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
+
+    const fees = feeData[feeType]
+    const gas = fees.chainSpecific.gasLimit
+
+    methods.setValue(Field.GasLimit, gas)
+    methods.setValue(Field.TxFee, fees.txFee)
+    methods.setValue(Field.FiatFee, fees.fiatFee)
+
     memoryHistory.push(StakingPath.Broadcast)
   }
 
-  const cryptoYield = calculateYearlyYield(apr, cryptoStakeAmount.toPrecision())
-  const fiatYield = bnOrZero(cryptoYield).times(fiatRate).toPrecision()
+  if (!cryptoAmount) return null
 
-  const translate = useTranslate()
-
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId,
-    chain: 'osmosis'
-  }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
       <SlideTransition>
@@ -92,19 +135,11 @@ export const StakeConfirm = ({
           alignItems='center'
           justifyContent='space-between'
         >
-          <ModalHeader textAlign='center'>{translate('defi.confirmDetails')}</ModalHeader>
           <Flex width='100%' mb='20px' justifyContent='space-between'>
             <Text color='gray.500' translation={'defi.stake'} />
             <Flex direction='column' alignItems='flex-end'>
-              <Amount.Fiat
-                fontWeight='semibold'
-                value={cryptoStakeAmount.times(fiatRate).toPrecision()}
-              />
-              <Amount.Crypto
-                color='gray.500'
-                value={cryptoStakeAmount.toPrecision()}
-                symbol={asset.symbol}
-              />
+              <Amount.Fiat fontWeight='semibold' value={fiatStakeAmount} />
+              <Amount.Crypto color='gray.500' value={cryptoAmount} symbol={asset.symbol} />
             </Flex>
           </Flex>
           <Flex width='100%' mb='30px' justifyContent='space-between'>
@@ -115,11 +150,17 @@ export const StakeConfirm = ({
                 <InfoOutlineIcon />
               </Tooltip>
             </CText>
-            <CText>{DEFAULT_VALIDATOR_NAME}</CText>
+            <Link
+              color={'blue.200'}
+              target='_blank'
+              href={`https://www.mintscan.io/cosmos/validators/${validatorAddress}`}
+            >
+              {validatorInfo.moniker}
+            </Link>
           </Flex>
           <Flex width='100%' mb='35px' justifyContent='space-between'>
             <Text translation={'defi.averageApr'} color='gray.500' />
-            <AprTag percentage='0.125' />
+            <AprTag percentage={validatorInfo?.apr} />
           </Flex>
           <Flex width='100%' mb='13px' justifyContent='space-between'>
             <Text translation={'defi.estimatedYearlyRewards'} color='gray.500' />
@@ -134,7 +175,7 @@ export const StakeConfirm = ({
               &nbsp;
               <Tooltip
                 label={translate('defi.modals.staking.tooltip.gasFees', {
-                  networkName: asset.name
+                  networkName: asset.name,
                 })}
               >
                 <InfoOutlineIcon />
@@ -142,38 +183,34 @@ export const StakeConfirm = ({
             </CText>
           </Flex>
           <FormControl>
-            <TxFeeRadioGroup
-              asset={asset}
-              mb='10px'
-              fees={{
-                slow: {
-                  txFee: '0.004',
-                  fiatFee: '0.1'
-                },
-                average: {
-                  txFee: '0.008',
-                  fiatFee: '0.2'
-                },
-                fast: {
-                  txFee: '0.012',
-                  fiatFee: '0.3'
-                }
-              }}
-            />
+            <TxFeeRadioGroup asset={asset} mb='10px' fees={feeData} />
           </FormControl>
-          <Text
-            textAlign='center'
-            fontSize='sm'
-            fontWeight='semibold'
-            translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
-            mb='18px'
-          />
-          <Button colorScheme={'blue'} mb={2} size='lg' type='submit' width='full'>
-            <Text translation={'defi.confirmAndBroadcast'} />
-          </Button>
-          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
-            <Text translation='common.cancel' />
-          </Button>
+          <ModalFooter width='100%' py='0' px='0' flexDir='column' textAlign='center' mt={1}>
+            <Text
+              textAlign='left'
+              fontSize='sm'
+              color='gray.500'
+              translation={['defi.unbondInfoItWillTake', { unbondingDays: '21' }]}
+              mb='18px'
+            />
+            <Stack direction='row' width='full' justifyContent='space-between'>
+              <Button onClick={onCancel} size='lg' variant='ghost'>
+                <Text translation='common.cancel' />
+              </Button>
+              <Button
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
+                size='lg'
+                type='submit'
+              >
+                <Text
+                  translation={
+                    hasEnoughBalance ? 'defi.signAndBroadcast' : 'common.insufficientFunds'
+                  }
+                />
+              </Button>
+            </Stack>
+          </ModalFooter>
         </Flex>
       </SlideTransition>
     </FormProvider>

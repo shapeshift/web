@@ -5,7 +5,7 @@ import { BN, bn, bnOrZero } from './bignumber/bignumber'
 export const fromBaseUnit = (
   value: BigNumber.Value,
   decimals: number,
-  displayDecimals = 6
+  displayDecimals = 6,
 ): string => {
   return bnOrZero(value)
     .div(`1e+${decimals}`)

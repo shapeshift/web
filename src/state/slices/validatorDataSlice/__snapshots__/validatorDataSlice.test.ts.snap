@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`validatorDataSlice reducers clear clears state back to initial state 1`] = `
+Object {
+  "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+  "apr": "0.24",
+  "commission": "0.100000000000000000",
+  "moniker": "Shapeshift DAO",
+  "tokens": "111111",
+}
+`;
+
+exports[`validatorDataSlice reducers clear clears state back to initial state 2`] = `
+Object {
+  "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf": Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.24",
+    "commission": "0.100000000000000000",
+    "moniker": "Shapeshift DAO",
+    "tokens": "111111",
+  },
+  "cosmosvaloper19f0w9svr905fhefusyx4z8sf83j6et0g9l5yhl": Object {
+    "address": "cosmosvaloper19f0w9svr905fhefusyx4z8sf83j6et0g9l5yhl",
+    "apr": "0.1682133662",
+    "commission": "0.010000000000000000",
+    "moniker": "NodeStake.top",
+    "tokens": "1366570093",
+  },
+  "cosmosvaloper1xhhquwctvwm40qn3nmmqq067pc2gw22eqkwgt0": Object {
+    "address": "cosmosvaloper1xhhquwctvwm40qn3nmmqq067pc2gw22eqkwgt0",
+    "apr": "0.1682133662",
+    "commission": "0.010000000000000000",
+    "moniker": "stake2earn",
+    "tokens": "4474530413",
+  },
+}
+`;
+
+exports[`validatorDataSlice reducers upsertValidatorData updates or inserts validator data in state 1`] = `
+Object {
+  "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf": Object {
+    "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "apr": "0.24",
+    "commission": "0.100000000000000000",
+    "moniker": "Shapeshift DAO",
+    "tokens": "111111",
+  },
+  "cosmosvaloper19f0w9svr905fhefusyx4z8sf83j6et0g9l5yhl": Object {
+    "address": "cosmosvaloper19f0w9svr905fhefusyx4z8sf83j6et0g9l5yhl",
+    "apr": "0.1682133662",
+    "commission": "0.010000000000000000",
+    "moniker": "NodeStake.top",
+    "tokens": "1366570093",
+  },
+  "cosmosvaloper1xhhquwctvwm40qn3nmmqq067pc2gw22eqkwgt0": Object {
+    "address": "cosmosvaloper1xhhquwctvwm40qn3nmmqq067pc2gw22eqkwgt0",
+    "apr": "0.1682133662",
+    "commission": "0.010000000000000000",
+    "moniker": "stake2earn",
+    "tokens": "4474530413",
+  },
+}
+`;

@@ -17,7 +17,7 @@ if (typeof globalThis.TextEncoder === 'undefined') {
 
 beforeAll(() => {
   server!.listen({
-    onUnhandledRequest: 'error'
+    onUnhandledRequest: 'error',
   })
 })
 

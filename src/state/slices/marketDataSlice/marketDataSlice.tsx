@@ -1,25 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import {
+  FiatMarketDataArgs,
+  FiatPriceHistoryArgs,
   findAll,
   findByCaip19,
   findByFiatSymbol,
   findPriceHistoryByCaip19,
-  findPriceHistoryByFiatSymbol
+  findPriceHistoryByFiatSymbol,
+  SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
-import {
-  FiatMarketDataArgs,
-  FiatPriceHistoryArgs,
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData,
-  SupportedFiatCurrencies
-} from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 
 export type PriceHistoryData = {
-  [k: CAIP19]: HistoryData[]
+  [k: AssetId]: HistoryData[]
 }
 
 type PriceHistoryByTimeframe = {
@@ -37,9 +32,9 @@ type FiatMarketDataState = {
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
   byId: {
-    [k: CAIP19]: MarketData
+    [k: AssetId]: MarketData
   }
-  ids: CAIP19[]
+  ids: AssetId[]
   priceHistory: PriceHistoryByTimeframe
   fiat: FiatMarketDataState
 }
@@ -50,7 +45,7 @@ const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.WEEK]: {},
   [HistoryTimeframe.MONTH]: {},
   [HistoryTimeframe.YEAR]: {},
-  [HistoryTimeframe.ALL]: {}
+  [HistoryTimeframe.ALL]: {},
 }
 
 const initialState: MarketDataState = {
@@ -61,8 +56,8 @@ const initialState: MarketDataState = {
   fiat: {
     byId: {},
     ids: [],
-    priceHistory: initialPriceHistory
-  }
+    priceHistory: initialPriceHistory,
+  },
 }
 
 export const marketData = createSlice({
@@ -78,8 +73,8 @@ export const marketData = createSlice({
     setPriceHistory: (
       state,
       {
-        payload: { data, args }
-      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } }
+        payload: { data, args },
+      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } },
     ) => {
       const { assetId, timeframe } = args
       state.priceHistory[timeframe][assetId] = data
@@ -87,21 +82,21 @@ export const marketData = createSlice({
     setFiatMarketData: (state, { payload }) => {
       state.fiat.byId = { ...state.fiat.byId, ...payload } // upsert
       const ids = Array.from(new Set([...state.fiat.ids, ...Object.keys(payload)])).map(
-        id => id as SupportedFiatCurrencies
+        id => id as SupportedFiatCurrencies,
       )
       state.fiat.ids = ids
     },
     setFiatPriceHistory: (
       state,
-      { payload: { data, args } }: { payload: { data: HistoryData[]; args: FiatPriceHistoryArgs } }
+      { payload: { data, args } }: { payload: { data: HistoryData[]; args: FiatPriceHistoryArgs } },
     ) => {
       const { symbol, timeframe } = args
       state.fiat.priceHistory[timeframe][symbol] = data
-    }
-  }
+    },
+  },
 })
 
-type FindPriceHistoryByCaip19Args = { assetId: CAIP19; timeframe: HistoryTimeframe }
+type FindPriceHistoryByCaip19Args = { assetId: AssetId; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
   reducerPath: 'marketApi',
@@ -117,10 +112,10 @@ export const marketApi = createApi({
         await cacheDataLoaded
         const data = getCacheEntry().data
         data && dispatch(marketData.actions.setMarketData(data))
-      }
+      },
     }),
-    findByCaip19: build.query<MarketCapResult, CAIP19>({
-      queryFn: async (caip19: CAIP19, baseQuery) => {
+    findByCaip19: build.query<MarketCapResult, AssetId>({
+      queryFn: async (caip19: AssetId, baseQuery) => {
         try {
           const currentMarketData = await findByCaip19({ caip19 })
           if (!currentMarketData) throw new Error()
@@ -133,7 +128,7 @@ export const marketApi = createApi({
           const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
           return { error }
         }
-      }
+      },
     }),
     findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({
       queryFn: async ({ assetId, timeframe }) => {
@@ -143,7 +138,7 @@ export const marketApi = createApi({
         } catch (e) {
           const error = {
             data: `findPriceHistoryByCaip19: error fetching price history for ${assetId}`,
-            status: 400
+            status: 400,
           }
           return { error }
         }
@@ -161,7 +156,7 @@ export const marketApi = createApi({
         } finally {
           dispatch(marketData.actions.setPriceHistory(payload))
         }
-      }
+      },
     }),
     findByFiatSymbol: build.query<MarketCapResult, FiatMarketDataArgs>({
       queryFn: async ({ symbol }: { symbol: SupportedFiatCurrencies }, baseQuery) => {
@@ -176,7 +171,7 @@ export const marketApi = createApi({
           const error = { data: `findByFiatSymbol: no market data for ${symbol}`, status: 404 }
           return { error }
         }
-      }
+      },
     }),
     findPriceHistoryByFiatSymbol: build.query<HistoryData[], FiatPriceHistoryArgs>({
       queryFn: async ({ symbol, timeframe }) => {
@@ -186,7 +181,7 @@ export const marketApi = createApi({
         } catch (e) {
           const error = {
             data: `findPriceHistoryByFiatSymbol: error fetching price history for ${symbol}`,
-            status: 400
+            status: 400,
           }
           return { error }
         }
@@ -204,9 +199,9 @@ export const marketApi = createApi({
         } finally {
           dispatch(marketData.actions.setFiatPriceHistory(payload))
         }
-      }
-    })
-  })
+      },
+    }),
+  }),
 })
 
 export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi

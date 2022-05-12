@@ -9,7 +9,7 @@ type TransactionFilterType = {
 const initialState = {
   fromDate: null,
   toDate: null,
-  types: null
+  types: null,
 }
 
 export const useFilters = () => {
@@ -20,6 +20,6 @@ export const useFilters = () => {
   return {
     filters,
     setFilters,
-    resetFilters
+    resetFilters,
   }
 }

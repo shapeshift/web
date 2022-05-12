@@ -1,33 +1,33 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { SlideTransition } from 'components/SlideTransition'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectAccountIdsByAssetId, selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { SelectAssetRoutes } from './SelectAssetRouter'
+import { SelectAssetRoutes } from './SelectAssetCommon'
 
 type SelectAccountProps = {
   onClick: (asset: Asset, accountId: AccountSpecifier) => void
 }
 
 type SelectAccountLocation = {
-  assetId: CAIP19
+  assetId: AssetId
 }
 
-export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
+export const SelectAccount = ({ onClick }: SelectAccountProps) => {
   const location = useLocation<SelectAccountLocation>()
   const translate = useTranslate()
   const history = useHistory()
   const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, location.state.assetId)
+    selectAccountIdsByAssetId(state, { assetId: location.state.assetId }),
   )
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, location.state.assetId))
+  const asset = useAppSelector(state => selectAssetById(state, location.state.assetId))
   return (
     <SlideTransition>
       <ModalHeader textAlign='center' display='grid' gridTemplateColumns='32px 1fr 32px' px={2}>
@@ -48,7 +48,7 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
           {accountIds.map(accountId => (
             <AssetAccountRow
               accountId={accountId}
-              assetId={asset.caip19}
+              assetId={asset.assetId}
               key={accountId}
               isCompact
               onClick={() => onClick(asset, accountId)}

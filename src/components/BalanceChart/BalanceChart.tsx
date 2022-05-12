@@ -1,4 +1,4 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { Card } from 'components/Card/Card'
@@ -8,7 +8,7 @@ import { calculatePercentChange } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 type BalanceChartArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   accountId?: AccountSpecifier
   timeframe: HistoryTimeframe
   percentChange: number
@@ -20,17 +20,17 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   accountId,
   timeframe,
   percentChange,
-  setPercentChange
+  setPercentChange,
 }) => {
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assetIds,
     accountId,
-    timeframe
+    timeframe,
   })
 
   useEffect(
     () => setPercentChange(calculatePercentChange(balanceChartData)),
-    [balanceChartData, setPercentChange]
+    [balanceChartData, setPercentChange],
   )
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'

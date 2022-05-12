@@ -1,55 +1,43 @@
 import { Flex } from '@chakra-ui/layout'
 import {
+  Box,
   Button,
   Divider,
   FormControl,
   FormHelperText,
   Link,
+  Stack,
   Text as CText,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, MarketData } from '@shapeshiftoss/types'
-import get from 'lodash/get'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
-import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
 import { useRef, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useModal } from 'hooks/useModal/useModal'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import { StakeRoutes, StakingAction } from '../Staking'
-
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat'
-}
-
-export enum Field {
-  FiatAmount = 'fiatAmount',
-  CryptoAmount = 'cryptoAmount'
-}
-
-export type StakingValues = {
-  [Field.FiatAmount]: string
-  [Field.CryptoAmount]: string
-}
+import { Field, InputType, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   apr: string
-  assetId: CAIP19
-  cryptoAmountAvailable: string
-  fiatAmountAvailable: string
-  marketData: MarketData
+  assetId: AssetId
+  validatorAddress: string
 }
 
 // TODO: Make this a derived selector after this is wired up
@@ -57,33 +45,23 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).div(100).toString()
 }
 
-// TODO: Wire up the whole component with staked data
-export const Stake = ({
-  assetId,
-  apr,
-  cryptoAmountAvailable,
-  fiatAmountAvailable,
-  marketData
-}: StakeProps) => {
+export const Stake = ({ assetId, apr }: StakeProps) => {
   const {
-    clearErrors,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     handleSubmit,
-    setError,
-    setValue
-  } = useForm<StakingValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FiatAmount]: '',
-      [Field.CryptoAmount]: ''
-    }
-  })
+    setValue,
+  } = useFormContext<StakingValues>()
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
+
+  const fiatAmountAvailable = cryptoBalanceHuman.times(bnOrZero(marketData.price)).toString()
 
   const values = useWatch({ control })
-  const cryptoError = get(errors, 'cryptoAmount.message', null)
-  const fiatError = get(errors, 'fiatAmount.message', null)
-  const fieldError = cryptoError ?? fiatError
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
 
@@ -92,16 +70,15 @@ export const Stake = ({
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const { cosmosStaking } = useModal()
-
   const memoryHistory = useHistory()
 
+  const { cosmosStaking } = useModal()
+
   const onSubmit = (_: any) => {
-    memoryHistory.push(StakeRoutes.StakeConfirm, {
+    memoryHistory.push(StakingPath.Confirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount),
-      assetId,
       fiatRate: bnOrZero(marketData.price),
-      apr
+      apr,
     })
   }
 
@@ -110,18 +87,20 @@ export const Stake = ({
 
   const translate = useTranslate()
 
-  const handleCancel = () => {
-    cosmosStaking.close()
-  }
-
   const handlePercentClick = (_percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(_percent)
-    const fiat = bnOrZero(cryptoAmount).times(marketData.price)
+    if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
+    }
+
+    const cryptoAmount = bnOrZero(cryptoBalanceHuman)
+      .times(_percent)
+      .dp(asset.precision, BigNumber.ROUND_DOWN)
+    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     } else {
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     }
     setPercent(_percent)
@@ -130,31 +109,39 @@ export const Stake = ({
   const handleInputChange = (value: string) => {
     setPercent(null)
     if (activeField === InputType.Crypto) {
-      const fiat = bnOrZero(value).times(marketData.price)
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
+      const fiatAmount = bnOrZero(value).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, value.length ? cryptoAmount.toString() : value, {
+        shouldValidate: true,
+      })
+
+      if (cryptoAmount.gt(cryptoBalanceHuman)) {
+        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+        return
+      }
     } else {
-      const crypto = bnOrZero(value).div(marketData.price)
-      setValue(Field.CryptoAmount, crypto.toString(), { shouldValidate: true })
+      const cryptoAmount = bnOrZero(value)
+        .div(marketData.price)
+        .dp(asset.precision, BigNumber.ROUND_DOWN)
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+
+      if (bnOrZero(cryptoAmount).gt(bnOrZero(cryptoBalanceHuman))) {
+        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+        return
+      }
+    }
+
+    if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
     }
   }
 
   const handleInputToggle = () => {
     const field = activeField === InputType.Crypto ? InputType.Fiat : InputType.Crypto
-    if (fieldError) {
-      // Toggles an existing error to the other field if present
-      clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
-      setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
-        message: 'common.insufficientFunds'
-      })
-    }
     setActiveField(field)
   }
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId
-  }))(assetId) as Asset
+
   return (
     <SlideTransition>
       <Flex
@@ -170,21 +157,19 @@ export const Stake = ({
         alignItems='center'
         justifyContent='space-between'
       >
-        <CosmosActionButtons asset={asset} activeAction={StakingAction.Stake} px='6px' py='6px' />
         <AssetHoldingsCard
-          py='8px'
-          my={6}
-          assetSymbol={asset.symbol}
-          assetName={asset.name}
-          cryptoAmountAvailable={cryptoAmountAvailable}
+          mb={6}
+          asset={asset}
+          cryptoAmountAvailable={cryptoBalanceHuman.toString()}
           fiatAmountAvailable={fiatAmountAvailable}
         />
-        <FormControl>
+        <FormControl mb={6}>
           <AmountToStake
-            values={values}
+            values={{ fiatAmount: values.fiatAmount, cryptoAmount: values.cryptoAmount }}
             isCryptoField={activeField === InputType.Crypto}
             asset={asset}
             onInputToggle={handleInputToggle}
+            p='1px'
           />
           <VStack
             bg={bgColor}
@@ -194,60 +179,67 @@ export const Stake = ({
             divider={<Divider />}
             spacing={0}
           >
+            <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
             <StakingInput
-              height='40px'
               width='100%'
-              px='8px'
-              py='8px'
               isCryptoField={activeField === InputType.Crypto}
               amountRef={amountRef.current}
               asset={asset}
               onInputToggle={handleInputToggle}
               onInputChange={handleInputChange}
               control={control}
+              inputStyle={{ borderRadius: 0 }}
             />
-            <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
-            <EstimatedReturnsRow
-              px={4}
-              py={4}
-              assetSymbol={asset.symbol}
-              cryptoYield={cryptoYield}
-              fiatYield={fiatYield}
-            />
+            <Box width='100%' pb='12px'>
+              <EstimatedReturnsRow
+                px={4}
+                py={4}
+                mb='8px'
+                assetSymbol={asset.symbol}
+                cryptoYield={cryptoYield}
+                fiatYield={fiatYield}
+              />
+              <FormHelperText textAlign='center'>
+                <Text fontSize='14px' translation='defi.modals.staking.estimateDisclaimer' />
+              </FormHelperText>
+            </Box>
           </VStack>
-          <Flex direction='column' alignItems='center'>
-            <FormHelperText pb={2} mb='30px' mt='10px'>
-              <Text fontSize='12px' translation='defi.modals.staking.estimateDisclaimer' />
-            </FormHelperText>
-          </Flex>
         </FormControl>
-        <CText fontSize='12px' color='gray.500' mb='20px' width='full' textAlign='center'>
-          {`${translate('defi.modals.staking.byContinuing')} `}
-          <Link
-            color='blue.500'
-            target='_blank'
-            href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
+        <Stack direction='row' width='full' justifyContent='space-between'>
+          <CText fontSize='14px' color='gray.500' mb='20px' lineHeight='1.3'>
+            {`${translate('defi.modals.staking.byContinuing')} `}
+            <Link
+              color={'blue.200'}
+              fontWeight='bold'
+              target='_blank'
+              href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
+            >
+              {`${translate('defi.modals.staking.risks')}`}
+            </Link>
+            {` ${translate('defi.modals.staking.ofParticipating')} `}
+            <Link
+              color={'blue.200'}
+              fontWeight='bold'
+              target='_blank'
+              href='/#/legal/privacy-policy'
+              onClick={cosmosStaking.close}
+            >
+              {`${translate('defi.modals.staking.terms')}.`}
+            </Link>
+          </CText>
+          <Button
+            colorScheme={values.amountFieldError ? 'red' : 'blue'}
+            isDisabled={Boolean(!isValid || values.amountFieldError)}
+            mb={2}
+            minWidth='auto'
+            size='lg'
+            type='submit'
           >
-            {`${translate('defi.modals.staking.risks')}`}
-          </Link>
-          {` ${translate('defi.modals.staking.ofParticipating')} `}
-          <Link color='blue.500' target='_blank' href='/legal/privacy-policy'>
-            {`${translate('defi.modals.staking.terms')}.`}
-          </Link>
-        </CText>
-        <Button
-          colorScheme={fieldError ? 'red' : 'blue'}
-          isDisabled={!isValid}
-          mb={2}
-          size='lg'
-          type='submit'
-          width='full'
-        >
-          <Text translation={fieldError ?? 'common.continue'} />
-        </Button>
-        <Button onClick={handleCancel} size='lg' variant='ghost' width='full'>
-          <Text translation='common.cancel' />
-        </Button>
+            <Text
+              translation={values.amountFieldError ? values.amountFieldError : 'common.continue'}
+            />
+          </Button>
+        </Stack>
       </Flex>
     </SlideTransition>
   )

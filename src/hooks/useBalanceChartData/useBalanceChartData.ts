@@ -1,7 +1,12 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, toCAIP2, toCAIP10 } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
+import {
+  chainAdapters,
+  ChainTypes,
+  HistoryData,
+  HistoryTimeframe,
+  NetworkTypes,
+} from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -10,31 +15,55 @@ import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
+import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { priceAtBlockTime } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
-  selectFiatPriceHistoryTimeframe,
+  PortfolioAssets,
+  PortfolioBalancesById,
+} from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { cosmosAssetId } from 'state/slices/portfolioSlice/utils'
+import {
+  selectAccountSpecifiers,
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByAccountId,
+  selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoriesLoadingByFiatTimeframe,
   selectPriceHistoryTimeframe,
-  selectTxsByFilter
+  selectTotalStakingDelegationCryptoByAccountSpecifier,
+  selectTxsByFilter,
 } from 'state/slices/selectors'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
+import { selectFiatPriceHistoryTimeframe } from './../../state/slices/marketDataSlice/selectors'
+import { includeStakedBalance, includeTransaction } from './cosmosUtils'
+
+type PriceAtBlockTimeArgs = {
+  date: number
+  priceHistoryData: HistoryData[]
+}
+
+type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
+
+export const priceAtBlockTime: PriceAtBlockTime = ({ date, priceHistoryData }): number => {
+  const { length } = priceHistoryData
+  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
+  const i = sortedIndexBy(priceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
+  if (i === 0) return priceHistoryData[i].price
+  if (i >= length) return priceHistoryData[length - 1].price
+  return priceHistoryData[i].price
+}
+
 type CryptoBalance = {
-  [k: CAIP19]: BigNumber // map of asset to base units
+  [k: AssetId]: BigNumber // map of asset to base units
 }
 
 type BucketBalance = {
@@ -63,7 +92,7 @@ type MakeBucketsReturn = {
 
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   balances: PortfolioBalancesById
 }
 
@@ -74,7 +103,7 @@ export const timeframeMap = {
   [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },
   [HistoryTimeframe.MONTH]: { count: 362, duration: 2, unit: 'hours' },
   [HistoryTimeframe.YEAR]: { count: 365, duration: 1, unit: 'days' },
-  [HistoryTimeframe.ALL]: { count: 262, duration: 1, unit: 'weeks' }
+  [HistoryTimeframe.ALL]: { count: 262, duration: 1, unit: 'weeks' },
 }
 
 type MakeBuckets = (args: MakeBucketsArgs) => MakeBucketsReturn
@@ -97,7 +126,7 @@ export const makeBuckets: MakeBuckets = args => {
       const rebases: RebaseHistory[] = []
       const balance = {
         crypto: assetBalances,
-        fiat: bn(0)
+        fiat: bn(0),
       }
       const bucket = { start, end, txs, rebases, balance }
       acc.push(bucket)
@@ -114,7 +143,7 @@ export const makeBuckets: MakeBuckets = args => {
 export const bucketEvents = (
   txs: Tx[],
   rebases: RebaseHistory[],
-  bucketsAndMeta: MakeBucketsReturn
+  bucketsAndMeta: MakeBucketsReturn,
 ): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start
@@ -124,7 +153,7 @@ export const bucketEvents = (
   const txAndRebaseEvents = [...txs, ...rebases]
 
   // events are potentially a lot longer than buckets, iterate the long list once
-  const bucketsWithEvents = txAndRebaseEvents.reduce((acc, event) => {
+  return txAndRebaseEvents.reduce((acc, event) => {
     const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
     const eventOutsideDomain = eventDayJs.isBefore(start) || eventDayJs.isAfter(end)
     if (eventOutsideDomain) return acc
@@ -133,7 +162,7 @@ export const bucketEvents = (
     const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
     if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
       console.error(
-        `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`
+        `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`,
       )
       return acc
     }
@@ -144,15 +173,13 @@ export const bucketEvents = (
 
     return acc
   }, buckets)
-
-  return bucketsWithEvents
 }
 
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
   priceHistoryData: {
-    [k: CAIP19]: HistoryData[]
+    [k: AssetId]: HistoryData[]
   }
   fiatPriceHistoryData: HistoryData[]
 }
@@ -163,17 +190,18 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
   priceHistoryData,
   fiatPriceHistoryData,
-  portfolioAssets
+  portfolioAssets,
 }) => {
   const { balance, end } = bucket
   const date = end.valueOf()
   const { crypto } = balance
-  const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
-    const assetPriceHistoryData = priceHistoryData[caip19]
+
+  return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
+    const assetPriceHistoryData = priceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ priceHistoryData: assetPriceHistoryData, date })
     const fiatToUsdRate = priceAtBlockTime({ priceHistoryData: fiatPriceHistoryData, date })
-    const portfolioAsset = portfolioAssets[caip19]
+    const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) {
       return acc
     }
@@ -185,23 +213,34 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 
     return acc.plus(assetFiatBalance)
   }, bn(0))
-
-  return result
 }
 
 type CalculateBucketPricesArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
+  delegationTotal: string
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, portfolioAssets, priceHistoryData, fiatPriceHistoryData } = args
+  const {
+    assetIds,
+    buckets,
+    portfolioAssets,
+    priceHistoryData,
+    delegationTotal,
+    fiatPriceHistoryData,
+  } = args
+
+  const startingBucket = buckets[buckets.length - 1]
+
+  // add total cosmos staked balance to starting balance if cosmos is in assetIds
+  buckets[buckets.length - 1] = includeStakedBalance(startingBucket, delegationTotal, assetIds)
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -209,7 +248,8 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     const { rebases, txs } = bucket
 
     // copy the balance back from the most recent bucket
-    const currentBalance = buckets[i + 1]?.balance ?? buckets[buckets.length - 1].balance
+    const currentBalance = buckets[i + 1]?.balance ?? startingBucket.balance
+
     bucket.balance = Object.assign({}, currentBalance)
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
@@ -220,19 +260,23 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
         if (tx.chain !== ChainTypes.Bitcoin) {
           bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
-            bnOrZero(tx.fee.value)
+            bnOrZero(tx.fee.value),
           )
         }
       }
+
+      // Identify Special cases where we should not include cosmos delegate/undelegate txs in chart balance
+      const includeTx = includeTransaction(tx)
 
       tx.transfers.forEach(transfer => {
         const asset = transfer.caip19
 
         if (!assetIds.includes(asset)) return
+        if (!includeTx) return
+        if (tx.status === chainAdapters.TxStatus.Failed) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
-
         switch (transfer.type) {
           case chainAdapters.TxType.Send:
             // we're going backwards, so a send means we had more before
@@ -261,7 +305,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       bucket,
       priceHistoryData,
       portfolioAssets,
-      fiatPriceHistoryData
+      fiatPriceHistoryData,
     })
     buckets[i] = bucket
   }
@@ -273,7 +317,7 @@ type BucketsToChartData = (buckets: Bucket[]) => HistoryData[]
 export const bucketsToChartData: BucketsToChartData = buckets => {
   return buckets.map(bucket => ({
     price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
-    date: bucket.end.valueOf()
+    date: bucket.end.valueOf(),
   }))
 }
 
@@ -283,7 +327,7 @@ type UseBalanceChartDataReturn = {
 }
 
 type UseBalanceChartDataArgs = {
-  assetIds: CAIP19[]
+  assetIds: AssetId[]
   accountId?: AccountSpecifier
   timeframe: HistoryTimeframe
 }
@@ -305,11 +349,36 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   // dummy assetId - we're only filtering on account
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByAccountId(state, accountId)
+    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId),
   )
+
+  // Get total delegation
+  // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
+  const cosmosCaip2: ChainId = toCAIP2({
+    chain: ChainTypes.Cosmos,
+    network: NetworkTypes.COSMOSHUB_MAINNET,
+  })
+
+  const accountSpecifiers = useSelector(selectAccountSpecifiers)
+  const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
+    if (accountSpecifier[cosmosCaip2]) {
+      acc = accountSpecifier[cosmosCaip2]
+    }
+    return acc
+  }, '')
+
+  const cosmosAccountSpecifier = account ? toCAIP10({ caip2: cosmosCaip2, account }) : ''
+
+  const delegationTotal = useAppSelector(state =>
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
+      accountSpecifier: cosmosAccountSpecifier,
+      assetId: cosmosAssetId,
+    }),
+  )
+
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
-    state: { walletInfo }
+    state: { walletInfo },
   } = useWallet()
 
   const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
@@ -318,7 +387,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // debounce a bit before doing expensive computations
   const txs = useDebounce(
     useAppSelector(state => selectTxsByFilter(state, txFilter)),
-    500
+    500,
   )
 
   // rebasing token balances can be adjusted by rebase events rather than txs
@@ -338,13 +407,13 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   useFetchPriceHistories({ assetIds, timeframe })
   const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
   const priceHistoryDataLoading = useAppSelector(state =>
-    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe)
+    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
   const fiatPriceHistoryData = useAppSelector(state =>
-    selectFiatPriceHistoryTimeframe(state, timeframe)
+    selectFiatPriceHistoryTimeframe(state, timeframe),
   )
   const fiatPriceHistoryDataLoading = useAppSelector(state =>
-    selectPriceHistoriesLoadingByFiatTimeframe(state, timeframe)
+    selectPriceHistoriesLoadingByFiatTimeframe(state, timeframe),
   )
 
   // loading state
@@ -371,7 +440,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       buckets,
       priceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal,
     })
 
     const chartData = bucketsToChartData(calculatedBuckets)
@@ -391,9 +461,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     setBalanceChartData,
     portfolioAssets,
     walletInfo?.deviceId,
-    rebases
+    rebases,
+    delegationTotal,
   ])
 
-  const result = { balanceChartData, balanceChartDataLoading }
-  return result
+  return { balanceChartData, balanceChartDataLoading }
 }

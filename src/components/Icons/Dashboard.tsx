@@ -12,5 +12,5 @@ export const DashboardIcon = createIcon({
       </g>
     </g>
   ),
-  viewBox: '0 0 60 60'
+  viewBox: '0 0 60 60',
 })

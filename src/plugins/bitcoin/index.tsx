@@ -1,4 +1,4 @@
-import { ChainAdapter as BitcoinChainAdapter } from '@shapeshiftoss/chain-adapters/dist/bitcoin/BitcoinChainAdapter'
+import { bitcoin } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -17,20 +17,20 @@ export function register(): Plugins {
               () => {
                 const http = new unchained.bitcoin.V1Api(
                   new unchained.ethereum.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL
-                  })
+                    basePath: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
+                  }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
+                  getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL,
                 )
 
-                return new BitcoinChainAdapter({ providers: { http, ws }, coinName: 'Bitcoin' })
-              }
-            ]
-          ]
-        }
-      }
-    ]
+                return new bitcoin.ChainAdapter({ providers: { http, ws }, coinName: 'Bitcoin' })
+              },
+            ],
+          ],
+        },
+      },
+    ],
   ]
 }

@@ -1,3 +1,6 @@
+import { chainAdapters } from '@shapeshiftoss/types/'
+import { ContractMethod } from 'hooks/useTxDetails/useTxDetails'
+
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -16,11 +19,18 @@ export const TransactionContract = ({
   compactMode,
   isOpen,
   toggleOpen,
-  parentWidth
+  parentWidth,
 }: TransactionRowProps) => {
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
   if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
+  const isReceive = txDetails.tradeTx?.type === chainAdapters.TxType.Receive
+  const interactsWithWithdrawMethod = txDetails.tx.data?.method === ContractMethod.Withdraw
+  const isSend = txDetails.tradeTx?.type === chainAdapters.TxType.Send
+  const i18n =
+    isReceive && !txDetails.tx.data?.method ? txDetails.tradeTx?.type : txDetails.tx.data?.method
+  const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
+
   return (
     <>
       <TransactionGenericRow
@@ -29,7 +39,7 @@ export const TransactionContract = ({
         compactMode={compactMode}
         title={
           txDetails.tx.data
-            ? `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.tx.data?.method}`
+            ? `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`
             : 'transactionRow.unknown'
         }
         blockTime={txDetails.tx.blockTime}
@@ -39,6 +49,7 @@ export const TransactionContract = ({
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
+        isFirstAssetOutgoing={isFirstAssetOutgoing}
         parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>

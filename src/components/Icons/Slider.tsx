@@ -9,5 +9,5 @@ export const SliderIcon = createIcon({
       fillRule='nonzero'
     />
   ),
-  viewBox: '0 0 14 13'
+  viewBox: '0 0 14 13',
 })

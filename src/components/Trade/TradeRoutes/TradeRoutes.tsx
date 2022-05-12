@@ -1,42 +1,53 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
 
+import { useSwapper } from '../hooks/useSwapper/useSwapper'
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
+import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']
 
 type TradeRoutesProps = {
-  defaultBuyAssetId?: CAIP19
+  defaultBuyAssetId?: AssetId
 }
 
 export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
   const location = useLocation()
   const { handleBuyClick, handleSellClick } = useTradeRoutes(defaultBuyAssetId)
+  const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
         <Route
-          path='/trade/select/sell'
+          path={TradeRoutePaths.SellSelect}
           render={(props: RouteComponentProps) => (
-            <SelectAsset onClick={handleSellClick} {...props} />
+            <SelectAsset
+              onClick={handleSellClick}
+              filterBy={getSupportedSellableAssets}
+              {...props}
+            />
           )}
         />
         <Route
-          path='/trade/select/buy'
+          path={TradeRoutePaths.BuySelect}
           render={(props: RouteComponentProps) => (
-            <SelectAsset onClick={handleBuyClick} {...props} />
+            <SelectAsset
+              onClick={handleBuyClick}
+              filterBy={getSupportedBuyAssetsFromSellAsset}
+              {...props}
+            />
           )}
         />
-        <Route path='/trade/input' component={TradeInput} />
-        <Route path='/trade/confirm' component={TradeConfirm} />
-        <Route path='/trade/approval' component={Approval} />
-        <Redirect from='/' to='/trade/input' />
+        <Route path={TradeRoutePaths.Input} component={TradeInput} />
+        <Route path={TradeRoutePaths.Confirm} component={TradeConfirm} />
+        <Route path={TradeRoutePaths.Approval} component={Approval} />
+        <Redirect from='/' to={TradeRoutePaths.Input} />
       </Switch>
     </AnimatePresence>
   )

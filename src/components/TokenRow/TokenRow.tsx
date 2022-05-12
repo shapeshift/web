@@ -4,7 +4,7 @@ import {
   InputGroupProps,
   InputLeftElement,
   InputProps,
-  InputRightElement
+  InputRightElement,
 } from '@chakra-ui/react'
 import { Control, Controller, ControllerProps, FieldValues, Path } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
@@ -43,7 +43,7 @@ export function TokenRow<C extends FieldValues>({
   ...rest
 }: TokenRowProps<C>) {
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter()
 
   return (

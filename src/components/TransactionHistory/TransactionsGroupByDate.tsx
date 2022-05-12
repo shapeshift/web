@@ -1,10 +1,12 @@
 import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
+import { useParams } from 'react-router-dom'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
-import { selectTxDateByIds } from 'state/slices/selectors'
+import { MatchParams } from 'pages/Assets/Asset'
+import { selectAssetById, selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -20,8 +22,12 @@ type TransactionGroup = {
 
 export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = ({
   txIds,
-  useCompactMode = false
+  useCompactMode = false,
 }) => {
+  const params = useParams<MatchParams>()
+  const assetId = `${params.chainId}/${params.assetSubId}`
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
   const { setNode, entry } = useResizeObserver()
   const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
   const borderTopColor = useColorModeValue('gray.100', 'gray.750')
@@ -50,6 +56,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
           <TransactionRow
             key={txId}
             txId={txId}
+            activeAsset={asset}
             useCompactMode={useCompactMode}
             showDateAndGuide={index === 0}
             parentWidth={entry?.contentRect.width ?? 360}
@@ -57,7 +64,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
         ))}
       </Stack>
     ))
-  }, [entry?.contentRect.width, txRows, useCompactMode])
+  }, [asset, entry?.contentRect.width, txRows, useCompactMode])
 
   return (
     <Stack ref={setNode} divider={<StackDivider borderColor={borderTopColor} />}>

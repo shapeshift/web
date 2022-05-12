@@ -1,6 +1,6 @@
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { YearnVaultWithApyAndTvl } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
+import { bn } from 'lib/bignumber/bignumber'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
 
 export const mockVault = (obj?: {
@@ -18,7 +18,7 @@ export const mockVault = (obj?: {
   expired: false,
   underlyingTokenBalance: {
     amount: '0',
-    amountUsdc: '0'
+    amountUsdc: '0',
   },
   metadata: {
     symbol: '',
@@ -33,7 +33,7 @@ export const mockVault = (obj?: {
     displayName: '',
     displayIcon: '',
     defaultDisplayToken: '',
-    hideIfNoDeposits: false
+    hideIfNoDeposits: false,
   },
   underlyingTokenBalanceUsdc: '',
   apy: 0,
@@ -43,7 +43,7 @@ export const mockVault = (obj?: {
   tokenAddress: '',
   provider: '',
   type: '',
-  ...obj
+  ...obj,
 })
 
 export const mockVaultWithBalance = (obj?: {
@@ -65,7 +65,7 @@ export const mockVaultWithBalance = (obj?: {
   expired: false,
   underlyingTokenBalance: {
     amount: '0',
-    amountUsdc: '0'
+    amountUsdc: '0',
   },
   metadata: {
     symbol: '',
@@ -80,7 +80,7 @@ export const mockVaultWithBalance = (obj?: {
     displayName: '',
     displayIcon: '',
     defaultDisplayToken: '',
-    hideIfNoDeposits: false
+    hideIfNoDeposits: false,
   },
   name: '',
   symbol: '',
@@ -89,6 +89,6 @@ export const mockVaultWithBalance = (obj?: {
   type: '',
   vaultCaip19: '',
   tokenCaip19: '',
-  pricePerShare: bnOrZero(0),
-  ...obj
+  pricePerShare: bn(0),
+  ...obj,
 })

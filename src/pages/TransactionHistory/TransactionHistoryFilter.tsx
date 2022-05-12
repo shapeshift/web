@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   useColorModeValue,
-  useOutsideClick
+  useOutsideClick,
 } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
@@ -30,14 +30,7 @@ export enum FilterFormFields {
   FromDate = 'fromDate',
   ToDate = 'toDate',
   DayRange = 'dayRange',
-  Types = 'types'
-}
-
-export type FilterFormFieldsType = {
-  [FilterFormFields.FromDate]: string
-  [FilterFormFields.ToDate]: string
-  [FilterFormFields.DayRange]: string
-  [FilterFormFields.Types]: string[]
+  Types = 'types',
 }
 
 type TransactionHistoryFilterProps = {
@@ -49,7 +42,7 @@ type TransactionHistoryFilterProps = {
 export const TransactionHistoryFilter = ({
   setFilters,
   resetFilters,
-  hasAppliedFilter = false
+  hasAppliedFilter = false,
 }: TransactionHistoryFilterProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const popoverRef = useRef(null)
@@ -63,7 +56,7 @@ export const TransactionHistoryFilter = ({
     ref: popoverRef,
     handler: () => {
       setIsOpen(false)
-    }
+    },
   })
   const translate = useTranslate()
   const { control, handleSubmit, watch, reset } = useForm({ mode: 'onChange' })
@@ -73,7 +66,7 @@ export const TransactionHistoryFilter = ({
       fromDate,
       toDate,
       dayRange,
-      types
+      types,
     }
     if (!!dayRange && dayRange !== customRangeOption) {
       const today = dayjs().endOf('day')
@@ -166,11 +159,11 @@ export const TransactionHistoryFilter = ({
                   [
                     'transactionHistory.filters.custom',
                     customRangeOption,
-                    <RangeCustomComponent />
+                    <RangeCustomComponent />,
                   ],
                   ['transactionHistory.filters.10days', '10'],
                   ['transactionHistory.filters.30days', '30'],
-                  ['transactionHistory.filters.90days', '90']
+                  ['transactionHistory.filters.90days', '90'],
                 ]}
               />
               <Divider />
@@ -182,7 +175,7 @@ export const TransactionHistoryFilter = ({
                 options={[
                   ['transactionHistory.filters.send', chainAdapters.TxType.Send],
                   ['transactionHistory.filters.trade', chainAdapters.TradeType.Trade],
-                  ['transactionHistory.filters.receive', chainAdapters.TxType.Receive]
+                  ['transactionHistory.filters.receive', chainAdapters.TxType.Receive],
                 ]}
               />
               <Flex justifyContent='center' alignItems='center'>

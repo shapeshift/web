@@ -1,4 +1,4 @@
-import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
+import { Box, Button, Checkbox, Divider, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
@@ -27,13 +27,20 @@ type TestState = {
 
 export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const [testState, setTestState] = useState<TestState | null>(null)
+  const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
 
-  const { vault } = location.state
+  const onCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Check the captcha in case the captcha has been validated
+    setHasAlreadySaved(e.target.checked)
+    return
+  }
+
+  const { vault, isLegacyWallet } = location.state
 
   const shuffleMnemonic = useCallback(async () => {
     if (testCount >= TEST_COUNT_REQUIRED) return
@@ -56,10 +63,10 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
           {
             targetWordIndex,
             randomWords,
-            correctAnswerIndex
+            correctAnswerIndex,
           },
-          revoker.addRevoker.bind(revoker)
-        )
+          revoker.addRevoker.bind(revoker),
+        ),
       )
     } catch (e) {
       setError('walletProvider.shapeShift.create.error')
@@ -67,7 +74,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   }, [setTestState, shuffledNumbers, vault, revoker, testCount])
 
   useEffect(() => {
-    shuffleMnemonic().catch(e => setError('walletProvider.shapeShift.create.error'))
+    shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
   }, [shuffleMnemonic])
 
   useEffect(() => {
@@ -128,10 +135,39 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
                 >
                   {word}
                 </Button>,
-                revoker.addRevoker.bind(revoker)
-              )
+                revoker.addRevoker.bind(revoker),
+              ),
             )}
         </Wrap>
+        {isLegacyWallet && (
+          <Box>
+            <Box position='relative' mb={8} mt={10}>
+              <Divider />
+              <Text
+                translation={'common.or'}
+                transform='translate(-50%, -50%)'
+                left='50%'
+                position='absolute'
+                color='gray.500'
+              />
+            </Box>
+            <Checkbox mb={4} spacing={4} onChange={onCheck} isChecked={hasAlreadySaved}>
+              <Text
+                fontSize='sm'
+                translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
+              />
+            </Checkbox>
+            <Button
+              colorScheme='blue'
+              isFullWidth
+              size='md'
+              isDisabled={!hasAlreadySaved}
+              onClick={() => history.push('/native/password', { vault })}
+            >
+              <Text translation={'common.skip'} />
+            </Button>
+          </Box>
+        )}
       </ModalBody>
     </>
   )

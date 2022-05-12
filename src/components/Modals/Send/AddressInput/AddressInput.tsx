@@ -4,8 +4,8 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 
-import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import type { SendInput } from '../Form'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 
 type AddressInputProps = {
   rules: ControllerProps['rules']
@@ -26,7 +26,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
         render={({ field: { onChange, value } }) => (
           <Input
             spellCheck={false}
-            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+            autoFocus
             fontSize='sm'
             onChange={e => onChange(e.target.value.trim())}
             placeholder={translate('modals.send.tokenAddress')}

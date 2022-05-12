@@ -4,9 +4,9 @@ import { Page } from 'components/Layout/Page'
 import { LoadingAsset } from 'pages/Assets/LoadingAsset'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
-  selectMarketDataLoadingById
+  selectMarketDataLoadingById,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -14,14 +14,15 @@ import { CosmosAssetAccountDetails } from './CosmosAssetAccountDetails'
 
 export type MatchParams = {
   assetSubId: string
+  chainRef: string
 }
 
-export const CosmosAsset = (props: { chainId: string }) => {
+export const CosmosAsset = () => {
   const dispatch = useAppDispatch()
 
-  const { assetSubId } = useParams<MatchParams>()
-  const assetId = `${props.chainId}/${assetSubId}`
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const { chainRef, assetSubId } = useParams<MatchParams>()
+  const assetId = `cosmos:${chainRef}/${assetSubId}`
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   if (!marketData) dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
@@ -29,12 +30,12 @@ export const CosmosAsset = (props: { chainId: string }) => {
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetId))
 
   return !asset || loading ? (
-    <Page key={asset?.caip19}>
+    <Page key={asset?.assetId}>
       <Flex role='main' flex={1} height='100%'>
         <LoadingAsset />
       </Flex>
     </Page>
   ) : (
-    <CosmosAssetAccountDetails assetId={asset.caip19} />
+    <CosmosAssetAccountDetails assetId={asset.assetId} />
   )
 }

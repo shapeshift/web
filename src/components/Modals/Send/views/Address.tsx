@@ -8,7 +8,7 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
-  Stack
+  Stack,
 } from '@chakra-ui/react'
 import { cosmossdk, ethereum } from '@shapeshiftoss/chain-adapters'
 import get from 'lodash/get'
@@ -16,16 +16,16 @@ import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
+import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { ensLookup, ensReverseLookup } from 'lib/ens'
 
 import { AddressInput } from '../AddressInput/AddressInput'
-import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import type { SendInput } from '../Form'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
@@ -35,7 +35,7 @@ export const Address = () => {
   const translate = useTranslate()
   const {
     setValue,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
@@ -66,7 +66,7 @@ export const Address = () => {
         onClick={() =>
           history.push(SendRoutes.Select, {
             toRoute: SelectAssetRoutes.Account,
-            assetId: asset.caip19
+            assetId: asset.assetId,
           })
         }
       />
@@ -112,8 +112,8 @@ export const Address = () => {
                       setValue(SendFormFields.EnsName, reverseValueLookup.name)
                   }
                   return validAddress.valid || 'common.invalidAddress'
-                }
-              }
+                },
+              },
             }}
           />
         </FormControl>

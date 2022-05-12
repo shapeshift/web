@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 export const TransactionDetailsContainer = ({
   children,
   isOpen,
-  compactMode
+  compactMode,
 }: {
   children: ReactNode
   isOpen: boolean

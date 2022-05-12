@@ -32,12 +32,12 @@ Cypress.Commands.add('getBySel', (selector: string, ...args: any) => {
 Cypress.Commands.add(
   'findBySel',
   {
-    prevSubject: true
+    prevSubject: true,
   },
   (subject, selector) => {
     // @ts-ignore
     return subject.find(`[data-test=${selector}]`)
-  }
+  },
 )
 
 // @ts-ignore
@@ -52,7 +52,7 @@ Cypress.Commands.add(
     // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
     localStorage.setItem('cypressWalletSeed', seed)
     localStorage.setItem('cypressWalletPassword', password)
-  }
+  },
 )
 
 // @ts-ignore
@@ -75,54 +75,56 @@ Cypress.Commands.add('login', () => {
 Cypress.Commands.add('mockExternalRequests', () => {
   // CoinGecko
   cy.intercept('GET', `${coinGeckoApi}coins/ethereum/market_chart/*`, makeChartDataResponse).as(
-    'getChartData'
+    'getChartData',
   )
 
   cy.intercept(
     'GET',
     `${coinGeckoApi}coins/ethereum/contract/0x514910771af9ca656af840dff83e8264ecf986ca`,
-    makeChainlinkDataResponse()
+    makeChainlinkDataResponse(),
   ).as('getChainlinkData')
 
   // 0x
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?buyToken=USDC&buyAmount=1000000&sellToken=ETH`,
-    makeEthUsdcRateResponse()
+    makeEthUsdcRateResponse(),
   ).as('getEthUsdcRate')
 
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?sellToken=ETH&buyToken=${foxContract}*`,
-    makeEthFoxRateResponse()
+    makeEthFoxRateResponse(),
   ).as('getEthFoxRate')
 
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?sellToken=${foxContract}&buyToken=ETH*`,
-    makeFoxEthSwapRateResponse()
+    makeFoxEthSwapRateResponse(),
   ).as('getEthFoxRate')
 
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?buyToken=USDC&buyToken=${foxContract}*`,
-    makeUsdcFoxSwapRateResponse()
+    makeUsdcFoxSwapRateResponse(),
   ).as('getEthFoxRate')
 })
 
 // @ts-ignore
 Cypress.Commands.add('mockInternalRequests', () => {
-  cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, makeEthAccount()).as(
-    'getEthAccount'
-  )
+  cy.intercept(
+    'GET',
+    `${ethereumApi}/api/v1/account/${publicKey.toLowerCase()}`,
+    makeEthAccount(),
+  ).as('getEthAccount')
   cy.intercept('GET', `${bitcoinApi}/api/v1/account/${publicKey}`, makeBtcAccount()).as(
-    'getBtcAccount'
+    'getBtcAccount',
   )
   cy.intercept('GET', `${ethereumApi}/api/v1/gas/estimate*`, '21000').as('getGasEstimate')
   cy.intercept('GET', `${ethereumApi}/api/v1/gas/fees`, {
     gasPrice: '51962967843',
     maxFeePerGas: '104315056556',
-    maxPriorityFeePerGas: '2500000000'
+    maxPriorityFeePerGas: '2500000000',
   }).as('getRecommendedGas')
 })
 
@@ -137,37 +139,35 @@ Cypress.Commands.add('backdropDismiss', () => {
 })
 
 // @ts-ignore
+Cypress.Commands.add('waitForAllGetRequests', () => {
+  cy.intercept({ method: 'GET' }).as('getRequests')
+  cy.wait(['@getRequests'])
+})
+
+// @ts-ignore
 Cypress.Commands.add('navigateToDashboard', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-dashboard-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}dashboard`)
+  cy.getBySel('full-width-header').findBySel('navigation-dashboard-button').click()
+
+  cy.url().should('equal', `${baseUrl}dashboard`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToAccounts', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-accounts-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}accounts`)
+  cy.getBySel('full-width-header').findBySel('navigation-accounts-button').click()
+
+  cy.url().should('equal', `${baseUrl}accounts`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToDefi', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-defi-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}defi`)
+  cy.getBySel('full-width-header').findBySel('navigation-defi-button').click()
+
+  cy.url().should('equal', `${baseUrl}defi`)
 })
 
 // @ts-ignore
 Cypress.Commands.add('navigateToAssets', () => {
-  cy.getBySel('full-width-header')
-    .findBySel('navbar-assets-button')
-    .click()
-    .url()
-    .should('equal', `${baseUrl}assets`)
+  cy.getBySel('full-width-header').findBySel('navigation-assets-button').click()
+
+  cy.url().should('equal', `${baseUrl}assets`)
 })

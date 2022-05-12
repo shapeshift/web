@@ -1,62 +1,100 @@
 import {
+  Alert,
+  AlertDescription,
   Box,
   Button,
   ButtonGroup,
   Flex,
   Skeleton,
+  Stack,
   Stat,
   StatArrow,
   StatGroup,
-  StatNumber
+  StatNumber,
+  useColorModeValue,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
+import { IconCircle } from 'components/IconCircle'
+import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
-  selectAssetByCAIP19,
+  selectTotalCryptoBalanceWithDelegations,
+  selectTotalFiatBalanceWithDelegations,
+} from 'state/slices/portfolioSlice/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
+
 enum View {
   Price = 'price',
-  Balance = 'balance'
+  Balance = 'balance',
 }
 
 type AssetChartProps = {
   accountId?: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
   isLoaded: boolean
 }
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
   const {
-    number: { toFiat }
+    number: { toFiat },
   } = useLocaleFormatter()
   const [percentChange, setPercentChange] = useState(0)
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
+  const alertIconColor = useColorModeValue('blue.500', 'blue.200')
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
-  const totalBalance = toFiat(
-    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
+  const filter = useMemo(
+    () => ({ assetId, accountId, accountSpecifier }),
+    [assetId, accountId, accountSpecifier],
   )
+  const translate = useTranslate()
+
+  const fiatBalanceWithDelegations = useAppSelector(state =>
+    selectTotalFiatBalanceWithDelegations(state, filter),
+  )
+
+  const cryptoBalanceWithDelegations = useAppSelector(state =>
+    selectTotalCryptoBalanceWithDelegations(state, filter),
+  )
+
+  const earnBalances = useEarnBalances()
+  const delegationBalance = useMemo(() => {
+    const assetEarnBalance = earnBalances.opportunities.find(balance => balance.assetId === assetId)
+    return assetEarnBalance?.cryptoAmount ?? '0'
+  }, [assetId, earnBalances.opportunities])
+
+  useEffect(() => {
+    if (bnOrZero(fiatBalanceWithDelegations).gt(0)) {
+      setView(View.Balance)
+    }
+  }, [fiatBalanceWithDelegations])
+
   return (
     <Card>
       <Card.Header>
@@ -84,7 +122,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
-                value={view === View.Price ? assetPrice : totalBalance}
+                value={view === View.Price ? assetPrice : toFiat(fiatBalanceWithDelegations)}
                 displayType={'text'}
                 thousandSeparator={true}
                 isNumericString={true}
@@ -107,14 +145,41 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {view === View.Balance && (
               <Stat size='sm' color='gray.500'>
                 <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>{`${cryptoBalance} ${asset.symbol}`}</StatNumber>
+                  <StatNumber>{`${cryptoBalanceWithDelegations} ${asset.symbol}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}
           </StatGroup>
+          {bnOrZero(delegationBalance).gt(0) && view === View.Balance && (
+            <Flex mt={4}>
+              <Alert
+                as={Stack}
+                py={2}
+                direction='row'
+                colorScheme='blue'
+                status='info'
+                variant='subtle'
+                borderRadius='xl'
+              >
+                <IconCircle color='inherit' boxSize='24px'>
+                  <StakingUpArrowIcon color={alertIconColor} />
+                </IconCircle>
+
+                <AlertDescription maxWidth='sm'>
+                  <Amount.Crypto
+                    value={delegationBalance}
+                    symbol={asset.symbol}
+                    suffix={translate('defi.staked')}
+                  />
+                </AlertDescription>
+
+                <HelperTooltip label={translate('dashboard.portfolio.stakedInfo')} />
+              </Alert>
+            </Flex>
+          )}
         </Box>
       </Card.Header>
-      {view === View.Balance ? (
+      {view === View.Balance && marketData ? (
         <Box>
           <BalanceChart
             accountId={accountId}
@@ -143,7 +208,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             width: 'full',
             justifyContent: 'space-between',
             px: 6,
-            py: 4
+            py: 4,
           }}
         />
       </Skeleton>

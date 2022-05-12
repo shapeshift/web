@@ -1,5 +1,9 @@
 #!/bin/bash
-set -e
+
+red=`tput setaf 1`
+cyan=`tput setaf 6`
+reset=`tput sgr0`
+italic=`tput sitm`
 
 hash git &> /dev/null
 if [[ $? -eq 1 ]]; then
@@ -12,24 +16,27 @@ if [[ -z $1 || -z $2 ]]; then
   echo "Syntax: release.sh {command} {version}"
   echo ""
   echo "commands:"
-  echo -e "\trelease\t\tcreate a release branch"
-  echo -e "\tmain\t\tmerge a release branch into main"
+  echo -e "\tcreate\t\tcreate a release branch"
+  echo -e "\tmerge\t\tmerge a release branch into main"
   echo ""
   echo "version:"
   echo -e "\tmust be in the format vX.Y.Z, e.g. v1.0.0"
   exit
 fi
 
-if [[ -n $(git status -s) ]]; then
-  echo "Cannot continue because your repository is dirty"
+set -e # exit automatically on error
+
+if [[ -n $(git status --porcelain -uno) ]]; then # don't list untracked files
+  echo "${red}Cannot continue because your repository is dirty${reset}"
   exit
 fi
 
-echo "Fetching latest repository state..."
-git fetch &> /dev/null
+echo "${italic}Fetching latest repository state...${reset}"
+git fetch -q
 
-if [[ "$1" == "release" ]]; then
-  echo "Do you wish to create release branch $2?"
+if [[ "$1" == "create" ]]; then
+  echo ""
+  echo "${cyan}Do you wish to create release branch ${red}$2${cyan}?${reset}"
   select yn in "Yes" "No"; do
     case $yn in
       Yes ) break;;
@@ -38,29 +45,43 @@ if [[ "$1" == "release" ]]; then
   done
 
   echo ""
-  echo "Creating release branch $2..."
+  echo "${italic}${cyan}Creating release branch ${red}$2${cyan}...${reset}"
   echo "Checking out latest develop branch..."
-  git checkout origin/develop &> /dev/null
-  git checkout -b "releases/$2" &> /dev/null
-  echo "Pushing release branch to origin..."
+  git checkout -q origin/develop
+  git checkout -q -b "releases/$2"
+  echo "Pushing release branch to ${red}origin${reset}..."
   git push origin "releases/$2" 2> /dev/null
   echo ""
-  echo "Release branch $2 created"
-elif [[ "$1" == "main" ]]; then
+  echo "${cyan}Release branch ${red}$2${cyan} created${reset}"
+
+  set +e # don't exit on non-zero status so we can display info if the GitHub CLI isn't installed
+  hash gh &> /dev/null
+  if [[ $? -eq 1 ]]; then
+    echo "${red}To automatically create the release PR, install the GitHub CLI:${reset}"
+    echo -e "\n\tbrew install gh\n"
+    echo "${cyan}Title: ${red}chore: create release $2 [DO NOT MERGE]${reset}"
+    echo ""
+    echo "${cyan}Body:${reset}"
+    echo "$(git log --oneline --first-parent "origin/main".."origin/releases/$2")"
+    exit
+  fi
+
+  gh pr create --draft --base "main" --title "chore: create release $2 [DO NOT MERGE]" --body "$(git log --oneline --first-parent "origin/main".."origin/releases/$2")"
+elif [[ "$1" == "merge" ]]; then
   # Check if branch exists
   if [[ -z $(git branch --list -r "origin/main") ]]; then
-    echo "branch 'origin/main' does not exist"
+    echo "${red}branch ${cyan}'origin/main'${red} does not exist${reset}"
     exit
   fi
 
   if [[ -z $(git branch --list -r "origin/releases/$2") ]]; then
-    echo "branch 'origin/releases/$2' does not exist"
+    echo "${red}branch ${cyan}'origin/releases/$2'${red} does not exist${reset}"
     exit
   fi
 
-  echo "Found release branch:"
+  echo "${italic}${cyan}Found release branch ${red}$2${reset}"
   echo ""
-  git show "origin/releases/$2"
+  git log --oneline --first-parent "origin/main".."origin/releases/$2"
 
   echo "Merge this release branch into main?"
   select yn in "Yes" "No"; do
@@ -72,11 +93,11 @@ elif [[ "$1" == "main" ]]; then
 
   echo ""
   echo "Checking out main branch..."
-  git checkout "origin/main" &> /dev/null
+  git checkout -q "origin/main"
   echo "Merging release branch into main..."
   git merge --no-ff "origin/releases/$2" -m "Merge branch 'releases/$2'"
   echo ""
-  echo "Push this merge to the main branch?"
+  echo "${italic}${red}Push this merge to the main branch?${reset}"
   select yn in "Yes" "No"; do
     case $yn in
       Yes ) break;;
@@ -92,5 +113,15 @@ elif [[ "$1" == "main" ]]; then
   echo "Deleting release branch..."
   git push --delete origin "releases/$2" &> /dev/null
 
-  echo "Release $2 has been successfully merged to main"
+  echo ""
+  echo "${cyan}Updating local \"main\" branch...${reset}"
+
+  git fetch -q
+  git checkout -q main
+  git merge -q --ff-only origin/main
+
+  echo ""
+  echo "${cyan}Release ${red}$2${cyan} has been successfully merged to main${reset}"
+else
+  echo "${red}Unknown command: ${cyan}$1${reset}"
 fi

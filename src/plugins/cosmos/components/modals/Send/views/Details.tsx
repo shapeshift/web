@@ -13,7 +13,7 @@ import {
   ModalFooter,
   ModalHeader,
   Stack,
-  Tooltip
+  Tooltip,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
@@ -24,17 +24,18 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { Amount } from 'components/Amount/Amount'
-import { SendFormFields } from 'components/Modals/Send/Form'
 import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
-import { SendRoutes } from 'components/Modals/Send/Send'
+import { SendFormFields } from 'components/Modals/Send/SendCommon'
+import { SendRoutes } from 'components/Modals/Send/SendCommon'
 import { SendMaxButton } from 'components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendFormFields as CosmosSendFormFields, SendInput } from '../Form'
+import type { SendInput } from '../Form'
+import { SendFormFields as CosmosSendFormFields } from '../SendCommon'
 
 const MAX_MEMO_LENGTH = 256
 
@@ -45,7 +46,7 @@ export const Details = () => {
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError, memo } =
     useWatch({
-      control
+      control,
     })
 
   const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
@@ -61,7 +62,7 @@ export const Details = () => {
     handleNextClick,
     handleSendMax,
     loading,
-    toggleCurrency
+    toggleCurrency,
   } = useSendDetails()
 
   if (
@@ -149,7 +150,7 @@ export const Details = () => {
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-crypto-input'
             />
@@ -176,7 +177,7 @@ export const Details = () => {
                 <SendMaxButton onClick={handleSendMax} data-test='send-max-button' />
               }
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-fiat-input'
             />
@@ -191,7 +192,7 @@ export const Details = () => {
               <Tooltip
                 placement='right'
                 label={translate('modals.send.sendForm.memoExplainer', {
-                  assetSymbol: asset.symbol
+                  assetSymbol: asset.symbol,
                 })}
                 fontSize='md'
                 pr={4}
@@ -210,7 +211,7 @@ export const Details = () => {
               color={memoFieldError ? 'red.500' : 'gray.500'}
             >
               {translate('modals.send.sendForm.charactersRemaining', {
-                charactersRemaining: remainingMemoChars.toString()
+                charactersRemaining: remainingMemoChars.toString(),
               })}
             </FormHelperText>
           </Box>
@@ -224,7 +225,7 @@ export const Details = () => {
                 type='text'
                 variant='filled'
                 placeholder={translate('modals.send.sendForm.optionalAssetMemo', {
-                  assetSymbol: asset.symbol
+                  assetSymbol: asset.symbol,
                 })}
               />
             )}

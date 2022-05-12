@@ -9,7 +9,7 @@ import {
   getBuyTransfer,
   getSellTransfer,
   getStandardTx,
-  isSupportedContract
+  isSupportedContract,
 } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -52,7 +52,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     inputAddress: translate('transactionHistory.csv.inputAddress'),
     outputAmount: translate('transactionHistory.csv.outputAmount'),
     outputCurrency: translate('transactionHistory.csv.outputCurrency'),
-    outputAddress: translate('transactionHistory.csv.outputAddress')
+    outputAddress: translate('transactionHistory.csv.outputAddress'),
   }
 
   const generateCSV = () => {
@@ -67,13 +67,13 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
         : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
       const buyTransfer = getBuyTransfer(transaction)
       const sellTransfer = getSellTransfer(transaction)
-      const feeAsset = assets.find(asset => asset.caip19 === transaction.fee?.caip19)
+      const feeAsset = assets.find(asset => asset.assetId === transaction.fee?.caip19)
       const input = standardTx ?? sellTransfer ?? null
       const inputCaip19 = input?.caip19 ?? null
       const output = standardTx ?? buyTransfer ?? null
       const outputCaip19 = output?.caip19 ?? null
-      const inputAsset = inputCaip19 ? assets.find(asset => asset.caip19 === inputCaip19) : null
-      const outputAsset = outputCaip19 ? assets.find(asset => asset.caip19 === outputCaip19) : null
+      const inputAsset = inputCaip19 ? assets.find(asset => asset.assetId === inputCaip19) : null
+      const outputAsset = outputCaip19 ? assets.find(asset => asset.assetId === outputCaip19) : null
       report.push({
         txid: transaction.txid,
         type: translate(
@@ -81,7 +81,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
             ? `transactionHistory.transactionTypes.${txType}`
             : transaction.data
             ? `transactionRow.parser.${transaction.data?.parser}.${transaction.data?.method}`
-            : 'transactionRow.unknown'
+            : 'transactionRow.unknown',
         ),
         status: translate(`transactionRow.${transaction.status}`),
         timestamp: dayjs(transaction.blockTime * 1000).toISOString(),
@@ -101,7 +101,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
             ? bnOrZero(fromBaseUnit(output.value, outputAsset.precision)).toString()
             : '-',
         outputCurrency: outputAsset?.symbol ?? '-',
-        outputAddress: output?.to ?? '-'
+        outputAddress: output?.to ?? '-',
       })
     }
     try {
@@ -109,8 +109,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
         data: report,
         fields,
         filename: `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
-          'HH:mm A, MMMM DD, YYYY'
-        )}`
+          'HH:mm A, MMMM DD, YYYY',
+        )}`,
       })
     } catch (error) {
       console.error(error)

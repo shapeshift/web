@@ -9,7 +9,7 @@ import {
   Stack,
   Switch,
   useColorMode,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { FaCoins, FaGreaterThanEqual } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
@@ -18,13 +18,13 @@ import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { selectSelectedCurrency, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
-import { SettingsRoutes } from './Settings'
+import { SettingsRoutes } from './SettingsCommon'
 import { SettingsListItem } from './SettingsListItem'
 
 type SettingsListProps = {
@@ -74,34 +74,27 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             </Flex>
           </SettingsListItem>
           <Divider my={1} />
-          {/* TODO(stackedQ): the following condition should be removed after
-          implementing language translations and balance threshold functionality
-          for assets page, accounts page, and portfolio charts, balances, and assets. */}
-          {false && (
-            <>
-              <SettingsListItem
-                label='modals.settings.language'
-                onClick={() => routeProps.history.push(SettingsRoutes.Languages)}
-                icon={<Icon as={MdLanguage} color='gray.500' />}
-              >
-                <Flex alignItems='center'>
-                  <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
-                    {getLocaleLabel(selectedLocale)}
-                  </RawText>
-                  <MdChevronRight color='gray.500' size='1.5em' />
-                </Flex>
-              </SettingsListItem>
-              <Divider my={1} />
-              <SettingsListItem
-                label='modals.settings.balanceThreshold'
-                icon={<Icon as={FaGreaterThanEqual} color='gray.500' />}
-                tooltipText='modals.settings.balanceThresholdTooltip'
-              >
-                <BalanceThresholdInput />
-              </SettingsListItem>
-              <Divider my={1} />
-            </>
-          )}
+          <SettingsListItem
+            label='modals.settings.language'
+            onClick={() => routeProps.history.push(SettingsRoutes.Languages)}
+            icon={<Icon as={MdLanguage} color='gray.500' />}
+          >
+            <Flex alignItems='center'>
+              <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
+                {getLocaleLabel(selectedLocale)}
+              </RawText>
+              <MdChevronRight color='gray.500' size='1.5em' />
+            </Flex>
+          </SettingsListItem>
+          <Divider my={1} />
+          <SettingsListItem
+            label='modals.settings.balanceThreshold'
+            icon={<Icon as={FaGreaterThanEqual} color='gray.500' />}
+            tooltipText='modals.settings.balanceThresholdTooltip'
+          >
+            <BalanceThresholdInput />
+          </SettingsListItem>
+          <Divider my={1} />
           <SettingsListItem
             label='common.terms'
             onClick={() => closeModalAndNavigateTo('/legal/terms-of-service')}

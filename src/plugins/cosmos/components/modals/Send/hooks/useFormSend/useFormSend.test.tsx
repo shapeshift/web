@@ -1,31 +1,34 @@
 import { useToast } from '@chakra-ui/react'
 import { AssetDataSource, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { SendFormFields, SendInput } from '../../Form'
+import type { SendInput } from '../../Form'
+import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
 
 jest.mock('@chakra-ui/react', () => ({
   ...jest.requireActual('@chakra-ui/react'),
-  useToast: jest.fn()
+  useToast: jest.fn(),
 }))
 jest.mock('react-hook-form')
 jest.mock('react-polyglot', () => ({
-  useTranslate: () => jest.fn()
+  useTranslate: () => jest.fn(),
 }))
 
 jest.mock('context/PluginProvider/PluginProvider')
-jest.mock('context/ModalProvider/ModalProvider')
-jest.mock('context/WalletProvider/WalletProvider')
+jest.mock('hooks/useModal/useModal')
+jest.mock('hooks/useWallet/useWallet')
 
 const formData: SendInput = {
   [SendFormFields.Address]: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner',
   [SendFormFields.Asset]: {
     caip19: 'cosmos:cosmoshub-4/slip44:118',
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
     caip2: 'cosmos:cosmoshub-4',
+    chainId: 'cosmos:cosmoshub-4',
     chain: ChainTypes.Cosmos,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.COSMOSHUB_MAINNET,
@@ -41,23 +44,23 @@ const formData: SendInput = {
     explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
     sendSupport: true,
     receiveSupport: true,
-    description: 'Cosmos Description'
+    description: 'Cosmos Description',
   },
   [SendFormFields.AmountFieldError]: '',
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
   [SendFormFields.EstimatedFees]: {
     [chainAdapters.FeeDataKey.Slow]: {
       txFee: '2500',
-      chainSpecific: { gasLimit: '250000' }
+      chainSpecific: { gasLimit: '250000' },
     },
     [chainAdapters.FeeDataKey.Average]: {
       txFee: '3500',
-      chainSpecific: { gasLimit: '250000' }
+      chainSpecific: { gasLimit: '250000' },
     },
     [chainAdapters.FeeDataKey.Fast]: {
       txFee: '5000',
-      chainSpecific: { gasLimit: '250000' }
-    }
+      chainSpecific: { gasLimit: '250000' },
+    },
   },
   [SendFormFields.CryptoAmount]: '1',
   [SendFormFields.CryptoSymbol]: 'ATOM',
@@ -65,7 +68,7 @@ const formData: SendInput = {
   [SendFormFields.FiatSymbol]: 'USD',
   [SendFormFields.SendMax]: false,
   [SendFormFields.AccountId]: 'cosmos:cosmoshub-4:cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669',
-  [SendFormFields.Memo]: ''
+  [SendFormFields.Memo]: '',
 }
 
 const textTxToSign = {
@@ -75,10 +78,10 @@ const textTxToSign = {
       amount: [
         {
           amount: '1000000',
-          denom: 'uatom'
-        }
+          denom: 'uatom',
+        },
       ],
-      gas: '250000'
+      gas: '250000',
     },
     msg: [
       {
@@ -87,20 +90,20 @@ const textTxToSign = {
           amount: [
             {
               amount: '1000',
-              denom: 'uatom'
-            }
+              denom: 'uatom',
+            },
           ],
           from_address: 'cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669',
-          to_address: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner'
-        }
-      }
+          to_address: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner',
+        },
+      },
     ],
     signatures: [],
-    memo: ''
+    memo: '',
   },
   chain_id: 'cosmoshub-4',
   account_number: '424242',
-  sequence: '12'
+  sequence: '12',
 }
 
 const testSignedTx = 'someFakeTxHash'
@@ -113,9 +116,9 @@ describe('useFormSend', () => {
       state: {
         wallet: {
           supportsOfflineSigning: jest.fn().mockReturnValue(true),
-          supportsCosmos: jest.fn().mockReturnValue(true)
-        }
-      }
+          supportsCosmos: jest.fn().mockReturnValue(true),
+        },
+      },
     }))
 
     const sendClose = jest.fn()
@@ -124,12 +127,14 @@ describe('useFormSend', () => {
       byChain: () => ({
         buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
         signTransaction: () => Promise.resolve(testSignedTx),
-        getType: () => ChainTypes.Cosmos
-      })
+        getType: () => ChainTypes.Cosmos,
+      }),
     }))
 
     const { result } = renderHook(() => useFormSend())
+    jest.useFakeTimers()
     await result.current.handleSend(formData)
+    jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
   })
@@ -138,7 +143,7 @@ describe('useFormSend', () => {
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-      state: { wallet: {} }
+      state: { wallet: {} },
     }))
 
     const sendClose = jest.fn()
@@ -148,8 +153,8 @@ describe('useFormSend', () => {
         buildSendTransaction: () => Promise.reject('All these calls failed'),
         signTransaction: () => Promise.reject('All these calls failed'),
         broadcastTransaction: () => Promise.reject('All these calls failed'),
-        getType: () => ChainTypes.Cosmos
-      })
+        getType: () => ChainTypes.Cosmos,
+      }),
     }))
 
     const { result } = renderHook(() => useFormSend())

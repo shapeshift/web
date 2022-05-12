@@ -1,7 +1,6 @@
 import { Stack, Stat, StatArrow, StatNumber, useColorModeValue } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { range } from 'lodash'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Column, Row } from 'react-table'
@@ -10,10 +9,11 @@ import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   AccountRowData,
   selectPortfolioAccountRows,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 type RowProps = Row<AccountRowData>
@@ -29,20 +29,9 @@ export const AccountTable = () => {
         Header: () => <Text translation='dashboard.portfolio.asset' />,
         accessor: 'assetId',
         disableSortBy: true,
-        Cell: ({ row }: { row: RowProps }) => {
-          const { assetId } = row.original
-          const url = assetId ? `/assets/${assetId}` : ''
-          const handleClick = () => {
-            history.push(url)
-          }
-          return (
-            <AssetCell
-              assetId={row.original.assetId}
-              subText={row.original.symbol}
-              onClick={handleClick}
-            />
-          )
-        }
+        Cell: ({ row }: { row: RowProps }) => (
+          <AssetCell assetId={row.original.assetId} subText={row.original.symbol} />
+        ),
       },
       {
         Header: () => <Text translation='dashboard.portfolio.balance' />,
@@ -61,16 +50,16 @@ export const AccountTable = () => {
               symbol={row.original.symbol}
             />
           </Stack>
-        )
+        ),
       },
       {
         Header: () => <Text translation='dashboard.portfolio.price' />,
         accessor: 'price',
         isNumeric: true,
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+        Cell: ({ value }: { value: string }) => (
           <Amount.Fiat color={textColor} value={value} lineHeight='tall' />
-        )
+        ),
       },
       {
         Header: () => <Text translation='dashboard.portfolio.priceChange' />,
@@ -91,7 +80,7 @@ export const AccountTable = () => {
               <Amount.Percent value={value * 0.01} />
             </StatNumber>
           </Stat>
-        )
+        ),
       },
       {
         Header: () => <Text textAlign='right' translation='dashboard.portfolio.allocation' />,
@@ -101,10 +90,10 @@ export const AccountTable = () => {
           <Amount.Percent fontWeight='medium' textColor='gray.500' value={value * 0.01} />
         ),
         sortType: (a: RowProps, b: RowProps): number =>
-          bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1
-      }
+          bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,
+      },
     ],
-    [history, textColor]
+    [textColor],
   )
   const loadingRows = useMemo(() => {
     return (
@@ -115,6 +104,16 @@ export const AccountTable = () => {
       </Stack>
     )
   }, [])
+
+  const handleRowClick = useCallback(
+    (row: Row<AccountRowData>) => {
+      const { assetId } = row.original
+      const url = assetId ? `/assets/${assetId}` : ''
+      history.push(url)
+    },
+    [history],
+  )
+
   return loading ? (
     loadingRows
   ) : (
@@ -122,6 +121,7 @@ export const AccountTable = () => {
       columns={columns}
       data={rowData}
       initialState={{ sortBy: [{ id: 'balance', desc: true }] }}
+      onRowClick={handleRowClick}
     />
   )
 }

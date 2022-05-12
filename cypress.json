@@ -1,10 +1,10 @@
 {
-  "baseUrl": "http://localhost:3000/",
+  "baseUrl": "http://localhost:3000/#/",
   "projectId": "vpyrho",
   "chromeWebSecurity": false,
   "viewportWidth": 1920,
   "viewportHeight": 1920,
-  "defaultCommandTimeout": 25000,
+  "defaultCommandTimeout": 60000,
   "env": {
     "testPublicKey": "0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde",
     "testSeed": "attract alcohol strike orphan decline flush option goat path offer sense know",

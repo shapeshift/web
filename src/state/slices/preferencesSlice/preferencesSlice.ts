@@ -1,16 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { SupportedFiatCurrencies } from '@shapeshiftoss/types'
+import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import { simpleLocale } from 'lib/browserLocale'
 
 import { getConfig } from '../../../config'
 
 export type FeatureFlags = {
-  CosmosInvestor: boolean
-  CosmosPlugin: boolean
-  FoxyInvestor: boolean
-  GemRamp: boolean
   ReduxLogging: boolean
+  WalletMigration: boolean
+  BanxaRamp: boolean
+  FoxPage: boolean
 }
+
+export type Flag = keyof FeatureFlags
 
 export type Preferences = {
   featureFlags: FeatureFlags
@@ -21,15 +22,14 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    CosmosInvestor: getConfig().REACT_APP_FEATURE_COSMOS_INVESTOR,
-    CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS,
-    GemRamp: getConfig().REACT_APP_FEATURE_GEM_RAMP,
-    FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR,
-    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING
+    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
+    WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
+    BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,
+    FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
-  selectedCurrency: 'USD'
+  selectedCurrency: 'USD',
 }
 
 export const preferences = createSlice({
@@ -50,6 +50,6 @@ export const preferences = createSlice({
     },
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold
-    }
-  }
+    },
+  },
 })

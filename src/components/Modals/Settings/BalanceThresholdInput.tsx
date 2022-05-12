@@ -4,7 +4,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputProps,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { FaGreaterThanEqual } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -29,7 +29,7 @@ export const BalanceThresholdInput = () => {
   const balanceThreshold = useAppSelector(selectBalanceThreshold)
   const dispatch = useAppDispatch()
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter()
   const onChange = (value: string) => {
     dispatch(preferences.actions.setBalanceThreshold({ threshold: value }))

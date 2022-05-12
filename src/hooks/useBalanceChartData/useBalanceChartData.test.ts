@@ -4,14 +4,14 @@ import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
+import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import {
   Bucket,
   bucketEvents,
   calculateBucketPrices,
   makeBuckets,
-  timeframeMap
+  timeframeMap,
 } from './useBalanceChartData'
 
 const mockedDate = '2021-11-20T00:00:00Z'
@@ -24,7 +24,7 @@ describe('makeBuckets', () => {
     const assetIds = [ethCaip19]
     const ethBalance = '42069'
     const balances = {
-      [ethCaip19]: ethBalance
+      [ethCaip19]: ethBalance,
     }
     ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
       const bucketsAndMeta = makeBuckets({ assetIds, balances, timeframe })
@@ -52,7 +52,7 @@ describe('bucketTxs', () => {
     const value = transfer.value
 
     const balances = {
-      [foxCaip19]: value
+      [foxCaip19]: value,
     }
     const assetIds = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
@@ -87,7 +87,7 @@ describe('calculateBucketPrices', () => {
     const value = transfer.value
 
     const balances = {
-      [foxCaip19]: '0'
+      [foxCaip19]: '0',
     }
     const assetIds = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
@@ -96,12 +96,12 @@ describe('calculateBucketPrices', () => {
     const txs = [FOXSend]
 
     const priceHistoryData: PriceHistoryData = {
-      [foxCaip19]: [{ price: 0, date: Number() }]
+      [foxCaip19]: [{ price: 0, date: Number() }],
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
 
     const portfolioAssets: PortfolioAssets = {
-      [foxCaip19]: fox
+      [foxCaip19]: fox,
     }
 
     const rebases: RebaseHistory[] = []
@@ -112,30 +112,30 @@ describe('calculateBucketPrices', () => {
       buckets,
       priceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal: '0',
     })
 
     expect(calculatedBuckets[0].balance.crypto[foxCaip19].toFixed(0)).toEqual(value)
     expect(
-      calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[foxCaip19].toFixed(0)
+      calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[foxCaip19].toFixed(0),
     ).toEqual(value)
   })
 
   it('has zero balance 1 year back', () => {
     const txs = [...ethereumTransactions]
     const balances = {
-      [ethCaip19]: '52430152924656054'
+      [ethCaip19]: '52430152924656054',
     }
     const assetIds = [ethCaip19]
     const timeframe = HistoryTimeframe.YEAR
     const priceHistoryData: PriceHistoryData = {
-      [ethCaip19]: [{ price: 0, date: Number() }]
+      [ethCaip19]: [{ price: 0, date: Number() }],
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
     const portfolioAssets: PortfolioAssets = {
-      [ethCaip19]: ethereum
+      [ethCaip19]: ethereum,
     }
-
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
     const rebases: RebaseHistory[] = []
     const buckets = bucketEvents(txs, rebases, emptyBuckets)
@@ -145,7 +145,8 @@ describe('calculateBucketPrices', () => {
       buckets,
       priceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal: '0',
     })
     expect(calculatedBuckets[0].balance.crypto[ethCaip19].toNumber()).toEqual(0)
   })

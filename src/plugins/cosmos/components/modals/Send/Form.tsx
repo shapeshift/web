@@ -9,9 +9,9 @@ import {
   RouteComponentProps,
   Switch,
   useHistory,
-  useLocation
+  useLocation,
 } from 'react-router-dom'
-import { SendRoutes } from 'components/Modals/Send/Send'
+import { SendRoutes } from 'components/Modals/Send/SendCommon'
 import { Address } from 'components/Modals/Send/views/Address'
 import { QrCodeScanner } from 'components/Modals/Send/views/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
@@ -20,23 +20,9 @@ import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selec
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
+import { SendFormFields } from './SendCommon'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
-
-export enum SendFormFields {
-  Address = 'address',
-  Memo = 'memo',
-  AccountId = 'accountId',
-  Asset = 'asset',
-  FeeType = 'feeType',
-  EstimatedFees = 'estimatedFees',
-  CryptoAmount = 'cryptoAmount',
-  CryptoSymbol = 'cryptoSymbol',
-  FiatAmount = 'fiatAmount',
-  FiatSymbol = 'fiatSymbol',
-  AmountFieldError = 'amountFieldError',
-  SendMax = 'sendMax'
-}
 
 export type SendInput = {
   [SendFormFields.Address]: string
@@ -63,7 +49,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   const history = useHistory()
   const { handleSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
-  const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.assetId))
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -76,8 +62,8 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
       cryptoAmount: '',
       cryptoSymbol: initialAsset?.symbol,
       fiatAmount: '',
-      fiatSymbol: selectedCurrency
-    }
+      fiatSymbol: selectedCurrency,
+    },
   })
 
   const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {

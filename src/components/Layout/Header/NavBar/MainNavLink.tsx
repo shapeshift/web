@@ -33,5 +33,5 @@ export const MainNavLink = memo(
         </Button>
       </Tooltip>
     )
-  })
+  }),
 )

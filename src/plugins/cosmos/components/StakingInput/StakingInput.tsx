@@ -1,7 +1,7 @@
-import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Input, InputLeftElement, Tag, useColorModeValue } from '@chakra-ui/react'
+import { Button, Input, InputGroup, InputGroupProps, InputLeftElement } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/views/Stake'
+import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { CSSProperties } from 'react'
 import { Control, Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -16,37 +16,29 @@ type StakingInputProps = {
   amountRef: string | null
   asset: Asset
   control: Control<StakingValues>
+  inputStyle?: CSSProperties
 }
 
 const cryptoInputValidation = {
   required: true,
   validate: {
-    validateCryptoAmount: (_: string) => {
-      // TODO: Implement when we have cosmos/osmosis balance data
-      return true
-    }
-  }
+    validateCryptoAmount: (cryptoAmount: string) => bnOrZero(cryptoAmount).gt(0),
+  },
 }
 const fiatInputValidation = {
   required: true,
   validate: {
-    validateFiatAmount: (_: string) => {
-      // TODO: Implement when we have cosmos/osmosis balance data
-      return true
-    }
-  }
+    validateFiatAmount: (fiatAmount: string) => bnOrZero(fiatAmount).gt(0),
+  },
 }
 const CryptoInput = (props: any) => (
   <Input
-    height='100%'
     pr='4.5rem'
-    pl='1rem'
-    ml='1rem'
+    pl='0.5rem'
+    ml='0.5rem'
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
-    borderTopLeftRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -59,27 +51,25 @@ export const StakingInput = ({
   isCryptoField,
   onInputToggle,
   onInputChange,
+  inputStyle,
   ...styleProps
-}: StakingInputProps & FlexProps) => {
+}: StakingInputProps & InputGroupProps) => {
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter()
-  const wrapperBgColor = useColorModeValue('gray.50', 'gray.850')
-  const tagBgColor = useColorModeValue('gray.200', 'gray.700')
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   return (
-    <Flex bgColor={wrapperBgColor} borderRadius='12px' alignItems='center' {...styleProps}>
-      <InputLeftElement pos='relative' ml={1} width='auto'>
-        <Tag
-          as='button'
-          type='button'
+    <InputGroup size='lg' {...styleProps}>
+      <InputLeftElement ml={2} pos='relative' width='auto'>
+        <Button
           onClick={onInputToggle}
-          color='gray.500'
-          bgColor={tagBgColor}
-          mr='12px'
+          size='sm'
+          variant='ghost'
+          textTransform='uppercase'
+          width='full'
         >
           {isCryptoField ? asset.symbol : selectedCurrency}
-        </Tag>
+        </Button>
       </InputLeftElement>
       {isCryptoField && (
         <Controller
@@ -87,12 +77,13 @@ export const StakingInput = ({
             return (
               <NumberFormat
                 customInput={CryptoInput}
+                style={inputStyle}
                 isNumericString={true}
                 decimalSeparator={localeParts.decimal}
                 inputMode='decimal'
                 thousandSeparator={localeParts.group}
                 value={value}
-                onChange={e => {
+                onChange={() => {
                   onChange(amountRef)
                   onInputChange(amountRef as string)
                   amountRef = null
@@ -114,12 +105,13 @@ export const StakingInput = ({
             return (
               <NumberFormat
                 customInput={CryptoInput}
+                style={inputStyle}
                 isNumericString={true}
                 decimalSeparator={localeParts.decimal}
                 inputMode='decimal'
                 thousandSeparator={localeParts.group}
                 value={value.length ? bnOrZero(value).toPrecision() : undefined}
-                onChange={e => {
+                onChange={() => {
                   onChange(amountRef)
                   onInputChange(amountRef as string)
                   amountRef = null
@@ -135,6 +127,6 @@ export const StakingInput = ({
           rules={fiatInputValidation}
         />
       )}
-    </Flex>
+    </InputGroup>
   )
 }

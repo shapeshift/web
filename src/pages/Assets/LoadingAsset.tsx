@@ -6,7 +6,7 @@ import {
   SkeletonText,
   Stack,
   Stat,
-  StatGroup
+  StatGroup,
 } from '@chakra-ui/react'
 import { Card } from 'components/Card/Card'
 import { GraphLoading } from 'components/Graph/GraphLoading'

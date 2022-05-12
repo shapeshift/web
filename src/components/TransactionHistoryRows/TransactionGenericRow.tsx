@@ -14,6 +14,26 @@ import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
+export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
+  const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
+  const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
+  const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
+  let columns = '1fr'
+  let dateFormat = 'MM/DD/YYYY hh:mm A'
+
+  if (isLargerThanSm) {
+    columns = '1fr 2fr'
+    dateFormat = 'hh:mm A'
+  }
+  if (isLargerThanMd) {
+    columns = '1fr 2fr'
+  }
+  if (isLargerThanLg) {
+    columns = '1fr 2fr 1fr 1fr'
+  }
+  return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
+}
+
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
     case chainAdapters.TxType.Send:
@@ -36,6 +56,7 @@ type TransactionRowAsset = {
   amount: string
   precision: number
   currentPrice?: string
+  icon?: string
 }
 
 type TransactionGenericRowProps = {
@@ -50,13 +71,13 @@ type TransactionGenericRowProps = {
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
+  isFirstAssetOutgoing?: boolean
   parentWidth: number
 }
 
 export const TransactionGenericRow = ({
   type,
   title,
-  showDateAndGuide,
   assets,
   fee,
   txid,
@@ -64,25 +85,14 @@ export const TransactionGenericRow = ({
   explorerTxLink,
   compactMode = false,
   toggleOpen,
-  parentWidth
+  isFirstAssetOutgoing = false,
+  parentWidth,
 }: TransactionGenericRowProps) => {
-  const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
-  const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
-  const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
-
-  let columns = '1fr'
-  let dateFormat = 'MM/DD/YYYY hh:mm A'
-
-  if (isLargerThanSm) {
-    columns = '1fr 2fr'
-    dateFormat = 'hh:mm A'
-  }
-  if (isLargerThanMd) {
-    columns = '1fr 2fr'
-  }
-  if (isLargerThanLg) {
-    columns = '1fr 2fr 1fr 1fr'
-  }
+  const {
+    columns,
+    dateFormat,
+    breakPoints: [isLargerThanLg],
+  } = GetTxLayoutFormats({ parentWidth })
   return (
     <Button
       height='auto'
@@ -129,7 +139,7 @@ export const TransactionGenericRow = ({
             spacing={{ base: 0, md: compactMode ? 0 : 4 }}
             justifyContent={{
               base: 'space-between',
-              md: compactMode ? 'space-between' : 'flex-start'
+              md: compactMode ? 'space-between' : 'flex-start',
             }}
             fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
             divider={
@@ -145,21 +155,22 @@ export const TransactionGenericRow = ({
                 mt={{ base: 2, md: compactMode ? 2 : 0 }}
                 direction={{
                   base: index === 0 ? 'row' : 'row-reverse',
-                  md: compactMode ? (index === 0 ? 'row' : 'row-reverse') : 'row'
+                  md: compactMode ? (index === 0 ? 'row' : 'row-reverse') : 'row',
                 }}
                 textAlign={{
                   base: index === 0 ? 'left' : 'right',
-                  md: compactMode ? (index === 0 ? 'left' : 'right') : 'left'
+                  md: compactMode ? (index === 0 ? 'left' : 'right') : 'left',
                 }}
               >
                 <AssetIcon
-                  symbol={asset.symbol.toLowerCase()}
+                  src={asset.icon}
                   boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
                 />
                 <Box flex={1}>
                   <Amount.Crypto
                     color='inherit'
                     fontWeight='medium'
+                    prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
                     value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
                     symbol={asset.symbol}
                     maximumFractionDigits={4}
@@ -169,6 +180,7 @@ export const TransactionGenericRow = ({
                       color='gray.500'
                       fontSize='sm'
                       lineHeight='1'
+                      prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
                       value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
                         .times(asset.currentPrice)
                         .toString()}

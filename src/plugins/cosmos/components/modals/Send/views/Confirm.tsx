@@ -10,7 +10,7 @@ import {
   ModalFooter,
   ModalHeader,
   Stack,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
@@ -20,7 +20,7 @@ import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useSendFees } from 'components/Modals/Send/hooks/useSendFees/useSendFees'
-import { SendRoutes } from 'components/Modals/Send/Send'
+import { SendRoutes } from 'components/Modals/Send/SendCommon'
 import { TxFeeRadioGroup } from 'components/Modals/Send/TxFeeRadioGroup'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -29,22 +29,15 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SendInput } from '../Form'
 
-export type FeePrice = {
-  [key in chainAdapters.FeeDataKey]: {
-    fiatFee: string
-    txFee: string
-  }
-}
-
 export const Confirm = () => {
   const {
     control,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
   const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType, memo } = useWatch({
-    control
+    control,
   })
   const { fees } = useSendFees()
 

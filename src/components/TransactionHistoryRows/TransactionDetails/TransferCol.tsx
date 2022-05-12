@@ -1,7 +1,7 @@
 import { Stack, useColorModeValue } from '@chakra-ui/react'
-import { TxTransfer } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/selectors'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Address } from './Address'
@@ -10,10 +10,10 @@ import { Row } from './Row'
 
 type TransferColumnProps = {
   compactMode?: boolean
-} & TxTransfer
+} & chainAdapters.TxTransfer
 
 export const TransferColumn = (transfer: TransferColumnProps) => {
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, transfer.caip19))
+  const asset = useAppSelector(state => selectAssetById(state, transfer.caip19))
   const bgColor = useColorModeValue('white', 'whiteAlpha.100')
   return (
     <Stack

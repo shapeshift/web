@@ -4,7 +4,7 @@ import {
   FormErrorMessage,
   ModalBody,
   ModalHeader,
-  Textarea
+  Textarea,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
@@ -18,7 +18,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     try {
       const vault = await Vault.create()
       vault.meta.set('createdAt', Date.now())
-      vault.set('#mnemonic', values.mnemonic)
+      vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
       history.push('/native/password', { vault })
     } catch (e) {
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
@@ -29,7 +29,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     setError,
     handleSubmit,
     register,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm({ shouldUnregister: true })
 
   const translate = useTranslate()
@@ -48,21 +48,22 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
               size='lg'
               autoComplete='off'
               autoCorrect='off'
+              textTransform='lowercase'
               {...register('mnemonic', {
                 required: translate(
-                  'walletProvider.shapeShift.import.secretRecoveryPhraseRequired'
+                  'walletProvider.shapeShift.import.secretRecoveryPhraseRequired',
                 ),
                 minLength: {
                   value: 47,
                   message: translate(
-                    'walletProvider.shapeShift.import.secretRecoveryPhraseTooShort'
-                  )
+                    'walletProvider.shapeShift.import.secretRecoveryPhraseTooShort',
+                  ),
                 },
                 validate: {
                   validMnemonic: value =>
-                    bip39.validateMnemonic(value) ||
-                    translate('walletProvider.shapeShift.import.secretRecoveryPhraseError')
-                }
+                    bip39.validateMnemonic(value.toLowerCase().trim()) ||
+                    translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
+                },
               })}
               data-test='wallet-native-seed-input'
             />

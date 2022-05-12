@@ -13,13 +13,14 @@ export const PercentOptionsRow = ({
   ...styleProps
 }: PercentOptionsRowProps & ButtonGroupProps) => {
   const bgColor = useColorModeValue('gray.50', 'gray.850')
+
   return (
     <ButtonGroup
       variant='ghost'
       colorScheme='blue'
       width='100%'
       bgColor={bgColor}
-      py='5px'
+      p='5px'
       borderRadius='12px'
       {...styleProps}
     >
@@ -38,10 +39,11 @@ export const PercentOptionsRow = ({
             'Max'
           ) : (
             <Amount.Percent
+              color='inherit'
               value={option}
               options={{
                 minimumFractionDigits: 0,
-                maximumFractionDigits: 0
+                maximumFractionDigits: 0,
               }}
             />
           )}

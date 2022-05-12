@@ -1,28 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetNamespace, CAIP2, caip2, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  AssetNamespace,
+  ChainId,
+  fromCAIP2,
+  toCAIP2,
+  toCAIP10,
+  toCAIP19,
+} from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { logger } from 'lib/logger'
 import {
   AccountSpecifier,
-  AccountSpecifierMap
+  AccountSpecifierMap,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
-import { addToIndex, getRelatedAssetIds } from './utils'
+import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER } from './utils'
+
+const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
 export type TxId = string
 export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
-
-export type TxFilter = {
-  accountType?: UtxoAccountType
-  caip19?: CAIP19
-  caip2?: CAIP2
-  txid?: TxId
-}
 
 export type TxHistoryById = {
   [k: TxId]: Tx
@@ -47,7 +52,7 @@ export type TxHistoryById = {
  */
 
 export type TxIdByAssetId = {
-  [k: CAIP19]: TxId[]
+  [k: AssetId]: TxId[]
 }
 
 export type TxIdByAccountId = {
@@ -65,7 +70,7 @@ type RebaseById = {
 }
 
 type RebaseByAssetId = {
-  [k: CAIP19]: RebaseId[]
+  [k: AssetId]: RebaseId[]
 }
 
 type RebaseByAccountId = {
@@ -104,14 +109,14 @@ const initialState: TxHistory = {
     ids: [], // sorted, newest first
     byAssetId: {},
     byAccountId: {},
-    status: 'idle'
+    status: 'idle',
   },
   rebases: {
     byAssetId: {},
     byAccountId: {},
     ids: [],
-    byId: {}
-  }
+    byId: {},
+  },
 }
 
 /**
@@ -119,26 +124,6 @@ const initialState: TxHistory = {
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
-
-/**
- * now we support accounts, we have a new problem
- * the same tx id can have multiple representations, depending on the
- * account's persective, especially utxos.
- *
- * i.e. a bitcoin send will have a send component, and a receive component for
- * the change, to a new address, but the same tx id.
- * this means we can't uniquely index tx's simply by their id.
- *
- * we'll probably need to go back to some composite index that can be built from
- * the txid and address, or account id, that can be deterministically generated,
- * from the tx data and the account id - note, not the address.
- *
- * the correct solution is to not rely on the parsed representation of the tx
- * as a "send" or "receive" from chain adapters, just index the tx related to the
- * asset or account, and parse the tx closer to the view layer.
- */
-export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
-  `${accountId}-${tx.txid}-${tx.address}`
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
   const { txs } = txHistory
@@ -162,7 +147,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
     txs.byAssetId[relatedAssetId] = addToIndex(
       txs.ids,
       txs.byAssetId[relatedAssetId],
-      makeUniqueTxId(tx, accountSpecifier)
+      makeUniqueTxId(tx, accountSpecifier),
     )
   })
 
@@ -170,7 +155,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   txs.byAccountId[accountSpecifier] = addToIndex(
     txs.ids,
     txs.byAccountId[accountSpecifier],
-    makeUniqueTxId(tx, accountSpecifier)
+    makeUniqueTxId(tx, accountSpecifier),
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
@@ -192,7 +177,7 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
     if (isNew) {
       const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc'])
       const index = orderedRebases.findIndex(
-        rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId
+        rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId,
       )
       rebases.ids.splice(index, 0, rebaseId)
     }
@@ -200,14 +185,14 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
     rebases.byAssetId[assetId] = addToIndex(
       rebases.ids,
       rebases.byAssetId[assetId],
-      makeRebaseId({ accountId, assetId, rebase })
+      makeRebaseId({ accountId, assetId, rebase }),
     )
 
     // index the tx by the account that it belongs to
     rebases.byAccountId[accountId] = addToIndex(
       rebases.ids,
       rebases.byAccountId[accountId],
-      makeRebaseId({ accountId, assetId, rebase })
+      makeRebaseId({ accountId, assetId, rebase }),
     )
   })
 
@@ -218,20 +203,20 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
 
 type MakeRebaseIdArgs = {
   accountId: AccountSpecifier
-  assetId: CAIP19
+  assetId: AssetId
   rebase: RebaseHistory
 }
 
 type MakeRebaseId = (args: MakeRebaseIdArgs) => string
 
 const makeRebaseId: MakeRebaseId = ({ accountId, assetId, rebase }) =>
-  `${accountId}-${assetId}-${rebase.blockTime}`
+  [accountId, assetId, rebase.blockTime].join(UNIQUE_TX_ID_DELIMITER)
 
 type TxHistoryStatusPayload = { payload: TxHistoryStatus }
 type RebaseHistoryPayload = {
   payload: {
     accountId: AccountSpecifier
-    assetId: CAIP19
+    assetId: AssetId
     data: RebaseHistory[]
   }
 }
@@ -240,7 +225,10 @@ export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
   reducers: {
-    clear: () => initialState,
+    clear: () => {
+      moduleLogger.info('clearing tx history')
+      return initialState
+    },
     setStatus: (state, { payload }: TxHistoryStatusPayload) => {
       state.txs.status = payload
     },
@@ -252,15 +240,15 @@ export const txHistory = createSlice({
       }
     },
     upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
-      updateOrInsertRebase(txState, payload)
-  }
+      updateOrInsertRebase(txState, payload),
+  },
 })
 
 type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 type RebaseTxHistoryArgs = {
   accountSpecifierMap: AccountSpecifierMap
-  portfolioAssetIds: CAIP19[]
+  portfolioAssetIds: AssetId[]
 }
 
 export const txHistoryApi = createApi({
@@ -272,9 +260,6 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap, portfolioAssetIds }, { dispatch }) => {
-        // only fetch with foxy flag on
-        if (!getConfig().REACT_APP_FEATURE_FOXY_INVESTOR) return { data: [] }
-
         // foxy contract address, note not caip19s
         const foxyTokenContractAddressWithBalances = foxyAddresses.reduce<string[]>(
           (acc, { foxy }) => {
@@ -282,7 +267,7 @@ export const txHistoryApi = createApi({
             portfolioAssetIds.some(id => id.includes(contractAddress)) && acc.push(contractAddress)
             return acc
           },
-          []
+          [],
         )
 
         // don't do anything below if we don't hold a version of foxy
@@ -292,11 +277,11 @@ export const txHistoryApi = createApi({
         const chain = ChainTypes.Ethereum
         const network = NetworkTypes.MAINNET
         // foxy is only on eth mainnet
-        const chainId = caip2.toCAIP2({ chain, network })
+        const chainId = toCAIP2({ chain, network })
         const entries = Object.entries(accountSpecifierMap)[0]
         const [accountChainId, userAddress] = entries
 
-        const accountSpecifier = caip10.toCAIP10({ caip2: chainId, account: userAddress })
+        const accountSpecifier = toCAIP10({ caip2: chainId, account: userAddress })
         // [] is a valid return type and won't upsert anything
         if (chainId !== accountChainId) return { data: [] }
 
@@ -310,7 +295,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = await adapters.byChainId(chainId)
+        const adapter = (await adapters.byChainId(chainId)) as ChainAdapter<ChainTypes.Ethereum>
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
@@ -318,7 +303,7 @@ export const txHistoryApi = createApi({
         foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
           const assetReference = tokenContractAddress
           const assetNamespace = AssetNamespace.ERC20
-          const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })
+          const assetId = toCAIP19({ chain, network, assetNamespace, assetReference })
           const rebaseHistoryArgs = { userAddress, tokenContractAddress }
           const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
           const upsertPayload = { accountId: accountSpecifier, assetId, data }
@@ -329,7 +314,7 @@ export const txHistoryApi = createApi({
         // into another part of the portfolio above, we kind of abuse RTK query,
         // and we're always force refetching these anyway
         return { data: [] }
-      }
+      },
     }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
@@ -338,12 +323,12 @@ export const txHistoryApi = createApi({
           const error = { data, status: 400 }
           return { error }
         }
-        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
         const accountSpecifier = `${CAIP2}:${pubkey}`
         try {
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
-          const { chain } = caip2.fromCAIP2(CAIP2)
+          const { chain } = fromCAIP2(CAIP2)
           const adapter = chainAdapters.byChain(chain)
           let currentCursor: string = ''
           const pageSize = 100
@@ -351,7 +336,7 @@ export const txHistoryApi = createApi({
             const { cursor: _cursor, transactions } = await adapter.getTxHistory({
               cursor: currentCursor,
               pubkey,
-              pageSize
+              pageSize,
             })
             currentCursor = _cursor
             txs = [...txs, ...transactions]
@@ -362,11 +347,11 @@ export const txHistoryApi = createApi({
           return {
             error: {
               data: `getAllTxHistory: An error occurred fetching all tx history for accountSpecifier: ${accountSpecifier}`,
-              status: 500
-            }
+              status: 500,
+            },
           }
         }
-      }
-    })
-  })
+      },
+    }),
+  }),
 })

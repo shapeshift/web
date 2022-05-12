@@ -1,17 +1,19 @@
-import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { DefiType, FoxyApi } from '@shapeshiftoss/investor-foxy'
+import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
-  selectPortfolioLoading
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 export type FoxyOpportunity = {
@@ -26,10 +28,11 @@ export type FoxyOpportunity = {
   expired?: boolean
   apy?: string
   balance: string
-  contractCaip19: CAIP19
-  tokenCaip19: CAIP19
-  rewardTokenCaip19: CAIP19
+  contractCaip19: AssetId
+  tokenCaip19: AssetId
+  rewardTokenCaip19: AssetId
   pricePerShare: BigNumber
+  withdrawInfo: WithdrawInfo
 }
 
 export type MergedFoxyOpportunity = FoxyOpportunity & {
@@ -42,28 +45,37 @@ export type UseFoxyBalancesReturn = {
   loading: boolean
 }
 
-async function getFoxyOpportunities(balances: PortfolioBalancesById, api: FoxyApi) {
+async function getFoxyOpportunities(
+  balances: PortfolioBalancesById,
+  api: FoxyApi,
+  userAddress: string,
+) {
   const acc: Record<string, FoxyOpportunity> = {}
   const opps = await api.getFoxyOpportunities()
   for (let index = 0; index < opps.length; index++) {
+    // TODO: caip indentifiers in vaults
     const opportunity = opps[index]
-    const rewardTokenCaip19 = caip19.toCAIP19({
-      chain: opportunity.chain,
-      network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
-      assetReference: opportunity.rewardToken
+    const withdrawInfo = await api.getWithdrawInfo({
+      contractAddress: opportunity.contractAddress,
+      userAddress,
     })
-    const contractCaip19 = caip19.toCAIP19({
+    const rewardTokenCaip19 = toCAIP19({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
-      assetReference: opportunity.contractAddress
+      assetReference: opportunity.rewardToken,
     })
-    const tokenCaip19 = caip19.toCAIP19({
+    const contractCaip19 = toCAIP19({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
-      assetReference: opportunity.stakingToken
+      assetReference: opportunity.contractAddress,
+    })
+    const tokenCaip19 = toCAIP19({
+      chain: opportunity.chain,
+      network: NetworkTypes.MAINNET,
+      assetNamespace: AssetNamespace.ERC20,
+      assetReference: opportunity.stakingToken,
     })
     const balance = balances[rewardTokenCaip19]
 
@@ -74,20 +86,24 @@ async function getFoxyOpportunities(balances: PortfolioBalancesById, api: FoxyAp
       contractCaip19,
       tokenCaip19,
       rewardTokenCaip19,
-      pricePerShare: bnOrZero(pricePerShare)
+      pricePerShare: bnOrZero(pricePerShare),
+      withdrawInfo,
     }
   }
   return acc
 }
 
 export function useFoxyBalances(): UseFoxyBalancesReturn {
-  const {
-    state: { wallet }
-  } = useWallet()
   const [loading, setLoading] = useState(false)
   const [opportunities, setOpportunites] = useState<Record<string, FoxyOpportunity>>({})
   const marketData = useSelector(selectMarketData)
   const assets = useSelector(selectAssets)
+
+  const chainAdapterManager = useChainAdapters()
+
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const { foxy, loading: foxyLoading } = useFoxy()
   const balances = useSelector(selectPortfolioAssetBalances)
@@ -98,7 +114,15 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
     ;(async () => {
       setLoading(true)
       try {
-        const foxyOpportunities = await getFoxyOpportunities(balances, foxy)
+        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
+        const userAddress = await chainAdapter.getAddress({ wallet })
+        const foxyOpportunities = await getFoxyOpportunities(balances, foxy, userAddress)
+
+        // remove when Tokemak has api to get real apy
+        for (const key in foxyOpportunities) {
+          foxyOpportunities[key].apy = bnOrZero(getConfig().REACT_APP_FOXY_APY).toString()
+        }
+
         setOpportunites(foxyOpportunities)
       } catch (error) {
         console.error('error', error)
@@ -106,7 +130,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [wallet, foxyLoading, foxy, balances, balancesLoading])
+  }, [wallet, foxyLoading, foxy, balances, balancesLoading, chainAdapterManager])
 
   const makeFiatAmount = useCallback(
     (opportunity: FoxyOpportunity) => {
@@ -118,7 +142,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
         .times(pricePerShare)
         .times(bnOrZero(marketPrice))
     },
-    [assets, marketData]
+    [assets, marketData],
   )
 
   const totalBalance = useMemo(
@@ -126,8 +150,8 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
       Object.values(opportunities).reduce((acc: BigNumber, opportunity: FoxyOpportunity) => {
         const amount = makeFiatAmount(opportunity)
         return acc.plus(bnOrZero(amount))
-      }, bnOrZero(0)),
-    [makeFiatAmount, opportunities]
+      }, bn(0)),
+    [makeFiatAmount, opportunities],
   )
 
   const mergedOpportunities = useMemo(() => {
@@ -140,7 +164,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
         ...opportunity,
         tvl,
         cryptoAmount: bnOrZero(opportunity.balance).div(`1e+${asset?.precision}`).toString(),
-        fiatAmount: fiatAmount.toString()
+        fiatAmount: fiatAmount.toString(),
       }
       return data
     })
@@ -149,6 +173,6 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
   return {
     opportunities: mergedOpportunities,
     loading: foxyLoading || loading,
-    totalBalance: totalBalance.toString()
+    totalBalance: totalBalance.toString(),
   }
 }

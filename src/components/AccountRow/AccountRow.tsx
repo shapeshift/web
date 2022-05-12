@@ -1,15 +1,15 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import type { CAIP19 } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceByAssetId
+  selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,7 +17,7 @@ import { Allocations } from './Allocations'
 
 export type AccountRowArgs = {
   allocationValue: number
-  assetId: CAIP19
+  assetId: AssetId
   to?: LinkProps['to']
 }
 
@@ -25,12 +25,12 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoValue = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId }),
   )
-  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
+  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, { assetId }))
 
   if (!asset) return null // users may have assets we don't support
 
@@ -42,7 +42,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
       templateColumns={{
         base: '1fr repeat(1, 1fr)',
         md: '1fr repeat(2, 1fr)',
-        lg: '2fr repeat(3, 1fr) 150px'
+        lg: '2fr repeat(3, 1fr) 150px',
       }}
       py={4}
       pl={4}
@@ -100,7 +100,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
         )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-        <Allocations value={allocationValue} color={asset.color} />
+        <Allocations value={allocationValue} />
       </Flex>
     </SimpleGrid>
   )

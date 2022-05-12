@@ -1,6 +1,4 @@
-/* eslint-disable prettier/prettier */
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { ZrxSwapper } from '../..'
@@ -88,7 +86,7 @@ describe('getZrxTradeQuote', () => {
     await expect(
       swapper.getTradeQuote({
         ...quoteInput,
-        buyAsset: { ...buyAsset, chain: ChainTypes.Bitcoin }
+        buyAsset: { ...buyAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' }
       })
     ).rejects.toThrow('ZrxError:getQuote - Both assets need to be on the Ethereum chain to use Zrx')
   })
@@ -101,7 +99,7 @@ describe('getZrxTradeQuote', () => {
     await expect(
       swapper.getTradeQuote({
         ...quoteInput,
-        sellAsset: { ...sellAsset, chain: ChainTypes.Bitcoin }
+        sellAsset: { ...sellAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' }
       })
     ).rejects.toThrow('ZrxError:getQuote - Both assets need to be on the Ethereum chain to use Zrx')
   })
@@ -143,9 +141,7 @@ describe('getZrxTradeQuote', () => {
       sellAmount: '0'
     })
     expect(quote?.sellAmount).toBe(
-      bnOrZero(minimum)
-        .times(bn(10).exponentiatedBy(sellAsset.precision))
-        .toString()
+      bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString()
     )
   })
 })

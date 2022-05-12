@@ -25,7 +25,8 @@ export const chainAdapterMockFuncs = {
 
 // @ts-ignore
 ChainAdapterManager.mockImplementation(() => ({
-  byChain: jest.fn(() => chainAdapterMockFuncs)
+  byChain: jest.fn(() => chainAdapterMockFuncs),
+  byChainId: jest.fn(() => chainAdapterMockFuncs)
 }))
 
 export const setupZrxDeps = () => {

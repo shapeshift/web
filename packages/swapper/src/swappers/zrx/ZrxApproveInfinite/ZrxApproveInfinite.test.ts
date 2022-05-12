@@ -33,7 +33,7 @@ Web3.mockImplementation(() => ({
 
 describe('ZrxApproveInfinite', () => {
   const { web3Instance, adapterManager } = setupZrxDeps()
-  const { quoteInput } = setupQuote()
+  const { tradeQuote } = setupQuote()
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve('0xc770eefad204b5180df6a14ee197d99d808ee52d')),
     ethSignTx: jest.fn(() => Promise.resolve({}))
@@ -42,7 +42,7 @@ describe('ZrxApproveInfinite', () => {
   it('should return a txid', async () => {
     const deps = { web3: web3Instance, adapterManager }
     const data = { allowanceTarget: '10000' }
-    const quote = { ...quoteInput }
+    const quote = { ...tradeQuote }
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     expect(await ZrxApproveInfinite(deps, { quote, wallet })).toEqual('grantAllowanceTxId')

@@ -1,5 +1,4 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
 
 import { ExecuteTradeInput } from '../../../api'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
@@ -22,7 +21,7 @@ describe('ZrxExecuteTrade', () => {
     }))
   }
   const deps = { adapterManager } as unknown as ZrxSwapperDeps
-  const execTradeInput: ExecuteTradeInput<ChainTypes.Ethereum> = {
+  const execTradeInput: ExecuteTradeInput<'eip155:1'> = {
     trade: {
       buyAsset,
       sellAsset,

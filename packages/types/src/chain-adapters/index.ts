@@ -37,13 +37,6 @@ export enum FeeDataKey {
   Fast = 'fast'
 }
 
-type ChainSpecificQuoteFeeData<T1> = ChainSpecific<
-  T1,
-  {
-    [ChainTypes.Ethereum]: ethereum.QuoteFeeData
-  }
->
-
 type ChainSpecificFeeData<T> = ChainSpecific<
   T,
   {
@@ -52,10 +45,6 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [ChainTypes.Cosmos]: cosmos.FeeData
   }
 >
-
-export type QuoteFeeData<T1 extends ChainTypes> = {
-  fee: string
-} & ChainSpecificQuoteFeeData<T1>
 
 // ChainTypes.Ethereum:
 // feePerUnit = gasPrice

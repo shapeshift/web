@@ -15,6 +15,15 @@ export enum ChainTypes {
   Osmosis = 'osmosis'
 }
 
+const supportedChainIds = [
+  'eip155:1',
+  'bip122:000000000019d6689c085ae165831e93',
+  'cosmos:cosmoshub-4',
+  'cosmos:osmosis-1'
+] as const
+
+export type SupportedChainIds = typeof supportedChainIds[number]
+
 export enum NetworkTypes {
   MAINNET = 'MAINNET',
   TESTNET = 'TESTNET', // BTC, LTC, etc...

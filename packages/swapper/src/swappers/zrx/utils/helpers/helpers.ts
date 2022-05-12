@@ -1,6 +1,6 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
@@ -30,9 +30,9 @@ export type GetERC20AllowanceArgs = {
 }
 
 type GrantAllowanceArgs = {
-  quote: TradeQuote<ChainTypes>
+  quote: TradeQuote<SupportedChainIds>
   wallet: HDWallet
-  adapter: ChainAdapter<ChainTypes.Ethereum>
+  adapterManager: ChainAdapterManager
   erc20Abi: AbiItem[]
   web3: Web3
 }
@@ -124,7 +124,7 @@ export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Prom
 export const grantAllowance = async ({
   quote,
   wallet,
-  adapter,
+  adapterManager,
   erc20Abi,
   web3
 }: GrantAllowanceArgs): Promise<string> => {
@@ -132,6 +132,7 @@ export const grantAllowance = async ({
     throw new Error('sellAsset.tokenId is required')
   }
 
+  const adapter = await adapterManager.byChainId('eip155:1')
   const erc20Contract = new web3.eth.Contract(erc20Abi, quote.sellAsset.tokenId)
   const approveTx = erc20Contract.methods
     .approve(quote.allowanceContract, quote.sellAmount)

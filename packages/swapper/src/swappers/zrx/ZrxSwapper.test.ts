@@ -1,9 +1,9 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { SwapperType } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { TradeQuote, ZrxError } from '../..'
+import { ZrxError } from '../..'
 import { ZrxSwapper } from '..'
 import { zrxBuildTrade } from '../zrx/zrxBuildTrade/zrxBuildTrade'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
@@ -41,7 +41,6 @@ jest.mock('./ZrxApproveInfinite/ZrxApproveInfinite', () => ({
 }))
 
 describe('ZrxSwapper', () => {
-  const quote = <TradeQuote<ChainTypes>>{}
   const wallet = <HDWallet>{}
   const web3 = <Web3>{}
   const adapterManager = <ChainAdapterManager>{}
@@ -91,15 +90,16 @@ describe('ZrxSwapper', () => {
 
   it('calls ZrxApprovalNeeded on swapper.approvalNeeded', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const { quoteInput } = setupQuote()
-    const args = { quote: quoteInput, wallet }
+    const { tradeQuote } = setupQuote()
+    const args = { quote: tradeQuote, wallet }
     await swapper.approvalNeeded(args)
     expect(ZrxApprovalNeeded).toHaveBeenCalled()
   })
 
   it('calls ZrxApproveInfinite on swapper.approveInfinite', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const args = { quote, wallet }
+    const { tradeQuote } = setupQuote()
+    const args = { quote: tradeQuote, wallet }
     await swapper.approveInfinite(args)
     expect(ZrxApproveInfinite).toHaveBeenCalled()
   })

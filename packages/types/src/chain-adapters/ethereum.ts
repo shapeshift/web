@@ -12,25 +12,6 @@ export type FeeData = {
   maxPriorityFeePerGas: string
 }
 
-export type QuoteFeeData = {
-  /**
-   * estimated gas units in gwei
-   */
-  estimatedGas?: string
-  /**
-   * gas price per gwei
-   */
-  gasPrice?: string
-  /**
-   * total approval fee in eth
-   */
-  approvalFee?: string
-  /**
-   * total fee including approval
-   */
-  totalFee?: string
-}
-
 export type BuildTxInput = {
   gasLimit: string
   erc20ContractAddress?: string

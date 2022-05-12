@@ -1,5 +1,4 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { erc20Abi } from '../abi/erc20-abi'
@@ -35,16 +34,9 @@ Web3.mockImplementation(() => ({
   }
 }))
 
-const setup = () => {
-  const { web3Instance, adapterManager } = setupZrxDeps()
-  const adapter = adapterManager.byChain(ChainTypes.Ethereum)
-
-  return { web3Instance, adapter }
-}
-
 describe('utils', () => {
-  const { quoteInput, sellAsset } = setupQuote()
-  const { web3Instance, adapter } = setup()
+  const { tradeQuote, sellAsset } = setupQuote()
+  const { web3Instance, adapterManager } = setupZrxDeps()
 
   describe('getUsdRate', () => {
     it('getUsdRate gets the usd rate of the symbol', async () => {
@@ -169,7 +161,7 @@ describe('utils', () => {
 
     it('should throw if sellAsset.tokenId is not provided', async () => {
       const quote = {
-        ...quoteInput,
+        ...tradeQuote,
         sellAsset: { ...sellAsset, tokenId: '' }
       }
       ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
@@ -183,13 +175,13 @@ describe('utils', () => {
       }))
 
       await expect(
-        grantAllowance({ quote, wallet, adapter, erc20Abi, web3: web3Instance })
+        grantAllowance({ quote, wallet, adapterManager, erc20Abi, web3: web3Instance })
       ).rejects.toThrow('sellAsset.tokenId is required')
     })
 
     it('should return a txid', async () => {
       const quote = {
-        ...quoteInput
+        ...tradeQuote
       }
       ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
@@ -202,7 +194,7 @@ describe('utils', () => {
       }))
 
       expect(
-        await grantAllowance({ quote, wallet, adapter, erc20Abi, web3: web3Instance })
+        await grantAllowance({ quote, wallet, adapterManager, erc20Abi, web3: web3Instance })
       ).toEqual('broadcastedTx')
     })
   })

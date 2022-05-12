@@ -2,6 +2,7 @@ import concat from 'lodash/concat'
 import banxalogo from 'assets/banxa.png'
 import gemlogo from 'assets/gem-mark.png'
 import onjunologo from 'assets/onjuno.png'
+import { btcAssetId } from 'state/slices/portfolioSlice/utils'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import {
@@ -59,7 +60,11 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     isImplemented: true,
     getBuyAndSellList: async () => {
       const buyAssets = getBanxaAssets()
-      const sellAssets = buyAssets
+      /**
+       * https://discord.com/channels/554694662431178782/972197500305948803/973110904382169118
+       * banxa only supports btc sells for now
+       */
+      const sellAssets = buyAssets.filter(a => a.assetId === btcAssetId)
       return [buyAssets, sellAssets]
     },
     onSubmit: (action: FiatRampAction, asset: string, address: string) => {

@@ -3,6 +3,7 @@ import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
+import { DeleteMe } from 'pages/DeleteMe'
 import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
@@ -49,6 +50,9 @@ export const Routes = () => {
         <Layout>
           <Flags />
         </Layout>
+      </Route>
+      <Route path='/delete'>
+        <DeleteMe />
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

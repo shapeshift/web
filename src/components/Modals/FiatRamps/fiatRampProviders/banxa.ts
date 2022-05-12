@@ -17,6 +17,11 @@ export const createBanxaUrl = (action: FiatRampAction, asset: string, address: s
   const BANXA_BASE_URL = new URL('https://shapeshift.banxa.com/')
 
   const params = new URLSearchParams()
+  /**
+   * note (0xdef1cafe): as of 2022/05/12 - USD for sell is not supported
+   * and will default to whatever local currency is available
+   * vendor problem - nothing we can do
+   */
   params.set('fiatType', 'USD')
   params.set('coinType', asset)
   params.set('walletAddress', address)

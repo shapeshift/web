@@ -98,6 +98,8 @@
     "gem": "GEM",
     "gemMessage": "Buy or Sell Crypto with Gem",
     "onJuno": "OnJuno",
+    "banxa": "Banxa",
+    "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -108,7 +110,7 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

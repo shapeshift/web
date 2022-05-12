@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
+import { findAll, findByAssetId, findPriceHistoryByAssetId } from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 
 export type PriceHistoryData = {
@@ -51,7 +51,7 @@ export const marketData = createSlice({
       state,
       {
         payload: { data, args },
-      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } },
+      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
     ) => {
       const { assetId, timeframe } = args
       state.priceHistory[timeframe][assetId] = data
@@ -59,7 +59,7 @@ export const marketData = createSlice({
   },
 })
 
-type FindPriceHistoryByCaip19Args = { assetId: AssetId; timeframe: HistoryTimeframe }
+type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
   reducerPath: 'marketApi',
@@ -77,30 +77,30 @@ export const marketApi = createApi({
         data && dispatch(marketData.actions.setMarketData(data))
       },
     }),
-    findByCaip19: build.query<MarketCapResult, AssetId>({
-      queryFn: async (caip19: AssetId, baseQuery) => {
+    findByAssetId: build.query<MarketCapResult, AssetId>({
+      queryFn: async (assetId: AssetId, baseQuery) => {
         try {
-          const currentMarketData = await findByCaip19({ caip19 })
+          const currentMarketData = await findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
-          const data = { [caip19]: currentMarketData }
+          const data = { [assetId]: currentMarketData }
           // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
           // to prevent edge cases like #858
           baseQuery.dispatch(marketData.actions.setMarketData(data))
           return { data }
         } catch (e) {
-          const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
+          const error = { data: `findByAssetId: no market data for ${assetId}`, status: 404 }
           return { error }
         }
       },
     }),
-    findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({
+    findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
       queryFn: async ({ assetId, timeframe }) => {
         try {
-          const data = await findPriceHistoryByCaip19({ timeframe, caip19: assetId })
+          const data = await findPriceHistoryByAssetId({ timeframe, assetId })
           return { data }
         } catch (e) {
           const error = {
-            data: `findPriceHistoryByCaip19: error fetching price history for ${assetId}`,
+            data: `findPriceHistoryByAssetId: error fetching price history for ${assetId}`,
             status: 400,
           }
           return { error }
@@ -124,4 +124,5 @@ export const marketApi = createApi({
   }),
 })
 
-export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi
+export const { useFindAllQuery, useFindByAssetIdQuery, useFindPriceHistoryByAssetIdQuery } =
+  marketApi

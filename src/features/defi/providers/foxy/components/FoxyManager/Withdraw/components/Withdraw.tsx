@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import {
@@ -44,7 +44,7 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const assetId = toCAIP19({
+  const assetId = toAssetId({
     chain,
     network,
     assetNamespace,
@@ -52,7 +52,7 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))

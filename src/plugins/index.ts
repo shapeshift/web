@@ -6,7 +6,7 @@ import { Route } from '../Routes/helpers'
 
 const activePlugins = ['bitcoin', 'cosmos', 'ethereum']
 
-export type Plugins = [caip2: string, chain: Plugin][]
+export type Plugins = [chainId: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }
 
 export interface Plugin {

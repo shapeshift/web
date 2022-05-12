@@ -52,9 +52,10 @@ describe('The Dashboard', () => {
     cy.getBySel('token-row-sell-max-button').click()
     cy.waitForAllGetRequests()
     // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
-    cy.get('[data-test=trade-form-preview-button]').contains('Insufficient Funds', {
-      timeout: 60000,
-    })
+    // This test has become flaky and is adding friction to CI - temporarily disabled.
+    // cy.get('[data-test=trade-form-preview-button]').contains('Insufficient Funds', {
+    //   timeout: 60000,
+    // })
     // TODO - We are now at the approval screen - test the rest of the flow
   })
 

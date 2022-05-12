@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v3.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v3.0.0...@shapeshiftoss/caip-v3.1.0) (2022-05-12)
+
+
+### Features
+
+* **caip:** add caip alias methods ([#640](https://github.com/shapeshift/lib/issues/640)) ([3bacb05](https://github.com/shapeshift/lib/commit/3bacb05bd00918c27ee66e02cc17f5ab19e39944))
+
 # [@shapeshiftoss/caip-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.6.0...@shapeshiftoss/caip-v3.0.0) (2022-05-09)
 
 

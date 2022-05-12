@@ -15,7 +15,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectAssetById, selectFeatureFlag } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
@@ -35,10 +35,8 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, caip19))
-  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const vaults = useYearnVaults()
-  const { opportunities } = useFoxyBalances()
-  const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
+  const { opportunities: foxyRows } = useFoxyBalances()
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({

@@ -24,7 +24,7 @@ export const KeepKeyMenu = () => {
   const {
     state: { deviceTimeout, features },
   } = useKeepKey()
-  const versions = useKeepKeyVersions()
+  const { versions, updaterUrl } = useKeepKeyVersions()
   const {
     setDeviceState,
     state: { isConnected, walletInfo },
@@ -110,7 +110,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.bootloader.updateAvailable}
-            externalUrl='https://beta.shapeshift.com/updater-download'
+            externalUrl={updaterUrl}
           />
           <ExpandedMenuItem
             label='walletProvider.keepKey.settings.menuLabels.firmware'
@@ -119,7 +119,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.firmware.updateAvailable}
-            externalUrl='https://beta.shapeshift.com/updater-download'
+            externalUrl={updaterUrl}
           />
           <MenuDivider />
           <ExpandedMenuItem

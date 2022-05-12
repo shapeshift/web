@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { MouseEvent, useMemo } from 'react'
+import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -69,14 +69,9 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   )
 
   const rows = stakingOpportunitiesData
-  const { cosmosGetStarted, cosmosStaking } = useModal()
+  const { cosmosStaking } = useModal()
 
-  const handleGetStartedClick = (e: MouseEvent<HTMLButtonElement>) => {
-    cosmosGetStarted.open({ assetId })
-    e.stopPropagation()
-  }
-
-  const handleStakedClick = (values: Row<OpportunitiesDataFull>) => {
+  const handleClick = (values: Row<OpportunitiesDataFull>) => {
     cosmosStaking.open({
       assetId,
       validatorAddress: values.original.address,
@@ -178,7 +173,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
               ) : (
                 <Box width='100%' textAlign={'right'}>
                   <Button
-                    onClick={handleGetStartedClick}
                     as='span'
                     colorScheme='blue'
                     variant='ghost-filled'
@@ -218,7 +212,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
           data={rows}
           columns={columns}
           displayHeaders={hasActiveStaking}
-          onRowClick={handleStakedClick}
+          onRowClick={handleClick}
         />
       </Card.Body>
     </Card>

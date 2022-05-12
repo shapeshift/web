@@ -41,7 +41,7 @@ export const LegacyLogin = () => {
     typeof err?.response?.data?.error?.msg === 'string' && typeof err.response.status === 'number'
 
   const isRateLimitError = (err: any): err is RateLimitError =>
-    typeof err?.response.data === 'string' && err.response.status === 429
+    typeof err?.response?.data === 'string' && err?.response?.status === 429
 
   const isDecryptionError = (err: any): err is Error =>
     typeof err?.message === 'string' && err.message.startsWith('Native wallet decryption failed')

@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero, cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import {
   ConfirmFormFields,
@@ -29,6 +29,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,

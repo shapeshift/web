@@ -26,7 +26,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
         render={({ field: { onChange, value } }) => (
           <Input
             spellCheck={false}
-            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+            autoFocus
             fontSize='sm'
             onChange={e => onChange(e.target.value.trim())}
             placeholder={translate('modals.send.tokenAddress')}

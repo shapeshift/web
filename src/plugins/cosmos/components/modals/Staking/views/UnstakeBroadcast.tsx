@@ -2,7 +2,6 @@ import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalCloseButton, Text as CText, Tooltip } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -11,6 +10,7 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,

@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -151,7 +151,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
       Object.values(opportunities).reduce((acc: BigNumber, opportunity: FoxyOpportunity) => {
         const amount = makeFiatAmount(opportunity)
         return acc.plus(bnOrZero(amount))
-      }, bnOrZero(0)),
+      }, bn(0)),
     [makeFiatAmount, opportunities],
   )
 

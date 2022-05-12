@@ -6,8 +6,6 @@ import {
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { useFoxyBalances } from './useFoxyBalances'
 import { useVaultBalances } from './useVaultBalances'
@@ -19,13 +17,11 @@ export type UseEarnBalancesReturn = {
 }
 
 export function useEarnBalances(): UseEarnBalancesReturn {
-  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const {
-    opportunities: foxies,
+    opportunities: foxyArray,
     totalBalance: totalFoxyBalance,
     loading: foxyLoading,
   } = useFoxyBalances()
-  const foxyArray = foxyInvestorFeatureFlag ? foxies : []
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SupportedYearnVault[] = useMemo(() => Object.values(vaults), [vaults])
   const {

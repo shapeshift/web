@@ -10,10 +10,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-// @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
-import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import {
   ConfirmFormFields,
   ConfirmFormInput,
@@ -21,7 +19,7 @@ import {
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { FeePrice } from 'plugins/cosmos/utils'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -31,6 +29,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -57,9 +56,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const { handleSubmit, control } = methods
   const { cryptoAmount } = useWatch({ control })
 
-  const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, { validatorAddress }),
-  )
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const {
     state: { wallet, isConnected },
     dispatch,
@@ -68,7 +65,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
@@ -93,8 +90,17 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   }, [adapter, asset.precision, marketData.price])
 
   const history = useHistory()
-  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
+  const onSubmit = async ({ feeType }: { feeType: chainAdapters.FeeDataKey }) => {
     if (!wallet || !feeData) return
+    if (!isConnected) {
+      /**
+       * call onCancel to navigate back before
+       * opening the connect wallet modal.
+       */
+      onCancel()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
 
     const fees = feeData[feeType]
     const gas = fees.chainSpecific.gasLimit
@@ -106,19 +112,9 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
     history.push(UnstakingPath.Broadcast)
   }
 
-  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
-    event.preventDefault()
-    /**
-     * call onCancel to navigate back before
-     * opening the connect wallet modal.
-     */
-    onCancel()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
   const translate = useTranslate()
 
-  if (!cryptoAmount) return null
+  if (!validatorInfo || !cryptoAmount) return null
 
   return (
     <FormProvider {...methods}>
@@ -128,9 +124,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
           pt='14px'
           pb='18px'
           px='30px'
-          onSubmit={(event: FormEvent<unknown>) => {
-            isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
-          }}
+          onSubmit={handleSubmit(onSubmit)}
           flexDirection='column'
           alignItems='center'
           justifyContent='space-between'

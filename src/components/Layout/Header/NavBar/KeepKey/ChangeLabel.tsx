@@ -70,7 +70,7 @@ export const ChangeLabel = () => {
             background={inputBackground}
             onChange={e => setKeepKeyLabel(e.target.value)}
             value={keepKeyLabel}
-            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+            autoFocus
             disabled={awaitingDeviceInteraction}
           />
           <Button

@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero, cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
 import {
   ConfirmFormFields,
@@ -29,6 +29,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,

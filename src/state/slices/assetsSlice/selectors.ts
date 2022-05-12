@@ -22,8 +22,9 @@ export const selectAssetById = createCachedSelector(
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
-export const selectAssetNameById = createSelector(selectAssetById, asset =>
-  asset ? asset.name : undefined,
+export const selectAssetNameById = createSelector(
+  selectAssetById,
+  (asset): string => asset?.name ?? '',
 )
 
 export const selectAssets = createDeepEqualOutputSelector(

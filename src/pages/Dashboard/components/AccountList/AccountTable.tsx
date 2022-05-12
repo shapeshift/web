@@ -1,5 +1,4 @@
 import { Stack, Stat, StatArrow, StatNumber, useColorModeValue } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { range } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -10,6 +9,7 @@ import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   AccountRowData,
   selectPortfolioAccountRows,

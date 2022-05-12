@@ -1,5 +1,5 @@
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export type FeePriceValueHuman = {
   fiatFee: string

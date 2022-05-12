@@ -1,7 +1,7 @@
 import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FoxyDepositActions, FoxyDepositActionType, FoxyDepositState } from './DepositCommon'
 
@@ -16,7 +16,7 @@ export const initialState: FoxyDepositState = {
     expired: false,
     version: '',
     rewardToken: '',
-    tvl: bnOrZero(0),
+    tvl: bn(0),
     apy: '',
   },
   userAddress: null,

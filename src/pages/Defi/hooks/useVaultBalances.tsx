@@ -9,7 +9,7 @@ import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -116,7 +116,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       Object.values(vaults).reduce((acc: BigNumber, vault: EarnVault) => {
         const amount = makeVaultFiatAmount(vault)
         return acc.plus(bnOrZero(amount))
-      }, bnOrZero(0)),
+      }, bn(0)),
     [makeVaultFiatAmount, vaults],
   )
 

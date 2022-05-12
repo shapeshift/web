@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SendInput } from '../../Form'
 
@@ -24,7 +24,7 @@ export const useFormSend = () => {
       try {
         const adapter = chainAdapterManager.byChain(data.asset.chain)
         const value = bnOrZero(data.cryptoAmount)
-          .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
+          .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
         const adapterType = adapter.getType()

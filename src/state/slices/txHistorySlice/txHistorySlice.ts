@@ -263,7 +263,7 @@ export const txHistoryApi = createApi({
         // only fetch with foxy flag on
         if (!getConfig().REACT_APP_FEATURE_FOXY_INVESTOR) return { data: [] }
 
-        // foxy contract address, note not caip19s
+        // foxy contract address, note not assetIds
         const foxyTokenContractAddressWithBalances = foxyAddresses.reduce<string[]>(
           (acc, { foxy }) => {
             const contractAddress = foxy.toLowerCase()

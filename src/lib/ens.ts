@@ -19,8 +19,8 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
   const ethereumChainAdapter = new ChainAdapterManager(unchainedUrls).byChain(ChainTypes.Ethereum)
   const chainId = await ethereumChainAdapter.getChainId()
   const chainIdReference = chainId.match(
-    /^(?<caip2Namespace>[-a-z0-9]{3,8}):(?<caip2Reference>[-a-zA-Z0-9]{1,32})$/,
-  )?.groups?.caip2Reference
+    /^(?<chainIdNamespace>[-a-z0-9]{3,8}):(?<chainIdReference>[-a-zA-Z0-9]{1,32})$/,
+  )?.groups?.chainIdReference
   return new ENS({ provider: await getWeb3Provider(), ensAddress: getEnsAddress(chainIdReference) })
 })
 

@@ -37,18 +37,18 @@ export const portfolio = createSlice({
       payload.accountBalances.ids.forEach(accountSpecifier => {
         // iterate over the account assets balances and calculate the diff
         Object.entries(payload.accountBalances.byId[accountSpecifier]).forEach(
-          ([caip19, newAccountAssetBalance]) => {
+          ([assetId, newAccountAssetBalance]) => {
             // in case if getting accounts for the first time
             const currentAccountBalance = bnOrZero(
-              state.accountBalances.byId[accountSpecifier]?.[caip19],
+              state.accountBalances.byId[accountSpecifier]?.[assetId],
             )
             // diff could be both positive [tx type -> receive] and negative [tx type -> send]
             const differenceBetweenCurrentAndNew =
               bnOrZero(newAccountAssetBalance).minus(currentAccountBalance)
             // get current asset balance from the state
-            const currentAssetBalance = bnOrZero(state.assetBalances.byId?.[caip19])
+            const currentAssetBalance = bnOrZero(state.assetBalances.byId?.[assetId])
             // update state.assetBalances with calculated diff
-            state.assetBalances.byId[caip19] = currentAssetBalance
+            state.assetBalances.byId[assetId] = currentAssetBalance
               .plus(differenceBetweenCurrentAndNew)
               .toString()
           },

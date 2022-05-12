@@ -38,15 +38,15 @@ export type ChainIdType = typeof chainIds[number]
 
 // we only need to update this when we support additional chains, which is infrequent
 // so it's ok to hardcode this map here
-const caip2toCaip19: Record<string, string> = {
+const chainIdToAssetId: Record<string, string> = {
   [ethChainId]: ethAssetId,
   [btcChainId]: btcAssetId,
   [cosmosChainId]: cosmosAssetId,
   [osmosisChainId]: osmosisAssetId,
 }
 
-export const assetIdToChainId = (caip19: AssetId): ChainIdType =>
-  caip19.split('/')[0] as ChainIdType
+export const assetIdToChainId = (assetId: AssetId): ChainIdType =>
+  assetId.split('/')[0] as ChainIdType
 
 export const accountIdToChainId = (accountId: AccountSpecifier): ChainId => {
   // accountId = 'eip155:1:0xdef1...cafe
@@ -105,7 +105,7 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
-export const chainIdToFeeAssetId = (chainId: ChainId): AssetId => caip2toCaip19[chainId]
+export const chainIdToFeeAssetId = (chainId: ChainId): AssetId => chainIdToAssetId[chainId]
 
 // note - this is not really a selector, more of a util
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
@@ -182,7 +182,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { chainId, assetId, pubkey } = account
         const accountSpecifier = `${chainId}:${toLower(pubkey)}`
-        const CAIP10 = toAccountId({ chainId, account: _xpubOrAccount })
+        const accountId = toAccountId({ chainId, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
@@ -202,14 +202,14 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           [assetId]: ethAccount.balance,
         }
 
-        portfolio.accountSpecifiers.byId[accountSpecifier] = [CAIP10]
+        portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           if (!args.assetIds.includes(token.assetId)) {
             return
           }
 
-          portfolio.accounts.byId[CAIP10].assetIds.push(token.assetId)
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
           // add assetId without dupes
           portfolio.assetBalances.ids = Array.from(
             new Set([...portfolio.assetBalances.ids, token.assetId]),
@@ -264,15 +264,15 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           .plus(bnOrZero(balance))
           .toString()
 
-        // For tx history, we need to have CAIP10/AccountIds of addresses that may have 0 balances
-        // for accountSpecifier to CAIP10/AccountId mapping
+        // For tx history, we need to have AccountIds of addresses that may have 0 balances
+        // for accountSpecifier to AccountId mapping
         addresses.forEach(({ pubkey }) => {
-          const CAIP10 = toAccountId({ chainId, account: pubkey })
+          const accountId = toAccountId({ chainId, account: pubkey })
           if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
             portfolio.accountSpecifiers.byId[accountSpecifier] = []
           }
 
-          portfolio.accountSpecifiers.byId[accountSpecifier].push(CAIP10)
+          portfolio.accountSpecifiers.byId[accountSpecifier].push(accountId)
         })
 
         break

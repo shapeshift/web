@@ -19,35 +19,35 @@ import {
 } from 'state/slices/selectors'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
-  SupportedYearnVault & { vaultCaip19: AssetId; tokenCaip19: AssetId; pricePerShare: BigNumber }
+  SupportedYearnVault & { vaultAssetId: AssetId; tokenAssetId: AssetId; pricePerShare: BigNumber }
 
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVaultApi | null) {
   const acc: Record<string, EarnVault> = {}
   const vaults = await getSupportedVaults()
   for (let index = 0; index < vaults.length; index++) {
-    // TODO: caip indentifiers in vaults
+    // TODO: assetIds in vaults
     const vault = vaults[index]
-    const vaultCaip19 = toAssetId({
+    const vaultAssetId = toAssetId({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
       assetReference: vault.vaultAddress,
     })
-    const tokenCaip19 = toAssetId({
+    const tokenAssetId = toAssetId({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
       assetReference: vault.tokenAddress,
     })
-    const balance = balances[vaultCaip19]
+    const balance = balances[vaultAssetId]
 
     if (balance) {
       const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
       acc[vault.vaultAddress] = {
         ...vault,
         balance,
-        vaultCaip19,
-        tokenCaip19,
+        vaultAssetId,
+        tokenAssetId,
         pricePerShare: bnOrZero(pricePerShare),
       }
     }
@@ -100,9 +100,9 @@ export function useVaultBalances(): UseVaultBalancesReturn {
 
   const makeVaultFiatAmount = useCallback(
     (vault: EarnVault) => {
-      const asset = assets[vault.vaultCaip19]
+      const asset = assets[vault.vaultAssetId]
       const pricePerShare = bnOrZero(vault.pricePerShare).div(`1e+${asset?.precision}`)
-      const marketPrice = marketData[vault.tokenCaip19]?.price
+      const marketPrice = marketData[vault.tokenAssetId]?.price
       return bnOrZero(vault.balance)
         .div(`1e+${asset?.precision}`)
         .times(pricePerShare)
@@ -123,7 +123,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
       (acc: Record<string, MergedEarnVault>, [vaultAddress, vault]) => {
-        const asset = assets[vault.vaultCaip19]
+        const asset = assets[vault.vaultAssetId]
         const fiatAmount = makeVaultFiatAmount(vault)
         const yearnVault = yearn?.findByVaultTokenId(vaultAddress)
         acc[vaultAddress] = {

@@ -27,19 +27,19 @@ type EarnOpportunitiesProps = {
   isLoaded?: boolean
 }
 
-export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
+export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   const history = useHistory()
   const location = useLocation()
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const asset = useAppSelector(state => selectAssetById(state, caip19))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const vaults = useYearnVaults()
   const { opportunities } = useFoxyBalances()
   const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
-  //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
+  //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,

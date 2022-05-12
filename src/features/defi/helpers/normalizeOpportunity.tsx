@@ -102,7 +102,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       apy,
       expired,
       chain,
-      tokenCaip19: assetId,
+      tokenAssetId: assetId,
       fiatAmount,
       cryptoAmount,
     } = foxy

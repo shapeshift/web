@@ -56,9 +56,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const extra = tokenId
     ? { assetNamespace, assetReference: tokenId }
     : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
-  const caip = toAssetId({ chain, network, ...extra })
+  const assetId = toAssetId({ chain, network, ...extra })
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
+  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
 
   // Parametrized errors cannot simply be matched with === since their param(s) might vary
   const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {

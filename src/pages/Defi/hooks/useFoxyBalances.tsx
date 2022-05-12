@@ -28,9 +28,9 @@ export type FoxyOpportunity = {
   expired?: boolean
   apy?: string
   balance: string
-  contractCaip19: AssetId
-  tokenCaip19: AssetId
-  rewardTokenCaip19: AssetId
+  contractAssetId: AssetId
+  tokenAssetId: AssetId
+  rewardTokenAssetId: AssetId
   pricePerShare: BigNumber
   withdrawInfo: WithdrawInfo
 }
@@ -53,7 +53,7 @@ async function getFoxyOpportunities(
   const acc: Record<string, FoxyOpportunity> = {}
   const opps = await api.getFoxyOpportunities()
   for (let index = 0; index < opps.length; index++) {
-    // TODO: caip indentifiers in vaults
+    // TODO: assetIds in vaults
     const opportunity = opps[index]
     const withdrawInfo = await api.getWithdrawInfo({
       contractAddress: opportunity.contractAddress,
@@ -83,9 +83,9 @@ async function getFoxyOpportunities(
     acc[opportunity.contractAddress] = {
       ...opportunity,
       balance: bnOrZero(balance).toString(),
-      contractCaip19: contractAssetId,
-      tokenCaip19: tokenAssetId,
-      rewardTokenCaip19: rewardTokenAssetId,
+      contractAssetId,
+      tokenAssetId,
+      rewardTokenAssetId,
       pricePerShare: bnOrZero(pricePerShare),
       withdrawInfo,
     }
@@ -134,9 +134,9 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
   const makeFiatAmount = useCallback(
     (opportunity: FoxyOpportunity) => {
-      const asset = assets[opportunity.tokenCaip19]
+      const asset = assets[opportunity.tokenAssetId]
       const pricePerShare = bnOrZero(opportunity.pricePerShare).div(`1e+${asset?.precision}`)
-      const marketPrice = marketData[opportunity.tokenCaip19]?.price
+      const marketPrice = marketData[opportunity.tokenAssetId]?.price
       return bnOrZero(opportunity.balance)
         .div(`1e+${asset?.precision}`)
         .times(pricePerShare)
@@ -156,9 +156,9 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
   const mergedOpportunities = useMemo(() => {
     return Object.values(opportunities).map(opportunity => {
-      const asset = assets[opportunity.tokenCaip19]
+      const asset = assets[opportunity.tokenAssetId]
       const fiatAmount = makeFiatAmount(opportunity)
-      const marketPrice = marketData[opportunity.tokenCaip19]?.price
+      const marketPrice = marketData[opportunity.tokenAssetId]?.price
       const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
       const data = {
         ...opportunity,

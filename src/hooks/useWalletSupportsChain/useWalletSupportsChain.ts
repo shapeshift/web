@@ -16,12 +16,12 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
   if (!wallet) return false
   const ethChainId = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
   const btcChainId = toChainId({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
-  const cosmosCaip2 = toChainId({
+  const cosmosChainId = toChainId({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
   })
 
-  const osmosisCaip2 = toChainId({
+  const osmosisChainId = toChainId({
     chain: ChainTypes.Osmosis,
     network: NetworkTypes.OSMOSIS_MAINNET,
   })
@@ -32,10 +32,10 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case btcChainId: {
       return supportsBTC(wallet)
     }
-    case cosmosCaip2: {
+    case cosmosChainId: {
       return supportsCosmos(wallet)
     }
-    case osmosisCaip2: {
+    case osmosisChainId: {
       return supportsOsmosis(wallet)
     }
     default: {

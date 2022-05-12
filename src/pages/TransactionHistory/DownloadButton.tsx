@@ -69,11 +69,13 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const sellTransfer = getSellTransfer(transaction)
       const feeAsset = assets.find(asset => asset.assetId === transaction.fee?.assetId)
       const input = standardTx ?? sellTransfer ?? null
-      const inputCaip19 = input?.assetId ?? null
+      const inputAssetId = input?.assetId ?? null
       const output = standardTx ?? buyTransfer ?? null
-      const outputCaip19 = output?.assetId ?? null
-      const inputAsset = inputCaip19 ? assets.find(asset => asset.assetId === inputCaip19) : null
-      const outputAsset = outputCaip19 ? assets.find(asset => asset.assetId === outputCaip19) : null
+      const outputAssetId = output?.assetId ?? null
+      const inputAsset = inputAssetId ? assets.find(asset => asset.assetId === inputAssetId) : null
+      const outputAsset = outputAssetId
+        ? assets.find(asset => asset.assetId === outputAssetId)
+        : null
       report.push({
         txid: transaction.txid,
         type: translate(

@@ -87,8 +87,8 @@ export const mockVaultWithBalance = (obj?: {
   tokenAddress: '',
   provider: '',
   type: '',
-  vaultCaip19: '',
-  tokenCaip19: '',
+  vaultAssetId: '',
+  tokenAssetId: '',
   pricePerShare: bnOrZero(0),
   ...obj,
 })

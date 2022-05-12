@@ -11,6 +11,7 @@ import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
 const selectAllMarketData = (state: ReduxState) => state.marketData.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
+
 export const selectMarketData = createDeepEqualOutputSelector(
   selectAllMarketData,
   selectFiatMarketData,
@@ -47,7 +48,7 @@ export const selectMarketDataById = createCachedSelector(
         .toString(),
     }
   },
-)
+)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 // assets we have loaded market data for
 export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids

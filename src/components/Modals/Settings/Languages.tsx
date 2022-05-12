@@ -2,7 +2,7 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { RouteComponentProps, useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { locales } from '../../../assets/translations/constants'
 import { getLocaleLabel } from '../../../assets/translations/utils'
 
-export const Languages = () => {
+export const Languages: React.FC<RouteComponentProps> = () => {
   const dispatch = useAppDispatch()
   const history = useHistory()
   const selectedLocale = useAppSelector(selectSelectedLocale)

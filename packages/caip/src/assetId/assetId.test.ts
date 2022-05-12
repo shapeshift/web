@@ -1,8 +1,19 @@
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { AssetNamespace, AssetReference, fromAssetId, toAssetId } from './assetId'
+import {
+  AssetNamespace,
+  AssetReference,
+  fromAssetId,
+  fromCAIP19,
+  toAssetId,
+  toCAIP19
+} from './assetId'
 
 describe('assetId', () => {
+  it('should have matching CAIP19 aliases', () => {
+    expect(toAssetId).toEqual(toCAIP19)
+    expect(fromAssetId).toEqual(fromCAIP19)
+  })
   describe('toAssetId', () => {
     describe('toAssetId(fromAssetId())', () => {
       it.each([

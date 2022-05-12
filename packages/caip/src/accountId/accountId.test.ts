@@ -1,6 +1,10 @@
-import { fromAccountId, toAccountId } from './accountId'
+import { fromAccountId, fromCAIP10, toAccountId, toCAIP10 } from './accountId'
 
 describe('toAccountId', () => {
+  it('should have matching CAIP10 aliases', () => {
+    expect(toAccountId).toEqual(toCAIP10)
+    expect(fromAccountId).toEqual(fromCAIP10)
+  })
   it('throws on invalid chainId', () => {
     const chainId = 'eeep:123'
     const account = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'

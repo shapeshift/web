@@ -61,3 +61,6 @@ export const fromAccountId: FromAccountId = (accountId) => {
 
   return { chainId, account: outputAccount }
 }
+
+export const toCAIP10 = toAccountId
+export const fromCAIP10 = fromAccountId

@@ -256,3 +256,6 @@ export const chainNamespaceToChainType: Record<ChainNamespace, ChainTypes> = Obj
   [ChainNamespace.Ethereum]: ChainTypes.Ethereum,
   [ChainNamespace.Cosmos]: ChainTypes.Cosmos
 })
+
+export const toCAIP2 = toChainId
+export const fromCAIP2 = fromChainId

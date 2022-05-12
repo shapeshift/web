@@ -3,13 +3,13 @@
 This package is ShapeShift's partial implementation of [CAIPs](https://github.com/ChainAgnostic/CAIPs) - Chain Agnostic Improvement Protocols.
 It is not exhaustive and is currently only used internally.
 
-## ChainId - Blockchain ID Specification
+## ChainId (CAIP2) - Blockchain ID Specification
 
 https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-2.md
 
 Usage
 
-### `toChainId`
+### `toChainId` | `toCAIP2`
 
 ```ts
 const chain = ChainTypes.Ethereum
@@ -18,7 +18,7 @@ const result = toChainId({ chain, network })
 expect(result).toEqual('eip155:1')
 ```
 
-### `fromChainId`
+### `fromChainId` | `fromCAIP2`
 
 ```ts
 const ethChainId = 'eip155:1'
@@ -27,13 +27,37 @@ expect(chain).toEqual(ChainTypes.Ethereum)
 expect(network).toEqual(NetworkTypes.MAINNET)
 ```
 
-## AssetId - Asset Type and Asset ID Specification
+## AccountId (CAIP10) - Blockchain ID Specification
+
+https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-10.md
+
+Usage
+
+### `toAccountId` | `toCAIP10`
+
+```ts
+const chainId = 'eip155:1'
+const account = '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'
+const result = (toAccountId({ chainId, account }))
+expect(result).toEqual('eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535')
+```
+
+### `fromAccountId` | `fromCAIP10`
+
+```ts
+const accountId = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
+const { chainId, account } = fromAccountId(accountId)
+expect(chainId).toEqual('eip155:1')
+expect(account).toEqual('0xa44c286ba83bb771cd0107b2c1df678435bd1535')
+```
+
+## AssetId (CAIP19) - Asset Type and Asset ID Specification
 
 https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-19.md
 
 Usage
 
-### `toAssetId`
+### `toAssetId` | `toCAIP19`
 
 Ether
 
@@ -57,7 +81,7 @@ const result = toAssetId({ chain, network, contractType, tokenId })
 expect(result).toEqual('eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
 ```
 
-### `fromAssetId`
+### `fromAssetId` | `fromCAIP19`
 
 Ether
 

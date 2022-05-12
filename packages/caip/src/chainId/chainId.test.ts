@@ -1,8 +1,12 @@
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { fromChainId, isChainId, toChainId } from './chainId'
+import { fromCAIP2, fromChainId, isChainId, toCAIP2, toChainId } from './chainId'
 
 describe('chainId', () => {
+  it('should have matching CAIP2 aliases', () => {
+    expect(toChainId).toEqual(toCAIP2)
+    expect(fromChainId).toEqual(fromCAIP2)
+  })
   describe('toChainId', () => {
     it('can turn CosmosHub mainnet to ChainId', () => {
       const chain = ChainTypes.Cosmos

@@ -115,9 +115,11 @@ type FromAssetIdReturn = {
   assetReference: AssetReference | string
 }
 
+export type FromAssetId = (assetId: AssetId) => FromAssetIdReturn
+
 const parseAssetIdRegExp = /([-a-z\d]{3,8}):([-a-zA-Z\d]{1,32})\/([-a-z\d]{3,8}):([-a-zA-Z\d]+)/
 
-export const fromAssetId = (assetId: string): FromAssetIdReturn => {
+export const fromAssetId: FromAssetId = (assetId) => {
   const matches = parseAssetIdRegExp.exec(assetId) ?? []
 
   // We're okay casting these strings to enums because we check to make sure
@@ -146,3 +148,6 @@ export const fromAssetId = (assetId: string): FromAssetIdReturn => {
 
   throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
 }
+
+export const toCAIP19 = toAssetId
+export const fromCAIP19 = fromAssetId

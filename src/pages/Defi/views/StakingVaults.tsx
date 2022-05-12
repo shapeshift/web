@@ -51,7 +51,7 @@ const FoxFarmCTA = () => {
           >
             🚜
           </RawText>
-          <AssetIcon ml={-3} boxSize='40px' src={ethAssetIcon} />
+          <AssetIcon ml={-3} p={0.5} boxSize='40px' src={ethAssetIcon} />
           <AssetIcon ml={-2} boxSize='40px' src={foxAssetIcon} />
           <Text
             ml={5}

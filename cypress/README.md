@@ -45,3 +45,44 @@ Follow [Cypress best practice](https://docs.cypress.io/guides/references/best-pr
 - Minimises interaction with third-party servers, i.e. those that we do not control, where possible - see best practice [here](https://docs.cypress.io/guides/references/best-practices#3rd-party-servers). Acceptable exceptions include testing critical flows.
 - [Prefers stubbed responses from ShapeShift-controlled servers](https://docs.cypress.io/guides/references/best-practices#3rd-party-servers) over full E2E tests. Full E2E is only recommended for testing critical paths. It also helps us overcome the issues inherent with testing _real_ addresses - unless we run a separate node, we cannot ensure the wallet properties remain static.
 - Use Typescript `factories` instead of the Cypress default of JSON `fixtures` to give us type safety, reduce test data coupling, and minimize duplicate code
+
+### How to enable autorecord
+To allow for auto-recording and stubbing to work, require `cypress/plugins/autorecord` in each of your test file and call the function at the beginning of your parent `describe` block.
+
+```ts
+import { autoRecord } from '../plugins/autorecord'
+
+describe('Home Page', () => {
+  autoRecord() // Call the autoRecord function at the beginning of your describe block
+  // Your hooks (beforeEach, afterEach, etc) goes here
+  it('...', () => {
+    // Your test goes here
+  })
+})
+```
+
+## Updating Mocks
+
+In the case you need to update your mocks for a particular test add the test name in the file `cypress.json`:
+
+```json
+{
+  "env": {    
+    "autorecord": {
+      "recordTests": ["my awesome test"]
+    }
+  }
+}
+```
+
+Alternatively, you can update recordings for all tests by setting `forceRecord` to `true` before rerunning your tests:
+
+```json
+{
+  "env": {    
+    "autorecord": {
+      "forceRecord": true
+    }
+  }
+}
+```

@@ -4,7 +4,7 @@ import {
   Asset,
   ChainTypes,
   ExecQuoteOutput,
-  GetQuoteInput,
+  GetMinMaxInput,
   MinMaxOutput,
   SwapperType
 } from '@shapeshiftoss/types'
@@ -35,7 +35,7 @@ export class TestSwapper implements Swapper {
     throw new Error('TestSwapper: getUsdRate unimplemented')
   }
 
-  getMinMax(input: GetQuoteInput): Promise<MinMaxOutput> {
+  getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput> {
     console.info(input)
     throw new Error('TestSwapper: getMinMax unimplemented')
   }

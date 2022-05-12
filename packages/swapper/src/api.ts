@@ -6,9 +6,8 @@ import {
   chainAdapters,
   ChainTypes,
   ExecQuoteOutput,
-  GetQuoteInput,
+  GetMinMaxInput,
   MinMaxOutput,
-  Quote,
   SwapperType
 } from '@shapeshiftoss/types'
 export type SupportedAssetInput = {
@@ -32,8 +31,7 @@ export type SupportedSellAssetsInput = {
 export type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAmount?: string
-  buyAmount?: string
+  sellAmount: string
   sendMax: boolean
   sellAssetAccountId: string
 }
@@ -85,12 +83,12 @@ export type SwapSource = {
 }
 
 export type ApproveInfiniteInput<C extends ChainTypes> = {
-  quote: Quote<C> | TradeQuote<C>
+  quote: TradeQuote<C>
   wallet: HDWallet
 }
 
 export type ApprovalNeededInput<C extends ChainTypes> = {
-  quote: Quote<C> | TradeQuote<C>
+  quote: TradeQuote<C>
   wallet: HDWallet
 }
 
@@ -118,7 +116,7 @@ export interface Swapper {
   /**
    * Get the minimum and maximum trade value of the sellAsset and buyAsset
    */
-  getMinMax(input: GetQuoteInput): Promise<MinMaxOutput>
+  getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

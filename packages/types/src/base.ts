@@ -1,7 +1,3 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-
-import { QuoteFeeData } from './chain-adapters'
-
 /** Common */
 
 export type BIP44Params = {
@@ -105,65 +101,9 @@ export interface MinMaxOutput {
   maximum: string
 }
 
-export type QuoteResponse = {
-  price: string
-  to: string
-  data?: string
-  value?: string
-  gas?: string
-  estimatedGas?: string
-  gasPrice?: string
-  protocolFee?: string
-  minimumProtocolFee?: string
-  buyTokenAddress?: string
-  sellTokenAddress?: string
-  buyAmount?: string
-  sellAmount?: string
-  allowanceTarget?: string
-  sources?: Array<SwapSource>
-}
-
-export type Quote<C extends ChainTypes> = {
-  success: boolean
-  statusReason?: string
-  sellAssetAccountId?: string
-  buyAssetAccountId?: string
+export type GetMinMaxInput = {
   sellAsset: Asset
   buyAsset: Asset
-  feeData?: QuoteFeeData<C>
-  rate?: string
-  depositAddress?: string // this is dex contract address for eth swaps
-  receiveAddress?: string
-  buyAmount?: string
-  sellAmount?: string
-  minimum?: string | null
-  maximum?: string | null
-  txData?: string
-  value?: string
-  allowanceContract?: string
-  sources?: Array<SwapSource>
-}
-
-export type GetQuoteInput = {
-  sellAsset: Asset
-  buyAsset: Asset
-  sellAmount?: string
-  buyAmount?: string
-  sellAssetAccountId?: string
-  buyAssetAccountId?: string
-  slippage?: string
-  sendMax?: boolean
-  priceImpact?: string // TODO this doesnt belong here but frontend needs it to not break (for now)
-}
-
-export type BuildQuoteTxInput = {
-  input: GetQuoteInput
-  wallet: HDWallet
-}
-
-export type ExecQuoteInput<C extends ChainTypes> = {
-  quote: Quote<C>
-  wallet: HDWallet
 }
 
 export type ExecQuoteOutput = {

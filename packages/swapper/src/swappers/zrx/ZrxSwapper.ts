@@ -5,7 +5,7 @@ import {
   Asset,
   ChainTypes,
   ExecQuoteOutput,
-  GetQuoteInput,
+  GetMinMaxInput,
   MinMaxOutput,
   SwapperType
 } from '@shapeshiftoss/types'
@@ -66,8 +66,8 @@ export class ZrxSwapper implements Swapper {
     return getUsdRate(input)
   }
 
-  async getMinMax(input: GetQuoteInput): Promise<MinMaxOutput> {
-    return getZrxMinMax(input)
+  async getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput> {
+    return getZrxMinMax(input.sellAsset, input.buyAsset)
   }
 
   async executeTrade(args: ExecuteTradeInput<ChainTypes>): Promise<ExecQuoteOutput> {

@@ -69,7 +69,6 @@ describe('ZrxBuildTrade', () => {
     sendMax: false,
     sellAsset,
     buyAsset,
-    buyAmount: '',
     sellAmount: '1000000000000000000',
     sellAssetAccountId: '0',
     buyAssetAccountId: '0',
@@ -94,22 +93,6 @@ describe('ZrxBuildTrade', () => {
     },
     sources: []
   }
-
-  it('should throw error if sellAmount AND buyAmount is provided', async () => {
-    const input = { ...buildTradeInput, buyAmount: '1234.12', sellAmount: '1234.12' }
-
-    await expect(zrxBuildTrade(deps, input)).rejects.toThrow(
-      'ZrxSwapper:ZrxBuildTrade Exactly one of buyAmount or sellAmount is required'
-    )
-  })
-
-  it('should throw error if sellAmount AND buyAmount are NOT provided', async () => {
-    const input = { ...buildTradeInput, sellAmount: '', buyAmount: '' }
-
-    await expect(zrxBuildTrade(deps, input)).rejects.toThrow(
-      'ZrxSwapper:ZrxBuildTrade Exactly one of buyAmount or sellAmount is required'
-    )
-  })
 
   it('should throw error if sellAssetAccountId is NOT provided', async () => {
     const input = { ...buildTradeInput, sellAssetAccountId: '' }

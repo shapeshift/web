@@ -16,7 +16,14 @@ export const setupQuote = () => {
     receiveAddress: 'receiveAddress',
     sellAssetAccountId: '0',
     buyAssetAccountId: '0',
-    sendMax: false
+    sendMax: false,
+    minimum: '0',
+    maximum: '999999999999',
+    statusReason: '',
+    buyAmount: '',
+    feeData: { fee: '0' },
+    rate: '1',
+    sources: []
   }
   return { quoteInput, buyAsset, sellAsset }
 }

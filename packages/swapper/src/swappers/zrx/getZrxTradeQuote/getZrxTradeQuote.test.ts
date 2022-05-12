@@ -79,13 +79,6 @@ describe('getZrxTradeQuote', () => {
       }
     })
   })
-  it('fails on no sellAmount or buyAmount', async () => {
-    const { quoteInput } = setupQuote()
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    await expect(swapper.getTradeQuote({ ...quoteInput, sellAmount: undefined })).rejects.toThrow(
-      'ZrxError:getQuote - sellAmount or buyAmount amount is required'
-    )
-  })
   it('fails on non ethereum chain for buyAsset', async () => {
     const { quoteInput, buyAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)

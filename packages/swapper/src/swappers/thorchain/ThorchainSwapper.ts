@@ -4,7 +4,7 @@ import {
   Asset,
   ChainTypes,
   ExecQuoteOutput,
-  GetQuoteInput,
+  GetMinMaxInput,
   MinMaxOutput,
   SwapperType
 } from '@shapeshiftoss/types'
@@ -21,7 +21,7 @@ export class ThorchainSwapper implements Swapper {
     throw new Error('ThorchainSwapper: getUsdRate unimplemented')
   }
 
-  getMinMax(input: GetQuoteInput): Promise<MinMaxOutput> {
+  getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput> {
     console.info(input)
     throw new Error('ThorchainSwapper: getMinMax unimplemented')
   }

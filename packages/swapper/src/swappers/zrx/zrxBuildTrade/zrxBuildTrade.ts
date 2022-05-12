@@ -26,18 +26,11 @@ export async function zrxBuildTrade(
     sellAsset,
     buyAsset,
     sellAmount,
-    buyAmount,
     slippage,
     sellAssetAccountId,
     buyAssetAccountId,
     wallet
   } = input
-
-  if ((buyAmount && sellAmount) || (!buyAmount && !sellAmount)) {
-    throw new SwapError(
-      'ZrxSwapper:ZrxBuildTrade Exactly one of buyAmount or sellAmount is required'
-    )
-  }
 
   if (!sellAssetAccountId || !buyAssetAccountId) {
     throw new SwapError(
@@ -83,7 +76,6 @@ export async function zrxBuildTrade(
      *   sellToken: contract address (or symbol) of token to sell
      *   buyToken: contractAddress (or symbol) of token to buy
      *   sellAmount?: integer string value of the smallest increment of the sell token
-     *   buyAmount?: integer string value of the smallest incremtent of the buy token
      * }
      */
 
@@ -109,7 +101,6 @@ export async function zrxBuildTrade(
           buyToken,
           sellToken,
           sellAmount: normalizeAmount(sellAmount?.toString()),
-          buyAmount: normalizeAmount(buyAmount?.toString()),
           takerAddress: receiveAddress,
           slippagePercentage,
           skipValidation: false,

@@ -3831,10 +3831,10 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
-  integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
+"@shapeshiftoss/caip@^3.0.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.1.0.tgz#d53aad5aaa31317da0d0395e20a766e1ff1e5d21"
+  integrity sha512-4AR+plVix2rPySFLm8jtP7cQCDXd+m02oSVwfoPhyYCLB9ra2DwYE0A7FyZ7RJTjwLQq3Hjit4Xi5nU/uDRbOg==
 
 "@shapeshiftoss/chain-adapters@^3.0.0":
   version "3.0.0"

@@ -15,7 +15,7 @@ import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
@@ -26,7 +26,6 @@ type AssetCellProps = {
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
-  onClick: () => void
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
@@ -51,20 +50,19 @@ export const AssetCell = ({
   showTeaser,
   showAssetSymbol,
   postFix,
-  onClick,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   if (!asset) return null
 
   const rowTitle = buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
-    <HStack width='full' data-test='account-row'>
+    <HStack width='full' data-test='defi-earn-asset-row'>
       {showTeaser && (
         <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
           <PopoverTrigger>
@@ -75,7 +73,7 @@ export const AssetCell = ({
           {showPopover && <AssetTeaser assetId={assetId} />}
         </Popover>
       )}
-      <HStack onClick={onClick} flex={1} cursor='pointer'>
+      <HStack flex={1}>
         <SkeletonCircle isLoaded={!!asset}>
           <AssetIcon src={asset.icon} boxSize='8' />
         </SkeletonCircle>

@@ -17,7 +17,7 @@ describe('The Dashboard', () => {
 
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('wallet-native-button').click()
+    cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-import-button').click()
 
     // Test 'empty` seed validation
@@ -58,7 +58,7 @@ describe('The Dashboard', () => {
     // This will use the wallet created in `supports log in via an imported Native wallet`
     cy.visit('')
     cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('wallet-native-button').click()
+    cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-load-button').click()
     cy.getBySel('native-saved-wallet').should('have.length', 1)
     cy.getBySel('native-saved-wallet-name').contains('cypress-test')
@@ -72,7 +72,7 @@ describe('The Dashboard', () => {
     cy.clearIndexedDB().then(() => {
       cy.visit('')
       cy.getBySel('connect-wallet-button').click()
-      cy.getBySel('wallet-native-button').click()
+      cy.getBySel('connect-wallet-native-button').click()
       cy.getBySel('wallet-native-load-button').should('be.disabled')
     })
   })
@@ -82,7 +82,7 @@ describe('The Dashboard', () => {
 
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('wallet-portis-button').click()
+    cy.getBySel('connect-wallet-portis-button').click()
 
     // This would open an external page to log in with Portis, which is outside the scope of Cypress
     // cy.getBySel('wallet-pair-button').click()

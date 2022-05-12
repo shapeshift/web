@@ -50,6 +50,7 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
+
   return (
     <Card>
       <Card.Header>

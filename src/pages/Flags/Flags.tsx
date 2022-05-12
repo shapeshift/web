@@ -3,7 +3,6 @@ import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
@@ -13,10 +12,6 @@ import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { AppDispatch, clearState, useAppSelector } from 'state/store'
 
 import { FlagRow } from './FlagRow'
-
-type FlagsPageProps = {
-  route?: Route
-}
 
 const FlagHeader = () => {
   return (
@@ -33,7 +28,7 @@ const FlagHeader = () => {
   )
 }
 
-export const Flags = ({ route }: FlagsPageProps) => {
+export const Flags = () => {
   const history = useHistory()
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)

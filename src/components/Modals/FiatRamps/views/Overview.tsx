@@ -1,5 +1,7 @@
 import { CheckIcon, ChevronRightIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -20,7 +22,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  assetIdtoChainId,
+  assetIdToChainId,
   btcChainId,
   ChainIdType,
   cosmosChainId,
@@ -65,7 +67,7 @@ const generateAddresses: GenerateAddresses = props => {
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
-  const chainId = assetIdtoChainId(assetId)
+  const chainId = assetIdToChainId(assetId)
   switch (chainId) {
     case ethChainId:
       return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
@@ -115,7 +117,7 @@ export const Overview: React.FC<OverviewProps> = ({
   useEffect(() => {
     if (!wallet) return
     supportsAddressVerifying && setSupportsAddressVerifying(true)
-    setChainId(assetIdtoChainId(selectedAsset?.assetId ?? '') ?? ethChainId)
+    setChainId(assetIdToChainId(selectedAsset?.assetId ?? '') ?? ethChainId)
     // supportsAddressVerifying will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])
@@ -230,11 +232,22 @@ export const Overview: React.FC<OverviewProps> = ({
             </InputGroup>
           </Flex>
         )}
+        {selectedAsset?.isBelowSellThreshold && (
+          <Alert status='error' variant={'solid'}>
+            <AlertIcon />
+            <Text
+              translation={[
+                'fiatRamps.insufficientCryptoAmountToSell',
+                { amount: supportedFiatRamps[fiatRampProvider].minimumSellThreshold },
+              ]}
+            />
+          </Alert>
+        )}
         <Button
           width='full'
           size='lg'
           colorScheme='blue'
-          disabled={!selectedAsset}
+          disabled={!selectedAsset || selectedAsset?.isBelowSellThreshold}
           mt='25px'
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(

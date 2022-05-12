@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, Tag, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -18,7 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DepositPath } from '../DepositCommon'
@@ -39,26 +39,26 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   const { chain, contractAddress, tokenId, rewardId } = query
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetId = caip19.toCAIP19({
+  const assetId = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetId = toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-  const contractAssetId = caip19.toCAIP19({
+  const contractAssetId = toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const contractAsset = useAppSelector(state => selectAssetByCAIP19(state, contractAssetId))
+  const contractAsset = useAppSelector(state => selectAssetById(state, contractAssetId))
 
   // user info
   const { state: walletState } = useWallet()

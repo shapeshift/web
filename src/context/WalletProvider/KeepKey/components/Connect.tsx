@@ -7,27 +7,16 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
-import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { LocationState } from '../../NativeWallet/types'
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
-
-export interface KeepKeySetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
-  dispatch: React.Dispatch<ActionTypes>
-}
 
 const translateError = (event: Event) => {
   let t: string
@@ -46,7 +35,7 @@ const translateError = (event: Event) => {
   return `walletProvider.keepKey.errors.${t}`
 }
 
-export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
+export const KeepKeyConnect = () => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

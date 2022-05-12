@@ -30,9 +30,9 @@ export const SelectAssetView = ({ onClick, toRoute, assetId }: SelectAssetViewPr
   const accounts = useAppSelector(state => selectPortfolioAccounts(state))
 
   const handleAssetSelect = (asset: Asset) => {
-    const assetAccounts = findAccountsByAssetId(accounts, asset.caip19)
+    const assetAccounts = findAccountsByAssetId(accounts, asset.assetId)
     if (assetAccounts && assetAccounts.length > 1) {
-      history.push(SelectAssetRoutes.Account, { assetId: asset.caip19 })
+      history.push(SelectAssetRoutes.Account, { assetId: asset.assetId })
     } else {
       handleAccountSelect(asset, assetAccounts[0])
     }

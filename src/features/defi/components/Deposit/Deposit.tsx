@@ -74,8 +74,7 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
-    borderTopLeftRadius={0}
+    borderRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -114,7 +113,6 @@ export const Deposit = ({
   fiatInputValidation,
   enableSlippage = true,
   onContinue,
-  onCancel,
   percentOptions,
 }: DepositProps) => {
   const {
@@ -313,7 +311,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={value}
-                            onChange={e => {
+                            onChange={() => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null
@@ -340,7 +338,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={bnOrZero(value).toFixed(2)}
-                            onChange={e => {
+                            onChange={() => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null

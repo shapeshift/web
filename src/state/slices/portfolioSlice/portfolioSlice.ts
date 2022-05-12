@@ -1,26 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { caip2, ChainId } from '@shapeshiftoss/caip'
+import { ChainId, fromCAIP2 } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { ReduxState } from 'state/reducer'
 
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { initialState, Portfolio } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
+const moduleLogger = logger.child({ namespace: ['portfolioSlice'] })
+
 export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
   reducers: {
     clear: () => {
-      console.info('portfolioSlice: clearing portfolio')
+      moduleLogger.info('clearing portfolio')
       return initialState
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
-      console.info('portfolioSlice: upserting portfolio')
+      moduleLogger.info('upserting portfolio')
       // upsert all
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
@@ -97,7 +100,7 @@ export const portfolioApi = createApi({
           string,
         ]
         // TODO(0xdef1cafe): chainAdapters.byCAIP2()
-        const { chain } = caip2.fromCAIP2(CAIP2)
+        const { chain } = fromCAIP2(CAIP2)
         try {
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)

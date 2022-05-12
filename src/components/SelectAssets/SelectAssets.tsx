@@ -9,7 +9,7 @@ type SelectAssetsProps = {
   onClick(asset: Asset): void
 } & RouteComponentProps
 
-export const SelectAssets = ({ onClick, ...rest }: SelectAssetsProps) => {
+export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
   return (
     <SlideTransition>
       <ModalCloseButton />

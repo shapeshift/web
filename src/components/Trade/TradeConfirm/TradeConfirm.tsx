@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -12,6 +12,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -35,7 +36,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     getValues,
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
+  } = useFormContext<TradeState<ChainTypes>>()
   const toast = useToast()
   const translate = useTranslate()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
@@ -46,7 +47,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
   const { chain, tokenId } = sellAsset.currency
   const network = NetworkTypes.MAINNET
@@ -54,7 +56,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const extra = tokenId
     ? { assetNamespace, assetReference: tokenId }
     : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
-  const caip = caip19.toCAIP19({ chain, network, ...extra })
+  const caip = toCAIP19({ chain, network, ...extra })
 
   const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
 
@@ -81,6 +83,15 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!wallet) return
+    if (!isConnected) {
+      /**
+       * call handleBack to reset current form state
+       * before opening the connect wallet modal.
+       */
+      handleBack()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
     try {
       const result = await executeQuote({ wallet })
       const transactionId = result?.txid
@@ -143,7 +154,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Text translation={txid ? 'trade.complete' : 'trade.confirmDetails'} />
               </Card.Heading>
             </WithBackButton>
-            <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} status={status} />
+            <AssetToAsset
+              buyAsset={buyAsset}
+              sellAsset={sellAsset}
+              mt={6}
+              status={txid ? status : undefined}
+            />
           </Card.Header>
           <Divider />
           <Card.Body pb={0} px={0}>
@@ -206,6 +222,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 size='lg'
                 width='full'
                 mt={6}
+                data-test='trade-form-confirm-and-trade-button'
                 type='submit'
               >
                 <Text translation='trade.confirmAndTrade' />

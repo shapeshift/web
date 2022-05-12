@@ -5,7 +5,6 @@ import { History } from 'history'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { StakeRoutes } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useHistory, useLocation } from 'react-router-dom'
-import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -47,7 +46,7 @@ export const GetStarted = ({ assetId, stakingRouterHistory }: GetStartedProps) =
       <ModalCloseButton borderRadius='full' />
       <Flex direction='column' maxWidth='395px' alignItems='center' justifyContent='space-between'>
         <DefiModalHeader
-          headerImageSrc={osmosis}
+          headerImageSrc={asset.icon}
           headerImageMaxWidth={68}
           headerText={['defi.modals.getStarted.header', { assetName: asset.name, maxApr }]}
         />

@@ -60,7 +60,7 @@ export async function getZrxTradeQuote(
     const { data } = quoteResponse
 
     const estimatedGas = bnOrZero(data.estimatedGas).times(1.5)
-    const rate = useSellAmount ? data.price : bnOrZero(1).div(data.price).toString()
+    const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
 
     return {
       success: true,

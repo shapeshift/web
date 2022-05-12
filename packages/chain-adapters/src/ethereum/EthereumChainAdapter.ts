@@ -17,14 +17,8 @@ import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
-import {
-  bnOrZero,
-  getAssetNamespace,
-  getStatus,
-  getType,
-  toPath,
-  toRootDerivationPath
-} from '../utils'
+import { getAssetNamespace, getStatus, getType, toPath, toRootDerivationPath } from '../utils'
+import { bnOrZero } from '../utils/bignumber'
 import erc20Abi from './erc20Abi.json'
 
 export interface ChainAdapterArgs {

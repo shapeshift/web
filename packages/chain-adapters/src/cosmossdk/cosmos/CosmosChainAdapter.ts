@@ -17,7 +17,8 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
-import { bnOrZero, toPath } from '../../utils'
+import { toPath } from '../../utils'
+import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {

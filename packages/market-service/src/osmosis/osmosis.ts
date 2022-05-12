@@ -10,7 +10,7 @@ import {
 import axios from 'axios'
 
 import { MarketService } from '../api'
-import { bnOrZero } from '../utils/bignumber'
+import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import { OsmosisHistoryData, OsmosisMarketCap } from './osmosis-types'
 
@@ -92,17 +92,17 @@ export class OsmosisMarketService implements MarketService {
       case HistoryTimeframe.WEEK:
         range = '7d'
         isV1 = true
-        start = bnOrZero(24).times(7).toNumber()
+        start = bn(24).times(7).toNumber()
         break
       case HistoryTimeframe.MONTH:
         range = '1mo'
         isV1 = true
-        start = bnOrZero(24).times(30).toNumber()
+        start = bn(24).times(30).toNumber()
         break
       case HistoryTimeframe.YEAR:
         range = '1y'
         isV1 = true
-        start = bnOrZero(24).times(365).toNumber()
+        start = bn(24).times(365).toNumber()
         break
       case HistoryTimeframe.ALL:
         // TODO: currently the 'all' range for v2 is returning 500 errors. Using 1y for the time being.

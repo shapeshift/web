@@ -9,7 +9,7 @@ import { AbiItem, numberToHex } from 'web3-utils'
 import { SwapError, TradeQuote } from '../../../../api'
 import { ZrxPriceResponse } from '../../types'
 import { ZrxError } from '../../ZrxSwapper'
-import { bnOrZero } from '../bignumber'
+import { bn, bnOrZero } from '../bignumber'
 import { zrxService } from '../zrxService'
 
 export type GetAllowanceRequiredArgs = {
@@ -70,7 +70,7 @@ export const getAllowanceRequired = async ({
   erc20AllowanceAbi
 }: GetAllowanceRequiredArgs): Promise<BigNumber> => {
   if (sellAsset.symbol === 'ETH') {
-    return bnOrZero(0)
+    return bn(0)
   }
 
   const ownerAddress = receiveAddress
@@ -97,7 +97,7 @@ export const getAllowanceRequired = async ({
     throw new SwapError(`No allowance data for ${allowanceContract} to ${receiveAddress}`)
   }
   const allowanceRequired = bnOrZero(sellAmount).minus(allowanceOnChain)
-  return allowanceRequired.lt(0) ? bnOrZero(0) : allowanceRequired
+  return allowanceRequired.lt(0) ? bn(0) : allowanceRequired
 }
 
 export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> => {
@@ -118,7 +118,7 @@ export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Prom
 
   if (!price.gt(0)) throw new ZrxError('getUsdRate - Failed to get price data')
 
-  return bnOrZero(1).dividedBy(price).toString()
+  return bn(1).dividedBy(price).toString()
 }
 
 export const grantAllowance = async ({

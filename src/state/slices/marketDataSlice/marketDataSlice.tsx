@@ -134,9 +134,12 @@ export const marketApi = createApi({
       },
     }),
     findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
-      queryFn: async ({ assetId, timeframe }) => {
+      queryFn: async (args, { dispatch }) => {
+        const { assetId, timeframe } = args
         try {
           const data = await findPriceHistoryByAssetId({ timeframe, assetId })
+          const payload = { args, data }
+          dispatch(marketData.actions.setCryptoPriceHistory(payload))
           return { data }
         } catch (e) {
           const error = {
@@ -144,20 +147,6 @@ export const marketApi = createApi({
             status: 400,
           }
           return { error }
-        }
-      },
-      onQueryStarted: async (args, { dispatch, queryFulfilled, getCacheEntry }) => {
-        // empty data helps selectors know it's loaded, even if it's unavailable
-        const data: HistoryData[] = []
-        const payload = { data, args }
-        try {
-          await queryFulfilled
-          const data = getCacheEntry().data
-          payload.data = data ?? []
-        } catch (e) {
-          // swallow
-        } finally {
-          dispatch(marketData.actions.setCryptoPriceHistory(payload))
         }
       },
     }),
@@ -177,9 +166,12 @@ export const marketApi = createApi({
       },
     }),
     findPriceHistoryByFiatSymbol: build.query<HistoryData[], FiatPriceHistoryArgs>({
-      queryFn: async ({ symbol, timeframe }) => {
+      queryFn: async (args, { dispatch }) => {
+        const { symbol, timeframe } = args
         try {
           const data = await findPriceHistoryByFiatSymbol({ timeframe, symbol })
+          const payload = { args, data }
+          dispatch(marketData.actions.setFiatPriceHistory(payload))
           return { data }
         } catch (e) {
           const error = {
@@ -187,20 +179,6 @@ export const marketApi = createApi({
             status: 400,
           }
           return { error }
-        }
-      },
-      onQueryStarted: async (args, { dispatch, queryFulfilled, getCacheEntry }) => {
-        // empty data helps selectors know it's loaded, even if it's unavailable
-        const data: HistoryData[] = []
-        const payload = { data, args }
-        try {
-          await queryFulfilled
-          const data = getCacheEntry().data
-          payload.data = data ?? []
-        } catch (e) {
-          // swallow
-        } finally {
-          dispatch(marketData.actions.setFiatPriceHistory(payload))
         }
       },
     }),

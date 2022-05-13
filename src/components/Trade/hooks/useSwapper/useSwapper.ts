@@ -114,10 +114,7 @@ export const useSwapper = () => {
   )
 
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetById(
-      state,
-      sellTradeAsset?.asset ? sellTradeAsset.asset.assetId : 'eip155:1/slip44:60',
-    ),
+    selectFeeAssetById(state, sellTradeAsset?.asset.assetId ?? 'eip155:1/slip44:60'),
   )
 
   const getSendMaxAmount = async ({
@@ -243,13 +240,15 @@ export const useSwapper = () => {
           sellAssetId: sellAsset.assetId,
         })
 
-        const { sellAmount, buyAmount, sellAssetUsdRate, fiatSellAmount } = await calculateAmounts({
-          buyAsset,
-          sellAsset,
-          swapper,
-          action,
-          amount,
-        })
+        const { sellAmount, buyAmount, sellAssetUsdRate, feeAssetUsdRate, fiatSellAmount } =
+          await calculateAmounts({
+            buyAsset,
+            sellAsset,
+            feeAsset,
+            swapper,
+            action,
+            amount,
+          })
 
         const tradeQuote = await swapper.getTradeQuote({
           sellAsset,
@@ -262,7 +261,8 @@ export const useSwapper = () => {
         setFees(tradeQuote, sellAsset)
 
         setValue('quote', tradeQuote)
-        setValue('sellAssetFiatRate', sellAssetUsdRate.toString())
+        setValue('sellAssetFiatRate', sellAssetUsdRate)
+        setValue('feeAssetFiatRate', feeAssetUsdRate)
 
         // Update trade input form fields to new calculated amount
         setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount

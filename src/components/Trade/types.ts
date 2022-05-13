@@ -27,6 +27,7 @@ export type TradeState<C extends ChainTypes> = {
   buyAsset: TradeAsset
   fiatSellAmount: string
   sellAssetFiatRate: string
+  feeAssetFiatRate: string
   fees?: chainAdapters.QuoteFeeData<C>
   action?: TradeAmountInputField
   quote: TradeQuote<C>

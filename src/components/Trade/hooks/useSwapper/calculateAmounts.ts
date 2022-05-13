@@ -8,12 +8,14 @@ export const calculateAmounts = async ({
   amount,
   buyAsset,
   sellAsset,
+  feeAsset,
   swapper,
   action,
 }: {
   amount: string
   buyAsset: Asset
   sellAsset: Asset
+  feeAsset: Asset
   swapper: Swapper
   action: TradeAmountInputField
 }) => {
@@ -27,6 +29,12 @@ export const calculateAmounts = async ({
     await swapper.getUsdRate({
       symbol: buyAsset.symbol,
       tokenId: buyAsset.tokenId,
+    }),
+  )
+  const feeAssetUsdRate = bnOrZero(
+    await swapper.getUsdRate({
+      symbol: feeAsset.symbol,
+      tokenId: feeAsset.tokenId,
     }),
   )
 
@@ -59,5 +67,6 @@ export const calculateAmounts = async ({
     fiatSellAmount,
     sellAssetUsdRate: sellAssetUsdRate.toString(),
     buyAssetUsdRate: sellAssetUsdRate.toString(),
+    feeAssetUsdRate: feeAssetUsdRate.toString(),
   }
 }

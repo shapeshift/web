@@ -36,7 +36,6 @@ import {
   selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
-  selectSelectedCurrency,
   selectTxHistoryStatus,
   selectTxIds,
   selectTxs,
@@ -329,22 +328,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
 
-  /**
-   * Getting fiat to fiat currency rate
-   * USD is the source currency, so the rate will be 1
-   */
-  const symbol = useSelector(selectSelectedCurrency)
-  const { findByFiatSymbol } = marketApi.endpoints
+  // fetch fiat market data
   useEffect(() => {
-    if (symbol === 'USD') return // no need to fetch USD
-    dispatch(findByFiatSymbol.initiate({ symbol }, { forceRefetch: true }))
-  }, [dispatch, findByFiatSymbol, symbol])
-
-  useEffect(() => {
-    SupportedFiatCurrenciesList.forEach(symbol =>
-      dispatch(findByFiatSymbol.initiate({ symbol }, { forceRefetch: true })),
-    )
-  }, [dispatch, findByFiatSymbol])
+    SupportedFiatCurrenciesList.filter(symbol => symbol !== 'USD') // USD -> USD rate is 1
+      .forEach(symbol =>
+        dispatch(marketApi.endpoints.findByFiatSymbol.initiate({ symbol }, { forceRefetch: true })),
+      )
+  }, [dispatch])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

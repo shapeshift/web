@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v3.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v3.0.1...@shapeshiftoss/chain-adapters-v3.0.2) (2022-05-13)
+
+
+### Bug Fixes
+
+* correct fee calculation for eth/erc20 sends ([#644](https://github.com/shapeshift/lib/issues/644)) ([0c75505](https://github.com/shapeshift/lib/commit/0c75505eebb51e9fa6a990e1f2a9cf822cbb2ae6))
+
 # [@shapeshiftoss/chain-adapters-v3.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v3.0.0...@shapeshiftoss/chain-adapters-v3.0.1) (2022-05-12)
 
 # [@shapeshiftoss/chain-adapters-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.15.0...@shapeshiftoss/chain-adapters-v3.0.0) (2022-05-10)

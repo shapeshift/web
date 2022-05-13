@@ -9,9 +9,9 @@ export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
   // we only want unique ids
   const relatedAssets = new Set<AssetId>()
   // we want tokens to display on the fee asset
-  if (tx.fee?.caip19) relatedAssets.add(tx.fee?.caip19)
+  if (tx.fee?.assetId) relatedAssets.add(tx.fee?.assetId)
   // all related transfers in a tx
-  tx.transfers.forEach(transfer => relatedAssets.add(transfer.caip19))
+  tx.transfers.forEach(transfer => relatedAssets.add(transfer.assetId))
   return Array.from(relatedAssets)
 }
 

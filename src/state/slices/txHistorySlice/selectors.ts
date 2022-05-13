@@ -90,7 +90,7 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
     const filteredBasedOnMatchingAssets = matchingAssets
       ? transactions
           .filter(([, tx]) =>
-            tx.transfers.find(transfer => matchingAssets.includes(transfer.caip19)),
+            tx.transfers.find(transfer => matchingAssets.includes(transfer.assetId)),
           )
           .map(([txId]) => txId)
       : txIds

@@ -1,5 +1,5 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -11,16 +11,16 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeState } from 'components/Trade/Trade'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { ValueOf } from 'types/object'
 
+import { TradeRoutePaths, TradeState } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 
@@ -39,7 +39,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<ChainTypes>>()
   const toast = useToast()
   const translate = useTranslate()
-  const { sellAsset, buyAsset, quote, fees, trade } = getValues()
+  const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -50,23 +50,23 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { wallet, isConnected },
     dispatch,
   } = useWallet()
-  const { chain, tokenId } = sellAsset.currency
+  const { chain, tokenId } = trade.sellAsset
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   const extra = tokenId
     ? { assetNamespace, assetReference: tokenId }
     : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
-  const caip = toCAIP19({ chain, network, ...extra })
+  const assetId = toAssetId({ chain, network, ...extra })
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
+  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
 
   // Parametrized errors cannot simply be matched with === since their param(s) might vary
   const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {
-    'ZrxExecuteQuote - signAndBroadcastTransaction error': TRADE_ERRORS.TRANSACTION_REJECTED,
-    'ZrxExecuteQuote - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
-    'ZrxExecuteQuote - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
-    'ZrxExecuteQuote - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
-    'ZrxExecuteQuote - signTransaction error': TRADE_ERRORS.SIGNING_FAILED,
+    'ZrxExecuteTrade - signAndBroadcastTransaction error': TRADE_ERRORS.TRANSACTION_REJECTED,
+    'ZrxExecuteTrade - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
+    'ZrxExecuteTrade - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
+    'ZrxExecuteTrade - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
+    'ZrxExecuteTrade - signTransaction error': TRADE_ERRORS.SIGNING_FAILED,
   } as const
 
   const getParametrizedErrorMessageOrDefault = (
@@ -102,23 +102,23 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       console.error(`TradeConfirm:onSubmit - ${err}`)
       let errorMessage
       switch ((err as ZrxError).message) {
-        case 'ZrxSwapper:ZrxExecuteQuote Cannot execute a failed quote': {
+        case 'ZrxSwapper:ZrxExecuteTrade Cannot execute a failed quote': {
           errorMessage = TRADE_ERRORS.FAILED_QUOTE_EXECUTED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAssetAccountId is required': {
+        case 'ZrxSwapper:ZrxExecuteTrade sellAssetAccountId is required': {
           errorMessage = TRADE_ERRORS.SELL_ASSET_REQUIRED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAmount is required': {
+        case 'ZrxSwapper:ZrxExecuteTrade sellAmount is required': {
           errorMessage = TRADE_ERRORS.SELL_AMOUNT_REQUIRED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote depositAddress is required': {
+        case 'ZrxSwapper:ZrxExecuteTrade depositAddress is required': {
           errorMessage = TRADE_ERRORS.DEPOSIT_ADDRESS_REQUIRED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAssetNetwork and sellAssetSymbol are required': {
+        case 'ZrxSwapper:ZrxExecuteTrade sellAssetNetwork and sellAssetSymbol are required': {
           errorMessage = TRADE_ERRORS.SELL_ASSET_NETWORK_AND_SYMBOL_REQUIRED
           break
         }
@@ -141,8 +141,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     if (txid) {
       reset()
     }
-    history.push('/trade/input')
+    history.push(TradeRoutePaths.Input)
   }
+
+  const tradeFiatAmount = toFiat(
+    bnOrZero(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0))
+      .times(bnOrZero(sellAssetFiatRate))
+      .toNumber(),
+  )
 
   return (
     <SlideTransition>
@@ -155,8 +161,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               </Card.Heading>
             </WithBackButton>
             <AssetToAsset
-              buyAsset={buyAsset}
-              sellAsset={sellAsset}
+              buyIcon={trade.buyAsset.icon}
+              tradeFiatAmount={tradeFiatAmount}
+              trade={trade}
               mt={6}
               status={txid ? status : undefined}
             />
@@ -173,7 +180,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={`${sellAsset.currency?.explorerTxLink}${txid}`}
+                      href={`${trade.sellAsset?.explorerTxLink}${txid}`}
                     >
                       <Text translation='trade.viewTransaction' />
                     </Link>
@@ -187,10 +194,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </Row.Label>
                 </HelperTooltip>
                 <Box textAlign='right'>
-                  <RawText>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(
-                    bnOrZero(quote?.rate),
-                  )} ${buyAsset?.currency?.symbol}`}</RawText>
-                  <RawText color='gray.500'>@{trade?.name}</RawText>
+                  <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
+                    bnOrZero(trade?.rate),
+                  )} ${trade?.buyAsset?.symbol}`}</RawText>
                 </Box>
               </Row>
               <Row>

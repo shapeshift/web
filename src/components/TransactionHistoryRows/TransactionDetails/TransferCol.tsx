@@ -13,7 +13,7 @@ type TransferColumnProps = {
 } & chainAdapters.TxTransfer
 
 export const TransferColumn = (transfer: TransferColumnProps) => {
-  const asset = useAppSelector(state => selectAssetById(state, transfer.caip19))
+  const asset = useAppSelector(state => selectAssetById(state, transfer.assetId))
   const bgColor = useColorModeValue('white', 'whiteAlpha.100')
   return (
     <Stack

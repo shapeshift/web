@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ChainId, fromCAIP2 } from '@shapeshiftoss/caip'
+import { ChainId, fromChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -37,18 +37,18 @@ export const portfolio = createSlice({
       payload.accountBalances.ids.forEach(accountSpecifier => {
         // iterate over the account assets balances and calculate the diff
         Object.entries(payload.accountBalances.byId[accountSpecifier]).forEach(
-          ([caip19, newAccountAssetBalance]) => {
+          ([assetId, newAccountAssetBalance]) => {
             // in case if getting accounts for the first time
             const currentAccountBalance = bnOrZero(
-              state.accountBalances.byId[accountSpecifier]?.[caip19],
+              state.accountBalances.byId[accountSpecifier]?.[assetId],
             )
             // diff could be both positive [tx type -> receive] and negative [tx type -> send]
             const differenceBetweenCurrentAndNew =
               bnOrZero(newAccountAssetBalance).minus(currentAccountBalance)
             // get current asset balance from the state
-            const currentAssetBalance = bnOrZero(state.assetBalances.byId?.[caip19])
+            const currentAssetBalance = bnOrZero(state.assetBalances.byId?.[assetId])
             // update state.assetBalances with calculated diff
-            state.assetBalances.byId[caip19] = currentAssetBalance
+            state.assetBalances.byId[assetId] = currentAssetBalance
               .plus(differenceBetweenCurrentAndNew)
               .toString()
           },
@@ -95,12 +95,12 @@ export const portfolioApi = createApi({
         const untypedState = getState()
         const assetIds = (untypedState as ReduxState).assets.ids
         const chainAdapters = getChainAdapters()
-        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
+        const [chainId, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
           ChainId,
           string,
         ]
-        // TODO(0xdef1cafe): chainAdapters.byCAIP2()
-        const { chain } = fromCAIP2(CAIP2)
+        // TODO(0xdef1cafe): chainAdapters.ChainId()
+        const { chain } = fromChainId(chainId)
         try {
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)

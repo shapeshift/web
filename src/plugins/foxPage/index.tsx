@@ -15,23 +15,23 @@ export function register(): Plugins {
           {
             path: '/fox',
             label: 'navBar.foxToken',
-            main: () => <FoxPage></FoxPage>,
+            main: () => <FoxPage activeTab={FoxPageTab.Fox}></FoxPage>,
             icon: <FoxIcon />,
             routes: [
               {
                 path: '/fox',
                 label: 'navBar.foxToken',
-                main: () => <FoxPage></FoxPage>,
+                main: () => <FoxPage activeTab={FoxPageTab.Fox}></FoxPage>,
               },
               {
                 path: '/foxy',
                 label: 'navBar.foxToken',
-                main: () => <FoxPage initialTab={FoxPageTab.Foxy}></FoxPage>,
+                main: () => <FoxPage activeTab={FoxPageTab.Foxy}></FoxPage>,
               },
               {
                 path: '/onefox',
                 label: 'navBar.foxToken',
-                main: () => <FoxPage initialTab={FoxPageTab.Foxy}></FoxPage>,
+                main: () => <FoxPage activeTab={FoxPageTab.Foxy}></FoxPage>,
               },
             ],
           },

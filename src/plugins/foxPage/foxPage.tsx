@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { RawText } from 'components/Text'
 
 export enum FoxPageTab {
@@ -6,12 +5,9 @@ export enum FoxPageTab {
   Foxy = 'Foxy',
 }
 
-export type FoxPageProps = {
-  initialTab?: FoxPageTab
-}
-
-export const FoxPage = (props: FoxPageProps) => {
-  const [tab] = useState(props.initialTab ?? FoxPageTab.Fox)
-
-  return <RawText>TODO Fox Page // current Tab : {tab}</RawText>
+export const FoxPage = (props: any) => {
+  // TODO remove console log when implementing tabs
+  // eslint-disable-next-line no-console
+  console.log(props)
+  return <RawText>TODO Fox Page</RawText>
 }

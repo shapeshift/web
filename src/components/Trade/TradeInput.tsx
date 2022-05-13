@@ -361,7 +361,12 @@ export const TradeInput = ({ history }: RouterProps) => {
               }
               isLoading={isSubmitting || isSendMaxLoading}
               isDisabled={
-                !isDirty || !isValid || !wallet || !hasValidTradeBalance || !hasEnoughBalanceForGas
+                !isDirty ||
+                !isValid ||
+                !wallet ||
+                !hasValidTradeBalance ||
+                !hasEnoughBalanceForGas ||
+                !quote
               }
               style={{
                 whiteSpace: 'normal',

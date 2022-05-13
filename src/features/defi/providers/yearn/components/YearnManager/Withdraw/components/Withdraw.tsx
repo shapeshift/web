@@ -1,4 +1,4 @@
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import {
@@ -33,13 +33,13 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetId = toCAIP19({
+  const underlyingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const assetId = toCAIP19({
+  const assetId = toAssetId({
     chain,
     network,
     assetNamespace,

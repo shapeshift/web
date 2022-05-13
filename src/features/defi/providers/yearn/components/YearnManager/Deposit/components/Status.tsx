@@ -1,6 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack, Tag } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -26,25 +26,25 @@ export const Status = () => {
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetCAIP19 = toCAIP19({
+  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetCAIP19))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
-  const vaultCAIP19 = toCAIP19({
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const vaultAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const vaultAsset = useAppSelector(state => selectAssetById(state, vaultCAIP19))
+  const vaultAsset = useAppSelector(state => selectAssetById(state, vaultAssetId))
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

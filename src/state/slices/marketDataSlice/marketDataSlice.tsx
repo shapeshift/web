@@ -5,9 +5,9 @@ import {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
   findAll,
-  findByCaip19 as findByAssetId,
+  findByAssetId,
   findByFiatSymbol,
-  findPriceHistoryByCaip19 as findPriceHistoryByAssetId,
+  findPriceHistoryByAssetId,
   findPriceHistoryByFiatSymbol,
   SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
@@ -120,7 +120,7 @@ export const marketApi = createApi({
     findByAssetId: build.query<MarketCapResult, AssetId>({
       queryFn: async (assetId: AssetId, baseQuery) => {
         try {
-          const currentMarketData = await findByAssetId({ caip19: assetId })
+          const currentMarketData = await findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
           const data = { [assetId]: currentMarketData }
           // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
@@ -136,7 +136,7 @@ export const marketApi = createApi({
     findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
       queryFn: async ({ assetId, timeframe }) => {
         try {
-          const data = await findPriceHistoryByAssetId({ timeframe, caip19: assetId })
+          const data = await findPriceHistoryByAssetId({ timeframe, assetId })
           return { data }
         } catch (e) {
           const error = {

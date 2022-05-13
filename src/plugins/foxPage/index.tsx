@@ -1,7 +1,7 @@
 import { Plugins } from 'plugins'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
-import { FoxPage } from './foxPage'
+import { FoxPage, FoxPageTab } from './foxPage'
 
 export function register(): Plugins {
   return [
@@ -15,8 +15,25 @@ export function register(): Plugins {
           {
             path: '/fox',
             label: 'navBar.foxToken',
-            main: () => <FoxPage></FoxPage>,
+            main: () => <FoxPage activeTab={FoxPageTab.Fox}></FoxPage>,
             icon: <FoxIcon />,
+            routes: [
+              {
+                path: '/fox',
+                label: 'navBar.foxToken',
+                main: () => <FoxPage activeTab={FoxPageTab.Fox}></FoxPage>,
+              },
+              {
+                path: '/foxy',
+                label: 'navBar.foxToken',
+                main: () => <FoxPage activeTab={FoxPageTab.Foxy}></FoxPage>,
+              },
+              {
+                path: '/onefox',
+                label: 'navBar.foxToken',
+                main: () => <FoxPage activeTab={FoxPageTab.OneFox}></FoxPage>,
+              },
+            ],
           },
         ],
       },

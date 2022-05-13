@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v4.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v4.1.0...@shapeshiftoss/swapper-v4.1.1) (2022-05-13)
+
+
+### Bug Fixes
+
+* swapper mixup ([#645](https://github.com/shapeshift/lib/issues/645)) ([0ebb4a4](https://github.com/shapeshift/lib/commit/0ebb4a435c39eadec21054c1fce8a40769a98e60))
+
 # [@shapeshiftoss/swapper-v4.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v4.0.4...@shapeshiftoss/swapper-v4.1.0) (2022-05-12)
 
 

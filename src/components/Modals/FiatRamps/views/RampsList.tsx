@@ -6,6 +6,8 @@ import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { selectFeatureFlag } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { FiatRamp, SupportedFiatRampConfig, supportedFiatRamps } from '../config'
 import { FiatRampsRoutes } from '../FiatRampsCommon'
@@ -16,12 +18,14 @@ type RampsListProps = {
 
 export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => {
   const history = useHistory()
+  const banxaFiatRampFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'BanxaRamp'))
 
   const ramps = useMemo(() => {
     type Entry = [keyof typeof supportedFiatRamps, SupportedFiatRampConfig]
     const initial: ReactElement[] = []
     const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce((acc, entry) => {
       const [fiatRamp, fiatRampConfig] = entry
+      if (fiatRamp === FiatRamp.Banxa && !banxaFiatRampFeatureFlag) return acc
       if (fiatRampConfig.isImplemented) {
         acc.unshift(
           <Button
@@ -81,7 +85,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       return acc
     }, initial)
     return result
-  }, [history, setFiatRampProvider])
+  }, [banxaFiatRampFeatureFlag, history, setFiatRampProvider])
 
   return (
     <Flex justifyContent='center' alignItems='center' width={'32rem'}>

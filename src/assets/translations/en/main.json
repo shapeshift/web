@@ -62,7 +62,12 @@
   },
   "updateToast": {
     "body": "A new version of the app is available",
-    "cta": "Reload App"
+    "cta": "Reload App",
+    "keepKey": {
+      "title": "KeepKey Update Available",
+      "newUpdateAvailable": "A new KeepKey update is available.",
+      "downloadCta": "Download Update"
+    }
   },
   "dashboard": {
     "portfolio": {
@@ -93,6 +98,8 @@
     "gem": "GEM",
     "gemMessage": "Buy or Sell Crypto with Gem",
     "onJuno": "OnJuno",
+    "banxa": "Banxa",
+    "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -103,7 +110,7 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -234,6 +241,7 @@
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
+    "earnCopy": "Click here to Earn %{apr}%+ APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -425,6 +433,11 @@
       "recoverySettingUp": {
         "header": "Setting up device...",
         "body": "Please wait while we initialize your device and sync your addresses."
+      },
+      "recoveryInvalid": {
+        "header": "Invalid Recovery Phrase",
+        "body": "The Recovery Phrase you have entered is invalid.",
+        "button": "Try Again"
       }
     },
     "shapeShift": {
@@ -808,6 +821,7 @@
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
+        "tooManyAttempts": "Too many attempts, please try again later.",
         "invalidLogin": "Invalid login",
         "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
         "decryptionError": "Something went wrong decrypting your wallet.",

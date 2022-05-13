@@ -1,6 +1,5 @@
 import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
-import { DefiType, FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { WithdrawInfo } from '@shapeshiftoss/investor-foxy/dist/api/foxy-types'
+import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -8,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -151,7 +150,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
       Object.values(opportunities).reduce((acc: BigNumber, opportunity: FoxyOpportunity) => {
         const amount = makeFiatAmount(opportunity)
         return acc.plus(bnOrZero(amount))
-      }, bnOrZero(0)),
+      }, bn(0)),
     [makeFiatAmount, opportunities],
   )
 

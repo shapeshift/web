@@ -162,7 +162,7 @@ export const bucketEvents = (
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
-  priceHistoryData: {
+  cryptoPriceHistoryData: {
     [k: AssetId]: HistoryData[]
   }
   fiatPriceHistoryData: HistoryData[]
@@ -172,7 +172,7 @@ type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
 
 const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
-  priceHistoryData,
+  cryptoPriceHistoryData,
   fiatPriceHistoryData,
   portfolioAssets,
 }) => {
@@ -181,7 +181,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const { crypto } = balance
 
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
-    const assetPriceHistoryData = priceHistoryData[assetId]
+    const assetPriceHistoryData = cryptoPriceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ priceHistoryData: assetPriceHistoryData, date })
     const fiatToUsdRate = priceAtBlockTime({ priceHistoryData: fiatPriceHistoryData, date })
@@ -203,7 +203,7 @@ type CalculateBucketPricesArgs = {
   assetIds: AssetId[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
-  priceHistoryData: PriceHistoryData
+  cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
   delegationTotal: string
 }
@@ -216,7 +216,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     assetIds,
     buckets,
     portfolioAssets,
-    priceHistoryData,
+    cryptoPriceHistoryData,
     delegationTotal,
     fiatPriceHistoryData,
   } = args
@@ -287,7 +287,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
     bucket.balance.fiat = fiatBalanceAtBucket({
       bucket,
-      priceHistoryData,
+      cryptoPriceHistoryData,
       portfolioAssets,
       fiatPriceHistoryData,
     })
@@ -389,7 +389,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
-  const priceHistoryData = useAppSelector(state =>
+  const cryptoPriceHistoryData = useAppSelector(state =>
     selectCryptoPriceHistoryTimeframe(state, timeframe),
   )
   const priceHistoryDataLoading = useAppSelector(state =>
@@ -424,7 +424,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
       buckets,
-      priceHistoryData,
+      cryptoPriceHistoryData,
       fiatPriceHistoryData,
       portfolioAssets,
       delegationTotal,
@@ -437,7 +437,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, [
     assetIds,
     accountIds,
-    priceHistoryData,
+    cryptoPriceHistoryData,
     fiatPriceHistoryData,
     priceHistoryDataLoading,
     fiatPriceHistoryDataLoading,

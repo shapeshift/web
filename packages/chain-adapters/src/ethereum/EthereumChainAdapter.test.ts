@@ -172,27 +172,27 @@ describe('EthereumChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '50180000000',
+              gasPrice: '45000000000',
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10'
             },
-            txFee: '1053780000000000'
+            txFee: '945000000000000'
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '55477500000',
-              maxFeePerGas: '332',
+              gasPrice: '50180000000',
+              maxFeePerGas: '335',
               maxPriorityFeePerGas: '12'
             },
-            txFee: '1165027500000000'
+            txFee: '1053780000000000'
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '41000000000',
-              maxFeePerGas: '246',
-              maxPriorityFeePerGas: '9'
+              maxFeePerGas: '274',
+              maxPriorityFeePerGas: '10'
             },
             txFee: '861000000000000'
           }

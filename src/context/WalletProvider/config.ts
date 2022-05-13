@@ -40,6 +40,7 @@ import { TallyHoConfig } from './TallyHo/config'
 
 export interface SupportedWalletInfo {
   adapter: any
+  mobileEnabled: boolean
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   routes: RouteProps[]
@@ -96,8 +97,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...TallyHoConfig,
     routes: [
       { path: '/tallyho/connect', component: TallyHoConnect },
-      { path: '/tallyho/failure', component: TallyHoFailure }
-    ]
+      { path: '/tallyho/failure', component: TallyHoFailure },
+    ],
   },
   [KeyManager.Demo]: {
     ...DemoConfig,

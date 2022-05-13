@@ -80,7 +80,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId }
+          payload: { wallet, name, icon, deviceId },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.TallyHo, deviceId)
@@ -115,7 +115,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       onClickAction={(): any => {
         console.log('redirect')
         console.log(tallyHoDeeplinkTarget)
-      
+
         window.location.assign(`https://tallyho.app.link/dapp/${tallyHoDeeplinkTarget}`)
       }}
       loading={loading}

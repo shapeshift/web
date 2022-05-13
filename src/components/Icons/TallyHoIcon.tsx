@@ -13,5 +13,5 @@ export const TallyHoIcon = createIcon({
       />
     </g>
   ),
-  viewBox: '0 0 300 300'
+  viewBox: '0 0 300 300',
 })

@@ -77,7 +77,6 @@ export const mockStore: ReduxState = {
       [HistoryTimeframe.YEAR]: {},
       [HistoryTimeframe.ALL]: {},
     },
-    loading: false,
     fiat: {
       byId: {},
       ids: [],

@@ -30,7 +30,6 @@ type FiatMarketDataState = {
 }
 
 export type MarketDataState = {
-  loading: boolean // remove this, if selector returns null we don't have it
   byId: {
     [k: AssetId]: MarketData
   }
@@ -52,7 +51,6 @@ const initialState: MarketDataState = {
   byId: {},
   ids: [],
   priceHistory: initialPriceHistory,
-  loading: false,
   fiat: {
     byId: {},
     ids: [],

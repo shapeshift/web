@@ -3,17 +3,18 @@ import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-
 import { SupportedFiatCurrenciesList } from '@shapeshiftoss/market-service'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-export const FiatCurrencies: React.FC<RouteComponentProps> = ({ history }) => {
+export const FiatCurrencies = () => {
   const dispatch = useAppDispatch()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
+  const history = useHistory()
   const { goBack } = history
   const otherCurrencies = SupportedFiatCurrenciesList.filter(k => k !== selectedCurrency)
   const { setSelectedCurrency } = preferences.actions

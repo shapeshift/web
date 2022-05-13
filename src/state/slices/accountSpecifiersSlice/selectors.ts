@@ -9,15 +9,15 @@ export const selectAccountSpecifiers = createDeepEqualOutputSelector(
   accountSpecifiers => accountSpecifiers,
 )
 
-// returns an array of the full `caip2:pubkeyish` type, as used in URLs for account pages
+// returns an array of the full `chainId:pubkeyish` type, as used in URLs for account pages
 export const selectAccountSpecifierStrings = (state: ReduxState) =>
   state.accountSpecifiers.accountSpecifiers.map(accountSpecifier =>
     Object.entries(accountSpecifier)[0].join(':'),
   )
 
-// Returns a CAIP2/ChainId-indexed object with all the `caip2:pubkeyish` accounts for that chainId
-// For most accounts, that's effectively a CAIP19/AssetId, but not for e.g UTXO chains thus the pubkeyish naming
-// We use this in cosmos plugin to get the pubkey as a CAIP19/AssetId, without needing to use chain-adapters in components
+// Returns a ChainId-indexed object with all the `chainId:pubkeyish` accounts for that chainId
+// For most accounts, that's effectively an AssetId, but not for e.g UTXO chains thus the pubkeyish naming
+// We use this in cosmos plugin to get the pubkey as an AssetId, without needing to use chain-adapters in components
 // Since the pubkey is already in state
 export const selectAccountSpecifiersByChainId = (state: ReduxState, chainId: ChainId) =>
   state.accountSpecifiers.accountSpecifiers.reduce<string[]>((acc, accountSpecifier) => {

@@ -8,7 +8,7 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { AssetId, AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useEffect, useState } from 'react'
@@ -54,14 +54,14 @@ export const ClaimConfirm = ({
   // Asset Info
   const network = NetworkTypes.MAINNET
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetCAIP19 = toCAIP19({
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const toast = useToast()
 

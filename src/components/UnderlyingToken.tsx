@@ -1,5 +1,5 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
@@ -54,7 +54,7 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
         const network = NetworkTypes.MAINNET
         const assetNamespace = AssetNamespace.ERC20
         const assetReference = toLower(token)
-        const assetId = toCAIP19({ chain, network, assetNamespace, assetReference })
+        const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
         moduleLogger.trace({ assetId, fn: 'yearn.token' }, 'Yearn Asset')
         setUnderlyingAssetId(assetId)
       } catch (error) {

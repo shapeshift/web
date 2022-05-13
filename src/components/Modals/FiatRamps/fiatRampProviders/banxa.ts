@@ -5,7 +5,7 @@ import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 export const getBanxaAssets = () => {
   const banxaAssets = adapters.getSupportedBanxaAssets()
   const assets: FiatRampAsset[] = banxaAssets.map(asset => ({
-    assetId: asset.CAIP19,
+    assetId: asset.assetId,
     symbol: asset.ticker,
     // name will be set in useFiatRampCurrencyList hook
     name: '',

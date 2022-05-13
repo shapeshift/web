@@ -732,6 +732,28 @@
         "button": "Open"
       }
     },
+    "tallyHo": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Tally Ho",
+        "connectFailure": "Unable to connect Tally Ho wallet",
+        "network": "Tally Ho isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not Tally. Do you have multiple wallets installed?"
+      },
+      "connect": {
+        "header": "Pair Tally",
+        "body": "Click Pair and login to Tally Ho from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Tally Ho wallet"
+      },
+      "redirect": {
+        "header": "Open in Tally Ho App",
+        "body": "Click to open ShapeShift dashboard in Tally Ho",
+        "button": "Open"
+      }
+    },
     "portis": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with Portis",

@@ -381,6 +381,33 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
+            case KeyManager.TallyHo:
+              const localTallyHoWallet = await state.adapters
+                .get(KeyManager.TallyHo)
+                ?.pairDevice()
+              if (localTallyHoWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.TallyHo]
+                try {
+                  await localTallyHoWallet.initialize()
+                  const deviceId = await localTallyHoWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localTallyHoWallet,
+                      name,
+                      icon,
+                      deviceId
+                    }
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break  
             default:
               /**
                * The fall-through case also handles clearing

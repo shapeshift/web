@@ -35,6 +35,7 @@ const validators = {
   REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
+  REACT_APP_FEATURE_TALLYHO_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_BANXA_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE: bool({ default: false }),
 }

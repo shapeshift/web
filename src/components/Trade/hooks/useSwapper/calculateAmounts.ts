@@ -17,18 +17,23 @@ export const calculateAmounts = async ({
   swapper: Swapper
   action: TradeAmountInputField
 }) => {
-  const sellAssetUsdRate = bnOrZero(
+  const sellAssetUsdRatePromise = bnOrZero(
     await swapper.getUsdRate({
       symbol: sellAsset.symbol,
       tokenId: sellAsset.tokenId,
     }),
   )
-  const buyAssetUsdRate = bnOrZero(
+  const buyAssetUsdRatePromise = bnOrZero(
     await swapper.getUsdRate({
       symbol: buyAsset.symbol,
       tokenId: buyAsset.tokenId,
     }),
   )
+
+  const [sellAssetUsdRate, buyAssetUsdRate] = await Promise.all([
+    sellAssetUsdRatePromise,
+    buyAssetUsdRatePromise,
+  ])
 
   const assetPriceRatio = buyAssetUsdRate.dividedBy(sellAssetUsdRate)
 

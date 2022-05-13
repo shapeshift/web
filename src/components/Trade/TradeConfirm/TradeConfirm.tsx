@@ -165,7 +165,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               tradeFiatAmount={tradeFiatAmount}
               trade={trade}
               mt={6}
-              status={status}
+              status={txid ? status : undefined}
             />
           </Card.Header>
           <Divider />

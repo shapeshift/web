@@ -186,9 +186,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const price = priceAtBlockTime({ priceHistoryData: assetPriceHistoryData, date })
     const fiatToUsdRate = priceAtBlockTime({ priceHistoryData: fiatPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[assetId]
-    if (!portfolioAsset) {
-      return acc
-    }
+    if (!portfolioAsset) return acc
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance
       .div(bn(10).exponentiatedBy(precision))

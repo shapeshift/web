@@ -34,6 +34,9 @@ import { NativeConfig } from './NativeWallet/config'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisConfig } from './Portis/config'
+import { TallyHoConnect } from './TallyHo/components/Connect'
+import { TallyHoFailure } from './TallyHo/components/Failure'
+import { TallyHoConfig } from './TallyHo/config'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -88,6 +91,13 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/portis/connect', component: PortisConnect },
       { path: '/portis/failure', component: PortisFailure },
     ],
+  },
+  [KeyManager.TallyHo]: {
+    ...TallyHoConfig,
+    routes: [
+      { path: '/tallyho/connect', component: TallyHoConnect },
+      { path: '/tallyho/failure', component: TallyHoFailure }
+    ]
   },
   [KeyManager.Demo]: {
     ...DemoConfig,

@@ -320,7 +320,7 @@ describe('portfolioSlice', () => {
 
         // dispatch market data
         store.dispatch(
-          marketDataSlice.actions.setMarketData({
+          marketDataSlice.actions.setCryptoMarketData({
             [ethCaip19]: ethMarketData,
             [foxCaip19]: foxMarketData,
           }),
@@ -354,7 +354,7 @@ describe('portfolioSlice', () => {
 
         // dispatch market data
         store.dispatch(
-          marketDataSlice.actions.setMarketData({
+          marketDataSlice.actions.setCryptoMarketData({
             [ethCaip19]: ethMarketData,
             [foxCaip19]: foxMarketData,
           }),
@@ -395,7 +395,7 @@ describe('portfolioSlice', () => {
         const usdcMarketData = mockMarketData({ price: '1' })
 
         store.dispatch(
-          marketDataSlice.actions.setMarketData({
+          marketDataSlice.actions.setCryptoMarketData({
             [ethCaip19]: ethMarketData,
             [foxCaip19]: foxMarketData,
             [usdcCaip19]: usdcMarketData,
@@ -464,7 +464,7 @@ describe('portfolioSlice', () => {
       const usdcMarketData = mockMarketData({ price: '1' })
 
       store.dispatch(
-        marketDataSlice.actions.setMarketData({
+        marketDataSlice.actions.setCryptoMarketData({
           [ethCaip19]: ethMarketData,
           [foxCaip19]: foxMarketData,
           [usdcCaip19]: usdcMarketData,
@@ -517,7 +517,7 @@ describe('portfolioSlice', () => {
       const usdcMarketData = mockMarketData({ price: '1' })
 
       store.dispatch(
-        marketDataSlice.actions.setMarketData({
+        marketDataSlice.actions.setCryptoMarketData({
           [ethCaip19]: ethMarketData,
           [foxCaip19]: foxMarketData,
           [usdcCaip19]: usdcMarketData,
@@ -573,7 +573,7 @@ describe('portfolioSlice', () => {
       const usdcMarketData = mockMarketData({ price: '1' })
 
       store.dispatch(
-        marketDataSlice.actions.setMarketData({
+        marketDataSlice.actions.setCryptoMarketData({
           [ethCaip19]: ethMarketData,
           [foxCaip19]: foxMarketData,
           [usdcCaip19]: usdcMarketData,
@@ -623,7 +623,7 @@ describe('portfolioSlice', () => {
       const usdcMarketData = mockMarketData({ price: '1' })
 
       store.dispatch(
-        marketDataSlice.actions.setMarketData({
+        marketDataSlice.actions.setCryptoMarketData({
           [ethCaip19]: ethMarketData,
           [foxCaip19]: foxMarketData,
           [usdcCaip19]: usdcMarketData,
@@ -671,7 +671,7 @@ describe('portfolioSlice', () => {
       const usdcMarketData = mockMarketData({ price: '1' })
 
       store.dispatch(
-        marketDataSlice.actions.setMarketData({
+        marketDataSlice.actions.setCryptoMarketData({
           [ethCaip19]: ethMarketData,
           [foxCaip19]: foxMarketData,
           [usdcCaip19]: usdcMarketData,
@@ -720,7 +720,7 @@ describe('portfolioSlice', () => {
       const zeroMarketData = mockMarketData({ price: '100' })
 
       store.dispatch(
-        marketDataSlice.actions.setMarketData({
+        marketDataSlice.actions.setCryptoMarketData({
           [ethCaip19]: ethMarketData,
           [foxCaip19]: foxMarketData,
           [usdcCaip19]: usdcMarketData,
@@ -768,7 +768,7 @@ describe('portfolioSlice', () => {
       const usdcMarketData = mockMarketData({ price: '1' })
 
       store.dispatch(
-        marketDataSlice.actions.setMarketData({
+        marketDataSlice.actions.setCryptoMarketData({
           [ethCaip19]: ethMarketData,
           [foxCaip19]: foxMarketData,
           [usdcCaip19]: usdcMarketData,
@@ -802,7 +802,7 @@ describe('portfolioSlice', () => {
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
-          marketDataSlice.actions.setMarketData({
+          marketDataSlice.actions.setCryptoMarketData({
             [cosmos.assetId]: cosmosMarketData,
           }),
         )
@@ -836,7 +836,7 @@ describe('portfolioSlice', () => {
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
-          marketDataSlice.actions.setMarketData({
+          marketDataSlice.actions.setCryptoMarketData({
             [cosmos.assetId]: cosmosMarketData,
           }),
         )
@@ -867,7 +867,7 @@ describe('portfolioSlice', () => {
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
-          marketDataSlice.actions.setMarketData({
+          marketDataSlice.actions.setCryptoMarketData({
             [cosmos.assetId]: cosmosMarketData,
           }),
         )
@@ -899,7 +899,7 @@ describe('portfolioSlice', () => {
 
         const cosmosMarketData = mockMarketData({ price: '77.55' })
         store.dispatch(
-          marketDataSlice.actions.setMarketData({
+          marketDataSlice.actions.setCryptoMarketData({
             [cosmos.assetId]: cosmosMarketData,
           }),
         )

@@ -68,12 +68,12 @@ export const marketData = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setMarketData: (state, { payload }) => {
+    setCryptoMarketData: (state, { payload }) => {
       state.crypto.byId = { ...state.crypto.byId, ...payload } // upsert
       const ids = Array.from(new Set([...state.crypto.ids, ...Object.keys(payload)]))
       state.crypto.ids = ids // upsert unique
     },
-    setPriceHistory: (
+    setCryptoPriceHistory: (
       state,
       {
         payload: { data, args },
@@ -114,7 +114,7 @@ export const marketApi = createApi({
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
         const data = getCacheEntry().data
-        data && dispatch(marketData.actions.setMarketData(data))
+        data && dispatch(marketData.actions.setCryptoMarketData(data))
       },
     }),
     findByAssetId: build.query<MarketCapResult, AssetId>({
@@ -125,7 +125,7 @@ export const marketApi = createApi({
           const data = { [assetId]: currentMarketData }
           // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
           // to prevent edge cases like #858
-          baseQuery.dispatch(marketData.actions.setMarketData(data))
+          baseQuery.dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }
         } catch (e) {
           const error = { data: `findByAssetId: no market data for ${assetId}`, status: 404 }
@@ -157,7 +157,7 @@ export const marketApi = createApi({
         } catch (e) {
           // swallow
         } finally {
-          dispatch(marketData.actions.setPriceHistory(payload))
+          dispatch(marketData.actions.setCryptoPriceHistory(payload))
         }
       },
     }),

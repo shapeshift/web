@@ -9,24 +9,27 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
-const selectAllMarketData = (state: ReduxState) => state.marketData.crypto.byId
+const selectAllCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
 export const selectMarketData = createDeepEqualOutputSelector(
-  selectAllMarketData,
+  selectAllCryptoMarketData,
   selectFiatMarketData,
   selectSelectedCurrency,
-  (marketData, fiatMarketData, selectedCurrency) => {
+  (cryptoMarketData, fiatMarketData, selectedCurrency) => {
     // fallback to usd
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1)
-    return Object.entries(marketData).reduce<MarketCapResult>((acc, [caip19, assetMarketData]) => {
-      acc[caip19] = {
-        ...assetMarketData,
-        price: bnOrZero(assetMarketData.price).times(fiatPrice).toString(),
-        marketCap: bnOrZero(assetMarketData.marketCap).times(fiatPrice).toString(),
-      }
-      return acc
-    }, {})
+    return Object.entries(cryptoMarketData).reduce<MarketCapResult>(
+      (acc, [caip19, assetMarketData]) => {
+        acc[caip19] = {
+          ...assetMarketData,
+          price: bnOrZero(assetMarketData.price).times(fiatPrice).toString(),
+          marketCap: bnOrZero(assetMarketData.marketCap).times(fiatPrice).toString(),
+        }
+        return acc
+      },
+      {},
+    )
   },
 )
 
@@ -51,7 +54,7 @@ export const selectMarketDataById = createCachedSelector(
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 // assets we have loaded market data for
-export const selectMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids
+export const selectCryptoMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids
 
 // if we don't have it it's loading
 export const selectMarketDataLoadingById = createSelector(
@@ -59,11 +62,11 @@ export const selectMarketDataLoadingById = createSelector(
   (assetMarketData): boolean => isEmpty(assetMarketData),
 )
 
-export const selectPriceHistory = (state: ReduxState) => state.marketData.crypto.priceHistory
+export const selectCryptoPriceHistory = (state: ReduxState) => state.marketData.crypto.priceHistory
 export const selectFiatPriceHistory = (state: ReduxState) => state.marketData.fiat.priceHistory
 
 export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
-  selectPriceHistory,
+  selectCryptoPriceHistory,
   selectSelectedCurrency,
   selectFiatPriceHistory,
   selectAssetId,
@@ -87,7 +90,7 @@ export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
-  selectPriceHistory,
+  selectCryptoPriceHistory,
   selectFiatPriceHistory,
   selectSelectedCurrency,
   (_state: ReduxState, assetIds: AssetId[], _timeframe: HistoryTimeframe) => assetIds,
@@ -102,8 +105,8 @@ export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
 
 const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
 
-export const selectPriceHistoryTimeframe = createSelector(
-  selectPriceHistory,
+export const selectCryptoPriceHistoryTimeframe = createSelector(
+  selectCryptoPriceHistory,
   selectTimeframeParam,
   (priceHistory, timeframe) => priceHistory[timeframe],
 )
@@ -115,7 +118,7 @@ export const selectFiatPriceHistoryTimeframe = createSelector(
   (fiatPriceHistory, selectedCurrency, timeframe) => fiatPriceHistory[timeframe][selectedCurrency],
 )
 
-export const selectPriceHistoriesLoadingByFiatTimeframe = createCachedSelector(
+export const selectFiatPriceHistoriesLoadingByTimeframe = createCachedSelector(
   selectFiatPriceHistory,
   selectSelectedCurrency,
   selectTimeframeParam,

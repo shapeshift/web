@@ -31,12 +31,12 @@ import {
 import { cosmosAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
+  selectCryptoPriceHistoryTimeframe,
+  selectFiatPriceHistoriesLoadingByTimeframe,
   selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
-  selectPriceHistoriesLoadingByFiatTimeframe,
-  selectPriceHistoryTimeframe,
   selectRebasesByFilter,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
@@ -389,7 +389,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
-  const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
+  const priceHistoryData = useAppSelector(state =>
+    selectCryptoPriceHistoryTimeframe(state, timeframe),
+  )
   const priceHistoryDataLoading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
@@ -397,7 +399,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     selectFiatPriceHistoryTimeframe(state, timeframe),
   )
   const fiatPriceHistoryDataLoading = useAppSelector(state =>
-    selectPriceHistoriesLoadingByFiatTimeframe(state, timeframe),
+    selectFiatPriceHistoriesLoadingByTimeframe(state, timeframe),
   )
 
   // loading state

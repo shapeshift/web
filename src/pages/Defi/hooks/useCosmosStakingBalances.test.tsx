@@ -37,7 +37,7 @@ function setup() {
 
   const cosmosMarketData = mockMarketData({ price: '77.55' })
   store.dispatch(
-    marketDataSlice.actions.setMarketData({
+    marketDataSlice.actions.setCryptoMarketData({
       [cosmos.assetId]: cosmosMarketData,
     }),
   )

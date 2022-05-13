@@ -39,7 +39,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
   const assetId = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))

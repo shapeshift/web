@@ -49,7 +49,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
 
   // user info
   const chainAdapterManager = useChainAdapters()

@@ -14,22 +14,20 @@ type UseFetchPriceHistories = (args: UseFetchPriceHistoriesArgs) => void
 
 export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timeframe }) => {
   const dispatch = useAppDispatch()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const symbol = useAppSelector(selectSelectedCurrency)
+
+  const { findPriceHistoryByAssetId, findPriceHistoryByFiatSymbol } = marketApi.endpoints
   useEffect(
     () =>
       assetIds.forEach(assetId =>
-        dispatch(marketApi.endpoints.findPriceHistoryByCaip19.initiate({ assetId, timeframe })),
+        dispatch(findPriceHistoryByAssetId.initiate({ assetId, timeframe })),
       ),
     // assetIds ref changes, prevent infinite render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(assetIds), dispatch, timeframe],
+    [assetIds, dispatch, timeframe],
   )
-  useEffect(() => {
-    dispatch(
-      marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate({
-        symbol: selectedCurrency,
-        timeframe
-      })
-    )
-  }, [dispatch, selectedCurrency, timeframe])
+  useEffect(
+    () => void dispatch(findPriceHistoryByFiatSymbol.initiate({ symbol, timeframe })),
+    [dispatch, findPriceHistoryByFiatSymbol, symbol, timeframe],
+  )
 }

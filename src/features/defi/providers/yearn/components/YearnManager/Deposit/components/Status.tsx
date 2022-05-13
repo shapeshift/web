@@ -35,7 +35,7 @@ export const Status = () => {
   })
   const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetCAIP19))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
   const vaultCAIP19 = toCAIP19({

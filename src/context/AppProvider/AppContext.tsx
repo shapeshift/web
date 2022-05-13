@@ -309,7 +309,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchMarketData = () => {
       portfolioAssetIds.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByCaip19.initiate(assetId, { forceRefetch: true }))
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, { forceRefetch: true }))
       })
     }
 

@@ -47,7 +47,7 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
   })
   const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetCAIP19))
   const feeAssetCAIP19 = toCAIP19({
     chain,
     network,

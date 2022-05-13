@@ -31,19 +31,19 @@ import {
 import { cosmosAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
+  selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoriesLoadingByFiatTimeframe,
   selectPriceHistoryTimeframe,
+  selectRebasesByFilter,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
 } from 'state/slices/selectors'
-import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { selectFiatPriceHistoryTimeframe } from './../../state/slices/marketDataSlice/selectors'
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
 type CryptoBalance = {

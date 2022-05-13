@@ -1,5 +1,5 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle, useToast } from '@chakra-ui/react'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
@@ -40,7 +40,7 @@ export const Approval = () => {
     getValues,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useFormContext<TradeState<SupportedChainIds>>()
+  } = useFormContext<TradeState<ChainTypes>>()
   const { approveInfinite, checkApprovalNeeded } = useSwapper()
   const {
     number: { toCrypto, toFiat },

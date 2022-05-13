@@ -15,13 +15,13 @@ import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
-import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { priceAtBlockTime } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -45,22 +45,6 @@ import { useAppSelector } from 'state/store'
 
 import { selectFiatPriceHistoryTimeframe } from './../../state/slices/marketDataSlice/selectors'
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
-
-type PriceAtBlockTimeArgs = {
-  date: number
-  priceHistoryData: HistoryData[]
-}
-
-type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
-
-export const priceAtBlockTime: PriceAtBlockTime = ({ date, priceHistoryData }): number => {
-  const { length } = priceHistoryData
-  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
-  const i = sortedIndexBy(priceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
-  if (i === 0) return priceHistoryData[i].price
-  if (i >= length) return priceHistoryData[length - 1].price
-  return priceHistoryData[i].price
-}
 
 type CryptoBalance = {
   [k: AssetId]: BigNumber // map of asset to base units

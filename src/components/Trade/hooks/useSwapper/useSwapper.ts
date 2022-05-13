@@ -97,7 +97,7 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
         assetIds,
-        sellAssetId: sellTradeAsset?.asset?.assetId,
+        sellAssetId: sellTradeAsset?.asset.assetId,
       })
       return filterAssetsByIds(assets, supportedBuyAssetIds)
     },
@@ -110,7 +110,7 @@ export const useSwapper = () => {
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId }),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellTradeAsset?.asset.assetId }),
   )
 
   const feeAsset = useAppSelector(state =>

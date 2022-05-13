@@ -26,12 +26,12 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
   const buyToken = buyAsset.tokenId || buyAsset.symbol
   const sellToken = sellAsset.tokenId || sellAsset.symbol
 
-  const { minimum, maximum } = await getZrxMinMax(buyAsset, sellAsset)
+  const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
 
   const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
 
   const normalizedSellAmount = normalizeAmount(
-    bnOrZero(minimum).lt(minQuoteSellAmount) ? minQuoteSellAmount.toString() : sellAmount
+    bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount.toString() : sellAmount
   )
 
   try {

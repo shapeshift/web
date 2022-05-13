@@ -187,30 +187,33 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     }
   }
 
-  const abbreviateNumber = (number: number, fiatType: string, options?: NumberFormatOptions) => {
-    const bounds = { min: 10000, max: 1000000 }
-    const noDecimals = bounds.min <= number && number < bounds.max
-    const minDisplayValue = 0.000001
-    const lessThanMin = 0 < number && minDisplayValue > number
-    const formatNumber = lessThanMin ? minDisplayValue : number
-    const minimumFractionDigits = noDecimals ? 0 : 2
-    const maximumFractionDigits = Math.max(
-      minimumFractionDigits,
-      lessThanMin ? 6 : getFiatNumberFractionDigits(number),
-    )
-    const formatter = new Intl.NumberFormat(deviceLocale, {
-      notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
-      compactDisplay: 'short',
-      style: 'currency',
-      currency: fiatType,
-      minimumFractionDigits,
-      maximumFractionDigits: 10,
-      ...options,
-    })
+  const abbreviateNumber = useCallback(
+    (number: number, fiatType: string, options?: NumberFormatOptions) => {
+      const bounds = { min: 10000, max: 1000000 }
+      const noDecimals = bounds.min <= number && number < bounds.max
+      const minDisplayValue = 0.000001
+      const lessThanMin = 0 < number && minDisplayValue > number
+      const formatNumber = lessThanMin ? minDisplayValue : number
+      const minimumFractionDigits = noDecimals ? 0 : 2
+      const maximumFractionDigits = Math.max(
+        minimumFractionDigits,
+        lessThanMin ? 6 : getFiatNumberFractionDigits(number),
+      )
+      const formatter = new Intl.NumberFormat(deviceLocale, {
+        notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
+        compactDisplay: 'short',
+        style: 'currency',
+        currency: fiatType,
+        minimumFractionDigits,
+        maximumFractionDigits: 10,
+        ...options,
+      })
 
-    const parts = formatter.formatToParts(formatNumber)
-    return parts.reduce(partsReducer(maximumFractionDigits), lessThanMin ? '<' : '')
-  }
+      const parts = formatter.formatToParts(formatNumber)
+      return parts.reduce(partsReducer(maximumFractionDigits), lessThanMin ? '<' : '')
+    },
+    [deviceLocale],
+  )
 
   /** If the number that is being formatted has a trailing decimal, add it back to the formatted number */
   const showTrailingDecimal = useCallback(
@@ -267,7 +270,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         return String(value)
       }
     },
-    [fiatTypeToUse, deviceLocale], // eslint-disable-line react-hooks/exhaustive-deps
+    [abbreviateNumber, fiatTypeToUse],
   )
 
   /**
@@ -288,7 +291,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         return String(num)
       }
     },
-    [localeParts, numberToFiat], // eslint-disable-line react-hooks/exhaustive-deps
+    [localeParts, numberToFiat, showTrailingDecimal],
   )
 
   const numberToPercent = (number: NumberValue, options: NumberFormatOptions = {}): string => {

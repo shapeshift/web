@@ -1,5 +1,5 @@
 import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchPath } from 'react-router'
@@ -33,20 +33,20 @@ export const FoxyDetails = () => {
   const foxyBalance = bnOrZero(opportunity?.balance)
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const stakingAssetCAIP19 = toCAIP19({
+  const stakingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetCAIP19))
-  const rewardAssetCAIP19 = toCAIP19({
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const rewardAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetCAIP19))
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   const apy = bnOrZero(opportunity?.apy).times(100).toString()
   if (loading || !opportunity) {
     return (

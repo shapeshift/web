@@ -18,20 +18,20 @@ type AssetDetailsProps = {
   accountId?: AccountSpecifier
 }
 
-export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => (
-  <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
+export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => (
+  <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
     <Stack alignItems='flex-start' spacing={4} mx='auto' direction={{ base: 'column', xl: 'row' }}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
-        <AssetChart accountId={accountId} assetId={caip19} isLoaded={true} />
-        {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
-        <AssetAccounts assetId={caip19} accountId={accountId} />
-        <StakingOpportunities assetId={caip19} />
-        <AssetTransactionHistory assetId={caip19} accountId={accountId} />
+        <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
+        {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
+        <AssetAccounts assetId={assetId} accountId={accountId} />
+        <StakingOpportunities assetId={assetId} />
+        <AssetTransactionHistory assetId={assetId} accountId={accountId} />
       </Stack>
       <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
         <TradeCard />
-        <AssetMarketData assetId={caip19} />
-        <AssetDescription assetId={caip19} />
+        <AssetMarketData assetId={assetId} />
+        <AssetDescription assetId={assetId} />
       </Stack>
     </Stack>
   </Main>

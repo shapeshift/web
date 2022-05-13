@@ -1,5 +1,5 @@
 import { Plugins } from 'plugins'
-import { AssetIcon } from 'components/AssetIcon'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 
 import { FoxPage } from './foxPage'
 
@@ -10,13 +10,13 @@ export function register(): Plugins {
       {
         name: 'foxPage',
         featureFlag: 'FoxPage',
-        icon: <AssetIcon src='https://assets.coincap.io/assets/icons/fox@2x.png' />,
+        icon: <FoxIcon />,
         routes: [
           {
             path: '/fox',
-            label: 'foxPage',
+            label: 'navBar.foxToken',
             main: () => <FoxPage></FoxPage>,
-            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/fox@2x.png' />,
+            icon: <FoxIcon />,
           },
         ],
       },

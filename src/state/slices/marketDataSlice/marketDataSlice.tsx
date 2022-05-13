@@ -21,20 +21,23 @@ type PriceHistoryByTimeframe = {
   [k in HistoryTimeframe]: PriceHistoryData
 }
 
-type FiatMarketDataState = {
+type CommonMarketDataState = {
   byId: {
     [k: string]: MarketData
   }
-  ids: SupportedFiatCurrencies[]
   priceHistory: PriceHistoryByTimeframe
 }
 
-export type MarketDataState = {
-  byId: {
-    [k: AssetId]: MarketData
-  }
+type FiatMarketDataState = CommonMarketDataState & {
+  ids: SupportedFiatCurrencies[]
+}
+
+type CryptoMarketDataState = CommonMarketDataState & {
   ids: AssetId[]
-  priceHistory: PriceHistoryByTimeframe
+}
+
+export type MarketDataState = {
+  crypto: CryptoMarketDataState
   fiat: FiatMarketDataState
 }
 
@@ -48,9 +51,11 @@ const initialPriceHistory: PriceHistoryByTimeframe = {
 }
 
 const initialState: MarketDataState = {
-  byId: {},
-  ids: [],
-  priceHistory: initialPriceHistory,
+  crypto: {
+    byId: {},
+    ids: [],
+    priceHistory: initialPriceHistory,
+  },
   fiat: {
     byId: {},
     ids: [],
@@ -64,9 +69,9 @@ export const marketData = createSlice({
   reducers: {
     clear: () => initialState,
     setMarketData: (state, { payload }) => {
-      state.byId = { ...state.byId, ...payload } // upsert
-      const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))
-      state.ids = ids // upsert unique
+      state.crypto.byId = { ...state.crypto.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...state.crypto.ids, ...Object.keys(payload)]))
+      state.crypto.ids = ids // upsert unique
     },
     setPriceHistory: (
       state,
@@ -75,7 +80,7 @@ export const marketData = createSlice({
       }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
     ) => {
       const { assetId, timeframe } = args
-      state.priceHistory[timeframe][assetId] = data
+      state.crypto.priceHistory[timeframe][assetId] = data
     },
     setFiatMarketData: (state, { payload }) => {
       state.fiat.byId = { ...state.fiat.byId, ...payload } // upsert

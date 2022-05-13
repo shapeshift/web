@@ -67,15 +67,17 @@ export const mockStore: ReduxState = {
     ids: [],
   },
   marketData: {
-    byId: {},
-    ids: [],
-    priceHistory: {
-      [HistoryTimeframe.DAY]: {},
-      [HistoryTimeframe.HOUR]: {},
-      [HistoryTimeframe.WEEK]: {},
-      [HistoryTimeframe.MONTH]: {},
-      [HistoryTimeframe.YEAR]: {},
-      [HistoryTimeframe.ALL]: {},
+    crypto: {
+      byId: {},
+      ids: [],
+      priceHistory: {
+        [HistoryTimeframe.DAY]: {},
+        [HistoryTimeframe.HOUR]: {},
+        [HistoryTimeframe.WEEK]: {},
+        [HistoryTimeframe.MONTH]: {},
+        [HistoryTimeframe.YEAR]: {},
+        [HistoryTimeframe.ALL]: {},
+      },
     },
     fiat: {
       byId: {},

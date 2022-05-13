@@ -9,7 +9,7 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
-const selectAllMarketData = (state: ReduxState) => state.marketData.byId
+const selectAllMarketData = (state: ReduxState) => state.marketData.crypto.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
 export const selectMarketData = createDeepEqualOutputSelector(
@@ -51,7 +51,7 @@ export const selectMarketDataById = createCachedSelector(
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 // assets we have loaded market data for
-export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids
+export const selectMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids
 
 // if we don't have it it's loading
 export const selectMarketDataLoadingById = createSelector(
@@ -59,7 +59,7 @@ export const selectMarketDataLoadingById = createSelector(
   (assetMarketData): boolean => isEmpty(assetMarketData),
 )
 
-export const selectPriceHistory = (state: ReduxState) => state.marketData.priceHistory
+export const selectPriceHistory = (state: ReduxState) => state.marketData.crypto.priceHistory
 export const selectFiatPriceHistory = (state: ReduxState) => state.marketData.fiat.priceHistory
 
 export const selectPriceHistoryByAssetTimeframe = createCachedSelector(

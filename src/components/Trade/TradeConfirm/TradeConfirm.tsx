@@ -62,11 +62,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   // Parametrized errors cannot simply be matched with === since their param(s) might vary
   const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {
-    'ZrxExecuteQuote - signAndBroadcastTransaction error': TRADE_ERRORS.TRANSACTION_REJECTED,
-    'ZrxExecuteQuote - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
-    'ZrxExecuteQuote - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
-    'ZrxExecuteQuote - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
-    'ZrxExecuteQuote - signTransaction error': TRADE_ERRORS.SIGNING_FAILED,
+    'ZrxExecuteTrade - signAndBroadcastTransaction error': TRADE_ERRORS.TRANSACTION_REJECTED,
+    'ZrxExecuteTrade - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
+    'ZrxExecuteTrade - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
+    'ZrxExecuteTrade - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
+    'ZrxExecuteTrade - signTransaction error': TRADE_ERRORS.SIGNING_FAILED,
   } as const
 
   const getParametrizedErrorMessageOrDefault = (
@@ -102,23 +102,23 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       console.error(`TradeConfirm:onSubmit - ${err}`)
       let errorMessage
       switch ((err as ZrxError).message) {
-        case 'ZrxSwapper:ZrxExecuteQuote Cannot execute a failed quote': {
+        case 'ZrxSwapper:ZrxExecuteTrade Cannot execute a failed quote': {
           errorMessage = TRADE_ERRORS.FAILED_QUOTE_EXECUTED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAssetAccountId is required': {
+        case 'ZrxSwapper:ZrxExecuteTrade sellAssetAccountId is required': {
           errorMessage = TRADE_ERRORS.SELL_ASSET_REQUIRED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAmount is required': {
+        case 'ZrxSwapper:ZrxExecuteTrade sellAmount is required': {
           errorMessage = TRADE_ERRORS.SELL_AMOUNT_REQUIRED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote depositAddress is required': {
+        case 'ZrxSwapper:ZrxExecuteTrade depositAddress is required': {
           errorMessage = TRADE_ERRORS.DEPOSIT_ADDRESS_REQUIRED
           break
         }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAssetNetwork and sellAssetSymbol are required': {
+        case 'ZrxSwapper:ZrxExecuteTrade sellAssetNetwork and sellAssetSymbol are required': {
           errorMessage = TRADE_ERRORS.SELL_ASSET_NETWORK_AND_SYMBOL_REQUIRED
           break
         }
@@ -165,7 +165,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               tradeFiatAmount={tradeFiatAmount}
               trade={trade}
               mt={6}
-              status={status}
+              status={txid ? status : undefined}
             />
           </Card.Header>
           <Divider />

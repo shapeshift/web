@@ -25,7 +25,7 @@ const initialState: Preferences = {
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
     BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
-    TallyHoWallet: getConfig().REACT_APP_FEATURE_TALLYHO_WALLET
+    TallyHoWallet: getConfig().REACT_APP_FEATURE_TALLYHO_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

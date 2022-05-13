@@ -377,9 +377,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.TallyHo:
-              const localTallyHoWallet = await state.adapters
-                .get(KeyManager.TallyHo)
-                ?.pairDevice()
+              const localTallyHoWallet = await state.adapters.get(KeyManager.TallyHo)?.pairDevice()
               if (localTallyHoWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.TallyHo]
                 try {
@@ -391,8 +389,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       wallet: localTallyHoWallet,
                       name,
                       icon,
-                      deviceId
-                    }
+                      deviceId,
+                    },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
@@ -402,7 +400,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break  
+              break
             default:
               /**
                * The fall-through case also handles clearing

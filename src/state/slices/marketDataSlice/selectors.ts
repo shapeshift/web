@@ -62,31 +62,28 @@ export const selectMarketDataLoadingById = createSelector(
 export const selectPriceHistory = (state: ReduxState) => state.marketData.priceHistory
 export const selectFiatPriceHistory = (state: ReduxState) => state.marketData.fiat.priceHistory
 
-export const selectPriceHistoryByAssetTimeframe = createDeepEqualOutputSelector(
+export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
   selectPriceHistory,
   selectSelectedCurrency,
   selectFiatPriceHistory,
   selectAssetId,
   (_state: ReduxState, _assetId: AssetId, timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, selectedCurrency, fiatPriceHistoryData, assetId, timeframe) => {
+  (priceHistory, selectedCurrency, fiatPriceHistoryData, assetId, timeframe): HistoryData[] => {
     const assetPriceHistoryData = priceHistory[timeframe][assetId] ?? []
     if (selectedCurrency === 'USD') return assetPriceHistoryData
-    const fiatPriceHistory = fiatPriceHistoryData[timeframe][selectedCurrency]
+    const priceHistoryData = fiatPriceHistoryData[timeframe][selectedCurrency]
     // fiat history not loaded yet
-    if (!fiatPriceHistory) return []
+    if (!priceHistoryData) return []
     return assetPriceHistoryData.reduce<HistoryData[]>((acc, assetHistoryDate) => {
       const { price, date } = assetHistoryDate
-      const fiatToUsdRate = priceAtBlockTime({
-        priceHistoryData: fiatPriceHistory,
-        date,
-      })
-      acc.push({
-        price: bnOrZero(price).times(fiatToUsdRate).toNumber(),
-        date,
-      })
+      const fiatToUsdRate = priceAtBlockTime({ priceHistoryData, date })
+      acc.push({ price: bnOrZero(price).times(fiatToUsdRate).toNumber(), date })
       return acc
     }, [])
   },
+)(
+  (_priceHistory, selectedCurrency, _fiatPriceHistoryData, assetId, timeframe) =>
+    `${assetId}-${timeframe}-${selectedCurrency}`,
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
@@ -103,24 +100,25 @@ export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
     ),
 )
 
+const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
+
 export const selectPriceHistoryTimeframe = createSelector(
   selectPriceHistory,
-  (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
+  selectTimeframeParam,
   (priceHistory, timeframe) => priceHistory[timeframe],
 )
 
 export const selectFiatPriceHistoryTimeframe = createSelector(
   selectFiatPriceHistory,
   selectSelectedCurrency,
-  (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
+  selectTimeframeParam,
   (fiatPriceHistory, selectedCurrency, timeframe) => fiatPriceHistory[timeframe][selectedCurrency],
 )
 
-export const selectPriceHistoriesLoadingByFiatTimeframe = createSelector(
+export const selectPriceHistoriesLoadingByFiatTimeframe = createCachedSelector(
   selectFiatPriceHistory,
   selectSelectedCurrency,
-  (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
+  selectTimeframeParam,
   // if we don't have the data it's loading
-  (fiatPriceHistory, selectedCurrency, timeframe) =>
-    selectedCurrency === 'USD' ? false : !Boolean(fiatPriceHistory[timeframe][selectedCurrency]),
-)
+  (fiatPriceHistory, currency, timeframe) => !Boolean(fiatPriceHistory[timeframe][currency]),
+)((_fiatPriceHistory, currency, timeframe) => `${currency}-${timeframe}`)

@@ -330,10 +330,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // fetch fiat market data
   useEffect(() => {
-    SupportedFiatCurrenciesList.filter(symbol => symbol !== 'USD') // USD -> USD rate is 1
-      .forEach(symbol =>
-        dispatch(marketApi.endpoints.findByFiatSymbol.initiate({ symbol }, { forceRefetch: true })),
-      )
+    SupportedFiatCurrenciesList.forEach(symbol =>
+      dispatch(marketApi.endpoints.findByFiatSymbol.initiate({ symbol }, { forceRefetch: true })),
+    )
   }, [dispatch])
 
   // If the assets aren't loaded, then the app isn't ready to render

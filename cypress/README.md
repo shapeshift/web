@@ -46,8 +46,9 @@ Follow [Cypress best practice](https://docs.cypress.io/guides/references/best-pr
 - [Prefers stubbed responses from ShapeShift-controlled servers](https://docs.cypress.io/guides/references/best-practices#3rd-party-servers) over full E2E tests. Full E2E is only recommended for testing critical paths. It also helps us overcome the issues inherent with testing _real_ addresses - unless we run a separate node, we cannot ensure the wallet properties remain static.
 - Use Typescript `factories` instead of the Cypress default of JSON `fixtures` to give us type safety, reduce test data coupling, and minimize duplicate code
 
-### How to enable autorecord
-To allow for auto-recording and stubbing to work, require `cypress/plugins/autorecord` in each of your test file and call the function at the beginning of your parent `describe` block.
+### How to enable auto-recording of mock data
+
+To allow for auto-recording and stubbing to work, require `cypress/plugins/autorecord` in each of your test files and call the function at the beginning of your parent `describe` block.
 
 ```ts
 import { autoRecord } from '../plugins/autorecord'

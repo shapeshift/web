@@ -1,6 +1,6 @@
 export const blobToPlain = (blob: Blob) => {
-  let uri = URL.createObjectURL(blob)
-  let xhr = new XMLHttpRequest()
+  const uri = URL.createObjectURL(blob)
+  const xhr = new XMLHttpRequest()
 
   xhr.open('GET', uri, false)
   xhr.send()

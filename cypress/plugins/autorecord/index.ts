@@ -3,32 +3,42 @@ import { parse as parseUrl } from 'url'
 
 import { blobToPlain } from './util'
 
-const cypressConfig = Cypress.env('autorecord') || {}
-const isCleanMocks = cypressConfig.cleanMocks || false
-const isForceRecord = cypressConfig.forceRecord || false
-const recordTests = cypressConfig.recordTests || []
-const includeHosts = cypressConfig.includeHosts || []
+const stringArrayOrEmpty = (maybeArray: any): string[] =>
+  Array.isArray(maybeArray) && maybeArray.every(el => typeof el === 'string')
+    ? (maybeArray as string[])
+    : []
 
+const booleanOrFalse = (maybeBoolean: any): boolean =>
+  typeof maybeBoolean === 'boolean' ? maybeBoolean : false
+
+const cypressConfig = Cypress.env('autorecord') || {}
+const { cleanMocks, forceRecord, recordTests, includeHosts, whitelistHeaders } = cypressConfig
+const shouldCleanMocks = booleanOrFalse(cleanMocks)
+const shouldForceRecord = booleanOrFalse(forceRecord)
+const testsToRecord = stringArrayOrEmpty(recordTests)
+const includedHosts = stringArrayOrEmpty(includeHosts)
+const whitelistedHeaders = stringArrayOrEmpty(whitelistHeaders)
+
+// Intercept all requests
 const interceptPattern = '*'
 
-const whitelistHeaders = cypressConfig.whitelistHeaders || []
 const supportedMethods = ['get', 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD']
 
 const fileName = path.basename(Cypress.spec.name, path.extname(Cypress.spec.name))
 const mocksFolder = cypressConfig.mocksFolder || 'cypress/mocks'
 
 before(function () {
-  if (isCleanMocks) {
+  if (shouldCleanMocks) {
     cy.task('cleanMocks')
   }
 
-  if (isForceRecord) {
+  if (shouldForceRecord) {
     cy.task('removeAllMocks')
   }
 })
 
 export function autoRecord() {
-  const whitelistHeaderRegexes = whitelistHeaders.map((str: string) => RegExp(str))
+  const whitelistHeaderRegexes = whitelistedHeaders.map((str: string) => RegExp(str))
 
   // For cleaning, to store the test names that are active per file
   const testNames: string[] = []
@@ -57,46 +67,38 @@ export function autoRecord() {
 
     cy.intercept(interceptPattern, req => {
       // This is cypress loading the page
-      if (Object.keys(req.headers).some(k => k === 'x-cypress-authorization')) {
+      if (Object.keys(req.headers).some(header => header === 'x-cypress-authorization')) {
         return
       }
 
       req.on('response', res => {
-        const url = req.url
+        const { url, method, body } = req
         const { host } = parseUrl(url, true)
         const status = res.statusCode
-        const method = req.method
-        const data = res.body.constructor.name === 'Blob' ? blobToPlain(res.body) : res.body
-        const body = req.body
+        const data = body.constructor.name === 'Blob' ? blobToPlain(body) : body
         const headers = Object.entries(res.headers)
           .filter(([key]) => whitelistHeaderRegexes.some((regex: RegExp) => regex.test(key)))
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
 
         // We push a new entry into the routes array
-        // Do not rerecord duplicate requests
-        if (includeHosts.length > 0) {
-          if (
-            !includeHosts.some(
-              (hostPattern: string) => host != null && new RegExp(hostPattern).test(host),
-            )
-          ) {
-            return
-          }
+        // Do not re-record duplicate requests
+        const ifRequestIncluded = !includedHosts.some(
+          (hostPattern: string) => host != null && new RegExp(hostPattern).test(host),
+        )
+        if (includedHosts.length > 0) {
+          if (ifRequestIncluded) return
         }
-        if (
-          !routes.some(
-            route =>
-              route.url === url &&
-              route.body === body &&
-              route.method === method &&
-              // when the response has changed for an identical request signature
-              // add this entry as well.  This is useful for polling-oriented endpoints
-              // that can have varying responses.
-              route.response === data,
-          )
-        ) {
-          routes.push({ url, method, status, data, body, headers })
-        }
+        const responseChanged = !routes.some(
+          route =>
+            route.url === url &&
+            route.body === body &&
+            route.method === method &&
+            // when the response has changed for an identical request signature
+            // add this entry as well.  This is useful for polling-oriented endpoints
+            // that can have varying responses.
+            route.response === data,
+        )
+        if (responseChanged) routes.push({ url, method, status, data, body, headers })
       })
     })
 
@@ -110,7 +112,7 @@ export function autoRecord() {
     // This test is being force recorded
     // there are no mock data for this test
     if (
-      !recordTests.includes(currentTestId) &&
+      !testsToRecord.includes(currentTestId) &&
       !isTestForceRecord &&
       routesByTestId[currentTestId]
     ) {
@@ -140,8 +142,8 @@ export function autoRecord() {
       })
     }
 
-    // Store test name if isCleanMocks is true
-    if (isCleanMocks) {
+    // Store test name if shouldCleanMocks is true
+    if (shouldCleanMocks) {
       testNames.push(currentTestId)
     }
   })
@@ -151,8 +153,8 @@ export function autoRecord() {
     if (
       (!routesByTestId[currentTestId] ||
         isTestForceRecord ||
-        recordTests.includes(currentTestId)) &&
-      !isCleanMocks
+        testsToRecord.includes(currentTestId)) &&
+      !shouldCleanMocks
     ) {
       // Construct endpoint to be saved locally
       const endpoints = routes.map(request => {
@@ -177,7 +179,7 @@ export function autoRecord() {
 
   after(function () {
     // Transfer used mock data to new object to be stored locally
-    if (isCleanMocks) {
+    if (shouldCleanMocks) {
       Object.keys(routesByTestId).forEach(testName => {
         if (testNames.includes(testName)) {
           cleanMockData[testName] = routesByTestId[testName]
@@ -187,7 +189,7 @@ export function autoRecord() {
 
     cy.writeFile(
       path.join(mocksFolder, `${fileName}.json`),
-      isCleanMocks ? cleanMockData : routesByTestId,
+      shouldCleanMocks ? cleanMockData : routesByTestId,
     )
   })
 }

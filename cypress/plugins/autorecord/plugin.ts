@@ -29,7 +29,7 @@ module.exports = (on: any, config: any, fs: any) => {
 
   const deleteFolder = (directoryPath: string) => {
     if (fs.existsSync(directoryPath)) {
-      fs.readdirSync(directoryPath).forEach((file: string, index: number) => {
+      fs.readdirSync(directoryPath).forEach((file: string) => {
         const curPath = path.join(directoryPath, file)
         if (fs.lstatSync(curPath).isDirectory()) {
           // recurse

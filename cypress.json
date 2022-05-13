@@ -7,6 +7,10 @@
   "defaultCommandTimeout": 60000,
   "env": {
     "autorecord": {
+      "recordTests": ["supports trades"],
+      "forceRecord": false,
+      "cleanMocks": false,
+      "mocksFolder": null,
       "whitelistHeaders": [
         "content-type"
       ],

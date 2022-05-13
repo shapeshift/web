@@ -3,6 +3,7 @@ import { RawText } from 'components/Text'
 export enum FoxPageTab {
   Fox = 'Fox',
   Foxy = 'Foxy',
+  OneFox = 'OneFox',
 }
 
 export const FoxPage = (props: any) => {

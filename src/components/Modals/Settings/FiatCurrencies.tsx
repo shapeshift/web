@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { SupportedFiatCurrencies, SupportedFiatCurrenciesList } from '@shapeshiftoss/market-service'
+import { SupportedFiatCurrenciesList } from '@shapeshiftoss/market-service'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
@@ -10,14 +10,13 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-export const FiatCurrencies = (props: RouteComponentProps) => {
+export const FiatCurrencies: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useAppDispatch()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
-  const { goBack } = props.history
-  const otherCurrencies = SupportedFiatCurrenciesList.filter(
-    (k: SupportedFiatCurrencies) => k !== selectedCurrency,
-  )
+  const { goBack } = history
+  const otherCurrencies = SupportedFiatCurrenciesList.filter(k => k !== selectedCurrency)
+  const { setSelectedCurrency } = preferences.actions
 
   return (
     <SlideTransition>
@@ -59,20 +58,14 @@ export const FiatCurrencies = (props: RouteComponentProps) => {
               </Flex>
             </Flex>
           </Button>
-          {otherCurrencies.map((currency: SupportedFiatCurrencies) => (
+          {otherCurrencies.map(currency => (
             <Button
               width='full'
               justifyContent='flexStart'
               pl={12}
               key={currency}
               variant='ghost'
-              onClick={() => {
-                dispatch(
-                  preferences.actions.setSelectedCurrency({
-                    currency,
-                  }),
-                )
-              }}
+              onClick={() => dispatch(setSelectedCurrency({ currency }))}
             >
               <RawText>{currency}</RawText>
               <RawText mx={2}>-</RawText>

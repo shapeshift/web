@@ -3,6 +3,9 @@ import { parse as parseUrl } from 'url'
 
 import { blobToPlain } from './util'
 
+const stringOrEmpty = (maybeString: any): string =>
+  typeof maybeString === 'string' ? maybeString : ''
+
 const stringArrayOrEmpty = (maybeArray: any): string[] =>
   Array.isArray(maybeArray) && maybeArray.every(el => typeof el === 'string')
     ? (maybeArray as string[])
@@ -24,8 +27,8 @@ const interceptPattern = '*'
 
 const supportedMethods = ['get', 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD']
 
-const fileName = path.basename(Cypress.spec.name, path.extname(Cypress.spec.name))
-const mocksFolder = cypressConfig.mocksFolder || 'cypress/mocks'
+const fileName = stringOrEmpty(cypressConfig.mockName) || path.basename(Cypress.spec.name, path.extname(Cypress.spec.name))
+const mocksFolder = stringOrEmpty(cypressConfig.mocksFolder) || 'cypress/mocks'
 
 before(function () {
   if (shouldCleanMocks) {

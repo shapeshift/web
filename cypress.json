@@ -12,6 +12,7 @@
     "whitelistHeaders": [
       "content-type"
     ],
+    "mockName": "All Integration Specs",
     "includeHosts": [
       "dev-api.ethereum.shapeshift.com",
       "assets.coincap.io",

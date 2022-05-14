@@ -139,9 +139,9 @@ export function autoRecord() {
     currentTestId = isTestForceRecord ? currentTestId.split('[r]')[1].trim() : currentTestId
 
     // Load stubbed data from local JSON file
-    // Do not stub if...
-    // This test is being force recorded
-    // there are no mock data for this test
+    // Do not stub if:
+    // - This test is being force recorded, and
+    // - There is no mock data for this test
     if (
       !testsToRecord.includes(currentTestId) &&
       !isTestForceRecord &&

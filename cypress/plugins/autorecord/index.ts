@@ -3,6 +3,16 @@ import { parse as parseUrl } from 'url'
 
 import { blobToPlain } from './util'
 
+type Route = {
+  url: string
+  method: string
+  status: number
+  headers: Record<string, string>
+  body: any
+  data?: string
+  response?: string
+}
+
 const stringOrEmpty = (maybeString: any): string =>
   typeof maybeString === 'string' ? maybeString : ''
 
@@ -49,11 +59,11 @@ export function autoRecord() {
   // For cleaning, to store the test names that are active per file
   const testNames: string[] = []
   // For cleaning, to store the clean mocks per file
-  const cleanMockData: any = {}
+  const cleanMockData: Record<string, { routes: Route[] }> = {}
   // Locally stores all mock data for this spec file
-  let routesByTestId: any = {}
+  let routesByTestId: Record<string, { routes: Route[] }> = {}
   // For recording, stores data recorded from hitting the real endpoints
-  let routes: any[] = []
+  let routes: Route[] = []
   // For force recording, check to see if [r] is present in the test title
   let isTestForceRecord = false
   // Current test title
@@ -62,7 +72,7 @@ export function autoRecord() {
   before(function () {
     // Get mock data that relates to this spec file
     cy.task('readFile', path.join(mocksFolder, `${fileName}.json`)).then(data => {
-      routesByTestId = data === null ? {} : data
+      routesByTestId = data === null ? {} : (data as Record<string, { routes: Route[] }>)
     })
   })
 

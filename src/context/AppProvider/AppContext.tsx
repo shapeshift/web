@@ -311,11 +311,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return () => clearInterval(setInterval(fetchMarketData, 1000 * 60 * 2))
   }, [portfolioAssetIds, dispatch])
 
-  // fetch fiat market data
+  /**
+   * fetch spot forex rates once
+   * we don't need to refetch these, forex rates are relatively stable
+   */
   useEffect(() => {
-    SupportedFiatCurrenciesList.forEach(symbol =>
-      dispatch(marketApi.endpoints.findByFiatSymbol.initiate({ symbol }, { forceRefetch: true })),
-    )
+    const fetchForexRates = marketApi.endpoints.findByFiatSymbol.initiate
+    SupportedFiatCurrenciesList.forEach(symbol => dispatch(fetchForexRates({ symbol })))
   }, [dispatch])
 
   // If the assets aren't loaded, then the app isn't ready to render

@@ -1,18 +1,24 @@
 import { Box } from '@chakra-ui/layout'
 import { Link, SkeletonText, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 
 type FoxTabProps = {
-  asset: Asset
+  assetIcon: string
+  assetSymbol: string
   fiatAmount: string
   cryptoAmount: string
   isActive?: Boolean
 }
 
-export const Tab = ({ asset, fiatAmount, cryptoAmount, isActive }: FoxTabProps) => {
+export const Tab = ({
+  assetIcon,
+  assetSymbol,
+  fiatAmount,
+  cryptoAmount,
+  isActive,
+}: FoxTabProps) => {
   const bgHover = useColorModeValue('gray.100', 'gray.750')
   const handleClick = () => {}
 
@@ -29,13 +35,13 @@ export const Tab = ({ asset, fiatAmount, cryptoAmount, isActive }: FoxTabProps) 
     >
       <Card.Body p={4}>
         <Box mb={6}>
-          <AssetIcon src={asset.icon} boxSize='8' zIndex={2} />
+          <AssetIcon src={assetIcon} boxSize='8' zIndex={2} />
         </Box>
         <SkeletonText isLoaded={true} noOfLines={2}>
           <Amount.Crypto
             color='inherit'
             value={cryptoAmount}
-            symbol={asset.symbol}
+            symbol={assetSymbol}
             lineHeight={1.2}
             fontSize={'2xl'}
             fontWeight='semibold'

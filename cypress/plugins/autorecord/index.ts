@@ -11,7 +11,7 @@ const stringArrayOrEmpty = (maybeArray: any): string[] =>
 const booleanOrFalse = (maybeBoolean: any): boolean =>
   typeof maybeBoolean === 'boolean' ? maybeBoolean : false
 
-const cypressConfig = Cypress.env('autorecord') || {}
+const cypressConfig = Cypress.env() || {}
 const { cleanMocks, forceRecord, recordTests, includeHosts, whitelistHeaders } = cypressConfig
 const shouldCleanMocks = booleanOrFalse(cleanMocks)
 const shouldForceRecord = booleanOrFalse(forceRecord)

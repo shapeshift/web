@@ -1,12 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import {
-  QuoteFeeData,
-  SwapperManager,
-  Trade,
-  TradeQuote,
-  ZrxSwapper,
-} from '@shapeshiftoss/swapper'
+import { QuoteFeeData, SwapperManager, Trade, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, ExecQuoteOutput, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useRef, useState } from 'react'

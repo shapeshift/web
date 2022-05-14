@@ -188,5 +188,4 @@ export const marketApi = createApi({
   }),
 })
 
-export const { useFindAllQuery, useFindByAssetIdQuery, useFindPriceHistoryByAssetIdQuery } =
-  marketApi
+export const { useFindAllQuery } = marketApi

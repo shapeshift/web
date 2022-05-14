@@ -27,21 +27,21 @@ module.exports = (on: any, config: any, fs: any) => {
     return null
   }
 
-  const deleteFolder = (directoryPath: string) => {
-    if (fs.existsSync(directoryPath)) {
-      fs.readdirSync(directoryPath).forEach((file: string) => {
-        const curPath = path.join(directoryPath, file)
-        if (fs.lstatSync(curPath).isDirectory()) {
-          // recurse
-          deleteFolder(curPath)
-        } else {
-          // delete file
-          fs.unlinkSync(curPath)
-        }
-      })
-      fs.rmdirSync(directoryPath)
-    }
-  }
+  // const deleteFolder = (directoryPath: string) => {
+  //   if (fs.existsSync(directoryPath)) {
+  //     fs.readdirSync(directoryPath).forEach((file: string) => {
+  //       const curPath = path.join(directoryPath, file)
+  //       if (fs.lstatSync(curPath).isDirectory()) {
+  //         // recurse
+  //         deleteFolder(curPath)
+  //       } else {
+  //         // delete file
+  //         fs.unlinkSync(curPath)
+  //       }
+  //     })
+  //     fs.rmdirSync(directoryPath)
+  //   }
+  // }
 
   const cleanMocks = () => {
     // TODO: create error handling

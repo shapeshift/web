@@ -970,7 +970,7 @@
   },
   "plugins": {
     "foxPage": {
-      "totalFoxValue": "Total FOX Value",
+      "totalFoxValue": "Total Fox Value",
       "foxToken": "ShapeShift %{assetSymbol} Token"
     }
   }

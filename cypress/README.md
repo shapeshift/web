@@ -66,8 +66,8 @@ describe('Home Page', () => {
 
 | Name               | Default                   | Description |
 | ------------------ | ------------------------- | ------------- |
-| `whitelistHeaders` | `[ "content-type" ]`      | reduce file size you can only save response headers |
-| `includeHosts`     | `[ "assets.coincap.io" ]` | whitelist hosts for recording/stubbing. Any host which is not present in `includeHosts` will be skipped |
+| `whitelistHeaders` | `[]`                      | save only headers you need to reduce file size |
+| `includeHosts`     | `[]`                      | whitelist hosts for recording/stubbing. Any host which is not present in `includeHosts` will be skipped |
 | `mocksFolder`      | `cypress/mocks`           | Path to folder containing mock files |
 | `mocksName`        | spec name                 | File name to write/read mocks |
 | `recordTests`      | `[]`                      | [Updating Mocks](#updating-mocks) |

@@ -80,7 +80,7 @@ export const Header = () => {
             </HStack>
           </Box>
         )}
-        <HStack height='4.5rem' width='full' px={4}>
+        <HStack height='calc(4.5rem - 1px)' width='full' px={4}>
           <Box flex={1} display={{ base: 'block', md: 'none' }}>
             <IconButton
               aria-label='Open menu'

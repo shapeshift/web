@@ -24,20 +24,16 @@ type PriceHistoryByTimeframe = {
   [k in HistoryTimeframe]: PriceHistoryData
 }
 
-type CommonMarketDataState = {
+type MarketDataStateVariant<T extends string> = {
   byId: {
-    [k: string]: MarketData
+    [k in T]?: MarketData
   }
   priceHistory: PriceHistoryByTimeframe
+  ids: T[]
 }
 
-type FiatMarketDataState = CommonMarketDataState & {
-  ids: SupportedFiatCurrencies[]
-}
-
-type CryptoMarketDataState = CommonMarketDataState & {
-  ids: AssetId[]
-}
+type FiatMarketDataState = MarketDataStateVariant<SupportedFiatCurrencies>
+type CryptoMarketDataState = MarketDataStateVariant<AssetId>
 
 export type MarketDataState = {
   crypto: CryptoMarketDataState

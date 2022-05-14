@@ -92,28 +92,24 @@ export function autoRecord() {
         const { host } = parseUrl(url, true)
         const status = res.statusCode
 
-        let data = ''
-        switch (res.body.constructor.name) {
-          case 'Blob': {
-            data = blobToPlain(res.body)
-            break
+        const data = (() => {
+          switch (res.body.constructor.name) {
+            case 'Blob':
+              return blobToPlain(res.body)
+            case 'Object':
+            case 'Array':
+              return JSON.stringify(res.body)
+            default:
+              return res.body
           }
-          case 'Object':
-          case 'Array': {
-            data = JSON.stringify(res.body)
-            break
-          }
-          default: {
-            data = res.body
-          }
-        }
+        })()
         const headers = Object.entries(res.headers)
           .filter(([key]) => whitelistHeaderRegexes.some((regex: RegExp) => regex.test(key)))
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
 
         // We push a new entry into the routes array
         const ifRequestIncluded = includedHosts.some(
-          (hostPattern) => host != null && new RegExp(hostPattern).test(host),
+          hostPattern => host != null && new RegExp(hostPattern).test(host),
         )
         if (includedHosts.length > 0 && !ifRequestIncluded) return
         // Do not re-record duplicate requests

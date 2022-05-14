@@ -30,55 +30,31 @@ export const SelectModal = () => {
             wallets.map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
-              if (isMobile && option.mobileEnabled) {
-                return (
-                  <Button
-                    key={key}
-                    w='full'
-                    size='lg'
-                    py={8}
-                    justifyContent='space-between'
-                    onClick={() => connect(key)}
-                    data-test={`connect-wallet-${key}-button`}
-                  >
-                    <Flex alignItems='center'>
-                      <RawText fontWeight='semibold'>{option.name}</RawText>
-                      {walletInfo?.name === option.name && (
-                        <Tag colorScheme='green' ml={2}>
-                          <Text translation='common.connected' />
-                        </Tag>
-                      )}
-                    </Flex>
-                    <Center>
-                      <Icon height='30px' w='auto' />
-                    </Center>
-                  </Button>
-                )
-              } else if (!isMobile) {
-                return (
-                  <Button
-                    key={key}
-                    w='full'
-                    size='lg'
-                    py={8}
-                    justifyContent='space-between'
-                    onClick={() => connect(key)}
-                    data-test={`connect-wallet-${key}-button`}
-                  >
-                    <Flex alignItems='center'>
-                      <RawText fontWeight='semibold'>{option.name}</RawText>
-                      {walletInfo?.name === option.name && (
-                        <Tag colorScheme='green' ml={2}>
-                          <Text translation='common.connected' />
-                        </Tag>
-                      )}
-                    </Flex>
-                    <Center>
-                      <Icon height='30px' w='auto' />
-                    </Center>
-                  </Button>
-                )
-              }
+              // some wallets (e.g. tally ho) do not exist on mobile
+              if (isMobile && !option.mobileEnabled) return false
+              return (
+                <Button
+                  key={key}
+                  w='full'
+                  size='lg'
+                  py={8}
+                  justifyContent='space-between'
+                  onClick={() => connect(key)}
+                  data-test={`connect-wallet-${key}-button`}
+                >
+                  <Flex alignItems='center'>
+                    <RawText fontWeight='semibold'>{option.name}</RawText>
+                    {walletInfo?.name === option.name && (
+                      <Tag colorScheme='green' ml={2}>
+                        <Text translation='common.connected' />
+                      </Tag>
+                    )}
+                  </Flex>
+                  <Center>
+                    <Icon height='30px' w='auto' />
+                  </Center>
+                </Button>
+              )
             })}
         </Stack>
         <Flex direction={['column', 'row']} mt={2} justifyContent='center' alignItems='center'>

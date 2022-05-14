@@ -69,17 +69,18 @@ module.exports = (on: any, config: any, fs: any) => {
   }
 
   const removeAllMocks = () => {
-    if (fs.existsSync(config.fixturesFolder)) {
-      const fixtureFiles = fs.readdirSync(config.fixturesFolder)
-      fixtureFiles.forEach((fileName: string) => {
-        const file = path.join(config.fixturesFolder, fileName)
-        if (fs.lstatSync(file).isDirectory()) {
-          deleteFolder(file)
-        } else {
-          deleteFile(file)
-        }
-      })
-    }
+    // we don't need to remove fixtures
+    // if (fs.existsSync(config.fixturesFolder)) {
+    //   const fixtureFiles = fs.readdirSync(config.fixturesFolder)
+    //   fixtureFiles.forEach((fileName: string) => {
+    //     const file = path.join(config.fixturesFolder, fileName)
+    //     if (fs.lstatSync(file).isDirectory()) {
+    //       deleteFolder(file)
+    //     } else {
+    //       deleteFile(file)
+    //     }
+    //   })
+    // }
 
     if (fs.existsSync(mocksFolder)) {
       const mockFiles = fs.readdirSync(mocksFolder)

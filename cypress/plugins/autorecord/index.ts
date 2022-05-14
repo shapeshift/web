@@ -39,7 +39,7 @@ before(function () {
 
   if (shouldForceRecord) {
     // we don't save mocks to fixtures so we can skip this
-    // cy.task('removeAllMocks')
+    cy.task('removeAllMocks')
   }
 })
 

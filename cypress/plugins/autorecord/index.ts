@@ -81,7 +81,22 @@ export function autoRecord() {
         const { url, method, body } = req
         const { host } = parseUrl(url, true)
         const status = res.statusCode
-        const data = res.body.constructor.name === 'Blob' ? blobToPlain(res.body) : res.body
+
+        let data = ''
+        switch (res.body.constructor.name) {
+          case 'Blob': {
+            data = blobToPlain(res.body)
+            break
+          }
+          case 'Object':
+          case 'Array': {
+            data = JSON.stringify(res.body)
+            break
+          }
+          default: {
+            data = res.body
+          }
+        }
         const headers = Object.entries(res.headers)
           .filter(([key]) => whitelistHeaderRegexes.some((regex: RegExp) => regex.test(key)))
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})
@@ -142,6 +157,8 @@ export function autoRecord() {
 
         if (newResponse.headers['content-type'].startsWith('image/png')) {
           req.reply({ fixture: 'images/logo.png' })
+        } else if (newResponse.headers['content-type'].startsWith('application/json')) {
+          req.reply(newResponse.status, JSON.parse(newResponse.response), newResponse.headers)
         } else {
           req.reply(newResponse.status, newResponse.response, newResponse.headers)
         }

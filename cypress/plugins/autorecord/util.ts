@@ -7,5 +7,5 @@ export const blobToPlain = (blob: Blob) => {
 
   URL.revokeObjectURL(uri)
 
-  return blob.type === 'application/json' ? JSON.parse(xhr.response) : xhr.response
+  return xhr.response
 }

@@ -75,7 +75,7 @@ export function autoRecord() {
         const { url, method, body } = req
         const { host } = parseUrl(url, true)
         const status = res.statusCode
-        const data = body.constructor.name === 'Blob' ? blobToPlain(body) : body
+        const data = res.body.constructor.name === 'Blob' ? blobToPlain(res.body) : res.body
         const headers = Object.entries(res.headers)
           .filter(([key]) => whitelistHeaderRegexes.some((regex: RegExp) => regex.test(key)))
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {})

@@ -27,8 +27,14 @@ export const FoxPageTabs: Story = () => (
         'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x03352D267951E96c6F7235037C5DFD2AB1466232/logo.png',
       ]}
     />
-    <Tab asset={fox} isActive={true} cryptoAmount={'3000'} fiatAmount={'1000'} />
-    <Tab asset={fox} cryptoAmount={'3000'} fiatAmount={'1000'} />
-    <Tab asset={fox} cryptoAmount={'3000'} fiatAmount={'1000'} />
+    <Tab
+      assetIcon={fox.icon}
+      assetSymbol={fox.symbol}
+      isActive={true}
+      cryptoAmount={'3000'}
+      fiatAmount={'1000'}
+    />
+    <Tab assetIcon={fox.icon} assetSymbol={fox.symbol} cryptoAmount={'3000'} fiatAmount={'1000'} />
+    <Tab assetIcon={fox.icon} assetSymbol={fox.symbol} cryptoAmount={'3000'} fiatAmount={'1000'} />
   </SimpleGrid>
 )

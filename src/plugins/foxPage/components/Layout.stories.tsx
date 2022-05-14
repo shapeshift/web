@@ -15,14 +15,22 @@ export default {
   component: Layout,
 }
 
+const mockAsset = {
+  ...fox,
+  description:
+    'FOX is an ERC-20 token created by ShapeShift which serves as the governance token for the ShapeShift DAO, token holders can vote on proposals relating to the operation...',
+}
+
 export const FoxLayout: Story = () => {
   const translate = useTranslate()
 
   return (
     <>
       <Layout
-        title={translate('plugins.foxPage.foxToken')}
-        description={translate('plugins.foxPage.description')}
+        title={translate('plugins.foxPage.foxToken', {
+          assetSymbol: mockAsset.symbol,
+        })}
+        description={mockAsset.description}
         icon={'https://assets.coincap.io/assets/icons/fox@2x.png'}
         content={
           <>
@@ -39,9 +47,25 @@ export const FoxLayout: Story = () => {
                   'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x03352D267951E96c6F7235037C5DFD2AB1466232/logo.png',
                 ]}
               />
-              <Tab asset={fox} isActive={true} cryptoAmount={'3000'} fiatAmount={'1000'} />
-              <Tab asset={fox} cryptoAmount={'3000'} fiatAmount={'1000'} />
-              <Tab asset={fox} cryptoAmount={'3000'} fiatAmount={'1000'} />
+              <Tab
+                assetSymbol={mockAsset.symbol}
+                assetIcon={mockAsset.icon}
+                isActive={true}
+                cryptoAmount={'3000'}
+                fiatAmount={'1000'}
+              />
+              <Tab
+                assetSymbol={mockAsset.symbol}
+                assetIcon={mockAsset.icon}
+                cryptoAmount={'3000'}
+                fiatAmount={'1000'}
+              />
+              <Tab
+                assetSymbol={mockAsset.symbol}
+                assetIcon={mockAsset.icon}
+                cryptoAmount={'3000'}
+                fiatAmount={'1000'}
+              />
             </SimpleGrid>
 
             <Stack

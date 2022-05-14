@@ -12,7 +12,6 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { SupportedFiatCurrenciesList } from '@shapeshiftoss/market-service'
 import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
@@ -36,6 +35,8 @@ import {
   selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
+  selectPriceHistoriesLoadingByAssetTimeframe,
+  selectSelectedCurrency,
   selectTxHistoryStatus,
   selectTxIds,
   selectTxs,
@@ -318,13 +319,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [portfolioAssetIds, dispatch])
 
   /**
-   * fetch spot forex rates once
-   * we don't need to refetch these, forex rates are relatively stable
+   * fetch forex history for user's selected currency
    */
+  const priceHistoriesLoading = useAppSelector(state =>
+    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, DEFAULT_HISTORY_TIMEFRAME),
+  )
+  const selectedCurrency = useAppSelector(state => selectSelectedCurrency(state))
   useEffect(() => {
-    const fetchForexRates = marketApi.endpoints.findByFiatSymbol.initiate
-    SupportedFiatCurrenciesList.forEach(symbol => dispatch(fetchForexRates({ symbol })))
-  }, [dispatch])
+    /**
+     * we will need crypto -> usd pricing loaded first, so we can normalize
+     * forex data timeframes on the way into the store, such that we can
+     * do O(1) calculations later in selectors
+     */
+    if (priceHistoriesLoading) return
+    const symbol = selectedCurrency
+    const timeframe = DEFAULT_HISTORY_TIMEFRAME
+    const getFiatPriceHistory = marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate
+    const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
+    dispatch(getFiatPriceHistory({ symbol, timeframe }))
+    dispatch(fetchForexRate({ symbol }))
+  }, [dispatch, priceHistoriesLoading, selectedCurrency])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

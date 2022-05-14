@@ -109,7 +109,7 @@
     "minify": "yarn yarn-minify",
     "test": "react-app-rewired test --coverage --watchAll=false",
     "test:cypress": "yarn cypress open",
-    "test:cypress:headless": "yarn cypress run --browser chromium --headless",
+    "test:cypress:headless": "yarn cypress run --headless",
     "clean": "rimraf node_modules",
     "test:dev": "react-app-rewired test --watch",
     "type-check": "tsc --project ./tsconfig.json --noEmit",

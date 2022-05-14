@@ -80,6 +80,9 @@ Cypress.Commands.add('login', () => {
   cy.addWallet().then(() => {
     cy.visit('', {
       onLoad(win) {
+        // in order to record and stub requests with timestamps in query we need to use fixed date
+        // `cy.clock` does this, except when you call `cy.visit` from `before`
+        // so you need to overwrite it manually
         win.Date = FakeDate
       },
     })

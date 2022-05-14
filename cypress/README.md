@@ -62,6 +62,18 @@ describe('Home Page', () => {
 })
 ```
 
+## ENV Variables
+
+| Name               | Default                   | Description |
+| ------------------ | ------------------------- | ------------- |
+| `whitelistHeaders` | `[ "content-type" ]`      | reduce file size you can only save response headers |
+| `includeHosts`     | `[ "assets.coincap.io" ]` | whitelist hosts for recording/stubbing. Any host which is not present in `includeHosts` will be skipped |
+| `mocksFolder`      | `cypress/mocks`           | reduce file size you can only save response headers |
+| `mocksName`        | spec name                 | reduce file size you can only save response headers |
+| `recordTests`      | `[]`                      | [Updating Mocks](#updating-mocks) |
+| `forceRecord`      | `false`                   | [Updating Mocks](#updating-mocks) |
+| `cleanMocks`       | `false`                   | [Removing Stale Mocks](#removing-stale-mocks) |
+
 ## Updating Mocks
 
 In the case you need to update your mocks for a particular test add the test name in the file `cypress.json`:
@@ -69,9 +81,7 @@ In the case you need to update your mocks for a particular test add the test nam
 ```json
 {
   "env": {    
-    "autorecord": {
-      "recordTests": ["my awesome test"]
-    }
+    "recordTests": ["my awesome test"]
   }
 }
 ```
@@ -81,9 +91,29 @@ Alternatively, you can update recordings for all tests by setting `forceRecord` 
 ```json
 {
   "env": {    
-    "autorecord": {
-      "forceRecord": true
-    }
+    "forceRecord": true
   }
 }
+```
+
+## Removing Stale Mocks
+
+Stale mocks that are no longer being used can be automatically removed when you run your tests by setting `cleanMocks` to `true` in the file `cypress.json`:
+
+```json
+{
+  "env": {
+    "cleanMocks": true
+  }
+}
+```
+
+## Command Line Usage
+
+You can specify any variable from a command line.
+
+Force record:
+
+```bash
+yarn test:cypress --env forceRecord=true
 ```

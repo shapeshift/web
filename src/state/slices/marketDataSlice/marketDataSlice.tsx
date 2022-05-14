@@ -75,10 +75,9 @@ export const marketData = createSlice({
     },
     setCryptoPriceHistory: (
       state,
-      {
-        payload: { data, args },
-      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
+      { payload }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
     ) => {
+      const { args, data } = payload
       const { assetId, timeframe } = args
       state.crypto.priceHistory[timeframe][assetId] = data
     },
@@ -91,8 +90,9 @@ export const marketData = createSlice({
     },
     setFiatPriceHistory: (
       state,
-      { payload: { data, args } }: { payload: { data: HistoryData[]; args: FiatPriceHistoryArgs } },
+      { payload }: { payload: { data: HistoryData[]; args: FiatPriceHistoryArgs } },
     ) => {
+      const { args, data } = payload
       const { symbol, timeframe } = args
       state.fiat.priceHistory[timeframe][symbol] = data
     },
@@ -110,22 +110,25 @@ export const marketApi = createApi({
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
       // top 1000 assets
-      queryFn: async () => ({ data: await findAll({ count: 1000 }) }),
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        data && dispatch(marketData.actions.setCryptoMarketData(data))
+      queryFn: async (args, { dispatch }) => {
+        try {
+          const data = await findAll({ count: 1000 })
+          const payload = { args, data }
+          dispatch(marketData.actions.setCryptoMarketData(payload))
+          return { data }
+        } catch (e) {
+          const error = { data: `findAll: could not find marketData for all assets`, status: 404 }
+          return { error }
+        }
       },
     }),
     findByAssetId: build.query<MarketCapResult, AssetId>({
-      queryFn: async (assetId: AssetId, baseQuery) => {
+      queryFn: async (assetId: AssetId, { dispatch }) => {
         try {
           const currentMarketData = await findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
           const data = { [assetId]: currentMarketData }
-          // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
-          // to prevent edge cases like #858
-          baseQuery.dispatch(marketData.actions.setCryptoMarketData(data))
+          dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }
         } catch (e) {
           const error = { data: `findByAssetId: no market data for ${assetId}`, status: 404 }

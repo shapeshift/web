@@ -36,7 +36,8 @@ before(function () {
   }
 
   if (shouldForceRecord) {
-    cy.task('removeAllMocks')
+    // we don't save mocks to fixtures so we can skip this
+    // cy.task('removeAllMocks')
   }
 })
 

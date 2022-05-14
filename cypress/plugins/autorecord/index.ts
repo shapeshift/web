@@ -27,7 +27,9 @@ const interceptPattern = '*'
 
 const supportedMethods = ['get', 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD']
 
-const fileName = stringOrEmpty(cypressConfig.mocksName) || path.basename(Cypress.spec.name, path.extname(Cypress.spec.name))
+const fileName =
+  stringOrEmpty(cypressConfig.mocksName) ||
+  path.basename(Cypress.spec.name, path.extname(Cypress.spec.name))
 const mocksFolder = stringOrEmpty(cypressConfig.mocksFolder) || 'cypress/mocks'
 
 before(function () {

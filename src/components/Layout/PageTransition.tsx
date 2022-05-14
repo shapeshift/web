@@ -6,6 +6,7 @@ export const PageTransition = (props: HTMLMotionProps<'div'>) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   return (
     <motion.div
+      // The minHeight calculation is not correct if Demo Wallet banner is displaying
       initial={{ y: -16, opacity: 0, minHeight: isLargerThanMd ? 'calc(100vh - 4.5rem)' : 'auto' }}
       animate={{ y: 0, opacity: 1 }}
       transition={{

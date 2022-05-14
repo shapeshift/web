@@ -148,12 +148,12 @@ export function autoRecord() {
       routesByTestId[currentTestId]
     ) {
       // This is used to group routes by method type and url (e.g. { GET: { '/api/messages': {...} }})
-      const sortedRoutes: any = {}
+      const sortedRoutes: Record<string, Record<string, Route[]>> = {}
       supportedMethods.forEach(method => {
         sortedRoutes[method] = {}
       })
 
-      routesByTestId[currentTestId].routes.forEach((request: any) => {
+      routesByTestId[currentTestId].routes.forEach(request => {
         if (!sortedRoutes[request.method][request.url]) {
           sortedRoutes[request.method][request.url] = []
         }
@@ -168,7 +168,7 @@ export function autoRecord() {
         if (newResponse.headers['content-type'].startsWith('image/png')) {
           req.reply({ fixture: 'images/logo.png' })
         } else if (newResponse.headers['content-type'].startsWith('application/json')) {
-          req.reply(newResponse.status, JSON.parse(newResponse.response), newResponse.headers)
+          req.reply(newResponse.status, JSON.parse(newResponse.response!), newResponse.headers)
         } else {
           req.reply(newResponse.status, newResponse.response, newResponse.headers)
         }

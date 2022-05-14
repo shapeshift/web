@@ -68,7 +68,7 @@ export const Header = () => {
           <Box
             bg='blue.500'
             width='full'
-            height={{ base: '2.5rem', md: '3rem' }}
+            height='2.5rem'
             fontSize={{ base: 'sm', md: 'md' }}
             as='button'
             onClick={handleBannerClick}

@@ -305,9 +305,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // market data pre and refetch management
   useEffect(() => {
     const fetchMarketData = () =>
-      portfolioAssetIds.forEach(assetId =>
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)),
-      )
+      portfolioAssetIds.forEach(assetId => {
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+        const timeframe = DEFAULT_HISTORY_TIMEFRAME
+        const payload = { assetId, timeframe }
+        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
+      })
 
     fetchMarketData() // fetch every time assetIds change
     // refetch every two minutes

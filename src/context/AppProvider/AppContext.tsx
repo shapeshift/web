@@ -299,34 +299,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // for more obscure assets, if we don't have it, fetch it
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
 
-  // creating a variable to store the intervals in
-  const [marketDataIntervalId, setMarketDataIntervalId] = useState<NodeJS.Timer | undefined>()
-
   // market data pre and refetch management
   useEffect(() => {
-    if (!portfolioAssetIds.length) return
+    const fetchMarketData = () =>
+      portfolioAssetIds.forEach(assetId =>
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)),
+      )
 
-    const fetchMarketData = () => {
-      portfolioAssetIds.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, { forceRefetch: true }))
-      })
-    }
-
-    // do this the first time once
-    fetchMarketData()
-
-    // clear the old timer
-    if (marketDataIntervalId) {
-      clearInterval(marketDataIntervalId)
-      setMarketDataIntervalId(undefined)
-    }
-
-    const MARKET_DATA_REFRESH_INTERVAL = 1000 * 60 * 2 // two minutes
-    setMarketDataIntervalId(setInterval(fetchMarketData, MARKET_DATA_REFRESH_INTERVAL))
-
-    // marketDataIntervalId causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
+    fetchMarketData() // fetch every time assetIds change
+    // refetch every two minutes
+    return () => clearInterval(setInterval(fetchMarketData, 1000 * 60 * 2))
+  }, [portfolioAssetIds, dispatch])
 
   // fetch fiat market data
   useEffect(() => {

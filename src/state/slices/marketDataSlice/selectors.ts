@@ -21,6 +21,7 @@ export const selectMarketData = createDeepEqualOutputSelector(
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1)
     return Object.entries(cryptoMarketData).reduce<MarketCapResult>(
       (acc, [caip19, assetMarketData]) => {
+        if (isEmpty(assetMarketData)) return acc
         acc[caip19] = {
           ...assetMarketData,
           price: bnOrZero(assetMarketData.price).times(fiatPrice).toString(),

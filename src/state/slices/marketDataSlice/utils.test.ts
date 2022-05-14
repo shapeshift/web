@@ -1,13 +1,9 @@
-import { HistoryData } from '@shapeshiftoss/types'
-
-import { testData } from './testData'
+import { marketData } from './testData'
 import { normalizePriceHistory } from './utils'
 
 describe('normalizePriceHistory', () => {
-  const granularData = testData.marketData.crypto.priceHistory['1M'][
-    'eip155:1/slip44:60'
-  ] as unknown as HistoryData[]
-  const sparseData = testData.marketData.fiat.priceHistory['1M'].AUD as unknown as HistoryData[]
+  const granularData = marketData.crypto.priceHistory['1M']['eip155:1/slip44:60']
+  const sparseData = marketData.fiat.priceHistory['1M'].AUD
   const result = normalizePriceHistory({ granular: granularData, sparse: sparseData.reverse() })
 
   it('returns same length result as granular data', () => {

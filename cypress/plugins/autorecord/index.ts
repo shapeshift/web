@@ -113,11 +113,9 @@ export function autoRecord() {
 
         // We push a new entry into the routes array
         const ifRequestIncluded = includedHosts.some(
-          (hostPattern: string) => host != null && new RegExp(hostPattern).test(host),
+          (hostPattern) => host != null && new RegExp(hostPattern).test(host),
         )
-        if (includedHosts.length > 0) {
-          if (!ifRequestIncluded) return
-        }
+        if (includedHosts.length > 0 && !ifRequestIncluded) return
         // Do not re-record duplicate requests
         const responseChanged = !routes.some(
           route =>

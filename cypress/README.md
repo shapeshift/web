@@ -64,15 +64,15 @@ describe('Home Page', () => {
 
 ## ENV Variables
 
-| Name               | Default                   | Description |
-| ------------------ | ------------------------- | ------------- |
-| `whitelistHeaders` | `[]`                      | save only headers you need to reduce file size |
-| `includeHosts`     | `[]`                      | whitelist hosts for recording/stubbing. Any host which is not present in `includeHosts` will be skipped |
-| `mocksFolder`      | `cypress/mocks`           | Path to folder containing mock files |
-| `mocksName`        | spec name                 | File name to write/read mocks |
-| `recordTests`      | `[]`                      | [Updating Mocks](#updating-mocks) |
-| `forceRecord`      | `false`                   | [Updating Mocks](#updating-mocks) |
-| `cleanMocks`       | `false`                   | [Removing Stale Mocks](#removing-stale-mocks) |
+| Name               | Default         | Description                                                                                             |
+|--------------------|-----------------|---------------------------------------------------------------------------------------------------------|
+| `whitelistHeaders` | `[]`            | save only headers you need to reduce file size                                                          |
+| `includeHosts`     | `[]`            | whitelist hosts for recording/stubbing. Any host which is not present in `includeHosts` will be skipped |
+| `mocksFolder`      | `cypress/mocks` | Path to folder containing mock files                                                                    |
+| `mocksName`        | spec name       | File name to write/read mocks                                                                           |
+| `recordTests`      | `[]`            | [Updating Mocks](#updating-mocks)                                                                       |
+| `forceRecord`      | `false`         | [Updating Mocks](#updating-mocks)                                                                       |
+| `cleanMocks`       | `false`         | [Removing Stale Mocks](#removing-stale-mocks)                                                           |
 
 ## Updating Mocks
 
@@ -96,6 +96,8 @@ Alternatively, you can update recordings for all tests by setting `forceRecord` 
 }
 ```
 
+Alternatively, `yarn test:cypress:rerecord`
+
 ## Removing Stale Mocks
 
 Stale mocks that are no longer being used can be automatically removed when you run your tests by setting `cleanMocks` to `true` in the file `cypress.json`:
@@ -107,6 +109,8 @@ Stale mocks that are no longer being used can be automatically removed when you 
   }
 }
 ```
+
+Alternatively, run `yarn test:cypress:clean`
 
 ## Command Line Usage
 

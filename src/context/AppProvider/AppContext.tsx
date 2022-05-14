@@ -13,7 +13,7 @@ import {
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { SupportedFiatCurrenciesList } from '@shapeshiftoss/market-service'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
@@ -46,6 +46,9 @@ import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataS
 import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
+
+// used by AssetChart, Portfolio, and this file to prefetch price history
+export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,

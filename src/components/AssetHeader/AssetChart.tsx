@@ -14,7 +14,6 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -26,6 +25,7 @@ import { IconCircle } from 'components/IconCircle'
 import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'context/AppProvider/AppContext'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
@@ -59,7 +59,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter()
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
+  const [timeframe, setTimeframe] = useState(DEFAULT_HISTORY_TIMEFRAME)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

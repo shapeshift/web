@@ -12,6 +12,9 @@ import {
   SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import { logger } from 'lib/logger'
+
+const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
 export type PriceHistoryData = {
   [k: AssetId]: HistoryData[]
@@ -162,8 +165,9 @@ export const marketApi = createApi({
           baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
           return { data }
         } catch (e) {
-          console.error(e)
-          const error = { data: `findByFiatSymbol: no market data for ${symbol}`, status: 404 }
+          const data = `findByFiatSymbol: no market data for ${symbol}`
+          moduleLogger.error(e, data)
+          const error = { data, status: 404 }
           return { error }
         }
       },

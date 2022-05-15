@@ -71,7 +71,7 @@ export const FoxLayout: Story = () => {
         </TabList>
 
         <TabPanels>
-          <TabPanel>
+          <TabPanel p={0}>
             <Stack
               alignItems='flex-start'
               spacing={4}
@@ -90,7 +90,7 @@ export const FoxLayout: Story = () => {
               </Stack>
             </Stack>
           </TabPanel>
-          <TabPanel>
+          <TabPanel p={0}>
             <Stack
               alignItems='flex-start'
               spacing={4}
@@ -109,7 +109,7 @@ export const FoxLayout: Story = () => {
               </Stack>
             </Stack>
           </TabPanel>
-          <TabPanel>
+          <TabPanel p={0}>
             <Stack
               alignItems='flex-start'
               spacing={4}

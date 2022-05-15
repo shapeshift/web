@@ -33,7 +33,7 @@ export const FoxPageTabs: Story = () => (
         <FoxTab
           assetIcon={fox.icon}
           assetSymbol={fox.symbol}
-          isActive={true}
+          isSelected={true}
           cryptoAmount={'3000'}
           fiatAmount={'1000'}
         />

@@ -86,7 +86,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
         })
 
         //  Enable session (triggers QR Code modal)
-        await wallet.provider.enable()
+        await wallet.initialize()
 
         dispatch({
           type: WalletActions.SET_WALLET,

@@ -54,33 +54,30 @@ export const Header = () => {
 
   return (
     <>
-      <Flex
-        direction='column'
-        bg={bg}
-        borderBottomWidth={1}
-        borderColor={borderColor}
-        width='full'
-        position='sticky'
-        zIndex='banner'
-        top={0}
-      >
+      <Flex direction='column' bg={bg} width='full' position='sticky' zIndex='banner' top={0}>
         {walletInfo?.deviceId === 'DemoWallet' && (
           <Box
             bg='blue.500'
             width='full'
-            height='2.5rem'
+            minHeight='2.5rem'
             fontSize={{ base: 'sm', md: 'md' }}
             as='button'
             onClick={handleBannerClick}
           >
-            <HStack verticalAlign='middle' justifyContent='center' spacing={3}>
-              <InfoIcon boxSize='1.3em' color='white' />
-              <Text color='white' fontWeight='bold' translation='navBar.demoMode' />
-              <Text color='white' fontWeight='medium' translation='navBar.clickToConnect' />
+            <HStack
+              verticalAlign='middle'
+              justifyContent='center'
+              spacing={3}
+              color='white'
+              wrap='wrap'
+            >
+              <InfoIcon boxSize='1.3em' />
+              <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
+              <Text display='inline' translation='navBar.clickToConnect' />
             </HStack>
           </Box>
         )}
-        <HStack height='calc(4.5rem - 1px)' width='full' px={4}>
+        <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
           <Box flex={1} display={{ base: 'block', md: 'none' }}>
             <IconButton
               aria-label='Open menu'

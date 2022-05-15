@@ -83,11 +83,17 @@ export const FoxLayout: Story = () => {
                 <Text>{'Fox Page'}</Text>
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <Text>
-                  {
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada rutrum erat. Aliquam commodo tincidunt ligula, sollicitudin semper velit aliquet id. Vestibulum at tincidunt diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam facilisis nisi vitae risus vulputate bibendum. Etiam vitae leo ac mauris congue varius. Nunc sit amet diam bibendum, hendrerit velit vel, porta sapien. Aenean ac enim ornare, consectetur justo at, sodales massa. Fusce sodales sapien ac dictum sagittis. Maecenas ornare ex at dolor tempus, ac iaculis dolor dapibus.'
-                  }
-                </Text>
+                <AssetActions
+                  assetIcon={mockAsset.icon}
+                  assetSymbol={mockAsset.symbol}
+                  description={mockAsset.description}
+                  primaryText={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                    assetSymbol: mockAsset.symbol,
+                  })}
+                  secondaryTranslation='plugins.foxPage.receive'
+                  onReceiveClick={() => null}
+                  onGetClick={() => null}
+                />
               </Stack>
             </Stack>
           </TabPanel>
@@ -102,11 +108,17 @@ export const FoxLayout: Story = () => {
                 <Text>{'Foxy Page'}</Text>
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <Text>
-                  {
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada rutrum erat. Aliquam commodo tincidunt ligula, sollicitudin semper velit aliquet id. Vestibulum at tincidunt diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam facilisis nisi vitae risus vulputate bibendum. Etiam vitae leo ac mauris congue varius. Nunc sit amet diam bibendum, hendrerit velit vel, porta sapien. Aenean ac enim ornare, consectetur justo at, sodales massa. Fusce sodales sapien ac dictum sagittis. Maecenas ornare ex at dolor tempus, ac iaculis dolor dapibus.'
-                  }
-                </Text>
+                <AssetActions
+                  assetIcon={mockAsset.icon}
+                  assetSymbol={mockAsset.symbol}
+                  description={mockAsset.description}
+                  primaryText={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                    assetSymbol: mockAsset.symbol,
+                  })}
+                  secondaryTranslation='plugins.foxPage.receive'
+                  onReceiveClick={() => null}
+                  onGetClick={() => null}
+                />
               </Stack>
             </Stack>
           </TabPanel>
@@ -129,7 +141,8 @@ export const FoxLayout: Story = () => {
                     assetSymbol: mockAsset.symbol,
                   })}
                   secondaryTranslation='plugins.foxPage.receive'
-                  onClickReceive={() => null}
+                  onReceiveClick={() => null}
+                  onGetClick={() => null}
                 />
               </Stack>
             </Stack>

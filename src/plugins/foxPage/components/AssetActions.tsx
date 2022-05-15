@@ -20,7 +20,8 @@ type FoxTabProps = {
   description: string
   primaryText: string
   secondaryTranslation: string
-  onClickReceive: () => void
+  onReceiveClick: () => void
+  onGetClick: () => void
 }
 
 export const AssetActions = ({
@@ -29,7 +30,8 @@ export const AssetActions = ({
   description,
   primaryText,
   secondaryTranslation,
-  onClickReceive,
+  onReceiveClick,
+  onGetClick,
 }: FoxTabProps) => {
   const translate = useTranslate()
 
@@ -47,7 +49,7 @@ export const AssetActions = ({
           </TabList>
           <TabPanels>
             <TabPanel textAlign='center' p={6}>
-              <Box mb={8}>
+              <Box mb={6}>
                 <AssetIcon src={assetIcon} boxSize='12' />
               </Box>
               <SkeletonText isLoaded={true} noOfLines={3}>
@@ -55,10 +57,10 @@ export const AssetActions = ({
               </SkeletonText>
 
               <Stack width='full'>
-                <Button colorScheme={'blue'} mb={2} size='lg'>
+                <Button onClick={onGetClick} colorScheme={'blue'} mb={2} size='lg'>
                   <CText>{primaryText}</CText>
                 </Button>
-                <Button onClick={onClickReceive} size='lg' colorScheme='gray'>
+                <Button onClick={onReceiveClick} size='lg' colorScheme='gray'>
                   <Text translation={secondaryTranslation} />
                 </Button>
               </Stack>

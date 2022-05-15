@@ -4,13 +4,13 @@ import foxPageBg from 'assets/foxpage-bg.png'
 import { AssetIcon } from 'components/AssetIcon'
 
 type FoxLayoutProps = {
-  content: ReactNode
+  children: ReactNode
   icon: string
   title: string
   description: string
 }
 
-export const Layout = ({ content, icon, title, description }: FoxLayoutProps) => {
+export const Layout = ({ children, icon, title, description }: FoxLayoutProps) => {
   return (
     <>
       <Box
@@ -31,7 +31,7 @@ export const Layout = ({ content, icon, title, description }: FoxLayoutProps) =>
           bottom='0'
           left='0'
           zIndex='-1'
-        ></Box>
+        />
         <Box maxWidth='900px' width='100%' m='auto'>
           <AssetIcon src={icon} boxSize='12' zIndex={2} mb={2} />
           <Text color='inherit' fontSize='1.125rem' fontWeight='bold' mb={2}>
@@ -41,7 +41,7 @@ export const Layout = ({ content, icon, title, description }: FoxLayoutProps) =>
         </Box>
       </Box>
 
-      <Box px={{ base: 2, md: 8 }}>{content}</Box>
+      <Box px={{ base: 2, md: 8 }}>{children}</Box>
     </>
   )
 }

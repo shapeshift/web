@@ -4,7 +4,7 @@ import { normalizePriceHistory } from './utils'
 describe('normalizePriceHistory', () => {
   const granularData = marketData.crypto.priceHistory['1M']['eip155:1/slip44:60']
   const sparseData = marketData.fiat.priceHistory['1M'].AUD
-  const result = normalizePriceHistory({ granular: granularData, sparse: sparseData.reverse() })
+  const result = normalizePriceHistory({ granular: granularData, sparse: sparseData })
 
   it('returns same length result as granular data', () => {
     expect(result.length).toEqual(granularData.length)

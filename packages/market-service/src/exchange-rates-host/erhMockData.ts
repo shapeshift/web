@@ -8,8 +8,8 @@ export const mockERHFindByFiatSymbol = {
 }
 
 export const mockERHPriceHistoryData = [
-  { date: dayjs('2020-01-04', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.895175 },
-  { date: dayjs('2020-01-03', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.895175 },
+  { date: dayjs('2020-01-01', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.891186 },
   { date: dayjs('2020-01-02', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.891186 },
-  { date: dayjs('2020-01-01', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.891186 }
+  { date: dayjs('2020-01-03', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.895175 },
+  { date: dayjs('2020-01-04', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.895175 }
 ]

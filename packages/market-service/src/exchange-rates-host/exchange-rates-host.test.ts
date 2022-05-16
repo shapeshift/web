@@ -1,6 +1,5 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
-import dayjs from 'dayjs'
 
 import { FiatMarketDataArgs, FiatPriceHistoryArgs } from '../fiat-market-service-types'
 import { mockERHFindByFiatSymbol, mockERHPriceHistoryData } from './erhMockData'
@@ -63,25 +62,6 @@ describe('ExchangeRateHostService', () => {
       expect(await exchangeRateHostService.findPriceHistoryByFiatSymbol(args)).toEqual(
         mockERHPriceHistoryData
       )
-    })
-
-    it('should filter out NaN values and return historical fiat market data for EUR', async () => {
-      const mockHistoryData = {
-        rates: {
-          '2020-01-01': { EUR: 0.891186 },
-          '2020-01-02': { EUR: NaN },
-          '2020-01-03': { EUR: 0.895175 },
-          '2020-01-04': { EUR: NaN }
-        }
-      }
-
-      const mockResponse = [
-        { date: dayjs('2020-01-03', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.895175 },
-        { date: dayjs('2020-01-01', 'YYYY-MM-DD').startOf('day').valueOf(), price: 0.891186 }
-      ]
-
-      mockedAxios.get.mockResolvedValue({ data: mockHistoryData })
-      expect(await exchangeRateHostService.findPriceHistoryByFiatSymbol(args)).toEqual(mockResponse)
     })
 
     it('should return null on network error', async () => {

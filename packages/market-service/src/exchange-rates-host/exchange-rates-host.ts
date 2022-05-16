@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { FiatMarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { FiatMarketDataArgs, FiatPriceHistoryArgs } from '../fiat-market-service-types'
-import { bn } from '../utils/bignumber'
+import { bnOrZero } from '../utils/bignumber'
 import { rateLimitedAxios } from '../utils/rateLimiters'
 import { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
 
@@ -70,16 +70,8 @@ export class ExchangeRateHostService implements FiatMarketService {
       return Object.entries(data.rates).reduce<HistoryData[]>(
         (acc, [formattedDate, ratesObject]) => {
           const date = dayjs(formattedDate, 'YYYY-MM-DD').startOf('day').valueOf()
-          const price = bn(ratesObject[symbol])
-          if (price.isNaN()) {
-            console.error('ExchangeRateHost fiat history data has invalid price')
-            return acc
-          }
-          // add to beginning of the array because api results are sorted incrementally
-          acc.unshift({
-            date,
-            price: price.toNumber()
-          })
+          const price = bnOrZero(ratesObject[symbol]).toNumber()
+          acc.push({ date, price })
           return acc
         },
         []

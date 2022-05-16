@@ -21,7 +21,7 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { priceAtBlockTime } from 'lib/charts'
+import { priceAtDate } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -183,8 +183,8 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = cryptoPriceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
-    const price = priceAtBlockTime({ priceHistoryData: assetPriceHistoryData, date })
-    const fiatToUsdRate = priceAtBlockTime({ priceHistoryData: fiatPriceHistoryData, date })
+    const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
+    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) return acc
     const { precision } = portfolioAsset

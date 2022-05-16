@@ -9,6 +9,7 @@ import { fox } from 'test/mocks/assets'
 import { AssetActions } from './AssetActions'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
+import { MainOpportunity } from './MainOpportunity'
 import { Total } from './Total'
 
 export default {
@@ -80,7 +81,7 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'Fox Page'}</Text>
+                <MainOpportunity />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -105,7 +106,7 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'Foxy Page'}</Text>
+                <MainOpportunity />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -130,7 +131,7 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'oneFOX page'}</Text>
+                <MainOpportunity />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions

@@ -6,7 +6,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, MIN_MAX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
-import { TradeAmountInputField } from 'components/Trade/types'
+import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 import { useSwapper } from './useSwapper'
@@ -37,12 +37,9 @@ function setup({
   const getBestSwapper = jest.fn()
   const getQuote = jest.fn(() => ETHCHAIN_QUOTE)
   const wallet = {} as HDWallet
-  const sellAsset = {
+  const sellAsset: TradeAsset = {
     amount: '20',
-    currency: WETH,
-    asset: {
-      assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    },
+    asset: WETH,
   }
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
     getBestSwapper: () => ({
@@ -64,7 +61,7 @@ function setup({
     getValues: () => ({
       trade: minMax,
       action,
-      buyAsset: { amount: '20', currency: USDC },
+      buyAsset: { amount: '20', asset: USDC },
       sellAsset,
       fiatAmount: '20',
     }),

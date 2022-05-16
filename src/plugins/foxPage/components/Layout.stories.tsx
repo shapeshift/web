@@ -1,10 +1,11 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { Story } from '@storybook/react'
 import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AssetActions } from './AssetActions'
 import { FoxTab } from './FoxTab'
@@ -81,7 +82,12 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity />
+                <MainOpportunity
+                  balance='--'
+                  tvl={bnOrZero(150000000)}
+                  apy='11.61%'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -106,7 +112,12 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity />
+                <MainOpportunity
+                  balance='--'
+                  tvl={bnOrZero(150000000)}
+                  apy='11.61%'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -131,7 +142,12 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity />
+                <MainOpportunity
+                  balance='--'
+                  tvl={bnOrZero(150000000)}
+                  apy='11.61%'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions

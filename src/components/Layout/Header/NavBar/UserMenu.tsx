@@ -157,6 +157,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           maxWidth={{ base: 'full', md: 'xs' }}
           minWidth={{ base: 0, md: 'xs' }}
           overflow='hidden'
+          // Override zIndex to prevent InputLeftElement displaying over menu
           zIndex={2}
         >
           {hasWallet ? (

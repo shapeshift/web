@@ -57,6 +57,7 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
         onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
       >
         <InputGroup size='lg'>
+          {/* Override zIndex to prevent element deplaying on overlay components */}
           <InputLeftElement pointerEvents='none' zIndex={1}>
             <SearchIcon color='gray.300' />
           </InputLeftElement>

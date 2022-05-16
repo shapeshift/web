@@ -30,7 +30,7 @@ export const MainOpportunity = ({
     <Card display='block' width='full'>
       <Card.Header>
         <Flex flexDirection='row' alignItems='center' mb={2}>
-          <AssetIcon src={fox.icon} boxSize='8' mr={2} zIndex={2} />
+          <AssetIcon src={fox.icon} boxSize='6' mr={2} zIndex={2} />
           <Text translation='FOX Token Staking' fontWeight='bold' color='inherit' />
         </Flex>
         <Text translation='Lorem ipsum sit dolor amet.' color='gray.500' />

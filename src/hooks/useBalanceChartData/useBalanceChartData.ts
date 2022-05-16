@@ -183,10 +183,10 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = cryptoPriceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
-    const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
-    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) return acc
+    const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
+    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date })
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance
       .div(bn(10).exponentiatedBy(precision))

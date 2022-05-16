@@ -24,10 +24,7 @@ import {
   ethAssetId,
   osmosisAssetId,
 } from 'state/slices/portfolioSlice/utils'
-import {
-  selectBalanceThreshold,
-  selectSelectedCurrency,
-} from 'state/slices/preferencesSlice/selectors'
+import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { SHAPESHIFT_VALIDATOR_ADDRESS } from '../validatorDataSlice/const'
@@ -232,9 +229,7 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
 export const selectPortfolioTotalFiatBalanceWithDelegations = createSelector(
   selectPortfolioTotalFiatBalance,
   selectTotalStakingDelegationFiat,
-  selectSelectedCurrency,
   (portfolioFiatBalance, delegationFiatBalance): string => {
-    // const forexRate =
     return bnOrZero(portfolioFiatBalance).plus(delegationFiatBalance).toString()
   },
 )

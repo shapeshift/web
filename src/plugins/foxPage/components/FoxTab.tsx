@@ -44,11 +44,11 @@ export const FoxTab = ({
               color='inherit'
               value={cryptoAmount}
               symbol={assetSymbol}
-              lineHeight={1.2}
+              lineHeight={'1.2'}
               fontSize={'2xl'}
               fontWeight='semibold'
             />
-            <Amount.Fiat color='gray.500' value={fiatAmount} lineHeight={1.2} />
+            <Amount.Fiat color='gray.500' value={fiatAmount} lineHeight={'1.2'} />
           </SkeletonText>
         </Card.Body>
       </Card>

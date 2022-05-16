@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v3.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v3.0.1...@shapeshiftoss/market-service-v3.0.2) (2022-05-16)
+
+
+### Bug Fixes
+
+* sort fiat price history by time correctly ([#647](https://github.com/shapeshift/lib/issues/647)) ([845d4dc](https://github.com/shapeshift/lib/commit/845d4dc8f464a25cf4c4cc7498bdac9a9ef22185))
+
 # [@shapeshiftoss/market-service-v3.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v3.0.0...@shapeshiftoss/market-service-v3.0.1) (2022-05-12)
 
 # [@shapeshiftoss/market-service-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.3.0...@shapeshiftoss/market-service-v3.0.0) (2022-05-10)

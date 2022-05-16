@@ -24,6 +24,7 @@ export const FoxTab = ({
   return (
     <Tab
       _selected={{ bg: bgHover, borderColor: 'primary', borderWidth: '2px' }}
+      _focus={{ borderWidth: '0' }}
       borderRadius='xl'
       borderColor={bgHover}
       borderWidth={'1px'}

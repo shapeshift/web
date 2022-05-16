@@ -13,6 +13,7 @@ export default {
   component: FoxTab,
 }
 
+// @TODO: We should use a proper selector with assets ids instead of every hardcoded props
 export const FoxPageTabs: Story = () => (
   <Tabs variant='unstyled'>
     <TabList>

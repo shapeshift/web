@@ -40,9 +40,9 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyTradeAsset, sellTradeAsset, sellAssetFiatRate] = useWatch({
-    name: ['quote', 'buyAsset', 'sellAsset', 'sellAssetFiatRate'],
-  }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['sellAssetFiatRate']]
+  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
+    name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
+  }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
   const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
@@ -91,12 +91,12 @@ export const TradeInput = ({ history }: RouterProps) => {
         history.push({
           pathname: TradeRoutePaths.Approval,
           state: {
-            fiatRate: sellAssetFiatRate,
+            fiatRate: feeAssetFiatRate,
           },
         })
         return
       }
-      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: sellAssetFiatRate } })
+      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (err) {
       console.error(`TradeInput:onSubmit - ${err}`)
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))

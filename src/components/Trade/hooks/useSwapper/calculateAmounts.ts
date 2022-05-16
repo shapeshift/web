@@ -8,21 +8,24 @@ export const calculateAmounts = async ({
   amount,
   buyAsset,
   sellAsset,
+  feeAsset,
   swapper,
   action,
 }: {
   amount: string
   buyAsset: Asset
   sellAsset: Asset
+  feeAsset: Asset
   swapper: Swapper
   action: TradeAmountInputField
 }) => {
   const { getUsdRate } = swapper
 
   // TODO(0xdef1cafe): error handling
-  const [sellAssetUsdRate, buyAssetUsdRate] = await Promise.all([
+  const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
     getUsdRate({ ...sellAsset }),
     getUsdRate({ ...buyAsset }),
+    getUsdRate({ ...feeAsset }),
   ])
 
   const assetPriceRatio = bnOrZero(buyAssetUsdRate).dividedBy(sellAssetUsdRate)
@@ -54,5 +57,6 @@ export const calculateAmounts = async ({
     fiatSellAmount,
     sellAssetUsdRate: sellAssetUsdRate.toString(),
     buyAssetUsdRate: sellAssetUsdRate.toString(),
+    feeAssetUsdRate: feeAssetUsdRate.toString(),
   }
 }

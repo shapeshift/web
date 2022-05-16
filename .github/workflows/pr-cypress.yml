@@ -48,6 +48,14 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
+      - name: Cache Cypress binary
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+
       - name: Cache Node Modules
         uses: actions/cache@v3
         with:

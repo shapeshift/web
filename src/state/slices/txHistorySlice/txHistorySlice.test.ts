@@ -43,8 +43,8 @@ describe('txHistorySlice', () => {
     it('can sort txs going into store', async () => {
       // testTxs are in ascending order by time
       const transactions = reverse([...ethereumTransactions])
-      const ethCAIP2 = EthSend.caip2
-      const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
+      const ethChainId = EthSend.chainId
+      const accountSpecifier = `${ethChainId}:0xdef1cafe`
       // expected transaction order
       const expected = map(transactions, tx => makeUniqueTxId(tx, accountSpecifier))
 
@@ -68,7 +68,7 @@ describe('txHistorySlice', () => {
     it('should add new transactions', async () => {
       store.dispatch(txHistory.actions.clear())
 
-      const ethAccountSpecifier = `${EthSend.caip2}:0xdef1cafe`
+      const ethAccountSpecifier = `${EthSend.chainId}:0xdef1cafe`
 
       // new eth transaction (send)
       store.dispatch(
@@ -96,7 +96,7 @@ describe('txHistorySlice', () => {
         store.getState().txHistory.txs.byId[makeUniqueTxId(EthReceive, ethAccountSpecifier)],
       ).toEqual(EthReceive)
 
-      const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
+      const segwitNativeAccountSpecifier = `${BtcSend.chainId}:zpub`
 
       // new btc transaction (send)
       store.dispatch(
@@ -116,7 +116,7 @@ describe('txHistorySlice', () => {
       )
       expect(Object.values(store.getState().txHistory.txs.ids).length).toBe(3)
 
-      const segwitAccountSpecifier = `${BtcSend.caip2}:ypub`
+      const segwitAccountSpecifier = `${BtcSend.chainId}:ypub`
 
       // new btc transaction, different account type (send)
       store.dispatch(
@@ -138,7 +138,7 @@ describe('txHistorySlice', () => {
 
     it('should update existing transactions', async () => {
       const EthReceivePending = { ...EthReceive, status: chainAdapters.TxStatus.Pending }
-      const ethAccountSpecifier = `${EthReceive.caip2}:0xdef1cafe`
+      const ethAccountSpecifier = `${EthReceive.chainId}:0xdef1cafe`
       store.dispatch(
         txHistory.actions.onMessage({
           message: EthReceivePending,
@@ -160,9 +160,9 @@ describe('txHistorySlice', () => {
     })
 
     it('should add txids by accountSpecifier', async () => {
-      const ethAccountSpecifier = `${EthSend.caip2}:0xdef1cafe`
-      const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
-      const segwitAccountSpecifier = `${BtcSend.caip2}:ypub`
+      const ethAccountSpecifier = `${EthSend.chainId}:0xdef1cafe`
+      const segwitNativeAccountSpecifier = `${BtcSend.chainId}:zpub`
+      const segwitAccountSpecifier = `${BtcSend.chainId}:ypub`
 
       // new eth transaction (send)
       store.dispatch(

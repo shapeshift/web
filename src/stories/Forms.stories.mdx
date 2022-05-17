@@ -1,3 +1,17 @@
+import { Meta } from "@storybook/addon-docs";
+
+<Meta title="Example Defi Deposit" />
+
+# Using forms and validation
+
+We use [**React Hook Forms**](https://react-hook-form.com/) for form state and form validation.
+
+Below is an example of a DeFi deposit screen using react hook form.
+
+Because our forms can be updated via other fields we need to use the built in `useController` hook to handle the field state.
+
+
+```
 import { Container, Stack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useController, useForm } from 'react-hook-form'
@@ -12,20 +26,7 @@ import { RawText } from 'components/Text'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-const testData = [
-  {
-    symbol: 'FOX',
-    value: '1000',
-    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
-  },
-  {
-    symbol: 'USDC',
-    value: '1000',
-    icon: 'https://assets.coincap.io/assets/icons/256/usdc.png',
-  },
-]
-
-export const DeleteMe = () => {
+export const ExampleDeposit = () => {
   const translate = useTranslate()
   const [formStateValue, setFormState] = useState('approve')
   const {
@@ -169,3 +170,4 @@ export const DeleteMe = () => {
     </Container>
   )
 }
+```

@@ -12,7 +12,7 @@ describe('ZrxExecuteTrade', () => {
     supportsOfflineSigning: jest.fn(() => true)
   } as unknown as HDWallet
   const adapterManager = {
-    byChain: jest.fn(() => ({
+    byChainId: jest.fn(() => ({
       buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
       buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
       signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
@@ -43,42 +43,6 @@ describe('ZrxExecuteTrade', () => {
     },
     wallet
   }
-
-  it('throws an error if sellAsset.symbol is not provided', async () => {
-    await expect(
-      zrxExecuteTrade(deps, {
-        ...execTradeInput,
-        trade: { ...execTradeInput.trade, sellAsset: { ...sellAsset, symbol: '' } }
-      })
-    ).rejects.toThrow('ZrxSwapper:ZrxExecuteTrade sellAssetSymbol is required')
-  })
-
-  it('throws an error if quote.sellAssetAccountId is not provided', async () => {
-    await expect(
-      zrxExecuteTrade(deps, {
-        ...execTradeInput,
-        trade: { ...execTradeInput.trade, sellAssetAccountId: '' }
-      })
-    ).rejects.toThrow('ZrxSwapper:ZrxExecuteTrade sellAssetAccountId is required')
-  })
-
-  it('throws an error if quote.sellAmount is not provided', async () => {
-    await expect(
-      zrxExecuteTrade(deps, {
-        ...execTradeInput,
-        trade: { ...execTradeInput.trade, sellAmount: '' }
-      })
-    ).rejects.toThrow('ZrxSwapper:ZrxExecuteTrade sellAmount is required')
-  })
-
-  it('throws an error if quote.depositAddress is not provided', async () => {
-    await expect(
-      zrxExecuteTrade(deps, {
-        ...execTradeInput,
-        trade: { ...execTradeInput.trade, depositAddress: '' }
-      })
-    ).rejects.toThrow('ZrxSwapper:ZrxExecuteTrade depositAddress is required')
-  })
 
   it('returns txid if offline signing is supported', async () => {
     expect(

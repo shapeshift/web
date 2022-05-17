@@ -47,7 +47,7 @@ describe('utils', () => {
       expect(rate).toBe('0.5')
       expect(zrxService.get).toHaveBeenCalledWith('/swap/v1/price', {
         params: {
-          buyToken: 'USDC',
+          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
           buyAmount: '1000000000',
           sellToken: 'FOX'
         }
@@ -56,7 +56,7 @@ describe('utils', () => {
     it('getUsdRate fails', async () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
       await expect(getUsdRate({ symbol: 'WETH', tokenId: '0x0001' })).rejects.toThrow(
-        'getUsdRate - Failed to get price data'
+        '[getUsdRate]'
       )
     })
   })
@@ -86,7 +86,7 @@ describe('utils', () => {
       expect(
         await getAllowanceRequired({
           ...getAllowanceInput,
-          sellAsset: { ...sellAsset, symbol: 'ETH' }
+          sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' }
         })
       ).toEqual(bn(0))
     })
@@ -117,7 +117,7 @@ describe('utils', () => {
       }))
 
       await expect(getAllowanceRequired(getAllowanceInput)).rejects.toThrow(
-        `No allowance data for ${getAllowanceInput.allowanceContract} to ${getAllowanceInput.receiveAddress}`
+        `[getAllowanceRequired]`
       )
     })
 
@@ -176,7 +176,7 @@ describe('utils', () => {
 
       await expect(
         grantAllowance({ quote, wallet, adapterManager, erc20Abi, web3: web3Instance })
-      ).rejects.toThrow('sellAsset.tokenId is required')
+      ).rejects.toThrow('[grantAllowance]')
     })
 
     it('should return a txid', async () => {

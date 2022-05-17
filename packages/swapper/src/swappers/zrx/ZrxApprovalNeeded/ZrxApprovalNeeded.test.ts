@@ -37,9 +37,9 @@ describe('ZrxApprovalNeeded', () => {
 
   const { tradeQuote, sellAsset } = setupQuote()
 
-  it('returns false if sellAsset symbol is ETH', async () => {
+  it('returns false if sellAsset assetId is ETH', async () => {
     const input = {
-      quote: { ...tradeQuote, sellAsset: { ...sellAsset, symbol: 'ETH' } },
+      quote: { ...tradeQuote, sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' } },
       wallet
     }
 
@@ -52,9 +52,7 @@ describe('ZrxApprovalNeeded', () => {
       wallet
     }
 
-    await expect(ZrxApprovalNeeded(args, input)).rejects.toThrow(
-      'ZrxSwapper:ZrxApprovalNeeded only Ethereum chain type is supported'
-    )
+    await expect(ZrxApprovalNeeded(args, input)).rejects.toThrow('[ZrxApprovalNeeded]')
   })
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {

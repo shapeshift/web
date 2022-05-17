@@ -17,7 +17,7 @@ const {
   UNCHAINED_WS_API = 'wss://localhost:31300',
   ETH_NODE_URL = 'http://localhost:3000',
   DEVICE_ID = 'device123',
-  MNEMONIC = 'salon adapt foil saddle orient make page zero cheese marble test catalog'
+  MNEMONIC = 'all all all all all all all all all all all all'
 } = process.env
 
 const toBaseUnit = (amount: BigNumber | string, precision: number): string => {
@@ -106,13 +106,22 @@ const main = async (): Promise<void> => {
   const swapper = manager.getSwapper(SwapperType.Zrx)
   const sellAmountBase = toBaseUnit(sellAmount, sellAsset.precision)
 
-  const quote = await swapper.getTradeQuote({
-    sellAsset,
-    buyAsset,
-    sellAmount: sellAmountBase,
-    sellAssetAccountId: '0',
-    sendMax: false
-  })
+  let quote
+  try {
+    quote = await swapper.getTradeQuote({
+      sellAsset,
+      buyAsset,
+      sellAmount: sellAmountBase,
+      sellAssetAccountId: '0',
+      sendMax: false
+    })
+  } catch (e) {
+    console.error(e)
+  }
+
+  if (!quote) {
+    return
+  }
 
   console.info('quote = ', JSON.stringify(quote))
 

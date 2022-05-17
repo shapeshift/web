@@ -10,6 +10,7 @@
       "@shapeshiftoss/investory-foxy/*": ["packages/investory-foxy"],
       "@shapeshiftoss/investory-yearn/*": ["packages/investory-yearn"],
       "@shapeshiftoss/logger/*": ["packages/logger"],
+      "@shapeshiftoss/errors/*": ["packages/errors"],
       "@shapeshiftoss/market-service/*": ["packages/market-service"],
       "@shapeshiftoss/swapper/*": ["packages/swapper"],
       "@shapeshiftoss/types/*": ["packages/types"],

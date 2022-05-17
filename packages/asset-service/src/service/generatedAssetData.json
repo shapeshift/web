@@ -76,6 +76,25 @@
     "receiveSupport": true
   },
   {
+    "assetId": "cosmos:osmosis-1/ibc:0CD3A0285E1341859B5E86B6AB7682F023D03E97607CCC1DC95706411D866DF7",
+    "chainId": "cosmos:osmosis-1",
+    "chain": "osmosis",
+    "dataSource": "coingecko",
+    "network": "OSMOSIS_MAINNET",
+    "symbol": "axlDAI",
+    "name": "Dai Stablecoin on Osmosis",
+    "precision": 18,
+    "slip44": 60,
+    "color": "#FFFFFF",
+    "secondaryColor": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/axldai.png",
+    "explorer": "https://mintscan.io",
+    "explorerAddressLink": "https://mintscan.io/cosmos/account",
+    "explorerTxLink": "https://mintscan.io/cosmos/txs/",
+    "sendSupport": true,
+    "receiveSupport": true
+  },
+  {
     "assetId": "cosmos:osmosis-1/ibc:0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
     "chainId": "cosmos:osmosis-1",
     "chain": "osmosis",
@@ -354,6 +373,25 @@
     "color": "#FFFFFF",
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/emoney/images/eeur.png",
+    "explorer": "https://mintscan.io",
+    "explorerAddressLink": "https://mintscan.io/cosmos/account",
+    "explorerTxLink": "https://mintscan.io/cosmos/txs/",
+    "sendSupport": true,
+    "receiveSupport": true
+  },
+  {
+    "assetId": "cosmos:osmosis-1/ibc:5D1F516200EE8C6B2354102143B78A2DEDA25EDE771AC0F8DC3C1837C8FD4447",
+    "chainId": "cosmos:osmosis-1",
+    "chain": "osmosis",
+    "dataSource": "coingecko",
+    "network": "OSMOSIS_MAINNET",
+    "symbol": "FET",
+    "name": "Fetch.ai on Osmosis",
+    "precision": 18,
+    "slip44": 60,
+    "color": "#FFFFFF",
+    "secondaryColor": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/fetchhub/images/fet.png",
     "explorer": "https://mintscan.io",
     "explorerAddressLink": "https://mintscan.io/cosmos/account",
     "explorerTxLink": "https://mintscan.io/cosmos/txs/",
@@ -753,6 +791,25 @@
     "color": "#FFFFFF",
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/grav.png",
+    "explorer": "https://mintscan.io",
+    "explorerAddressLink": "https://mintscan.io/cosmos/account",
+    "explorerTxLink": "https://mintscan.io/cosmos/txs/",
+    "sendSupport": true,
+    "receiveSupport": true
+  },
+  {
+    "assetId": "cosmos:osmosis-1/ibc:EA1D43981D5C9A1C4AAEA9C23BB1D4FA126BA9BC7020A25E0AE4AA841EA25DC5",
+    "chainId": "cosmos:osmosis-1",
+    "chain": "osmosis",
+    "dataSource": "coingecko",
+    "network": "OSMOSIS_MAINNET",
+    "symbol": "axlWETH",
+    "name": "Wrapped Ether on Osmosis",
+    "precision": 18,
+    "slip44": 60,
+    "color": "#FFFFFF",
+    "secondaryColor": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/axlweth.png",
     "explorer": "https://mintscan.io",
     "explorerAddressLink": "https://mintscan.io/cosmos/account",
     "explorerTxLink": "https://mintscan.io/cosmos/txs/",
@@ -1384,7 +1441,7 @@
         "assetId": "eip155:1/erc20:0x00f29171d7bcdc464a0758cf3217fe83173772b9",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "INU Token",
+        "name": "INU",
         "precision": 9,
         "tokenId": "0x00f29171d7bcdc464a0758cf3217fe83173772b9",
         "contractType": "erc20",
@@ -1864,7 +1921,7 @@
         "assetId": "eip155:1/erc20:0x021bb23a45e9fc824260435e670fc383b7b8cbbb",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   16200 Fullerton Ave  Detr",
+        "name": "RealT   16200 Fullerton Ave  Detroit  M",
         "precision": 18,
         "tokenId": "0x021bb23a45e9fc824260435e670fc383b7b8cbbb",
         "contractType": "erc20",
@@ -1873,7 +1930,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16704/thumb/16200-Fullerton-HERO.jpeg?1624644084",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-16200-F"
+        "symbol": "REALT-S-16200-FULLE"
       },
       {
         "assetId": "eip155:1/erc20:0x0222be1f1b8413b2d7d76ebfc9e0285c1300692f",
@@ -1894,7 +1951,7 @@
         "assetId": "eip155:1/erc20:0x0239d3a3485ec54511bee9d77d92695e443bf060",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Bill Token",
+        "name": "Bill",
         "precision": 18,
         "tokenId": "0x0239d3a3485ec54511bee9d77d92695e443bf060",
         "contractType": "erc20",
@@ -2506,21 +2563,6 @@
         "symbol": "NABOX"
       },
       {
-        "color": "#7057F5",
-        "contractType": "erc20",
-        "dataSource": "yearnfinance",
-        "icon": "https://assets.yearn.network/tokens/ethereum/0x03e173ad8d1581a4802d3b532ace27a62c5b81dc.png",
-        "name": "THALES",
-        "precision": 18,
-        "receiveSupport": true,
-        "secondaryColor": "#7057F5",
-        "sendSupport": true,
-        "symbol": "THALES",
-        "tokenId": "0x03e173ad8d1581a4802d3b532ace27a62c5b81dc",
-        "chainId": "eip155:1",
-        "assetId": "eip155:1/erc20:0x03e173ad8d1581a4802d3b532ace27a62c5b81dc"
-      },
-      {
         "assetId": "eip155:1/erc20:0x03e4bdce611104289333f35c8177558b04cc99ff",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -2596,19 +2638,19 @@
         "symbol": "LID"
       },
       {
-        "assetId": "eip155:1/erc20:0x041fdd6637ecfd96af8804278ac12660ac2d12c0",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "SwapDEX",
-        "precision": 7,
-        "tokenId": "0x041fdd6637ecfd96af8804278ac12660ac2d12c0",
+        "color": "#7057F5",
         "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/13717/thumb/sdx.png?1611116537",
-        "sendSupport": true,
+        "dataSource": "yearnfinance",
+        "icon": "https://assets.yearn.network/tokens/ethereum/0x041fdd6637ecfd96af8804278ac12660ac2d12c0.png",
+        "name": "SDX",
+        "precision": 7,
         "receiveSupport": true,
-        "symbol": "SDX"
+        "secondaryColor": "#7057F5",
+        "sendSupport": true,
+        "symbol": "SDX",
+        "tokenId": "0x041fdd6637ecfd96af8804278ac12660ac2d12c0",
+        "chainId": "eip155:1",
+        "assetId": "eip155:1/erc20:0x041fdd6637ecfd96af8804278ac12660ac2d12c0"
       },
       {
         "color": "#7057F5",
@@ -3394,7 +3436,7 @@
         "assetId": "eip155:1/erc20:0x0642026e7f0b6ccac5925b4e7fa61384250e1701",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "H2O OCEAN",
+        "name": "H2O",
         "precision": 18,
         "tokenId": "0x0642026e7f0b6ccac5925b4e7fa61384250e1701",
         "contractType": "erc20",
@@ -3589,7 +3631,7 @@
         "assetId": "eip155:1/erc20:0x06d0e5aee443093ac5635b709c8a01342e59df19",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10617 Hathaway Ave  Cleve",
+        "name": "RealT   10617 Hathaway Ave  Cleveland  ",
         "precision": 18,
         "tokenId": "0x06d0e5aee443093ac5635b709c8a01342e59df19",
         "contractType": "erc20",
@@ -3598,22 +3640,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16709/thumb/10617-Hathaway-hero-1.jpeg?1624647056",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10617-H"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x06e04bbfa6a53c57ebfc17e1aeed8e2686640ecd",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Baby Cat Girl",
-        "precision": 9,
-        "tokenId": "0x06e04bbfa6a53c57ebfc17e1aeed8e2686640ecd",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20357/thumb/Babycatgirl_Logo_Circle-01.png?1636944936",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "BBYCAT"
+        "symbol": "REALT-S-10617-HATHA"
       },
       {
         "assetId": "eip155:1/erc20:0x06e0feb0d74106c7ada8497754074d222ec6bcdf",
@@ -4126,21 +4153,6 @@
         "symbol": "GOL"
       },
       {
-        "assetId": "eip155:1/erc20:0x086c2263e17b06cb5399c997c6aef3c93f789c82",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Follow Friday",
-        "precision": 9,
-        "tokenId": "0x086c2263e17b06cb5399c997c6aef3c93f789c82",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20258/thumb/logo_200_%285%29.png?1636702199",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "FF"
-      },
-      {
         "assetId": "eip155:1/erc20:0x08711d3b02c8758f2fb3ab4e80228418a7f8e39c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -4189,7 +4201,7 @@
         "assetId": "eip155:1/erc20:0x08ad1f3a48be1d23c723a6cc8486b247f5de935a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   13116 Kilbourne Ave  Detr",
+        "name": "RealT   13116 Kilbourne Ave  Detroit  M",
         "precision": 18,
         "tokenId": "0x08ad1f3a48be1d23c723a6cc8486b247f5de935a",
         "contractType": "erc20",
@@ -4198,7 +4210,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16679/thumb/13116-Kilbourne-hero-1.jpeg?1624630007",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-13116-K"
+        "symbol": "REALT-S-13116-KILBO"
       },
       {
         "assetId": "eip155:1/erc20:0x08ad83d779bdf2bbe1ad9cc0f78aa0d24ab97802",
@@ -4309,7 +4321,7 @@
         "assetId": "eip155:1/erc20:0x090185f2135308bad17527004364ebcc2d37e5f6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Spell Token",
+        "name": "Spell",
         "precision": 18,
         "tokenId": "0x090185f2135308bad17527004364ebcc2d37e5f6",
         "contractType": "erc20",
@@ -4649,6 +4661,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "LGO"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x0a680e503fd9ae14b62444c75ffb4bef1f105666",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Armacoin",
+        "precision": 8,
+        "tokenId": "0x0a680e503fd9ae14b62444c75ffb4bef1f105666",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/7964/thumb/oJSLLoo7_400x400.jpg?1552529033",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "GZM"
       },
       {
         "assetId": "eip155:1/erc20:0x0a6e18fb2842855c3af925310b0f50a4bfa17909",
@@ -5014,7 +5041,7 @@
         "assetId": "eip155:1/erc20:0x0b4680e848f842b86e4df38d9fa0d9f9419f37ec",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Beshare Token",
+        "name": "Beshare",
         "precision": 18,
         "tokenId": "0x0b4680e848f842b86e4df38d9fa0d9f9419f37ec",
         "contractType": "erc20",
@@ -5431,21 +5458,6 @@
         "symbol": "HGOLD"
       },
       {
-        "assetId": "eip155:1/erc20:0x0c9ef4d58b12041779b8d2165f42a00cb362db81",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Super Saiyan Blue",
-        "precision": 9,
-        "tokenId": "0x0c9ef4d58b12041779b8d2165f42a00cb362db81",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20087/thumb/ssb1.png?1636459316",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "SSB"
-      },
-      {
         "assetId": "eip155:1/erc20:0x0cae9e4d663793c2a2a0b211c1cf4bbca2b9caa7",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -5806,21 +5818,6 @@
         "symbol": "OOKI"
       },
       {
-        "assetId": "eip155:1/erc20:0x0debaeb1ba41900148f625bd6dbae22b576d620b",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "art Q NFT Investment Fund",
-        "precision": 0,
-        "tokenId": "0x0debaeb1ba41900148f625bd6dbae22b576d620b",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/23407/thumb/arteq.png?1644146442",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "ARTEQ"
-      },
-      {
         "assetId": "eip155:1/erc20:0x0def8d8adde14c9ef7c2a986df3ea4bd65826767",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -6154,7 +6151,7 @@
         "assetId": "eip155:1/erc20:0x0ec9f76202a7061eb9b3a7d6b59d36215a7e37da",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "BlackPool Token",
+        "name": "BlackPool",
         "precision": 18,
         "tokenId": "0x0ec9f76202a7061eb9b3a7d6b59d36215a7e37da",
         "contractType": "erc20",
@@ -6604,7 +6601,7 @@
         "assetId": "eip155:1/erc20:0x0ff5a8451a839f5f0bb3562689d9a44089738d11",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Dopex Rebate Token",
+        "name": "Dopex Rebate",
         "precision": 18,
         "tokenId": "0x0ff5a8451a839f5f0bb3562689d9a44089738d11",
         "contractType": "erc20",
@@ -7471,21 +7468,6 @@
         "symbol": "CRI"
       },
       {
-        "assetId": "eip155:1/erc20:0x12f197e096801337e29abda4af5351474fe90a41",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Kult of Kek",
-        "precision": 9,
-        "tokenId": "0x12f197e096801337e29abda4af5351474fe90a41",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20243/thumb/tjowFu1.png?1636696555",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "KOK"
-      },
-      {
         "assetId": "eip155:1/erc20:0x12f649a9e821f90bb143089a6e56846945892ffb",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -8329,7 +8311,7 @@
         "assetId": "eip155:1/erc20:0x154e35c2b0024b3e079c5c5e4fc31c979c189ccb",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Raid Token",
+        "name": "Raid",
         "precision": 18,
         "tokenId": "0x154e35c2b0024b3e079c5c5e4fc31c979c189ccb",
         "contractType": "erc20",
@@ -9169,7 +9151,7 @@
         "assetId": "eip155:1/erc20:0x175cbd54d38f58b530785e01471a2ec0d4596eb5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15770 Prest St  Detroit  ",
+        "name": "RealT   15770 Prest St  Detroit  MI 482",
         "precision": 18,
         "tokenId": "0x175cbd54d38f58b530785e01471a2ec0d4596eb5",
         "contractType": "erc20",
@@ -9178,7 +9160,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16636/thumb/15770-Prest-hero-1.jpeg?1624557487",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15770-P"
+        "symbol": "REALT-S-15770-PREST"
       },
       {
         "color": "#7057F5",
@@ -9469,7 +9451,7 @@
         "assetId": "eip155:1/erc20:0x181c94a45ed257baf2211d4ff7e1f49a5964134a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "MetaShib Token",
+        "name": "MetaShib",
         "precision": 9,
         "tokenId": "0x181c94a45ed257baf2211d4ff7e1f49a5964134a",
         "contractType": "erc20",
@@ -10054,7 +10036,7 @@
         "assetId": "eip155:1/erc20:0x19e2a43fbbc643c3b2d9667d858d49cad17bc2b5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "BNS Token",
+        "name": "BNS",
         "precision": 8,
         "tokenId": "0x19e2a43fbbc643c3b2d9667d858d49cad17bc2b5",
         "contractType": "erc20",
@@ -10069,7 +10051,7 @@
         "assetId": "eip155:1/erc20:0x19e98c4921aab7e3f5fd2adca36cfb669c63e926",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Cola Token",
+        "name": "Cola",
         "precision": 18,
         "tokenId": "0x19e98c4921aab7e3f5fd2adca36cfb669c63e926",
         "contractType": "erc20",
@@ -10414,7 +10396,7 @@
         "assetId": "eip155:1/erc20:0x1b06b43f3b0bbad73784d858c782e029f3f5af14",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Bitwell Token",
+        "name": "Bitwell",
         "precision": 18,
         "tokenId": "0x1b06b43f3b0bbad73784d858c782e029f3f5af14",
         "contractType": "erc20",
@@ -11179,7 +11161,7 @@
         "assetId": "eip155:1/erc20:0x1d00a0587f178bef239c8aae93df734d1e70c579",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "DINT Token",
+        "name": "DINT",
         "precision": 18,
         "tokenId": "0x1d00a0587f178bef239c8aae93df734d1e70c579",
         "contractType": "erc20",
@@ -11419,7 +11401,7 @@
         "assetId": "eip155:1/erc20:0x1e001730a23c7ebaff35bc8bc90da5a9b20804a4",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9481 Wayburn St  Detroit ",
+        "name": "RealT   9481 Wayburn St  Detroit  MI 48",
         "precision": 18,
         "tokenId": "0x1e001730a23c7ebaff35bc8bc90da5a9b20804a4",
         "contractType": "erc20",
@@ -11428,7 +11410,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16609/thumb/9481-Wayburn-hero-1.jpg?1624545084",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9481-WA"
+        "symbol": "REALT-S-9481-WAYBUR"
       },
       {
         "assetId": "eip155:1/erc20:0x1e05f68b29b286fb3bbad3c688d7e2abda549b80",
@@ -11581,21 +11563,6 @@
         "symbol": "ALLUO"
       },
       {
-        "assetId": "eip155:1/erc20:0x1e6bb68acec8fefbd87d192be09bb274170a0548",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Aave interest bearing AMPL",
-        "precision": 9,
-        "tokenId": "0x1e6bb68acec8fefbd87d192be09bb274170a0548",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20145/thumb/image_from_ios.jpg?1636539343",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "AAMPL"
-      },
-      {
         "assetId": "eip155:1/erc20:0x1e797ce986c3cff4472f7d38d5c4aba55dfefe40",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -11669,21 +11636,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "NEKO"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x1e9dae82fa136796d306695b8be1e151bc5365e8",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Tetsu Inu",
-        "precision": 9,
-        "tokenId": "0x1e9dae82fa136796d306695b8be1e151bc5365e8",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20194/thumb/HSjewbA.png?1636614770",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "TETSU"
       },
       {
         "assetId": "eip155:1/erc20:0x1ec1b3fffd5072d97b27110a667c35025c96d5c5",
@@ -12079,7 +12031,7 @@
         "assetId": "eip155:1/erc20:0x1fbd3df007eb8a7477a1eab2c63483dcc24effd6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Scaleswap Token",
+        "name": "Scaleswap",
         "precision": 18,
         "tokenId": "0x1fbd3df007eb8a7477a1eab2c63483dcc24effd6",
         "contractType": "erc20",
@@ -12184,7 +12136,7 @@
         "assetId": "eip155:1/erc20:0x1fdb4015fd5e031c5641752c1e03b973ad5ea168",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   17500 Evergreen Rd  Detro",
+        "name": "RealT   17500 Evergreen Rd  Detroit  MI",
         "precision": 18,
         "tokenId": "0x1fdb4015fd5e031c5641752c1e03b973ad5ea168",
         "contractType": "erc20",
@@ -12193,7 +12145,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16624/thumb/17500-Evergreen-hero-1.jpg?1624552051",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-17500-E"
+        "symbol": "REALT-S-17500-EVERG"
       },
       {
         "assetId": "eip155:1/erc20:0x1fe24f25b1cf609b9c4e7e12d802e3640dfa5e43",
@@ -12529,7 +12481,7 @@
         "assetId": "eip155:1/erc20:0x211618fa0934910666f2c2731101f5a3ac013fd8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19200 Strasburg St  Detro",
+        "name": "RealT   19200 Strasburg St  Detroit  MI",
         "precision": 18,
         "tokenId": "0x211618fa0934910666f2c2731101f5a3ac013fd8",
         "contractType": "erc20",
@@ -12538,7 +12490,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16620/thumb/19200-Strasburg-hero-1.jpg?1624550918",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19200-S"
+        "symbol": "REALT-S-19200-STRAS"
       },
       {
         "color": "#7057F5",
@@ -12859,7 +12811,7 @@
         "assetId": "eip155:1/erc20:0x21f1af3e751317a2f7de7df31d5d092e6a907bde",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   18276 Appoline St  Detroi",
+        "name": "RealT   18276 Appoline St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x21f1af3e751317a2f7de7df31d5d092e6a907bde",
         "contractType": "erc20",
@@ -12868,7 +12820,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16696/thumb/Appoline-18267_jpg__3760%C3%973754_.png?1624640149",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18276-A"
+        "symbol": "REALT-S-18276-APPOL"
       },
       {
         "assetId": "eip155:1/erc20:0x21f54372c07b930b79c5c2d9bb0eaaca86c3b298",
@@ -13369,7 +13321,7 @@
         "assetId": "eip155:1/erc20:0x23684569c0636c9aea246551879d457d0a0e6f58",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9336 Patton St  Detroit  ",
+        "name": "RealT   9336 Patton St  Detroit  MI 482",
         "precision": 18,
         "tokenId": "0x23684569c0636c9aea246551879d457d0a0e6f58",
         "contractType": "erc20",
@@ -13378,7 +13330,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16701/thumb/9336-Patton-HERO-2.jpeg?1624642655",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9336-PA"
+        "symbol": "REALT-S-9336-PATTON"
       },
       {
         "assetId": "eip155:1/erc20:0x2369686fc9fb6e1fdc46541891568c2f341906ef",
@@ -13594,7 +13546,7 @@
         "assetId": "eip155:1/erc20:0x24293ab20159cfc0f3d7c8727cd827fba63d4f64",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19333 Moenart St  Detroit",
+        "name": "RealT   19333 Moenart St  Detroit MI 48",
         "precision": 18,
         "tokenId": "0x24293ab20159cfc0f3d7c8727cd827fba63d4f64",
         "contractType": "erc20",
@@ -13603,7 +13555,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16593/thumb/19333-Moenart-hero-1.jpg?1624539310",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19333-M"
+        "symbol": "REALT-S-19333-MOENA"
       },
       {
         "assetId": "eip155:1/erc20:0x243cacb4d5ff6814ad668c3e225246efa886ad5a",
@@ -14014,7 +13966,7 @@
         "assetId": "eip155:1/erc20:0x254417f7b56328a48f554b173dca7bdda7a2a0d2",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Simba Token",
+        "name": "Simba",
         "precision": 18,
         "tokenId": "0x254417f7b56328a48f554b173dca7bdda7a2a0d2",
         "contractType": "erc20",
@@ -14284,7 +14236,7 @@
         "assetId": "eip155:1/erc20:0x25d4bfeeae3360e68c466c65a5e8f8d5cebc5093",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Flesh Token",
+        "name": "Flesh",
         "precision": 18,
         "tokenId": "0x25d4bfeeae3360e68c466c65a5e8f8d5cebc5093",
         "contractType": "erc20",
@@ -14374,7 +14326,7 @@
         "assetId": "eip155:1/erc20:0x260df160d6554e6a05619f2e9188c119b3e35f1e",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "HLTH Token",
+        "name": "HLTH",
         "precision": 18,
         "tokenId": "0x260df160d6554e6a05619f2e9188c119b3e35f1e",
         "contractType": "erc20",
@@ -15109,7 +15061,7 @@
         "assetId": "eip155:1/erc20:0x280e9ed3b20c580a2f4219657bb9332d80bc01f1",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19020 Rosemont Ave  Detro",
+        "name": "RealT   19020 Rosemont Ave  Detroit  MI",
         "precision": 18,
         "tokenId": "0x280e9ed3b20c580a2f4219657bb9332d80bc01f1",
         "contractType": "erc20",
@@ -15118,7 +15070,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16705/thumb/19020-Rosemont-hero-1.jpeg?1624644549",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19020-R"
+        "symbol": "REALT-S-19020-ROSEM"
       },
       {
         "assetId": "eip155:1/erc20:0x2822f6d1b2f41f93f33d937bc7d84a8dfa4f4c21",
@@ -15529,7 +15481,7 @@
         "assetId": "eip155:1/erc20:0x295b42684f90c77da7ea46336001010f2791ec8c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Xi Token",
+        "name": "Xi",
         "precision": 18,
         "tokenId": "0x295b42684f90c77da7ea46336001010f2791ec8c",
         "contractType": "erc20",
@@ -15994,7 +15946,7 @@
         "assetId": "eip155:1/erc20:0x2adc1cfa726a45264a328d9d2e2c692ceac97458",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14494 Chelsea Ave  Detroi",
+        "name": "RealT   14494 Chelsea Ave  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x2adc1cfa726a45264a328d9d2e2c692ceac97458",
         "contractType": "erc20",
@@ -16003,7 +15955,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16618/thumb/14494-Chelsea-hero-1.jpg?1624550267",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14494-C"
+        "symbol": "REALT-S-14494-CHELS"
       },
       {
         "assetId": "eip155:1/erc20:0x2aeccb42482cc64e087b6d2e5da39f5a7a7001f8",
@@ -16489,7 +16441,7 @@
         "assetId": "eip155:1/erc20:0x2c6f00a020b613c9419bb6c1ac220036dbe9e622",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   18776 Sunderland Rd  Detr",
+        "name": "RealT   18776 Sunderland Rd  Detroit  M",
         "precision": 18,
         "tokenId": "0x2c6f00a020b613c9419bb6c1ac220036dbe9e622",
         "contractType": "erc20",
@@ -16498,7 +16450,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16602/thumb/18776-Sunderland-hero-1.jpg?1624543588",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18776-S"
+        "symbol": "REALT-S-18776-SUNDE"
       },
       {
         "assetId": "eip155:1/erc20:0x2c756e74b7309d785b5e2960ef262c4f14a87930",
@@ -17071,21 +17023,6 @@
         "symbol": "CAPP"
       },
       {
-        "assetId": "eip155:1/erc20:0x2e9cce8c3bf731f9bfc39e3d345a70907f454d40",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Crypto Twitter",
-        "precision": 9,
-        "tokenId": "0x2e9cce8c3bf731f9bfc39e3d345a70907f454d40",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20318/thumb/CT.jpg?1636859184",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "CT"
-      },
-      {
         "assetId": "eip155:1/erc20:0x2e9d63788249371f1dfc918a52f8d799f4a38c94",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -17254,7 +17191,7 @@
         "assetId": "eip155:1/erc20:0x2f25d402829ca4085b8ea4d3bc68bf203f5a9fab",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "EagonSwap Token",
+        "name": "EagonSwap",
         "precision": 18,
         "tokenId": "0x2f25d402829ca4085b8ea4d3bc68bf203f5a9fab",
         "contractType": "erc20",
@@ -17524,7 +17461,7 @@
         "assetId": "eip155:1/erc20:0x2fdf40c484b1bd6f1c214acac737fedc8b03e5a8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "MCS Token",
+        "name": "MCS",
         "precision": 18,
         "tokenId": "0x2fdf40c484b1bd6f1c214acac737fedc8b03e5a8",
         "contractType": "erc20",
@@ -18049,7 +17986,7 @@
         "assetId": "eip155:1/erc20:0x311fc485f1fea0c8cc9b5c783e79f4313ddfa720",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19996 Joann Ave  Detroit ",
+        "name": "RealT   19996 Joann Ave  Detroit  MI 48",
         "precision": 18,
         "tokenId": "0x311fc485f1fea0c8cc9b5c783e79f4313ddfa720",
         "contractType": "erc20",
@@ -18058,7 +17995,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16666/thumb/19996-Joanne-hero-1.jpg?1624626495",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19996-J"
+        "symbol": "REALT-S-19996-JOANN"
       },
       {
         "assetId": "eip155:1/erc20:0x31274db8b609df99e5988ee527071643b5160fc3",
@@ -18154,7 +18091,7 @@
         "assetId": "eip155:1/erc20:0x3150f0ebc0efee280b5348b9c8c271ad44eb8b13",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19596 Goulburn Ave  Detro",
+        "name": "RealT   19596 Goulburn Ave  Detroit  MI",
         "precision": 18,
         "tokenId": "0x3150f0ebc0efee280b5348b9c8c271ad44eb8b13",
         "contractType": "erc20",
@@ -18163,7 +18100,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16608/thumb/19596-Goulburn-hero-1.jpg?1624544786",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19596-G"
+        "symbol": "REALT-S-19596-GOULB"
       },
       {
         "assetId": "eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb",
@@ -18184,7 +18121,7 @@
         "assetId": "eip155:1/erc20:0x315699f1ba88383cff2f2f30fcad187adb2e4d72",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14078 Carlisle St  Detroi",
+        "name": "RealT   14078 Carlisle St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x315699f1ba88383cff2f2f30fcad187adb2e4d72",
         "contractType": "erc20",
@@ -18193,7 +18130,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16597/thumb/14078-Carlisle-hero-1-800x600.jpeg?1624541175",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14078-C"
+        "symbol": "REALT-S-14078-CARLI"
       },
       {
         "assetId": "eip155:1/erc20:0x315dc1b524de57ae8e809a2e97699dbc895b8a21",
@@ -18244,7 +18181,7 @@
         "assetId": "eip155:1/erc20:0x31820af2d43c08bd82bd94b08974062482bd98d3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   11653 Nottingham Rd  Detr",
+        "name": "RealT   11653 Nottingham Rd  Detroit  M",
         "precision": 18,
         "tokenId": "0x31820af2d43c08bd82bd94b08974062482bd98d3",
         "contractType": "erc20",
@@ -18253,7 +18190,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16622/thumb/11653-Nottingham-hero-1.jpg?1624551450",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-11653-N"
+        "symbol": "REALT-S-11653-NOTTI"
       },
       {
         "assetId": "eip155:1/erc20:0x31903e333809897ee57af57567f4377a1a78756c",
@@ -18274,7 +18211,7 @@
         "assetId": "eip155:1/erc20:0x31aa5fa895fd186fde12347a6fcaf540875b6434",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14882 Troester St  Detroi",
+        "name": "RealT   14882 Troester St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x31aa5fa895fd186fde12347a6fcaf540875b6434",
         "contractType": "erc20",
@@ -18283,7 +18220,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16600/thumb/14882-Troester-hero-1.jpg?1624542180",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14882-T"
+        "symbol": "REALT-S-14882-TROES"
       },
       {
         "color": "#7057F5",
@@ -18829,7 +18766,7 @@
         "assetId": "eip155:1/erc20:0x32e6c34cd57087abbd59b5a4aecc4cb495924356",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "BitBase Token",
+        "name": "BitBase BTBS",
         "precision": 18,
         "tokenId": "0x32e6c34cd57087abbd59b5a4aecc4cb495924356",
         "contractType": "erc20",
@@ -18994,7 +18931,7 @@
         "assetId": "eip155:1/erc20:0x33722ea778df197f1b7b1cf0b124d7a962181d65",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19136 Tracey St  Detroit ",
+        "name": "RealT   19136 Tracey St  Detroit MI 482",
         "precision": 18,
         "tokenId": "0x33722ea778df197f1b7b1cf0b124d7a962181d65",
         "contractType": "erc20",
@@ -19003,7 +18940,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16706/thumb/19136-Tracey-hero-1.jpeg?1624644977",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19136-T"
+        "symbol": "REALT-S-19136-TRACE"
       },
       {
         "assetId": "eip155:1/erc20:0x33811d4edbcaed10a685254eb5d3c4e4398520d2",
@@ -19555,7 +19492,7 @@
         "contractType": "erc20",
         "color": "#FFFFFF",
         "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/21272/thumb/siIBOmcs.png?1638857898",
+        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x34Be5b8C30eE4fDe069DC878989686aBE9884470/logo.png",
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "SENATE"
@@ -19579,7 +19516,7 @@
         "assetId": "eip155:1/erc20:0x34ed9e71449529e034d0326cfbb3b5ccdca00cbc",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19317 Gable St  Detroit  ",
+        "name": "RealT   19317 Gable St  Detroit  MI 482",
         "precision": 18,
         "tokenId": "0x34ed9e71449529e034d0326cfbb3b5ccdca00cbc",
         "contractType": "erc20",
@@ -19588,7 +19525,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16638/thumb/19317-Gable-hero-1.jpeg?1624558479",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19317-G"
+        "symbol": "REALT-S-19317-GABLE"
       },
       {
         "assetId": "eip155:1/erc20:0x34f0915a5f15a66eba86f6a58be1a471fb7836a7",
@@ -19729,7 +19666,7 @@
         "assetId": "eip155:1/erc20:0x351caa9045d65107b9d311d922d15887cfd634e4",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Arowana Token",
+        "name": "Arowana",
         "precision": 18,
         "tokenId": "0x351caa9045d65107b9d311d922d15887cfd634e4",
         "contractType": "erc20",
@@ -19834,7 +19771,7 @@
         "assetId": "eip155:1/erc20:0x356a5160f2b34bc8d88fb084745465ebbbed0174",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "INVI Token",
+        "name": "INVI",
         "precision": 13,
         "tokenId": "0x356a5160f2b34bc8d88fb084745465ebbbed0174",
         "contractType": "erc20",
@@ -20039,6 +19976,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "XAI"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x35f67c1d929e106fdff8d1a55226afe15c34dbe2",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Beta",
+        "precision": 18,
+        "tokenId": "0x35f67c1d929e106fdff8d1a55226afe15c34dbe2",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25539/thumb/Beta-47.png?1652265414",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "BETA"
       },
       {
         "assetId": "eip155:1/erc20:0x35f6b052c598d933d69a4eec4d04c73a191fe6c2",
@@ -21049,7 +21001,7 @@
         "assetId": "eip155:1/erc20:0x387c291bc3274389054e82ce81dd318a0113caf5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "AirRaid Lottery Token",
+        "name": "AirRaid Lottery",
         "precision": 18,
         "tokenId": "0x387c291bc3274389054e82ce81dd318a0113caf5",
         "contractType": "erc20",
@@ -21229,7 +21181,7 @@
         "assetId": "eip155:1/erc20:0x38d9eb07a7b8df7d86f440a4a5c4a4c1a27e1a08",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "bloXmove Token",
+        "name": "bloXmove",
         "precision": 18,
         "tokenId": "0x38d9eb07a7b8df7d86f440a4a5c4a4c1a27e1a08",
         "contractType": "erc20",
@@ -21419,21 +21371,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "RUC"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x39682bb3f826e0461632284bc823e7cbd75e273b",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "K 9 Inu",
-        "precision": 9,
-        "tokenId": "0x39682bb3f826e0461632284bc823e7cbd75e273b",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20088/thumb/k9.png?1636459489",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "K9"
       },
       {
         "assetId": "eip155:1/erc20:0x396ec402b42066864c406d1ac3bc86b575003ed8",
@@ -21841,21 +21778,6 @@
         "assetId": "eip155:1/erc20:0x3a664ab939fd8482048609f652f9a0b0677337b9"
       },
       {
-        "assetId": "eip155:1/erc20:0x3a67430aee293a216f9963e3f19c06ae15824bf0",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Pumptopia",
-        "precision": 9,
-        "tokenId": "0x3a67430aee293a216f9963e3f19c06ae15824bf0",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/24262/thumb/pinksale-200x200-1.jpg?1647171185",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "PTPA"
-      },
-      {
         "assetId": "eip155:1/erc20:0x3a707d56d538e85b783e8ce12b346e7fb6511f90",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -22129,7 +22051,7 @@
         "assetId": "eip155:1/erc20:0x3adb04e127b9c0a5d36094125669d4603ac52a0c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Gro Vault Token",
+        "name": "Gro Vault",
         "precision": 18,
         "tokenId": "0x3adb04e127b9c0a5d36094125669d4603ac52a0c",
         "contractType": "erc20",
@@ -22444,7 +22366,7 @@
         "assetId": "eip155:1/erc20:0x3bb86d867a9f3addf994cdadb210fa82f0d4157a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Ghoul Token",
+        "name": "Ghoul",
         "precision": 18,
         "tokenId": "0x3bb86d867a9f3addf994cdadb210fa82f0d4157a",
         "contractType": "erc20",
@@ -22469,21 +22391,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "XPAD"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x3beb1555b821f06f95a0bf67974914abe7a2581e",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Ghibli Inu",
-        "precision": 9,
-        "tokenId": "0x3beb1555b821f06f95a0bf67974914abe7a2581e",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20160/thumb/ghibli.png?1636597011",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "GHIBLI"
       },
       {
         "assetId": "eip155:1/erc20:0x3c03b4ec9477809072ff9cc9292c9b25d4a8e6c6",
@@ -22549,7 +22456,7 @@
         "assetId": "eip155:1/erc20:0x3c48ca59bf2699e51d4974d4b6d284ae52076e5e",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Capital DAO Starter Token",
+        "name": "Capital DAO Starter",
         "precision": 18,
         "tokenId": "0x3c48ca59bf2699e51d4974d4b6d284ae52076e5e",
         "contractType": "erc20",
@@ -22609,7 +22516,7 @@
         "assetId": "eip155:1/erc20:0x3c56d5e887d8fa7ae1ba65bf7eccc25ec09eaf18",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9165 Kensington Ave  Detr",
+        "name": "RealT   9165 Kensington Ave  Detroit  M",
         "precision": 18,
         "tokenId": "0x3c56d5e887d8fa7ae1ba65bf7eccc25ec09eaf18",
         "contractType": "erc20",
@@ -22618,7 +22525,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16687/thumb/9165-Kensington-hero-1.jpeg?1624634948",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9165-KE"
+        "symbol": "REALT-S-9165-KENSIN"
       },
       {
         "assetId": "eip155:1/erc20:0x3c5bda020caa1350a7b4e6e013a2516423c2800f",
@@ -23146,6 +23053,21 @@
         "symbol": "TAILS"
       },
       {
+        "assetId": "eip155:1/erc20:0x3d875a26d9afcbf4f58c920509c876b594499c87",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "K Chain",
+        "precision": 18,
+        "tokenId": "0x3d875a26d9afcbf4f58c920509c876b594499c87",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25531/thumb/IMG_3487.PNG?1652250658",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "KCT"
+      },
+      {
         "assetId": "eip155:1/erc20:0x3d9233f15bb93c78a4f07b5c5f7a018630217cb3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -23464,7 +23386,7 @@
         "assetId": "eip155:1/erc20:0x3ec8798b81485a254928b70cda1cf0a2bb0b74d7",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Gro DAO Token",
+        "name": "Gro DAO",
         "precision": 18,
         "tokenId": "0x3ec8798b81485a254928b70cda1cf0a2bb0b74d7",
         "contractType": "erc20",
@@ -23639,6 +23561,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "GHST"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x3f3cd642e81d030d7b514a2ab5e3a5536beb90ec",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Rho",
+        "precision": 18,
+        "tokenId": "0x3f3cd642e81d030d7b514a2ab5e3a5536beb90ec",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25540/thumb/Rho-icon-03.png?1652265700",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "RHO"
       },
       {
         "assetId": "eip155:1/erc20:0x3f4cd830543db25254ec0f05eac058d4d6e86166",
@@ -23944,7 +23881,7 @@
         "assetId": "eip155:1/erc20:0x400b5716b0c23b6f1f0f2a5fdb038949962b803e",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   3432 Harding Street  Detr",
+        "name": "RealT   3432 Harding Street  Detroit  M",
         "precision": 18,
         "tokenId": "0x400b5716b0c23b6f1f0f2a5fdb038949962b803e",
         "contractType": "erc20",
@@ -23953,7 +23890,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16694/thumb/Hardy_front.jpeg?1624639158",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-3432-HA"
+        "symbol": "REALT-S-3432-HARDIN"
       },
       {
         "assetId": "eip155:1/erc20:0x40284109c3309a7c3439111bfd93bf5e0fbb706c",
@@ -24514,7 +24451,7 @@
         "assetId": "eip155:1/erc20:0x41599149f1b52035392402f9e311b1edb0c9f699",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14319 Rosemary St  Detroi",
+        "name": "RealT   14319 Rosemary St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x41599149f1b52035392402f9e311b1edb0c9f699",
         "contractType": "erc20",
@@ -24523,7 +24460,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16592/thumb/14319-Rosemary-hero-1-800x600.jpeg?1624539171",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14319-R"
+        "symbol": "REALT-S-14319-ROSEM"
       },
       {
         "assetId": "eip155:1/erc20:0x4161725d019690a3e0de50f6be67b07a86a9fae1",
@@ -25594,7 +25531,7 @@
         "assetId": "eip155:1/erc20:0x43fed9f9bf7deedcb314b432a8e38219dd62ce9e",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14825 Wilfred St  Detroit",
+        "name": "RealT   14825 Wilfred St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0x43fed9f9bf7deedcb314b432a8e38219dd62ce9e",
         "contractType": "erc20",
@@ -25603,7 +25540,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16598/thumb/14825-Wilfried-hero-1.jpg?1624541680",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14825-W"
+        "symbol": "REALT-S-14825-WILFR"
       },
       {
         "color": "#7057F5",
@@ -26119,7 +26056,7 @@
         "assetId": "eip155:1/erc20:0x4576e6825b462b6916d2a41e187626e9090a92c6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Donkey Token",
+        "name": "Donkey DON",
         "precision": 18,
         "tokenId": "0x4576e6825b462b6916d2a41e187626e9090a92c6",
         "contractType": "erc20",
@@ -26719,7 +26656,7 @@
         "assetId": "eip155:1/erc20:0x46f8a600337dec5cab03aa9b8f67f1d5b788ce28",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   18433 Faust Ave  Detroit ",
+        "name": "RealT   18433 Faust Ave  Detroit  MI  4",
         "precision": 18,
         "tokenId": "0x46f8a600337dec5cab03aa9b8f67f1d5b788ce28",
         "contractType": "erc20",
@@ -26728,7 +26665,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16684/thumb/Faust-1.jpeg?1624633417",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18433-F"
+        "symbol": "REALT-S-18433-FAUST"
       },
       {
         "assetId": "eip155:1/erc20:0x470ebf5f030ed85fc1ed4c2d36b9dd02e77cf1b7",
@@ -27694,7 +27631,7 @@
         "assetId": "eip155:1/erc20:0x499a6c19f5537dd6005e2b5c6e1263103f558ba4",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   17813 Bradford St  Detroi",
+        "name": "RealT   17813 Bradford St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x499a6c19f5537dd6005e2b5c6e1263103f558ba4",
         "contractType": "erc20",
@@ -27703,7 +27640,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16606/thumb/17813-Bradford-hero-1.jpeg?1624544519",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-17813-B"
+        "symbol": "REALT-S-17813-BRADF"
       },
       {
         "assetId": "eip155:1/erc20:0x49bf0220c9ce17e52dcca3d217231746d676085b",
@@ -27964,7 +27901,7 @@
         "assetId": "eip155:1/erc20:0x4a99cc509f7facf58d7b67e99236db5e0921ef81",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10639 Stratman St  Detroi",
+        "name": "RealT   10639 Stratman St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x4a99cc509f7facf58d7b67e99236db5e0921ef81",
         "contractType": "erc20",
@@ -27973,7 +27910,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16621/thumb/10639-Stratman-hero-1.jpg?1624551202",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10639-S"
+        "symbol": "REALT-S-10639-STRAT"
       },
       {
         "assetId": "eip155:1/erc20:0x4a9d711100aff9a444a3c40284f70269bb3f0487",
@@ -28109,21 +28046,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "GPO"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x4adfb23d482afb610871e92b8793828b2105028d",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "I Love You",
-        "precision": 18,
-        "tokenId": "0x4adfb23d482afb610871e92b8793828b2105028d",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20438/thumb/iKYC5T2.png?1637039340",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "ILY"
       },
       {
         "assetId": "eip155:1/erc20:0x4af328c52921706dcb739f25786210499169afe6",
@@ -28319,21 +28241,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "HTN"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x4b4cfbbc89a2d9d241ff2c6ac1fcad663a2a1d4a",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "GM Inu",
-        "precision": 9,
-        "tokenId": "0x4b4cfbbc89a2d9d241ff2c6ac1fcad663a2a1d4a",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20231/thumb/gminu.jpeg?1636689907",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "GMINU"
       },
       {
         "assetId": "eip155:1/erc20:0x4b4eb5c44d50bfd44124688c6754633f7e258b01",
@@ -28834,7 +28741,7 @@
         "assetId": "eip155:1/erc20:0x4c9bbfc1fbd93dfb509e718400978fbeedf590e9",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Rai Token",
+        "name": "Rai",
         "precision": 18,
         "tokenId": "0x4c9bbfc1fbd93dfb509e718400978fbeedf590e9",
         "contractType": "erc20",
@@ -28879,7 +28786,7 @@
         "assetId": "eip155:1/erc20:0x4cc53ee5ef306a95d407321d4b4acc30814c04ee",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19163 Mitchell St  Detroi",
+        "name": "RealT   19163 Mitchell St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x4cc53ee5ef306a95d407321d4b4acc30814c04ee",
         "contractType": "erc20",
@@ -28888,7 +28795,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16614/thumb/19163-Mitchell-hero-1.jpeg?1624548736",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19163-M"
+        "symbol": "REALT-S-19163-MITCH"
       },
       {
         "color": "#7057F5",
@@ -28984,7 +28891,7 @@
         "assetId": "eip155:1/erc20:0x4d0da4e75d40bd7d9c4f7a292bf883bcdf38c45d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15373 Parkside St  Detroi",
+        "name": "RealT   15373 Parkside St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x4d0da4e75d40bd7d9c4f7a292bf883bcdf38c45d",
         "contractType": "erc20",
@@ -28993,7 +28900,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16562/thumb/15373-Parkside-hero-1.jpg?1624458568",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15373-P"
+        "symbol": "REALT-S-15373-PARKS"
       },
       {
         "assetId": "eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381",
@@ -29044,7 +28951,7 @@
         "assetId": "eip155:1/erc20:0x4d67edef87a5ff910954899f4e5a0aaf107afd42",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "BlueSparrow Token",
+        "name": "BlueSparrow",
         "precision": 9,
         "tokenId": "0x4d67edef87a5ff910954899f4e5a0aaf107afd42",
         "contractType": "erc20",
@@ -29374,7 +29281,7 @@
         "assetId": "eip155:1/erc20:0x4e30910845f0cb4f66781b35c832eafc09774022",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Mars Token",
+        "name": "Mars OMT",
         "precision": 18,
         "tokenId": "0x4e30910845f0cb4f66781b35c832eafc09774022",
         "contractType": "erc20",
@@ -29434,7 +29341,7 @@
         "assetId": "eip155:1/erc20:0x4e98493920b16dd6642e9d48497c8d0a49150f6f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token  13991 Warwick St  Detroit ",
+        "name": "RealT  13991 Warwick St  Detroit  MI  4",
         "precision": 18,
         "tokenId": "0x4e98493920b16dd6642e9d48497c8d0a49150f6f",
         "contractType": "erc20",
@@ -29443,7 +29350,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16662/thumb/Warwick-hero.jpeg?1624624485",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-13991-W"
+        "symbol": "REALT-S-13991-WARWI"
       },
       {
         "assetId": "eip155:1/erc20:0x4e9a46ea6a22f3894abee2302ad42fd3b69e21e2",
@@ -30409,7 +30316,7 @@
         "assetId": "eip155:1/erc20:0x5166e09628b696285e3a151e84fb977736a83575",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Volatility Protocol Token",
+        "name": "Volatility Protocol",
         "precision": 18,
         "tokenId": "0x5166e09628b696285e3a151e84fb977736a83575",
         "contractType": "erc20",
@@ -30754,7 +30661,7 @@
         "assetId": "eip155:1/erc20:0x528b3e98c63ce21c6f680b713918e0f89dfae555",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "DeepSpace Token",
+        "name": "DeepSpace DXO",
         "precision": 18,
         "tokenId": "0x528b3e98c63ce21c6f680b713918e0f89dfae555",
         "contractType": "erc20",
@@ -30799,7 +30706,7 @@
         "assetId": "eip155:1/erc20:0x52a047ee205701895ee06a375492490ec9c597ce",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Pulse Token",
+        "name": "PulseMarkets",
         "precision": 18,
         "tokenId": "0x52a047ee205701895ee06a375492490ec9c597ce",
         "contractType": "erc20",
@@ -31264,7 +31171,7 @@
         "assetId": "eip155:1/erc20:0x547b2f82cecfab9c2b1d36fdda96ef9f58c63b8c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Taxa Token",
+        "name": "Taxa Network",
         "precision": 18,
         "tokenId": "0x547b2f82cecfab9c2b1d36fdda96ef9f58c63b8c",
         "contractType": "erc20",
@@ -31684,7 +31591,7 @@
         "assetId": "eip155:1/erc20:0x5600e25b4f24c63afa655c3bd96e3c178b654fa1",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   13045 Wade St  Detroit  M",
+        "name": "RealT   13045 Wade St  Detroit  MI 4821",
         "precision": 18,
         "tokenId": "0x5600e25b4f24c63afa655c3bd96e3c178b654fa1",
         "contractType": "erc20",
@@ -31693,7 +31600,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16617/thumb/13045-Wade-hero-1.jpg?1624549855",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-13045-W"
+        "symbol": "REALT-S-13045-WADE-"
       },
       {
         "assetId": "eip155:1/erc20:0x56015bbe3c01fe05bc30a8a9a9fd9a88917e7db3",
@@ -32404,7 +32311,7 @@
         "assetId": "eip155:1/erc20:0x586aa273f262909eef8fa02d90ab65f5015e0516",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Fixed Income Asset Token",
+        "name": "Fixed Income Asset",
         "precision": 18,
         "tokenId": "0x586aa273f262909eef8fa02d90ab65f5015e0516",
         "contractType": "erc20",
@@ -34189,7 +34096,7 @@
         "assetId": "eip155:1/erc20:0x5d843fa9495d23de997c394296ac7b4d721e841c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Relay Token",
+        "name": "Relay Chain",
         "precision": 18,
         "tokenId": "0x5d843fa9495d23de997c394296ac7b4d721e841c",
         "contractType": "erc20",
@@ -34354,7 +34261,7 @@
         "assetId": "eip155:1/erc20:0x5dd57da40e6866c9fcc34f4b6ddc89f1ba740dfe",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Bright Token",
+        "name": "BrightID",
         "precision": 18,
         "tokenId": "0x5dd57da40e6866c9fcc34f4b6ddc89f1ba740dfe",
         "contractType": "erc20",
@@ -34444,7 +34351,7 @@
         "assetId": "eip155:1/erc20:0x5e2a09064b2dca8c44aad8a5b69a69bb1854fe72",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   11201 College St  Detroit",
+        "name": "RealT   11201 College St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0x5e2a09064b2dca8c44aad8a5b69a69bb1854fe72",
         "contractType": "erc20",
@@ -34453,7 +34360,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16594/thumb/11201-College-hero-1.jpg?1624540102",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-11201-C"
+        "symbol": "REALT-S-11201-COLLE"
       },
       {
         "assetId": "eip155:1/erc20:0x5e3002dff591c5e75bb9dedae268049742e6b13a",
@@ -34771,21 +34678,6 @@
         "assetId": "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9"
       },
       {
-        "assetId": "eip155:1/erc20:0x5f2080542ab6ae7e0b06778f0b2d263006297840",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "DeFiHelper Governance Token",
-        "precision": 18,
-        "tokenId": "0x5f2080542ab6ae7e0b06778f0b2d263006297840",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20270/thumb/dfh-d-ava-main-cgb.png?1636706501",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "DFH"
-      },
-      {
         "assetId": "eip155:1/erc20:0x5f20f15d40f24dae50a72be3b5edddddfb5a5bd0",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -35009,6 +34901,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "GAL"
+      },
+      {
+        "color": "#276BDB",
+        "contractType": "erc20",
+        "dataSource": "yearnfinance",
+        "icon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x828b154032950C8ff7CF8085D841723Db2696056/logo-128.png",
+        "name": "Curve stETH-WETH Pool yVault",
+        "precision": 18,
+        "receiveSupport": true,
+        "secondaryColor": "#276BDB",
+        "sendSupport": true,
+        "symbol": "yvCurve-stETH-WETH",
+        "tokenId": "0x5faf6a2d186448dfa667c51cb3d695c7a6e52d8e",
+        "chainId": "eip155:1",
+        "assetId": "eip155:1/erc20:0x5faf6a2d186448dfa667c51cb3d695c7a6e52d8e"
       },
       {
         "assetId": "eip155:1/erc20:0x5fb99a3593d7088e44377a1beb27739bd928f269",
@@ -35449,7 +35356,7 @@
         "assetId": "eip155:1/erc20:0x60ec6cb71bc7e21f366ab4b570dd3ff181814f7c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Aevolve Token",
+        "name": "Aevolve",
         "precision": 18,
         "tokenId": "0x60ec6cb71bc7e21f366ab4b570dd3ff181814f7c",
         "contractType": "erc20",
@@ -36424,7 +36331,7 @@
         "assetId": "eip155:1/erc20:0x639ae8f3eed18690bf451229d14953a5a5627b72",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Nimbus Governance Token",
+        "name": "Nimbus Governance",
         "precision": 18,
         "tokenId": "0x639ae8f3eed18690bf451229d14953a5a5627b72",
         "contractType": "erc20",
@@ -36439,7 +36346,7 @@
         "assetId": "eip155:1/erc20:0x63a1849b47ef5913ccc5adb0e2708b11a4ba6972",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14918 Joy Rd  Detroit  MI",
+        "name": "RealT   14918 Joy Rd  Detroit  MI 48228",
         "precision": 18,
         "tokenId": "0x63a1849b47ef5913ccc5adb0e2708b11a4ba6972",
         "contractType": "erc20",
@@ -36448,7 +36355,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16626/thumb/14918-Joy-hero-1.jpg?1624552732",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14918-J"
+        "symbol": "REALT-S-14918-JOY-R"
       },
       {
         "assetId": "eip155:1/erc20:0x63aa9d05c025279f8e963ba784f1254814c1e12b",
@@ -36688,7 +36595,7 @@
         "icon": "https://assets.coingecko.com/coins/images/19332/thumb/4od7anFi_400x400.png?1635115499",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "SAJA"
+        "symbol": "SJA"
       },
       {
         "color": "#7057F5",
@@ -36979,7 +36886,7 @@
         "assetId": "eip155:1/erc20:0x656c00e1bcd96f256f224ad9112ff426ef053733",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Efinity Token",
+        "name": "Efinity",
         "precision": 18,
         "tokenId": "0x656c00e1bcd96f256f224ad9112ff426ef053733",
         "contractType": "erc20",
@@ -37199,6 +37106,21 @@
         "tokenId": "0x65fc94d99cb301c5630c485d312e6ff5edde13d0",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0x65fc94d99cb301c5630c485d312e6ff5edde13d0"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x66079fb941c03f848f8d6601190c8b876461237a",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "DIVI LAND",
+        "precision": 18,
+        "tokenId": "0x66079fb941c03f848f8d6601190c8b876461237a",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25559/thumb/dvld.jpg?1652441515",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "DVLD"
       },
       {
         "assetId": "eip155:1/erc20:0x660e71483785f66133548b10f6926dc332b06e61",
@@ -37439,6 +37361,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "SMSCT"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x6692de64716a177c15360d8d010bc522bbc530a0",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Talent",
+        "precision": 18,
+        "tokenId": "0x6692de64716a177c15360d8d010bc522bbc530a0",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25563/thumb/tnt.png?1652521166",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "TNT"
       },
       {
         "assetId": "eip155:1/erc20:0x66a0f676479cee1d7373f3dc2e2952778bff5bd6",
@@ -37954,7 +37891,7 @@
         "assetId": "eip155:1/erc20:0x67a83b28f6dd8c07301495ee2c6f83b73fd21092",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9309 Courville St  Detroi",
+        "name": "RealT   9309 Courville St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x67a83b28f6dd8c07301495ee2c6f83b73fd21092",
         "contractType": "erc20",
@@ -37963,7 +37900,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16686/thumb/9309x-1.jpeg?1624634539",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9309-CO"
+        "symbol": "REALT-S-9309-COURVI"
       },
       {
         "assetId": "eip155:1/erc20:0x67a9099f0008c35c61c00042cd9fb03684451097",
@@ -38059,7 +37996,7 @@
         "assetId": "eip155:1/erc20:0x67f7e5e9dbed6c52dc52d7a83ac3608ad2648e12",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Zenith Token",
+        "name": "ZenithX",
         "precision": 18,
         "tokenId": "0x67f7e5e9dbed6c52dc52d7a83ac3608ad2648e12",
         "contractType": "erc20",
@@ -38254,7 +38191,7 @@
         "assetId": "eip155:1/erc20:0x686c77609afe6a2fac50421888530288b441fbd6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Capital Aggregator Token",
+        "name": "Capital Aggregator",
         "precision": 18,
         "tokenId": "0x686c77609afe6a2fac50421888530288b441fbd6",
         "contractType": "erc20",
@@ -38869,7 +38806,7 @@
         "assetId": "eip155:1/erc20:0x69d1b42b20f3ded07bec322253d0140b04cbb6f5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   1542 S Ridgeway Ave  Chic",
+        "name": "RealT   1542 S Ridgeway Ave  Chicago  I",
         "precision": 18,
         "tokenId": "0x69d1b42b20f3ded07bec322253d0140b04cbb6f5",
         "contractType": "erc20",
@@ -38878,7 +38815,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16628/thumb/1542-S-Ridgeway-hero-2.5.jpg?1624553308",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-1542-SR"
+        "symbol": "REALT-S-1542-SRIDGE"
       },
       {
         "assetId": "eip155:1/erc20:0x69d2779533a4d2c780639713558b2cc98c46a9b7",
@@ -39724,7 +39661,7 @@
         "assetId": "eip155:1/erc20:0x6c16119b20fa52600230f074b349da3cb861a7e3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Alkemi Network DAO Token",
+        "name": "Alkemi Network DAO",
         "precision": 18,
         "tokenId": "0x6c16119b20fa52600230f074b349da3cb861a7e3",
         "contractType": "erc20",
@@ -40219,7 +40156,7 @@
         "assetId": "eip155:1/erc20:0x6db6d540f5614e6bab7475af3f430f46a0b083e2",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   5942 Audubon Rd  Detroit ",
+        "name": "RealT   5942 Audubon Rd  Detroit  MI 48",
         "precision": 18,
         "tokenId": "0x6db6d540f5614e6bab7475af3f430f46a0b083e2",
         "contractType": "erc20",
@@ -40228,7 +40165,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16699/thumb/5942-Audubon-HERO-2.jpeg?1624641512",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-5942-AU"
+        "symbol": "REALT-S-5942-AUDUBO"
       },
       {
         "assetId": "eip155:1/erc20:0x6dc02164d75651758ac74435806093e421b64605",
@@ -40714,7 +40651,7 @@
         "assetId": "eip155:1/erc20:0x6f442da588232dc57bf0096e8de48d6961d5cc83",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   13895 Saratoga St  Detroi",
+        "name": "RealT   13895 Saratoga St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x6f442da588232dc57bf0096e8de48d6961d5cc83",
         "contractType": "erc20",
@@ -40723,7 +40660,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16599/thumb/13895-Saratoga-hero-1.jpeg?1624541955",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-13895-S"
+        "symbol": "REALT-S-13895-SARAT"
       },
       {
         "assetId": "eip155:1/erc20:0x6f4ee03ca6c942c9397d2ba5f8f83ea58f918f47",
@@ -40994,21 +40931,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "TOTM"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x6ff952aef0c0f7c7e20cc396b798daddf6561f18",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Spidey Inu",
-        "precision": 9,
-        "tokenId": "0x6ff952aef0c0f7c7e20cc396b798daddf6561f18",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20191/thumb/spidey_inu.png?1638351198",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "SPIDEYINU"
       },
       {
         "assetId": "eip155:1/erc20:0x701c244b988a513c945973defa05de933b23fe1d",
@@ -41569,7 +41491,7 @@
         "assetId": "eip155:1/erc20:0x71dc40668682a124231301414167e4cf7f55383c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Mimir Token",
+        "name": "Mimir",
         "precision": 18,
         "tokenId": "0x71dc40668682a124231301414167e4cf7f55383c",
         "contractType": "erc20",
@@ -41644,7 +41566,7 @@
         "assetId": "eip155:1/erc20:0x720def948b1891a0ba2ca21964e2e5d0a806bc19",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "CXRBN Token",
+        "name": "CXRBN",
         "precision": 18,
         "tokenId": "0x720def948b1891a0ba2ca21964e2e5d0a806bc19",
         "contractType": "erc20",
@@ -42154,7 +42076,7 @@
         "assetId": "eip155:1/erc20:0x7346ad4c8cd1886ff6d16072bcea5dfc0bc24ca2",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Filecoin Standard Hashrate Token",
+        "name": "Filecoin Standard Hashrate",
         "precision": 18,
         "tokenId": "0x7346ad4c8cd1886ff6d16072bcea5dfc0bc24ca2",
         "contractType": "erc20",
@@ -42349,7 +42271,7 @@
         "assetId": "eip155:1/erc20:0x73bde888664df8ddfd156b52e6999eeabab57c94",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9717 Everts St  Detroit  ",
+        "name": "RealT   9717 Everts St  Detroit  MI 482",
         "precision": 18,
         "tokenId": "0x73bde888664df8ddfd156b52e6999eeabab57c94",
         "contractType": "erc20",
@@ -42358,22 +42280,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16612/thumb/9717-Everts-hero-1.jpeg?1624546272",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9717-EV"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x73c0120afa56c74cbe5d8c9ad73979787aba91fc",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Down Bad",
-        "precision": 9,
-        "tokenId": "0x73c0120afa56c74cbe5d8c9ad73979787aba91fc",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20256/thumb/Vs2JVX8.png?1636701956",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "DB"
+        "symbol": "REALT-S-9717-EVERTS"
       },
       {
         "assetId": "eip155:1/erc20:0x73c9275c3a2dd84b5741fd59aebf102c91eb033f",
@@ -42499,7 +42406,7 @@
         "assetId": "eip155:1/erc20:0x741857c07b100c9c0c1272d95845dddc4f1b67cb",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   8342 Schaefer Highway  De",
+        "name": "RealT   8342 Schaefer Highway  Detroit ",
         "precision": 18,
         "tokenId": "0x741857c07b100c9c0c1272d95845dddc4f1b67cb",
         "contractType": "erc20",
@@ -42508,7 +42415,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16700/thumb/Schaefer-1.jpeg?1624642033",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-8342-SC"
+        "symbol": "REALT-S-8342-SCHAEF"
       },
       {
         "assetId": "eip155:1/erc20:0x741b0428efdf4372a8df6fb54b018db5e5ab7710",
@@ -42569,21 +42476,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "MIAMI"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x744242734fb54aa4824e061c09335cee712b6da3",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Few Understand",
-        "precision": 9,
-        "tokenId": "0x744242734fb54aa4824e061c09335cee712b6da3",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20304/thumb/few.png?1636819479",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "FEW"
       },
       {
         "assetId": "eip155:1/erc20:0x744d70fdbe2ba4cf95131626614a1763df805b9e",
@@ -42724,7 +42616,7 @@
         "assetId": "eip155:1/erc20:0x74b1af114274335598da72f5c6ed7b954a016eed",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "HitBTC Token",
+        "name": "HitBTC",
         "precision": 18,
         "tokenId": "0x74b1af114274335598da72f5c6ed7b954a016eed",
         "contractType": "erc20",
@@ -42829,7 +42721,7 @@
         "assetId": "eip155:1/erc20:0x750fa12ae51d1515c893c1aaabe2c135937a2c8b",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9465 Beaconsfield St  Det",
+        "name": "RealT   9465 Beaconsfield St  Detroit  ",
         "precision": 18,
         "tokenId": "0x750fa12ae51d1515c893c1aaabe2c135937a2c8b",
         "contractType": "erc20",
@@ -42838,7 +42730,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16707/thumb/9465-Beaconsfield-hero-1c.jpeg?1624645510",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9465-BE"
+        "symbol": "REALT-S-9465-BEACON"
       },
       {
         "assetId": "eip155:1/erc20:0x75231f58b43240c9718dd58b4967c5114342a86c",
@@ -43054,7 +42946,7 @@
         "assetId": "eip155:1/erc20:0x75f06b482adbfb04b877d8ee683e2fcdf18ad153",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   18481 Westphalia St  Detr",
+        "name": "RealT   18481 Westphalia St  Detroit  M",
         "precision": 18,
         "tokenId": "0x75f06b482adbfb04b877d8ee683e2fcdf18ad153",
         "contractType": "erc20",
@@ -43063,7 +42955,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16633/thumb/18481-Westphalia-hero-1.jpeg?1624554981",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18481-W"
+        "symbol": "REALT-S-18481-WESTP"
       },
       {
         "assetId": "eip155:1/erc20:0x7603de2ea4cbceb0250118de03fcb70fe1e8e935",
@@ -43309,7 +43201,7 @@
         "assetId": "eip155:1/erc20:0x76dbeb740ecd1f3b052a9afa302abc7eb4fb5390",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9133 Devonshire Rd  Detro",
+        "name": "RealT   9133 Devonshire Rd  Detroit  MI",
         "precision": 18,
         "tokenId": "0x76dbeb740ecd1f3b052a9afa302abc7eb4fb5390",
         "contractType": "erc20",
@@ -43318,7 +43210,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16683/thumb/9133-Devonshire-hero.jpeg?1624632898",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9133-DE"
+        "symbol": "REALT-S-9133-DEVONS"
       },
       {
         "assetId": "eip155:1/erc20:0x7707aada3ce7722ac63b91727daf1999849f6835",
@@ -43354,7 +43246,7 @@
         "assetId": "eip155:1/erc20:0x77271813bd9167e75b5df9c230cf58d64f0a58fd",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Balkari Token",
+        "name": "Balkari",
         "precision": 18,
         "tokenId": "0x77271813bd9167e75b5df9c230cf58d64f0a58fd",
         "contractType": "erc20",
@@ -44449,7 +44341,7 @@
         "assetId": "eip155:1/erc20:0x7aa46a51f717404d944051af3075bbcb49b2288b",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Genebank Token",
+        "name": "Genebank",
         "precision": 18,
         "tokenId": "0x7aa46a51f717404d944051af3075bbcb49b2288b",
         "contractType": "erc20",
@@ -44731,25 +44623,10 @@
         "symbol": "IMX"
       },
       {
-        "assetId": "eip155:1/erc20:0x7b392dd9bdef6e17c3d1ba62d1a6c7dcc99d839b",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Garfield Token",
-        "precision": 9,
-        "tokenId": "0x7b392dd9bdef6e17c3d1ba62d1a6c7dcc99d839b",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20247/thumb/RgK0F3s.png?1636700848",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "GARFIELD"
-      },
-      {
         "assetId": "eip155:1/erc20:0x7b39917f9562c8bc83c7a6c2950ff571375d505d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "LeagueDAO Governance Token",
+        "name": "LeagueDAO Governance",
         "precision": 18,
         "tokenId": "0x7b39917f9562c8bc83c7a6c2950ff571375d505d",
         "contractType": "erc20",
@@ -44864,21 +44741,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "BXTB"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x7bd6a4e7db3a34c485a8dd02b30b6565e3bbc633",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "KOK Coin",
-        "precision": 18,
-        "tokenId": "0x7bd6a4e7db3a34c485a8dd02b30b6565e3bbc633",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7BD6a4E7DB3A34c485A8DD02b30B6565e3bbC633/logo.png",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "KOK"
       },
       {
         "assetId": "eip155:1/erc20:0x7bd82b320ebc28d8eb3c4f5fa2af7b14da5b90c3",
@@ -45289,7 +45151,7 @@
         "assetId": "eip155:1/erc20:0x7ccfeef4f0ff48b0e0abd19bbbebae90939f180d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "StarShip Token",
+        "name": "StarShip Stars",
         "precision": 18,
         "tokenId": "0x7ccfeef4f0ff48b0e0abd19bbbebae90939f180d",
         "contractType": "erc20",
@@ -45814,7 +45676,7 @@
         "assetId": "eip155:1/erc20:0x7e95b310724334ff74537dc08bfd3377d25e65ce",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15039 Ward Ave  Detroit  ",
+        "name": "RealT   15039 Ward Ave  Detroit  MI 482",
         "precision": 18,
         "tokenId": "0x7e95b310724334ff74537dc08bfd3377d25e65ce",
         "contractType": "erc20",
@@ -45823,7 +45685,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16632/thumb/15039-Ward-hero-1.jpeg?1624554456",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15039-W"
+        "symbol": "REALT-S-15039-WARD-"
       },
       {
         "assetId": "eip155:1/erc20:0x7e9d8f07a64e363e97a648904a89fb4cd5fb94cd",
@@ -45964,7 +45826,7 @@
         "assetId": "eip155:1/erc20:0x7f1f2d3dfa99678675ece1c243d3f7bc3746db5d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Tapmydata",
+        "name": "TapX",
         "precision": 18,
         "tokenId": "0x7f1f2d3dfa99678675ece1c243d3f7bc3746db5d",
         "contractType": "erc20",
@@ -46054,7 +45916,7 @@
         "assetId": "eip155:1/erc20:0x7f940b5509a22e81d29167581bdeea3fa5a0abee",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15784 Monte Vista St  Det",
+        "name": "RealT   15784 Monte Vista St  Detroit  ",
         "precision": 18,
         "tokenId": "0x7f940b5509a22e81d29167581bdeea3fa5a0abee",
         "contractType": "erc20",
@@ -46063,7 +45925,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16673/thumb/15784-monte-vista-hero-1.jpeg?1624628466",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15784-M"
+        "symbol": "REALT-S-15784-MONTE"
       },
       {
         "assetId": "eip155:1/erc20:0x7f969c4d388ca0ae39a4fddb1a6f89878ca2fbf8",
@@ -46249,7 +46111,7 @@
         "assetId": "eip155:1/erc20:0x804f6baa10615c85e4b4a5bc4efe516d9f7a4365",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   13606 Winthrop St  Detroi",
+        "name": "RealT   13606 Winthrop St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x804f6baa10615c85e4b4a5bc4efe516d9f7a4365",
         "contractType": "erc20",
@@ -46258,7 +46120,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16667/thumb/13606-Winthrop-hero-1.jpg?1624626772",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-13606-W"
+        "symbol": "REALT-S-13606-WINTH"
       },
       {
         "assetId": "eip155:1/erc20:0x8052327f1baf94a9dc8b26b9100f211ee3774f54",
@@ -46289,6 +46151,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "BES"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x805c2077f3ab224d889f9c3992b41b2f4722c787",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "art Q NFT Investment Fund",
+        "precision": 0,
+        "tokenId": "0x805c2077f3ab224d889f9c3992b41b2f4722c787",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/23407/thumb/arteq.png?1644146442",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "ARTEQ"
       },
       {
         "assetId": "eip155:1/erc20:0x805ea9c07b49dd23ce11ec66dc6d8a2957385035",
@@ -46324,7 +46201,7 @@
         "assetId": "eip155:1/erc20:0x806690b7a093d2cf6419a515abedb7f28595bc5e",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9169 Boleyn St  Detroit  ",
+        "name": "RealT   9169 Boleyn St  Detroit  MI  48",
         "precision": 18,
         "tokenId": "0x806690b7a093d2cf6419a515abedb7f28595bc5e",
         "contractType": "erc20",
@@ -46333,7 +46210,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16691/thumb/Boleyn-hero.jpeg?1624637832",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9169-BO"
+        "symbol": "REALT-S-9169-BOLEYN"
       },
       {
         "assetId": "eip155:1/erc20:0x808507121b80c02388fad14726482e061b8da827",
@@ -46954,7 +46831,7 @@
         "assetId": "eip155:1/erc20:0x8254e26e453eb5abd29b3c37ac9e8da32e5d3299",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RBX Token",
+        "name": "RBX",
         "precision": 18,
         "tokenId": "0x8254e26e453eb5abd29b3c37ac9e8da32e5d3299",
         "contractType": "erc20",
@@ -47024,6 +46901,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "SWINGBY"
+      },
+      {
+        "color": "#7057F5",
+        "contractType": "erc20",
+        "dataSource": "yearnfinance",
+        "icon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x828b154032950C8ff7CF8085D841723Db2696056/logo-128.png",
+        "name": "Curve stETH-WETH Pool yVault",
+        "precision": 18,
+        "receiveSupport": true,
+        "secondaryColor": "#7057F5",
+        "sendSupport": true,
+        "symbol": "crvstETH-WETH",
+        "tokenId": "0x828b154032950c8ff7cf8085d841723db2696056",
+        "chainId": "eip155:1",
+        "assetId": "eip155:1/erc20:0x828b154032950c8ff7cf8085d841723db2696056"
       },
       {
         "assetId": "eip155:1/erc20:0x8290333cef9e6d528dd5618fb97a76f268f3edd4",
@@ -47134,7 +47026,7 @@
         "assetId": "eip155:1/erc20:0x830b0e9a5ecf36d0a886d21e1c20043cd2d16515",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19201 Westphalia St  Detr",
+        "name": "RealT   19201 Westphalia St  Detroit  M",
         "precision": 18,
         "tokenId": "0x830b0e9a5ecf36d0a886d21e1c20043cd2d16515",
         "contractType": "erc20",
@@ -47143,7 +47035,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16613/thumb/19201-Westphalia-hero-1.jpeg?1624547689",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19201-W"
+        "symbol": "REALT-S-19201-WESTP"
       },
       {
         "assetId": "eip155:1/erc20:0x831091da075665168e01898c6dac004a867f1e1b",
@@ -47569,7 +47461,7 @@
         "assetId": "eip155:1/erc20:0x845576c64f9754cf09d87e45b720e82f3eef522c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Artverse Token",
+        "name": "Artverse",
         "precision": 18,
         "tokenId": "0x845576c64f9754cf09d87e45b720e82f3eef522c",
         "contractType": "erc20",
@@ -48139,7 +48031,7 @@
         "assetId": "eip155:1/erc20:0x8626b38267e4fc0d8c92e0bb86f97acab3f6aa05",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10604 Somerset Ave  Detro",
+        "name": "RealT   10604 Somerset Ave  Detroit  MI",
         "precision": 18,
         "tokenId": "0x8626b38267e4fc0d8c92e0bb86f97acab3f6aa05",
         "contractType": "erc20",
@@ -48148,7 +48040,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16682/thumb/10604-Somerset-hero-1.jpeg?1624632454",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10604-S"
+        "symbol": "REALT-S-10604-SOMER"
       },
       {
         "assetId": "eip155:1/erc20:0x8640353cdc9778deab0df45d12fb3013deac079c",
@@ -48869,21 +48761,6 @@
         "tokenId": "0x87c00817abe35ed4c093e59043fae488238d2f74",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0x87c00817abe35ed4c093e59043fae488238d2f74"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x87c0192b1b81b9550d495558aac9753972f6db0d",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Unicat Token",
-        "precision": 9,
-        "tokenId": "0x87c0192b1b81b9550d495558aac9753972f6db0d",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20371/thumb/unicat.png?1636949185",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "UNICAT"
       },
       {
         "assetId": "eip155:1/erc20:0x87c22615435998d69aca34889d03155b694a94fc",
@@ -50134,7 +50011,7 @@
         "assetId": "eip155:1/erc20:0x8a9f904b4ead6a97f3ab304d0d2196f5c602c807",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19311 Keystone St  Detroi",
+        "name": "RealT   19311 Keystone St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x8a9f904b4ead6a97f3ab304d0d2196f5c602c807",
         "contractType": "erc20",
@@ -50143,7 +50020,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16631/thumb/19311-Keystone-hero-1.jpeg?1624554016",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19311-K"
+        "symbol": "REALT-S-19311-KEYST"
       },
       {
         "assetId": "eip155:1/erc20:0x8ab7404063ec4dbcfd4598215992dc3f8ec853d7",
@@ -50329,7 +50206,7 @@
         "assetId": "eip155:1/erc20:0x8b3870df408ff4d7c3a26df852d41034eda11d81",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "IOI Token",
+        "name": "IOI",
         "precision": 6,
         "tokenId": "0x8b3870df408ff4d7c3a26df852d41034eda11d81",
         "contractType": "erc20",
@@ -50944,7 +50821,7 @@
         "assetId": "eip155:1/erc20:0x8d1090df790ffafdaccda03015c05df3b4cc9c21",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15753 Hartwell St  Detroi",
+        "name": "RealT   15753 Hartwell St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0x8d1090df790ffafdaccda03015c05df3b4cc9c21",
         "contractType": "erc20",
@@ -50953,7 +50830,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16623/thumb/15753-Hartwell-hero-2.jpg?1624551749",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15753-H"
+        "symbol": "REALT-S-15753-HARTW"
       },
       {
         "assetId": "eip155:1/erc20:0x8d137e3337eb1b58a222fef2b2cc7c423903d9cf",
@@ -51769,7 +51646,7 @@
         "assetId": "eip155:1/erc20:0x8fcb39a25e639c8fbd28e8a018227d6570e02352",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   1815 S Avers Ave  Chicago",
+        "name": "RealT   1815 S Avers Ave  Chicago  IL 6",
         "precision": 18,
         "tokenId": "0x8fcb39a25e639c8fbd28e8a018227d6570e02352",
         "contractType": "erc20",
@@ -51778,7 +51655,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16674/thumb/1815-S-Avers-hero-1.5.jpg?1624628519",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-1815-SA"
+        "symbol": "REALT-S-1815-SAVERS"
       },
       {
         "assetId": "eip155:1/erc20:0x8feef860e9fa9326ff9d7e0058f637be8579cc29",
@@ -51994,7 +51871,7 @@
         "assetId": "eip155:1/erc20:0x906710835d1ae85275eb770f06873340ca54274b",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Ethereum Cash Token",
+        "name": "Ethereum Cash ECASH",
         "precision": 9,
         "tokenId": "0x906710835d1ae85275eb770f06873340ca54274b",
         "contractType": "erc20",
@@ -52009,7 +51886,7 @@
         "assetId": "eip155:1/erc20:0x9077f9e1efe0ea72867ac89046b2a6264cbcaef5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "WhaleStreet  hrimp Token",
+        "name": "WhaleStreet  hrimp",
         "precision": 18,
         "tokenId": "0x9077f9e1efe0ea72867ac89046b2a6264cbcaef5",
         "contractType": "erc20",
@@ -52069,7 +51946,7 @@
         "assetId": "eip155:1/erc20:0x90b831fa3bebf58e9744a14d638e25b4ee06f9bc",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Mimo Governance Token",
+        "name": "Mimo Governance",
         "precision": 18,
         "tokenId": "0x90b831fa3bebf58e9744a14d638e25b4ee06f9bc",
         "contractType": "erc20",
@@ -52321,21 +52198,6 @@
         "symbol": "VDX"
       },
       {
-        "assetId": "eip155:1/erc20:0x91e8d1b5f386204a82e6de32d4bae11d0b042f0f",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Kimetsu Inu",
-        "precision": 9,
-        "tokenId": "0x91e8d1b5f386204a82e6de32d4bae11d0b042f0f",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20131/thumb/kimetsu.png?1636529504",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "KIMETSU"
-      },
-      {
         "assetId": "eip155:1/erc20:0x91f529e972d6cf43d36abfa91c1118122ff7f16c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -52369,7 +52231,7 @@
         "assetId": "eip155:1/erc20:0x92161385c9de8798ad5fb01c0be99ffcbc84dfd8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10084 Grayton St  Detroit",
+        "name": "RealT   10084 Grayton St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0x92161385c9de8798ad5fb01c0be99ffcbc84dfd8",
         "contractType": "erc20",
@@ -52378,7 +52240,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16693/thumb/Grayton_84_side1x.jpeg?1624638633",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10084-G"
+        "symbol": "REALT-S-10084-GRAYT"
       },
       {
         "color": "#7057F5",
@@ -52519,7 +52381,7 @@
         "assetId": "eip155:1/erc20:0x9257fb8fab616867cee67c3289547403617b1938",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Beverage Token",
+        "name": "Beverage Finance",
         "precision": 18,
         "tokenId": "0x9257fb8fab616867cee67c3289547403617b1938",
         "contractType": "erc20",
@@ -52654,7 +52516,7 @@
         "assetId": "eip155:1/erc20:0x92d31e19f88597f368825ba16410f263a844527a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   8181 Bliss St  Detroit  M",
+        "name": "RealT   8181 Bliss St  Detroit  MI 4823",
         "precision": 18,
         "tokenId": "0x92d31e19f88597f368825ba16410f263a844527a",
         "contractType": "erc20",
@@ -52663,7 +52525,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16566/thumb/8181-Bliss-hero-1.jpg?1624461101",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-8181-BL"
+        "symbol": "REALT-S-8181-BLISS-"
       },
       {
         "assetId": "eip155:1/erc20:0x92d6c1e31e14520e676a687f0a93788b716beff5",
@@ -53434,7 +53296,7 @@
         "assetId": "eip155:1/erc20:0x94e25fc8960dce26823afeebf8a82ebc13c8e439",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Puppy Token",
+        "name": "Puppy",
         "precision": 9,
         "tokenId": "0x94e25fc8960dce26823afeebf8a82ebc13c8e439",
         "contractType": "erc20",
@@ -53494,7 +53356,7 @@
         "assetId": "eip155:1/erc20:0x94fa7f8cb8453ad57cd133363b3012044647078c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   1244 S  Avers St  Chicago",
+        "name": "RealT   1244 S  Avers St  Chicago  IL 6",
         "precision": 18,
         "tokenId": "0x94fa7f8cb8453ad57cd133363b3012044647078c",
         "contractType": "erc20",
@@ -53503,7 +53365,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16634/thumb/1244-S-Avers-hero-3.jpeg?1624555551",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-1244-SA"
+        "symbol": "REALT-S-1244-SAVERS"
       },
       {
         "assetId": "eip155:1/erc20:0x94fc5934cf5970e944a67de806eeb5a4b493c6e6",
@@ -53569,7 +53431,7 @@
         "assetId": "eip155:1/erc20:0x9528a7402c0fe85b817aa6e106eafa03a02924c4",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14231 Strathmoor St  Detr",
+        "name": "RealT   14231 Strathmoor St  Detroit  M",
         "precision": 18,
         "tokenId": "0x9528a7402c0fe85b817aa6e106eafa03a02924c4",
         "contractType": "erc20",
@@ -53578,7 +53440,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16563/thumb/14231-Strathmoor-hero-1.jpg?1624459471",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14231-S"
+        "symbol": "REALT-S-14231-STRAT"
       },
       {
         "assetId": "eip155:1/erc20:0x952b65d976e8669c4ce92a17cce5b2586912adb5",
@@ -53594,6 +53456,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "ETT"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x95392f142af1c12f6e39897ff9b09c599666b50c",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Impostors Blood",
+        "precision": 18,
+        "tokenId": "0x95392f142af1c12f6e39897ff9b09c599666b50c",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25527/thumb/RV4nKK2RDO47XzfSLgGs_llgXivhdfpI3tso0.png?1652240523",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "BLOOD"
       },
       {
         "assetId": "eip155:1/erc20:0x954b890704693af242613edef1b603825afcd708",
@@ -53689,7 +53566,7 @@
         "assetId": "eip155:1/erc20:0x95a1796437bad6502d1c1cce165cd76e522409a9",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Official Crypto Cowboy Token",
+        "name": "Official Crypto Cowboy",
         "precision": 18,
         "tokenId": "0x95a1796437bad6502d1c1cce165cd76e522409a9",
         "contractType": "erc20",
@@ -54034,7 +53911,7 @@
         "assetId": "eip155:1/erc20:0x96700ffae33c651bc329c3f3fbfe56e1f291f117",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   4380 Beaconsfield St  Det",
+        "name": "RealT   4380 Beaconsfield St  Detroit  ",
         "precision": 18,
         "tokenId": "0x96700ffae33c651bc329c3f3fbfe56e1f291f117",
         "contractType": "erc20",
@@ -54043,7 +53920,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16603/thumb/4380-Beaconsfield-hero-1.jpeg?1624543909",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-4380-BE"
+        "symbol": "REALT-S-4380-BEACON"
       },
       {
         "assetId": "eip155:1/erc20:0x967da4048cd07ab37855c090aaf366e4ce1b9f48",
@@ -54094,7 +53971,7 @@
         "assetId": "eip155:1/erc20:0x969d42ad7008e6651e1fd52742153f8743225d98",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   12409 Whitehill St  Detro",
+        "name": "RealT   12409 Whitehill St  Detroit  MI",
         "precision": 18,
         "tokenId": "0x969d42ad7008e6651e1fd52742153f8743225d98",
         "contractType": "erc20",
@@ -54103,7 +53980,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16668/thumb/12409-Whitehill-hero-1.jpg?1624627067",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-12409-W"
+        "symbol": "REALT-S-12409-WHITE"
       },
       {
         "color": "#7057F5",
@@ -54439,7 +54316,7 @@
         "assetId": "eip155:1/erc20:0x97abee33cd075c58bfdd174e0885e08e8f03556f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Sentiment Token",
+        "name": "Sentiment",
         "precision": 18,
         "tokenId": "0x97abee33cd075c58bfdd174e0885e08e8f03556f",
         "contractType": "erc20",
@@ -54544,7 +54421,7 @@
         "assetId": "eip155:1/erc20:0x9856c5ca15a4ac9c65aac090c38a9f39eb3b5eec",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   18273 Monte Vista St  Det",
+        "name": "RealT   18273 Monte Vista St  Detroit  ",
         "precision": 18,
         "tokenId": "0x9856c5ca15a4ac9c65aac090c38a9f39eb3b5eec",
         "contractType": "erc20",
@@ -54553,7 +54430,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16665/thumb/18273-Monte-Vista-hero-1b.jpeg?1624626435",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18273-M"
+        "symbol": "REALT-S-18273-MONTE"
       },
       {
         "assetId": "eip155:1/erc20:0x98585dfc8d9e7d48f0b1ae47ce33332cf4237d96",
@@ -55264,7 +55141,7 @@
         "assetId": "eip155:1/erc20:0x9a99f283e1f6c3b7f24901995624ef7b78e94471",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token  18466 Fielding St  Detroit",
+        "name": "RealT  18466 Fielding St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0x9a99f283e1f6c3b7f24901995624ef7b78e94471",
         "contractType": "erc20",
@@ -55273,7 +55150,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16663/thumb/18466-Fielding-hero-1.jpeg?1624625063",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18466-F"
+        "symbol": "REALT-S-18466-FIELD"
       },
       {
         "assetId": "eip155:1/erc20:0x9aab071b4129b083b01cb5a0cb513ce7eca26fa5",
@@ -55354,7 +55231,7 @@
         "assetId": "eip155:1/erc20:0x9ac5c63ddcb93612e316ab31dfc8192bc8961988",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Adora Token",
+        "name": "Adora",
         "precision": 18,
         "tokenId": "0x9ac5c63ddcb93612e316ab31dfc8192bc8961988",
         "contractType": "erc20",
@@ -55684,7 +55561,7 @@
         "assetId": "eip155:1/erc20:0x9b5b4886033b4abc5eb0552fff7c15a67c3c47c7",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   11300 Roxbury St  Detroit",
+        "name": "RealT   11300 Roxbury St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0x9b5b4886033b4abc5eb0552fff7c15a67c3c47c7",
         "contractType": "erc20",
@@ -55693,7 +55570,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16610/thumb/11300-Roxbury-hero-1.jpg?1624545386",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-11300-R"
+        "symbol": "REALT-S-11300-ROXBU"
       },
       {
         "assetId": "eip155:1/erc20:0x9b5c2be869a19e84bdbcb1386dad83a2ec8dae82",
@@ -55844,6 +55721,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "DOGEFI"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x9b9647431632af44be02ddd22477ed94d14aacaa",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "KOK",
+        "precision": 18,
+        "tokenId": "0x9b9647431632af44be02ddd22477ed94d14aacaa",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/10502/thumb/logo_navy.png?1580250344",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "KOK"
       },
       {
         "assetId": "eip155:1/erc20:0x9b99cca871be05119b2012fd4474731dd653febe",
@@ -56569,7 +56461,7 @@
         "assetId": "eip155:1/erc20:0x9d918ee39a356be8ef99734599c7e70160db4db6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   12405 Santa Rosa Dr  Detr",
+        "name": "RealT   12405 Santa Rosa Dr  Detroit  M",
         "precision": 18,
         "tokenId": "0x9d918ee39a356be8ef99734599c7e70160db4db6",
         "contractType": "erc20",
@@ -56578,7 +56470,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16671/thumb/12405-Santa-Rosa-hero-1.jpg?1624627801",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-12405-S"
+        "symbol": "REALT-S-12405-SANTA"
       },
       {
         "assetId": "eip155:1/erc20:0x9d91be44c06d373a8a226e1f3b146956083803eb",
@@ -56734,7 +56626,7 @@
         "assetId": "eip155:1/erc20:0x9e5bd9d9fad182ff0a93ba8085b664bcab00fa68",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Dinger Token",
+        "name": "Dinger",
         "precision": 9,
         "tokenId": "0x9e5bd9d9fad182ff0a93ba8085b664bcab00fa68",
         "contractType": "erc20",
@@ -56899,7 +56791,7 @@
         "assetId": "eip155:1/erc20:0x9eb90ec3faafc22092c9b91559fddde538042093",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   18900 Mansfield St  Detro",
+        "name": "RealT   18900 Mansfield St  Detroit  MI",
         "precision": 18,
         "tokenId": "0x9eb90ec3faafc22092c9b91559fddde538042093",
         "contractType": "erc20",
@@ -56908,7 +56800,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16697/thumb/18900-Mansfield-flowers.jpeg?1624640555",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18900-M"
+        "symbol": "REALT-S-18900-MANSF"
       },
       {
         "assetId": "eip155:1/erc20:0x9ed8e7c9604790f7ec589f99b94361d8aab64e5e",
@@ -57244,7 +57136,7 @@
         "assetId": "eip155:1/erc20:0x9f923653a19537b5a1b003854a1920fe67a8ffeb",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   13114 Glenfield Ave  Detr",
+        "name": "RealT   13114 Glenfield Ave  Detroit  M",
         "precision": 18,
         "tokenId": "0x9f923653a19537b5a1b003854a1920fe67a8ffeb",
         "contractType": "erc20",
@@ -57253,7 +57145,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16678/thumb/13114-Glenfield-Ave.jpeg?1624629523",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-13114-G"
+        "symbol": "REALT-S-13114-GLENF"
       },
       {
         "assetId": "eip155:1/erc20:0x9f978aa425148cdd9223eb175446a877b86727ff",
@@ -57379,7 +57271,7 @@
         "assetId": "eip155:1/erc20:0x9fef44fc4c571010bccd5b63e1cdc807d3b347bf",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token  15095 Hartwell St  Detroit",
+        "name": "RealT  15095 Hartwell St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0x9fef44fc4c571010bccd5b63e1cdc807d3b347bf",
         "contractType": "erc20",
@@ -57388,7 +57280,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16664/thumb/15095-Hartwell-hero-1.jpeg?1624625590",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15095-H"
+        "symbol": "REALT-S-15095-HARTW"
       },
       {
         "color": "#7057F5",
@@ -57679,7 +57571,7 @@
         "assetId": "eip155:1/erc20:0xa0b93b9e90ab887e53f9fb8728c009746e989b53",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Standard Token",
+        "name": "Standard",
         "precision": 18,
         "tokenId": "0xa0b93b9e90ab887e53f9fb8728c009746e989b53",
         "contractType": "erc20",
@@ -57826,19 +57718,19 @@
         "symbol": "ANT"
       },
       {
-        "assetId": "eip155:1/erc20:0xa117ea1c0c85cef648df2b6f40e50bb5475c228d",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Ducato Protocol Token",
-        "precision": 18,
-        "tokenId": "0xa117ea1c0c85cef648df2b6f40e50bb5475c228d",
+        "color": "#7057F5",
         "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
+        "dataSource": "yearnfinance",
         "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xa117ea1c0c85CEf648df2b6f40e50bb5475C228d/logo.png",
-        "sendSupport": true,
+        "name": "DUCATO",
+        "precision": 18,
         "receiveSupport": true,
-        "symbol": "DUCATO"
+        "secondaryColor": "#7057F5",
+        "sendSupport": true,
+        "symbol": "DUCATO",
+        "tokenId": "0xa117ea1c0c85cef648df2b6f40e50bb5475c228d",
+        "chainId": "eip155:1",
+        "assetId": "eip155:1/erc20:0xa117ea1c0c85cef648df2b6f40e50bb5475c228d"
       },
       {
         "assetId": "eip155:1/erc20:0xa11bd36801d8fa4448f0ac4ea7a62e3634ce8c7c",
@@ -57889,7 +57781,7 @@
         "assetId": "eip155:1/erc20:0xa12d7e5319f5b43476ef19d1569e10097cacdfe2",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Myth Token",
+        "name": "Myth",
         "precision": 18,
         "tokenId": "0xa12d7e5319f5b43476ef19d1569e10097cacdfe2",
         "contractType": "erc20",
@@ -57919,7 +57811,7 @@
         "assetId": "eip155:1/erc20:0xa137d82197ea4cdfd5f008a91ba816b8324f59e1",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   5601 S Wood St  Chicago  ",
+        "name": "RealT   5601 S Wood St  Chicago  IL 606",
         "precision": 18,
         "tokenId": "0xa137d82197ea4cdfd5f008a91ba816b8324f59e1",
         "contractType": "erc20",
@@ -57928,7 +57820,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16605/thumb/5601-S-Wood-hero-1.jpg?1624544382",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-5601-SW"
+        "symbol": "REALT-S-5601-SWOOD-"
       },
       {
         "assetId": "eip155:1/erc20:0xa13f0743951b4f6e3e3aa039f682e17279f52bc3",
@@ -58471,21 +58363,6 @@
         "symbol": "ARTICUNO"
       },
       {
-        "assetId": "eip155:1/erc20:0xa2667a0fcac45713029a60e4e97104064d9349e2",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Frens",
-        "precision": 18,
-        "tokenId": "0xa2667a0fcac45713029a60e4e97104064d9349e2",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20206/thumb/frens_pub_logo.png?1636630613",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "FRENS"
-      },
-      {
         "assetId": "eip155:1/erc20:0xa279dab6ec190ee4efce7da72896eb58ad533262",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -58564,7 +58441,7 @@
         "assetId": "eip155:1/erc20:0xa29ae272bc89e5f315b2793925f700045f845d82",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   581 587 Jefferson Ave  Ro",
+        "name": "RealT   581 587 Jefferson Ave  Rocheste",
         "precision": 18,
         "tokenId": "0xa29ae272bc89e5f315b2793925f700045f845d82",
         "contractType": "erc20",
@@ -58573,7 +58450,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16637/thumb/571-jefferson-corner-1.1.jpg?1624557964",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-581-587"
+        "symbol": "REALT-S-581-587-JEF"
       },
       {
         "assetId": "eip155:1/erc20:0xa2a54f1ec1f09316ef12c1770d32ed8f21b1fb6a",
@@ -58594,7 +58471,7 @@
         "assetId": "eip155:1/erc20:0xa2b2ae397492c7ed8a4c1e751ac72d2b59947e6b",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9920 Bishop St  Detroit  ",
+        "name": "RealT   9920 Bishop St  Detroit  MI 482",
         "precision": 18,
         "tokenId": "0xa2b2ae397492c7ed8a4c1e751ac72d2b59947e6b",
         "contractType": "erc20",
@@ -58603,7 +58480,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16615/thumb/9920-Bishop-hero-1.jpg?1624549554",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9920-BI"
+        "symbol": "REALT-S-9920-BISHOP"
       },
       {
         "assetId": "eip155:1/erc20:0xa2b4c0af19cc16a6cfacce81f192b024d625817d",
@@ -59239,7 +59116,7 @@
         "assetId": "eip155:1/erc20:0xa4cb0dce4849bdcad2d553e9e68644cf40e26cce",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Baked Token",
+        "name": "Baked",
         "precision": 18,
         "tokenId": "0xa4cb0dce4849bdcad2d553e9e68644cf40e26cce",
         "contractType": "erc20",
@@ -59524,7 +59401,7 @@
         "assetId": "eip155:1/erc20:0xa5ad8cae66c643294a926190df717674315a8159",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "AutoBitco Token",
+        "name": "AutoBitco",
         "precision": 18,
         "tokenId": "0xa5ad8cae66c643294a926190df717674315a8159",
         "contractType": "erc20",
@@ -59899,7 +59776,7 @@
         "assetId": "eip155:1/erc20:0xa68b7779504b0ae372ddcc109f8786db9b91e93e",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   4340 East 71  Cleveland  ",
+        "name": "RealT   4340 East 71  Cleveland  OH 441",
         "precision": 18,
         "tokenId": "0xa68b7779504b0ae372ddcc109f8786db9b91e93e",
         "contractType": "erc20",
@@ -59908,7 +59785,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16681/thumb/4340-East-71-front.jpeg?1624631910",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-4340-EA"
+        "symbol": "REALT-S-4340-EAST-7"
       },
       {
         "assetId": "eip155:1/erc20:0xa68dd8cb83097765263adad881af6eed479c4a33",
@@ -59959,7 +59836,7 @@
         "assetId": "eip155:1/erc20:0xa69d7d4ddf397f3d1e7ebaf108555d1107b3b117",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   9166 Devonshire Rd  Detro",
+        "name": "RealT   9166 Devonshire Rd  Detroit MI ",
         "precision": 18,
         "tokenId": "0xa69d7d4ddf397f3d1e7ebaf108555d1107b3b117",
         "contractType": "erc20",
@@ -59968,7 +59845,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16690/thumb/Devonshire-3x.jpeg?1624636640",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-9166-DE"
+        "symbol": "REALT-S-9166-DEVONS"
       },
       {
         "assetId": "eip155:1/erc20:0xa69f7a10df90c4d6710588bc18ad9bf08081f545",
@@ -60119,21 +59996,6 @@
         "tokenId": "0xa6fb1df483b24eeab569e19447e0e107003b9e15",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0xa6fb1df483b24eeab569e19447e0e107003b9e15"
-      },
-      {
-        "assetId": "eip155:1/erc20:0xa700f2b3d8ebe35cef86fcc3c2105daff41617be",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Buu Inu",
-        "precision": 9,
-        "tokenId": "0xa700f2b3d8ebe35cef86fcc3c2105daff41617be",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20439/thumb/VO1MLmM.png?1637039525",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "BUU"
       },
       {
         "assetId": "eip155:1/erc20:0xa71d0588eaf47f12b13cf8ec750430d21df04974",
@@ -60364,7 +60226,7 @@
         "assetId": "eip155:1/erc20:0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Unique Utility Token",
+        "name": "Unique Utility",
         "precision": 18,
         "tokenId": "0xa80f2c8f61c56546001f5fc2eb8d6e4e72c45d4c",
         "contractType": "erc20",
@@ -60379,7 +60241,7 @@
         "assetId": "eip155:1/erc20:0xa81f77e8988b28fb74243b907ace3c83353dc80a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15634 Liberal St  Detroit",
+        "name": "RealT   15634 Liberal St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0xa81f77e8988b28fb74243b907ace3c83353dc80a",
         "contractType": "erc20",
@@ -60388,7 +60250,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16703/thumb/Liberal-1.png?1624643634",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15634-L"
+        "symbol": "REALT-S-15634-LIBER"
       },
       {
         "assetId": "eip155:1/erc20:0xa823e6722006afe99e91c30ff5295052fe6b8e32",
@@ -60484,7 +60346,7 @@
         "assetId": "eip155:1/erc20:0xa87135285ae208e22068acdbff64b11ec73eaa5a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Lunr Token",
+        "name": "Lunr",
         "precision": 4,
         "tokenId": "0xa87135285ae208e22068acdbff64b11ec73eaa5a",
         "contractType": "erc20",
@@ -60826,6 +60688,21 @@
         "symbol": "DFI"
       },
       {
+        "assetId": "eip155:1/erc20:0xa953736904e23fafb42e353d4122420899999999",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Forbitspace",
+        "precision": 18,
+        "tokenId": "0xa953736904e23fafb42e353d4122420899999999",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25541/thumb/FBS-forbitspace-logo.png?1652265910",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "FBS"
+      },
+      {
         "assetId": "eip155:1/erc20:0xa95592dcffa3c080b4b40e459c5f5692f67db7f8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -61054,7 +60931,7 @@
         "assetId": "eip155:1/erc20:0xa9f30c907321718e655b74463ca665b690b78894",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15860 Hartwell St  Detroi",
+        "name": "RealT   15860 Hartwell St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xa9f30c907321718e655b74463ca665b690b78894",
         "contractType": "erc20",
@@ -61063,7 +60940,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16595/thumb/15860-Hartwell-hero-1.jpg?1624540454",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15860-H"
+        "symbol": "REALT-S-15860-HARTW"
       },
       {
         "assetId": "eip155:1/erc20:0xa9fbb83a2689f4ff86339a4b96874d718673b627",
@@ -61729,7 +61606,7 @@
         "assetId": "eip155:1/erc20:0xabd4dc8fde9848cbc4ff2c0ee81d4a49f4803da4",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Squeeze Token",
+        "name": "Squeeze",
         "precision": 9,
         "tokenId": "0xabd4dc8fde9848cbc4ff2c0ee81d4a49f4803da4",
         "contractType": "erc20",
@@ -62269,7 +62146,7 @@
         "assetId": "eip155:1/erc20:0xad91999f534f4075b00ba4231c018e57bdebb342",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   18983 Alcoy Ave  Detroit ",
+        "name": "RealT   18983 Alcoy Ave  Detroit  MI 48",
         "precision": 18,
         "tokenId": "0xad91999f534f4075b00ba4231c018e57bdebb342",
         "contractType": "erc20",
@@ -62278,7 +62155,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16619/thumb/18983-Alcoy-hero-1.jpg?1624550570",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-18983-A"
+        "symbol": "REALT-S-18983-ALCOY"
       },
       {
         "assetId": "eip155:1/erc20:0xad996a45fd2373ed0b10efa4a8ecb9de445a4302",
@@ -62674,7 +62551,7 @@
         "assetId": "eip155:1/erc20:0xaec65404ddc3af3c897ad89571d5772c1a695f22",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Phoenix Token",
+        "name": "Phoenix Finance",
         "precision": 18,
         "tokenId": "0xaec65404ddc3af3c897ad89571d5772c1a695f22",
         "contractType": "erc20",
@@ -63124,7 +63001,7 @@
         "assetId": "eip155:1/erc20:0xb09850e2b93aa3aaa1476bf0c007cfc960e2de79",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14229 Wilshire Dr  Detroi",
+        "name": "RealT   14229 Wilshire Dr  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xb09850e2b93aa3aaa1476bf0c007cfc960e2de79",
         "contractType": "erc20",
@@ -63133,7 +63010,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16604/thumb/14229-Wilshire-hero-1.jpg?1624543967",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14229-W"
+        "symbol": "REALT-S-14229-WILSH"
       },
       {
         "assetId": "eip155:1/erc20:0xb09ad98524780228d2df4f34aa665d9dbb9999e4",
@@ -63349,7 +63226,7 @@
         "assetId": "eip155:1/erc20:0xb14ebf566511b9e6002bb286016ab2497b9b9c9d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Hypersign Identity Token",
+        "name": "Hypersign Identity",
         "precision": 18,
         "tokenId": "0xb14ebf566511b9e6002bb286016ab2497b9b9c9d",
         "contractType": "erc20",
@@ -63796,21 +63673,6 @@
         "symbol": "BUT"
       },
       {
-        "assetId": "eip155:1/erc20:0xb2ed199b46630e789e8740fb83b1611acf018516",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Gol D Inu",
-        "precision": 9,
-        "tokenId": "0xb2ed199b46630e789e8740fb83b1611acf018516",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20278/thumb/QhZ8MqM.png?1636709518",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "GINU"
-      },
-      {
         "color": "#7057F5",
         "contractType": "erc20",
         "dataSource": "yearnfinance",
@@ -64024,7 +63886,7 @@
         "assetId": "eip155:1/erc20:0xb3d3c1bbcef737204aadb4fa6d90e974bc262197",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15796 Hartwell St  Detroi",
+        "name": "RealT   15796 Hartwell St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xb3d3c1bbcef737204aadb4fa6d90e974bc262197",
         "contractType": "erc20",
@@ -64033,7 +63895,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16607/thumb/15796-Hartwell-hero-1.jpeg?1624545151",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15796-H"
+        "symbol": "REALT-S-15796-HARTW"
       },
       {
         "assetId": "eip155:1/erc20:0xb3e2cb7cccfe139f8ff84013823bf22da6b6390a",
@@ -64276,21 +64138,6 @@
         "assetId": "eip155:1/erc20:0xb48e0f69e6a3064f5498d495f77ad83e0874ab28"
       },
       {
-        "assetId": "eip155:1/erc20:0xb499b5a97bdbc3e117d15b448daacc9305025689",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Yokai Network",
-        "precision": 18,
-        "tokenId": "0xb499b5a97bdbc3e117d15b448daacc9305025689",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20361/thumb/t1VJM5h.png?1636945441",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "YOKAI"
-      },
-      {
         "assetId": "eip155:1/erc20:0xb49fa25978abf9a248b8212ab4b87277682301c0",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -64469,21 +64316,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "DOGES"
-      },
-      {
-        "assetId": "eip155:1/erc20:0xb51feac0cd237084760c24e78aaba5233ce09491",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "MissedEverything",
-        "precision": 9,
-        "tokenId": "0xb51feac0cd237084760c24e78aaba5233ce09491",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20404/thumb/ZHDSm8y.png?1636983467",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "ME"
       },
       {
         "assetId": "eip155:1/erc20:0xb52bbd3d5bfa3836bf2b55fe3b7467219280bc2e",
@@ -64699,7 +64531,7 @@
         "assetId": "eip155:1/erc20:0xb5d30c28f87acf675ed5b9f343e5fff39ec9942c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token  10024 10028 Appoline St  D",
+        "name": "RealT  10024 10028 Appoline St  Detroit",
         "precision": 18,
         "tokenId": "0xb5d30c28f87acf675ed5b9f343e5fff39ec9942c",
         "contractType": "erc20",
@@ -64708,7 +64540,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16639/thumb/appoline-hero.jpeg?1624559019",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10024-1"
+        "symbol": "REALT-S-10024-10028"
       },
       {
         "color": "#7057F5",
@@ -64729,7 +64561,7 @@
         "assetId": "eip155:1/erc20:0xb5dd2b6e0a0422e069e1d2cc3ed16533488a05e3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   12866 Lauder St  Detroit ",
+        "name": "RealT   12866 Lauder St  Detroit  MI 48",
         "precision": 18,
         "tokenId": "0xb5dd2b6e0a0422e069e1d2cc3ed16533488a05e3",
         "contractType": "erc20",
@@ -64738,7 +64570,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16565/thumb/12866-Lauder-hero-1.jpg?1624460677",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-12866-L"
+        "symbol": "REALT-S-12866-LAUDE"
       },
       {
         "assetId": "eip155:1/erc20:0xb5e09e6bf6a5e96934b3fd99a40f7edaca1173ed",
@@ -64804,7 +64636,7 @@
         "assetId": "eip155:1/erc20:0xb622400807765e73107b7196f444866d7edf6f62",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Heros Token",
+        "name": "Heros",
         "precision": 9,
         "tokenId": "0xb622400807765e73107b7196f444866d7edf6f62",
         "contractType": "erc20",
@@ -65359,7 +65191,7 @@
         "assetId": "eip155:1/erc20:0xb8403b7730368942a5bfe5aac04a31b44015b1cc",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   11078 Wayburn St  Detroit",
+        "name": "RealT   11078 Wayburn St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0xb8403b7730368942a5bfe5aac04a31b44015b1cc",
         "contractType": "erc20",
@@ -65368,7 +65200,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16596/thumb/11078-Wayburn-hero-1.jpg?1624541135",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-11078-W"
+        "symbol": "REALT-S-11078-WAYBU"
       },
       {
         "assetId": "eip155:1/erc20:0xb840d10d840ef47c233fec1fd040f5b145a6dfa5",
@@ -65449,7 +65281,7 @@
         "assetId": "eip155:1/erc20:0xb8981acbbf7da95a8ff6df79aab935ce63434fc8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Cfoforum Token",
+        "name": "Cfoforum",
         "precision": 6,
         "tokenId": "0xb8981acbbf7da95a8ff6df79aab935ce63434fc8",
         "contractType": "erc20",
@@ -65779,7 +65611,7 @@
         "assetId": "eip155:1/erc20:0xb9a6644bef37286fc08e703ecd15e9dedf78d3eb",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Attlas Token",
+        "name": "Attlas",
         "precision": 8,
         "tokenId": "0xb9a6644bef37286fc08e703ecd15e9dedf78d3eb",
         "contractType": "erc20",
@@ -65929,7 +65761,7 @@
         "assetId": "eip155:1/erc20:0xba07997f594a52df179620284b52b50a4e66227d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   17809 Charest St  Detroit",
+        "name": "RealT   17809 Charest St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0xba07997f594a52df179620284b52b50a4e66227d",
         "contractType": "erc20",
@@ -65938,7 +65770,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16601/thumb/17809-Charest-hero-1.jpg?1624543227",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-17809-C"
+        "symbol": "REALT-S-17809-CHARE"
       },
       {
         "assetId": "eip155:1/erc20:0xba100000625a3754423978a60c9317c58a424e3d",
@@ -66229,7 +66061,7 @@
         "assetId": "eip155:1/erc20:0xbaa9af8a83500ac4137c555b9e58ccb3e1f2269d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "ShinChan Token",
+        "name": "ShinChan",
         "precision": 9,
         "tokenId": "0xbaa9af8a83500ac4137c555b9e58ccb3e1f2269d",
         "contractType": "erc20",
@@ -67084,7 +66916,7 @@
         "assetId": "eip155:1/erc20:0xbcf91e60a6719eb3e9308addf1f7c6185c2af889",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "ExenPay Token",
+        "name": "ExenPay",
         "precision": 2,
         "tokenId": "0xbcf91e60a6719eb3e9308addf1f7c6185c2af889",
         "contractType": "erc20",
@@ -67189,7 +67021,7 @@
         "assetId": "eip155:1/erc20:0xbd15c4c8cd28a08e43846e3155c01a1f648d8d42",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Beach Token",
+        "name": "Beach",
         "precision": 9,
         "tokenId": "0xbd15c4c8cd28a08e43846e3155c01a1f648d8d42",
         "contractType": "erc20",
@@ -67429,7 +67261,7 @@
         "assetId": "eip155:1/erc20:0xbdbf245c690d54b67c6e610a28486a2c6de08be6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Sunder Goverance Token",
+        "name": "Sunder Goverance",
         "precision": 18,
         "tokenId": "0xbdbf245c690d54b67c6e610a28486a2c6de08be6",
         "contractType": "erc20",
@@ -67529,6 +67361,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "MAV"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xbe1fa1303e2979ab4d4e5df3d1c6e3656acab027",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Dripto",
+        "precision": 18,
+        "tokenId": "0xbe1fa1303e2979ab4d4e5df3d1c6e3656acab027",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25569/thumb/dryp.png?1652602736",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "DRYP"
       },
       {
         "assetId": "eip155:1/erc20:0xbe30f684d62c9f7883a75a29c162c332c0d98f23",
@@ -68326,6 +68173,21 @@
         "symbol": "ELT"
       },
       {
+        "assetId": "eip155:1/erc20:0xc0b182b2e06164568a3310ca1086e9bf19209e6c",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Pumptopia",
+        "precision": 18,
+        "tokenId": "0xc0b182b2e06164568a3310ca1086e9bf19209e6c",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/24262/thumb/pinksale-200x200-1.jpg?1647171185",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "PTPA"
+      },
+      {
         "assetId": "eip155:1/erc20:0xc0ba369c8db6eb3924965e5c4fd0b4c1b91e305f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -68854,7 +68716,7 @@
         "assetId": "eip155:1/erc20:0xc229c69eb3bb51828d0caa3509a05a51083898dd",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Pintu Token",
+        "name": "Pintu",
         "precision": 18,
         "tokenId": "0xc229c69eb3bb51828d0caa3509a05a51083898dd",
         "contractType": "erc20",
@@ -70144,7 +70006,7 @@
         "assetId": "eip155:1/erc20:0xc5ec4f1fc86da45ae788ec98756ba70b57676409",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Oje Token",
+        "name": "Oje",
         "precision": 18,
         "tokenId": "0xc5ec4f1fc86da45ae788ec98756ba70b57676409",
         "contractType": "erc20",
@@ -70204,7 +70066,7 @@
         "assetId": "eip155:1/erc20:0xc631120155621ee625835ec810b9885cdd764cd6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Goldex Token",
+        "name": "Goldex",
         "precision": 8,
         "tokenId": "0xc631120155621ee625835ec810b9885cdd764cd6",
         "contractType": "erc20",
@@ -70549,7 +70411,7 @@
         "assetId": "eip155:1/erc20:0xc731eca970979cd2da2a1094a808f49894070d35",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   19218 Houghton St  Detroi",
+        "name": "RealT   19218 Houghton St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xc731eca970979cd2da2a1094a808f49894070d35",
         "contractType": "erc20",
@@ -70558,7 +70420,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16708/thumb/19218-Houghton-hero-1.jpeg?1624646592",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-19218-H"
+        "symbol": "REALT-S-19218-HOUGH"
       },
       {
         "assetId": "eip155:1/erc20:0xc73c167e7a4ba109e4052f70d5466d0c312a344d",
@@ -71359,7 +71221,7 @@
         "assetId": "eip155:1/erc20:0xc9f1016d336ef77aee75fc11ad64c5ecf9121332",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "SoMee Advertising Token",
+        "name": "SoMee Advertising",
         "precision": 18,
         "tokenId": "0xc9f1016d336ef77aee75fc11ad64c5ecf9121332",
         "contractType": "erc20",
@@ -71759,6 +71621,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "HDS"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xcafe34bae6f1b23a6b575303edcc0578d2188131",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Minter Network",
+        "precision": 18,
+        "tokenId": "0xcafe34bae6f1b23a6b575303edcc0578d2188131",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/9982/thumb/Nvoj_6Mu_400x400.jpg?1587968303",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "BIP"
       },
       {
         "assetId": "eip155:1/erc20:0xcb17cd357c7acd594717d899ecb9df540f633f27",
@@ -72784,7 +72661,7 @@
         "assetId": "eip155:1/erc20:0xce111a198eb04f388aceb78c40ced6daf1b0514a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   272 N E  42nd Court  Deer",
+        "name": "RealT   272 N E  42nd Court  Deerfield ",
         "precision": 18,
         "tokenId": "0xce111a198eb04f388aceb78c40ced6daf1b0514a",
         "contractType": "erc20",
@@ -72793,7 +72670,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16635/thumb/272-Court-1.jpeg?1624556789",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-272-NE-"
+        "symbol": "REALT-S-272-NE-42ND"
       },
       {
         "assetId": "eip155:1/erc20:0xce13abce0db5a8224616ef24d3979d466f19cf90",
@@ -72884,21 +72761,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "GR"
-      },
-      {
-        "assetId": "eip155:1/erc20:0xcea8a10df595a20fceca4f6f2c23384eec1e4073",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Good Game",
-        "precision": 18,
-        "tokenId": "0xcea8a10df595a20fceca4f6f2c23384eec1e4073",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20199/thumb/htauHyp.jpeg?1636615824",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "GG"
       },
       {
         "assetId": "eip155:1/erc20:0xceaaf939438fa3b93479962d519227aed65a5eb2",
@@ -73549,7 +73411,7 @@
         "assetId": "eip155:1/erc20:0xd08d2b199e9e5df407427d4085877d1fdff3b1d6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   6923 Greenview Ave  Detro",
+        "name": "RealT   6923 Greenview Ave  Detroit  MI",
         "precision": 18,
         "tokenId": "0xd08d2b199e9e5df407427d4085877d1fdff3b1d6",
         "contractType": "erc20",
@@ -73558,7 +73420,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16676/thumb/6923-Greenview.jpeg?1624629085",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-6923-GR"
+        "symbol": "REALT-S-6923-GREENV"
       },
       {
         "assetId": "eip155:1/erc20:0xd0929d411954c47438dc1d871dd6081f5c5e149c",
@@ -73954,7 +73816,7 @@
         "assetId": "eip155:1/erc20:0xd1c15cebfdcd16f00d91666bf64c8b66cbf5e9b5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10612 Somerset Ave  Detro",
+        "name": "RealT   10612 Somerset Ave  Detroit  MI",
         "precision": 18,
         "tokenId": "0xd1c15cebfdcd16f00d91666bf64c8b66cbf5e9b5",
         "contractType": "erc20",
@@ -73963,7 +73825,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16680/thumb/Somerset-3.jpeg?1624630432",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10612-S"
+        "symbol": "REALT-S-10612-SOMER"
       },
       {
         "assetId": "eip155:1/erc20:0xd1e06952708771f71e6dd18f06ee418f6e8fc564",
@@ -74596,6 +74458,21 @@
         "symbol": "AENS"
       },
       {
+        "assetId": "eip155:1/erc20:0xd39a2cecba2657e125ba6a5c98ad2f6b6d7e83fd",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Luxo",
+        "precision": 18,
+        "tokenId": "0xd39a2cecba2657e125ba6a5c98ad2f6b6d7e83fd",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25545/thumb/ik7UTHJR_400x400.jpg?1652327828",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "LUXO"
+      },
+      {
         "assetId": "eip155:1/erc20:0xd3c51de3e6dd9b53d7f37699afb3ee3bf9b9b3f4",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -74614,7 +74491,7 @@
         "assetId": "eip155:1/erc20:0xd3c625f54dec647db8780dbbe0e880ef21ba4329",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "HollaEx Token",
+        "name": "HollaEx",
         "precision": 18,
         "tokenId": "0xd3c625f54dec647db8780dbbe0e880ef21ba4329",
         "contractType": "erc20",
@@ -74779,7 +74656,7 @@
         "assetId": "eip155:1/erc20:0xd437d88153daef4784cacd2084b1d8cc2d3312b8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "3X Long Zcash Token",
+        "name": "3X Long Zcash",
         "precision": 18,
         "tokenId": "0xd437d88153daef4784cacd2084b1d8cc2d3312b8",
         "contractType": "erc20",
@@ -75076,21 +74953,6 @@
         "symbol": "PPT"
       },
       {
-        "assetId": "eip155:1/erc20:0xd4ff0c24285c48f748fcfff926f52a824f1df834",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Skywalker",
-        "precision": 9,
-        "tokenId": "0xd4ff0c24285c48f748fcfff926f52a824f1df834",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20255/thumb/tewxPoy.png?1636701818",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "SKY"
-      },
-      {
         "assetId": "eip155:1/erc20:0xd502f487e1841fdc805130e13eae80c61186bc98",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -75319,7 +75181,7 @@
         "assetId": "eip155:1/erc20:0xd5d1adf54fbf73a00b197ddcfdad7cc27d93002f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10629 McKinney St  Detroi",
+        "name": "RealT   10629 McKinney St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xd5d1adf54fbf73a00b197ddcfdad7cc27d93002f",
         "contractType": "erc20",
@@ -75328,7 +75190,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16611/thumb/10629-McKinney-hero-1.jpg?1624545790",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10629-M"
+        "symbol": "REALT-S-10629-MCKIN"
       },
       {
         "assetId": "eip155:1/erc20:0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
@@ -75364,7 +75226,7 @@
         "assetId": "eip155:1/erc20:0xd5fc0c4c4c5ff316e1e91494d963ff1d52ba25ff",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   11078 Longview St  Detroi",
+        "name": "RealT   11078 Longview St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xd5fc0c4c4c5ff316e1e91494d963ff1d52ba25ff",
         "contractType": "erc20",
@@ -75373,7 +75235,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16630/thumb/11078-Longview-hero-2.5.jpg?1624553559",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-11078-L"
+        "symbol": "REALT-S-11078-LONGV"
       },
       {
         "assetId": "eip155:1/erc20:0xd61143652af94f570c7d9429356662dd859ca6ec",
@@ -76006,6 +75868,21 @@
         "assetId": "eip155:1/erc20:0xd811e485cb4ab1fad56233de4464fb5d1c9f3e99"
       },
       {
+        "assetId": "eip155:1/erc20:0xd81b71cbb89b2800cdb000aa277dc1491dc923c3",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "NFTMart",
+        "precision": 18,
+        "tokenId": "0xd81b71cbb89b2800cdb000aa277dc1491dc923c3",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/15811/thumb/NFTMART.png?1624962351",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "NMT"
+      },
+      {
         "assetId": "eip155:1/erc20:0xd829664cdbf3195b2ce76047a65de29e7ed0a9a8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -76069,7 +75946,7 @@
         "assetId": "eip155:1/erc20:0xd83c569268930fadad4cde6d0cb64450fef32b65",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Invictus Capital Token",
+        "name": "Invictus Capital",
         "precision": 18,
         "tokenId": "0xd83c569268930fadad4cde6d0cb64450fef32b65",
         "contractType": "erc20",
@@ -76564,7 +76441,7 @@
         "assetId": "eip155:1/erc20:0xd9e89bfebae447b42c1fa85c590716ec8820f737",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   4061 Grand St  Detroit  M",
+        "name": "RealT   4061 Grand St  Detroit  MI 4823",
         "precision": 18,
         "tokenId": "0xd9e89bfebae447b42c1fa85c590716ec8820f737",
         "contractType": "erc20",
@@ -76573,7 +76450,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16616/thumb/4061-Grand-hero-1.jpeg?1624551866",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-4061-GR"
+        "symbol": "REALT-S-4061-GRAND-"
       },
       {
         "color": "#7057F5",
@@ -76699,7 +76576,7 @@
         "assetId": "eip155:1/erc20:0xda47bd33e8f5d17bb81b8752784bfb46c1c44b2a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15350 Greydale St  Detroi",
+        "name": "RealT   15350 Greydale St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xda47bd33e8f5d17bb81b8752784bfb46c1c44b2a",
         "contractType": "erc20",
@@ -76708,7 +76585,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16564/thumb/15350-Greydale-hero-1.jpg?1624460101",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15350-G"
+        "symbol": "REALT-S-15350-GREYD"
       },
       {
         "assetId": "eip155:1/erc20:0xda5cae7bf4815e6ce3b2488ee102e67403245679",
@@ -77191,19 +77068,19 @@
         "symbol": "UWL"
       },
       {
-        "assetId": "eip155:1/erc20:0xdbddf072d7aae7b9288e31a4eebe6c54e3a143b1",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Crowny",
-        "precision": 18,
-        "tokenId": "0xdbddf072d7aae7b9288e31a4eebe6c54e3a143b1",
+        "color": "#7057F5",
         "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
+        "dataSource": "yearnfinance",
         "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xDBdDf072d7aae7B9288e31A4eebe6C54e3a143b1/logo.png",
-        "sendSupport": true,
+        "name": "CRWNY",
+        "precision": 18,
         "receiveSupport": true,
-        "symbol": "CRWNY"
+        "secondaryColor": "#7057F5",
+        "sendSupport": true,
+        "symbol": "CRWNY",
+        "tokenId": "0xdbddf072d7aae7b9288e31a4eebe6c54e3a143b1",
+        "chainId": "eip155:1",
+        "assetId": "eip155:1/erc20:0xdbddf072d7aae7b9288e31a4eebe6c54e3a143b1"
       },
       {
         "assetId": "eip155:1/erc20:0xdc0327d50e6c73db2f8117760592c8bbf1cdcf38",
@@ -77299,7 +77176,7 @@
         "assetId": "eip155:1/erc20:0xdc524e3c6910257744c1f93cf15e9f472b5bd236",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Witch Token",
+        "name": "Witch",
         "precision": 18,
         "tokenId": "0xdc524e3c6910257744c1f93cf15e9f472b5bd236",
         "contractType": "erc20",
@@ -77629,7 +77506,7 @@
         "assetId": "eip155:1/erc20:0xdd833d0eef6d5d7cec781b03c19f3b425f3039df",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   11957 Olga St  Detroit  M",
+        "name": "RealT   11957 Olga St  Detroit  MI 4821",
         "precision": 18,
         "tokenId": "0xdd833d0eef6d5d7cec781b03c19f3b425f3039df",
         "contractType": "erc20",
@@ -77638,7 +77515,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16672/thumb/11957-Olga-hero-1.jpg?1624628071",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-11957-O"
+        "symbol": "REALT-S-11957-OLGA-"
       },
       {
         "assetId": "eip155:1/erc20:0xdd974d5c2e2928dea5f71b9825b8b646686bd200",
@@ -77794,7 +77671,7 @@
         "assetId": "eip155:1/erc20:0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "DEI Token",
+        "name": "DEI",
         "precision": 18,
         "tokenId": "0xde12c7959e1a72bbe8a5f7a1dc8f8eef9ab011b3",
         "contractType": "erc20",
@@ -78439,7 +78316,7 @@
         "assetId": "eip155:1/erc20:0xdfc3829b127761a3218bfcee7fc92e1232c9d116",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "PRCY Coin",
+        "name": "PRivaCY Coin",
         "precision": 8,
         "tokenId": "0xdfc3829b127761a3218bfcee7fc92e1232c9d116",
         "contractType": "erc20",
@@ -78754,7 +78631,7 @@
         "assetId": "eip155:1/erc20:0xe0a189c975e4928222978a74517442239a0b86ff",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Keys Token",
+        "name": "Keys",
         "precision": 9,
         "tokenId": "0xe0a189c975e4928222978a74517442239a0b86ff",
         "contractType": "erc20",
@@ -79384,7 +79261,7 @@
         "assetId": "eip155:1/erc20:0xe1d7c7a4596b038ced2a84bf65b8647271c53208",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "NFTY Token",
+        "name": "NFTY Labs",
         "precision": 18,
         "tokenId": "0xe1d7c7a4596b038ced2a84bf65b8647271c53208",
         "contractType": "erc20",
@@ -79489,7 +79366,7 @@
         "assetId": "eip155:1/erc20:0xe255caf8893382465368b8e1cd4ef8436acf0ade",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   402 S Kostner Ave  Chicag",
+        "name": "RealT   402 S Kostner Ave  Chicago  IL ",
         "precision": 18,
         "tokenId": "0xe255caf8893382465368b8e1cd4ef8436acf0ade",
         "contractType": "erc20",
@@ -79498,7 +79375,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16627/thumb/402-S-Kostner-hero-1.jpg?1624553033",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-402-SKO"
+        "symbol": "REALT-S-402-SKOSTNE"
       },
       {
         "assetId": "eip155:1/erc20:0xe25b0bba01dc5630312b6a21927e578061a13f55",
@@ -79814,6 +79691,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "TCR"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xe3902e329ef2d3fd7666022c139d75bcc984b7a5",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "RealT   15048 Freeland St  Detroit  MI ",
+        "precision": 18,
+        "tokenId": "0xe3902e329ef2d3fd7666022c139d75bcc984b7a5",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/16669/thumb/Freeland-8_jpeg.png?1624627336",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "REALT-S-15048-FREEL"
       },
       {
         "assetId": "eip155:1/erc20:0xe3a64a3c4216b83255b53ec7ea078b13f21a7dad",
@@ -80584,7 +80476,7 @@
         "assetId": "eip155:1/erc20:0xe5ce63ac9a08c1eb160889151cd84855f16c94d2",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10616 McKinney St  Detroi",
+        "name": "RealT   10616 McKinney St  Detroit  MI ",
         "precision": 18,
         "tokenId": "0xe5ce63ac9a08c1eb160889151cd84855f16c94d2",
         "contractType": "erc20",
@@ -80593,7 +80485,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16685/thumb/Mkinney-hero.jpeg?1624634131",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10616-M"
+        "symbol": "REALT-S-10616-MCKIN"
       },
       {
         "color": "#7057F5",
@@ -80884,7 +80776,7 @@
         "assetId": "eip155:1/erc20:0xe66b3aa360bb78468c00bebe163630269db3324f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Merchant Token",
+        "name": "Merchant",
         "precision": 18,
         "tokenId": "0xe66b3aa360bb78468c00bebe163630269db3324f",
         "contractType": "erc20",
@@ -80989,7 +80881,7 @@
         "assetId": "eip155:1/erc20:0xe6cc10ef4de1ccfb821c99c04abfe1859d8eab8f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "ExenToken",
+        "name": "Exen",
         "precision": 2,
         "tokenId": "0xe6cc10ef4de1ccfb821c99c04abfe1859d8eab8f",
         "contractType": "erc20",
@@ -81229,7 +81121,7 @@
         "assetId": "eip155:1/erc20:0xe7b6de709ffc3bd237c2f2c800e1002f97a760f3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   4852 4854 W Cortez St  Ch",
+        "name": "RealT   4852 4854 W Cortez St  Chicago ",
         "precision": 18,
         "tokenId": "0xe7b6de709ffc3bd237c2f2c800e1002f97a760f3",
         "contractType": "erc20",
@@ -81238,7 +81130,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16670/thumb/Cortez-facade-1.jpg?1624627398",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-4852-48"
+        "symbol": "REALT-S-4852-4854-W"
       },
       {
         "assetId": "eip155:1/erc20:0xe7c7ee8075857d24d4534491f638af6a99f524e2",
@@ -81376,19 +81268,19 @@
         "symbol": "AICO"
       },
       {
-        "assetId": "eip155:1/erc20:0xe7fd8ab781bf7654cfcce2ace6eefabae0891996",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Vibe Token",
-        "precision": 9,
-        "tokenId": "0xe7fd8ab781bf7654cfcce2ace6eefabae0891996",
+        "color": "#7057F5",
         "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20333/thumb/Photo-2021-11-12-23-33-30-removebg-preview.png?1636937363",
-        "sendSupport": true,
+        "dataSource": "yearnfinance",
+        "icon": "https://assets.yearn.network/tokens/ethereum/0xe7fd8ab781bf7654cfcce2ace6eefabae0891996.png",
+        "name": "vibe",
+        "precision": 9,
         "receiveSupport": true,
-        "symbol": "VIBE"
+        "secondaryColor": "#7057F5",
+        "sendSupport": true,
+        "symbol": "vibe",
+        "tokenId": "0xe7fd8ab781bf7654cfcce2ace6eefabae0891996",
+        "chainId": "eip155:1",
+        "assetId": "eip155:1/erc20:0xe7fd8ab781bf7654cfcce2ace6eefabae0891996"
       },
       {
         "assetId": "eip155:1/erc20:0xe803178b48a0e560c2b19f3b3d4e504f79d229ce",
@@ -81469,7 +81361,7 @@
         "assetId": "eip155:1/erc20:0xe82cbb7c29d00a4296ee505d12a473c26cd9c423",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   10700 Whittier Ave  Detro",
+        "name": "RealT   10700 Whittier Ave  Detroit  MI",
         "precision": 18,
         "tokenId": "0xe82cbb7c29d00a4296ee505d12a473c26cd9c423",
         "contractType": "erc20",
@@ -81478,7 +81370,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16625/thumb/10700-Whittier-hero-2.jpg?1624552489",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-10700-W"
+        "symbol": "REALT-S-10700-WHITT"
       },
       {
         "assetId": "eip155:1/erc20:0xe831f96a7a1dce1aa2eb760b1e296c6a74caa9d5",
@@ -81604,7 +81496,7 @@
         "assetId": "eip155:1/erc20:0xe887dc4fcb5240c0c080aeab8870421d3ebd0b28",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   14066 Santa Rosa Dr  Detr",
+        "name": "RealT   14066 Santa Rosa Dr  Detroit  M",
         "precision": 18,
         "tokenId": "0xe887dc4fcb5240c0c080aeab8870421d3ebd0b28",
         "contractType": "erc20",
@@ -81613,7 +81505,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16677/thumb/14066-Santa-Rosa-hero-1.5.jpg?1624629250",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-14066-S"
+        "symbol": "REALT-S-14066-SANTA"
       },
       {
         "assetId": "eip155:1/erc20:0xe88f8313e61a97cec1871ee37fbbe2a8bf3ed1e4",
@@ -81959,21 +81851,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "HRDG"
-      },
-      {
-        "assetId": "eip155:1/erc20:0xe9da9abf3e6fa6a5d3b2bb05a8d17907c1c4a0c3",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Fear Uncertainty Doubt",
-        "precision": 9,
-        "tokenId": "0xe9da9abf3e6fa6a5d3b2bb05a8d17907c1c4a0c3",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20261/thumb/vMT2nGU.png?1636702977",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "FUD"
       },
       {
         "color": "#276BDB",
@@ -82429,7 +82306,7 @@
         "assetId": "eip155:1/erc20:0xeb1112ac78d537853150e2a07e8b765e29d3f019",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Hash Token",
+        "name": "Hashbon",
         "precision": 18,
         "tokenId": "0xeb1112ac78d537853150e2a07e8b765e29d3f019",
         "contractType": "erc20",
@@ -83074,7 +82951,7 @@
         "assetId": "eip155:1/erc20:0xed1480d12be41d92f36f5f7bdd88212e381a3677",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "FIAT DAO Token",
+        "name": "Fiat DAO",
         "precision": 18,
         "tokenId": "0xed1480d12be41d92f36f5f7bdd88212e381a3677",
         "contractType": "erc20",
@@ -83479,7 +83356,7 @@
         "assetId": "eip155:1/erc20:0xee2f2212a64ec3f6bc0f7580e10c53cb38b57508",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   12334 Lansdowne Street  D",
+        "name": "RealT   12334 Lansdowne Street  Detroit",
         "precision": 18,
         "tokenId": "0xee2f2212a64ec3f6bc0f7580e10c53cb38b57508",
         "contractType": "erc20",
@@ -83488,7 +83365,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16692/thumb/Landsdowne-hero.jpeg?1624638212",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-12334-L"
+        "symbol": "REALT-S-12334-LANSD"
       },
       {
         "color": "#7057F5",
@@ -83704,7 +83581,7 @@
         "assetId": "eip155:1/erc20:0xeedc2f5f4d1226759b1acf9efa23a99661de6663",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   20200 Lesure St  Detroit ",
+        "name": "RealT   20200 Lesure St  Detroit  MI 48",
         "precision": 18,
         "tokenId": "0xeedc2f5f4d1226759b1acf9efa23a99661de6663",
         "contractType": "erc20",
@@ -83713,7 +83590,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16702/thumb/20200-Lesure-003.jpeg?1624643190",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-20200-L"
+        "symbol": "REALT-S-20200-LESUR"
       },
       {
         "assetId": "eip155:1/erc20:0xeeee2a622330e6d2036691e983dee87330588603",
@@ -83881,21 +83758,6 @@
         "symbol": "DNA"
       },
       {
-        "assetId": "eip155:1/erc20:0xef66f8c4224b423888a64f0157e56756459c2cf8",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Shibelon Mars",
-        "precision": 9,
-        "tokenId": "0xef66f8c4224b423888a64f0157e56756459c2cf8",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20133/thumb/shibelon.jpeg?1636530113",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "SHIBELON"
-      },
-      {
         "assetId": "eip155:1/erc20:0xef7a985e4ff9b5dccd6eddf58577486887288711",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -84049,7 +83911,7 @@
         "assetId": "eip155:1/erc20:0xefe82d6baf0db71f92889eb9d00721bd49121316",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   4680 Buckingham Ave  Detr",
+        "name": "RealT   4680 Buckingham Ave  Detroit  M",
         "precision": 18,
         "tokenId": "0xefe82d6baf0db71f92889eb9d00721bd49121316",
         "contractType": "erc20",
@@ -84058,7 +83920,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16629/thumb/4680-Buckingham-hero-1.jpeg?1624553513",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-4680-BU"
+        "symbol": "REALT-S-4680-BUCKIN"
       },
       {
         "assetId": "eip155:1/erc20:0xeff3f1b9400d6d0f1e8805bdde592f61535f5ecd",
@@ -84424,7 +84286,7 @@
         "assetId": "eip155:1/erc20:0xf0c5831ec3da15f3696b4dad8b21c7ce2f007f28",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "AXIS Token",
+        "name": "AXIS",
         "precision": 8,
         "tokenId": "0xf0c5831ec3da15f3696b4dad8b21c7ce2f007f28",
         "contractType": "erc20",
@@ -84709,7 +84571,7 @@
         "assetId": "eip155:1/erc20:0xf18cffb528eca0ea31d1d6b28bc80d2eca34d14d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   25097 Andover Dr  Dearbor",
+        "name": "RealT   25097 Andover Dr  Dearborn Heig",
         "precision": 18,
         "tokenId": "0xf18cffb528eca0ea31d1d6b28bc80d2eca34d14d",
         "contractType": "erc20",
@@ -84718,7 +84580,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16698/thumb/Andover-25097.jpeg?1624641026",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-25097-A"
+        "symbol": "REALT-S-25097-ANDOV"
       },
       {
         "assetId": "eip155:1/erc20:0xf1a91c7d44768070f711c68f33a7ca25c8d30268",
@@ -84964,7 +84826,7 @@
         "assetId": "eip155:1/erc20:0xf23b80216a10e6f0c0d3b5ad5c9349e9425cad40",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15778 Manor St  Detroit  ",
+        "name": "RealT   15778 Manor St  Detroit  MI 482",
         "precision": 18,
         "tokenId": "0xf23b80216a10e6f0c0d3b5ad5c9349e9425cad40",
         "contractType": "erc20",
@@ -84973,7 +84835,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16689/thumb/15778-manor-hero-2.jpeg?1624636173",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15778-M"
+        "symbol": "REALT-S-15778-MANOR"
       },
       {
         "assetId": "eip155:1/erc20:0xf256cc7847e919fac9b808cc216cac87ccf2f47a",
@@ -85054,7 +84916,7 @@
         "assetId": "eip155:1/erc20:0xf268fe3d6909508dda90dccf2bf69050d19f4cdd",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Grow Token",
+        "name": "Grow",
         "precision": 18,
         "tokenId": "0xf268fe3d6909508dda90dccf2bf69050d19f4cdd",
         "contractType": "erc20",
@@ -85264,7 +85126,7 @@
         "assetId": "eip155:1/erc20:0xf32aa187d5bc16a2c02a6afb7df1459d0d107574",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Hachiko Inu Token",
+        "name": "HachikoInu",
         "precision": 18,
         "tokenId": "0xf32aa187d5bc16a2c02a6afb7df1459d0d107574",
         "contractType": "erc20",
@@ -85684,7 +85546,7 @@
         "assetId": "eip155:1/erc20:0xf4657ab08681214bcb1893aa8e9c7613459250ec",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   1617 S Avers Ave  Chicago",
+        "name": "RealT   1617 S Avers Ave  Chicago  IL 6",
         "precision": 18,
         "tokenId": "0xf4657ab08681214bcb1893aa8e9c7613459250ec",
         "contractType": "erc20",
@@ -85693,7 +85555,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16675/thumb/1617-S-Avers-hero-1.jpg?1624628860",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-1617-SA"
+        "symbol": "REALT-S-1617-SAVERS"
       },
       {
         "color": "#7057F5",
@@ -85984,7 +85846,7 @@
         "assetId": "eip155:1/erc20:0xf54b304e2e4b28c7e46619d1a340f9b2b72383d7",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Kranz Token",
+        "name": "Kranz",
         "precision": 18,
         "tokenId": "0xf54b304e2e4b28c7e46619d1a340f9b2b72383d7",
         "contractType": "erc20",
@@ -86659,7 +86521,7 @@
         "assetId": "eip155:1/erc20:0xf74941046389c78f12fe44784c0ec9ca7ceb7dc2",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Dreamr Platform Token",
+        "name": "Dreamr Platform",
         "precision": 18,
         "tokenId": "0xf74941046389c78f12fe44784c0ec9ca7ceb7dc2",
         "contractType": "erc20",
@@ -86749,7 +86611,7 @@
         "assetId": "eip155:1/erc20:0xf7ae26f1bf3c2312a4cf42246f947a4be25eef92",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Treasure Token Finance",
+        "name": "Treasure Finance",
         "precision": 18,
         "tokenId": "0xf7ae26f1bf3c2312a4cf42246f947a4be25eef92",
         "contractType": "erc20",
@@ -86989,7 +86851,7 @@
         "assetId": "eip155:1/erc20:0xf88b137cfa667065955abd17525e89edcf4d6426",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "iTrust Governance Token",
+        "name": "iTrust Governance",
         "precision": 18,
         "tokenId": "0xf88b137cfa667065955abd17525e89edcf4d6426",
         "contractType": "erc20",
@@ -87004,7 +86866,7 @@
         "assetId": "eip155:1/erc20:0xf8a4a419c2d7140e49ef952a7e7ae1bd4a8b6b9c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Lith Token",
+        "name": "Lith",
         "precision": 18,
         "tokenId": "0xf8a4a419c2d7140e49ef952a7e7ae1bd4a8b6b9c",
         "contractType": "erc20",
@@ -87424,7 +87286,7 @@
         "assetId": "eip155:1/erc20:0xf9c53268e9de692ae1b2ea5216e24e1c3ad7cb1e",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Idexo Token",
+        "name": "Idexo",
         "precision": 18,
         "tokenId": "0xf9c53268e9de692ae1b2ea5216e24e1c3ad7cb1e",
         "contractType": "erc20",
@@ -87829,7 +87691,7 @@
         "assetId": "eip155:1/erc20:0xfb19075d77a0f111796fb259819830f4780f1429",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Fenerbah e Token",
+        "name": "Fenerbah e",
         "precision": 6,
         "tokenId": "0xfb19075d77a0f111796fb259819830f4780f1429",
         "contractType": "erc20",
@@ -87979,7 +87841,7 @@
         "assetId": "eip155:1/erc20:0xfb83869f7ee52aebaddea254f647953afb1f99f8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Lean Management Token",
+        "name": "Lean Management",
         "precision": 18,
         "tokenId": "0xfb83869f7ee52aebaddea254f647953afb1f99f8",
         "contractType": "erc20",
@@ -88669,7 +88531,7 @@
         "assetId": "eip155:1/erc20:0xfe17c3c0b6f38cf3bd8ba872bee7a18ab16b43fb",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RealT Token   15777 Ardmore St  Detroit",
+        "name": "RealT   15777 Ardmore St  Detroit  MI 4",
         "precision": 18,
         "tokenId": "0xfe17c3c0b6f38cf3bd8ba872bee7a18ab16b43fb",
         "contractType": "erc20",
@@ -88678,7 +88540,7 @@
         "icon": "https://assets.coingecko.com/coins/images/16542/thumb/15777-Ardmore-hero-2.jpg?1624371814",
         "sendSupport": true,
         "receiveSupport": true,
-        "symbol": "REALTOKEN-S-15777-A"
+        "symbol": "REALT-S-15777-ARDMO"
       },
       {
         "assetId": "eip155:1/erc20:0xfe18be6b3bd88a2d2a7f928d00292e7a9963cfc6",

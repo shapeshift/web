@@ -2,17 +2,13 @@ import { SwapperType } from '@shapeshiftoss/types'
 import uniq from 'lodash/uniq'
 
 import { BuyAssetBySellIdInput, ByPairInput, SupportedSellAssetsInput, Swapper } from '..'
-
-export class SwapperError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.message = `SwapperError:${message}`
-  }
-}
+import { SwapError, SwapErrorTypes } from '../api'
 
 function validateSwapper(swapper: Swapper) {
   if (!(typeof swapper === 'object' && typeof swapper.getType === 'function'))
-    throw new SwapperError('validateSwapper - invalid swapper instance')
+    throw new SwapError('[validateSwapper] - invalid swapper instance', {
+      code: SwapErrorTypes.MANAGER_ERROR
+    })
 }
 
 // TODO: remove me
@@ -31,7 +27,11 @@ export class SwapperManager {
    */
   addSwapper(swapperType: SwapperType, swapperInstance: Swapper): this {
     const swapper = this.swappers.get(swapperType)
-    if (swapper) throw new SwapperError(`addSwapper - ${swapperType} already exists`)
+    if (swapper)
+      throw new SwapError('[addSwapper] - swapper already exists', {
+        code: SwapErrorTypes.MANAGER_ERROR,
+        details: { swapperType }
+      })
     validateSwapper(swapperInstance)
     this.swappers.set(swapperType, swapperInstance)
     return this
@@ -44,7 +44,11 @@ export class SwapperManager {
    */
   getSwapper(swapperType: SwapperType): Swapper {
     const swapper = this.swappers.get(swapperType)
-    if (!swapper) throw new SwapperError(`getSwapper - ${swapperType} doesn't exist`)
+    if (!swapper)
+      throw new SwapError('[getSwapper] - swapperType doesnt exist', {
+        code: SwapErrorTypes.MANAGER_ERROR,
+        details: { swapperType }
+      })
     return swapper
   }
 
@@ -55,7 +59,11 @@ export class SwapperManager {
    */
   removeSwapper(swapperType: SwapperType): this {
     const swapper = this.swappers.get(swapperType)
-    if (!swapper) throw new SwapperError(`removeSwapper - ${swapperType} doesn't exist`)
+    if (!swapper)
+      throw new SwapError('[removeSwapper] - swapperType doesnt exist', {
+        code: SwapErrorTypes.MANAGER_ERROR,
+        details: { swapperType }
+      })
     this.swappers.delete(swapperType)
     return this
   }

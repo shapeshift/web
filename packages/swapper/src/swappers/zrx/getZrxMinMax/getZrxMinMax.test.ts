@@ -20,8 +20,6 @@ describe('getZrxMinMax', () => {
     expect(minMax.maximum).toBe(MAX_ZRX_TRADE)
   })
   it('fails on non eth asset', async () => {
-    await expect(getZrxMinMax(BTC, WETH)).rejects.toThrow(
-      'ZrxError:getZrxMinMax - must be eth assets'
-    )
+    await expect(getZrxMinMax(BTC, WETH)).rejects.toThrow('[getZrxMinMax]')
   })
 })

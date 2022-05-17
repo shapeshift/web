@@ -64,7 +64,7 @@ describe('SwapperManager', () => {
     it('should throw an error if swapper is not set', () => {
       const swapper = new SwapperManager()
       expect(() => swapper.getSwapper(SwapperType.Thorchain)).toThrow(
-        "SwapperError:getSwapper - Thorchain doesn't exist"
+        '[getSwapper] - swapperType doesnt exist'
       )
     })
 
@@ -72,7 +72,7 @@ describe('SwapperManager', () => {
       const manager = new SwapperManager()
       // @ts-ignore
       expect(() => manager.addSwapper(SwapperType.Thorchain, {})).toThrow(
-        'SwapperError:validateSwapper - invalid swapper instance'
+        '[validateSwapper] - invalid swapper instance'
       )
     })
   })
@@ -84,14 +84,14 @@ describe('SwapperManager', () => {
         .addSwapper(SwapperType.Thorchain, new ThorchainSwapper())
         .removeSwapper(SwapperType.Thorchain)
       expect(() => swapper.getSwapper(SwapperType.Thorchain)).toThrow(
-        `SwapperError:getSwapper - ${SwapperType.Thorchain} doesn't exist`
+        `[getSwapper] - swapperType doesnt exist`
       )
     })
 
     it("should throw an error if swapper isn't set", () => {
       const swapper = new SwapperManager()
       expect(() => swapper.removeSwapper(SwapperType.Thorchain)).toThrow(
-        `SwapperError:removeSwapper - ${SwapperType.Thorchain} doesn't exist`
+        `[removeSwapper] - swapperType doesnt exist`
       )
     })
   })

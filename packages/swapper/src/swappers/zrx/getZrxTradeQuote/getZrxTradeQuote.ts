@@ -1,40 +1,39 @@
 import { SwapSource } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
-import { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import { GetTradeQuoteInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
 import { getZrxMinMax } from '../getZrxMinMax/getZrxMinMax'
 import { ZrxPriceResponse } from '../types'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { normalizeAmount } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
-import { ZrxError } from '../ZrxSwapper'
 
 export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<'eip155:1'>> {
-  const { sellAsset, buyAsset, sellAmount, sellAssetAccountId } = input
-  if (!buyAsset) {
-    throw new ZrxError('getQuote - Missing buyAsset')
-  }
-  if (!sellAsset) {
-    throw new ZrxError('getQuote - Missing sellAsset')
-  }
-  if (buyAsset.chainId !== 'eip155:1' || sellAsset.chainId !== 'eip155:1') {
-    throw new ZrxError('getQuote - Both assets need to be on the Ethereum chain to use Zrx')
-  }
-
-  const useSellAmount = !!sellAmount
-  const buyToken = buyAsset.tokenId || buyAsset.symbol
-  const sellToken = sellAsset.tokenId || sellAsset.symbol
-
-  const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
-
-  const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
-
-  const normalizedSellAmount = normalizeAmount(
-    bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount.toString() : sellAmount
-  )
-
   try {
+    const { sellAsset, buyAsset, sellAmount, sellAssetAccountId } = input
+    if (buyAsset.chainId !== 'eip155:1' || sellAsset.chainId !== 'eip155:1') {
+      throw new SwapError(
+        '[getZrxTradeQuote] - Both assets need to be on the Ethereum chain to use Zrx',
+        {
+          code: SwapErrorTypes.UNSUPPORTED_PAIR,
+          details: { buyAssetChainId: buyAsset.chainId, sellAssetChainId: sellAsset.chainId }
+        }
+      )
+    }
+
+    const useSellAmount = !!sellAmount
+    const buyToken = buyAsset.tokenId || buyAsset.symbol
+    const sellToken = sellAsset.tokenId || sellAsset.symbol
+
+    const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
+
+    const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
+
+    const normalizedSellAmount = normalizeAmount(
+      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount.toString() : sellAmount
+    )
+
     /**
      * /swap/v1/price
      * params: {
@@ -86,25 +85,7 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
       sellAssetAccountId
     }
   } catch (e) {
-    const statusReason =
-      e?.response?.data?.validationErrors?.[0]?.reason ||
-      e?.response?.data?.reason ||
-      'Unknown Error'
-    // This hackyness will go away when we correctly handle errors
-    return {
-      success: false,
-      statusReason,
-      maximum: '0',
-      minimum: '0',
-      rate: '0',
-      feeData: { fee: '0', chainSpecific: {} },
-      buyAmount: '0',
-      sellAmount: '0',
-      sources: [],
-      allowanceContract: '0',
-      buyAsset,
-      sellAsset,
-      sellAssetAccountId
-    }
+    if (e instanceof SwapError) throw e
+    throw new SwapError('[getZrxTradeQuote]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })
   }
 }

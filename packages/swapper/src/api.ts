@@ -1,4 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
+import { createErrorClass } from '@shapeshiftoss/errors'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   ApprovalNeededOutput,
@@ -10,6 +11,8 @@ import {
   SupportedChainIds,
   SwapperType
 } from '@shapeshiftoss/types'
+
+export const SwapError = createErrorClass('SwapError')
 
 export type SupportedAssetInput = {
   assetIds: AssetId[]
@@ -109,7 +112,24 @@ export type ApprovalNeededInput<C extends SupportedChainIds> = {
   wallet: HDWallet
 }
 
-export class SwapError extends Error {}
+// Swap Errors
+export enum SwapErrorTypes {
+  ALLOWANCE_REQUIRED_FAILED = 'ALLOWANCE_REQUIRED_FAILED',
+  CHECK_APPROVAL_FAILED = 'CHECK_APPROVAL_FAILED',
+  APPROVE_INFINITE_FAILED = 'APPROVE_INFINITE_FAILED',
+  BUILD_TRADE_FAILED = 'BUILD_TRADE_FAILED',
+  EXECUTE_TRADE_FAILED = 'EXECUTE_TRADE_FAILED',
+  GRANT_ALLOWANCE_FAILED = 'GRANT_ALLOWANCE_FAILED',
+  MANAGER_ERROR = 'MANAGER_ERROR',
+  MIN_MAX_FAILED = 'MIN_MAX_FAILED',
+  SIGN_AND_BROADCAST_FAILED = 'SIGN_AND_BROADCAST_FAILED',
+  TRADE_QUOTE_FAILED = 'TRADE_QUOTE_FAILED',
+  UNSUPPORTED_PAIR = 'UNSUPPORTED_PAIR',
+  USD_RATE_FAILED = 'USD_RATE_FAILED',
+  UNSUPPORTED_CHAIN = 'UNSUPPORTED_CHAIN',
+  VALIDATION_FAILED = 'VALIDATION_FAILED',
+  RESPONSE_ERROR = 'RESPONSE_ERROR'
+}
 
 export interface Swapper {
   /** Returns the swapper type */

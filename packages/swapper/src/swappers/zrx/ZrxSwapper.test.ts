@@ -3,7 +3,6 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperType } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { ZrxError } from '../..'
 import { ZrxSwapper } from '..'
 import { zrxBuildTrade } from '../zrx/zrxBuildTrade/zrxBuildTrade'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
@@ -56,11 +55,6 @@ describe('ZrxSwapper', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     const type = swapper.getType()
     expect(type).toBe(SwapperType.Zrx)
-  })
-  it('handles ZrxError message', () => {
-    const message = 'test error'
-    const error = new ZrxError(message)
-    expect(error.message).toBe(`ZrxError:${message}`)
   })
   it('calls zrxBuildTrade on swapper.buildQuoteTx', async () => {
     const { buildTradeInput } = setupBuildTrade()

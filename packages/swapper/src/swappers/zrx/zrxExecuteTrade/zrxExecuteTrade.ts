@@ -1,6 +1,7 @@
 import { numberToHex } from 'web3-utils'
 
-import { ExecuteTradeInput, SwapError, TradeResult } from '../../../api'
+import { ExecuteTradeInput, SwapError, SwapErrorTypes, TradeResult } from '../../../api'
+import { bnOrZero } from '../utils/bignumber'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function zrxExecuteTrade(
@@ -8,33 +9,15 @@ export async function zrxExecuteTrade(
   { trade, wallet }: ExecuteTradeInput<'eip155:1'>
 ): Promise<TradeResult> {
   const { sellAsset } = trade
-
-  if (!sellAsset.symbol) {
-    throw new SwapError('ZrxSwapper:ZrxExecuteTrade sellAssetSymbol is required')
-  }
-
-  if (!trade.sellAssetAccountId) {
-    throw new SwapError('ZrxSwapper:ZrxExecuteTrade sellAssetAccountId is required')
-  }
-
-  if (!trade.sellAmount) {
-    throw new SwapError('ZrxSwapper:ZrxExecuteTrade sellAmount is required')
-  }
-
-  if (!trade.depositAddress) {
-    throw new SwapError('ZrxSwapper:ZrxExecuteTrade depositAddress is required')
-  }
-
-  // value is 0 for erc20s
-  const value = sellAsset.symbol === 'ETH' ? trade.sellAmount : '0'
-  const adapter = adapterManager.byChain(sellAsset.chain)
-  const bip44Params = adapter.buildBIP44Params({
-    accountNumber: Number(trade.sellAssetAccountId)
-  })
-
-  let buildTxResponse, signedTx, txid
   try {
-    buildTxResponse = await adapter.buildSendTransaction({
+    // value is 0 for erc20s
+    const value = sellAsset.assetId === 'eip155:1/slip44:60' ? trade.sellAmount : '0'
+    const adapter = await adapterManager.byChainId(sellAsset.chainId)
+    const bip44Params = adapter.buildBIP44Params({
+      accountNumber: bnOrZero(trade.sellAssetAccountId).toNumber()
+    })
+
+    const buildTxResponse = await adapter.buildSendTransaction({
       value,
       wallet,
       to: trade.depositAddress,
@@ -44,41 +27,34 @@ export async function zrxExecuteTrade(
       },
       bip44Params
     })
-  } catch (error) {
-    throw new SwapError(`ZrxExecuteTrade - buildSendTransaction error: ${error}`)
-  }
 
-  const { txToSign } = buildTxResponse
+    const { txToSign } = buildTxResponse
 
-  const txWithQuoteData = { ...txToSign, data: trade.txData ?? '' }
+    const txWithQuoteData = { ...txToSign, data: trade.txData ?? '' }
 
-  if (wallet.supportsOfflineSigning()) {
-    try {
-      signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })
-    } catch (error) {
-      throw new SwapError(`ZrxExecuteTrade - signTransaction error: ${error}`)
+    if (wallet.supportsOfflineSigning()) {
+      const signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })
+
+      const txid = await adapter.broadcastTransaction(signedTx)
+
+      return { txid }
+    } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+      const txid = await adapter.signAndBroadcastTransaction?.({
+        txToSign: txWithQuoteData,
+        wallet
+      })
+
+      return { txid }
+    } else {
+      throw new SwapError('[zrxExecuteTrade]', {
+        code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED
+      })
     }
-
-    if (!signedTx) {
-      throw new SwapError(`ZrxExecuteTrade - Signed transaction is required: ${signedTx}`)
-    }
-
-    try {
-      txid = await adapter.broadcastTransaction(signedTx)
-    } catch (error) {
-      throw new SwapError(`ZrxExecuteTrade - broadcastTransaction error: ${error}`)
-    }
-
-    return { txid }
-  } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
-    try {
-      txid = await adapter.signAndBroadcastTransaction?.({ txToSign: txWithQuoteData, wallet })
-    } catch (error) {
-      throw new SwapError(`ZrxExecuteTrade - signAndBroadcastTransaction error: ${error}`)
-    }
-
-    return { txid }
-  } else {
-    throw new SwapError('ZrxExecuteTrade - invalid HDWallet config')
+  } catch (e) {
+    if (e instanceof SwapError) throw e
+    throw new SwapError('[zrxExecuteTrade]', {
+      cause: e,
+      code: SwapErrorTypes.EXECUTE_TRADE_FAILED
+    })
   }
 }

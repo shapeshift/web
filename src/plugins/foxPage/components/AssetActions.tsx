@@ -50,7 +50,7 @@ export const AssetActions = ({
           <TabPanels>
             <TabPanel textAlign='center' p={6}>
               <Box mb={6}>
-                <AssetIcon src={assetIcon} boxSize='12' />
+                <AssetIcon src={assetIcon} boxSize='16' />
               </Box>
               <SkeletonText isLoaded={true} noOfLines={3}>
                 <Text translation={description} color='gray.500' mb={6} />

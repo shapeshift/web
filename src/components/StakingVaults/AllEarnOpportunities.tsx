@@ -22,7 +22,7 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const {
-    state: { isConnected },
+    state: { isConnected, walletInfo },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
@@ -36,7 +36,6 @@ export const AllEarnOpportunities = () => {
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosActiveStakingOpportunities,
     cosmosStakingOpportunities,
   })
 

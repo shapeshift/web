@@ -41,7 +41,7 @@ const cspMeta = Object.entries({
     // WalletConnect Image CDN - Needed for icons inside WalletConnect
     'https://imagedelivery.net/',
     // Subdomain can change between loads
-    'wss://*.bridge.walletconnect.org',
+    'wss://*.bridge.walletconnect.org/',
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L40
     process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L50
@@ -85,6 +85,7 @@ const cspMeta = Object.entries({
     'https://raw.githack.com/shapeshift/lib/',
     'https://raw.githubusercontent.com/shapeshift/lib/',
     'https://raw.githubusercontent.com/cosmostation/',
+    'https://imagedelivery.net/'
   ],
   'script-src': [
     "'self'",

@@ -1,5 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import {
+  AssetId,
   AssetNamespace,
   AssetReference,
   ChainId,
@@ -70,6 +71,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
   getChainId(): ChainId {
     return this.chainId
+  }
+
+  getFeeAssetId(): AssetId {
+    return 'eip155:1/slip44:60'
   }
 
   async getAccount(pubkey: string): Promise<chainAdapters.Account<ChainTypes.Ethereum>> {

@@ -54,6 +54,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
     return ChainTypes.Cosmos
   }
 
+  getFeeAssetId(): AssetId {
+    return 'cosmos:cosmoshub-4/slip44:118'
+  }
+
   async getAddress(input: chainAdapters.GetAddressInput): Promise<string> {
     const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
     const path = toPath(bip44Params)

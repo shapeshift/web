@@ -66,6 +66,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
     return this.chainId
   }
 
+  abstract getFeeAssetId(): AssetId
+
   async getAccount(pubkey: string): Promise<chainAdapters.Account<T>> {
     try {
       const { data } = await this.providers.http.getAccount({ pubkey })

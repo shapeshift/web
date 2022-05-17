@@ -43,6 +43,10 @@ export class ChainAdapter
     return ChainTypes.Osmosis
   }
 
+  getFeeAssetId(): AssetId {
+    return 'cosmos:osmosis-1/slip44:118'
+  }
+
   async getAddress(input: chainAdapters.GetAddressInput): Promise<string> {
     const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
     const path = toPath(bip44Params)

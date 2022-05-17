@@ -189,31 +189,14 @@ export const useSwapper = () => {
       wallet,
       sendMax: true,
     })
-
     if (result?.success) {
       setFees(result, sellAsset)
       setValue('trade', result)
       return result
     } else {
-      // TODO: (ryankk) Post bounty, these need to be revisited so the error messages can be more accurate.
-      switch (result.statusReason) {
-        case 'Gas estimation failed':
-          return {
-            success: false,
-            statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS),
-          }
-        case 'Insufficient funds for transaction':
-          return {
-            success: false,
-            statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS_FOR_AMOUNT, {
-              symbol: sellAsset.symbol,
-            }),
-          }
-        default:
-          return {
-            success: false,
-            statusReason: translate(TRADE_ERRORS.QUOTE_FAILED),
-          }
+      return {
+        success: false,
+        statusReason: translate(TRADE_ERRORS.QUOTE_FAILED),
       }
     }
   }

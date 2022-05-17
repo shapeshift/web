@@ -9,9 +9,9 @@ export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
   // we only want unique ids
   const relatedAssets = new Set<AssetId>()
   // we want tokens to display on the fee asset
-  if (tx.fee?.caip19) relatedAssets.add(tx.fee?.caip19)
+  if (tx.fee?.assetId) relatedAssets.add(tx.fee?.assetId)
   // all related transfers in a tx
-  tx.transfers.forEach(transfer => relatedAssets.add(transfer.caip19))
+  tx.transfers.forEach(transfer => relatedAssets.add(transfer.assetId))
   return Array.from(relatedAssets)
 }
 
@@ -45,8 +45,11 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
 
 // we can't use a hyphen as a delimiter, as it appears in the chain reference for cosmos
 export const UNIQUE_TX_ID_DELIMITER = '*'
-export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
-  [accountId, tx.txid, tx.address].join(UNIQUE_TX_ID_DELIMITER)
+export const makeUniqueTxId = (
+  accountId: AccountSpecifier,
+  txId: Tx['txid'],
+  txAddress: Tx['address'],
+): string => [accountId, txId, txAddress].join(UNIQUE_TX_ID_DELIMITER)
 
 type DeserializeUniqueTxId = { txAccountSpecifier: string; txid: string; txAddress: string }
 

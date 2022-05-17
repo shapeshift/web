@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, Tag, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -17,12 +17,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { DepositPath } from '../DepositCommon'
-import { FoxyDepositActionType } from '../DepositCommon'
+import { DepositPath, FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type FoxyConfirmProps = {
@@ -33,14 +31,13 @@ type FoxyConfirmProps = {
 export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId, rewardId } = query
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetId = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetId = toCAIP19({
+  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
@@ -49,10 +46,9 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-  const contractAssetId = toCAIP19({
+  const contractAssetId = toAssetId({
     chain,
     network,
     assetNamespace,

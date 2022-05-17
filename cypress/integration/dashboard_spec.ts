@@ -1,16 +1,20 @@
+import { autoRecord } from '../plugins/autorecord'
+
 const baseUrl = Cypress.config().baseUrl
 const linkContract = Cypress.env('linkContract')
 
-beforeEach(() => {
-  // Intercept all account requests relating to our test wallet
-  cy.mockAllRequests()
-})
-
 describe('The Dashboard', () => {
+  autoRecord()
+
   before(() => {
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()
     cy.login()
+  })
+
+  beforeEach(() => {
+    // Intercept all account requests relating to our test wallet
+    cy.mockAllRequests()
   })
 
   it('nav bar works', () => {
@@ -52,9 +56,10 @@ describe('The Dashboard', () => {
     cy.getBySel('token-row-sell-max-button').click()
     cy.waitForAllGetRequests()
     // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
-    cy.get('[data-test=trade-form-preview-button]').contains('Insufficient Funds', {
-      timeout: 60000,
-    })
+    // This test has become flaky and is adding friction to CI - temporarily disabled.
+    // cy.get('[data-test=trade-form-preview-button]').contains('Insufficient Funds', {
+    //   timeout: 60000,
+    // })
     // TODO - We are now at the approval screen - test the rest of the flow
   })
 

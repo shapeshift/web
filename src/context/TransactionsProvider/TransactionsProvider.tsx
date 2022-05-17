@@ -87,14 +87,14 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       Promise.all(
         supportedChains
           .filter(chain => {
-            const chainId = chainAdapterManager.byChain(chain).getCaip2()
+            const chainId = chainAdapterManager.byChain(chain).getChainId()
             return walletSupportsChain({ chainId, wallet })
           })
           .map(async chain => {
             const adapter = chainAdapterManager.byChain(chain)
             // this looks funky, but we need a non zero length array to map over
             const supportedAccountTypes = adapter.getSupportedAccountTypes?.() ?? [undefined]
-            const chainId = adapter.getCaip2()
+            const chainId = adapter.getChainId()
 
             // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
             const asset = assets[chainIdToFeeAssetId(chainId)]
@@ -110,10 +110,10 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                   return adapter.subscribeTxs(
                     { wallet, accountType, ...accountParams },
                     msg => {
-                      const caip10 = `${msg.caip2}:${msg.address}`
+                      const accountSpecifier = `${msg.chainId}:${msg.address}`
                       const state = store.getState()
                       const accountId = selectAccountIdByAddress(state, {
-                        accountSpecifier: caip10,
+                        accountSpecifier,
                       })
                       dispatch(
                         txHistory.actions.onMessage({

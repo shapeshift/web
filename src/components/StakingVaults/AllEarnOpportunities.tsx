@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import {
   EarnOpportunityType,
@@ -16,31 +15,23 @@ import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnV
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
 export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
-  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
-  const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
-  const { opportunities } = useFoxyBalances()
-  const { activeStakingOpportunities, stakingOpportunities } = useCosmosStakingBalances({
+  const { opportunities: foxyRows } = useFoxyBalances()
+  const { cosmosStakingOpportunities } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
 
-  const { cosmosGetStarted, cosmosStaking } = useModal()
-
-  const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
-  const cosmosActiveStakingOpportunities = cosmosInvestorFlag ? activeStakingOpportunities : []
-  const cosmosStakingOpportunities = cosmosInvestorFlag ? stakingOpportunities : []
+  const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
@@ -51,31 +42,19 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const {
-        type,
-        provider,
-        contractAddress,
-        chain,
-        tokenAddress,
-        rewardAddress,
-        assetId,
-        cryptoAmount,
-      } = opportunity
-      if (!isConnected) {
+      const { type, provider, contractAddress, chain, tokenAddress, rewardAddress, assetId } =
+        opportunity
+      if (!isConnected && walletInfo?.deviceId !== 'DemoWallet') {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
 
       if (chain === ChainTypes.Cosmos) {
-        if (bnOrZero(cryptoAmount).gt(0)) {
-          cosmosStaking.open({
-            assetId,
-            validatorAddress: contractAddress,
-          })
-          return
-        }
+        cosmosStaking.open({
+          assetId,
+          validatorAddress: contractAddress,
+        })
 
-        cosmosGetStarted.open({ assetId })
         return
       }
 

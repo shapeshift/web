@@ -1,6 +1,5 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { AssetId, AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { AssetId, AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
@@ -18,6 +17,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -75,14 +75,14 @@ export const ClaimStatus = () => {
   // Asset Info
   const network = NetworkTypes.MAINNET
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetCAIP19 = toCAIP19({
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   useEffect(() => {
     ;(async () => {
@@ -166,7 +166,6 @@ export const ClaimStatus = () => {
               <Link
                 isExternal
                 color='blue.500'
-                // TODO:(ryankk) create explorer links given a link template and a value
                 href={`${asset?.explorerAddressLink}${userAddress}`}
               >
                 <MiddleEllipsis address={userAddress} />

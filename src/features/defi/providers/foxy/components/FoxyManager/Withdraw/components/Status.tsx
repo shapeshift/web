@@ -1,6 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack, useColorModeValue } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -12,15 +12,13 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const appDispatch = useAppDispatch()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, tokenId, rewardId } = query
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
@@ -28,30 +26,28 @@ export const Status = () => {
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = toCAIP19({
+  const underlyingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetCAIP19))
-  const assetCAIP19 = toCAIP19({
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  const assetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAssetCAIP19 = toCAIP19({
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT

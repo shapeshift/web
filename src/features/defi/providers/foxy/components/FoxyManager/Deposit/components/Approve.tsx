@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -13,12 +13,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { DepositPath } from '../DepositCommon'
-import { FoxyDepositActionType } from '../DepositCommon'
+import { DepositPath, FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type FoxyApproveProps = {
@@ -29,7 +27,6 @@ type FoxyApproveProps = {
 export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -37,8 +34,8 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   const alertText = useColorModeValue('blue.800', 'white')
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetId = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetId = toCAIP19({
+  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
@@ -46,8 +43,6 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
@@ -78,7 +73,7 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
         },
         interval: 15000,
-        maxAttempts: 30,
+        maxAttempts: 60,
       })
       // Get deposit gas estimate
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)

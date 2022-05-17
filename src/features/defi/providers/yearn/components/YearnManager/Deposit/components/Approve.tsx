@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -13,9 +13,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -28,7 +27,6 @@ type YearnApproveProps = {
 export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, tokenId } = query
@@ -36,18 +34,16 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetCAIP19 = toCAIP19({
+  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetId = toAssetId({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info
   const { state: walletState } = useWallet()

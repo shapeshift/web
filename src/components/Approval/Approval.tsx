@@ -1,5 +1,5 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle, useToast } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
@@ -11,7 +11,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeState } from 'components/Trade/Trade'
+import { TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -40,8 +40,8 @@ export const Approval = () => {
     getValues,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useFormContext<TradeState<ChainTypes>>()
-  const { approveInfinite, checkApprovalNeeded, buildQuoteTx } = useSwapper()
+  } = useFormContext<TradeState<SupportedChainIds>>()
+  const { approveInfinite, checkApprovalNeeded } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -49,9 +49,9 @@ export const Approval = () => {
     state: { wallet, isConnected },
     dispatch,
   } = useWallet()
-  const { quote, sellAsset, fees } = getValues()
+  const { quote, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
-  const symbol = sellAsset.currency?.symbol
+  const symbol = quote?.sellAsset?.symbol
 
   const approve = async () => {
     if (!wallet) return
@@ -90,37 +90,10 @@ export const Approval = () => {
         fnLogger.error(e, { fn: 'checkApprovalNeeded' }, 'Check Approval Needed Failed')
         handleToast()
         approvalInterval.current && clearInterval(approvalInterval.current)
-        return history.push('/trade/input')
+        return history.push(TradeRoutePaths.Input)
       }
-
       approvalInterval.current && clearInterval(approvalInterval.current)
-      if (!sellAsset.amount) return
-      if (!quote) return
-
-      fnLogger.trace({ fn: 'buildQuoteTx' }, 'Building Quote...')
-      let result
-      try {
-        result = await buildQuoteTx({
-          wallet,
-          sellAsset: quote?.sellAsset,
-          buyAsset: quote?.buyAsset,
-          amount: sellAsset?.amount,
-        })
-
-        fnLogger.debug({ fn: 'buildQuoteTx', result }, 'Building Quote Completed')
-      } catch (e) {
-        fnLogger.error(e, { fn: 'buildQuoteTx' }, 'Building Quote Failed')
-      }
-
-      if (!result?.success && result?.statusReason) {
-        handleToast(result.statusReason)
-      }
-
-      if (result?.success) {
-        history.push({ pathname: '/trade/confirm', state: { fiatRate } })
-      } else {
-        history.push('/trade/input')
-      }
+      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
     }, 5000)
   }
 
@@ -140,7 +113,7 @@ export const Approval = () => {
     const error = errors?.quote?.rate ?? null
     if (error) {
       moduleLogger.debug({ fn: 'validation', errors }, 'Form Validation Failed')
-      history.push('/trade/input')
+      history.push(TradeRoutePaths.Input)
     }
   }, [errors, history])
 
@@ -176,7 +149,7 @@ export const Approval = () => {
               }}
             >
               <Image
-                src={sellAsset.currency?.icon}
+                src={quote?.sellAsset?.icon}
                 boxSize='60px'
                 fallback={<SkeletonCircle boxSize='60px' />}
               />
@@ -198,7 +171,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && sellAsset.currency?.explorerTxLink && (
+              {approvalTxId && quote?.sellAsset?.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -207,8 +180,7 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      // TODO:(ryankk) create explorer links given a link template and a value
-                      href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
+                      href={`${quote?.sellAsset?.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis address={approvalTxId} />
                     </Link>

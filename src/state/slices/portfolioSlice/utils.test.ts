@@ -14,13 +14,13 @@ import {
 } from './utils'
 
 describe('accountIdToChainId', () => {
-  it('can get eth caip2 from accountId', () => {
+  it('can get eth chainId from accountId', () => {
     const accountId = 'eip155:1:0xdef1cafe'
     const chainId = accountIdToChainId(accountId)
     expect(chainId).toEqual(ethChainId)
   })
 
-  it('can get btc caip2 from accountId', () => {
+  it('can get btc chainId from accountId', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
     const chainId = accountIdToChainId(accountId)
     expect(chainId).toEqual(btcChainId)

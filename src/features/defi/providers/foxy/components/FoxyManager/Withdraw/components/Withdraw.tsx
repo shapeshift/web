@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import {
@@ -7,8 +7,7 @@ import {
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext } from 'react'
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -16,13 +15,12 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -36,7 +34,6 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const translate = useTranslate()
-  const appDispatch = useAppDispatch()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, rewardId } = query
   const toast = useToast()
@@ -44,7 +41,7 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const assetId = toCAIP19({
+  const assetId = toAssetId({
     chain,
     network,
     assetNamespace,
@@ -52,7 +49,6 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))

@@ -1,7 +1,6 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes, SupportedChainIds } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { SupportedChainIds } from '@shapeshiftoss/types'
+import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -16,7 +15,8 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
-import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
+import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
+import { makeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import { ValueOf } from 'types/object'
 
@@ -50,15 +50,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { wallet, isConnected },
     dispatch,
   } = useWallet()
-  const { chain, tokenId } = trade.sellAsset
-  const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
-  const extra = tokenId
-    ? { assetNamespace, assetReference: tokenId }
-    : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
-  const assetId = toAssetId({ chain, network, ...extra })
+  const { chainId } = trade.sellAsset
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
+
+  const parsedTxId = useMemo(
+    () => makeUniqueTxId(accountSpecifier, txid, trade.receiveAddress),
+    [accountSpecifier, trade.receiveAddress, txid],
+  )
+  const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
 
   // Parametrized errors cannot simply be matched with === since their param(s) might vary
   const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {

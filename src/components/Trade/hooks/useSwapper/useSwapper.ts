@@ -192,13 +192,13 @@ export const useSwapper = () => {
     if (result?.success) {
       setFees(result, sellAsset)
       setValue('trade', result)
+      return result
     } else {
       return {
         success: false,
         statusReason: translate(TRADE_ERRORS.QUOTE_FAILED),
       }
     }
-    return result
   }
 
   const executeQuote = async ({

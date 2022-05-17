@@ -13,12 +13,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { DepositPath } from '../DepositCommon'
-import { FoxyDepositActionType } from '../DepositCommon'
+import { DepositPath, FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type FoxyApproveProps = {
@@ -29,7 +27,6 @@ type FoxyApproveProps = {
 export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -46,8 +43,6 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 

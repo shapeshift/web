@@ -20,9 +20,9 @@ export const Total = ({ icons, fiatAmount }: TotalProps) => {
             key={icon}
             src={icon}
             boxSize='8'
-            // zIndex should be the decremental
+            // zIndex should be decremental
             zIndex={icons.length - (index + 1)}
-            ml={index > 0 ? -3.5 : 0}
+            ml={index > 0 ? '-3.5' : 0}
           />
         ))}
       </Flex>
@@ -34,7 +34,7 @@ export const Total = ({ icons, fiatAmount }: TotalProps) => {
           color='inherit'
           value={fiatAmount}
           fontWeight='semibold'
-          lineHeight={1.2}
+          lineHeight={'1.2'}
           fontSize={'2xl'}
         />
       </SkeletonText>

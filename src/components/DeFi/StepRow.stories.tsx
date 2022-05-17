@@ -9,21 +9,6 @@ import { RawText } from 'components/Text'
 
 import { StepRow, StepRowProps } from './components/StepRow'
 
-// export default {
-//   title: 'Layout/DeFi',
-//   decorators: [
-//     (Story: any) => (
-//       <Modal isOpen onClose={() => {}} size='lg'>
-//         <ModalContent>
-//           <ModalBody py={6}>
-//             <Story />
-//           </ModalBody>
-//         </ModalContent>
-//       </Modal>
-//     ),
-//   ],
-// }
-
 export default {
   title: 'Layout/StepRow',
   component: StepRow,

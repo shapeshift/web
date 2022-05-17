@@ -18,20 +18,20 @@ type FoxTabProps = {
   assetIcon: string
   assetSymbol: string
   description: string
-  primaryText: string
-  secondaryTranslation: string
+  buyCTA: string
+  sellCTA: string
   onReceiveClick: () => void
-  onGetClick: () => void
+  onBuyClick: () => void
 }
 
 export const AssetActions = ({
   assetIcon,
   assetSymbol,
   description,
-  primaryText,
-  secondaryTranslation,
+  buyCTA,
+  sellCTA,
   onReceiveClick,
-  onGetClick,
+  onBuyClick,
 }: FoxTabProps) => {
   const translate = useTranslate()
 
@@ -57,11 +57,11 @@ export const AssetActions = ({
               </SkeletonText>
 
               <Stack width='full'>
-                <Button onClick={onGetClick} colorScheme={'blue'} mb={2} size='lg'>
-                  <CText>{primaryText}</CText>
+                <Button onClick={onBuyClick} colorScheme={'blue'} mb={2} size='lg'>
+                  <CText>{buyCTA}</CText>
                 </Button>
                 <Button onClick={onReceiveClick} size='lg' colorScheme='gray'>
-                  <Text translation={secondaryTranslation} />
+                  <Text translation={sellCTA} />
                 </Button>
               </Stack>
             </TabPanel>

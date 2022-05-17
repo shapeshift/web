@@ -967,5 +967,10 @@
     "to": "To",
     "for": "For",
     "transfers": "Transfers"
+  },
+  "plugins": {
+    "foxPage": {
+      "totalFoxValue": "Total FOX Value"
+    }
   }
 }

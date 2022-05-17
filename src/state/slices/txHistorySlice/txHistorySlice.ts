@@ -127,7 +127,7 @@ const initialState: TxHistory = {
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
   const { txs } = txHistory
-  const txid = makeUniqueTxId(tx, accountSpecifier)
+  const txid = makeUniqueTxId(accountSpecifier, tx.txid, tx.address)
 
   const isNew = !txs.byId[txid]
 
@@ -137,7 +137,9 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   // add id to ordered set for new tx
   if (isNew) {
     const orderedTxs = orderBy(txs.byId, 'blockTime', ['desc'])
-    const index = orderedTxs.findIndex(tx => makeUniqueTxId(tx, accountSpecifier) === txid)
+    const index = orderedTxs.findIndex(
+      tx => makeUniqueTxId(accountSpecifier, tx.txid, tx.address) === txid,
+    )
     txs.ids.splice(index, 0, txid)
   }
 
@@ -147,7 +149,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
     txs.byAssetId[relatedAssetId] = addToIndex(
       txs.ids,
       txs.byAssetId[relatedAssetId],
-      makeUniqueTxId(tx, accountSpecifier),
+      makeUniqueTxId(accountSpecifier, tx.txid, tx.address),
     )
   })
 
@@ -155,7 +157,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   txs.byAccountId[accountSpecifier] = addToIndex(
     txs.ids,
     txs.byAccountId[accountSpecifier],
-    makeUniqueTxId(tx, accountSpecifier),
+    makeUniqueTxId(accountSpecifier, tx.txid, tx.address),
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood

@@ -1,6 +1,6 @@
 import { Box, Button, Collapse, Skeleton, SkeletonText } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
@@ -19,6 +19,7 @@ const DESCRIPTION_DEFAULT_HEIGHT = 75
 export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)
+  const [shouldDisplayToggleButton, setShouldDisplayToggleButton] = useState(true)
   const descriptionEl = useRef<HTMLDivElement | null>(null)
   const handleToggle = () => setShowDescription(!showDescription)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -28,11 +29,14 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
 
   // If the height of the description is higher than the collapse element when it's closed
   // we should display the Show More button
-  const shouldDisplayToggleButton =
-    descriptionEl?.current?.clientHeight &&
-    descriptionEl.current.clientHeight > DESCRIPTION_DEFAULT_HEIGHT
+  useEffect(() => {
+    setShouldDisplayToggleButton(
+      (descriptionEl?.current?.clientHeight ?? 0) > DESCRIPTION_DEFAULT_HEIGHT,
+    )
+  }, [descriptionEl?.current?.clientHeight, description])
 
   if (!description || !isLoaded) return null
+
   return (
     <Card>
       <Card.Footer>

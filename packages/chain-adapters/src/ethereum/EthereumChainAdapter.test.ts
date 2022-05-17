@@ -83,13 +83,6 @@ describe('EthereumChainAdapter', () => {
   const makeEstimateGasMockedResponse = (overrideArgs?: { data: string }) =>
     merge({ data: '21000' }, overrideArgs)
 
-  const makeGetInfoMockResponse = (overrideArgs?: { data: { network: string } }) =>
-    merge(
-      {
-        data: { network: 'mainnet' }
-      },
-      overrideArgs
-    )
   const makeGetAccountMockResponse = (balance: {
     balance: string
     erc20Balance: string | undefined
@@ -303,7 +296,6 @@ describe('EthereumChainAdapter', () => {
     it('should sign a properly formatted txToSign object', async () => {
       const balance = '2500000'
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' }))
@@ -332,7 +324,6 @@ describe('EthereumChainAdapter', () => {
     it('should throw on txToSign with invalid data', async () => {
       const balance = '2500000'
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' }))
@@ -430,7 +421,6 @@ describe('EthereumChainAdapter', () => {
 
     it('should throw if passed tx has ENS as "to" property', async () => {
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
@@ -469,7 +459,6 @@ describe('EthereumChainAdapter', () => {
 
     it('should return a validly formatted ETHSignTx object for a valid BuildSendTxInput parameter', async () => {
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' }))
@@ -500,7 +489,6 @@ describe('EthereumChainAdapter', () => {
     })
     it('sendmax: true without chainSpecific.erc20ContractAddress should throw if ETH balance is 0', async () => {
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' }))
@@ -526,7 +514,6 @@ describe('EthereumChainAdapter', () => {
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any
       )
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' }))
@@ -558,7 +545,6 @@ describe('EthereumChainAdapter', () => {
     })
     it("should build a tx with value: '0' for ERC20 txs without sendMax", async () => {
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
@@ -591,7 +577,6 @@ describe('EthereumChainAdapter', () => {
     })
     it('sendmax: true with chainSpecific.erc20ContractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
@@ -627,7 +612,6 @@ describe('EthereumChainAdapter', () => {
 
     it('sendmax: true with chainSpecific.erc20ContractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
-        getInfo: jest.fn().mockResolvedValue(makeGetInfoMockResponse()),
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(

@@ -45,8 +45,11 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
 
 // we can't use a hyphen as a delimiter, as it appears in the chain reference for cosmos
 export const UNIQUE_TX_ID_DELIMITER = '*'
-export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
-  [accountId, tx.txid, tx.address].join(UNIQUE_TX_ID_DELIMITER)
+export const makeUniqueTxId = (
+  accountId: AccountSpecifier,
+  txId: Tx['txid'],
+  txAddress: Tx['address'],
+): string => [accountId, txId, txAddress].join(UNIQUE_TX_ID_DELIMITER)
 
 type DeserializeUniqueTxId = { txAccountSpecifier: string; txid: string; txAddress: string }
 

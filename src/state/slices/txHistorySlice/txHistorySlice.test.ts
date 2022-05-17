@@ -46,7 +46,9 @@ describe('txHistorySlice', () => {
       const ethChainId = EthSend.chainId
       const accountSpecifier = `${ethChainId}:0xdef1cafe`
       // expected transaction order
-      const expected = map(transactions, tx => makeUniqueTxId(tx, accountSpecifier))
+      const expected = map(transactions, tx =>
+        makeUniqueTxId(accountSpecifier, tx.txid, tx.address),
+      )
 
       store.dispatch(txHistory.actions.clear())
 
@@ -90,10 +92,14 @@ describe('txHistorySlice', () => {
 
       // eth data exists
       expect(
-        store.getState().txHistory.txs.byId[makeUniqueTxId(EthSend, ethAccountSpecifier)],
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthSend.txid, EthSend.address)
+        ],
       ).toEqual(EthSend)
       expect(
-        store.getState().txHistory.txs.byId[makeUniqueTxId(EthReceive, ethAccountSpecifier)],
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
+        ],
       ).toEqual(EthReceive)
 
       const segwitNativeAccountSpecifier = `${BtcSend.chainId}:zpub`
@@ -129,10 +135,14 @@ describe('txHistorySlice', () => {
 
       // btc data exists
       expect(
-        store.getState().txHistory.txs.byId[makeUniqueTxId(BtcSend, segwitNativeAccountSpecifier)],
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address)
+        ],
       ).toEqual(BtcSend)
       expect(
-        store.getState().txHistory.txs.byId[makeUniqueTxId(BtcSendSegwit, segwitAccountSpecifier)],
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address)
+        ],
       ).toEqual(BtcSendSegwit)
     })
 
@@ -147,15 +157,18 @@ describe('txHistorySlice', () => {
       )
 
       expect(
-        store.getState().txHistory.txs.byId[makeUniqueTxId(EthReceivePending, ethAccountSpecifier)]
-          .status,
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthReceivePending.txid, EthReceivePending.address)
+        ].status,
       ).toBe(chainAdapters.TxStatus.Pending)
 
       store.dispatch(
         txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier }),
       )
       expect(
-        store.getState().txHistory.txs.byId[makeUniqueTxId(EthReceive, ethAccountSpecifier)].status,
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
+        ].status,
       ).toBe(chainAdapters.TxStatus.Confirmed)
     })
 
@@ -191,16 +204,16 @@ describe('txHistorySlice', () => {
       )
 
       expect(store.getState().txHistory.txs.byAccountId[ethAccountSpecifier]).toStrictEqual([
-        makeUniqueTxId(EthSend, ethAccountSpecifier),
-        makeUniqueTxId(EthReceive, ethAccountSpecifier),
+        makeUniqueTxId(ethAccountSpecifier, EthSend.txid, EthSend.address),
+        makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address),
       ])
 
       expect(
         store.getState().txHistory.txs.byAccountId[segwitNativeAccountSpecifier],
-      ).toStrictEqual([makeUniqueTxId(BtcSend, segwitNativeAccountSpecifier)])
+      ).toStrictEqual([makeUniqueTxId(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address)])
 
       expect(store.getState().txHistory.txs.byAccountId[segwitAccountSpecifier]).toStrictEqual([
-        makeUniqueTxId(BtcSendSegwit, segwitAccountSpecifier),
+        makeUniqueTxId(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address),
       ])
     })
   })

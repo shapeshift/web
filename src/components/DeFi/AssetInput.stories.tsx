@@ -8,21 +8,6 @@ import { ReactNode } from 'react'
 import { AllocationTable } from './components/AllocationTable'
 import { AssetInput, AssetInputProps } from './components/AssetInput'
 
-// export default {
-//   title: 'Layout/DeFi',
-//   decorators: [
-//     (Story: any) => (
-//       <Modal isOpen onClose={() => {}} size='lg'>
-//         <ModalContent>
-//           <ModalBody py={6}>
-//             <Story />
-//           </ModalBody>
-//         </ModalContent>
-//       </Modal>
-//     ),
-//   ],
-// }
-
 export default {
   title: 'Forms/AssetInput',
   component: AssetInput,

@@ -1,35 +1,36 @@
+import merge from 'lodash/merge'
 import {
   assetIds,
+  btcAccountIds,
   btcAddresses,
-  btcCaip10s,
   btcPubKeys,
-  cosmosCaip19,
-  ethCaip10s,
-  ethCaip19,
+  cosmosAssetId,
+  ethAccountIds,
+  ethAssetId,
   ethPubKeys,
-  foxCaip19,
+  foxAssetId,
   mockBtcAccount,
   mockBtcAddress,
   mockCosmosAccount,
+  mockCosmosAccountWithOnlyUndelegations,
+  mockCosmosAccountWithStakingData,
   mockEthAccount,
   mockETHandBTCAccounts,
   mockEthToken,
-  unknown1Caip19,
-  unknown2Caip19,
-  unknown3Caip19,
-  usdcCaip19,
-  yvusdcCaip19,
-  zeroCaip19,
+  unknown1AssetId,
+  unknown2AssetId,
+  unknown3AssetId,
+  usdcAssetId,
+  yvusdcAssetId,
+  zeroAssetId,
 } from 'test/mocks/accounts'
 import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockUpsertPortfolio } from 'test/mocks/portfolio'
-import { mockStakingData, mockStakingDataWithOnlyUndelegations } from 'test/mocks/stakingData'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
-import { stakingData as stakingDataSlice } from '../stakingDataSlice/stakingDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectAccountIdByAddress,
@@ -58,7 +59,7 @@ describe('portfolioSlice', () => {
           const ethAccount = mockEthAccount({
             chainSpecific: {
               nonce: 1,
-              tokens: [mockEthToken({ balance: '1', caip19: foxCaip19 })],
+              tokens: [mockEthToken({ balance: '1', assetId: foxAssetId })],
             },
           })
 
@@ -74,7 +75,7 @@ describe('portfolioSlice', () => {
           const ethAccount = mockEthAccount({
             chainSpecific: {
               nonce: 1,
-              tokens: [mockEthToken({ balance: '1', caip19: foxCaip19 })],
+              tokens: [mockEthToken({ balance: '1', assetId: foxAssetId })],
             },
           })
 
@@ -83,7 +84,7 @@ describe('portfolioSlice', () => {
             pubkey: ethPubKeys[1],
             chainSpecific: {
               nonce: 1,
-              tokens: [mockEthToken({ balance: '2', caip19: usdcCaip19 })],
+              tokens: [mockEthToken({ balance: '2', assetId: usdcAssetId })],
             },
           })
 
@@ -147,9 +148,9 @@ describe('portfolioSlice', () => {
               chainSpecific: {
                 nonce: 5,
                 tokens: [
-                  mockEthToken({ balance: '42729243327349401946', caip19: foxCaip19 }),
-                  mockEthToken({ balance: '41208456', caip19: usdcCaip19 }),
-                  mockEthToken({ balance: '8178352', caip19: yvusdcCaip19 }),
+                  mockEthToken({ balance: '42729243327349401946', assetId: foxAssetId }),
+                  mockEthToken({ balance: '41208456', assetId: usdcAssetId }),
+                  mockEthToken({ balance: '8178352', assetId: yvusdcAssetId }),
                 ],
               },
               pubkey: ethPubKeys[0],
@@ -159,9 +160,9 @@ describe('portfolioSlice', () => {
               chainSpecific: {
                 nonce: 5,
                 tokens: [
-                  mockEthToken({ balance: '40729243327349401946', caip19: foxCaip19 }),
-                  mockEthToken({ balance: '41208456', caip19: usdcCaip19 }),
-                  mockEthToken({ balance: '8178352', caip19: yvusdcCaip19 }),
+                  mockEthToken({ balance: '40729243327349401946', assetId: foxAssetId }),
+                  mockEthToken({ balance: '41208456', assetId: usdcAssetId }),
+                  mockEthToken({ balance: '8178352', assetId: yvusdcAssetId }),
                 ],
               },
               pubkey: ethPubKeys[1],
@@ -196,13 +197,13 @@ describe('portfolioSlice', () => {
               chainSpecific: {
                 nonce: 5,
                 tokens: [
-                  mockEthToken({ balance: '4516123', caip19: unknown1Caip19 }),
-                  mockEthToken({ balance: '8178312', caip19: yvusdcCaip19 }),
-                  mockEthToken({ balance: '4516124', caip19: unknown2Caip19 }),
-                  mockEthToken({ balance: '41208442', caip19: usdcCaip19 }),
-                  mockEthToken({ balance: '4516125', caip19: unknown3Caip19 }),
-                  mockEthToken({ balance: '40729243327349401958', caip19: foxCaip19 }),
-                  mockEthToken({ balance: '4516126', caip19: zeroCaip19 }),
+                  mockEthToken({ balance: '4516123', assetId: unknown1AssetId }),
+                  mockEthToken({ balance: '8178312', assetId: yvusdcAssetId }),
+                  mockEthToken({ balance: '4516124', assetId: unknown2AssetId }),
+                  mockEthToken({ balance: '41208442', assetId: usdcAssetId }),
+                  mockEthToken({ balance: '4516125', assetId: unknown3AssetId }),
+                  mockEthToken({ balance: '40729243327349401958', assetId: foxAssetId }),
+                  mockEthToken({ balance: '4516126', assetId: zeroAssetId }),
                 ],
               },
               pubkey: ethPubKeys[2],
@@ -245,7 +246,7 @@ describe('portfolioSlice', () => {
         )
         const state = store.getState()
 
-        const selected = selectPortfolioAssetAccounts(state, ethCaip19)
+        const selected = selectPortfolioAssetAccounts(state, ethAssetId)
         const expected = [ethAccountId, ethAccount2Id]
         expect(selected).toEqual(expected)
       })
@@ -262,22 +263,28 @@ describe('portfolioSlice', () => {
       )
       const state = store.getState()
 
-      it('can select account id by address (CAIP10)', () => {
-        const btcAccSpecifier = selectAccountIdByAddress(state, { accountSpecifier: btcCaip10s[0] })
-        const ethAccSpecifier = selectAccountIdByAddress(state, { accountSpecifier: ethCaip10s[0] })
+      it('can select account id by address (accountId)', () => {
+        const btcAccSpecifier = selectAccountIdByAddress(state, {
+          accountSpecifier: btcAccountIds[0],
+        })
+        const ethAccSpecifier = selectAccountIdByAddress(state, {
+          accountSpecifier: ethAccountIds[0],
+        })
 
         expect(btcAccSpecifier).toEqual(btcAccountId)
         expect(ethAccSpecifier).toEqual(ethAccountId)
       })
 
       it('can select account id with address in non checksum format', () => {
-        // caip10s in state in non checksum format
-        const btcAccSpecifier = selectAccountIdByAddress(state, { accountSpecifier: btcCaip10s[0] })
+        // AccountIds in state in non checksum format
+        const btcAccSpecifier = selectAccountIdByAddress(state, {
+          accountSpecifier: btcAccountIds[0],
+        })
         expect(btcAccSpecifier).toEqual(btcAccountId)
 
-        // caip10 argument in non checksum format
+        // AccountId argument in non checksum format
         const ethAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: ethCaip10s[0].toUpperCase(),
+          accountSpecifier: ethAccountIds[0].toUpperCase(),
         })
         expect(ethAccSpecifier).toEqual(ethAccountId)
       })
@@ -296,9 +303,9 @@ describe('portfolioSlice', () => {
 
       it('can select crypto asset balance by asset Id', () => {
         const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(state, {
-          assetId: ethCaip19,
+          assetId: ethAssetId,
         })
-        expect(cryptoAssetBalanceByAccount).toBe(state.portfolio.assetBalances.byId[ethCaip19])
+        expect(cryptoAssetBalanceByAccount).toBe(state.portfolio.assetBalances.byId[ethAssetId])
       })
     })
 
@@ -320,8 +327,8 @@ describe('portfolioSlice', () => {
         // dispatch market data
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [ethCaip19]: ethMarketData,
-            [foxCaip19]: foxMarketData,
+            [ethAssetId]: ethMarketData,
+            [foxAssetId]: foxMarketData,
           }),
         )
 
@@ -332,7 +339,7 @@ describe('portfolioSlice', () => {
 
         const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
           accountId: ethAccountId,
-          assetId: foxCaip19,
+          assetId: foxAssetId,
         })
 
         expect(allocationByAccountId).toEqual(60)
@@ -354,8 +361,8 @@ describe('portfolioSlice', () => {
         // dispatch market data
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [ethCaip19]: ethMarketData,
-            [foxCaip19]: foxMarketData,
+            [ethAssetId]: ethMarketData,
+            [foxAssetId]: foxMarketData,
           }),
         )
 
@@ -366,7 +373,7 @@ describe('portfolioSlice', () => {
 
         const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
           accountId: ethAccountId,
-          assetId: foxCaip19,
+          assetId: foxAssetId,
         })
 
         expect(allocationByAccountId).toEqual(0)
@@ -395,9 +402,9 @@ describe('portfolioSlice', () => {
 
         store.dispatch(
           marketDataSlice.actions.setMarketData({
-            [ethCaip19]: ethMarketData,
-            [foxCaip19]: foxMarketData,
-            [usdcCaip19]: usdcMarketData,
+            [ethAssetId]: ethMarketData,
+            [foxAssetId]: foxMarketData,
+            [usdcAssetId]: usdcMarketData,
           }),
         )
 
@@ -408,13 +415,13 @@ describe('portfolioSlice', () => {
 
         const returnValue = {
           [ethAccountId]: {
-            [ethCaip19]: '1000.00',
-            [foxCaip19]: '30.00',
-            [usdcCaip19]: '10.00',
+            [ethAssetId]: '1000.00',
+            [foxAssetId]: '30.00',
+            [usdcAssetId]: '10.00',
           },
           [ethAccount2Id]: {
-            [ethCaip19]: '200.00',
-            [foxCaip19]: '20.00',
+            [ethAssetId]: '200.00',
+            [foxAssetId]: '20.00',
           },
         }
 
@@ -428,13 +435,13 @@ describe('portfolioSlice', () => {
 
         const returnValue = {
           [ethAccountId]: {
-            [ethCaip19]: '0.00',
-            [foxCaip19]: '0.00',
-            [usdcCaip19]: '0.00',
+            [ethAssetId]: '0.00',
+            [foxAssetId]: '0.00',
+            [usdcAssetId]: '0.00',
           },
           [ethAccount2Id]: {
-            [ethCaip19]: '0.00',
-            [foxCaip19]: '0.00',
+            [ethAssetId]: '0.00',
+            [foxAssetId]: '0.00',
           },
         }
 
@@ -464,9 +471,9 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData,
+          [ethAssetId]: ethMarketData,
+          [foxAssetId]: foxMarketData,
+          [usdcAssetId]: usdcMarketData,
         }),
       )
 
@@ -477,7 +484,7 @@ describe('portfolioSlice', () => {
 
       it('should be able to filter by assetId', () => {
         const expected = '1200.01'
-        const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethCaip19 })
+        const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
@@ -485,7 +492,7 @@ describe('portfolioSlice', () => {
         const expected = '30.00'
         const result = selectPortfolioFiatBalanceByFilter(state, {
           accountId: ethAccountId,
-          assetId: foxCaip19,
+          assetId: foxAssetId,
         })
         expect(result).toEqual(expected)
       })
@@ -517,9 +524,9 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData,
+          [ethAssetId]: ethMarketData,
+          [foxAssetId]: foxMarketData,
+          [usdcAssetId]: usdcMarketData,
         }),
       )
 
@@ -530,7 +537,7 @@ describe('portfolioSlice', () => {
 
       it('should be able to filter by assetId', () => {
         const expected = '1.200009'
-        const result = selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: ethCaip19 })
+        const result = selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
@@ -538,7 +545,7 @@ describe('portfolioSlice', () => {
         const expected = '0.2001'
         const result = selectPortfolioCryptoHumanBalanceByFilter(state, {
           accountId: ethAccount2Id,
-          assetId: foxCaip19,
+          assetId: foxAssetId,
         })
         expect(result).toEqual(expected)
       })
@@ -551,8 +558,8 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxAssetId }),
+              mockEthToken({ balance: '1000000', assetId: usdcAssetId }),
             ],
           },
         },
@@ -573,9 +580,9 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData,
+          [ethAssetId]: ethMarketData,
+          [foxAssetId]: foxMarketData,
+          [usdcAssetId]: usdcMarketData,
         }),
       )
 
@@ -602,8 +609,8 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxAssetId }),
+              mockEthToken({ balance: '1000000', assetId: usdcAssetId }),
             ],
           },
         },
@@ -623,9 +630,9 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData,
+          [ethAssetId]: ethMarketData,
+          [foxAssetId]: foxMarketData,
+          [usdcAssetId]: usdcMarketData,
         }),
       )
 
@@ -634,8 +641,8 @@ describe('portfolioSlice', () => {
       store.dispatch(assetsSlice.actions.setAssets(assetData))
       const state = store.getState()
 
-      it('should return an array of assetIds (caip19) by accountId', () => {
-        const expected = [ethCaip19, foxCaip19, usdcCaip19]
+      it('should return an array of assetIds by accountId', () => {
+        const expected = [ethAssetId, foxAssetId, usdcAssetId]
         const result = selectPortfolioAssetIdsByAccountId(state, { accountId: ethAccountId })
 
         expect(result).toEqual(expected)
@@ -649,8 +656,8 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxAssetId }),
+              mockEthToken({ balance: '1000000', assetId: usdcAssetId }),
             ],
           },
         },
@@ -671,9 +678,9 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData,
+          [ethAssetId]: ethMarketData,
+          [foxAssetId]: foxMarketData,
+          [usdcAssetId]: usdcMarketData,
         }),
       )
 
@@ -697,9 +704,9 @@ describe('portfolioSlice', () => {
           balance: '1000000000000000000',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '1000000000000000000', caip19: foxCaip19 }),
-              mockEthToken({ balance: '1000000', caip19: usdcCaip19 }),
-              mockEthToken({ balance: '1000000000000000000', caip19: zeroCaip19 }),
+              mockEthToken({ balance: '1000000000000000000', assetId: foxAssetId }),
+              mockEthToken({ balance: '1000000', assetId: usdcAssetId }),
+              mockEthToken({ balance: '1000000000000000000', assetId: zeroAssetId }),
             ],
           },
         },
@@ -720,10 +727,10 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData,
-          [zeroCaip19]: zeroMarketData,
+          [ethAssetId]: ethMarketData,
+          [foxAssetId]: foxMarketData,
+          [usdcAssetId]: usdcMarketData,
+          [zeroAssetId]: zeroMarketData,
         }),
       )
 
@@ -733,7 +740,7 @@ describe('portfolioSlice', () => {
       const state = store.getState()
 
       it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
-        const expected = [zeroCaip19, foxCaip19, usdcCaip19]
+        const expected = [zeroAssetId, foxAssetId, usdcAssetId]
         const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, {
           accountId: ethAccountId,
         })
@@ -749,8 +756,8 @@ describe('portfolioSlice', () => {
           balance: '0',
           chainSpecific: {
             tokens: [
-              mockEthToken({ balance: '123456123456315537', caip19: foxCaip19 }),
-              mockEthToken({ balance: '0', caip19: usdcCaip19 }),
+              mockEthToken({ balance: '123456123456315537', assetId: foxAssetId }),
+              mockEthToken({ balance: '0', assetId: usdcAssetId }),
             ],
           },
         },
@@ -768,9 +775,9 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         marketDataSlice.actions.setMarketData({
-          [ethCaip19]: ethMarketData,
-          [foxCaip19]: foxMarketData,
-          [usdcCaip19]: usdcMarketData,
+          [ethAssetId]: ethMarketData,
+          [foxAssetId]: foxMarketData,
+          [usdcAssetId]: usdcMarketData,
         }),
       )
 
@@ -806,24 +813,19 @@ describe('portfolioSlice', () => {
           }),
         )
 
-        const cosmosAccount = mockCosmosAccount()
+        const cosmosAccount = merge(mockCosmosAccount(mockCosmosAccountWithStakingData), {
+          balance: '1000',
+        })
 
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([cosmosAccount], [cosmosCaip19]),
+            mockUpsertPortfolio([cosmosAccount], [cosmosAssetId]),
           ),
         )
 
-        store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData,
-          }),
-        )
-
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          assetId: cosmosAssetId,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.25002845')
       })
@@ -844,21 +846,22 @@ describe('portfolioSlice', () => {
             [cosmos.assetId]: cosmosMarketData,
           }),
         )
+
+        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
         store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingData,
-          }),
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([cosmosAccount], [cosmosAssetId]),
+          ),
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          assetId: cosmosAssetId,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.17247845')
       })
 
-      it('should return non zero fiat balance in case there are only undelegations', () => {
+      it('should return non zero fiat balance in case there are only undelegations but no asset balance', () => {
         const store = createStore()
         const assetData = mockAssetState({
           byId: {
@@ -874,16 +877,18 @@ describe('portfolioSlice', () => {
             [cosmos.assetId]: cosmosMarketData,
           }),
         )
+
+        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithOnlyUndelegations)
+
         store.dispatch(
-          stakingDataSlice.actions.upsertStakingData({
-            accountSpecifier: cosmosAccountSpecifier,
-            stakingData: mockStakingDataWithOnlyUndelegations,
-          }),
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([cosmosAccount], [cosmosAssetId]),
+          ),
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          assetId: cosmosAssetId,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0.0271425')
       })
@@ -906,8 +911,8 @@ describe('portfolioSlice', () => {
         )
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosCaip19,
-          accountId: cosmosAccountSpecifier,
+          assetId: cosmosAssetId,
+          accountSpecifier: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0')
       })

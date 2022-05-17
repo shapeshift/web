@@ -1,4 +1,4 @@
-import { AssetId, ChainId, toCAIP2, toCAIP10 } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, toAccountId, toChainId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import {
   chainAdapters,
@@ -23,24 +23,24 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioAssets,
   PortfolioBalancesById,
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { cosmosAssetId } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAccountSpecifiers,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryTimeframe,
+  selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
 } from 'state/slices/selectors'
-import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
@@ -237,12 +237,12 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
-      if (tx.fee && assetIds.includes(tx.fee.caip19)) {
+      if (tx.fee && assetIds.includes(tx.fee.assetId)) {
         // balance history being built in descending order, so fee means we had more before
         // TODO(0xdef1cafe): this is awful but gets us out of trouble
         // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
         if (tx.chain !== ChainTypes.Bitcoin) {
-          bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
+          bucket.balance.crypto[tx.fee.assetId] = bucket.balance.crypto[tx.fee.assetId].plus(
             bnOrZero(tx.fee.value),
           )
         }
@@ -252,7 +252,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       const includeTx = includeTransaction(tx)
 
       tx.transfers.forEach(transfer => {
-        const asset = transfer.caip19
+        const asset = transfer.assetId
 
         if (!assetIds.includes(asset)) return
         if (!includeTx) return
@@ -322,7 +322,6 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
-  const dispatch = useAppDispatch()
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
@@ -333,38 +332,26 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // Get total delegation
   // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const cosmosCaip2: ChainId = toCAIP2({
+  const cosmosChainId: ChainId = toChainId({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
   })
 
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
-    if (accountSpecifier[cosmosCaip2]) {
-      acc = accountSpecifier[cosmosCaip2]
+    if (accountSpecifier[cosmosChainId]) {
+      acc = accountSpecifier[cosmosChainId]
     }
     return acc
   }, '')
 
-  // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
-  const cosmosCaip10 = account ? toCAIP10({ caip2: cosmosCaip2, account }) : ''
-
-  // load staking data to redux state
-  useEffect(() => {
-    ;(async () => {
-      if (!cosmosCaip10?.length) return
-
-      dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier: cosmosCaip10 },
-          { forceRefetch: true },
-        ),
-      )
-    })()
-  }, [dispatch, cosmosCaip10])
+  const cosmosAccountSpecifier = account ? toAccountId({ chainId: cosmosChainId, account }) : ''
 
   const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, { accountSpecifier: cosmosCaip10 }),
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
+      accountSpecifier: cosmosAccountSpecifier,
+      assetId: cosmosAssetId,
+    }),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)

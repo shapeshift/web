@@ -74,6 +74,7 @@ export interface InitialState {
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
+  isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
   deviceId: string
@@ -90,6 +91,7 @@ const initialState: InitialState = {
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
+  isLocked: false,
   modal: false,
   isLoadingLocalWallet: false,
   deviceId: '',
@@ -118,6 +120,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       }
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
+    case WalletActions.SET_IS_LOCKED:
+      return { ...state, isLocked: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
@@ -214,6 +218,14 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
         initialRoute: KeepKeyRoutes.NewRecoverySentence,
+      }
+    case WalletActions.OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        deviceId: action.payload.deviceId,
+        initialRoute: KeepKeyRoutes.RecoverySentenceInvalid,
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
@@ -359,6 +371,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       deviceId,
                     },
                   })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
                   disconnect()

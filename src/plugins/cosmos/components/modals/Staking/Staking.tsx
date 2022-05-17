@@ -9,10 +9,11 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
+import { StepConfig } from 'components/VerticalStepper/VerticalStepper'
 import { selectAssetById, selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -38,9 +39,16 @@ import { Unstake } from './views/Unstake'
 import { UnstakeBroadcast } from './views/UnstakeBroadcast'
 import { UnstakeConfirm } from './views/UnstakeConfirm'
 
+const SINGLE_SIDED_STAKING_STEPS: Record<string, StepConfig[]> = {
+  [StakeRoutes.Stake]: stakeSteps,
+  [StakeRoutes.Unstake]: unstakeSteps,
+  [ClaimPath.Confirm]: claimSteps,
+}
+
 const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) => {
   const location = useLocation()
   const translate = useTranslate()
+  const [steps, setSteps] = useState<StepConfig[]>()
 
   const isOverview = matchPath(location.pathname, {
     path: StakeRoutes.Overview,
@@ -52,21 +60,32 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
     exact: true,
   })
 
-  const isStake = matchPath(location.pathname, {
-    path: [StakeRoutes.Stake, StakingPath.Confirm, StakingPath.Broadcast],
+  const hasSubSteps = matchPath(location.pathname, {
+    path: [ClaimPath.Confirm, StakeRoutes.Stake, StakeRoutes.Unstake],
     exact: true,
   })
 
-  const isUnstake = matchPath(location.pathname, {
-    path: [StakeRoutes.Unstake, UnstakingPath.Confirm, UnstakingPath.Broadcast],
-    exact: true,
-  })
+  useEffect(() => {
+    if (!hasSubSteps?.path) return
 
-  const getCurrentSteps = () => {
-    if (isStake) return stakeSteps
-    if (isUnstake) return unstakeSteps
+    setSteps(SINGLE_SIDED_STAKING_STEPS[hasSubSteps.path])
+  }, [hasSubSteps?.path])
 
-    return claimSteps
+  const handleStepCompleted = () => {
+    setSteps(
+      steps?.map(step => {
+        const isCurrentStep = matchPath(location.pathname, {
+          path: step.path,
+          exact: true,
+        })
+
+        if (isCurrentStep) {
+          return { ...step, isCompleted: true }
+        }
+
+        return step
+      }),
+    )
   }
 
   const headerBg = useColorModeValue('gray.50', 'gray.800')
@@ -96,12 +115,8 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
                 {!isClaim && <CosmosActionButtons asset={asset} />}
               </Stack>
             </ModalHeader>
-            {!isOverview && (
-              <RouteSteps
-                assetSymbol={asset.symbol}
-                routes={getCurrentSteps()}
-                location={location}
-              />
+            {!isOverview && steps && (
+              <RouteSteps assetSymbol={asset.symbol} routes={steps} location={location} />
             )}
             <ModalCloseButton borderRadius='full' />
             <Switch location={location}>
@@ -121,6 +136,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
                   onCancel={handleCancel}
+                  onStepCompleted={handleStepCompleted}
                 />
               </Route>
               <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
@@ -135,6 +151,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
                   assetId={assetId}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
+                  onStepCompleted={handleStepCompleted}
                 />
               </Route>
               <Route exact key={StakeRoutes.Unstake} path={StakeRoutes.Unstake}>
@@ -157,6 +174,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
                   assetId={assetId}
                   validatorAddress={validatorAddress}
                   onClose={handleClose}
+                  onStepCompleted={handleStepCompleted}
                 />
               </Route>
               <Route key={StakeRoutes.Overview} path='/'>

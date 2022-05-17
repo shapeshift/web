@@ -14,13 +14,13 @@ import {
 } from './utils'
 
 describe('accountIdToChainId', () => {
-  it('can get eth caip2 from accountId', () => {
+  it('can get eth chainId from accountId', () => {
     const accountId = 'eip155:1:0xdef1cafe'
     const chainId = accountIdToChainId(accountId)
     expect(chainId).toEqual(ethChainId)
   })
 
-  it('can get btc caip2 from accountId', () => {
+  it('can get btc chainId from accountId', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
     const chainId = accountIdToChainId(accountId)
     expect(chainId).toEqual(btcChainId)
@@ -96,22 +96,22 @@ describe('findAccountsByAssetId', () => {
   const ethAsset2Id = 'eip155:1/erc20:0xryankk'
 
   it('returns correct accountId for a given assetId', () => {
-    const portolioAccounts = {
-      [ethAccountId]: [ethAssetId],
-      [ethAccount2Id]: [ethAsset2Id],
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAssetId] },
+      [ethAccount2Id]: { assetIds: [ethAsset2Id] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAssetId)
     expect(result).toEqual([ethAccountId])
   })
 
   it('returns correct accountIds for a given assetId', () => {
-    const portolioAccounts = {
-      [ethAccountId]: [ethAssetId, ethAsset2Id],
-      [ethAccount2Id]: [ethAsset2Id],
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAssetId, ethAsset2Id] },
+      [ethAccount2Id]: { assetIds: [ethAsset2Id] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAsset2Id)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAsset2Id)
     expect(result).toEqual([ethAccountId, ethAccount2Id])
   })
 
@@ -119,16 +119,16 @@ describe('findAccountsByAssetId', () => {
     const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
     const btcAccountId = 'bip122:000000000019d6689c085ae165831e93:zpubfoobarbaz'
 
-    const portolioAccounts = {
-      [ethAccountId]: [ethAsset2Id],
-      [ethAccount2Id]: [],
-      [btcAccountId]: [],
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAsset2Id] },
+      [ethAccount2Id]: { assetIds: [] },
+      [btcAccountId]: { assetIds: [] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAssetId)
     expect(result).toEqual([ethAccountId, ethAccount2Id])
 
-    const result2 = findAccountsByAssetId(portolioAccounts, btcAssetId)
+    const result2 = findAccountsByAssetId(portfolioAccounts, btcAssetId)
     expect(result2).toEqual([btcAccountId])
   })
 })

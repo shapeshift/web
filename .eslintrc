@@ -16,7 +16,7 @@
   },
   "rules": {
     "jsx-a11y/alt-text": "error",
-    "jsx-a11y/no-autofocus": "error",
+    "jsx-a11y/no-autofocus": "off",
     "no-console": [
       "error",
       {

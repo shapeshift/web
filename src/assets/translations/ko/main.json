@@ -37,6 +37,7 @@
     "or": "혹은",
     "somethingWentWrong": "문제 발생",
     "somethingWentWrongBody": "문제가 발생했습니다.",
+    "success": "완료",
     "transactionFailed": "거래 실패",
     "transactionFailedBody": "거래가 실패하였습니다.",
     "submitFeedback": "의견 제출",
@@ -51,7 +52,13 @@
     "viewAsset": "자산 보기",
     "apy": "%{apy}% APY",
     "settings": "설정",
-    "legalDated": "날짜: 2022년 1월"
+    "legalDated": "날짜: 2022년 1월",
+    "approveOnWallet": "지갑에서 승인하기",
+    "confirmOnWallet": "지갑에서 확인하기",
+    "login": "로그인",
+    "verify": "확인",
+    "notRobot": "저는 로봇이 아닙니다",
+    "skip": "넘기기"
   },
   "updateToast": {
     "body": "새로운 버전의 앱이 출시되었습니다.",
@@ -80,9 +87,9 @@
   },
   "fiatRamps": {
     "routeTitle": "구매하기",
-    "routeTitleForGem": "Gem on Ramp",
+    "routeTitleForGem": "Gem으로 on-Ramp 거래하기",
     "title": "암호화폐 거래하기",
-    "titleMessage": "ShapeShift는 암호화폐 구매 및 판매를 위해 여러 fiat ramp 서비스 업체들과 파트너쉽을 맺었습니다.",
+    "titleMessage": "ShapeShift에서는 암호화폐의 원활한 매매를 위해 여러 fiat-on-ramp 서비스 제공 업체들과 제휴 중입니다.",
     "gem": "GEM",
     "gemMessage": "Gem으로 암호화폐 거래하기",
     "onJuno": "OnJuno",
@@ -95,7 +102,8 @@
     "selectAnAssetToSell": "아래 전체 목록에서 판매할 자산을 선택하세요",
     "fundsTo": "다음 주소로 해당 자산을 입금합니다.",
     "fundsFrom": "다음 주소에서 해당 자산을 출금합니다.",
-    "headerLabel": "암호화폐 거래하기"
+    "headerLabel": "암호화폐 거래하기",
+    "insufficientCryptoAmountToSell": "최소 거래 가능 수량 $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift (셰이프시프트)",
@@ -104,7 +112,8 @@
     "defiUniverse": "지금 탐험해 보세요",
     "body": "100% 무료인, 중개인이 없는 비 수탁형(Non-custodial) 오픈소스 플랫폼입니다.",
     "header": "지갑을 연결하여 시작하세요",
-    "cta": "지갑 연결하기"
+    "cta": "지갑 연결하기",
+    "orViewADemo": "테스트 화면으로 연결하기"
   },
   "connectWallet": {
     "menu": {
@@ -122,7 +131,7 @@
         "headers": {
           "aboutStakingRewards": "스테이킹 보상 정보",
           "unstaking": "%{assetName}의 스테이킹 해제",
-          "risks": "위험이 있습니까?"
+          "risks": "어떠한 리스크가 있나요?"
         },
         "bodies": {
           "rateFluctuationInfo": "귀하가 벌어들이는 %{assetName}의 비율인 연간 수익률(APR)은 일반적으로 7% - 20% 사이에서 변동합니다.",
@@ -162,7 +171,7 @@
       },
       "foxyOverview": {
         "header": "FOXy를 적립하려면 FOX를 입금하세요.",
-        "body": "FOXy는 FOX 가격에 고정된 리베이스 토큰입니다. FOXy는 가능한 최고의 수익을 얻기 위해 다양한 DeFi 프로토콜에서 작동합니다.",
+        "body": "FOXy는 FOX 가격에 페깅되어 있는 리베이스 토큰입니다. 스테이크된 FOX는 다양한 DeFi 프로토콜에 연동되어 가능한 한 최고의 수익을 얻을 수 있게 합니다.",
         "rewards": "획득한 보상은 자동으로 적립됩니다.",
         "cta": "FOX 입금하기",
         "foxyBalance": "FOXy 밸런스",
@@ -238,7 +247,7 @@
     "currentAPY": "현재 연 수익률",
     "currentAPR": "현재 연 이자율",
     "yearn": "연 파이낸스(Yearn Finance)",
-    "emptyEarn": "각종 이자 보상을 얻을 여러 항목들을 곧 확인하실 수 있습니다.",
+    "emptyEarn": "각종 이자 수익을 얻으실 수 있는 여러 기회들이 여기에 올라옵니다.",
     "empty": {
       "farming": {
         "body": "현재 진행중인 이자 농사가 없습니다",
@@ -258,8 +267,8 @@
   "staking": {
     "staking": "스테이킹",
     "itWillTake": "언스테이킹 시간이 ",
-    "toUnlock": "스테이킹 보상은 별도로 출금해야 합니다.",
-    "assetStakingBalance": "%{assetName} 스테이킹 잔액"
+    "toUnlock": "%{assetSymbol}을 언스테이크 후 잠금을 해제합니다. ※ 스테이킹 보상은 따로 출금하셔야 합니다.",
+    "assetStakingBalance": "%{assetSymbol} 스테이킹 잔액"
   },
   "navBar": {
     "dashboard": "대시보드",
@@ -278,8 +287,8 @@
     "featureFlags": "Feature Flags"
   },
   "transactionRow": {
-    "send": "%{symbol} 보냈습니다",
-    "receive": "%{symbol} 받았습니다",
+    "send": "%{symbol} 송신",
+    "receive": "%{symbol} 수신",
     "moreDetails": "자세한 정보",
     "date": "날짜",
     "txid": "거래 아이디",
@@ -300,7 +309,7 @@
         "deposit": "자산 입금",
         "approve": "승인하기",
         "withdraw": "자산 출금",
-        "receive": "받은"
+        "receive": "받음"
       },
       "uniV2": {
         "addLiquidityETH": "유동성 추가",
@@ -308,6 +317,12 @@
       },
       "thor": {
         "transferOut": "출금"
+      },
+      "foxy": {
+        "stake": "스테이크",
+        "unstake": "언스테이크",
+        "instantUnstake": "즉시 언스테이크",
+        "claimWithdraw": "출금 요청"
       }
     },
     "unknown": "거래"
@@ -323,28 +338,28 @@
     "complete": "거래 완료",
     "approveAsset": "%{symbol} 상호 작용 승인",
     "needPermission": "%{symbol} 사용하려면 귀하의 허가가 필요합니다.",
-    "whyNeedThis": "이 작업을 수행해야 하는 이유는 무엇입니까?",
+    "whyNeedThis": "이 작업은 왜 필요한가요?",
     "estimatedGasFee": "예상 가스 요금",
     "approvingAsset": "%{symbol} 승인 중",
     "viewTransaction": "트랜잭션 내역 확인",
     "tooltip": {
       "rate": "해당 거래 페어에 대한 예상 거래 비율입니다.",
-      "minerFee": "이 수수료는 해당 블록체인에 거래를 하기 위한 수수료이며, 이는 절대 셰이프시프트에서 부과하는 수수료가 아닙니다",
-      "shapeshiftFee": "셰이프시프트는 거래 수수료가 없습니다 🎉"
+      "minerFee": "이 수수료는 해당 블록체인에 거래를 하기 위한 수수료이며, 절대 셰이프시프트에서 부과하는 수수료가 아닙니다!",
+      "shapeshiftFee": "ShapeShift는 별도의 거래 수수료를 요구하지 않습니다 🎉"
     },
     "errors": {
       "title": "문제가 발생했습니다.",
-      "notEnoughEth": "가스 요금에 대한 ETH가 충분하지 않습니다.",
+      "notEnoughEth": "거래하기 위해 내야 하는 가스 비용으로 변환할 ETH가 충분하지 않습니다.",
       "amountToSmall": "거래 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
-      "negativeMax": "채굴 수수료에 대한 자금이 충분하지 않습니다. 추정 채굴 수수료는 %{estimatedMinerFee} 입니다.",
-      "invalidMax": "잘못된 거래량입니다. 페어에 예치할 수 있는 최대 거래 금액은 %{maxLimit} 입니다.",
+      "negativeMax": "채굴 수수료로 지불할 자금이 부족합니다. 추정 채굴 수수료는 %{estimatedMinerFee} 입니다.",
+      "invalidMax": "잘못된 값입니다. 이 페어에 예치할 수 있는 최대 거래 금액은 %{maxLimit} 입니다.",
       "insufficientFunds": "채굴 수수료 및 금액에 대한 자금이 부족합니다.",
-      "transactionRejected": "거래를 거절했습니다.",
-      "broadcastFailed": "거래를 브로드캐스트 하는 동안 오류가 발생했습니다.",
+      "transactionRejected": "트랜잭션을 거절했습니다.",
+      "broadcastFailed": "트랜잭션을 브로드캐스트 하는 중에 오류가 발생했습니다.",
       "insufficientFundsForLimit": "자금이 부족합니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
-      "insufficientFundsForAmount": "자금이 부족합니다. %{symbol} 보유 잔액이 입력한 값보다 적습니다.",
+      "insufficientFundsForAmount": "자금이 부족합니다. 보유한 %{symbol} 잔액이 입력한 값보다 적습니다.",
       "noLiquidityError": "유동성이 충분하지 않습니다.",
-      "overMaxSlippage": "이 거래는 %{slippagePercentage}% 이상의 슬리피지를 초래할 수도 있습니다. 더 적은 양과 더 나은 가격으로 거래하세요.",
+      "overMaxSlippage": "※ 이 거래는 %{slippagePercentage}% 이상의 슬리피지가 발생할 수 있습니다. 더 나은 가격으로 거래하기 위해서는 보다 적은 양으로 거래하셔야 합니다.",
       "balanceToLow": "보유 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
       "dexTradeFailed": "거래가 실패하여 토큰이 반환되었습니다.",
       "quoteFailed": "거래 견적을 책정하는 동안 오류가 발생했습니다.",
@@ -374,7 +389,19 @@
       "label": {
         "header": "KeepKey 레이블 지정하기",
         "body": "각 지갑에 레이블을 지정하면 쉽게 구별할 수 있습니다.",
+        "setLabelButton": "레이블 설정",
+        "skipLabelButton": "건너뛰기",
+        "placeholder": "고급",
         "button": "레이블 설정"
+      },
+      "recoverySettings": {
+        "header": "지갑 복구하기",
+        "sentenceLengthLabel": "복구 문장으로 복구하기",
+        "recoveryPassphraseLabel": "암호키로 복구하기",
+        "recoveryPassphraseToggle": "암호키를 사용해 복구하시겠습니까?",
+        "recoveryPassphraseDescription": "복구 문장이 암호 키로 보호되고 있는지 확실하지 않다면, 이 과정을 더 이상 진행하지 마세요.",
+        "wordEntropy": "%{wordEntropy} 단어",
+        "button": "지갑 복구하기"
       },
       "recoverySentence": {
         "header": "복구 문장을 반드시 따로 기록해두세요",
@@ -388,6 +415,17 @@
         "body": "KeepKey의 공장 초기화가 완료되었습니다. 이제, KeepKey에 기존의 복구 시드를 사용하여 복원하거나, 새 지갑을 만들 수 있습니다.",
         "createButton": "새 지갑 만들기",
         "recoverButton": "지갑 복구"
+      },
+      "recoverySentenceEntry": {
+        "header": "복구 문장을 입력해주세요",
+        "body": "KeepKey에 있는 스크램블 키보드를 사용해, 각 단어의 앞 4글자를 입력해주세요. 단어가 4글자보다 적다면, 엔터를 입력하고 스페이스 바를 눌러주세요. 입력이 완료되었으면 '다음'을 클릭해주세요.",
+        "button": "다음",
+        "awaitingButtonPress": "KeepKey의 안내 사항에 따라 설정을 계속하세요.",
+        "toastMessage": "KeepKey가 성공적으로 복구되었습니다!"
+      },
+      "recoverySettingUp": {
+        "header": "장치 설정 중...",
+        "body": "장치와 지갑 주소의 연동 작업이 완료될 때까지 기다려주세요."
       }
     },
     "shapeShift": {
@@ -471,9 +509,9 @@
     "deposit": {
       "amountToDeposit": "입금할 금액",
       "estimatedReturns": "연간 예상 수익*",
-      "estimateDisclaimer": "*견적은 시장조건에 따라 변동될 수 있습니다.",
-      "footerDisclaimer": "서비스 약관에 동의하면 계속하십시오.",
-      "footerDisclaimerLink": "서비스 약관.",
+      "estimateDisclaimer": "*예상 견적은 시장 상황에 따라 변동될 수 있습니다.",
+      "footerDisclaimer": "계속하시면, 약관에 동의하는 것으로 간주합니다.",
+      "footerDisclaimerLink": " 서비스 약관 확인하기",
       "slippageSettings": "슬리피지 설정"
     },
     "withdraw": {
@@ -595,12 +633,12 @@
           "bootloader": "부트로더",
           "firmware": "펌웨어",
           "pin": "PIN",
-          "pinCaching": "PIN 캐싱",
           "advanced": "고급",
           "deviceTimeout": "기기 타임아웃",
           "passphrase": "암호키",
           "wipeDevice": "기기 초기화",
-          "label": "라벨"
+          "label": "라벨",
+          "pinCaching": "PIN 캐싱"
         },
         "status": {
           "enabled": "활성화됨",
@@ -613,19 +651,19 @@
           "enterPin": "현재 PIN 입력",
           "setPin": "새 PIN 설정하기",
           "confirmPin": "새 PIN 확인하기",
-          "pinCaching": "PIN 캐싱",
-          "passphrase": "암호키"
+          "passphrase": "암호키",
+          "pinCaching": "PIN 캐싱"
         },
         "descriptions": {
           "pin": "KeepKey 초기화 이후 9개 숫자의 조합으로 PIN을 구성합니다. PIN을 통해 보유하신 KeepKey를 부정한 접근으로부터 보호하실 수 있습니다.",
-          "pinCaching": "이 기능을 활성화하면 KeepKey 기기가 PIN을 기억하게 할 수 있습니다.",
           "passphrase": "각 지갑마다 고유한 암호키를 작성하면 여러 지갑에 접근할 수 있습니다.",
           "label": "기기마다 별도의 명칭을 작성해두면 보유한 기기를 쉽게 구분하실 수 있습니다. ",
-          "timeout": "기본적으로 KeepKey는 10분 이내에 절전 모드에 들어가도록 설정되어 있습니다. (이 설정은 변경이 가능합니다.)",
+          "timeout": "기본적으로 KeepKey는 10분 이내에 절전 모드에 들어가도록 설정되어 있습니다. (이 설정은 별도의 변경이 가능합니다.)",
           "buttonPrompt": "KeepKey %{setting} 내용을 변경하기 위해 KeepKey에 있는 버튼을 꾹 눌러주세요.",
           "updateSuccess": "%{setting} 내용이 성공적으로 업데이트되었습니다.",
           "updateFailed": "%{setting} 내용을 업데이트하는 도중 에러가 발생하였습니다.",
-          "timeoutDuration": "%{minutes} 분"
+          "timeoutDuration": "%{minutes} 분",
+          "pinCaching": "이 기능을 활성화하면 KeepKey 기기가 PIN을 기억하게 할 수 있습니다."
         },
         "alerts": {
           "passphrase": {
@@ -757,6 +795,31 @@
         "body": "지갑의 닉네임을 변경하고 암호를 입력하여 지갑을 복구 하십시오.",
         "button": "다음",
         "confirmDelete": "이 지갑의 닉네임을 삭제하시겠습니까?"
+      },
+      "legacy": {
+        "deprecatedWarning": "ShapeShift 로그인 기능은 곧 사라집니다",
+        "learnMore": "더 알아보기",
+        "alreadySavedConfirm": "저는 비밀 복구 구문을 별도로 안전한 장소에 백업해두었습니다.",
+        "mobileWalletTitle": "ShapeShift 모바일 지갑",
+        "importInformations": "ShapeShift 모바일 지갑을 사용하기 위해서는 우선 지갑을 가져올 필요가 있습니다.",
+        "importWallet": "지갑 가져오기",
+        "haveMobileWallet": "ShapeShift 모바일 지갑을 갖고 계신가요?",
+        "loginWithAccount": "ShapeShift 계정으로 로그인하기",
+        "loginInformations": "ShapeShift 모바일 앱에 로그인하기 위해 사용하시는 이메일 주소와 비밀번호를 입력해주세요.",
+        "loginSuccess": "로그인 성공",
+        "emailAddress": "이메일 주소",
+        "password": "비밀번호",
+        "emailRequired": "이메일 입력이 필요합니다",
+        "invalidEmail": "올바른 이메일이 아닙니다",
+        "invalidCaptcha": "올바른 Captcha가 아닙니다",
+        "invalidLogin": "로그인 실패",
+        "noWallet": "로그인을 하기 위한 ShapeShift 기본 지갑을 찾을 수 없습니다. 이 안내에 오류가 있다고 생각하시면 ShapeShift 고객 지원 센터에 문의해주세요.",
+        "decryptionError": "지갑을 복호화하는 중에 오류가 발생하였습니다.",
+        "twoFactorAuthentication": "이중 보안 인증(2FA)",
+        "twoFactorPlaceholder": "6자리 숫자 코드",
+        "twoFactorRequired": "이중 인증(2FA)이 필요합니다",
+        "invalidTwoFactor": "숫자 코드가 올바르지 않습니다",
+        "twoFactorDescription": "계정에 이중 보안 인증(2FA)을 활성화합니다. 보유하신 인증 앱에서 아래의 코드를 입력해주세요."
       }
     },
     "selectModal": {
@@ -804,7 +867,9 @@
         "SegwitNative": "네이티브 세그윗",
         "P2pkh": "레거시",
         "SegwitNativeTooltip": "대부분의 사용자에게 추천합니다. 반드시 정확한 용도를 알고 있을 때에 한해서 다른 주소를 이용하세요.",
-        "btcFormat": "BTC 형식"
+        "btcFormat": "BTC 형식",
+        "assetUnavailable": "해당 자산에 대한 시장 데이터가 아직 준비되지 않았습니다. 작업 중이니 조금만 기다려주세요!",
+        "loading": "가격 히스토리를 확인합니다... 조금만 기다려주세요. 열심히 작업하고 있습니다."
       },
       "assetDescription": {
         "showMore": "상세보기",

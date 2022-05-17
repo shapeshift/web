@@ -10,10 +10,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-// @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
-import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import {
   ConfirmFormFields,
   ConfirmFormInput,
@@ -31,6 +29,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -57,9 +56,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const { handleSubmit, control } = methods
   const { cryptoAmount } = useWatch({ control })
 
-  const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, { validatorAddress }),
-  )
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const {
     state: { wallet, isConnected },
     dispatch,
@@ -68,7 +65,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
@@ -93,7 +90,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   }, [adapter, asset.precision, marketData.price])
 
   const history = useHistory()
-  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
+  const onSubmit = async ({ feeType }: { feeType: chainAdapters.FeeDataKey }) => {
     if (!wallet || !feeData) return
     if (!isConnected) {
       /**
@@ -117,7 +114,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
 
   const translate = useTranslate()
 
-  if (!cryptoAmount) return null
+  if (!validatorInfo || !cryptoAmount) return null
 
   return (
     <FormProvider {...methods}>

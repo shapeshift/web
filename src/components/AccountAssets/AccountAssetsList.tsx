@@ -8,7 +8,7 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import { AssetAccountRow } from '../AssetAccounts/AssetAccountRow'
 /**
  * This returns the assets inside an account
- * @param assetIds An array of CAIP19/AssetIds for the account
+ * @param assetIds An array of AssetIds for the account
  * @param accountId The AccountSpecifier for the account
  * @param limit If no limit is provided, all assets will be shown. If 0 is provided all assets will go into the more section.
  * @returns returns JSX

@@ -6,7 +6,7 @@
     "cancel": "取消",
     "close": "关闭",
     "continue": "继续",
-    "approve": "在钱包上批准",
+    "approve": "批准",
     "confirm": "确认",
     "reject": "拒绝",
     "connected": "已连接",
@@ -24,6 +24,7 @@
     "getStarted": "开始",
     "connectWallet": "连接钱包",
     "connectedWallet": "已连接钱包",
+    "connectedWalletSettings": "钱包设置",
     "noWallet": "钱包未连接",
     "seeAll": "查看所有",
     "darkMode": "夜间模式",
@@ -36,6 +37,7 @@
     "or": "或者",
     "somethingWentWrong": "出现问题",
     "somethingWentWrongBody": "出现问题",
+    "success": "成功",
     "transactionFailed": "交易失败",
     "transactionFailedBody": "交易失败",
     "submitFeedback": "提交反馈",
@@ -50,7 +52,13 @@
     "viewAsset": "查看资产",
     "apy": "%{apy}% 年化收益率",
     "settings": "设置",
-    "legalDated": "日期：2022 年 1 月"
+    "legalDated": "日期：2022 年 1 月",
+    "approveOnWallet": "在钱包中批准",
+    "confirmOnWallet": "在钱包中确认",
+    "login": "登录",
+    "verify": "证明",
+    "notRobot": "我不是一个机器人",
+    "skip": "跳过"
   },
   "updateToast": {
     "body": "应用有新版本",
@@ -68,9 +76,10 @@
       "priceChange": "价格变化",
       "allocation": "投资组合配置",
       "empty": {
-        "title": "蟋蟀声。。。",
-        "cta": "发送加密资产给您自己"
-      }
+        "title": "蟋蟀声...",
+        "cta": "发送加密资产给你自己"
+      },
+      "stakedInfo": "你不能发送或交易已质押的金额"
     },
     "recentTransactions": {
       "recentTransactions": "近期交易"
@@ -78,10 +87,10 @@
   },
   "fiatRamps": {
     "routeTitle": "买入或卖出",
-    "routeTitleForGem": "斜坡上的宝石",
+    "routeTitleForGem": "斜坡上的Gem",
     "title": "购买或出售加密货币",
     "titleMessage": "ShapeShift 已与多家法定坡道供应商合作购买和销售加密货币。",
-    "gem": "Gem",
+    "gem": "GEM",
     "gemMessage": "使用 Gem 购买或出售加密货币",
     "onJuno": "OnJuno",
     "comingSoon": "敬请期待 ...",
@@ -93,7 +102,8 @@
     "selectAnAssetToSell": "选择要出售的资产",
     "fundsTo": "资金将发送至",
     "fundsFrom": "资金将从",
-    "headerLabel": "购买/出售加密货币"
+    "headerLabel": "购买/出售加密货币",
+    "insufficientCryptoAmountToSell": "出售的最低金额为$%{Amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift 平台",
@@ -102,7 +112,8 @@
     "defiUniverse": "去中心化金融的宇宙",
     "body": "100%免费。 完全开源。 社区拥有。 非托管。 高度私密。",
     "header": "请连接钱包开始使用",
-    "cta": "连接钱包"
+    "cta": "连接钱包",
+    "orViewADemo": "或观看演示"
   },
   "connectWallet": {
     "menu": {
@@ -151,6 +162,8 @@
         "risks": "风险",
         "ofParticipating": "使用此功能并同意",
         "terms": "条款",
+        "stakingYourTokens": "质押你的代币",
+        "unstakingYourTokens": "取消质押你的代币",
         "tooltip": {
           "validator": "验证者负责处理交易、存储数据并将区块添加到区块链网络之中。",
           "gasFees": "%{networkName} 上的 Gas 费用远低于以太坊主网上的 Gas 费用。这笔费用直接支付给保护和运营网络的验证者，而不是支付给 ShapeShift 平台。"
@@ -184,7 +197,9 @@
     "broadcastingTransaction": "广播交易",
     "transactionComplete": "交易完成",
     "transactionFailed": "交易失败",
+    "notEnoughFundsInReserve": "流动性储备合约资金不足",
     "validator": "验证程序",
+    "validatorMoniker": "%{moniker} 验证程序",
     "stakedAmount": "质押金额",
     "unstakeFrom": "取消质押",
     "gasFee": "Gas 费用",
@@ -246,7 +261,8 @@
         "body": "您还未向流动性池存入资产。",
         "cta": "查看投资机会"
       }
-    }
+    },
+    "viewOnChain": "在链上查看"
   },
   "staking": {
     "staking": "正在质押",
@@ -301,6 +317,12 @@
       },
       "thor": {
         "transferOut": "转出"
+      },
+      "foxy": {
+        "stake": "质押",
+        "unstake": "取消质押",
+        "instantUnstake": "立即解除质押",
+        "claimWithdraw": "撤回申领"
       }
     },
     "unknown": "交易"
@@ -363,6 +385,46 @@
         "header": "请输入口令",
         "body": "提交口令后，请使用KeepKey上的按键批准",
         "button": "提交口令"
+      },
+      "label": {
+        "header": "标记您的KeepKey(可选)",
+        "body": "给你的每一台设备贴上标签，你就可以很容易地将它们区分开来。",
+        "setLabelButton": "设置标签",
+        "skipLabelButton": "跳过",
+        "placeholder": "可选的"
+      },
+      "recoverySettings": {
+        "header": "找回你的钱包",
+        "sentenceLengthLabel": "恢复短语长度",
+        "recoveryPassphraseLabel": "恢复密码",
+        "recoveryPassphraseToggle": "使用密码恢复吗？",
+        "recoveryPassphraseDescription": "如果你不确定你的恢复短语是否受密码短语的保护，请将其关闭。",
+        "wordEntropy": "%{wordEntropy}个单词",
+        "button": "找回钱包"
+      },
+      "recoverySentence": {
+        "header": "写下你的恢复短语",
+        "body": "在你的KeepKey屏幕上，你会看到你的恢复短语。写下来。如果你无法访问设备，则只能通过这个短语访问你的资产。",
+        "infoFirst": "关键是你要完全按照KeepKey上的显示写下来。",
+        "infoSecond": "永远不要告诉别人你的恢复短语，这能让拥有者动用你的所有的资金。",
+        "awaitingButtonPress": "按照KeepKey上的步骤查看您的恢复短语。写下来！"
+      },
+      "wiped": {
+        "header": "KeepKey已成功擦除",
+        "body": "你已成功将KeepKey重置为出厂默认设置。现在，你可以使用现有恢复助记词进行还原，也可以创建一个新的钱包。",
+        "createButton": "创建一个新的钱包",
+        "recoverButton": "找回钱包"
+      },
+      "recoverySentenceEntry": {
+        "header": "输入您的恢复短语",
+        "body": "使用你的KeepKey上的加密键盘图例，输入每个单词的前4个字母。如果单词中少于4个字母，按Enter键，按空格键，或者在输入完成后单击next。",
+        "button": "接下来",
+        "awaitingButtonPress": "按照KeepKey上的说明继续。",
+        "toastMessage": "KeepKey恢复成功!"
+      },
+      "recoverySettingUp": {
+        "header": "设置设备…",
+        "body": "我们正在初始化你的设备并同步你的地址，请稍候。"
       }
     },
     "shapeShift": {
@@ -448,6 +510,7 @@
       "estimatedReturns": "预计年回报*",
       "estimateDisclaimer": "*预计回报随市场情况变动。",
       "footerDisclaimer": "继续表示您接受我们的服务条款。",
+      "footerDisclaimerLink": "服务条款。",
       "slippageSettings": "滑点设置"
     },
     "withdraw": {
@@ -456,7 +519,7 @@
       "slippageSettings": "滑点设置",
       "withdrawType": "提款类型",
       "instant": "立即的",
-      "delayed": "~7 天",
+      "delayed": "7至14天",
       "fee": "%{fee}% %{symbol} 费用",
       "noFee": "没有 %{symbol} 费用",
       "requestWithdraw": "请求取款",
@@ -466,16 +529,16 @@
       "info": {
         "delayed": "延迟提款有两笔交易：",
         "delayedOne": "请求取款",
-        "delayedTwo": "7天后申请提款",
+        "delayedTwo": "在7至14天后申请取款",
         "instant": "即时提款是一笔交易，需要您提取全部质押金额。"
       }
     },
     "approve": {
       "header": "允许ShapeShift DAO路由使用您的%{asset}",
       "body": "我们需要您的许可以使用您的%{asset}",
-      "learnMore": "为什么需要许可？",
+      "learnMore": "为什么我需要这样做？",
       "depositFee": "存款需要支付额外网络费。",
-      "estimatedGas": "预估网络费",
+      "estimatedGas": "预估 Gas 费用",
       "confirm": "确认",
       "reject": "拒绝"
     },
@@ -486,7 +549,7 @@
       "deposit": {
         "header": "确认存款",
         "averageApr": "平均年利率",
-        "estimatedReturns": "预估年回报*",
+        "estimatedReturns": "预估年度回报*",
         "preFooter": "奖励自动累积"
       },
       "withdrawTo": "提取至",
@@ -496,8 +559,8 @@
       "withdrawTime": "提款时间",
       "withdrawFee": "提款费用",
       "withdrawInstantTime": "立即的",
-      "withdrawDelayedTime": "~7 天",
-      "estimatedReturns": "预估年回报*",
+      "withdrawDelayedTime": "7至14天",
+      "estimatedReturns": "预估年度回报*",
       "estimatedGas": "预估 Gas 费用",
       "preFooter": "奖励自动累积",
       "signBroadcast": "签名并广播",
@@ -512,8 +575,8 @@
       "depositTo": "存款至",
       "transactionId": "交易编号",
       "averageApy": "平均年化收益率",
-      "estimatedReturns": "预估年回报*",
-      "estimatedGas": "预估网络费",
+      "estimatedReturns": "预估年度回报*",
+      "estimatedGas": "预估 Gas 费用",
       "gasUsed": "总 Gas 费用",
       "continue": "查看交易",
       "position": "查看头寸",
@@ -562,6 +625,74 @@
         "header": "确认新的个人识别码（PIN）",
         "body": "请在您的设备上输入个人识别码（PIN）。",
         "button": "保存个人识别码（PIN）"
+      },
+      "settings": {
+        "loadingText": "加载中...",
+        "menuLabels": {
+          "bootloader": "引导加载程序",
+          "firmware": "固件",
+          "pin": "个人识别码（PIN）",
+          "advanced": "领先的",
+          "deviceTimeout": "设备超时",
+          "passphrase": "密码",
+          "wipeDevice": "擦除设备",
+          "label": "标签"
+        },
+        "status": {
+          "enabled": "启用",
+          "disabled": "禁用",
+          "upToDate": "最新的",
+          "updateAvailable": "可更新"
+        },
+        "headings": {
+          "deviceSetting": "设备%{setting}",
+          "enterPin": "输入当前个人识别码（PIN）",
+          "setPin": "设置一个新的个人识别码（PIN）",
+          "confirmPin": "确认新的PIN",
+          "passphrase": "密码"
+        },
+        "descriptions": {
+          "pin": "PIN是一个多达9个数字的组合，你在初始化你的KeepKey后选择。在你的KeepKey落入坏人之手之时，PIN保护你的设备不被未经授权的使用。",
+          "passphrase": "启用多个钱包的功能，可通过为每个钱包使用唯一的密码短语进行访问。",
+          "label": "给每个设备贴上标签可以让你很容易地将它们区分开来。",
+          "timeout": "你的设备默认在活动10分钟后进入睡眠状态。但是，你可以更改这一设置。",
+          "buttonPrompt": "按住KeepKey上的按钮来改变设备%{setting}。",
+          "updateSuccess": "%{setting}更新成功!",
+          "updateFailed": "更新%{setting}时发生错误。",
+          "timeoutDuration": "%{minutes}分钟"
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "谨慎使用",
+            "body": "如果你忘记了密码，你就无法使用你的资金。",
+            "link": "了解更多"
+          }
+        },
+        "placeholders": {
+          "label": "输入设备标签"
+        },
+        "actions": {
+          "update": "更新%{setting}",
+          "enable": "启用%{setting}",
+          "learnMore": "了解更多"
+        }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "擦除你的KeepKey"
+        },
+        "descriptions": {
+          "wipeKeepKey": "我明白，如果我没有我的恢复短语，一旦擦除我的KeepKey，我将无法获取我的资金。"
+        },
+        "actions": {
+          "wipeDevice": "擦除设备"
+        },
+        "confirmations": {
+          "wipeKeepKey": "按住KeepKey上的按钮以确认重置为出厂默认设置。"
+        },
+        "checkboxes": {
+          "wipeKeepKey": "我已经备份了我的恢复短语，并明白我在做什么"
+        }
       }
     },
     "metaMask": {
@@ -615,11 +746,11 @@
       },
       "import": {
         "header": "导入您的钱包",
-        "body": "输入您的助记词导入钱包",
+        "body": "输入您的私钥助记词导入钱包",
         "button": "下一步",
-        "secretRecoveryPhraseError": "输入助记词，词间以一个空格隔开。忽略逗号，回车，或其他额外字符。",
-        "secretRecoveryPhraseRequired": "助记词为必需",
-        "secretRecoveryPhraseTooShort": "助记词过短"
+        "secretRecoveryPhraseError": "输入私钥助记词，词间以一个空格隔开。忽略逗号，回车，或其他额外字符。",
+        "secretRecoveryPhraseRequired": "私钥助记词是必须的",
+        "secretRecoveryPhraseTooShort": "私钥助记词过短"
       },
       "password": {
         "header": "输入密码",
@@ -628,8 +759,8 @@
         "connect": "连接到另一个钱包"
       },
       "create": {
-        "header": "您的助记词",
-        "body": "请写下这十二个助记词并离线妥善保存。此十二个助记词将用于回复您钱包的私钥。",
+        "header": "您的私钥助记词",
+        "body": "请写下这十二个助记词并离线妥善保存。这十二个助记词将用于恢复您的钱包私钥。",
         "button": "下一步",
         "hideWords": "隐藏助记词",
         "showWords": "显示助记词"
@@ -642,7 +773,7 @@
         "load": "加载已保存的钱包"
       },
       "success": {
-        "encryptingWallet": "钱包解密中。。。如果您的浏览器请求持久存储，请选择允许。",
+        "encryptingWallet": "钱包解密中...如果您的浏览器请求持久存储，请选择允许。",
         "header": "钱包已连接",
         "success": "您现在可以关闭窗口或者等待其自动关闭。",
         "error": "连接钱包出现错误"
@@ -660,6 +791,31 @@
         "body": "输入新的昵称以及密码以解密钱包。",
         "button": "下一步",
         "confirmDelete": "您确定删除此钱包的昵称吗？"
+      },
+      "legacy": {
+        "deprecatedWarning": "ShapeShift登录已弃用",
+        "learnMore": "了解更多",
+        "alreadySavedConfirm": "我确认我的秘密恢复短语已经安全备份。",
+        "mobileWalletTitle": "ShapeShift移动端钱包",
+        "importInformations": "要继续使用ShapeShift移动端钱包，您需要将其导入。",
+        "importWallet": "导入钱包",
+        "haveMobileWallet": "拥有一个ShapeShift移动端钱包?",
+        "loginWithAccount": "使用ShapeShift帐户登录",
+        "loginInformations": "输入您的电子邮件地址和密码，您使用登录您的ShapeShift移动端应用程序。",
+        "loginSuccess": "登录成功",
+        "emailAddress": "电子邮件地址",
+        "password": "密码",
+        "emailRequired": "电子邮件是必需的",
+        "invalidEmail": "电子邮件不可用",
+        "invalidCaptcha": "验证码不可用",
+        "invalidLogin": "无效的登录",
+        "noWallet": "找不到用于您登录的原生ShapeShift钱包。如果您觉得这条消息是错误的，请联系ShapeShift提供帮助。",
+        "decryptionError": "在解密你的钱包时出了问题。",
+        "twoFactorAuthentication": "双因素身份验证",
+        "twoFactorPlaceholder": "6位代码",
+        "twoFactorRequired": "双因素验证是必须的",
+        "invalidTwoFactor": "6位代码无效",
+        "twoFactorDescription": "您的帐户启用了双因素身份验证。请从您的认证应用程序输入代码。"
       }
     },
     "selectModal": {
@@ -707,7 +863,9 @@
         "SegwitNative": "原生隔离见证",
         "P2pkh": "Legacy 硬件钱包",
         "SegwitNativeTooltip": "建议多数用户使用。请在您完全确信的情况下使用其他地址。",
-        "btcFormat": "BTC 格式"
+        "btcFormat": "BTC 格式",
+        "assetUnavailable": "目前还没有这项资产的市场数据。我们正在想办法，坚持住!",
+        "loading": "正在获取历史价格，请稍候..."
       },
       "assetDescription": {
         "showMore": "显示更多",
@@ -733,7 +891,7 @@
         "trade": "交易"
       },
       "accountTokens": "账户代币",
-      "showTokens": "显示Token(%{amount})",
+      "showTokens": "显示代币(%{amount})",
       "hideTokens": "隐藏代币 (%{amount})",
       "underlyingAssets": "基础资产",
       "rewards": {
@@ -795,7 +953,6 @@
       "trade": "交易"
     },
     "assets": "资产",
-    "viewOnChain": "链上查看",
     "txid": "交易 ID",
     "fee": "费用",
     "youSent": "您发送",
@@ -810,6 +967,7 @@
     "from": "从",
     "to": "到",
     "for": "为了",
-    "transfers": "转移"
+    "transfers": "转移",
+    "viewOnChain": "链上查看"
   }
 }

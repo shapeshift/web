@@ -148,7 +148,7 @@ export const Deposit = ({
   const fieldError = cryptoError || fiatError
 
   const handleTosLink = () => {
-    window.open('/legal/terms-of-service')
+    window.open('/#/legal/terms-of-service')
   }
 
   const handleInputToggle = () => {
@@ -415,6 +415,7 @@ export const Deposit = ({
             isDisabled={!isValid}
             mb={2}
             size='lg'
+            data-test='defi-modal-continue-button'
             type='submit'
           >
             {translate(fieldError || 'common.continue')}

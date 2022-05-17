@@ -1,3 +1,14 @@
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Box,
+  CloseButton,
+  Link,
+  Text,
+  ToastId,
+  useToast,
+} from '@chakra-ui/react'
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
@@ -7,9 +18,14 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
 } from 'react'
+import { RiFlashlightLine } from 'react-icons/ri'
+import { useTranslate } from 'react-polyglot'
 import { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
 export enum DeviceTimeout {
   TenMinutes = '600000',
@@ -19,6 +35,8 @@ export enum DeviceTimeout {
   FortyFiveMinutes = '2700000',
   SixtyMinutes = '3600000',
 }
+
+const KEEPKEY_TOAST_ID = 'update-available'
 
 export const timeoutOptions: readonly RadioOption<DeviceTimeout>[] = Object.freeze([
   {
@@ -101,8 +119,18 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
+  const { versions, updaterUrl } = useKeepKeyVersions()
+  const translate = useTranslate()
+  const toast = useToast()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [state, dispatch] = useReducer(reducer, initialState)
+  const toastRef = useRef<ToastId | undefined>()
+
+  const onClose = useCallback(() => {
+    if (toastRef.current) {
+      toast.close(toastRef.current)
+    }
+  }, [toast, toastRef])
 
   const setHasPassphrase = useCallback((payload: boolean | undefined) => {
     dispatch({
@@ -129,6 +157,50 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       )
     })()
   }, [keepKeyWallet, keepKeyWallet?.features, setDeviceTimeout, setHasPassphrase])
+
+  useEffect(() => {
+    if (!keepKeyWallet) return
+    ;(async () => {
+      if (!versions || !updaterUrl) return
+
+      if (
+        (versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
+        !toast.isActive(KEEPKEY_TOAST_ID)
+      ) {
+        toastRef.current = toast({
+          render: () => {
+            return (
+              <Alert status='info' variant='solid' colorScheme='blue'>
+                <Box alignSelf='flex-start' me={2}>
+                  <RiFlashlightLine size={24} />
+                </Box>
+                <Box>
+                  <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
+                  <AlertDescription>
+                    <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
+                  </AlertDescription>
+                  <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
+                    {translate('updateToast.keepKey.downloadCta')}
+                  </Link>
+                </Box>
+                <CloseButton
+                  alignSelf='flex-start'
+                  position='relative'
+                  right={-1}
+                  top={-1}
+                  onClick={onClose}
+                />
+              </Alert>
+            )
+          },
+          id: KEEPKEY_TOAST_ID,
+          duration: null,
+          isClosable: true,
+          position: 'bottom-right',
+        })
+      }
+    })()
+  }, [keepKeyWallet, toast, translate, versions, onClose, updaterUrl])
 
   const value: IKeepKeyContext = useMemo(
     () => ({

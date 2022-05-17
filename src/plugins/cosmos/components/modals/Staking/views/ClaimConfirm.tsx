@@ -10,9 +10,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
 import {
   ConfirmFormFields,
   ConfirmFormInput,
@@ -30,11 +29,12 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectRewardsAmountByAssetId,
+  selectRewardsByValidator,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -67,7 +67,7 @@ export const ClaimConfirm = ({
   const translate = useTranslate()
   const memoryHistory = useHistory()
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -87,7 +87,7 @@ export const ClaimConfirm = ({
   } = useWallet()
 
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByAssetId(state, { accountSpecifier, validatorAddress, assetId }),
+    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
   )
 
   const rewardsCryptoAmountPrecision = useMemo(

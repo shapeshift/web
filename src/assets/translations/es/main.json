@@ -37,6 +37,7 @@
     "or": "ó",
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongBody": "Algo salió mal",
+    "success": "Éxito",
     "transactionFailed": "Transacción fallida",
     "transactionFailedBody": "Transacción fallida",
     "submitFeedback": "Enviar Comentarios",
@@ -51,7 +52,13 @@
     "viewAsset": "Ver activo",
     "apy": "%{apy}% APY",
     "settings": "Ajustes",
-    "legalDated": "Fecha: enero de 2022"
+    "legalDated": "Fecha: enero de 2022",
+    "approveOnWallet": "Aprobar en billetera",
+    "confirmOnWallet": "Confirmar en la billetera",
+    "login": "Iniciar sesión",
+    "verify": "Verificar",
+    "notRobot": "No soy un robot",
+    "skip": "Saltar"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -95,7 +102,8 @@
     "selectAnAssetToSell": "Seleccione un activo para vender",
     "fundsTo": "Los fondos se enviarán a",
     "fundsFrom": "Los fondos se enviarán desde",
-    "headerLabel": "Compra/Vende criptomonedas"
+    "headerLabel": "Compra/Vende criptomonedas",
+    "insufficientCryptoAmountToSell": "Monto mínimo para vender $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -104,7 +112,8 @@
     "defiUniverse": "Universo DeFi",
     "body": "100% gratis. Código abierto. Propiedad de la comunidad. Sin custodia. Privado.",
     "header": "Conecte una billetera para comenzar",
-    "cta": "Conectar Billetera"
+    "cta": "Conectar Billetera",
+    "orViewADemo": "o ver una demostración"
   },
   "connectWallet": {
     "menu": {
@@ -308,6 +317,12 @@
       },
       "thor": {
         "transferOut": "Transferencia afuera"
+      },
+      "foxy": {
+        "stake": "Stake",
+        "unstake": "Retirar de Stake",
+        "instantUnstake": "Retirar de Stake al instante",
+        "claimWithdraw": "Retirar monto a reclamar"
       }
     },
     "unknown": "Transacción"
@@ -374,7 +389,19 @@
       "label": {
         "header": "Etiquete su KeepKey",
         "body": "Etiquetar cada uno de sus dispositivos le permite distinguir fácilmente uno de otro.",
+        "setLabelButton": "Coloca una etiqueta",
+        "skipLabelButton": "Saltar",
+        "placeholder": "Opcional",
         "button": "Coloca una etiqueta"
+      },
+      "recoverySettings": {
+        "header": "Recupera su Billetera",
+        "sentenceLengthLabel": "Longitud de la oración de recuperación",
+        "recoveryPassphraseLabel": "Contraseña de recuperación",
+        "recoveryPassphraseToggle": "¿Recuperar con frase de contraseña?",
+        "recoveryPassphraseDescription": "Si no está seguro de si su sentencia de recuperación está protegida por una frase de contraseña, desactívela.",
+        "wordEntropy": "%{wordEntropy} palabras",
+        "button": "Recuperar Billetera"
       },
       "recoverySentence": {
         "header": "Escriba la sentencia de recuperación",
@@ -388,6 +415,17 @@
         "body": "Ha restablecido con éxito su KeepKey a los valores de fábrica predeterminados. Ahora puede restaurar utilizando una frase semilla de recuperación existente o crear una nueva billetera.",
         "createButton": "Crear una nueva billetera",
         "recoverButton": "Recuperar billetera"
+      },
+      "recoverySentenceEntry": {
+        "header": "Ingrese su Oración de Recuperación",
+        "body": "Usando la leyenda codificada del teclado en su KeepKey, ingrese las primeras 4 letras de cada palabra. Si hay menos de 4 letras en la palabra, presione Enter, presione la barra espaciadora o haga clic en Siguiente cuando haya terminado de escribir.",
+        "button": "Siguiente",
+        "awaitingButtonPress": "Siga las instrucciones en su KeepKey para continuar.",
+        "toastMessage": "¡KeepKey se restauró con éxito!"
+      },
+      "recoverySettingUp": {
+        "header": "Configurando dispositivo...",
+        "body": "Espere mientras inicializamos su dispositivo y sincronizamos sus direcciones."
       }
     },
     "shapeShift": {
@@ -595,12 +633,12 @@
           "bootloader": "Cargador de Arranque",
           "firmware": "Firmware",
           "pin": "PIN",
-          "pinCaching": "Almacenamiento en caché de PIN",
           "advanced": "Avanzado",
           "deviceTimeout": "Tiempo de espera del dispositivo",
           "passphrase": "Frase de contraseña",
           "wipeDevice": "Reestablecer dispositivo",
-          "label": "Etiqueta"
+          "label": "Etiqueta",
+          "pinCaching": "Almacenamiento en caché de PIN"
         },
         "status": {
           "enabled": "Activado",
@@ -613,19 +651,19 @@
           "enterPin": "Ingrese el PIN actual",
           "setPin": "Establecer un nuevo PIN",
           "confirmPin": "Confirmar nuevo PIN",
-          "pinCaching": "Almacenamiento en caché de PIN",
-          "passphrase": "Frase de contraseña"
+          "passphrase": "Frase de contraseña",
+          "pinCaching": "Almacenamiento en caché de PIN"
         },
         "descriptions": {
           "pin": "El PIN es una combinación de hasta 9 números que selecciona después de inicializar su KeepKey. Un PIN protege su dispositivo contra el uso no autorizado en caso de que su KeepKey caiga en manos equivocadas.",
-          "pinCaching": "Cuando esta función está activada, el dispositivo recordará su PIN.",
           "passphrase": "Habilite la capacidad de tener múltiples billeteras, accesibles mediante el uso de una frase de contraseña única para cada billetera.",
           "label": "Etiquetar cada uno de los dispositivos le permite distinguir fácilmente uno de otro.",
           "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puede cambiar esto.",
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
           "updateFailed": "Ocurrió un error al actualizar %{setting}.",
-          "timeoutDuration": "%{minutes} minutos"
+          "timeoutDuration": "%{minutes} minutos",
+          "pinCaching": "Cuando esta función está activada, el dispositivo recordará su PIN."
         },
         "alerts": {
           "passphrase": {
@@ -757,6 +795,31 @@
         "body": "Ingrese el nuevo apodo de su billetera y su contraseña para descifrar su billetera.",
         "button": "Siguiente",
         "confirmDelete": "¿Está seguro de que desea eliminar el apodo de esta billetera?"
+      },
+      "legacy": {
+        "deprecatedWarning": "El inicio de sesión de ShapeShift está en desuso",
+        "learnMore": "Aprende más",
+        "alreadySavedConfirm": "Confirmo que mi frase de recuperación secreta ya está respaldada de forma segura.",
+        "mobileWalletTitle": "Billetera móvil ShapeShift",
+        "importInformations": "Para continuar usando su billetera móvil ShapeShift, deberá importarla.",
+        "importWallet": "Importar Billetera",
+        "haveMobileWallet": "¿Tiene una billetera móvil ShapeShift?",
+        "loginWithAccount": "Iniciar sesión con la cuenta de ShapeShift",
+        "loginInformations": "Ingrese su dirección de correo electrónico y la contraseña que usa para iniciar sesión en su aplicación móvil ShapeShift.",
+        "loginSuccess": "Iniciado sesión con éxito",
+        "emailAddress": "Dirección de correo electrónico",
+        "password": "Contraseña",
+        "emailRequired": "Correo Electronico es requerido",
+        "invalidEmail": "Correo Electrónico es invalido",
+        "invalidCaptcha": "El Captcha no es válido",
+        "invalidLogin": "Ingreso invalido",
+        "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
+        "decryptionError": "Algo salió mal al descifrar su billetera.",
+        "twoFactorAuthentication": "Autenticación de dos factores",
+        "twoFactorPlaceholder": "Código de 6 dígitos",
+        "twoFactorRequired": "Se requiere 2FA",
+        "invalidTwoFactor": "El código de 6 dígitos no es válido",
+        "twoFactorDescription": "La autenticación de dos factores está habilitada para su cuenta. Ingrese el código de su aplicación de autenticación."
       }
     },
     "selectModal": {
@@ -804,7 +867,9 @@
         "SegwitNative": "Segwit Native",
         "P2pkh": "Legacy",
         "SegwitNativeTooltip": "Recomendado para la mayoría de los usuarios. Utilice las otras direcciones solo si sabe para qué sirven.",
-        "btcFormat": "Formato BTC"
+        "btcFormat": "Formato BTC",
+        "assetUnavailable": "Los datos de mercado para este activo aún no están disponibles. ¡Estamos trabajando en ello, espera!",
+        "loading": "Obteniendo historial de precios, espera..."
       },
       "assetDescription": {
         "showMore": "Mostrar más",

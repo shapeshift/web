@@ -4,34 +4,61 @@
     "next": "Selanjutnya",
     "error": "Kesalahan",
     "cancel": "Membatalkan",
+    "close": "Menutup",
     "continue": "Melanjutkan",
+    "approve": "Menyetujui",
     "confirm": "Konfirmasi",
     "reject": "Menolak",
     "connected": "Terhubung",
     "created": "Dibuat %{date}",
     "noResultsFound": "Tidak ada hasil yang ditemukan.",
     "insufficientFunds": "Dana Tidak Mencukupi",
+    "estimatedGas": "Perkiraan Biaya Gas",
+    "insufficientAmountForGas": "Tidak cukup ETH untuk menutupi gas",
     "invalidAddress": "Alamat Tidak Valid",
     "unresolvableEnsDomain": "Tidak dapat menyelesaikan domain ENS",
     "deposit": "Setoran",
     "withdraw": "Penarikan",
+    "withdrawal": "Penarikan",
+    "overview": "Ringkasan",
     "getStarted": "Memulai",
     "connectWallet": "Hubungkan Dompet",
     "connectedWallet": "Dompet Terhubung",
+    "connectedWalletSettings": "Pengaturan Dompet",
     "noWallet": "Tidak Ada Dompet yang Terhubung",
     "seeAll": "Lihat Semua",
     "darkMode": "Mode Malam",
+    "darkTheme": "Tema gelap",
+    "lightTheme": "Tema Terang",
     "rename": "Ganti Nama",
     "forget": "Lupa?",
+    "pending": "Tertunda",
     "available": "Tersedia",
     "or": "atau",
     "somethingWentWrong": "Ada yang salah",
     "somethingWentWrongBody": "Ada yang salah",
+    "success": "Kesuksesan",
     "transactionFailed": "Transaksi Gagal",
     "transactionFailedBody": "Transaksi Gagal",
     "submitFeedback": "Berikan Umpan Balik",
     "send": "Kirim",
-    "receive": "Menerima"
+    "receive": "Menerima",
+    "privacy": "Kebijakan privasi",
+    "terms": "Persyaratan Layanan",
+    "days": "Hari",
+    "copied": "Disalin ke papan klip.",
+    "copyFailed": "Gagal menyalin ke papan klip",
+    "copyFailedDescription": "Silakan salin secara manual",
+    "viewAsset": "Lihat Aset",
+    "apy": "%{apy}% APY",
+    "settings": "Pengaturan",
+    "legalDated": "Tanggal: Januari 2022",
+    "approveOnWallet": "Setujui Di Dompet",
+    "confirmOnWallet": "Konfirmasi Di Dompet",
+    "login": "Masuk",
+    "verify": "Memeriksa",
+    "notRobot": "Saya bukan Robot",
+    "skip": "Lewati"
   },
   "updateToast": {
     "body": "Versi baru aplikasi tersedia",
@@ -46,15 +73,37 @@
       "balance": "Saldo",
       "price": "Harga",
       "value": "Nilai",
+      "priceChange": "Perubahan harga",
       "allocation": "Alokasi",
       "empty": {
         "title": "Suara kriket...",
         "cta": "Kirimi diri Anda beberapa kripto!"
-      }
+      },
+      "stakedInfo": "Anda tidak dapat mengirim atau memperdagangkan jumlah yang dipertaruhkan"
     },
     "recentTransactions": {
       "recentTransactions": "Transaksi Terkini"
     }
+  },
+  "fiatRamps": {
+    "routeTitle": "Beli atau Jual",
+    "routeTitleForGem": "Permata di Ramp",
+    "title": "Beli atau Jual Crypto",
+    "titleMessage": "ShapeShift telah bermitra dengan beberapa penyedia jalan fiat untuk membeli dan menjual cryptocurrency.",
+    "gem": "PERMATA",
+    "gemMessage": "Beli atau Jual Crypto dengan Permata",
+    "onJuno": "Di Juno",
+    "comingSoon": "Segera hadir ...",
+    "buy": "Beli",
+    "sell": "Jual",
+    "assetToBuy": "Aset untuk Dibeli",
+    "selectAnAssetToBuy": "Pilih aset untuk dibeli",
+    "assetToSell": "Aset untuk dijual",
+    "selectAnAssetToSell": "Pilih aset untuk dijual",
+    "fundsTo": "Dana akan dikirim ke",
+    "fundsFrom": "Dana akan dikirim dari",
+    "headerLabel": "Beli/Jual Kripto",
+    "insufficientCryptoAmountToSell": "Jumlah minimum untuk menjual $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -63,7 +112,8 @@
     "defiUniverse": "Alam Semesta DeFi",
     "body": "100% Gratis. Sumber Terbuka. Milik Komunitas. Non-Penahanan. Pribadi.",
     "header": "Harap sambungkan dompet untuk memulai",
-    "cta": "Hubungkan Dompet"
+    "cta": "Hubungkan Dompet",
+    "orViewADemo": "atau lihat demo"
   },
   "connectWallet": {
     "menu": {
@@ -74,16 +124,110 @@
     }
   },
   "defi": {
-    "getStarted": {
-      "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{maxApr}% APR*",
-      "body": "Staking adalah proses menyimpan dana di dompet cryptocurrency untuk mendukung operasi jaringan blockchain dan, sebagai imbalannya, pemegang diberi imbalan atas kontribusi mereka..",
-      "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
-      "cta": {
-        "startStaking": "Mulai Staking",
-        "learnMore": "Pelajari lebih banyak"
+    "modals": {
+      "learnMore": {
+        "next": "Berikutnya",
+        "close": "Menutup",
+        "headers": {
+          "aboutStakingRewards": "Tentang Hadiah Staking",
+          "unstaking": "Unstaking %{assetName} Anda",
+          "risks": "Apakah Ada Risiko?"
+        },
+        "bodies": {
+          "rateFluctuationInfo": "Tingkat %{assetName} yang Anda peroleh, Persentase Pengembalian Tahunan (APR), biasanya berfluktuasi antara 7% - 20%.",
+          "amountStakingInfo": "Anda dapat mempertaruhkan %{assetName} dalam jumlah berapa pun dan mereka akan segera mulai mendapatkan hadiah.",
+          "withdrawInfo": "Anda dapat menarik hadiah Anda kapan saja, yang memerlukan sedikit biaya gas sekitar ~$.01.",
+          "unbondingInfo": "Saat Anda unstaking token, token akan tetap terkunci selama 14 hari, selama waktu tersebut mereka tidak akan mendapatkan hadiah. Setelah 14 hari, %{assetName} Anda akan kembali ke Dompet Utama Anda.",
+          "slashingInfo": "Staking dilakukan melalui validator. Ini sangat jarang terjadi, tetapi jika validator yang Anda pertaruhkan mengacaukan dengan membiarkan transaksi yang salah atau salah, Anda bisa kehilangan sebagian dari aset Anda.",
+          "partnerInfo": "Kami telah mengurangi risiko ini dengan bermitra dengan validator yang memiliki reputasi baik—yang memiliki infrastruktur yang aman, andal, dan diaudit."
+        },
+        "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
+        "cta": {
+          "startStaking": "Mulai Staking",
+          "learnMore": "Pelajari Lebih Lanjut"
+        }
+      },
+      "getStarted": {
+        "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{maxApr}% APR*",
+        "body": "Staking adalah proses menyimpan dana di dompet cryptocurrency untuk mendukung operasi jaringan blockchain dan, sebagai imbalannya, pemegang diberi imbalan atas kontribusi mereka.",
+        "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
+        "cta": {
+          "startStaking": "Mulai Staking",
+          "learnMore": "Pelajari Lebih Lanjut "
+        }
+      },
+      "staking": {
+        "estimateDisclaimer": "*Perkiraan berfluktuasi dengan kondisi pasar.",
+        "byContinuing": "Dengan melanjutkan, Anda menerima",
+        "risks": "Resiko",
+        "ofParticipating": "berpartisipasi dalam fitur ini dan menyetujui",
+        "terms": "ketentuan",
+        "stakingYourTokens": "Staking Token Anda",
+        "unstakingYourTokens": "Unstaking Token Anda ",
+        "tooltip": {
+          "validator": "Validator bertanggung jawab untuk memproses transaksi, menyimpan data, dan menambahkan blok ke blockchain.",
+          "gasFees": "Biaya gas di %{networkName} jauh lebih rendah daripada di Ethereum Mainnet. Biaya ini dibayarkan langsung ke validator yang mengamankan dan mengoperasikan jaringan dan tidak dibayarkan ke ShapeShift."
+        }
+      },
+      "foxyOverview": {
+        "header": "Setor FOX untuk mendapatkan FOXy untuk menghasilkan",
+        "body": "FOXy adalah token rebasing yang dipatok dengan harga FOX. Staked FOX bekerja di berbagai protokol DeFi untuk mendapatkan hasil terbaik.",
+        "rewards": "Imbalan yang Anda peroleh akan bertambah secara otomatis.",
+        "cta": "Setor FOX Sekarang ",
+        "foxyBalance": "Saldo FOXy",
+        "withdrawals": "Penarikan",
+        "emptyWithdraws": "Penarikan tertunda atau aktif akan ditampilkan di sini.",
+        "availableDate": "tersedia %{date}"
+      },
+      "claim": {
+        "rewardDepositInfo": "Hadiah Anda akan disimpan ke dompet utama Anda.",
+        "title": "Klaim Hadiah Staking",
+        "confirmAndClaim": "Klaim & Konfirmasi ",
+        "rewardAmount": "Jumlah Hadiah",
+        "claimingRewards": "Mengklaim Hadiah",
+        "claimAmount": "Jumlah Klaim",
+        "claimToAddress": "Klaim Ke Alamat",
+        "confirmClaim": "Konfirmasi Klaim",
+        "claimNow": "Klaim Sekarang"
       }
     },
+    "amountToStake": "Jumlah yang Stake",
+    "amountToUnstake": "Jumlah yang Tidak Unstake",
+    "confirmDetails": "Konfirmasi Detail",
+    "broadcastingTransaction": "Transaksi Penyiaran",
+    "transactionComplete": "Transaksi Selesai",
+    "transactionFailed": "Transaksi Gagal",
+    "notEnoughFundsInReserve": "Tidak cukup dana dalam kontrak cadangan likuiditas",
+    "validator": "Validator ",
+    "validatorMoniker": "%{moniker} Validator",
+    "stakedAmount": "Jumlah Staked",
+    "unstakeFrom": "Unstake Dari",
+    "gasFee": "Biaya Gas",
+    "unbondInfoItWillTake": "Saat token Anda dipertaruhkan, Anda tidak akan dapat mentransfer atau membelanjakannya. Perlu %{unbondingDays} hari untuk membuka kuncinya setelah Anda melepasnya.",
+    "unbondInfoItWillTakeShort": "Perlu %{unbondingDays} hari untuk melepas token Anda",
+    "confirmAndBroadcast": "Konfirmasi & Siarkan",
+    "signAndBroadcast": "Tanda & Siarkan",
+    "averageApr": "Rata-rata APR",
+    "estimatedYearlyRewards": "Estimasi Hadiah Tahunan",
+    "staked": "Staked",
+    "amountStaked": "Jumlah Staked",
+    "assetStaking": "%{assetName} Staking",
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "stakeAsset": "Stake %{assetSymbol}",
+    "unstakeAsset": "Unstake %{assetSymbol}",
+    "claimAsset": "Klaim Hadiah Taruhan",
+    "claim": "Klaim",
+    "rewards": "Hadiah",
+    "unstaking": "Unstaking",
+    "available": "Tersedia %{unbondingEnd}",
     "earn": "Hasilkan",
+    "asset": "Aset",
+    "category": "Kategori",
+    "tvl": "TVL",
+    "apy": "APY",
+    "apr": "APR",
+    "balance": "Saldo",
     "defi": "DeFi",
     "defiBody": "Jelajahi dunia peluang DeFi yang terus berkembang.",
     "netWorth": "Kekayaan Bersih",
@@ -103,6 +247,7 @@
     "currentAPY": "APY saat ini",
     "currentAPR": "APR saat ini",
     "yearn": "Yearn Finance",
+    "emptyEarn": "Dapatkan peluang akan muncul di sini.",
     "empty": {
       "farming": {
         "body": "Anda saat ini tidak bertani apa pun.",
@@ -116,19 +261,39 @@
         "body": "Anda belum menyetor ke kolam likuiditas apa pun.",
         "cta": "Lihat Peluang"
       }
+    },
+    "viewOnChain": "Lihat di rantai",
+    "getStarted": {
+      "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{maxApr}% APR*",
+      "body": "Staking adalah proses menyimpan dana di dompet cryptocurrency untuk mendukung operasi jaringan blockchain dan, sebagai imbalannya, pemegang diberi imbalan atas kontribusi mereka..",
+      "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
+      "cta": {
+        "startStaking": "Mulai Staking",
+        "learnMore": "Pelajari lebih banyak"
+      }
     }
   },
   "staking": {
-    "staking": "Staking"
+    "staking": "Staking",
+    "itWillTake": "Ini akan memakan waktu",
+    "toUnlock": "untuk membuka kunci %{assetSymbol} Anda setelah Anda membatalkan taruhan. Hadiah yang dipertaruhkan harus ditarik secara terpisah..",
+    "assetStakingBalance": "%{assetSymbol} Staking Saldo"
   },
   "navBar": {
     "dashboard": "Dasbor",
     "assets": "Aset",
+    "assetDetails": "Detail Aset",
     "accounts": "Akun",
+    "accountAsset": "Aset Akun",
+    "accountDetails": "Detail akun",
     "earn": "Hasilkan",
     "defi": "DeFi",
+    "transactionHistory": "Sejarah Transaksi",
+    "overview": "Ringkasan ",
+    "transactions": "Transaksi",
     "tradeHistory": "Sejarah Perdagangan",
-    "foxToken": "FOX Token"
+    "foxToken": "FOX Token",
+    "featureFlags": "Fitur Bendera"
   },
   "transactionRow": {
     "send": "Kirim %{symbol}",
@@ -147,7 +312,29 @@
     "from": "Dari",
     "trade": "Berdagang",
     "amount": "Jumlah",
-    "for": "Untuk"
+    "for": "Untuk",
+    "parser": {
+      "yearn": {
+        "deposit": "Deposit",
+        "approve": "Menyetujui",
+        "withdraw": "Penarikan ",
+        "receive": "Menerima"
+      },
+      "uniV2": {
+        "addLiquidityETH": "Tambah Likuiditas ",
+        "removeLiquidityETH": "Hapus Likuiditas "
+      },
+      "thor": {
+        "transferOut": "Transfer keluar"
+      },
+      "foxy": {
+        "stake": "Stake",
+        "unstake": "Unstake",
+        "instantUnstake": "Unstake Instan",
+        "claimWithdraw": "Klaim Penarikan"
+      }
+    },
+    "unknown": "Transaksi"
   },
   "trade": {
     "searchingRate": "Mencari tarif terbaik...",
@@ -207,6 +394,46 @@
         "header": "Masukkan Frasa Sandi Anda",
         "body": "Setelah mengirimkan frasa sandi Anda, gunakan tombol di KeepKey untuk menyetujuinya",
         "button": "Kirim Frasa Sandi"
+      },
+      "label": {
+        "header": "Labeli KeepKey Anda (opsional)",
+        "body": "Memberi label pada masing-masing perangkat memungkinkan Anda membedakan satu perangkat dengan perangkat lainnya dengan mudah.",
+        "setLabelButton": "Setel Label",
+        "skipLabelButton": "Melewati",
+        "placeholder": "Opsional"
+      },
+      "recoverySettings": {
+        "header": "Pulihkan Dompet Anda",
+        "sentenceLengthLabel": "Panjang Kalimat Pemulihan",
+        "recoveryPassphraseLabel": "Frasa Sandi Pemulihan",
+        "recoveryPassphraseToggle": "Pulihkan dengan frasa sandi?",
+        "recoveryPassphraseDescription": "Jika Anda tidak yakin apakah kalimat pemulihan Anda dilindungi oleh frasa sandi, tinggalkan ini.",
+        "wordEntropy": "%{wordEntropy} kata",
+        "button": "Pulihkan Dompet"
+      },
+      "recoverySentence": {
+        "header": "Tuliskan Kalimat Pemulihan Anda",
+        "body": "Di layar KeepKey Anda, Anda akan melihat kalimat pemulihan Anda. Tuliskan. Jika Anda kehilangan akses ke perangkat, aset Anda HANYA dapat diakses dengan kalimat ini.",
+        "infoFirst": "Sangat penting Anda menuliskannya persis seperti yang muncul di KeepKey.",
+        "infoSecond": "Jangan pernah membagikan hukuman pemulihan Anda, itu memberikan akses ke semua dana Anda.",
+        "awaitingButtonPress": "Ikuti langkah-langkah di KeepKey Anda untuk melihat Kalimat Pemulihan Anda. Tuliskan!"
+      },
+      "wiped": {
+        "header": "KeepKey Berhasil Dihapus",
+        "body": "Anda telah berhasil mengatur ulang KeepKey Anda ke default pabrik. Anda sekarang dapat memulihkan menggunakan benih pemulihan yang ada, atau membuat dompet baru.",
+        "createButton": "Buat Dompet Baru",
+        "recoverButton": "Pulihkan Dompet"
+      },
+      "recoverySentenceEntry": {
+        "header": "Masukkan Kalimat Pemulihan Anda",
+        "body": "Dengan menggunakan legenda keyboard yang diacak di KeepKey Anda, masukkan 4 huruf pertama dari setiap kata. Jika ada kurang dari 4 huruf dalam kata, tekan Enter, tekan spasi, atau klik berikutnya setelah Anda selesai mengetik.",
+        "button": "Selanjutnya",
+        "awaitingButtonPress": "Ikuti petunjuk di KeepKey Anda untuk melanjutkan.",
+        "toastMessage": "KeepKey berhasil dipulihkan!"
+      },
+      "recoverySettingUp": {
+        "header": "Menyiapkan perangkat...",
+        "body": "Harap tunggu sementara kami menginisialisasi perangkat Anda dan menyinkronkan alamat Anda."
       }
     },
     "shapeShift": {
@@ -225,17 +452,27 @@
         }
       }
     },
+    "stake": {
+      "txFees": {
+        "low": "Rendah",
+        "medium": "Medium",
+        "high": "Tinggi"
+      }
+    },
     "send": {
       "getBalanceError": "Kesalahan mendapatkan saldo dompet",
       "broadcastingTransaction": "Transaksi Penyiaran",
       "youHaveSent": "Anda telah berhasil mengirim %{amount} %{symbol}",
       "tokenAddress": "Alamat Token",
       "scanQrCode": "Pindai kode QR",
+      "permissionsButton": "Coba Lagi",
       "sent": "%{asset} terkirim",
       "errorTitle": "Pengiriman %{asset} Anda gagal",
       "errors": {
+        "generic": "Kesalahan terjadi.",
         "notEnoughNativeToken": "Tidak cukup %{asset} untuk menutupi gas",
-        "transactionRejected": "Pengguna telah menolak transaksi"
+        "transactionRejected": "Pengguna telah menolak transaksi",
+        "qrPermissions": "Fitur ini memerlukan izin akses kamera agar dapat berfungsi. Harap ubah pengaturan browser Anda."
       },
       "confirm": {
         "sendAsset": "Kirim %{asset}",
@@ -248,6 +485,10 @@
         "fees": "Biaya %{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "Opsional %{assetSymbol} Memo",
+        "assetMemo": "%{assetSymbol} Memo",
+        "charactersRemaining": "%\n{characters Remaining} karakter tersisa",
+        "memoExplainer": "Beberapa %{assetSymbol} penerima mungkin memerlukan memo agar transaksi dapat diproses dengan benar",
         "sendAsset": "Kirim %{asset}",
         "sendTo": "Kirim Untuj",
         "sendAmount": "Kirim Jumlah",
@@ -278,12 +519,28 @@
       "estimatedReturns": "Perkiraan Pengembalian Tahunan*",
       "estimateDisclaimer": "*Perkiraan berfluktuasi dengan kondisi pasar.",
       "footerDisclaimer": "Dengan melanjutkan, Anda menyetujui persyaratan layanan kami.",
+      "footerDisclaimerLink": "persyaratan layanan.",
       "slippageSettings": "Pengaturan Slippage"
     },
     "withdraw": {
       "amountToWithdraw": "Jumlah Penarikan",
       "footerDisclaimer": "Transaksi ini akan membutuhkan biaya gas satu kali transaksi.",
-      "slippageSettings": "Pengaturan Slippage"
+      "slippageSettings": "Pengaturan Slippage",
+      "withdrawType": "Tipe Penarikan ",
+      "instant": "Instan",
+      "delayed": "7 sampai 14 hari",
+      "fee": "%{fee}% %{symbol} biaya",
+      "noFee": "Tidak ada biaya %{symbol}",
+      "requestWithdraw": "Permintaan Penarikan",
+      "withdrawFee": "Akan ada biaya gas terpisah untuk penarikan.",
+      "disclaimer": "Permintaan selanjutnya akan digabungkan dan mengatur ulang waktu penarikan.",
+      "withDrawalFee": "Biaya Penarikan",
+      "info": {
+        "delayed": "Penarikan tertunda memiliki dua transaksi:",
+        "delayedOne": "Minta penarikan",
+        "delayedTwo": "Klaim penarikan setelah 7 hingga 14 hari",
+        "instant": "Penarikan instan adalah satu transaksi dan mengharuskan Anda untuk menarik jumlah penuh yang dipertaruhkan."
+      }
     },
     "approve": {
       "header": "Izinkan ShapeShift DAO Router untuk menghabiskan %{asset}",
@@ -304,10 +561,14 @@
         "estimatedReturns": "Perkiraan Pengembalian Tahunan*",
         "preFooter": "Hadiah bertambah secara otomatis"
       },
-      "withdrawFrom": "Penarikan Dari",
       "withdrawTo": "Penarikan Untuk",
+      "withdrawFrom": "Penarikan Dari",
       "depositTo": "Setoran Untuk",
       "averageApy": "Rata-rata APY",
+      "withdrawTime": "Waktu Penarikan",
+      "withdrawFee": "Biaya Penarikan",
+      "withdrawInstantTime": "Instan",
+      "withdrawDelayedTime": "7 sampai 14 hari",
       "estimatedReturns": "Perkiraan Pengembalian Tahunan*",
       "estimatedGas": "Perkiraan Biaya Gas",
       "preFooter": "Hadiah bertambah secara otomatis",
@@ -329,10 +590,17 @@
       "continue": "Lihat Transaksi",
       "position": "Lihat Posisi",
       "viewAsset": "Lihat Aset",
-      "close": "Tutup"
+      "close": "Tutup",
+      "viewExplorer": "Lihat di Explorer"
     },
     "connect": {
       "loadingText": "Dompet pasangan"
+    },
+    "settings": {
+      "settings": "Pengaturan",
+      "language": "Bahasa",
+      "balanceThreshold": "Ambang Saldo",
+      "balanceThresholdTooltip": "Sembunyikan saldo di bawah nilai ini"
     }
   },
   "walletProvider": {
@@ -366,6 +634,74 @@
         "header": "Konfirmasi Pin Baru Anda",
         "body": "Gunakan tata letak PIN yang ditampilkan di perangkat Anda untuk menemukan lokasi untuk menekan bantalan pin.",
         "button": "Simpan PIN"
+      },
+      "settings": {
+        "loadingText": "Memuat...",
+        "menuLabels": {
+          "bootloader": "bootloader",
+          "firmware": "Firmware",
+          "pin": "PIN",
+          "advanced": "Canggih",
+          "deviceTimeout": "Waktu Perangkat Habis",
+          "passphrase": "Frasa sandi",
+          "wipeDevice": "Hapus Perangkat",
+          "label": "Label "
+        },
+        "status": {
+          "enabled": "Diaktifkan",
+          "disabled": "Dinonaktifkan",
+          "upToDate": "Terkini",
+          "updateAvailable": "Pembaruan tersedia"
+        },
+        "headings": {
+          "deviceSetting": "Pengaturan %{setting}",
+          "enterPin": "Masukkan PIN saat ini",
+          "setPin": "Setel PIN baru",
+          "confirmPin": "Konfirmasi PIN baru",
+          "passphrase": "Frasa sandi"
+        },
+        "descriptions": {
+          "pin": "PIN adalah kombinasi hingga 9 nomor yang Anda pilih setelah menginisialisasi KeepKey Anda. PIN melindungi perangkat Anda dari penggunaan yang tidak sah jika KeepKey Anda jatuh ke tangan yang salah.",
+          "passphrase": "Aktifkan kemampuan untuk memiliki banyak dompet, dapat diakses dengan menggunakan frasa sandi unik untuk setiap dompet.",
+          "label": "Memberi label pada masing-masing perangkat memungkinkan Anda membedakan satu perangkat dengan perangkat lainnya dengan mudah.",
+          "timeout": "Perangkat Anda masuk ke mode tidur setelah 10 menit aktivitas secara default. Namun, Anda dapat mengubah ini.",
+          "buttonPrompt": "Tekan dan tahan tombol di KeepKey Anda untuk mengubah perangkat %{setting}.",
+          "updateSuccess": "%{setting} berhasil diperbarui!",
+          "updateFailed": "Terjadi kesalahan saat memperbarui %{setting}.",
+          "timeoutDuration": "%{minutes} menit"
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "Gunakan dengan hati-hati",
+            "body": "Jika Anda lupa frasa sandi, Anda akan kehilangan akses ke dana Anda.",
+            "link": "Pelajari Lebih Lanjut "
+          }
+        },
+        "placeholders": {
+          "label": "Masukkan label perangkat"
+        },
+        "actions": {
+          "update": "Perbarui %{setting}",
+          "enable": "Aktifkan %{setting}",
+          "learnMore": "Pelajari Lebih Lanjut "
+        }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "Hapus KeepKey Anda"
+        },
+        "descriptions": {
+          "wipeKeepKey": "Saya memahami bahwa dengan menghapus KeepKey saya, saya akan kehilangan akses ke dana saya jika saya tidak memiliki frase pemulihan saya."
+        },
+        "actions": {
+          "wipeDevice": "Hapus Perangkat"
+        },
+        "confirmations": {
+          "wipeKeepKey": "Tekan dan tahan tombol di KeepKey Anda untuk mengonfirmasi pengaturan ulang ke default pabrik."
+        },
+        "checkboxes": {
+          "wipeKeepKey": "Saya telah mencadangkan frasa pemulihan saya dan memahami apa yang saya lakukan"
+        }
       }
     },
     "metaMask": {
@@ -428,7 +764,8 @@
       "password": {
         "header": "Masukkan Kata Sandi Anda",
         "body": "Masukkan kata sandi untuk mengenkripsi dompet Anda. Ini adalah bagaimana Anda akan mengakses dompet Anda. Jangan lupa kata sandi ini.",
-        "button": "Selanjutnya"
+        "button": "Selanjutnya",
+        "connect": "Hubungkan ke dompet lain"
       },
       "create": {
         "header": "Frase Pemulihan Rahasia Anda",
@@ -463,6 +800,31 @@
         "body": "Masukkan nama panggilan baru dompet Anda dan kata sandi Anda untuk mendekripsi dompet Anda.",
         "button": "Selanjutnya",
         "confirmDelete": "Apakah Anda yakin ingin menghapus nama panggilan dompet ini??"
+      },
+      "legacy": {
+        "deprecatedWarning": "ShapeShift Log In tidak digunakan lagi",
+        "learnMore": "Pelajari Lebih Lanjut ",
+        "alreadySavedConfirm": "Saya mengonfirmasi bahwa Frase Pemulihan Rahasia saya telah dicadangkan dengan aman.",
+        "mobileWalletTitle": "Dompet Seluler ShapeShift",
+        "importInformations": "Untuk terus menggunakan Dompet Seluler ShapeShift, Anda harus mengimpornya.",
+        "importWallet": "Impor Dompet",
+        "haveMobileWallet": "Punya Dompet Seluler ShapeShift?",
+        "loginWithAccount": "Masuk dengan Akun ShapeShift",
+        "loginInformations": "Masukkan alamat email dan kata sandi yang Anda gunakan untuk masuk ke Aplikasi Seluler ShapeShift Anda.",
+        "loginSuccess": "Berhasil Masuk",
+        "emailAddress": "Alamat email",
+        "password": "Kata Sandi",
+        "emailRequired": "Email diperlukan ",
+        "invalidEmail": "Email tidak valid",
+        "invalidCaptcha": "Captcha tidak valid",
+        "invalidLogin": "Invalid login",
+        "noWallet": "Tidak dapat menemukan dompet ShapeShift Asli untuk login Anda. Jika Anda merasa pesan ini salah, silakan hubungi dukungan ShapeShift.",
+        "decryptionError": "Terjadi kesalahan saat mendekripsi dompet Anda.",
+        "twoFactorAuthentication": "Otentikasi Dua Faktor",
+        "twoFactorPlaceholder": "Kode 6 digit",
+        "twoFactorRequired": "2FA diperlukan",
+        "invalidTwoFactor": "Kode 6 digit tidak valid",
+        "twoFactorDescription": "Otentikasi dua faktor diaktifkan untuk akun Anda. Silakan masukkan kode dari aplikasi otentikasi Anda."
       }
     },
     "selectModal": {
@@ -510,14 +872,18 @@
         "SegwitNative": "Asli Segwit",
         "P2pkh": "Legacy",
         "SegwitNativeTooltip": "Direkomendasikan untuk sebagian besar pengguna. Hanya gunakan alamat lain jika Anda tahu untuk apa alamat itu",
-        "btcFormat": "format BTC"
+        "btcFormat": "format BTC",
+        "assetUnavailable": "Data pasar untuk aset ini belum tersedia. Kami sedang mengerjakannya, tunggu sebentar!",
+        "loading": "Mengambil riwayat harga, tunggu sebentar..."
       },
       "assetDescription": {
         "showMore": "Tampilkan Lebih Banyak",
         "showLess": "Tampilkan Lebih Sedikit"
       },
       "assetHistory": {
-        "transactionHistory": "Sejarah Transaksi"
+        "transactionHistory": "Sejarah Transaksi",
+        "recentTransactions": "transaksi terkini",
+        "emptyTransactions": "Transaksi akan muncul di sini."
       },
       "assetAccounts": {
         "account": "Akun",
@@ -554,5 +920,62 @@
   "accounts": {
     "accounts": "Akun"
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "sejarah transaksi",
+    "recentTransactions": "transaksi terkini",
+    "filter": "Saring",
+    "filters": {
+      "filters": "Saring",
+      "resetFilters": "Setel Ulang Saringan",
+      "to": "Untuk",
+      "categories": "Kategori",
+      "dayRange": "Rentang Hari",
+      "10days": "10 hari",
+      "30days": "30 hari",
+      "90days": "90 hari",
+      "send": "Kirim ",
+      "trade": "Berdagang",
+      "receive": "Menerima",
+      "custom": "Custom",
+      "apply": "Menerapkan"
+    },
+    "downloadCSV": "Unduh CSV",
+    "csv": {
+      "fileName": "Riwayat Transaksi ShapeShift",
+      "txid": "TX ID",
+      "type": "Tipe TX",
+      "timestamp": "stempel waktu",
+      "status": "Status",
+      "minerFee": "Biaya penambang",
+      "minerFeeCurrency": "Mata uang biaya penambang",
+      "inputAmount": "Jumlah masukan",
+      "inputCurrency": "Masukan mata uang",
+      "inputAddress": "Masukan alamat",
+      "outputAmount": "jumlah keluaran",
+      "outputCurrency": "Keluaran mata uang",
+      "outputAddress": "Alamat keluaran"
+    },
+    "transactionTypes": {
+      "send": "Kirim",
+      "receive": "Menerima",
+      "trade": "Berdagang "
+    },
+    "assets": "Aset",
+    "txid": "TX ID",
+    "fee": "Biaya ",
+    "youSent": "Kamu mengirim",
+    "youReceived": "Kamu Menerima ",
+    "sentTo": "Kirim Untuk ",
+    "receivedFrom": "Menerima Dari",
+    "orderRoute": "Rute Pemesanan",
+    "status": "Status",
+    "transactionType": "Tipe Transaksi ",
+    "minerFee": "Biaya Penambang ",
+    "unknownType": "Transaksi ",
+    "from": "Dari ",
+    "to": "Untuk ",
+    "for": "Untuk ",
+    "transfers": "Transfer"
+  }
 }

@@ -1,6 +1,6 @@
 import { ChevronDownIcon, ChevronRightIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Button, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
+import { Button, ButtonGroup, Flex, HStack, IconButton, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -92,8 +92,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   }, [walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
-    <MenuButton
-      as={Button}
+    <Button
       width={{ base: '100%', lg: 'auto' }}
       isLoading={isLoadingLocalWallet}
       leftIcon={
@@ -104,7 +103,6 @@ const WalletButton: FC<WalletButtonProps> = ({
           <WalletImage walletInfo={walletInfo} />
         </HStack>
       }
-      rightIcon={<ChevronDownIcon />}
     >
       <Flex>
         {walletLabel ? (
@@ -122,7 +120,7 @@ const WalletButton: FC<WalletButtonProps> = ({
           <RawText>{walletInfo?.name}</RawText>
         )}
       </Flex>
-    </MenuButton>
+    </Button>
   ) : (
     <Button onClick={onConnect} leftIcon={<FaWallet />}>
       <Text translation='common.connectWallet' />
@@ -132,38 +130,50 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, walletInfo, type } = state
+  const { isConnected, walletInfo, type, isLocked } = state
+
+  if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = () => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <Menu>
+    <ButtonGroup>
       <WalletButton
         onConnect={handleConnect}
         walletInfo={walletInfo}
         isConnected={isConnected}
         isLoadingLocalWallet={state.isLoadingLocalWallet}
       />
-      <MenuList
-        maxWidth={{ base: 'full', md: 'xs' }}
-        minWidth={{ base: 0, md: 'xs' }}
-        overflow='hidden'
-      >
-        {hasWallet ? (
-          <WalletConnected
-            isConnected={isConnected || walletInfo?.deviceId === 'DemoWallet'}
-            walletInfo={walletInfo}
-            onDisconnect={disconnect}
-            onSwitchProvider={handleConnect}
-            type={type}
-          />
-        ) : (
-          <NoWallet onClick={handleConnect} />
-        )}
-      </MenuList>
-    </Menu>
+      <Menu>
+        <MenuButton
+          as={IconButton}
+          aria-label='Open wallet dropdown menu'
+          onClick={() => setIsOpen(!isOpen)}
+          icon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
+          data-test='navigation-wallet-dropdown-button'
+        />
+        <MenuList
+          maxWidth={{ base: 'full', md: 'xs' }}
+          minWidth={{ base: 0, md: 'xs' }}
+          overflow='hidden'
+        >
+          {hasWallet ? (
+            <WalletConnected
+              isConnected={isConnected || walletInfo?.deviceId === 'DemoWallet'}
+              walletInfo={walletInfo}
+              onDisconnect={disconnect}
+              onSwitchProvider={handleConnect}
+              type={type}
+            />
+          ) : (
+            <NoWallet onClick={handleConnect} />
+          )}
+        </MenuList>
+      </Menu>
+    </ButtonGroup>
   )
 }

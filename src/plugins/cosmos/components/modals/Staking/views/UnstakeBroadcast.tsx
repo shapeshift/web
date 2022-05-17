@@ -2,7 +2,6 @@ import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalCloseButton, Text as CText, Tooltip } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -11,6 +10,7 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -24,18 +24,22 @@ type UnstakeBroadcastProps = {
   assetId: AssetId
   onClose: () => void
   validatorAddress: string
+  onStepCompleted: () => void
 }
 
-export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: UnstakeBroadcastProps) => {
+export const UnstakeBroadcast = ({
+  assetId,
+  validatorAddress,
+  onClose,
+  onStepCompleted,
+}: UnstakeBroadcastProps) => {
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, { validatorAddress }),
-  )
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
 
   const translate = useTranslate()
 
@@ -44,7 +48,7 @@ export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: Unstake
   const { handleStakingAction } = useStakingAction()
   const { txFee, fiatFee, cryptoAmount, gasLimit } = useWatch({ control })
 
-  if (!txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
+  if (!validatorInfo || !txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
 
   // We will also need to listen to incoming Txs (which are currently not coming from the websocket) to determine broadcasted
   // state and react on broadcast errors instead of being optimistic
@@ -69,6 +73,7 @@ export const UnstakeBroadcast = ({ assetId, validatorAddress, onClose }: Unstake
 
     setTxId(broadcastTx)
     setBroadcasted(true)
+    onStepCompleted()
   }
 
   return (

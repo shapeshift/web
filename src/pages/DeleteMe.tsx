@@ -1,4 +1,5 @@
 import { Container, Stack } from '@chakra-ui/react'
+import { useState } from 'react'
 import { useController, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -26,6 +27,7 @@ const testData = [
 
 export const DeleteMe = () => {
   const translate = useTranslate()
+  const [formStateValue, setFormState] = useState('approve')
   const {
     handleSubmit,
     control,
@@ -72,6 +74,13 @@ export const DeleteMe = () => {
     rewardAmount.onChange(amount.toString())
   }
 
+  const handleApprove = () => {
+    setFormState('approvalPending')
+    setTimeout(() => {
+      setFormState('confirm')
+    }, 2000)
+  }
+
   return (
     <Container mt={6} p={8} maxWidth='500px'>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -109,10 +118,16 @@ export const DeleteMe = () => {
         <StepRow
           label='FOX Approval'
           stepNumber='1'
-          isComplete
+          isActive={formStateValue === 'approve'}
+          isLoading={formStateValue === 'approvalPending'}
+          isComplete={formStateValue === 'confirm'}
           buttonLabel='Approve'
-          buttonOnClick={() => console.info('approve')}
-          rightElement={<TransactionLink txid={'1234'} explorerTxLink={'https://google.com'} />}
+          buttonOnClick={() => handleApprove()}
+          rightElement={
+            (formStateValue === 'approvalPending' || formStateValue === 'confirm') && (
+              <TransactionLink txid={'1234'} explorerTxLink={'https://google.com'} />
+            )
+          }
         >
           <RawText>Allow ShapeShift DAO to use your FOX.</RawText>
           <Row>
@@ -130,7 +145,9 @@ export const DeleteMe = () => {
         <StepRow
           label='Confirm'
           stepNumber='2'
-          isActive
+          isActive={formStateValue === 'confirm'}
+          isLoading={formStateValue === 'confirmPending'}
+          isComplete={formStateValue === 'done'}
           buttonLabel='Confirm'
           buttonOnClick={() => console.info('confirm')}
         >

@@ -35,7 +35,7 @@ const CryptoInput = (props: InputProps) => (
   />
 )
 
-type AssetInputProps = {
+export type AssetInputProps = {
   assetName: string
   assetIcon: string
   onChange?: (arg0: string, arg1?: boolean) => void
@@ -126,7 +126,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
-      {children && <Stack px={4}>{children}</Stack>}
+      {children && (
+        <Stack px={4} pt={2}>
+          {children}
+        </Stack>
+      )}
     </FormControl>
   )
 }

@@ -13,7 +13,7 @@ import { ReactNode } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
 
-type StepRowProps = {
+export type StepRowProps = {
   label: string
   stepNumber: string
   isComplete?: boolean

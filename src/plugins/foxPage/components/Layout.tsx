@@ -1,4 +1,4 @@
-import { Box, Text } from '@chakra-ui/react'
+import { Box, Text, useColorModeValue } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 import foxPageBg from 'assets/foxpage-bg.png'
 import { AssetIcon } from 'components/AssetIcon'
@@ -11,6 +11,8 @@ type FoxLayoutProps = {
 }
 
 export const Layout = ({ children, icon, title, description }: FoxLayoutProps) => {
+  const descriptionColor = useColorModeValue('gray.750', 'gray.500')
+
   return (
     <>
       <Box
@@ -37,7 +39,7 @@ export const Layout = ({ children, icon, title, description }: FoxLayoutProps) =
           <Text color='inherit' fontSize='1.125rem' fontWeight='bold' mb={2}>
             {title}
           </Text>
-          <Text color='gray.400'>{description}</Text>
+          <Text color={descriptionColor}>{description}</Text>
         </Box>
       </Box>
 

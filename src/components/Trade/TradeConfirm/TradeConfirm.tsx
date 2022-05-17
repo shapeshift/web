@@ -18,7 +18,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { ValueOf } from 'types/object'
 
 import { TradeRoutePaths, TradeState } from '../types'
 import { WithBackButton } from '../WithBackButton'
@@ -27,8 +26,6 @@ import { AssetToAsset } from './AssetToAsset'
 type TradeConfirmParams = {
   fiatRate: string
 }
-
-type ZrxError = Error & { message: string }
 
 export const TradeConfirm = ({ history }: RouterProps) => {
   const [txid, setTxid] = useState('')
@@ -60,27 +57,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
 
-  // Parametrized errors cannot simply be matched with === since their param(s) might vary
-  const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {
-    'ZrxExecuteTrade - signAndBroadcastTransaction error': TRADE_ERRORS.TRANSACTION_REJECTED,
-    'ZrxExecuteTrade - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
-    'ZrxExecuteTrade - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
-    'ZrxExecuteTrade - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
-    'ZrxExecuteTrade - signTransaction error': TRADE_ERRORS.SIGNING_FAILED,
-  } as const
-
-  const getParametrizedErrorMessageOrDefault = (
-    errorMessage: string,
-  ): ValueOf<typeof PARAMETRIZED_ERRORS_TO_TRADE_ERRORS> | TRADE_ERRORS.INSUFFICIENT_FUNDS => {
-    // If no other error pattern is found, we assume the tx was rejected because of insufficient funds
-    const defaultTradeError = TRADE_ERRORS.INSUFFICIENT_FUNDS
-    return (
-      Object.entries(PARAMETRIZED_ERRORS_TO_TRADE_ERRORS).find(([error]) =>
-        errorMessage.includes(error),
-      )?.[1] || defaultTradeError
-    )
-  }
-
   const onSubmit = async () => {
     if (!wallet) return
     if (!isConnected) {
@@ -100,35 +76,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
     } catch (err) {
       console.error(`TradeConfirm:onSubmit - ${err}`)
-      let errorMessage
-      switch ((err as ZrxError).message) {
-        case 'ZrxSwapper:ZrxExecuteTrade Cannot execute a failed quote': {
-          errorMessage = TRADE_ERRORS.FAILED_QUOTE_EXECUTED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteTrade sellAssetAccountId is required': {
-          errorMessage = TRADE_ERRORS.SELL_ASSET_REQUIRED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteTrade sellAmount is required': {
-          errorMessage = TRADE_ERRORS.SELL_AMOUNT_REQUIRED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteTrade depositAddress is required': {
-          errorMessage = TRADE_ERRORS.DEPOSIT_ADDRESS_REQUIRED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteTrade sellAssetNetwork and sellAssetSymbol are required': {
-          errorMessage = TRADE_ERRORS.SELL_ASSET_NETWORK_AND_SYMBOL_REQUIRED
-          break
-        }
-        default: {
-          errorMessage = getParametrizedErrorMessageOrDefault((err as ZrxError).message)
-        }
-      }
       toast({
         title: translate('trade.errors.title'),
-        description: translate(errorMessage),
+        description: translate(TRADE_ERRORS.DEX_TRADE_FAILED),
         status: 'error',
         duration: 9000,
         isClosable: true,

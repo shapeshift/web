@@ -5,6 +5,7 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import { ChainAdapter } from './api'
 import * as bitcoin from './bitcoin'
 import * as cosmos from './cosmossdk/cosmos'
+import * as osmosis from './cosmossdk/osmosis'
 import * as ethereum from './ethereum'
 
 export type UnchainedUrl = {
@@ -50,6 +51,17 @@ export class ChainAdapterManager {
             return this.addChain(
               type,
               () => new cosmos.ChainAdapter({ providers: { http, ws }, coinName: 'Cosmos' })
+            )
+          }
+
+          case ChainTypes.Osmosis: {
+            const http = new unchained.osmosis.V1Api(
+              new unchained.osmosis.Configuration({ basePath: httpUrl })
+            )
+            const ws = new unchained.ws.Client<unchained.osmosis.Tx>(wsUrl)
+            return this.addChain(
+              type,
+              () => new osmosis.ChainAdapter({ providers: { http, ws }, coinName: 'Osmosis' })
             )
           }
           default:

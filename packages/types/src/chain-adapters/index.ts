@@ -1,4 +1,10 @@
-import { BTCSignTx, CosmosSignTx, ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import {
+  BTCSignTx,
+  CosmosSignTx,
+  ETHSignTx,
+  HDWallet,
+  OsmosisSignTx
+} from '@shapeshiftoss/hdwallet-core'
 
 import { BIP44Params, ChainTypes, UtxoAccountType } from '../base'
 import { ChainSpecific } from '../utility'
@@ -43,6 +49,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [ChainTypes.Ethereum]: ethereum.FeeData
     [ChainTypes.Bitcoin]: bitcoin.FeeData
     [ChainTypes.Cosmos]: cosmos.FeeData
+    [ChainTypes.Osmosis]: osmosis.FeeData
   }
 >
 
@@ -143,6 +150,7 @@ type ChainTxTypeInner = {
   [ChainTypes.Ethereum]: ETHSignTx
   [ChainTypes.Bitcoin]: BTCSignTx
   [ChainTypes.Cosmos]: CosmosSignTx
+  [ChainTypes.Osmosis]: OsmosisSignTx
 }
 
 export type ChainTxType<T> = T extends keyof ChainTxTypeInner ? ChainTxTypeInner[T] : never

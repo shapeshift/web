@@ -33,6 +33,16 @@
           "supportsES6": "true",
           "useSingleRequestParameter": true
         }
+      },
+      "osmosis": {
+        "inputSpec": "http://dev-api.osmosis.shapeshift.com/swagger",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/../../src/generated/osmosis",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
       }
     }
   }

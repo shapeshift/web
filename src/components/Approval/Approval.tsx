@@ -94,12 +94,7 @@ export const Approval = () => {
       }
       approvalInterval.current && clearInterval(approvalInterval.current)
 
-      await updateTrade({
-        wallet,
-        sellAsset: quote?.sellAsset,
-        buyAsset: quote?.buyAsset,
-        amount: quote?.sellAmount,
-      })
+      await updateTrade({ wallet, ...quote })
 
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
     }, 5000)

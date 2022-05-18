@@ -2,7 +2,7 @@ import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-a
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -32,6 +32,7 @@ type UseSendDetailsReturnType = {
   handleInputChange(inputValue: string): void
   handleNextClick(): void
   handleSendMax(): Promise<void>
+  inputHandler(inputValue: string): Promise<void>
   loading: boolean
   toggleCurrency(): void
   cryptoHumanBalance: BigNumber
@@ -167,6 +168,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         throw new Error('unsupported chain type')
     }
   }, [accountId, adapter, asset, chainAdapterManager, getValues, wallet])
+
+  const debouncedEstimateFormFees = useMemo(() => {
+    return debounce(estimateFormFees, 1000)
+  }, [estimateFormFees])
+
+  // Stop calls to debouncedEstimateFormFees
+  useEffect(() => {
+    return () => {
+      debouncedEstimateFormFees.cancel()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleNextClick = async () => {
     try {
@@ -330,7 +343,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount
           : SendFormFields.CryptoAmount
-      if (inputValue === '' || Number(inputValue) === 0) {
+      if (inputValue === '') {
         // Don't show an error message when the input is empty or zero
         setValue(SendFormFields.AmountFieldError, '')
         setLoading(false)
@@ -346,36 +359,45 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setValue(key, amount)
 
       let estimatedFees
+      let hasEnoughNativeTokenForGas = false
 
       try {
-        estimatedFees = await estimateFormFees()
-        setValue(SendFormFields.EstimatedFees, estimatedFees)
+        // Give immediate user feedback on first character
+        // otherwise, debounce user input and use last call
+        if (inputValue.length === 1) {
+          estimatedFees = await estimateFormFees()
+        } else {
+          estimatedFees = await debouncedEstimateFormFees()
+        }
+
+        if (estimatedFees !== undefined) {
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
+
+          hasEnoughNativeTokenForGas = nativeAssetBalance
+            .minus(estimatedFees.fast.txFee)
+            .isPositive()
+        }
       } catch (e) {
         setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-        setLoading(false)
-
+        // setLoading(false)
         throw e
+      } finally {
+        const values = getValues()
+        const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+
+        if (!hasValidBalance) {
+          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+        } else if (!hasEnoughNativeTokenForGas) {
+          setValue(SendFormFields.AmountFieldError, [
+            'modals.send.errors.notEnoughNativeToken',
+            { asset: feeAsset.symbol },
+          ])
+        } else {
+          // Remove existing error messages because the send amount is valid
+          setValue(SendFormFields.AmountFieldError, '')
+        }
+        setLoading(false)
       }
-
-      const values = getValues()
-
-      const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
-      const hasEnoughNativeTokenForGas = nativeAssetBalance
-        .minus(estimatedFees.fast.txFee)
-        .isPositive()
-
-      if (!hasValidBalance) {
-        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-      } else if (!hasEnoughNativeTokenForGas) {
-        setValue(SendFormFields.AmountFieldError, [
-          'modals.send.errors.notEnoughNativeToken',
-          { asset: feeAsset.symbol },
-        ])
-      } else {
-        // Remove existing error messages because the send amount is valid
-        setValue(SendFormFields.AmountFieldError, '')
-      }
-      setLoading(false)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
@@ -402,6 +424,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleInputChange,
     handleNextClick,
     handleSendMax,
+    inputHandler,
     loading,
     toggleCurrency,
   }

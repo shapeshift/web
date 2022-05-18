@@ -57,7 +57,7 @@ export const FoxLayout: Story = () => {
       <Tabs variant='unstyled' index={selectedTabIndex}>
         <TabList flexDirection={{ base: 'column', md: 'row' }}>
           <SimpleGrid
-            gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(4, 1fr)' }}
+            gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
             gridGap={4}
             mb={4}
             width='full'
@@ -89,15 +89,6 @@ export const FoxLayout: Story = () => {
                   fiatAmount={'1000'}
                   onClick={() => {
                     setSelectedTabIndex(1)
-                  }}
-                />
-                <FoxTab
-                  assetSymbol={mockAsset.symbol}
-                  assetIcon={mockAsset.icon}
-                  cryptoAmount={'3000'}
-                  fiatAmount={'1000'}
-                  onClick={() => {
-                    setSelectedTabIndex(2)
                   }}
                 />
               </>
@@ -138,18 +129,6 @@ export const FoxLayout: Story = () => {
                   <MenuItem
                     onClick={() => {
                       setSelectedTabIndex(1)
-                    }}
-                  >
-                    <FoxTab
-                      assetSymbol={mockAsset.symbol}
-                      assetIcon={mockAsset.icon}
-                      cryptoAmount={'3000'}
-                      fiatAmount={'1000'}
-                    />
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      setSelectedTabIndex(2)
                     }}
                   >
                     <FoxTab

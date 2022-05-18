@@ -74,7 +74,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     <FormControl
       as={Stack}
       spacing={0}
-      pb={4}
+      pb={2}
       borderWidth={1}
       borderColor={isFocused ? focusBorder : borderColor}
       bg={isFocused ? focusBg : bgColor}
@@ -120,14 +120,14 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       </Stack>
       {(onMaxClick || balance) && (
-        <Stack direction='row' mt={2} px={4} justifyContent='space-between'>
+        <Stack direction='row' py={2} px={4} justifyContent='space-between'>
           {balance && <Balance value={balance} symbol='FOX' label='Balance' />}
           {onMaxClick && <MaxButtonGroup options={[0.25, 0.5, 0.75, 1]} onClick={onMaxClick} />}
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (
-        <Stack px={4} pt={2}>
+        <Stack px={4} pb={2}>
           {children}
         </Stack>
       )}

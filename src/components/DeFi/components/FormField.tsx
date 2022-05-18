@@ -1,7 +1,7 @@
 import { Stack, StackProps } from '@chakra-ui/react'
 import { RawText } from 'components/Text'
 
-type FormFieldProps = {
+export type FormFieldProps = {
   label: string
 } & StackProps
 

@@ -273,7 +273,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     size='sm'
                     variant='ghost'
                     colorScheme='blue'
-                    isDisabled={isSendMaxLoading || !hasValidBalance}
+                    isDisabled={isSendMaxLoading || !hasValidBalance || !quote}
                     onClick={onSetMaxTrade}
                     data-test='token-row-sell-max-button'
                   >
@@ -369,7 +369,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 !wallet ||
                 !hasValidTradeBalance ||
                 !hasEnoughBalanceForGas ||
-                !quote
+                !quote ||
+                !hasValidSellAmount
               }
               style={{
                 whiteSpace: 'normal',

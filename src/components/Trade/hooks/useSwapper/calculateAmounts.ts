@@ -21,6 +21,7 @@ export const calculateAmounts = async ({
 }) => {
   const { getUsdRate } = swapper
 
+  console.log('getting rates for', sellAsset, buyAsset, feeAsset)
   // TODO(0xdef1cafe): error handling
   const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
     getUsdRate({ ...sellAsset }),

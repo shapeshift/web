@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks'
 import {
-  cosmosCaip19,
+  cosmosAssetId,
   mockCosmosAccount,
   mockCosmosAccountWithStakingData,
 } from 'test/mocks/accounts'
@@ -88,7 +88,7 @@ describe('useCosmosStakingBalances', () => {
     const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
 
     store.dispatch(
-      portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([cosmosAccount], [cosmosCaip19])),
+      portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([cosmosAccount], [cosmosAssetId])),
     )
 
     const { result } = setup()

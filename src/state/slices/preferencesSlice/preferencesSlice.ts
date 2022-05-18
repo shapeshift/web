@@ -6,6 +6,7 @@ import { getConfig } from '../../../config'
 export type FeatureFlags = {
   ReduxLogging: boolean
   WalletMigration: boolean
+  BanxaRamp: boolean
   FoxPage: boolean
 }
 
@@ -21,6 +22,7 @@ const initialState: Preferences = {
   featureFlags: {
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
+    BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
   },
   selectedLocale: simpleLocale(),

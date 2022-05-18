@@ -1,5 +1,5 @@
 import { Center, Flex } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -37,22 +37,22 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetCAIP19 = toCAIP19({
+  const underlyingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: tokenId,
   })
-  const assetCAIP19 = toCAIP19({
+  const assetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
   // user info
   const chainAdapterManager = useChainAdapters()

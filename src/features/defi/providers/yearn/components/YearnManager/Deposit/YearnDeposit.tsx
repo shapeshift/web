@@ -1,5 +1,5 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
-import { AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -15,13 +15,12 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -40,16 +39,14 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const location = useLocation()
   const translate = useTranslate()
   const toast = useToast()
-  const appDispatch = useAppDispatch()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+  const assetNamespace = 'erc20'
+  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
   const chainAdapterManager = useChainAdapters()

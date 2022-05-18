@@ -1,5 +1,5 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
@@ -24,7 +24,7 @@ import { useAppSelector } from 'state/store'
 
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
-type TS = TradeState<ChainTypes>
+type TS = TradeState<SupportedChainIds>
 
 const moduleLogger = logger.child({ namespace: ['Trade', 'TradeInput'] })
 
@@ -35,14 +35,14 @@ export const TradeInput = ({ history }: RouterProps) => {
     getValues,
     setValue,
     formState: { errors, isDirty, isValid, isSubmitting },
-  } = useFormContext<TradeState<ChainTypes>>()
+  } = useFormContext<TradeState<SupportedChainIds>>()
   const {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyTradeAsset, sellTradeAsset, sellAssetFiatRate] = useWatch({
-    name: ['quote', 'buyAsset', 'sellAsset', 'sellAssetFiatRate'],
-  }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['sellAssetFiatRate']]
+  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
+    name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
+  }) as Array<unknown> as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
   const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
@@ -85,18 +85,21 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: quote?.buyAsset,
         amount: quote?.sellAmount,
       })
-      if (!result?.success && result?.statusReason) handleToast(result.statusReason)
+      if (!result?.success && result?.statusReason) {
+        handleToast(result.statusReason)
+        return
+      }
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
         history.push({
           pathname: TradeRoutePaths.Approval,
           state: {
-            fiatRate: sellAssetFiatRate,
+            fiatRate: feeAssetFiatRate,
           },
         })
         return
       }
-      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: sellAssetFiatRate } })
+      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (err) {
       console.error(`TradeInput:onSubmit - ${err}`)
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
@@ -242,7 +245,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               </FormErrorMessage>
             </FormControl>
             <FormControl>
-              <TokenRow<TradeState<ChainTypes>>
+              <TokenRow<TradeState<SupportedChainIds>>
                 control={control}
                 fieldName='sellAsset.amount'
                 disabled={isSendMaxLoading}
@@ -322,7 +325,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               </Box>
             </FormControl>
             <FormControl mb={6}>
-              <TokenRow<TradeState<ChainTypes>>
+              <TokenRow<TradeState<SupportedChainIds>>
                 control={control}
                 fieldName='buyAsset.amount'
                 disabled={isSendMaxLoading}
@@ -361,7 +364,12 @@ export const TradeInput = ({ history }: RouterProps) => {
               }
               isLoading={isSubmitting || isSendMaxLoading}
               isDisabled={
-                !isDirty || !isValid || !wallet || !hasValidTradeBalance || !hasEnoughBalanceForGas
+                !isDirty ||
+                !isValid ||
+                !wallet ||
+                !hasValidTradeBalance ||
+                !hasEnoughBalanceForGas ||
+                !quote
               }
               style={{
                 whiteSpace: 'normal',

@@ -1,5 +1,5 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -15,13 +15,12 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -39,30 +38,28 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const translate = useTranslate()
-  const appDispatch = useAppDispatch()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, rewardId } = query
   const toast = useToast()
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
   // Asset info
-  const assetCAIP19 = toCAIP19({
+  const assetId = toAssetId({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAssetCAIP19 = toCAIP19({
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const feeAssetId = toAssetId({
     chain,
     network,
-    assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Ethereum,
   })
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info
   const chainAdapterManager = useChainAdapters()

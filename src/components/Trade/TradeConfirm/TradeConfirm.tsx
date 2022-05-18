@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toCAIP19 } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { NetworkTypes, SupportedChainIds } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -18,7 +18,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { ValueOf } from 'types/object'
 
 import { TradeRoutePaths, TradeState } from '../types'
 import { WithBackButton } from '../WithBackButton'
@@ -28,15 +27,13 @@ type TradeConfirmParams = {
   fiatRate: string
 }
 
-type ZrxError = Error & { message: string }
-
 export const TradeConfirm = ({ history }: RouterProps) => {
   const [txid, setTxid] = useState('')
   const {
     getValues,
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TradeState<ChainTypes>>()
+  } = useFormContext<TradeState<SupportedChainIds>>()
   const toast = useToast()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
@@ -52,34 +49,16 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useWallet()
   const { chain, tokenId } = trade.sellAsset
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
-  const extra = tokenId
-    ? { assetNamespace, assetReference: tokenId }
-    : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
-  const caip = toCAIP19({ chain, network, ...extra })
+  type AssetParams = Pick<Parameters<typeof toAssetId>[0], 'assetNamespace' | 'assetReference'>
+  const extra: AssetParams = tokenId
+    ? {
+        assetNamespace: 'erc20',
+        assetReference: tokenId,
+      }
+    : { assetNamespace: 'slip44', assetReference: ASSET_REFERENCE.Ethereum }
+  const assetId = toAssetId({ chain, network, ...extra })
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
-
-  // Parametrized errors cannot simply be matched with === since their param(s) might vary
-  const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {
-    'ZrxExecuteQuote - signAndBroadcastTransaction error': TRADE_ERRORS.TRANSACTION_REJECTED,
-    'ZrxExecuteQuote - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
-    'ZrxExecuteQuote - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
-    'ZrxExecuteQuote - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
-    'ZrxExecuteQuote - signTransaction error': TRADE_ERRORS.SIGNING_FAILED,
-  } as const
-
-  const getParametrizedErrorMessageOrDefault = (
-    errorMessage: string,
-  ): ValueOf<typeof PARAMETRIZED_ERRORS_TO_TRADE_ERRORS> | TRADE_ERRORS.INSUFFICIENT_FUNDS => {
-    // If no other error pattern is found, we assume the tx was rejected because of insufficient funds
-    const defaultTradeError = TRADE_ERRORS.INSUFFICIENT_FUNDS
-    return (
-      Object.entries(PARAMETRIZED_ERRORS_TO_TRADE_ERRORS).find(([error]) =>
-        errorMessage.includes(error),
-      )?.[1] || defaultTradeError
-    )
-  }
+  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -100,35 +79,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
     } catch (err) {
       console.error(`TradeConfirm:onSubmit - ${err}`)
-      let errorMessage
-      switch ((err as ZrxError).message) {
-        case 'ZrxSwapper:ZrxExecuteQuote Cannot execute a failed quote': {
-          errorMessage = TRADE_ERRORS.FAILED_QUOTE_EXECUTED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAssetAccountId is required': {
-          errorMessage = TRADE_ERRORS.SELL_ASSET_REQUIRED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAmount is required': {
-          errorMessage = TRADE_ERRORS.SELL_AMOUNT_REQUIRED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteQuote depositAddress is required': {
-          errorMessage = TRADE_ERRORS.DEPOSIT_ADDRESS_REQUIRED
-          break
-        }
-        case 'ZrxSwapper:ZrxExecuteQuote sellAssetNetwork and sellAssetSymbol are required': {
-          errorMessage = TRADE_ERRORS.SELL_ASSET_NETWORK_AND_SYMBOL_REQUIRED
-          break
-        }
-        default: {
-          errorMessage = getParametrizedErrorMessageOrDefault((err as ZrxError).message)
-        }
-      }
       toast({
         title: translate('trade.errors.title'),
-        description: translate(errorMessage),
+        description: translate(TRADE_ERRORS.DEX_TRADE_FAILED),
         status: 'error',
         duration: 9000,
         isClosable: true,
@@ -165,7 +118,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               tradeFiatAmount={tradeFiatAmount}
               trade={trade}
               mt={6}
-              status={status}
+              status={txid ? status : undefined}
             />
           </Card.Header>
           <Divider />

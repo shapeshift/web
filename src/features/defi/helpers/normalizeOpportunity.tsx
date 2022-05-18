@@ -1,4 +1,4 @@
-import { AssetId, AssetNamespace, toCAIP19 } from '@shapeshiftoss/caip'
+import { AssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -36,7 +36,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
   const assetIds = useSelector(selectAssetIds)
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
   const { vaults: vaultsWithBalances } = useVaultBalances()
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
     let fiatAmount = '0'
@@ -46,7 +46,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       cryptoAmount = balances.cryptoAmount
       fiatAmount = balances.fiatAmount
     }
-    const assetCAIP19 = toCAIP19({
+    const assetId = toAssetId({
       chain: vault.chain,
       network,
       assetNamespace,
@@ -63,7 +63,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       apy: vault.metadata.apy?.net_apy,
       expired: vault.expired,
       chain: vault.chain,
-      assetId: assetCAIP19,
+      assetId,
       fiatAmount,
       cryptoAmount,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
@@ -73,7 +73,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
     // show vaults that don't have an APY but have a balance
     // don't show vaults that don't have a balance and don't have an APY
     // don't show new vaults that have an APY over 20,000% APY
-    if (assetIds.includes(assetCAIP19)) {
+    if (assetIds.includes(assetId)) {
       if (
         vault.expired ||
         bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) ||
@@ -102,7 +102,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       apy,
       expired,
       chain,
-      tokenCaip19: assetId,
+      tokenAssetId: assetId,
       fiatAmount,
       cryptoAmount,
     } = foxy

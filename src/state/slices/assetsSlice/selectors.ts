@@ -1,12 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 import {
+  ASSET_REFERENCE,
   AssetId,
-  AssetNamespace,
   AssetReference,
   ChainId,
-  fromCAIP2,
-  fromCAIP19,
-  toCAIP19,
+  fromAssetId,
+  fromChainId,
+  toAssetId,
 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
@@ -22,8 +22,9 @@ export const selectAssetById = createCachedSelector(
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
-export const selectAssetNameById = createSelector(selectAssetById, asset =>
-  asset ? asset.name : undefined,
+export const selectAssetNameById = createSelector(
+  selectAssetById,
+  (asset): string => asset?.name ?? '',
 )
 
 export const selectAssets = createDeepEqualOutputSelector(
@@ -53,13 +54,13 @@ export const selectAssetsByMarketCap = createSelector(
 )
 
 // @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById
-// work with the update to the toCAIP19 function where assetNamespace and assetReference are now required.
+// work with the update to the toAssetId function where assetNamespace and assetReference are now required.
 const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): AssetReference => {
-  if (chain === ChainTypes.Bitcoin) return AssetReference.Bitcoin
-  if (chain === ChainTypes.Ethereum) return AssetReference.Ethereum
+  if (chain === ChainTypes.Bitcoin) return ASSET_REFERENCE.Bitcoin
+  if (chain === ChainTypes.Ethereum) return ASSET_REFERENCE.Ethereum
   if (chain === ChainTypes.Cosmos) {
-    if (network === NetworkTypes.COSMOSHUB_MAINNET) return AssetReference.Cosmos
-    if (network === NetworkTypes.OSMOSIS_MAINNET) return AssetReference.Osmosis
+    if (network === NetworkTypes.COSMOSHUB_MAINNET) return ASSET_REFERENCE.Cosmos
+    if (network === NetworkTypes.OSMOSIS_MAINNET) return ASSET_REFERENCE.Osmosis
     throw new Error(`Network ${network} on ${chain} not supported.`)
   }
   throw new Error(`Chain ${chain} not supported.`)
@@ -69,11 +70,11 @@ export const selectFeeAssetByChainId = createSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
   (assetsById, chainId): Asset => {
-    const { chain, network } = fromCAIP2(chainId)
-    const feeAssetId = toCAIP19({
+    const { chain, network } = fromChainId(chainId)
+    const feeAssetId = toAssetId({
       chain,
       network,
-      assetNamespace: AssetNamespace.Slip44,
+      assetNamespace: 'slip44',
       assetReference: chainIdFeeAssetReferenceMap(chain, network),
     })
     return assetsById[feeAssetId]
@@ -84,11 +85,11 @@ export const selectFeeAssetById = createSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset => {
-    const { chain, network } = fromCAIP19(assetId)
-    const feeAssetId = toCAIP19({
+    const { chain, network } = fromAssetId(assetId)
+    const feeAssetId = toAssetId({
       chain,
       network,
-      assetNamespace: AssetNamespace.Slip44,
+      assetNamespace: 'slip44',
       assetReference: chainIdFeeAssetReferenceMap(chain, network),
     })
     return assetsById[feeAssetId]

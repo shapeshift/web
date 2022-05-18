@@ -31,9 +31,7 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
   if (!accountSpecifierStrings.length) return null
   if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
 
-  const caip19 = assetId ? decodeURIComponent(assetId) : null
-  if (!caip19) return null
-  return (
-    <AssetAccountDetails assetId={caip19} accountId={accountId} route={route} key={accountId} />
-  )
+  const id = assetId ? decodeURIComponent(assetId) : null
+  if (!id) return null
+  return <AssetAccountDetails assetId={id} accountId={accountId} route={route} key={accountId} />
 }

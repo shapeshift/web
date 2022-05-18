@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v4.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.0.1...@shapeshiftoss/chain-adapters-v4.1.0) (2022-05-18)
+
+
+### Features
+
+* osmosis adapter ([#664](https://github.com/shapeshift/lib/issues/664)) ([8bcdfd1](https://github.com/shapeshift/lib/commit/8bcdfd17a9902fb08239c4b4a2db3ae6b6e15183))
+
 # [@shapeshiftoss/chain-adapters-v4.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.0.0...@shapeshiftoss/chain-adapters-v4.0.1) (2022-05-18)
 
 # [@shapeshiftoss/chain-adapters-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v3.0.4...@shapeshiftoss/chain-adapters-v4.0.0) (2022-05-18)

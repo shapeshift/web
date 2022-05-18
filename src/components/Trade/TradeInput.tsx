@@ -89,12 +89,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         })
         return
       }
-      const result = await updateTrade({
-        wallet,
-        sellAsset: quote?.sellAsset,
-        buyAsset: quote?.buyAsset,
-        amount: quote?.sellAmount,
-      })
+      const result = await updateTrade({ wallet, ...quote })
       if (!result?.success && result?.statusReason) {
         handleToast(result.statusReason)
         return

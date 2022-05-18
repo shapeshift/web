@@ -1,5 +1,10 @@
-import { AssetId, CHAIN_REFERENCE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE } from '@shapeshiftoss/caip/src'
+import {
+  ASSET_REFERENCE,
+  AssetId,
+  CHAIN_REFERENCE,
+  fromChainId,
+  toAssetId
+} from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   CosmosSignTx,

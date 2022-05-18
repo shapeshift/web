@@ -1,6 +1,5 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-import { AssetId, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE } from '@shapeshiftoss/caip/src'
+import { ASSET_REFERENCE, AssetId, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 

@@ -2714,10 +2714,10 @@
     lodash "^4.17.4"
     read-pkg-up "^7.0.0"
 
-"@shapeshiftoss/asset-service@^2.0.0":
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.6.0.tgz#810ae765f546b1780d5fc635ef0350ff057bd2d3"
-  integrity sha512-TN/V2Tsr0PomkFwJAb6G83db8zlE8MmnlT1a4GBAh342QngOVyuz0K+goDXgodyS3tHBEgvhabvz7Z5vWA/e+Q==
+"@shapeshiftoss/asset-service@^3.0.0":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-3.0.1.tgz#a141d8954e070735e0e161ea8eb6cfaae32ffcc5"
+  integrity sha512-4bzPFjAsvjQU1uHRxsUi8j6uxEeYoqQjWovKkZQm17UchgtLaqbeDA18S66MqujvJFWk6d5fI2JjZyaDWqCZPw==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"

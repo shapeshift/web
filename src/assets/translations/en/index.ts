@@ -11,3 +11,8 @@ context.keys().forEach((filename: string) => {
 })
 
 export { files as en }
+
+// import main from './main.json'
+// import plugins from './plugins.json'
+
+// export const en { ...main, ...plugins }

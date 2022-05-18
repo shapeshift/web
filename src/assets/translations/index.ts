@@ -1,4 +1,4 @@
-import en from './en'
+import { en } from './en'
 import es from './es/main.json'
 import fr from './fr/main.json'
 import id from './id/main.json'

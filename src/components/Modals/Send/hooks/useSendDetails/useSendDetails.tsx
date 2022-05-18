@@ -344,7 +344,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           ? SendFormFields.FiatAmount
           : SendFormFields.CryptoAmount
       if (inputValue === '') {
-        // Don't show an error message when the input is empty or zero
+        // Don't show an error message when the input is empty
         setValue(SendFormFields.AmountFieldError, '')
         setLoading(false)
         // Set value of the other input to an empty string as well
@@ -362,7 +362,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       let hasEnoughNativeTokenForGas = false
 
       try {
-        // Give immediate user feedback on first character
+        // Make API call on first user input
         // otherwise, debounce user input and use last call
         if (inputValue.length === 1) {
           estimatedFees = await estimateFormFees()

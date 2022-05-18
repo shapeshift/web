@@ -2,6 +2,8 @@ import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakr
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectFeatureFlag } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -13,7 +15,12 @@ export const SelectModal = () => {
     create,
   } = useWallet()
   const translate = useTranslate()
-  const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
+  const walletConnectFeatureFlag = useAppSelector(state =>
+    selectFeatureFlag(state, 'WalletConnectWallet'),
+  )
+  const wallets = Object.values(KeyManager)
+    .filter(key => key !== KeyManager.Demo)
+    .filter(key => walletConnectFeatureFlag || key !== KeyManager.WalletConnect)
 
   return (
     <>

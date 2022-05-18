@@ -20,7 +20,7 @@ export const Layout = ({ children, icon, title, description }: FoxLayoutProps) =
         textAlign='center'
         py={{ base: 8, md: 12 }}
         mb={4}
-        px={{ base: 4, md: 8 }}
+        px={{ base: 0, md: 8 }}
       >
         <Box
           backgroundImage={foxPageBg}

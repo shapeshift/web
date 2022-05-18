@@ -321,6 +321,8 @@
       },
       "uniV2": {
         "addLiquidityETH": "Add liquidity",
+        "stake": "Stake",
+        "exit": "Unstake",
         "removeLiquidityETH": "Remove liquidity"
       },
       "thor": {
@@ -970,7 +972,8 @@
   },
   "plugins": {
     "foxPage": {
-      "totalFoxValue": "Total FOX Value"
+      "totalFoxValue": "Total Fox Value",
+      "foxToken": "ShapeShift %{assetSymbol} Token"
     }
   }
 }

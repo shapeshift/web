@@ -1,4 +1,4 @@
-import { AssetId, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, toAssetId } from '@shapeshiftoss/caip'
 import {
   getSupportedVaults,
   SupportedYearnVault,
@@ -30,13 +30,13 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
     const vaultAssetId = toAssetId({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: vault.vaultAddress,
     })
     const tokenAssetId = toAssetId({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: vault.tokenAddress,
     })
     const balance = balances[vaultAssetId]

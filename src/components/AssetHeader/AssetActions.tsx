@@ -19,7 +19,7 @@ type AssetActionProps = {
 }
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
-  const [isValidChain, setIsValidChain] = useState(true)
+  const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = useChainAdapters()
   const { send, receive } = useModal()
   const translate = useTranslate()
@@ -32,9 +32,9 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   useEffect(() => {
     try {
       chainAdapterManager.byChainId(asset.chainId)
-      setIsValidChain(true)
+      setIsValidChainId(true)
     } catch (e) {
-      setIsValidChain(false)
+      setIsValidChainId(false)
     }
   }, [chainAdapterManager, asset])
 
@@ -78,7 +78,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           {translate('common.send')}
         </Button>
         <Button
-          disabled={!isValidChain}
+          disabled={!isValidChainId}
           onClick={handleReceiveClick}
           leftIcon={<ArrowDownIcon />}
           width={{ base: '100%', md: 'auto' }}

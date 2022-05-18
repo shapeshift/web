@@ -1,6 +1,10 @@
 import { Dex, Status, Trade, TradeType, TransferType, TxParser } from '../../../types'
 import { ParsedTx as Tx } from '../../types'
-import { FOXY_STAKING_CONTRACT, SHAPE_SHIFT_ROUTER_CONTRACT } from '../constants'
+import {
+  FOXY_STAKING_CONTRACT,
+  SHAPE_SHIFT_ROUTER_CONTRACT,
+  UNI_V2_FOX_STAKING_REWARDS_V3
+} from '../constants'
 import { TransactionParser } from '../index'
 import ethSelfSend from './mockData/ethSelfSend'
 import foxClaim from './mockData/foxClaim'
@@ -965,7 +969,6 @@ describe('parseTx', () => {
       expect(expected).toEqual(actual)
     })
 
-    // TODO: parse pending LP Token send to staking contract using stake() contract call
     it('should be able to parse stake mempool', async () => {
       const { txMempool } = foxStake
       const address = '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C'
@@ -977,7 +980,10 @@ describe('parseTx', () => {
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
-        data: undefined,
+        data: {
+          method: 'stake',
+          parser: TxParser.UniV2
+        },
         status: Status.Pending,
         transfers: []
       }
@@ -999,7 +1005,10 @@ describe('parseTx', () => {
         address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
-        data: undefined,
+        data: {
+          method: 'stake',
+          parser: TxParser.UniV2
+        },
         status: Status.Confirmed,
         fee: {
           value: '4650509500000000',
@@ -1009,7 +1018,7 @@ describe('parseTx', () => {
           {
             type: TransferType.Send,
             from: address,
-            to: '0xDd80E21669A664Bce83E3AD9a0d74f8Dad5D9E72',
+            to: UNI_V2_FOX_STAKING_REWARDS_V3,
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '99572547380794318',
             components: [{ value: '99572547380794318' }],
@@ -1034,7 +1043,10 @@ describe('parseTx', () => {
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
-        data: undefined,
+        data: {
+          method: 'exit',
+          parser: TxParser.UniV2
+        },
         status: Status.Pending,
         transfers: []
       }
@@ -1056,7 +1068,10 @@ describe('parseTx', () => {
         address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
-        data: undefined,
+        data: {
+          method: 'exit',
+          parser: TxParser.UniV2
+        },
         status: Status.Confirmed,
         fee: {
           value: '6136186875000000',
@@ -1065,7 +1080,7 @@ describe('parseTx', () => {
         transfers: [
           {
             type: TransferType.Receive,
-            from: '0xDd80E21669A664Bce83E3AD9a0d74f8Dad5D9E72',
+            from: UNI_V2_FOX_STAKING_REWARDS_V3,
             to: address,
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '531053586030903030',
@@ -1074,7 +1089,7 @@ describe('parseTx', () => {
           },
           {
             type: TransferType.Receive,
-            from: '0xDd80E21669A664Bce83E3AD9a0d74f8Dad5D9E72',
+            from: UNI_V2_FOX_STAKING_REWARDS_V3,
             to: address,
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '317669338073988',

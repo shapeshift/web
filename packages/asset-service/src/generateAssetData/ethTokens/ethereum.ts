@@ -10,6 +10,7 @@ import { generateTrustWalletUrl } from '../../service/TrustWalletService'
 import { ethereum } from '../baseAssets'
 import { getFoxyToken } from './foxy'
 import { getUniswapTokens } from './uniswap'
+import { getUniswapV2Pools } from './uniswapV2Pools'
 import {
   getIronBankTokens,
   getUnderlyingVaultTokens,
@@ -19,22 +20,31 @@ import {
 
 export const addTokensToEth = async (): Promise<BaseAsset> => {
   const baseAsset = ethereum
-  const [ethTokens, yearnVaults, ironBankTokens, zapperTokens, underlyingTokens, foxyToken] =
-    await Promise.all([
-      getUniswapTokens(),
-      getYearnVaults(),
-      getIronBankTokens(),
-      getZapperTokens(),
-      getUnderlyingVaultTokens(),
-      getFoxyToken()
-    ])
+  const [
+    ethTokens,
+    yearnVaults,
+    ironBankTokens,
+    zapperTokens,
+    underlyingTokens,
+    foxyToken,
+    uniV2Token
+  ] = await Promise.all([
+    getUniswapTokens(),
+    getYearnVaults(),
+    getIronBankTokens(),
+    getZapperTokens(),
+    getUnderlyingVaultTokens(),
+    getFoxyToken(),
+    getUniswapV2Pools()
+  ])
   const tokens = [
     ...ethTokens,
     ...yearnVaults,
     ...ironBankTokens,
     ...zapperTokens,
     ...underlyingTokens,
-    ...foxyToken
+    ...foxyToken,
+    ...uniV2Token
   ]
   const uniqueTokens = orderBy(uniqBy(tokens, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy

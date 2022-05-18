@@ -1,19 +1,18 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { Story } from '@storybook/react'
-import { ReactNode } from 'react'
+import { ComponentMeta, ComponentStory } from '@storybook/react'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 
-import { StepRow, StepRowProps } from './components/StepRow'
+import { StepRow } from './components/StepRow'
 
 export default {
   title: 'Layout/StepRow',
   component: StepRow,
   controls: { expanded: true },
-}
+} as ComponentMeta<typeof StepRow>
 
 const ExampleRows = () => {
   return (
@@ -33,10 +32,10 @@ const ExampleRows = () => {
     </>
   )
 }
-type ExampleRowProps = StepRowProps & { children: ReactNode }
-const ExampleRow: Story<ExampleRowProps> = args => <StepRow {...args} />
 
-export const Default = (props: ExampleRowProps) => <ExampleRow {...props} />
+const Template: ComponentStory<typeof StepRow> = args => <StepRow {...args} />
+
+export const Default = Template.bind({})
 Default.args = {
   stepNumber: '1',
   label: 'Approval',
@@ -44,7 +43,7 @@ Default.args = {
   children: <ExampleRows />,
   isActive: true,
 }
-export const Loading = (props: ExampleRowProps) => <ExampleRow {...props} />
+export const Loading = Template.bind({})
 Loading.args = {
   stepNumber: '1',
   label: 'Approval',
@@ -52,7 +51,7 @@ Loading.args = {
   children: <ExampleRows />,
   isLoading: true,
 }
-export const Complete = (props: ExampleRowProps) => <ExampleRow {...props} />
+export const Complete = Template.bind({})
 Complete.args = {
   stepNumber: '1',
   label: 'Approval',

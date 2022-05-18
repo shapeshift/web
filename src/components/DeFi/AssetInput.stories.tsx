@@ -2,8 +2,7 @@
 /* eslint-disable import/no-default-export */
 
 import { Container } from '@chakra-ui/react'
-import { Story } from '@storybook/react'
-import { ReactNode } from 'react'
+import { ComponentMeta, ComponentStory } from '@storybook/react'
 
 import { AllocationTable } from './components/AllocationTable'
 import { AssetInput, AssetInputProps } from './components/AssetInput'
@@ -18,15 +17,18 @@ export default {
       </Container>
     ),
   ],
-}
+} as ComponentMeta<typeof AssetInput>
 
-export const Basic: Story<AssetInputProps> = args => <AssetInput {...args} />
+const Template: ComponentStory<typeof AssetInput> = (args: AssetInputProps) => (
+  <AssetInput {...args} />
+)
+
+export const Basic = Template.bind({})
 Basic.args = {
   assetIcon: 'https://assets.coincap.io/assets/icons/256/fox.png',
   assetName: 'FOX',
   balance: '1000',
   fiatAmount: '0',
-  onClick: undefined,
 }
 
 const testData = [
@@ -41,11 +43,16 @@ const testData = [
     icon: 'https://assets.coincap.io/assets/icons/256/usdc.png',
   },
 ]
-export const WithChildren: Story<AssetInputProps & { children: ReactNode }> = args => (
-  <AssetInput {...args} />
-)
+export const WithChildren = Template.bind({})
 WithChildren.args = {
   ...Basic.args,
   children: <AllocationTable label='Allocation Table' items={testData} />,
   fiatAmount: '0',
+}
+export const ReadOnly = Template.bind({})
+ReadOnly.args = {
+  ...Basic.args,
+  balance: undefined,
+  isReadOnly: true,
+  onClick: undefined,
 }

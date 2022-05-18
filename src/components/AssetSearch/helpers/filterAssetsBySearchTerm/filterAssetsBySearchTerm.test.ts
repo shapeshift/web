@@ -1,4 +1,3 @@
-import { AssetNamespace } from '@shapeshiftoss/caip'
 import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
@@ -51,7 +50,7 @@ const assets: Asset[] = [
     name: 'Aave AMM DAI',
     precision: 18,
     tokenId: '0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',
-    contractType: AssetNamespace.ERC20,
+    contractType: 'erc20',
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/17197/thumb/aAMMDAI_2x.png?1626940032',
@@ -72,7 +71,7 @@ const assets: Asset[] = [
     name: 'Dai',
     precision: 18,
     tokenId: '0x6b175474e89094c44da98b954eedeac495271d0f',
-    contractType: AssetNamespace.ERC20,
+    contractType: 'erc20',
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/9956/thumb/dai-multi-collateral-mcd.png?1574218774',

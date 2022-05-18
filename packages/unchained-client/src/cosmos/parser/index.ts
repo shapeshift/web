@@ -1,11 +1,4 @@
-import {
-  AssetId,
-  AssetNamespace,
-  AssetReference,
-  ChainId,
-  fromChainId,
-  toAssetId
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
 import { Status, TransferType } from '../../types'
@@ -26,8 +19,8 @@ export class TransactionParser {
 
     this.assetId = toAssetId({
       ...fromChainId(this.chainId),
-      assetNamespace: AssetNamespace.Slip44,
-      assetReference: AssetReference.Cosmos
+      assetNamespace: 'slip44',
+      assetReference: ASSET_REFERENCE.Cosmos
     })
   }
 

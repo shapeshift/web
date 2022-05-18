@@ -11,22 +11,26 @@ import {
 
 export type AssetId = string
 
-export enum AssetNamespace {
-  CW20 = 'cw20',
-  CW721 = 'cw721',
-  ERC20 = 'erc20',
-  ERC721 = 'erc721',
-  Slip44 = 'slip44',
-  NATIVE = 'native',
-  IBC = 'ibc'
-}
+const assetNamespaceStrings = [
+  'cw20',
+  'cw721',
+  'erc20',
+  'erc721',
+  'slip44',
+  'native',
+  'ibc'
+] as const
 
-export enum AssetReference {
-  Bitcoin = '0',
-  Ethereum = '60',
-  Cosmos = '118',
-  Osmosis = '118'
-}
+export type AssetNamespace = typeof assetNamespaceStrings[number]
+
+export const ASSET_REFERENCE = {
+  Bitcoin: '0',
+  Ethereum: '60',
+  Cosmos: '118',
+  Osmosis: '118'
+} as const
+
+export type AssetReference = typeof ASSET_REFERENCE[keyof typeof ASSET_REFERENCE]
 
 type ToAssetIdArgs = {
   chain: ChainTypes
@@ -35,30 +39,21 @@ type ToAssetIdArgs = {
   assetReference: AssetReference | string
 }
 
-const validAssetNamespaces = Object.freeze({
-  [ChainTypes.Bitcoin]: [AssetNamespace.Slip44],
-  [ChainTypes.Ethereum]: [AssetNamespace.Slip44, AssetNamespace.ERC20, AssetNamespace.ERC721],
-  [ChainTypes.Cosmos]: [
-    AssetNamespace.CW20,
-    AssetNamespace.CW721,
-    AssetNamespace.IBC,
-    AssetNamespace.NATIVE,
-    AssetNamespace.Slip44
-  ],
-  [ChainTypes.Osmosis]: [
-    AssetNamespace.CW20,
-    AssetNamespace.CW721,
-    AssetNamespace.IBC,
-    AssetNamespace.NATIVE,
-    AssetNamespace.Slip44
-  ]
+type ValidNamespace = {
+  [k in ChainTypes]: AssetNamespace[]
+}
+
+const validAssetNamespaces: ValidNamespace = Object.freeze({
+  [ChainTypes.Bitcoin]: ['slip44'],
+  [ChainTypes.Ethereum]: ['slip44', 'erc20', 'erc721'],
+  [ChainTypes.Cosmos]: ['cw20', 'cw721', 'ibc', 'native', 'slip44'],
+  [ChainTypes.Osmosis]: ['cw20', 'cw721', 'ibc', 'native', 'slip44']
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function stringToEnum<T>(obj: any, item: string): T | undefined {
-  const found = Object.entries(obj).find((i) => i.includes(item))?.[0]
-  return found ? obj[found as keyof T] : undefined
-}
+const isAssetNamespace = (
+  maybeAssetNamespace: AssetNamespace | string
+): maybeAssetNamespace is AssetNamespace =>
+  assetNamespaceStrings.some((s) => s === maybeAssetNamespace)
 
 /**
  * validate that a value is a string slip44 value
@@ -87,11 +82,11 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): string => {
     throw new Error(`toAssetId: Asset Namespace ${assetNamespace} not supported for chain ${chain}`)
   }
 
-  if (assetNamespace === AssetNamespace.Slip44 && !isValidSlip44(String(assetReference))) {
+  if (assetNamespace === 'slip44' && !isValidSlip44(String(assetReference))) {
     throw new Error(`Invalid reference for namespace slip44`)
   }
 
-  if ([AssetNamespace.ERC20, AssetNamespace.ERC721].includes(assetNamespace)) {
+  if (Array<AssetNamespace>('erc20', 'erc721').includes(assetNamespace)) {
     if (!assetReference.startsWith('0x')) {
       throw new Error(`toAssetId: assetReference must start with 0x: ${assetReference}`)
     }
@@ -126,7 +121,7 @@ export const fromAssetId: FromAssetId = (assetId) => {
   // they are valid enum values
   let chain: ChainTypes = chainNamespaceToChainType[matches[1] as ChainNamespace]
   const network = chainReferenceToNetworkType[matches[2] as ChainReference]
-  const assetNamespace = stringToEnum<AssetNamespace>(AssetNamespace, matches[3])
+  const assetNamespace = isAssetNamespace(matches[3]) ? matches[3] : undefined
   let assetReference = matches[4]
 
   if (chain && network && assetNamespace && assetReference) {
@@ -137,8 +132,8 @@ export const fromAssetId: FromAssetId = (assetId) => {
     }
 
     switch (assetNamespace) {
-      case AssetNamespace.ERC20:
-      case AssetNamespace.ERC721: {
+      case 'erc20':
+      case 'erc721': {
         assetReference = assetReference.toLowerCase()
       }
     }

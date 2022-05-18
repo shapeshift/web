@@ -64,8 +64,8 @@ Ether
 ```ts
 const chain = ChainTypes.Ethereum
 const network = NetworkTypes.MAINNET
-const assetNamespace = AssetNamespace.Slip44
-const assetReference = AssetReference.Ethereum
+const assetNamespace = 'slip44'
+const assetReference = ASSET_REFERENCE.Ethereum
 const result = toAssetId({ chain, network, assetNamespace, assetReference })
 expect(result).toEqual('eip155:1/slip44:60')
 ```
@@ -75,7 +75,7 @@ ERC20 token
 ```ts
 const chain = ChainTypes.Ethereum
 const network = NetworkTypes.MAINNET
-const contractType = AssetNamespace.ERC20
+const contractType = 'erc20'
 const tokenId = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const result = toAssetId({ chain, network, contractType, tokenId })
 expect(result).toEqual('eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
@@ -90,8 +90,8 @@ const assetId = 'eip155:1/slip44:60'
 const { chain, network, contractType, tokenId } = fromAssetId(assetId)
 expect(chain).toEqual(ChainTypes.Ethereum)
 expect(network).toEqual(NetworkTypes.MAINNET)
-expect(contractType).toEqual(AssetNamespace.Slip44)
-expect(tokenId).toEqual(AssetReference.Ethereum)
+expect(contractType).toEqual('slip44')
+expect(tokenId).toEqual(ASSET_REFERENCE.Ethereum)
 ```
 
 ERC20 token
@@ -101,7 +101,7 @@ const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const { chain, network, contractType, tokenId } = fromAssetId(assetId)
 expect(chain).toEqual(ChainTypes.Ethereum)
 expect(network).toEqual(NetworkTypes.MAINNET)
-expect(contractType).toEqual(AssetNamespace.ERC20)
+expect(contractType).toEqual('erc20')
 expect(tokenId).toEqual('0xc770eefad204b5180df6a14ee197d99d808ee52d')
 ```
 

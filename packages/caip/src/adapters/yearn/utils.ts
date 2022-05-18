@@ -5,7 +5,7 @@ import fs from 'fs'
 import toLower from 'lodash/toLower'
 import uniqBy from 'lodash/uniqBy'
 
-import { AssetNamespace, toAssetId } from '../../assetId/assetId'
+import { toAssetId } from '../../assetId/assetId'
 import { toChainId } from '../../chainId/chainId'
 
 const network = 1 // 1 for mainnet
@@ -34,7 +34,7 @@ export const fetchData = async () => {
 
 export const parseEthData = (data: (Token | Vault)[]) => {
   const chain = ChainTypes.Ethereum
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
 
   return data.reduce((acc, datum) => {
     const { address } = datum

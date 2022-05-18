@@ -1,4 +1,4 @@
-import { ChainId, ChainNamespace, isChainId } from '../chainId/chainId'
+import { CHAIN_NAMESPACE, ChainId, isChainId } from '../chainId/chainId'
 
 export type AccountId = string
 
@@ -23,7 +23,7 @@ export const toAccountId: ToAccountId = ({ chainId, account }) => {
   // we lowercase eth accounts as per the draft spec
   // it's not explicit, but cHecKsUM can be recovered from lowercase eth accounts
   // we don't lowercase bitcoin addresses as they'll fail checksum
-  const outputAccount = namespace === ChainNamespace.Ethereum ? account.toLowerCase() : account
+  const outputAccount = namespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
 
   return `${chainId}:${outputAccount}`
 }
@@ -57,7 +57,7 @@ export const fromAccountId: FromAccountId = (accountId) => {
   // we lowercase eth accounts as per the draft spec
   // it's not explicit, but cHecKsUM can be recovered from lowercase eth accounts
   // we don't lowercase bitcoin addresses as they'll fail checksum
-  const outputAccount = namespace === ChainNamespace.Ethereum ? account.toLowerCase() : account
+  const outputAccount = namespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
 
   return { chainId, account: outputAccount }
 }

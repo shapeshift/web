@@ -2,7 +2,7 @@ import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
 import fs from 'fs'
 
-import { AssetNamespace, AssetReference, toAssetId } from '../../assetId/assetId'
+import { ASSET_REFERENCE, AssetNamespace, toAssetId } from '../../assetId/assetId'
 import { toChainId } from '../../chainId/chainId'
 
 export type OsmosisCoin = {
@@ -34,16 +34,15 @@ export const parseOsmosisData = (data: OsmosisCoin[]) => {
     const isNativeAsset = !denom.split('/')[1]
     const isOsmo = denom === 'uosmo'
 
-    let assetNamespace
+    let assetNamespace: AssetNamespace
     let assetReference
 
     if (isNativeAsset) {
-      // TODO(ryankk): remove `toString` when AssetReferences are changed to strings
-      assetReference = isOsmo ? AssetReference.Osmosis.toString() : denom
-      assetNamespace = isOsmo ? AssetNamespace.Slip44 : AssetNamespace.NATIVE
+      assetReference = isOsmo ? ASSET_REFERENCE.Osmosis : denom
+      assetNamespace = isOsmo ? 'slip44' : 'native'
     } else {
       assetReference = denom.split('/')[1]
-      assetNamespace = AssetNamespace.IBC
+      assetNamespace = 'ibc'
     }
 
     const chain = ChainTypes.Osmosis

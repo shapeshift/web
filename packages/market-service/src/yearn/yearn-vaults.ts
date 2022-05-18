@@ -1,4 +1,4 @@
-import { adapters, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
+import { adapters, toAssetId } from '@shapeshiftoss/caip'
 import {
   ChainTypes,
   FindAllMarketArgs,
@@ -57,7 +57,7 @@ export class YearnVaultMarketCapService implements MarketService {
           const assetId = toAssetId({
             chain: ChainTypes.Ethereum,
             network: NetworkTypes.MAINNET,
-            assetNamespace: AssetNamespace.ERC20,
+            assetNamespace: 'erc20',
             assetReference: yearnItem.address
           })
           // if amountUsdc of a yearn asset is 0, the asset has not price or value

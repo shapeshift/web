@@ -5,26 +5,30 @@ import invert from 'lodash/invert'
 
 export type ChainId = string
 
-export enum ChainNamespace {
-  Ethereum = 'eip155',
-  Bitcoin = 'bip122',
-  Cosmos = 'cosmos'
-}
+export const CHAIN_NAMESPACE = {
+  Ethereum: 'eip155',
+  Bitcoin: 'bip122',
+  Cosmos: 'cosmos'
+} as const
 
-export enum ChainReference {
-  EthereumMainnet = '1',
-  EthereumRopsten = '3',
-  EthereumRinkeby = '4',
-  // EthereumKovan = '42', // currently unsupported by ShapeShift
+export type ChainNamespace = typeof CHAIN_NAMESPACE[keyof typeof CHAIN_NAMESPACE]
+
+export const CHAIN_REFERENCE = {
+  EthereumMainnet: '1',
+  EthereumRopsten: '3',
+  EthereumRinkeby: '4',
+  // EthereumKovan: '42', // currently unsupported by ShapeShift
   // https://github.com/bitcoin/bips/blob/master/bip-0122.mediawiki#definition-of-chain-id
   // chainId uses max length of 32 chars of the genesis block
-  BitcoinMainnet = '000000000019d6689c085ae165831e93',
-  BitcoinTestnet = '000000000933ea01ad0ee984209779ba',
-  CosmosHubMainnet = 'cosmoshub-4',
-  CosmosHubVega = 'vega-testnet',
-  OsmosisMainnet = 'osmosis-1',
-  OsmosisTestnet = 'osmo-testnet-1'
-}
+  BitcoinMainnet: '000000000019d6689c085ae165831e93',
+  BitcoinTestnet: '000000000933ea01ad0ee984209779ba',
+  CosmosHubMainnet: 'cosmoshub-4',
+  CosmosHubVega: 'vega-testnet',
+  OsmosisMainnet: 'osmosis-1',
+  OsmosisTestnet: 'osmo-testnet-1'
+} as const
+
+export type ChainReference = typeof CHAIN_REFERENCE[keyof typeof CHAIN_REFERENCE]
 
 type ToChainIdArgs = {
   chain: ChainTypes
@@ -33,32 +37,32 @@ type ToChainIdArgs = {
 
 const shapeShiftToChainId = Object.freeze({
   [ChainTypes.Ethereum]: {
-    namespace: ChainNamespace.Ethereum,
+    namespace: CHAIN_NAMESPACE.Ethereum,
     reference: {
-      [NetworkTypes.MAINNET]: ChainReference.EthereumMainnet,
-      [NetworkTypes.ETH_ROPSTEN]: ChainReference.EthereumRopsten,
-      [NetworkTypes.ETH_RINKEBY]: ChainReference.EthereumRinkeby
+      [NetworkTypes.MAINNET]: CHAIN_REFERENCE.EthereumMainnet,
+      [NetworkTypes.ETH_ROPSTEN]: CHAIN_REFERENCE.EthereumRopsten,
+      [NetworkTypes.ETH_RINKEBY]: CHAIN_REFERENCE.EthereumRinkeby
     }
   },
   [ChainTypes.Bitcoin]: {
-    namespace: ChainNamespace.Bitcoin,
+    namespace: CHAIN_NAMESPACE.Bitcoin,
     reference: {
-      [NetworkTypes.MAINNET]: ChainReference.BitcoinMainnet,
-      [NetworkTypes.TESTNET]: ChainReference.BitcoinTestnet
+      [NetworkTypes.MAINNET]: CHAIN_REFERENCE.BitcoinMainnet,
+      [NetworkTypes.TESTNET]: CHAIN_REFERENCE.BitcoinTestnet
     }
   },
   [ChainTypes.Cosmos]: {
-    namespace: ChainNamespace.Cosmos,
+    namespace: CHAIN_NAMESPACE.Cosmos,
     reference: {
-      [NetworkTypes.COSMOSHUB_MAINNET]: ChainReference.CosmosHubMainnet,
-      [NetworkTypes.COSMOSHUB_VEGA]: ChainReference.CosmosHubVega
+      [NetworkTypes.COSMOSHUB_MAINNET]: CHAIN_REFERENCE.CosmosHubMainnet,
+      [NetworkTypes.COSMOSHUB_VEGA]: CHAIN_REFERENCE.CosmosHubVega
     }
   },
   [ChainTypes.Osmosis]: {
-    namespace: ChainNamespace.Cosmos,
+    namespace: CHAIN_NAMESPACE.Cosmos,
     reference: {
-      [NetworkTypes.OSMOSIS_MAINNET]: ChainReference.OsmosisMainnet,
-      [NetworkTypes.OSMOSIS_TESTNET]: ChainReference.OsmosisTestnet
+      [NetworkTypes.OSMOSIS_MAINNET]: CHAIN_REFERENCE.OsmosisMainnet,
+      [NetworkTypes.OSMOSIS_TESTNET]: CHAIN_REFERENCE.OsmosisTestnet
     }
   }
 })
@@ -131,18 +135,18 @@ export const fromChainId: FromChainId = (chainId) => {
     throw new Error(`fromChainId: error parsing chainId, chain: ${c}, network: ${n}`)
   }
   switch (c) {
-    case ChainNamespace.Cosmos: {
+    case CHAIN_NAMESPACE.Cosmos: {
       switch (n) {
-        case ChainReference.CosmosHubMainnet: {
+        case CHAIN_REFERENCE.CosmosHubMainnet: {
           return { chain: ChainTypes.Cosmos, network: NetworkTypes.COSMOSHUB_MAINNET }
         }
-        case ChainReference.CosmosHubVega: {
+        case CHAIN_REFERENCE.CosmosHubVega: {
           return { chain: ChainTypes.Cosmos, network: NetworkTypes.COSMOSHUB_VEGA }
         }
-        case ChainReference.OsmosisMainnet: {
+        case CHAIN_REFERENCE.OsmosisMainnet: {
           return { chain: ChainTypes.Osmosis, network: NetworkTypes.OSMOSIS_MAINNET }
         }
-        case ChainReference.OsmosisTestnet: {
+        case CHAIN_REFERENCE.OsmosisTestnet: {
           return { chain: ChainTypes.Osmosis, network: NetworkTypes.OSMOSIS_TESTNET }
         }
         default: {
@@ -151,18 +155,18 @@ export const fromChainId: FromChainId = (chainId) => {
       }
     }
 
-    case ChainNamespace.Ethereum: {
+    case CHAIN_NAMESPACE.Ethereum: {
       const chain = ChainTypes.Ethereum
       switch (n) {
-        case ChainReference.EthereumMainnet: {
+        case CHAIN_REFERENCE.EthereumMainnet: {
           const network = NetworkTypes.MAINNET
           return { chain, network }
         }
-        case ChainReference.EthereumRopsten: {
+        case CHAIN_REFERENCE.EthereumRopsten: {
           const network = NetworkTypes.ETH_ROPSTEN
           return { chain, network }
         }
-        case ChainReference.EthereumRinkeby: {
+        case CHAIN_REFERENCE.EthereumRinkeby: {
           const network = NetworkTypes.ETH_RINKEBY
           return { chain, network }
         }
@@ -171,14 +175,14 @@ export const fromChainId: FromChainId = (chainId) => {
         }
       }
     }
-    case ChainNamespace.Bitcoin: {
+    case CHAIN_NAMESPACE.Bitcoin: {
       const chain = ChainTypes.Bitcoin
       switch (n) {
-        case ChainReference.BitcoinMainnet: {
+        case CHAIN_REFERENCE.BitcoinMainnet: {
           const network = NetworkTypes.MAINNET
           return { chain, network }
         }
-        case ChainReference.BitcoinTestnet: {
+        case CHAIN_REFERENCE.BitcoinTestnet: {
           const network = NetworkTypes.TESTNET
           return { chain, network }
         }
@@ -201,30 +205,30 @@ export const isChainId: IsChainId = (chainId) => {
   }
 
   switch (c) {
-    case ChainNamespace.Cosmos: {
+    case CHAIN_NAMESPACE.Cosmos: {
       switch (n) {
-        case ChainReference.CosmosHubMainnet:
-        case ChainReference.CosmosHubVega:
-        case ChainReference.OsmosisMainnet:
-        case ChainReference.OsmosisTestnet:
+        case CHAIN_REFERENCE.CosmosHubMainnet:
+        case CHAIN_REFERENCE.CosmosHubVega:
+        case CHAIN_REFERENCE.OsmosisMainnet:
+        case CHAIN_REFERENCE.OsmosisTestnet:
           return true
       }
       break
     }
 
-    case ChainNamespace.Ethereum: {
+    case CHAIN_NAMESPACE.Ethereum: {
       switch (n) {
-        case ChainReference.EthereumMainnet:
-        case ChainReference.EthereumRopsten:
-        case ChainReference.EthereumRinkeby:
+        case CHAIN_REFERENCE.EthereumMainnet:
+        case CHAIN_REFERENCE.EthereumRopsten:
+        case CHAIN_REFERENCE.EthereumRinkeby:
           return true
       }
       break
     }
-    case ChainNamespace.Bitcoin: {
+    case CHAIN_NAMESPACE.Bitcoin: {
       switch (n) {
-        case ChainReference.BitcoinMainnet:
-        case ChainReference.BitcoinTestnet:
+        case CHAIN_REFERENCE.BitcoinMainnet:
+        case CHAIN_REFERENCE.BitcoinTestnet:
           return true
       }
       break
@@ -235,15 +239,15 @@ export const isChainId: IsChainId = (chainId) => {
 }
 
 export const chainReferenceToNetworkType: Record<ChainReference, NetworkTypes> = Object.freeze({
-  [ChainReference.BitcoinMainnet]: NetworkTypes.MAINNET,
-  [ChainReference.BitcoinTestnet]: NetworkTypes.TESTNET,
-  [ChainReference.EthereumMainnet]: NetworkTypes.MAINNET,
-  [ChainReference.EthereumRopsten]: NetworkTypes.ETH_ROPSTEN,
-  [ChainReference.EthereumRinkeby]: NetworkTypes.ETH_RINKEBY,
-  [ChainReference.CosmosHubMainnet]: NetworkTypes.COSMOSHUB_MAINNET,
-  [ChainReference.CosmosHubVega]: NetworkTypes.COSMOSHUB_VEGA,
-  [ChainReference.OsmosisMainnet]: NetworkTypes.OSMOSIS_MAINNET,
-  [ChainReference.OsmosisTestnet]: NetworkTypes.OSMOSIS_TESTNET
+  [CHAIN_REFERENCE.BitcoinMainnet]: NetworkTypes.MAINNET,
+  [CHAIN_REFERENCE.BitcoinTestnet]: NetworkTypes.TESTNET,
+  [CHAIN_REFERENCE.EthereumMainnet]: NetworkTypes.MAINNET,
+  [CHAIN_REFERENCE.EthereumRopsten]: NetworkTypes.ETH_ROPSTEN,
+  [CHAIN_REFERENCE.EthereumRinkeby]: NetworkTypes.ETH_RINKEBY,
+  [CHAIN_REFERENCE.CosmosHubMainnet]: NetworkTypes.COSMOSHUB_MAINNET,
+  [CHAIN_REFERENCE.CosmosHubVega]: NetworkTypes.COSMOSHUB_VEGA,
+  [CHAIN_REFERENCE.OsmosisMainnet]: NetworkTypes.OSMOSIS_MAINNET,
+  [CHAIN_REFERENCE.OsmosisTestnet]: NetworkTypes.OSMOSIS_TESTNET
 })
 
 export const networkTypeToChainReference = invert(chainReferenceToNetworkType) as Record<
@@ -252,9 +256,9 @@ export const networkTypeToChainReference = invert(chainReferenceToNetworkType) a
 >
 
 export const chainNamespaceToChainType: Record<ChainNamespace, ChainTypes> = Object.freeze({
-  [ChainNamespace.Bitcoin]: ChainTypes.Bitcoin,
-  [ChainNamespace.Ethereum]: ChainTypes.Ethereum,
-  [ChainNamespace.Cosmos]: ChainTypes.Cosmos
+  [CHAIN_NAMESPACE.Bitcoin]: ChainTypes.Bitcoin,
+  [CHAIN_NAMESPACE.Ethereum]: ChainTypes.Ethereum,
+  [CHAIN_NAMESPACE.Cosmos]: ChainTypes.Cosmos
 })
 
 export const toCAIP2 = toChainId

@@ -1,12 +1,5 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-import {
-  AssetId,
-  AssetNamespace,
-  AssetReference,
-  ChainId,
-  fromChainId,
-  toAssetId
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
 import { Status, TransferType, Tx as ParsedTx } from '../../types'
@@ -26,8 +19,8 @@ export class TransactionParser {
 
     this.assetId = toAssetId({
       ...fromChainId(this.chainId),
-      assetNamespace: AssetNamespace.Slip44,
-      assetReference: AssetReference.Bitcoin
+      assetNamespace: 'slip44',
+      assetReference: ASSET_REFERENCE.Bitcoin
     })
   }
 

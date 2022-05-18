@@ -1,7 +1,7 @@
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import toLower from 'lodash/toLower'
 
-import { AssetNamespace, toAssetId } from '../../assetId/assetId'
+import { toAssetId } from '../../assetId/assetId'
 import { assetIdToYearn, yearnToAssetId } from '.'
 
 describe('adapters:yearn', () => {
@@ -9,7 +9,7 @@ describe('adapters:yearn', () => {
     it('can get AssetId id for yvUSDC 0.3.0', () => {
       const chain = ChainTypes.Ethereum
       const network = NetworkTypes.MAINNET
-      const assetNamespace = AssetNamespace.ERC20
+      const assetNamespace = 'erc20'
       const checksumAddress = '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9'
       const assetId = toAssetId({
         chain,
@@ -24,7 +24,7 @@ describe('adapters:yearn', () => {
     it('can get coincap id for yvUSDC 0.3.0', () => {
       const chain = ChainTypes.Ethereum
       const network = NetworkTypes.MAINNET
-      const assetNamespace = AssetNamespace.ERC20
+      const assetNamespace = 'erc20'
       const checksumAddress = '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9'
       const assetId = toAssetId({
         chain,

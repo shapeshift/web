@@ -1,4 +1,3 @@
-import { AssetNamespace } from '@shapeshiftoss/caip'
 import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
 
@@ -173,7 +172,7 @@ describe('AssetService', () => {
         name: 'Test Token',
         precision: 18,
         tokenId: '0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
-        contractType: AssetNamespace.ERC20,
+        contractType: 'erc20',
         color: '#FFFFFF',
         dataSource: AssetDataSource.CoinGecko,
         secondaryColor: '#FFFFFF',

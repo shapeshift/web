@@ -1,5 +1,5 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-import { AssetNamespace, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { TransferType, TxParser } from '../../types'
@@ -62,7 +62,7 @@ export class Parser implements SubParser {
 
     const assetId = toAssetId({
       ...fromChainId(this.chainId),
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: this.wethContract
     })
 

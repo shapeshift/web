@@ -1,8 +1,6 @@
 {
-  "plugins": {
-    "foxPage": {
-      "totalFoxValue": "Total Fox Value",
-      "foxToken": "ShapeShift %{assetSymbol} Token"
-    }
+  "foxPage": {
+    "totalFoxValue": "Total Fox Value",
+    "foxToken": "ShapeShift %{assetSymbol} Token"
   }
 }

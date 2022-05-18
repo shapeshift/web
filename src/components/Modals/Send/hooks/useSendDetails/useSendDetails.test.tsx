@@ -18,7 +18,6 @@ import {
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 
-import { SendFormFields } from '../../SendCommon'
 import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service', () => ({
@@ -209,7 +208,7 @@ describe('useSendDetails', () => {
 
       result.current.handleInputChange('0')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
-      expect(setValue).toHaveBeenCalledWith(SendFormFields.AmountFieldError, '')
+      expect(setValue).toHaveBeenCalledWith('fiatAmount', '0')
       setValue.mockClear()
     })
     jest.useRealTimers()

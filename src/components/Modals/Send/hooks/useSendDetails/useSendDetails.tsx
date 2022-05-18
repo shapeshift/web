@@ -379,7 +379,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         }
       } catch (e) {
         setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-        // setLoading(false)
         throw e
       } finally {
         const values = getValues()

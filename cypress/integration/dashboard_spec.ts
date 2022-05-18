@@ -53,7 +53,7 @@ describe('The Dashboard', () => {
     // the text "Loading..." (displays a spinner)
     cy.waitForAllGetRequests()
 
-    cy.getBySel('token-row-sell-max-button').should('be.disabled')
+    cy.getBySel('token-row-sell-max-button').click()
     cy.waitForAllGetRequests()
     // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
     // This test has become flaky and is adding friction to CI - temporarily disabled.

@@ -1,3 +1,25 @@
+# [@shapeshiftoss/chain-adapters-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v3.0.4...@shapeshiftoss/chain-adapters-v4.0.0) (2022-05-18)
+
+
+### Performance Improvements
+
+* replace enums with dynamically derived object literals ([#656](https://github.com/shapeshift/lib/issues/656)) ([6d2d821](https://github.com/shapeshift/lib/commit/6d2d821318da9db4afec97b1247cf006a5fc42d2))
+
+
+### BREAKING CHANGES
+
+* the enum removal will need to be handled by consumers to use the new constants.
+
+* chore: remove toString() and associated comment
+
+* chore: remove string litirals
+
+* chore: optimise imports
+
+* chore: use string union for AssetNamespace
+
+* chore: update README
+
 # [@shapeshiftoss/chain-adapters-v3.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v3.0.3...@shapeshiftoss/chain-adapters-v3.0.4) (2022-05-17)
 
 # [@shapeshiftoss/chain-adapters-v3.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v3.0.2...@shapeshiftoss/chain-adapters-v3.0.3) (2022-05-17)

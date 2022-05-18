@@ -23,6 +23,7 @@ export enum ContractMethod {
   Unstake = 'unstake',
   InstantUnstake = 'instantUnstake',
   ClaimWithdraw = 'claimWithdraw',
+  Exit = 'exit',
 }
 
 export enum Direction {
@@ -61,7 +62,7 @@ export const getTransferByType = (tx: Tx, txType: chainAdapters.TxType) =>
 export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Receive)
 export const getSellTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Send)
 export const getTransferByAsset = (tx: Tx, asset: Asset) =>
-  tx.transfers.find(t => t.caip19 === asset.assetId)
+  tx.transfers.find(t => t.assetId === asset.assetId)
 
 export const isSupportedContract = (tx: Tx) =>
   Object.values(ContractMethod).includes(tx.data?.method as ContractMethod)
@@ -104,6 +105,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       case ContractMethod.Unstake:
       case ContractMethod.InstantUnstake:
       case ContractMethod.ClaimWithdraw:
+      case ContractMethod.Exit:
         return Direction.Inbound
       case ContractMethod.Approve:
         return Direction.InPlace
@@ -113,22 +115,22 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   })()
 
   const standardAsset = useAppSelector((state: ReduxState) =>
-    selectAssetById(state, standardTx?.caip19 ?? ''),
+    selectAssetById(state, standardTx?.assetId ?? ''),
   )
 
   // stables need precision of eth (18) rather than 10
-  const defaultFeeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.caip2))
-  const feeAsset = useAppSelector(state => selectAssetById(state, tx.fee?.caip19 ?? ''))
-  const buyAsset = useAppSelector(state => selectAssetById(state, buyTransfer?.caip19 ?? ''))
-  const sellAsset = useAppSelector(state => selectAssetById(state, sellTransfer?.caip19 ?? ''))
+  const defaultFeeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, tx.fee?.assetId ?? ''))
+  const buyAsset = useAppSelector(state => selectAssetById(state, buyTransfer?.assetId ?? ''))
+  const sellAsset = useAppSelector(state => selectAssetById(state, sellTransfer?.assetId ?? ''))
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
   const sourceMarketData = useAppSelector(state =>
-    selectMarketDataById(state, sellTransfer?.caip19 ?? ''),
+    selectMarketDataById(state, sellTransfer?.assetId ?? ''),
   )
   const destinationMarketData = useAppSelector(state =>
-    selectMarketDataById(state, buyTransfer?.caip19 ?? ''),
+    selectMarketDataById(state, buyTransfer?.assetId ?? ''),
   )
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, tx.fee?.caip19 ?? ''))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, tx.fee?.assetId ?? ''))
 
   const value = standardTx?.value ?? tradeTx?.value ?? undefined
   const to = standardTx?.to ?? tradeTx?.to ?? ''

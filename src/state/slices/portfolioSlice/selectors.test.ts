@@ -1,4 +1,4 @@
-import { btcCaip2, btcCaip19, ethCaip2, ethCaip19 } from 'test/mocks/accounts'
+import { btcAssetId, btcChainId, ethAssetId, ethChainId } from 'test/mocks/accounts'
 import { mockStore } from 'test/mocks/store'
 import { ReduxState } from 'state/reducer'
 
@@ -34,15 +34,15 @@ describe('selectIsPortfolioLoaded', () => {
     const thisMockStore: ReduxState = {
       ...mockStore,
       accountSpecifiers: {
-        accountSpecifiers: [{ [ethCaip2]: 'foo' }, { [btcCaip2]: 'bar' }],
+        accountSpecifiers: [{ [ethChainId]: 'foo' }, { [btcChainId]: 'bar' }],
       },
       portfolio: {
         ...mockStore.portfolio,
         assetBalances: {
           byId: {
-            [ethCaip19]: '',
+            [ethAssetId]: '',
           },
-          ids: [ethCaip19],
+          ids: [ethAssetId],
         },
       },
     }
@@ -54,16 +54,16 @@ describe('selectIsPortfolioLoaded', () => {
     const thisMockStore: ReduxState = {
       ...mockStore,
       accountSpecifiers: {
-        accountSpecifiers: [{ [ethCaip2]: 'foo' }, { [btcCaip2]: 'bar' }],
+        accountSpecifiers: [{ [ethChainId]: 'foo' }, { [btcChainId]: 'bar' }],
       },
       portfolio: {
         ...mockStore.portfolio,
         assetBalances: {
           byId: {
-            [ethCaip19]: '',
-            [btcCaip19]: '',
+            [ethAssetId]: '',
+            [btcAssetId]: '',
           },
-          ids: [ethCaip19, btcCaip19],
+          ids: [ethAssetId, btcAssetId],
         },
       },
     }

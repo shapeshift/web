@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -9,16 +9,14 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { DepositPath } from '../DepositCommon'
-import { FoxyDepositActionType } from '../DepositCommon'
+import { DepositPath, FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type FoxyDepositProps = {
@@ -30,17 +28,15 @@ type FoxyDepositProps = {
 export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId } = query
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
-  const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetNamespace = 'erc20'
+  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))

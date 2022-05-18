@@ -98,6 +98,8 @@
     "gem": "GEM",
     "gemMessage": "Buy or Sell Crypto with Gem",
     "onJuno": "OnJuno",
+    "banxa": "Banxa",
+    "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -108,7 +110,7 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -239,6 +241,7 @@
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
+    "earnCopy": "Click here to Earn %{apr}%+ APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -318,6 +321,8 @@
       },
       "uniV2": {
         "addLiquidityETH": "Add liquidity",
+        "stake": "Stake",
+        "exit": "Unstake",
         "removeLiquidityETH": "Remove liquidity"
       },
       "thor": {
@@ -963,5 +968,11 @@
     "to": "To",
     "for": "For",
     "transfers": "Transfers"
+  },
+  "plugins": {
+    "foxPage": {
+      "totalFoxValue": "Total Fox Value",
+      "foxToken": "ShapeShift %{assetSymbol} Token"
+    }
   }
 }

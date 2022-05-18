@@ -1,6 +1,5 @@
-import { AssetId, AssetNamespace, caip19 } from '@shapeshiftoss/caip'
-import { DefiType, FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { WithdrawInfo } from '@shapeshiftoss/investor-foxy/dist/api/foxy-types'
+import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -29,9 +28,9 @@ export type FoxyOpportunity = {
   expired?: boolean
   apy?: string
   balance: string
-  contractCaip19: AssetId
-  tokenCaip19: AssetId
-  rewardTokenCaip19: AssetId
+  contractAssetId: AssetId
+  tokenAssetId: AssetId
+  rewardTokenAssetId: AssetId
   pricePerShare: BigNumber
   withdrawInfo: WithdrawInfo
 }
@@ -54,39 +53,39 @@ async function getFoxyOpportunities(
   const acc: Record<string, FoxyOpportunity> = {}
   const opps = await api.getFoxyOpportunities()
   for (let index = 0; index < opps.length; index++) {
-    // TODO: caip indentifiers in vaults
+    // TODO: assetIds in vaults
     const opportunity = opps[index]
     const withdrawInfo = await api.getWithdrawInfo({
       contractAddress: opportunity.contractAddress,
       userAddress,
     })
-    const rewardTokenCaip19 = caip19.toCAIP19({
+    const rewardTokenAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: opportunity.rewardToken,
     })
-    const contractCaip19 = caip19.toCAIP19({
+    const contractAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: opportunity.contractAddress,
     })
-    const tokenCaip19 = caip19.toCAIP19({
+    const tokenAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: opportunity.stakingToken,
     })
-    const balance = balances[rewardTokenCaip19]
+    const balance = balances[rewardTokenAssetId]
 
     const pricePerShare = api.pricePerShare()
     acc[opportunity.contractAddress] = {
       ...opportunity,
       balance: bnOrZero(balance).toString(),
-      contractCaip19,
-      tokenCaip19,
-      rewardTokenCaip19,
+      contractAssetId,
+      tokenAssetId,
+      rewardTokenAssetId,
       pricePerShare: bnOrZero(pricePerShare),
       withdrawInfo,
     }
@@ -135,9 +134,9 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
   const makeFiatAmount = useCallback(
     (opportunity: FoxyOpportunity) => {
-      const asset = assets[opportunity.tokenCaip19]
+      const asset = assets[opportunity.tokenAssetId]
       const pricePerShare = bnOrZero(opportunity.pricePerShare).div(`1e+${asset?.precision}`)
-      const marketPrice = marketData[opportunity.tokenCaip19]?.price
+      const marketPrice = marketData[opportunity.tokenAssetId]?.price
       return bnOrZero(opportunity.balance)
         .div(`1e+${asset?.precision}`)
         .times(pricePerShare)
@@ -157,9 +156,9 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
   const mergedOpportunities = useMemo(() => {
     return Object.values(opportunities).map(opportunity => {
-      const asset = assets[opportunity.tokenCaip19]
+      const asset = assets[opportunity.tokenAssetId]
       const fiatAmount = makeFiatAmount(opportunity)
-      const marketPrice = marketData[opportunity.tokenCaip19]?.price
+      const marketPrice = marketData[opportunity.tokenAssetId]?.price
       const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
       const data = {
         ...opportunity,

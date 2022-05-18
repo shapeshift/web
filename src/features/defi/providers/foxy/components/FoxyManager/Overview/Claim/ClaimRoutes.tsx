@@ -1,4 +1,4 @@
-import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
@@ -29,8 +29,8 @@ export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, tokenId, chain } = query
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
-  const stakingAssetCAIP19 = caip19.toCAIP19({
+  const assetNamespace = 'erc20'
+  const stakingAssetId = toAssetId({
     chain,
     network,
     assetNamespace,
@@ -47,7 +47,7 @@ export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm
-              assetId={stakingAssetCAIP19}
+              assetId={stakingAssetId}
               chain={chain}
               contractAddress={contractAddress}
               onBack={onBack}

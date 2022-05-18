@@ -1,5 +1,6 @@
-import { AssetNamespace, AssetReference, caip2, caip19 } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import {
+  bitcoin,
   convertXpubVersion,
   toRootDerivationPath,
   utxoAccountParams,
@@ -27,20 +28,21 @@ import {
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectAssets,
+  selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds,
   selectTxs,
 } from 'state/slices/selectors'
-import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
+import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
+import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
@@ -138,22 +140,25 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsETH(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
-              acc.push({ [CAIP2]: pubkey.toLowerCase() })
+              const chainId = toChainId({ chain, network: NetworkTypes.MAINNET })
+              acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
             case ChainTypes.Bitcoin: {
               if (!supportsBTC(wallet)) continue
-              const CAIP19 = caip19.toCAIP19({
+              const assetId = toAssetId({
                 chain,
                 network: NetworkTypes.MAINNET,
-                assetNamespace: AssetNamespace.Slip44,
-                assetReference: AssetReference.Bitcoin,
+                assetNamespace: 'slip44',
+                assetReference: ASSET_REFERENCE.Bitcoin,
               })
-              const bitcoin = assetsById[CAIP19]
+              const bitcoin = assetsById[assetId]
 
               if (!bitcoin) continue
-              for (const accountType of supportedAccountTypes.bitcoin) {
+              const supportedAccountTypes = (
+                adapter as bitcoin.ChainAdapter
+              ).getSupportedAccountTypes()
+              for (const accountType of supportedAccountTypes) {
                 const accountParams = utxoAccountParams(bitcoin, accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 const pubkeys = await wallet.getPublicKeys([
@@ -170,8 +175,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
                 if (!pubkey) continue
-                const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
-                acc.push({ [CAIP2]: pubkey })
+                const chainId = toChainId({ chain, network: NetworkTypes.MAINNET })
+                acc.push({ [chainId]: pubkey })
               }
               break
             }
@@ -179,16 +184,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsCosmos(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
-              acc.push({ [CAIP2]: pubkey })
+              const chainId = toChainId({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
+              acc.push({ [chainId]: pubkey })
               break
             }
             case ChainTypes.Osmosis: {
               if (!supportsOsmosis(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
-              acc.push({ [CAIP2]: pubkey })
+              const chainId = toChainId({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
+              acc.push({ [chainId]: pubkey })
               break
             }
             default:
@@ -227,24 +232,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     [accountSpecifiersList, dispatch],
   )
 
-  /**
-   * refetch an account given a newly confirmed txid
-   */
-  const refetchStakingDataByTxId = useCallback(
-    (txId: TxId) => {
-      // the accountSpecifier the tx came from
-      const { txAccountSpecifier } = deserializeUniqueTxId(txId)
-      if (!txAccountSpecifier.length) return
-
-      dispatch(
-        stakingDataApi.endpoints.getStakingData.initiate(
-          { accountSpecifier: txAccountSpecifier },
-          { forceRefetch: true },
-        ),
-      )
-    },
-    [dispatch],
-  )
+  const portfolioAccounts = useAppSelector(state => selectPortfolioAccounts(state))
 
   /**
    * monitor for new pending txs, add them to a set, so we can monitor when they're confirmed
@@ -261,10 +249,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // always wear protection, or don't it's your choice really
     if (!tx) return
 
-    if (tx.caip2 === cosmosChainId) {
-      // @TODO: Remove this once stakingData slice is refactored into account data
-      refetchStakingDataByTxId(txId)
-
+    if (tx.chainId === cosmosChainId) {
+      // This block refetches validator data on subsequent Txs in case TVL or APR changed.
+      const validators = portfolioAccounts[`${cosmosChainId}:${tx.address}`]?.validatorIds
+      validators?.forEach(validatorAddress => {
+        dispatch(
+          validatorDataApi.endpoints.getValidatorData.initiate({
+            validatorAddress,
+          }),
+        )
+      })
       // cosmos txs only come in when they're confirmed, so refetch that account immediately
       return refetchAccountByTxId(txId)
     } else {
@@ -313,7 +307,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchMarketData = () => {
       portfolioAssetIds.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByCaip19.initiate(assetId, { forceRefetch: true }))
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, { forceRefetch: true }))
       })
     }
 

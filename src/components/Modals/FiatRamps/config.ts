@@ -1,7 +1,10 @@
 import concat from 'lodash/concat'
+import banxalogo from 'assets/banxa.png'
 import gemlogo from 'assets/gem-mark.png'
 import onjunologo from 'assets/onjuno.png'
+import { btcAssetId } from 'state/slices/portfolioSlice/utils'
 
+import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -26,6 +29,7 @@ export interface SupportedFiatRampConfig {
 export enum FiatRamp {
   Gem = 'Gem',
   OnJuno = 'OnJuno',
+  Banxa = 'Banxa',
 }
 
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
@@ -48,6 +52,26 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
     isImplemented: true,
     minimumSellThreshold: 5,
+  },
+  [FiatRamp.Banxa]: {
+    label: 'fiatRamps.banxa',
+    info: 'fiatRamps.banxaMessage',
+    logo: banxalogo,
+    isImplemented: true,
+    minimumSellThreshold: 50,
+    getBuyAndSellList: async () => {
+      const buyAssets = getBanxaAssets()
+      /**
+       * https://discord.com/channels/554694662431178782/972197500305948803/973110904382169118
+       * banxa only supports btc sells for now
+       */
+      const sellAssets = buyAssets.filter(a => a.assetId === btcAssetId)
+      return [buyAssets, sellAssets]
+    },
+    onSubmit: (action: FiatRampAction, asset: string, address: string) => {
+      const banxaCheckoutUrl = createBanxaUrl(action, asset, address)
+      window.open(banxaCheckoutUrl, '_blank')?.focus()
+    },
   },
   [FiatRamp.OnJuno]: {
     label: 'fiatRamps.onJuno',

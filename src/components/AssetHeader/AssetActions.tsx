@@ -31,12 +31,12 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
 
   useEffect(() => {
     try {
-      chainAdapterManager.byChain(asset.chain)
+      chainAdapterManager.byChainId(asset.chainId)
       setIsValidChain(true)
     } catch (e) {
       setIsValidChain(false)
     }
-  }, [chainAdapterManager, asset.chain])
+  }, [chainAdapterManager, asset])
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

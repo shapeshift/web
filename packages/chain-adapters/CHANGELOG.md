@@ -1,3 +1,5 @@
+# [@shapeshiftoss/chain-adapters-v4.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.0.0...@shapeshiftoss/chain-adapters-v4.0.1) (2022-05-18)
+
 # [@shapeshiftoss/chain-adapters-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v3.0.4...@shapeshiftoss/chain-adapters-v4.0.0) (2022-05-18)
 
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.1.0...@shapeshiftoss/unchained-client-v8.2.0) (2022-05-18)
+
+
+### Features
+
+* osmosis adapter ([#664](https://github.com/shapeshift/lib/issues/664)) ([8bcdfd1](https://github.com/shapeshift/lib/commit/8bcdfd17a9902fb08239c4b4a2db3ae6b6e15183))
+
 # [@shapeshiftoss/unchained-client-v8.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.0.1...@shapeshiftoss/unchained-client-v8.1.0) (2022-05-18)
 
 

@@ -1,5 +1,5 @@
-import { Box } from '@chakra-ui/layout'
-import { SkeletonText, Tab, useColorModeValue } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/layout'
+import { SkeletonText, Tab, TabProps, useColorModeValue } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -10,7 +10,7 @@ type FoxTabProps = {
   fiatAmount: string
   cryptoAmount: string
   isSelected?: boolean
-}
+} & TabProps
 
 export const FoxTab = ({
   assetIcon,
@@ -18,34 +18,45 @@ export const FoxTab = ({
   fiatAmount,
   cryptoAmount,
   isSelected,
+  ...props
 }: FoxTabProps) => {
   const bgHover = useColorModeValue('gray.100', 'gray.750')
 
   return (
     <Tab
-      _selected={{ bg: bgHover, borderColor: 'primary', borderWidth: '2px' }}
+      _selected={{
+        bg: { base: 'none', md: bgHover },
+        borderColor: 'primary',
+        borderWidth: { base: 0, md: '2px' },
+      }}
       _focus={{ borderWidth: '0' }}
       borderRadius='xl'
       borderColor={bgHover}
-      borderWidth={'1px'}
+      borderWidth={{ base: 0, md: '1px' }}
       bg={'none'}
-      _hover={{ textDecoration: 'none', bg: bgHover }}
+      _hover={{ textDecoration: 'none', bg: { base: 'none', md: bgHover } }}
       textAlign='left'
       p={0}
       isSelected={isSelected}
+      {...props}
     >
       <Card display='block' bg='none' border='none' boxShadow='none' p={0} width='full'>
-        <Card.Body p={4}>
-          <Box mb={6}>
+        <Card.Body
+          p={4}
+          px={{ base: 6, md: 4 }}
+          display='flex'
+          flexDirection={{ base: 'row', md: 'column' }}
+        >
+          <Flex mb={{ base: 0, md: 6 }} mr={{ base: 2, md: 0 }} alignItems='center'>
             <AssetIcon src={assetIcon} boxSize='8' zIndex={2} />
-          </Box>
+          </Flex>
           <SkeletonText isLoaded={true} noOfLines={2}>
             <Amount.Crypto
               color='inherit'
               value={cryptoAmount}
               symbol={assetSymbol}
               lineHeight={'1.2'}
-              fontSize={'2xl'}
+              fontSize={{ base: 'lg', md: '2xl' }}
               fontWeight='semibold'
             />
             <Amount.Fiat color='gray.500' value={fiatAmount} lineHeight={'1.2'} />

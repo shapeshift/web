@@ -1,15 +1,43 @@
 import { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 
 import { FiatMarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
-import { FiatMarketDataArgs, FiatPriceHistoryArgs } from '../fiat-market-service-types'
+import {
+  FiatMarketDataArgs,
+  FiatPriceHistoryArgs,
+  SupportedFiatCurrencies
+} from '../fiat-market-service-types'
 import { bnOrZero } from '../utils/bignumber'
 import { rateLimitedAxios } from '../utils/rateLimiters'
 import { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
 
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 const baseCurrency = 'USD'
+
+export const makeExchangeRateRequestUrls = (
+  start: Dayjs,
+  end: Dayjs,
+  symbol: SupportedFiatCurrencies,
+  baseUrl: string
+): string[] => {
+  const daysBetween: number = end.diff(start, 'day')
+  /**
+   * https://exchangerate.host/#/#docs
+   * Timeseries endpoint are for daily historical rates between two dates of your choice, with a maximum time frame of 366 days.
+   */
+  const maxDaysPerRequest = 366
+  return Array(Math.ceil(daysBetween / maxDaysPerRequest))
+    .fill(null)
+    .map((_, i) => {
+      const urlStart = start.add(i * maxDaysPerRequest, 'day')
+      const maybeEnd = urlStart.add(maxDaysPerRequest - 1, 'day')
+      const urlEnd = maybeEnd.isAfter(end) ? end : maybeEnd
+      return `${baseUrl}/timeseries?base=${baseCurrency}&symbols=${symbol}&start_date=${urlStart.format(
+        'YYYY-MM-DD'
+      )}&end_date=${urlEnd.format('YYYY-MM-DD')}`
+    })
+}
 
 export class ExchangeRateHostService implements FiatMarketService {
   baseUrl = 'https://api.exchangerate.host'
@@ -54,28 +82,27 @@ export class ExchangeRateHostService implements FiatMarketService {
         start = end.subtract(1, 'year')
         break
       case HistoryTimeframe.ALL:
-        start = end.subtract(20, 'years')
+        start = end.subtract(5, 'years')
         break
       default:
         start = end
     }
 
     try {
-      const from = start.startOf('day').format('YYYY-MM-DD')
-      const to = end.startOf('day').format('YYYY-MM-DD')
-      const url = `${this.baseUrl}/timeseries?base=${baseCurrency}&symbols=${symbol}&start_date=${from}&end_date=${to}`
+      const urls: string[] = makeExchangeRateRequestUrls(start, end, symbol, this.baseUrl)
 
-      const { data } = await axios.get<ExchangeRateHostHistoryData>(url)
+      const results = await Promise.all(
+        urls.map((url) => axios.get<ExchangeRateHostHistoryData>(url))
+      )
 
-      return Object.entries(data.rates).reduce<HistoryData[]>(
-        (acc, [formattedDate, ratesObject]) => {
+      return results.reduce<HistoryData[]>((acc, { data }) => {
+        Object.entries(data.rates).forEach(([formattedDate, ratesObject]) => {
           const date = dayjs(formattedDate, 'YYYY-MM-DD').startOf('day').valueOf()
           const price = bnOrZero(ratesObject[symbol]).toNumber()
           acc.push({ date, price })
-          return acc
-        },
-        []
-      )
+        })
+        return acc
+      }, [])
     } catch (e) {
       console.warn(e)
       throw new Error(

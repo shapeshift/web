@@ -42,7 +42,7 @@ const mockAsset = {
 
 export const FoxLayout: Story = () => {
   const translate = useTranslate()
-  const [tabIndex, setTabIndex] = useState(0)
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
 
@@ -54,7 +54,7 @@ export const FoxLayout: Story = () => {
       description={mockAsset.description}
       icon={'https://assets.coincap.io/assets/icons/fox@2x.png'}
     >
-      <Tabs variant='unstyled' index={tabIndex}>
+      <Tabs variant='unstyled' index={selectedTabIndex}>
         <TabList flexDirection={{ base: 'column', md: 'row' }}>
           <SimpleGrid
             gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(4, 1fr)' }}
@@ -79,7 +79,7 @@ export const FoxLayout: Story = () => {
                   cryptoAmount={'3000'}
                   fiatAmount={'1000'}
                   onClick={() => {
-                    setTabIndex(0)
+                    setSelectedTabIndex(0)
                   }}
                 />
                 <FoxTab
@@ -88,7 +88,7 @@ export const FoxLayout: Story = () => {
                   cryptoAmount={'3000'}
                   fiatAmount={'1000'}
                   onClick={() => {
-                    setTabIndex(1)
+                    setSelectedTabIndex(1)
                   }}
                 />
                 <FoxTab
@@ -97,7 +97,7 @@ export const FoxLayout: Story = () => {
                   cryptoAmount={'3000'}
                   fiatAmount={'1000'}
                   onClick={() => {
-                    setTabIndex(2)
+                    setSelectedTabIndex(2)
                   }}
                 />
               </>
@@ -125,7 +125,7 @@ export const FoxLayout: Story = () => {
                 <MenuList>
                   <MenuItem
                     onClick={() => {
-                      setTabIndex(0)
+                      setSelectedTabIndex(0)
                     }}
                   >
                     <FoxTab
@@ -137,7 +137,7 @@ export const FoxLayout: Story = () => {
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
-                      setTabIndex(1)
+                      setSelectedTabIndex(1)
                     }}
                   >
                     <FoxTab
@@ -149,7 +149,7 @@ export const FoxLayout: Story = () => {
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
-                      setTabIndex(2)
+                      setSelectedTabIndex(2)
                     }}
                   >
                     <FoxTab

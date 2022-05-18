@@ -36,7 +36,7 @@ export const AssetActions = ({
   const translate = useTranslate()
 
   return (
-    <Card display='block'>
+    <Card display='block' borderRadius={8}>
       <Card.Body p={0}>
         <Tabs isFitted>
           <TabList>

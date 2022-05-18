@@ -1,10 +1,10 @@
-import { AssetNamespace, AssetReference, toAssetId, toChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import {
+  bitcoin,
   convertXpubVersion,
   toRootDerivationPath,
   utxoAccountParams,
 } from '@shapeshiftoss/chain-adapters'
-import { bitcoin } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
   supportsBTC,
@@ -153,8 +153,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               const assetId = toAssetId({
                 chain,
                 network: NetworkTypes.MAINNET,
-                assetNamespace: AssetNamespace.Slip44,
-                assetReference: AssetReference.Bitcoin,
+                assetNamespace: 'slip44',
+                assetReference: ASSET_REFERENCE.Bitcoin,
               })
               const bitcoin = assetsById[assetId]
 

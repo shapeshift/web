@@ -85,7 +85,10 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: quote?.buyAsset,
         amount: quote?.sellAmount,
       })
-      if (!result?.success && result?.statusReason) handleToast(result.statusReason)
+      if (!result?.success && result?.statusReason) {
+        handleToast(result.statusReason)
+        return
+      }
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
         history.push({

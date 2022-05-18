@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v4.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.0.1...@shapeshiftoss/market-service-v4.0.2) (2022-05-18)
+
+
+### Bug Fixes
+
+* fetch multiple years for fiat price history ([#660](https://github.com/shapeshift/lib/issues/660)) ([810c899](https://github.com/shapeshift/lib/commit/810c89977614b6fa86a6d855376765f1f52724c3))
+
 # [@shapeshiftoss/market-service-v4.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.0.0...@shapeshiftoss/market-service-v4.0.1) (2022-05-18)
 
 # [@shapeshiftoss/market-service-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v3.0.2...@shapeshiftoss/market-service-v4.0.0) (2022-05-18)

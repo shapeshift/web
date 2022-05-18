@@ -19,7 +19,7 @@ export const MainOpportunity = ({ apy, tvl, balance, onClick }: MainOpportunityP
   const translate = useTranslate()
 
   return (
-    <Card display='block' width='full'>
+    <Card display='block' width='full' borderRadius={8}>
       <Card.Header>
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <AssetIcon src={fox.icon} boxSize='6' mr={2} zIndex={2} />
@@ -32,14 +32,18 @@ export const MainOpportunity = ({ apy, tvl, balance, onClick }: MainOpportunityP
         <Text translation='Lorem ipsum sit dolor amet.' color='gray.500' />
       </Card.Header>
       <Card.Body>
-        <Flex justifyContent='space-between' flexDirection={{ base: 'column', md: 'row' }}>
-          <Box>
+        <Flex
+          justifyContent='space-between'
+          flexDirection={'row'}
+          flexWrap={{ base: 'wrap', md: 'nowrap' }}
+        >
+          <Box width={{ base: '50%', md: 'auto' }}>
             <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
             <CText color='green.400' fontSize={'xl'}>
               {apy}
             </CText>
           </Box>
-          <Box>
+          <Box display={{ base: 'none', md: 'block' }} width={{ base: '50%', md: 'auto' }}>
             <Text translation='plugins.foxPage.tvl' color='gray.500' mb={1} />
             <Amount.Fiat
               color='inherit'
@@ -48,14 +52,14 @@ export const MainOpportunity = ({ apy, tvl, balance, onClick }: MainOpportunityP
               value={tvl.toString()}
             />
           </Box>
-          <Box>
+          <Box width={{ base: '50%', md: 'auto' }} mb={{ base: 4, md: 0 }}>
             <Text translation='plugins.foxPage.balance' color='gray.500' mb={1} />
             <CText color='inherit' fontSize={'xl'}>
               {balance}
             </CText>
           </Box>
-          <Box alignSelf='center'>
-            <Button onClick={onClick} colorScheme={'blue'}>
+          <Box alignSelf='center' width={{ base: 'full', md: 'auto' }}>
+            <Button onClick={onClick} colorScheme={'blue'} width={{ base: 'full', md: 'auto' }}>
               <CText>{translate('plugins.foxPage.getStarted')}</CText>
             </Button>
           </Box>

@@ -384,8 +384,11 @@
       "checkApprovalNeededFailed": "An error occurred checking the approval for your trade.",
       "approveInfiniteFailed": "An error occurred approving your trade.",
       "buildTradeFailed": "An error occurred building your trade.",
+      "grantAllowanceFailed": "An error occurred granting allowance.",
+      "minMaxError": "An error occured getting min / max trade amount",
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
+      "rateError": "An error occured getting trade rates",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"

@@ -11,16 +11,16 @@ const ErrorTranslationMap: Record<string, string> = {
   [SwapErrorTypes.APPROVE_INFINITE_FAILED]: 'trade.errors.approveInfiniteFailed',
   [SwapErrorTypes.BUILD_TRADE_FAILED]: 'trade.errors.buildTradeFailed',
   [SwapErrorTypes.EXECUTE_TRADE_FAILED]: 'trade.errors.executeTradeFailed',
-  [SwapErrorTypes.GRANT_ALLOWANCE_FAILED]: 'trade.errors.buildTradeFailed',
-  [SwapErrorTypes.MANAGER_ERROR]: 'trade.errors.buildTradeFailed',
-  [SwapErrorTypes.MIN_MAX_FAILED]: 'trade.errors.buildTradeFailed',
+  [SwapErrorTypes.GRANT_ALLOWANCE_FAILED]: 'trade.errors.grantAllowanceFailed',
+  [SwapErrorTypes.MANAGER_ERROR]: 'trade.errors.generalError',
+  [SwapErrorTypes.MIN_MAX_FAILED]: 'trade.errors.minMaxError',
   [SwapErrorTypes.SIGN_AND_BROADCAST_FAILED]: 'trade.errors.broadcastFailed',
   [SwapErrorTypes.TRADE_QUOTE_FAILED]: 'trade.errors.quoteFailed',
   [SwapErrorTypes.UNSUPPORTED_PAIR]: 'trade.errors.unsupportedPair',
-  [SwapErrorTypes.USD_RATE_FAILED]: 'trade.errors.buildTradeFailed',
+  [SwapErrorTypes.USD_RATE_FAILED]: 'trade.errors.rateError',
   [SwapErrorTypes.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedPair',
-  [SwapErrorTypes.VALIDATION_FAILED]: 'trade.errors.buildTradeFailed',
-  [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.buildTradeFailed',
+  [SwapErrorTypes.VALIDATION_FAILED]: 'trade.errors.generalError',
+  [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.generalError',
 }
 
 const getTranslationFromError = (error: unknown) => {

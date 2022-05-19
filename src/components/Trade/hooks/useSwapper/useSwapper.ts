@@ -32,14 +32,6 @@ type GetQuoteInput = {
   forceQuote?: boolean
 }
 
-export enum TRADE_ERRORS {
-  TITLE = 'trade.errors.title',
-  NOT_ENOUGH_ETH = 'trade.errors.notEnoughEth',
-  AMOUNT_TO_SMALL = 'trade.errors.amountToSmall',
-  DEX_TRADE_FAILED = 'trade.errors.dexTradeFailed',
-  QUOTE_FAILED = 'trade.errors.quoteFailed',
-}
-
 export const useSwapper = () => {
   const { setValue } = useFormContext()
   const [quote, sellTradeAsset, trade] = useWatch({

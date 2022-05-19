@@ -25,7 +25,7 @@ const ErrorTranslationMap: Record<string, string> = {
 
 const getTranslationFromError = (error: unknown) => {
   if (isError(error)) {
-    return ErrorTranslationMap[get(error, 'code')] ?? 'trade.errors.generalError'
+    return ErrorTranslationMap[get(error, 'code')] ?? 'common.generalError'
   }
   return 'common.generalError'
 }

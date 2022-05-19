@@ -8,6 +8,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { BuildQuoteTxOutput, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
@@ -94,6 +95,8 @@ export const useSwapper = () => {
   const feeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset.assetId ?? 'eip155:1/slip44:60'),
   )
+
+  const { showErrorToast } = useErrorHandler()
 
   const getSendMaxAmount = async ({
     sellAsset,
@@ -205,6 +208,7 @@ export const useSwapper = () => {
         setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
         setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
       } catch (e) {
+        showErrorToast(e)
         console.error(e)
       }
     }, debounceTime),

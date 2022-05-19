@@ -12,15 +12,13 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
   const { state } = useContext(DepositContext)
-  const appDispatch = useAppDispatch()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
@@ -35,7 +33,6 @@ export const Status = () => {
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
   const vaultAssetId = toAssetId({

@@ -148,7 +148,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         action: TradeAmountInputField.SELL,
         amount: maxSendAmount,
       })
-      throw new Error('e')
     } catch (e) {
       showErrorToast(e)
     } finally {

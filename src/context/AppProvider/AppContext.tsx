@@ -18,6 +18,7 @@ import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { matchPath, useLocation } from 'react-router'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -67,6 +68,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
+  const location = useLocation()
 
   // keep track of pending tx ids, so we can refetch the portfolio when they confirm
   const [pendingTxIds, setPendingTxIds] = useState<Set<TxId>>(new Set<TxId>())
@@ -326,6 +328,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // marketDataIntervalId causes infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
+
+  // market data single-asset fetch, will use cached version if available
+  useEffect(() => {
+    const assetIdPathMatch = matchPath<{ chainId: string; assetSubId: string }>(location.pathname, {
+      path: '/assets/:chainId/:assetSubId',
+    })
+    if (!assetIdPathMatch?.params) return
+
+    const { chainId, assetSubId } = assetIdPathMatch.params
+    const assetId = `${chainId}/${assetSubId}`
+    dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+  }, [dispatch, location.pathname])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

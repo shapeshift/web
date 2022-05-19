@@ -5,12 +5,11 @@ import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs } from '@chakra-u
 import { Story } from '@storybook/react'
 import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AssetActions } from './AssetActions'
+import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
-import { MainOpportunity } from './MainOpportunity'
 import { Total } from './Total'
 
 export default {
@@ -82,10 +81,11 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity
+                <FoxOpportunity
                   balance='--'
-                  tvl={bnOrZero(150000000)}
-                  apy='11.61%'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
                   onClick={() => null}
                 />
               </Stack>
@@ -112,10 +112,11 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity
+                <FoxOpportunity
                   balance='--'
-                  tvl={bnOrZero(150000000)}
-                  apy='11.61%'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
                   onClick={() => null}
                 />
               </Stack>
@@ -142,10 +143,11 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity
+                <FoxOpportunity
                   balance='--'
-                  tvl={bnOrZero(150000000)}
-                  apy='11.61%'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
                   onClick={() => null}
                 />
               </Stack>

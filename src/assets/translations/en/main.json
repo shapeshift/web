@@ -379,6 +379,12 @@
       "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
       "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
       "hdwalletInvalidConfig": "An error occurred communicating with your hardware wallet",
+      "allowanceRequiredFailed": "An error occurred getting approving the allowance required to trade.",
+      "checkApprovalNeededFailed": "An error occurred checking the approval for your trade.",
+      "approveInfiniteFailed": "An error occurred approving your trade.",
+      "buildTradeFailed": "An error occurred building your trade.",
+      "executeTradeFailed": "An error occurred executing your trade.",
+      "unsupportedPair": "This trading pair is not currently supported.",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"

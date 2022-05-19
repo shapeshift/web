@@ -79,16 +79,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
 
     try {
-      const result = await updateTrade({
-        wallet,
-        sellAsset: quote?.sellAsset,
-        buyAsset: quote?.buyAsset,
-        amount: quote?.sellAmount,
-      })
-      if (!result?.success && result?.statusReason) {
-        handleToast(result.statusReason)
-        return
-      }
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
         history.push({
@@ -97,6 +87,16 @@ export const TradeInput = ({ history }: RouterProps) => {
             fiatRate: feeAssetFiatRate,
           },
         })
+        return
+      }
+      const result = await updateTrade({
+        wallet,
+        sellAsset: quote?.sellAsset,
+        buyAsset: quote?.buyAsset,
+        amount: quote?.sellAmount,
+      })
+      if (!result?.success && result?.statusReason) {
+        handleToast(result.statusReason)
         return
       }
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
@@ -273,7 +273,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     size='sm'
                     variant='ghost'
                     colorScheme='blue'
-                    isDisabled={isSendMaxLoading || !hasValidBalance}
+                    isDisabled={isSendMaxLoading || !hasValidBalance || !quote}
                     onClick={onSetMaxTrade}
                     data-test='token-row-sell-max-button'
                   >
@@ -369,7 +369,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 !wallet ||
                 !hasValidTradeBalance ||
                 !hasEnoughBalanceForGas ||
-                !quote
+                !quote ||
+                !hasValidSellAmount
               }
               style={{
                 whiteSpace: 'normal',

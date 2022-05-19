@@ -21,7 +21,7 @@ export const makeExchangeRateRequestUrls = (
   symbol: SupportedFiatCurrencies,
   baseUrl: string
 ): string[] => {
-  const daysBetween: number = end.diff(start, 'day')
+  const daysBetween = end.diff(start, 'day')
   /**
    * https://exchangerate.host/#/#docs
    * Timeseries endpoint are for daily historical rates between two dates of your choice, with a maximum time frame of 366 days.
@@ -63,11 +63,12 @@ export class ExchangeRateHostService implements FiatMarketService {
     symbol,
     timeframe
   }: FiatPriceHistoryArgs): Promise<HistoryData[]> => {
-    const end = dayjs().startOf('day')
+    const end = dayjs().endOf('day')
     let start
     switch (timeframe) {
       case HistoryTimeframe.HOUR:
-        start = end.subtract(1, 'hour')
+        // minimum granularity on upstream API is 1 day
+        start = end.subtract(1, 'day')
         break
       case HistoryTimeframe.DAY:
         start = end.subtract(1, 'day')

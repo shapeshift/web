@@ -18,8 +18,8 @@ import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { matchPath, useLocation } from 'react-router'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
@@ -68,7 +68,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
-  const location = useLocation()
+  const routeAssetId = useRouteAssetId()
 
   // keep track of pending tx ids, so we can refetch the portfolio when they confirm
   const [pendingTxIds, setPendingTxIds] = useState<Set<TxId>>(new Set<TxId>())
@@ -330,16 +330,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
 
   // market data single-asset fetch, will use cached version if available
+  // This uses the assetId from /assets route
   useEffect(() => {
-    const assetIdPathMatch = matchPath<{ chainId: string; assetSubId: string }>(location.pathname, {
-      path: '/assets/:chainId/:assetSubId',
-    })
-    if (!assetIdPathMatch?.params) return
+    // early return for routes that don't contain an assetId, no need to refetch marketData granularly
+    if (!routeAssetId) return
 
-    const { chainId, assetSubId } = assetIdPathMatch.params
-    const assetId = `${chainId}/${assetSubId}`
-    dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-  }, [dispatch, location.pathname])
+    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
+  }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

@@ -1,11 +1,12 @@
-import { SwapErrorTypes, SwapError } from '@shapeshiftoss/swapper'
+// TODO dont make this specific to swapper
+
 import { useToast } from '@chakra-ui/react'
+import { SwapErrorTypes } from '@shapeshiftoss/swapper'
+import { get, isError } from 'lodash'
 import { useTranslate } from 'react-polyglot'
 import { logger } from 'lib/logger'
 
-// TODO(ryankk): We probably need to remove some of the messages in 'translations/en/main.json' under 'trade.errors',
-// there are a lot that are unused.
-const SwapErrorMap = {
+const ErrorTranslationMap: Record<string, string> = {
   [SwapErrorTypes.ALLOWANCE_REQUIRED_FAILED]: 'trade.errors.allowanceRequiredFailed',
   [SwapErrorTypes.CHECK_APPROVAL_FAILED]: 'trade.errors.checkApprovalNeededFailed',
   [SwapErrorTypes.APPROVE_INFINITE_FAILED]: 'trade.errors.approveInfiniteFailed',
@@ -20,32 +21,39 @@ const SwapErrorMap = {
   [SwapErrorTypes.USD_RATE_FAILED]: 'trade.errors.buildTradeFailed',
   [SwapErrorTypes.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedPair',
   [SwapErrorTypes.VALIDATION_FAILED]: 'trade.errors.buildTradeFailed',
-  [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.buildTradeFailed'
+  [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.buildTradeFailed',
+}
+
+// TODO support more error types (non swapper errors)
+const getTranslationFromError = (error: unknown) => {
+  if (isError(error)) {
+    return ErrorTranslationMap[get(error, 'code')] ?? 'trade.errors.quoteFailed' // use something better than quoteFailed
+  }
+  return 'trade.errors.quoteFailed' // generic error here (not trade)
 }
 
 const moduleLogger = logger.child({ namespace: ['Swapper'] })
 
-export const useSwapperErrors = () => {
+export const useErrorHandler = () => {
   const toast = useToast()
   const translate = useTranslate()
 
-  const handleSwapErrors = (error: SwapError | Error) => {
-    const translation =
-      error instanceof SwapError ? SwapErrorMap[error.code] : 'trade.errors.quoteFailed' // is this a good default?
+  const showErrorToast = (error: unknown) => {
+    const description = translate(getTranslationFromError(error))
 
-    moduleLogger.error(error)
+    moduleLogger.error(error, description)
 
     toast({
       title: translate('trade.errors.title'),
-      description: translate(translation),
+      description,
       status: 'error',
       duration: 9000,
       isClosable: true,
-      position: 'top-right'
+      position: 'top-right',
     })
   }
 
   return {
-    handleSwapErrors
+    showErrorToast,
   }
 }

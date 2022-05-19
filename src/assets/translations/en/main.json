@@ -58,7 +58,8 @@
     "login": "Log In",
     "verify": "Verify",
     "notRobot": "I am not a Robot",
-    "skip": "Skip"
+    "skip": "Skip",
+    "generalError": "An error has occured"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -388,7 +389,8 @@
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
-      }
+      },
+      "generalError": "A trade error has occured"
     }
   },
   "modals": {

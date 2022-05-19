@@ -1,11 +1,10 @@
-// TODO dont make this specific to swapper
-
 import { useToast } from '@chakra-ui/react'
 import { SwapErrorTypes } from '@shapeshiftoss/swapper'
 import { get, isError } from 'lodash'
 import { useTranslate } from 'react-polyglot'
 import { logger } from 'lib/logger'
 
+// TODO support more error types (non swapper errors)
 const ErrorTranslationMap: Record<string, string> = {
   [SwapErrorTypes.ALLOWANCE_REQUIRED_FAILED]: 'trade.errors.allowanceRequiredFailed',
   [SwapErrorTypes.CHECK_APPROVAL_FAILED]: 'trade.errors.checkApprovalNeededFailed',
@@ -24,12 +23,11 @@ const ErrorTranslationMap: Record<string, string> = {
   [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.buildTradeFailed',
 }
 
-// TODO support more error types (non swapper errors)
 const getTranslationFromError = (error: unknown) => {
   if (isError(error)) {
-    return ErrorTranslationMap[get(error, 'code')] ?? 'trade.errors.quoteFailed' // use something better than quoteFailed
+    return ErrorTranslationMap[get(error, 'code')] ?? 'trade.errors.generalError'
   }
-  return 'trade.errors.quoteFailed' // generic error here (not trade)
+  return 'common.generalError'
 }
 
 const moduleLogger = logger.child({ namespace: ['Swapper'] })

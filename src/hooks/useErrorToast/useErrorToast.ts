@@ -30,7 +30,7 @@ const getTranslationFromError = (error: unknown) => {
   return 'common.generalError'
 }
 
-const moduleLogger = logger.child({ namespace: ['Swapper'] })
+const moduleLogger = logger.child({ namespace: ['Error'] })
 
 export const useErrorHandler = () => {
   const toast = useToast()

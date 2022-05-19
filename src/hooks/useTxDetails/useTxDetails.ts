@@ -23,6 +23,7 @@ export enum ContractMethod {
   Unstake = 'unstake',
   InstantUnstake = 'instantUnstake',
   ClaimWithdraw = 'claimWithdraw',
+  Exit = 'exit',
 }
 
 export enum Direction {
@@ -104,6 +105,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       case ContractMethod.Unstake:
       case ContractMethod.InstantUnstake:
       case ContractMethod.ClaimWithdraw:
+      case ContractMethod.Exit:
         return Direction.Inbound
       case ContractMethod.Approve:
         return Direction.InPlace

@@ -1,5 +1,5 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { NetworkTypes, SupportedChainIds } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -49,10 +49,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useWallet()
   const { chain, tokenId } = trade.sellAsset
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
-  const extra = tokenId
-    ? { assetNamespace, assetReference: tokenId }
-    : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
+  type AssetParams = Pick<Parameters<typeof toAssetId>[0], 'assetNamespace' | 'assetReference'>
+  const extra: AssetParams = tokenId
+    ? {
+        assetNamespace: 'erc20',
+        assetReference: tokenId,
+      }
+    : { assetNamespace: 'slip44', assetReference: ASSET_REFERENCE.Ethereum }
   const assetId = toAssetId({ chain, network, ...extra })
 
   const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))

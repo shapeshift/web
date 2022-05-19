@@ -1,5 +1,5 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -43,7 +43,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const toast = useToast()
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({
     chain,
@@ -56,8 +56,8 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const feeAssetId = toAssetId({
     chain,
     network,
-    assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 

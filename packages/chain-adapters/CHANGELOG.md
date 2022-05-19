@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v4.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.1.0...@shapeshiftoss/chain-adapters-v4.2.0) (2022-05-19)
+
+
+### Features
+
+* **chain-adapters:** change byChainId to by synchronous ([#668](https://github.com/shapeshift/lib/issues/668)) ([5017672](https://github.com/shapeshift/lib/commit/50176724116f62dfcccd315d9215f326cc982d9f))
+
 # [@shapeshiftoss/chain-adapters-v4.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.0.1...@shapeshiftoss/chain-adapters-v4.1.0) (2022-05-18)
 
 

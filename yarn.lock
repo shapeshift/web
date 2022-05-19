@@ -3887,21 +3887,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-<<<<<<< HEAD
-"@shapeshiftoss/hdwallet-core@1.22.0", "@shapeshiftoss/hdwallet-core@^1.21.2":
-  version "1.22.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.22.0.tgz#f16d3d2842c5e704ec8e829573b1152dd2070001"
-  integrity sha512-xCfmWN0FyJH8lVRhAKPQ7UHfWY1aMGbnGyalS+X4saz9P8o4qaHQ/vBpARrKhL+dDsDSKt8Ol2Wo90nv6C/7Ag==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
-"@shapeshiftoss/hdwallet-core@latest":
-=======
 "@shapeshiftoss/hdwallet-core@1.21.1", "@shapeshiftoss/hdwallet-core@latest":
->>>>>>> 2b1fa0c8 (Add Tally as a wallet option)
   version "1.21.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.21.1.tgz#a382f305a9cb502ea1677c34bcd4d603024128dc"
   integrity sha512-paDSgf5AhJkC7N6nsQLzyrQVxFZxyJoGwEwiVAwMPJg8ublLorJTiHZAKG23FM89GqGWEyYiXrIgdY8fL1BoIQ==
@@ -3911,12 +3897,6 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-<<<<<<< HEAD
-"@shapeshiftoss/hdwallet-keepkey-webusb@^1.21.2":
-  version "1.22.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.22.0.tgz#16372f9dbff1aeee0d27c036490a7fb28bb84c7f"
-  integrity sha512-gfd3wpAdRkI4dZveTEVFn0KKEE1jQvPSyp3P2RAIjwLej4Fds7M5r7mTRw4+oXaz0WhONFZn+ooQygSxQe2EzQ==
-=======
 "@shapeshiftoss/hdwallet-core@1.21.2", "@shapeshiftoss/hdwallet-core@^1.21.1":
   version "1.21.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.21.2.tgz#88fe49d79a79c8429b714e6244a4068c82e2afb5"
@@ -3931,7 +3911,6 @@
   version "1.21.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.21.1.tgz#6cb55b2cf4858aa833f836af4561b7d25b6684df"
   integrity sha512-E+Jz0DJMOIYBCKod6uQV9V9U94rUzJcSzu/mthzYPUutIf0s9vD6BXKbGJBBJ54/DlB9szGgsS0l7wk+j4xuSA==
->>>>>>> 2b1fa0c8 (Add Tally as a wallet option)
   dependencies:
     "@shapeshiftoss/hdwallet-core" "1.22.0"
     "@shapeshiftoss/hdwallet-keepkey" "1.22.0"
@@ -4025,12 +4004,6 @@
     p-lazy "^3.1.0"
     web3 "^1.5.1"
 
-<<<<<<< HEAD
-"@shapeshiftoss/investor-foxy@^3.0.0":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.0.1.tgz#64ae368f117ad98c5933b7bc2baff5798e880641"
-  integrity sha512-ImAGOn/vdfd1g1lMwncQzo0fXGpIZ+JrhaBIXnVtB2HZiA0CakZ1sFDj6L2x+Rn7XWv2ENrJYEFcUD6XE5Sq9w==
-=======
 "@shapeshiftoss/hdwallet-tallyho@^1.21.1":
   version "1.21.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-tallyho/-/hdwallet-tallyho-1.21.2.tgz#509c276f3051d70b8de3020a5f49f7d69c2c7c31"
@@ -4044,7 +4017,6 @@
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-1.4.3.tgz#c21bb2b9055d09e29d3ca737373a1802e4cade0f"
   integrity sha512-IVEdEA1eHPSyN635xbHTPWjYAdZzv9WWfAGaKe1k7aQLa4NrIOra7PIbK+OdPFcZtb3wC6ROiM9D6yIN9LziKg==
->>>>>>> 2b1fa0c8 (Add Tally as a wallet option)
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"

@@ -181,15 +181,22 @@ export const useSwapper = () => {
           sellAssetId: sellAsset.assetId,
         })
 
-        const { sellAmount, buyAmount, sellAssetUsdRate, feeAssetUsdRate, fiatSellAmount } =
-          await calculateAmounts({
-            buyAsset,
-            sellAsset,
-            feeAsset,
-            swapper,
-            action,
-            amount,
-          })
+        const { getUsdRate } = swapper
+
+        const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
+          getUsdRate({ ...sellAsset }),
+          getUsdRate({ ...buyAsset }),
+          getUsdRate({ ...feeAsset }),
+        ])
+
+        const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
+          amount,
+          buyAsset,
+          sellAsset,
+          buyAssetUsdRate,
+          sellAssetUsdRate,
+          action,
+        })
 
         const tradeQuote = await swapper.getTradeQuote({
           sellAsset,

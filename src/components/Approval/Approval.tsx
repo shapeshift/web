@@ -41,7 +41,7 @@ export const Approval = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useFormContext<TradeState<SupportedChainIds>>()
-  const { approveInfinite, checkApprovalNeeded } = useSwapper()
+  const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -93,6 +93,14 @@ export const Approval = () => {
         return history.push(TradeRoutePaths.Input)
       }
       approvalInterval.current && clearInterval(approvalInterval.current)
+
+      await updateTrade({
+        wallet,
+        sellAsset: quote?.sellAsset,
+        buyAsset: quote?.buyAsset,
+        amount: quote?.sellAmount,
+      })
+
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
     }, 5000)
   }

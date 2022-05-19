@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v4.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.0.2...@shapeshiftoss/market-service-v4.0.3) (2022-05-19)
+
+
+### Bug Fixes
+
+* timeframes for fiat rates ([#667](https://github.com/shapeshift/lib/issues/667)) ([38f3d12](https://github.com/shapeshift/lib/commit/38f3d12f0a375a0723755a9402dfd9f3be51ebf8))
+
 # [@shapeshiftoss/market-service-v4.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.0.1...@shapeshiftoss/market-service-v4.0.2) (2022-05-18)
 
 

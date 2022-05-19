@@ -26,7 +26,12 @@
     "@shapeshiftoss/hdwallet-native": "^1.21.2",
     "@shapeshiftoss/hdwallet-native-vault": "^1.21.2",
     "@shapeshiftoss/hdwallet-portis": "^1.21.2",
+<<<<<<< HEAD
     "@shapeshiftoss/investor-foxy": "^3.0.0",
+=======
+    "@shapeshiftoss/hdwallet-tallyho": "^1.21.1",
+    "@shapeshiftoss/investor-foxy": "^2.0.0",
+>>>>>>> a175f6ab171737ed63a959674a8c686f3ce56a6d
     "@shapeshiftoss/investor-yearn": "^2.0.0",
 =======
     "@shapeshiftoss/asset-service": "^2.4.5",

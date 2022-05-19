@@ -6,6 +6,7 @@ import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
@@ -21,6 +22,8 @@ export interface TallyHoSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
+const moduleLogger = logger.child({ namespace: ['NativeWallet'] })
+
 export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
@@ -35,7 +38,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       try {
         setProvider(await detectEthereumProvider())
       } catch (e) {
-        if (!isMobile) console.error(e)
+        if (!isMobile) moduleLogger.error({ e }, 'could not detect ethereum provider')
       }
     })()
   }, [setProvider])
@@ -87,7 +90,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
-          console.error('Tally Connect: There was an error initializing the wallet', e)
+          moduleLogger.error({ e }, 'error initializing wallet')
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.tallyHo.errors.unknown')
@@ -113,9 +116,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       bodyText={'walletProvider.tallyHo.redirect.body'}
       buttonText={'walletProvider.tallyHo.redirect.button'}
       onClickAction={(): any => {
-        console.log('redirect')
-        console.log(tallyHoDeeplinkTarget)
-
+        moduleLogger.trace({ tallyHoDeeplinkTarget }, 'redirect')
         window.location.assign(`https://tallyho.app.link/dapp/${tallyHoDeeplinkTarget}`)
       }}
       loading={loading}

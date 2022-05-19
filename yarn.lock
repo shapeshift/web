@@ -4013,10 +4013,10 @@
     lodash "^4.17.21"
     tallyho-onboarding "^1.0.2"
 
-"@shapeshiftoss/investor-foxy@^1.4.1":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-1.4.3.tgz#c21bb2b9055d09e29d3ca737373a1802e4cade0f"
-  integrity sha512-IVEdEA1eHPSyN635xbHTPWjYAdZzv9WWfAGaKe1k7aQLa4NrIOra7PIbK+OdPFcZtb3wC6ROiM9D6yIN9LziKg==
+"@shapeshiftoss/investor-foxy@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-2.0.0.tgz#8efd2a4a238100fa65398a7a691e1db539e17fb4"
+  integrity sha512-6Txv/mKgsPUQgHVuGmGmkqI/ZzD4CiesMbCmVqv/bgLTfOm7QvWJGlATbzGTQZhI50IhsP0ZB51kWfSsPZw3Ng==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"

@@ -95,6 +95,27 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
               <Amount.Percent value={percentChange.div(100).toNumber() ?? 0} />
             </StatValue>
           </Stat>
+
+          {marketData?.maxSupply && (
+            <Stat>
+              <StatLabel isLoaded={isLoaded}>
+                <Text translation='assets.assetDetails.assetHeader.maxTotalSupply' />
+              </StatLabel>
+              <StatValue isLoaded={isLoaded}>
+                <Amount.Supply value={marketData?.maxSupply} />
+              </StatValue>
+            </Stat>
+          )}
+          {marketData?.supply && (
+            <Stat>
+              <StatLabel isLoaded={isLoaded}>
+                <Text translation='assets.assetDetails.assetHeader.availableSupply' />
+              </StatLabel>
+              <StatValue isLoaded={isLoaded}>
+                <Amount.Supply value={marketData?.supply} />
+              </StatValue>
+            </Stat>
+          )}
         </SimpleGrid>
       </Card.Body>
     </Card>

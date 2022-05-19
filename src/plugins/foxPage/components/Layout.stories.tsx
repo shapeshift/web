@@ -94,12 +94,12 @@ export const FoxLayout: Story = () => {
                   assetIcon={mockAsset.icon}
                   assetSymbol={mockAsset.symbol}
                   description={mockAsset.description}
-                  primaryText={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
                     assetSymbol: mockAsset.symbol,
                   })}
-                  secondaryTranslation='plugins.foxPage.receive'
+                  sellCTA='plugins.foxPage.receive'
                   onReceiveClick={() => null}
-                  onGetClick={() => null}
+                  onBuyClick={() => null}
                 />
               </Stack>
             </Stack>
@@ -124,12 +124,12 @@ export const FoxLayout: Story = () => {
                   assetIcon={mockAsset.icon}
                   assetSymbol={mockAsset.symbol}
                   description={mockAsset.description}
-                  primaryText={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
                     assetSymbol: mockAsset.symbol,
                   })}
-                  secondaryTranslation='plugins.foxPage.receive'
+                  sellCTA='plugins.foxPage.receive'
                   onReceiveClick={() => null}
-                  onGetClick={() => null}
+                  onBuyClick={() => null}
                 />
               </Stack>
             </Stack>
@@ -154,12 +154,12 @@ export const FoxLayout: Story = () => {
                   assetIcon={mockAsset.icon}
                   assetSymbol={mockAsset.symbol}
                   description={mockAsset.description}
-                  primaryText={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
                     assetSymbol: mockAsset.symbol,
                   })}
-                  secondaryTranslation='plugins.foxPage.receive'
+                  sellCTA='plugins.foxPage.receive'
                   onReceiveClick={() => null}
-                  onGetClick={() => null}
+                  onBuyClick={() => null}
                 />
               </Stack>
             </Stack>

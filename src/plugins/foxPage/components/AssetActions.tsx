@@ -18,25 +18,25 @@ type FoxTabProps = {
   assetIcon: string
   assetSymbol: string
   description: string
-  primaryText: string
-  secondaryTranslation: string
+  buyCTA: string
+  sellCTA: string
   onReceiveClick: () => void
-  onGetClick: () => void
+  onBuyClick: () => void
 }
 
 export const AssetActions = ({
   assetIcon,
   assetSymbol,
   description,
-  primaryText,
-  secondaryTranslation,
+  buyCTA,
+  sellCTA,
   onReceiveClick,
-  onGetClick,
+  onBuyClick,
 }: FoxTabProps) => {
   const translate = useTranslate()
 
   return (
-    <Card display='block'>
+    <Card display='block' borderRadius={8}>
       <Card.Body p={0}>
         <Tabs isFitted>
           <TabList>
@@ -50,18 +50,18 @@ export const AssetActions = ({
           <TabPanels>
             <TabPanel textAlign='center' p={6}>
               <Box mb={6}>
-                <AssetIcon src={assetIcon} boxSize='12' />
+                <AssetIcon src={assetIcon} boxSize='16' />
               </Box>
               <SkeletonText isLoaded={true} noOfLines={3}>
                 <Text translation={description} color='gray.500' mb={6} />
               </SkeletonText>
 
               <Stack width='full'>
-                <Button onClick={onGetClick} colorScheme={'blue'} mb={2} size='lg'>
-                  <CText>{primaryText}</CText>
+                <Button onClick={onBuyClick} colorScheme={'blue'} mb={2} size='lg'>
+                  <CText>{buyCTA}</CText>
                 </Button>
                 <Button onClick={onReceiveClick} size='lg' colorScheme='gray'>
-                  <Text translation={secondaryTranslation} />
+                  <Text translation={sellCTA} />
                 </Button>
               </Stack>
             </TabPanel>

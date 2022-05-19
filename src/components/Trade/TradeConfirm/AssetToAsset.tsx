@@ -1,13 +1,22 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Circle, Divider, Flex, FlexProps, Text, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Circle,
+  Divider,
+  Flex,
+  FlexProps,
+  Spinner,
+  Text,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { Trade } from '@shapeshiftoss/swapper'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, SupportedChainIds } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
-type AssetToAssetProps<C extends ChainTypes> = {
+type AssetToAssetProps<C extends SupportedChainIds> = {
   tradeFiatAmount: string
   buyIcon: string
   status?: chainAdapters.TxStatus
@@ -21,7 +30,7 @@ export const AssetToAsset = ({
   boxSize = '24px',
   status,
   ...rest
-}: AssetToAssetProps<ChainTypes>) => {
+}: AssetToAssetProps<SupportedChainIds>) => {
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const {
@@ -32,19 +41,36 @@ export const AssetToAsset = ({
   const green = useColorModeValue('white', 'green.500')
 
   const renderIcon = () => {
-    return status === chainAdapters.TxStatus.Confirmed ? (
-      <Circle bg={green} size='100%'>
-        <CheckIcon />
-      </Circle>
-    ) : status === chainAdapters.TxStatus.Failed ? (
-      <Circle bg={red} size='100%'>
-        <CloseIcon p={1} />
-      </Circle>
-    ) : (
-      <Circle bg={gray} size='100%'>
-        <ArrowForwardIcon />
-      </Circle>
-    )
+    switch (status) {
+      case chainAdapters.TxStatus.Confirmed: {
+        return (
+          <Circle bg={green} size='100%'>
+            <CheckIcon />
+          </Circle>
+        )
+      }
+      case chainAdapters.TxStatus.Failed: {
+        return (
+          <Circle bg={red} size='100%'>
+            <CloseIcon p={1} />
+          </Circle>
+        )
+      }
+      case chainAdapters.TxStatus.Pending: {
+        return (
+          <Circle bg={gray} size='100%'>
+            <Spinner />
+          </Circle>
+        )
+      }
+      default: {
+        return (
+          <Circle bg={gray} size='100%'>
+            <ArrowForwardIcon />
+          </Circle>
+        )
+      }
+    }
   }
 
   return (

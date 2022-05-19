@@ -321,6 +321,8 @@
       },
       "uniV2": {
         "addLiquidityETH": "Add liquidity",
+        "stake": "Stake",
+        "exit": "Unstake",
         "removeLiquidityETH": "Remove liquidity"
       },
       "thor": {

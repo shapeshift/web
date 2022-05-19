@@ -1,16 +1,20 @@
+import { autoRecord } from '../plugins/autorecord'
+
 const baseUrl = Cypress.config().baseUrl
 const linkContract = Cypress.env('linkContract')
 
-beforeEach(() => {
-  // Intercept all account requests relating to our test wallet
-  cy.mockAllRequests()
-})
-
 describe('The Dashboard', () => {
+  autoRecord()
+
   before(() => {
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()
     cy.login()
+  })
+
+  beforeEach(() => {
+    // Intercept all account requests relating to our test wallet
+    cy.mockAllRequests()
   })
 
   it('nav bar works', () => {

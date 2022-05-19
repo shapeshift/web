@@ -173,7 +173,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     return debounce(estimateFormFees, 1000)
   }, [estimateFormFees])
 
-  // Stop calls to debouncedEstimateFormFees
+  // Stop calls to debouncedEstimateFormFees on unmount
   useEffect(() => {
     return () => {
       debouncedEstimateFormFees.cancel()

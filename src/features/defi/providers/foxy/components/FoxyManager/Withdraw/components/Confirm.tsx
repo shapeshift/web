@@ -17,8 +17,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -31,6 +32,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const translate = useTranslate()
+  const appDispatch = useAppDispatch()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId, rewardId } = query
 
@@ -51,6 +53,8 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   const feeAssetId = toAssetId({
     chain,
     network,

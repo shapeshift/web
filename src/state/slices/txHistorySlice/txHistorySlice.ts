@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import {
   AssetId,
-  AssetNamespace,
   ChainId,
   fromChainId,
   toAccountId,
@@ -304,7 +303,7 @@ export const txHistoryApi = createApi({
 
         foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
           const assetReference = tokenContractAddress
-          const assetNamespace = AssetNamespace.ERC20
+          const assetNamespace = 'erc20'
           const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
           const rebaseHistoryArgs = { userAddress, tokenContractAddress }
           const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)

@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -13,12 +13,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { WithdrawPath } from '../WithdrawCommon'
-import { FoxyWithdrawActionType } from '../WithdrawCommon'
+import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 type FoxyApproveProps = {
@@ -30,14 +28,13 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const translate = useTranslate()
-  const appDispatch = useAppDispatch()
   const alertText = useColorModeValue('blue.800', 'white')
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, rewardId } = query
   const toast = useToast()
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({
     chain,
@@ -46,13 +43,11 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   const feeAssetId = toAssetId({
     chain,
     network,
-    assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))

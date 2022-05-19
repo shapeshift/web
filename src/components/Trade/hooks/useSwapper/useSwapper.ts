@@ -209,7 +209,6 @@ export const useSwapper = () => {
         setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
       } catch (e) {
         showErrorToast(e)
-        console.error(e)
       }
     }, debounceTime),
   )

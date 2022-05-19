@@ -14,11 +14,12 @@ import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -63,6 +64,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       : null,
   )
 
+  const { showErrorToast } = useErrorHandler()
+
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
     feeAsset?.assetId === sellTradeAsset?.asset?.assetId
@@ -78,6 +81,19 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
 
+    const minSellAmount = toBaseUnit(quote.minimum, quote.sellAsset.precision)
+
+    if (bnOrZero(quote.sellAmount).lt(minSellAmount)) {
+      toast({
+        description: translate('trade.errors.amountToSmall'),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
+      return
+    }
+
     try {
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
@@ -89,20 +105,15 @@ export const TradeInput = ({ history }: RouterProps) => {
         })
         return
       }
-      const result = await updateTrade({
+      await updateTrade({
         wallet,
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
         amount: quote?.sellAmount,
       })
-      if (!result?.success && result?.statusReason) {
-        handleToast(result.statusReason)
-        return
-      }
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (err) {
-      console.error(`TradeInput:onSubmit - ${err}`)
-      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
+      showErrorToast(err)
     }
   }
 

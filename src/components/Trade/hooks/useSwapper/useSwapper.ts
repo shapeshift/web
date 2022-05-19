@@ -5,12 +5,11 @@ import { Asset, ExecQuoteOutput, SupportedChainIds, SwapperType } from '@shapesh
 import debounce from 'lodash/debounce'
 import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { BuildQuoteTxOutput, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import {
   selectAssetIds,
@@ -42,7 +41,6 @@ export enum TRADE_ERRORS {
 
 export const useSwapper = () => {
   const { setValue } = useFormContext()
-  const translate = useTranslate()
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
@@ -137,16 +135,6 @@ export const useSwapper = () => {
       buyAssetId: buyAsset.assetId,
       sellAssetId: sellAsset.assetId,
     })
-
-    const minSellAmount = toBaseUnit(quote.minimum, sellAsset.precision)
-
-    if (bnOrZero(amount).lt(minSellAmount)) {
-      return {
-        success: false,
-        statusReason: translate(TRADE_ERRORS.AMOUNT_TO_SMALL, { minLimit: quote.minimum }),
-      }
-    }
-
     const result = await swapper?.buildTrade({
       sellAmount: amount,
       sellAsset,

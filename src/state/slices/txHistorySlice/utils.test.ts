@@ -72,7 +72,7 @@ describe('txHistorySlice:utils', () => {
 
       expect(txAccountSpecifier).toEqual(accountSpecifier)
       expect(txid).toEqual(EthSend.txid)
-      expect(txAddress).toEqual(EthSend.address)
+      expect(txAddress).toEqual(EthSend.address.toLowerCase())
     })
   })
 })

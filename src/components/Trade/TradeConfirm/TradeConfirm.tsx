@@ -1,7 +1,6 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes, SupportedChainIds } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { SupportedChainIds } from '@shapeshiftoss/types'
+import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -16,7 +15,8 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
-import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
+import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
+import { makeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { TradeRoutePaths, TradeState } from '../types'
@@ -47,18 +47,16 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { wallet, isConnected },
     dispatch,
   } = useWallet()
-  const { chain, tokenId } = trade.sellAsset
-  const network = NetworkTypes.MAINNET
-  type AssetParams = Pick<Parameters<typeof toAssetId>[0], 'assetNamespace' | 'assetReference'>
-  const extra: AssetParams = tokenId
-    ? {
-        assetNamespace: 'erc20',
-        assetReference: tokenId,
-      }
-    : { assetNamespace: 'slip44', assetReference: ASSET_REFERENCE.Ethereum }
-  const assetId = toAssetId({ chain, network, ...extra })
+  const { chainId } = trade.sellAsset
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
+  const parsedTxId = useMemo(
+    () => makeUniqueTxId(accountSpecifier, txid, trade.receiveAddress),
+    [accountSpecifier, trade.receiveAddress, txid],
+  )
+  const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
 
   const onSubmit = async () => {
     if (!wallet) return

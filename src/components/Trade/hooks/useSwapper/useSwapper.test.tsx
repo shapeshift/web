@@ -4,7 +4,7 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, MIN_MAX, USDC, WETH } from 'test/constants'
+import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -29,7 +29,6 @@ function setup({
     buyAsset: USDC,
     sellAsset: WETH,
   },
-  minMax = MIN_MAX,
 } = {}) {
   const setValue = jest.fn()
   const setError = jest.fn()
@@ -44,7 +43,6 @@ function setup({
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
     getBestSwapper: () => ({
       getDefaultPair: () => [FOX, WETH],
-      getMinMax: jest.fn(() => minMax),
       getUsdRate: () => '1',
       approvalNeeded: () => ({ approvalNeeded: approvalNeededBoolean }),
       approveInfinite: () => '0x023423093248420937',
@@ -59,7 +57,6 @@ function setup({
     setValue,
     setError,
     getValues: () => ({
-      trade: minMax,
       action,
       buyAsset: { amount: '20', asset: USDC },
       sellAsset,

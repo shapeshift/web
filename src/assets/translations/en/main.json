@@ -973,7 +973,11 @@
   "plugins": {
     "foxPage": {
       "totalFoxValue": "Total Fox Value",
-      "foxToken": "ShapeShift %{assetSymbol} Token"
+      "foxToken": "ShapeShift %{assetSymbol} Token",
+      "getAsset": "Get %{assetSymbol}",
+      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
+      "trade": "Trade",
+      "receive": "Receive"
     }
   }
 }

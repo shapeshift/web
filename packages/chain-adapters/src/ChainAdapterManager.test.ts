@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ChainTypes } from '@shapeshiftoss/types'
 
-import { UnchainedUrls } from './ChainAdapterManager'
-import { ChainAdapterManager } from './ChainAdapterManager'
+import { ChainAdapterManager, UnchainedUrls } from './ChainAdapterManager'
 import * as ethereum from './ethereum'
 
 const getCAM = (opts?: UnchainedUrls) => {
@@ -118,7 +117,7 @@ describe('ChainAdapterManager', () => {
   })
 
   describe('byChainId', () => {
-    it('should find a supported chain adapter', async () => {
+    it('should find a supported chain adapter', () => {
       const cam = new ChainAdapterManager({})
       // @ts-ignore
       cam.addChain(ChainTypes.Bitcoin, () => ({
@@ -129,17 +128,17 @@ describe('ChainAdapterManager', () => {
         getChainId: () => 'eip155:1'
       }))
 
-      await expect(cam.byChainId('eip155:1')).resolves.toBeTruthy()
+      expect(cam.byChainId('eip155:1')).toBeTruthy()
     })
 
-    it('should throw an error for an invalid ChainId', async () => {
+    it('should throw an error for an invalid ChainId', () => {
       const cam = new ChainAdapterManager({})
-      await expect(cam.byChainId('fake:chainId')).rejects.toThrow('invalid')
+      expect(() => cam.byChainId('fake:chainId')).toThrow('invalid')
     })
 
-    it('should throw an error if there is no supported adapter', async () => {
+    it('should throw an error if there is no supported adapter', () => {
       const cam = new ChainAdapterManager({})
-      await expect(cam.byChainId('eip155:1')).rejects.toThrow('not supported')
+      expect(() => cam.byChainId('eip155:1')).toThrow('not supported')
     })
   })
 })

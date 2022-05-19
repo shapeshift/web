@@ -127,14 +127,14 @@ export class ChainAdapterManager {
     return adapter as ChainAdapter<T>
   }
 
-  async byChainId(chainId: ChainId) {
+  byChainId(chainId: ChainId) {
     // this function acts like a validation function and throws if the check doesn't pass
     isChainId(chainId)
 
     for (const [chain] of this.supported) {
       // byChain calls the factory function so we need to call it to create the instances
       const adapter = this.byChain(chain)
-      if ((await adapter.getChainId()) === chainId) return adapter
+      if (adapter.getChainId() === chainId) return adapter
     }
 
     throw new Error(`Chain [${chainId}] is not supported`)

@@ -15,12 +15,13 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -38,6 +39,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const translate = useTranslate()
+  const appDispatch = useAppDispatch()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, rewardId } = query
   const toast = useToast()
@@ -53,6 +55,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   const feeAssetId = toAssetId({
     chain,
     network,

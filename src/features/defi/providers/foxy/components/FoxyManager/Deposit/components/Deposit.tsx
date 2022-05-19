@@ -9,14 +9,16 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { DepositPath, FoxyDepositActionType } from '../DepositCommon'
+import { DepositPath } from '../DepositCommon'
+import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type FoxyDepositProps = {
@@ -28,6 +30,7 @@ type FoxyDepositProps = {
 export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
+  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId } = query
@@ -37,6 +40,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))

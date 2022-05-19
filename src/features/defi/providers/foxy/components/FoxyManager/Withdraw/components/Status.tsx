@@ -12,13 +12,15 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
+  const appDispatch = useAppDispatch()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, tokenId, rewardId } = query
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
@@ -40,6 +42,8 @@ export const Status = () => {
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   const feeAssetId = toAssetId({
     chain,
     network,

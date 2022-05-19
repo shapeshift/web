@@ -1,7 +1,6 @@
-import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes, SupportedChainIds } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { Box, Button, Divider, Link, Stack } from '@chakra-ui/react'
+import { SupportedChainIds } from '@shapeshiftoss/types'
+import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -10,13 +9,15 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
-import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
+import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
+import { makeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { TradeRoutePaths, TradeState } from '../types'
@@ -34,7 +35,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     handleSubmit,
     formState: { isSubmitting },
   } = useFormContext<TradeState<SupportedChainIds>>()
-  const toast = useToast()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset } = useSwapper()
@@ -47,46 +47,39 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { wallet, isConnected },
     dispatch,
   } = useWallet()
-  const { chain, tokenId } = trade.sellAsset
-  const network = NetworkTypes.MAINNET
-  type AssetParams = Pick<Parameters<typeof toAssetId>[0], 'assetNamespace' | 'assetReference'>
-  const extra: AssetParams = tokenId
-    ? {
-        assetNamespace: 'erc20',
-        assetReference: tokenId,
-      }
-    : { assetNamespace: 'slip44', assetReference: ASSET_REFERENCE.Ethereum }
-  const assetId = toAssetId({ chain, network, ...extra })
+  const { chainId } = trade.sellAsset
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
+  const parsedTxId = useMemo(
+    () => makeUniqueTxId(accountSpecifier, txid, trade.receiveAddress),
+    [accountSpecifier, trade.receiveAddress, txid],
+  )
+  const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
+
+  const { showErrorToast } = useErrorHandler()
 
   const onSubmit = async () => {
-    if (!wallet) return
-    if (!isConnected) {
-      /**
-       * call handleBack to reset current form state
-       * before opening the connect wallet modal.
-       */
-      handleBack()
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
     try {
+      if (!wallet) return
+      if (!isConnected) {
+        /**
+         * call handleBack to reset current form state
+         * before opening the connect wallet modal.
+         */
+        handleBack()
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
+
       const result = await executeQuote({ wallet })
       const transactionId = result?.txid
       if (transactionId) {
         setTxid(transactionId)
       }
-    } catch (err) {
-      console.error(`TradeConfirm:onSubmit - ${err}`)
-      toast({
-        title: translate('trade.errors.title'),
-        description: translate(TRADE_ERRORS.DEX_TRADE_FAILED),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
+    } catch (e) {
+      showErrorToast(e)
     }
   }
 

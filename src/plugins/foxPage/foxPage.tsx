@@ -27,21 +27,21 @@ export const FoxPage = (props: FoxPageProps) => {
   const history = useHistory()
   const assetFox = useAppSelector(state => selectAssetById(state, FoxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, FoxyAssetId))
-  const foxTabSelected = props.activeAssetId === FoxAssetId
-  const foxyTabSelected = props.activeAssetId === FoxyAssetId
+  const isFoxSelected = props.activeAssetId === FoxAssetId
+  const isFoxySelected = props.activeAssetId === FoxyAssetId
   const { description } = assetFox || {}
   const query = useGetAssetDescriptionQuery(FoxAssetId)
   const isLoaded = !query.isLoading
 
-  const handleClickFoxTab = () => {
-    if (foxTabSelected) {
+  const handleFoxClick = () => {
+    if (isFoxSelected) {
       return
     }
     history.push(FoxPageRoutes.Fox)
   }
 
-  const handleClickFoxyTab = () => {
-    if (foxyTabSelected) {
+  const handleFoxyClick = () => {
+    if (isFoxySelected) {
       return
     }
     history.push(FoxPageRoutes.Foxy)
@@ -69,18 +69,18 @@ export const FoxPage = (props: FoxPageProps) => {
             <FoxTab
               assetSymbol={assetFox.symbol}
               assetIcon={assetFox.icon}
-              isSelected={foxTabSelected}
+              isSelected={isFoxSelected}
               cryptoAmount={'3000'}
               fiatAmount={'1000'}
-              onClick={handleClickFoxTab}
+              onClick={handleFoxClick}
             />
             <FoxTab
               assetSymbol={assetFoxy.symbol}
               assetIcon={assetFoxy.icon}
-              isSelected={foxyTabSelected}
+              isSelected={isFoxySelected}
               cryptoAmount={'3000'}
               fiatAmount={'1000'}
-              onClick={handleClickFoxyTab}
+              onClick={handleFoxyClick}
             />
           </SimpleGrid>
         </TabList>

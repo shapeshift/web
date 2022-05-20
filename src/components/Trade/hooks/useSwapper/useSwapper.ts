@@ -237,7 +237,7 @@ export const useSwapper = () => {
       case 'eip155:1':
         {
           const approvalFee = bnOrZero(trade?.feeData?.chainSpecific?.approvalFee)
-            .dividedBy(bn(10).exponentiatedBy(18))
+            .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
           const totalFee = feeBN.plus(approvalFee).toString()
           const gasPrice = bnOrZero(trade?.feeData?.chainSpecific?.gasPrice).toString()

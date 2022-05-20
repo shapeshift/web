@@ -35,7 +35,11 @@ export const useTradeRoutes = (
       const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
       const sellAsset = assets[defaultSellAssetId]
 
-      const buyAssetToCheckId = selectedBuyAssetId ?? defaultBuyAssetId
+      let preBuyAssetToCheckId = selectedBuyAssetId ?? defaultBuyAssetId
+
+      // make sure the same buy and sell assets arent selected
+      const buyAssetToCheckId =
+        preBuyAssetToCheckId === defaultSellAssetId ? defaultBuyAssetId : preBuyAssetToCheckId
 
       const bestSwapper = await swapperManager.getBestSwapper({
         buyAssetId: buyAssetToCheckId,

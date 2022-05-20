@@ -54,5 +54,4 @@ ReadOnly.args = {
   ...Basic.args,
   balance: undefined,
   isReadOnly: true,
-  onClick: undefined,
 }

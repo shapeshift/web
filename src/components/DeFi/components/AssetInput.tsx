@@ -39,7 +39,7 @@ export type AssetInputProps = {
   assetName: string
   assetIcon: string
   onChange?: (arg0: string, arg1?: boolean) => void
-  onClick?: () => void
+  onAssetClick?: () => void
   onMaxClick?: (args: number) => void
   isReadOnly?: boolean
   cryptoAmount?: string
@@ -52,7 +52,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   assetName,
   assetIcon,
   onChange = () => {},
-  onClick,
+  onAssetClick,
   onMaxClick,
   cryptoAmount,
   isReadOnly,
@@ -82,10 +82,10 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     >
       <Stack direction='row' alignItems='center' px={4} py={2}>
         <Button
-          onClick={onClick}
-          variant={onClick ? 'solid' : 'read-only'}
+          onClick={onAssetClick}
+          variant={onAssetClick ? 'solid' : 'read-only'}
           leftIcon={<AssetIcon src={assetIcon} size='xs' />}
-          rightIcon={onClick && <ChevronDownIcon />}
+          rightIcon={onAssetClick && <ChevronDownIcon />}
         >
           {assetName}
         </Button>

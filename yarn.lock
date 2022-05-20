@@ -3788,10 +3788,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^4.1.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.2.0.tgz#4ad25b3090969144c9d325d4131a9980df85ad72"
-  integrity sha512-iIDz4HrgpfRH7H1F6sWmP6oXq9bGZwQ8zbrFRMmEqCniP5plfDVabGB/np6pg+L0I8LFnFV0XSXvnktmhezQ4w==
+"@shapeshiftoss/asset-service@^4.0.0":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.0.1.tgz#50102cdf78295f58023d95421b08e236a87df64b"
+  integrity sha512-LhjhFftD47ZLSyKSm+pwK8V+RaCHUnIRwalHQk45JGbCCNoe231eG2sU4jInJJFuoIIROefjxYtPFMbhImhmOg==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"
@@ -3836,10 +3836,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-4.0.0.tgz#8d854a17dcfac3354f860322795bd52dff0886b4"
   integrity sha512-RQrcjneQ9HbirBrFE8AH6aM5uSw0MudYeamYR66rtzvZnaOpIc2t8dwHLqgQ0Y/DVi2XGyN6jQkcdjcMi64ERA==
 
-"@shapeshiftoss/chain-adapters@^4.1.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-4.3.0.tgz#01b2552273f1a6a6e2517a8c67f29ee541f66bc2"
-  integrity sha512-k4T64jZY3i6IN2Q8sJxG+sPelXu16IXOFB+81I5wnibemuyogK8JCJ4rbgNglOYHj7bT5tMfMLMBHUtDfTImDQ==
+"@shapeshiftoss/chain-adapters@^4.0.0":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-4.0.1.tgz#e209323f80c6312c4659700d5e3250926e22437e"
+  integrity sha512-L2GTlSkb5ua/kUd0cGNU/sMhjBVr7TscLP5YJNEPmfc/fSKSz3TUe6btCncFZ1Q/zX+QShb5ryDP+8lGNpWD5g==
   dependencies:
     axios "^0.26.0"
     bech32 "^2.0.0"
@@ -3887,7 +3887,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.22.0", "@shapeshiftoss/hdwallet-core@^1.22.0":
+"@shapeshiftoss/hdwallet-core@1.22.0", "@shapeshiftoss/hdwallet-core@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.22.0.tgz#f16d3d2842c5e704ec8e829573b1152dd2070001"
   integrity sha512-xCfmWN0FyJH8lVRhAKPQ7UHfWY1aMGbnGyalS+X4saz9P8o4qaHQ/vBpARrKhL+dDsDSKt8Ol2Wo90nv6C/7Ag==
@@ -3907,7 +3907,7 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@^1.22.0":
+"@shapeshiftoss/hdwallet-keepkey-webusb@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.22.0.tgz#16372f9dbff1aeee0d27c036490a7fb28bb84c7f"
   integrity sha512-gfd3wpAdRkI4dZveTEVFn0KKEE1jQvPSyp3P2RAIjwLej4Fds7M5r7mTRw4+oXaz0WhONFZn+ooQygSxQe2EzQ==
@@ -3915,7 +3915,7 @@
     "@shapeshiftoss/hdwallet-core" "1.22.0"
     "@shapeshiftoss/hdwallet-keepkey" "1.22.0"
 
-"@shapeshiftoss/hdwallet-keepkey@1.22.0", "@shapeshiftoss/hdwallet-keepkey@^1.22.0":
+"@shapeshiftoss/hdwallet-keepkey@1.22.0", "@shapeshiftoss/hdwallet-keepkey@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.22.0.tgz#3dfd550ccb0e07fff96db99136c909a346af4fca"
   integrity sha512-4D+lVQaff1E2kO7lImp4gyI+7/tIiwoU6ns/PgmfmuDXpxmSvG0Z50hA2eee6e6eqmPXpwz/1GhlkIvv3p99yA==
@@ -3937,7 +3937,7 @@
     semver "^6.3.0"
     tiny-secp256k1 "^1.1.6"
 
-"@shapeshiftoss/hdwallet-metamask@^1.22.0":
+"@shapeshiftoss/hdwallet-metamask@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.22.0.tgz#41a0cda35a4a463ae344a807b596548b27c0ca9d"
   integrity sha512-XeAZt9rKR0ro7mbLsMBqmfgFIKZJ+hWhyUq9IWQS6X8sgMtNYLtxXor6AV0l+EmUfwP5kZcEI+Ljf/hh3jQQEQ==
@@ -3947,7 +3947,7 @@
     "@shapeshiftoss/hdwallet-core" "1.22.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/hdwallet-native-vault@^1.22.0":
+"@shapeshiftoss/hdwallet-native-vault@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native-vault/-/hdwallet-native-vault-1.22.0.tgz#8671cf62ccceb16b9a7c6b25adaeebb440f6476f"
   integrity sha512-q4opYQLBKeW03L4g/QHYJAsKh4F042RZDTv7MGsVd0/HBNW8RMqc0Apf0I8jYJAjWNh8ZDg9XHCZO7eJTemkyw==
@@ -3962,7 +3962,7 @@
     uuid "^8.3.2"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/hdwallet-native@1.22.0", "@shapeshiftoss/hdwallet-native@^1.22.0":
+"@shapeshiftoss/hdwallet-native@1.22.0", "@shapeshiftoss/hdwallet-native@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.22.0.tgz#abb17a5dafe5476d6d8f4313a71e7d1a75fe6fc0"
   integrity sha512-cu7mQvCg+5RGP2E235RwhusBtDMOPB8F36D+J29YTJPZ1IPdDjbaNAbZbHXL5/W9oNckr5aicRYfgetkIPm8Hw==
@@ -3989,7 +3989,7 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/hdwallet-portis@^1.22.0":
+"@shapeshiftoss/hdwallet-portis@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.22.0.tgz#6791d97f4a2dc25af77e6cee8a9922bd1937e33c"
   integrity sha512-eIpGA9cGHrW2G0bfRhH/QZ8zpMhIoAGvFDHP2ntUEUB/HGaoTwEedBdSqTppSh9pR5YbPtKeZB8kDddxgIhuqg==
@@ -4017,10 +4017,10 @@
     web3-core "^1.7.1"
     web3-utils "^1.7.1"
 
-"@shapeshiftoss/investor-yearn@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-2.0.1.tgz#d5dd87cdd766f52fcc3df7fb9205018866e6ce0b"
-  integrity sha512-FX8ckclXb+gFgwbveI3noGniyLV26KOw3klpgdX9EVmSlvTDReRPnSQ93HnVqnqClwEXEMGqzxz2VjgSvRFpHg==
+"@shapeshiftoss/investor-yearn@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-2.0.0.tgz#c7c201a1ab2a681529f00c19ee4d483634e34a49"
+  integrity sha512-IB1xfgbg4Pnih7eMUW1YXkDFdfwF8sj/oVc3FCwFTE5UiEaUzsNYbKQqmbtuAsxGGZdYn2jog6I4gIn8uzw1Hw==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"
@@ -4035,10 +4035,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^4.0.3":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.1.0.tgz#de41c5d67aaa542539a2edc3a3d7ea4567a0f3dc"
-  integrity sha512-7LZ9XlSrF6Q+1ttKeS8qXkV/yctR6+j0uhtRHJHzGjPGyuhKqFXYTEN7Pde9EmGqeGmeeBY8DG1x0m+dqGcCbQ==
+"@shapeshiftoss/market-service@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.2.0.tgz#ec9210797bc347f9ad572355ce438f912397fe61"
+  integrity sha512-fENZS43Qzm+z9sanI4rNnH/AOd91emqcFtMVhClHmmzbh28usu/JgM/TibOzhjauvxdCEFceNMz5zfoZ2ReeNQ==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.30"
@@ -4071,15 +4071,15 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^4.2.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.2.0.tgz#da58aaee1fedce6ec6a8ed579f5308192bf32bc1"
-  integrity sha512-euQTL7NRvzq6P6wYD8etc6hwLsQTtOERUhCS/F9vSCQ4RmZHdp3T1klw37u9xJR4R0KOYS0ryljZFvhCfVaVOg==
+"@shapeshiftoss/types@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.1.0.tgz#d8f16a6717fb2e73608b10f8ae03f1f02ffcca46"
+  integrity sha512-vMP41yzvT8l2dz9uc0lZgnMWXFWE9ozIa/dJcQZhsePyEJdXTMSEFRX/LBATScfbHBVDNkP0OiAHYq1OBJCdcg==
 
-"@shapeshiftoss/unchained-client@^8.2.0":
-  version "8.3.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-8.3.1.tgz#33c3254917e783dcb9e82f8e175131bdfc4c1578"
-  integrity sha512-cUUXzuAGeWQXOgIwLZ+C8Nu/8HplIxOGWm69W19xokuAqt/t/88j3eYmuyopXnvLsfC/Q5HrJAenKx+/53vI6A==
+"@shapeshiftoss/unchained-client@^8.0.0":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-8.0.1.tgz#056d1d3c3c4bb7319e55550d262cdc682db59715"
+  integrity sha512-KpZ9EuudzC6iufRCh1+zAENwqLzZ8859mIwGlXqzcHpekmkXUX7LF1qeIxafl+yV4W95ELPzzdLjSqdN40Qdow==
   dependencies:
     "@shapeshiftoss/blockbook" "^6.11.0"
     "@yfi/sdk" "^1.0.30"

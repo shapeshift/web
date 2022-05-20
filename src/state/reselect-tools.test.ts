@@ -11,7 +11,7 @@ describe('reselect-tools', () => {
      * https://github.com/skortchmark9/reselect-tools
      *
      * if this test is failing, you've probably done one of the following
-     * - used a non selector function when composing a selctor
+     * - used a non-selector function when composing a selector
      *   - --> make it a selector
      * - exported a non selector function from a selectors.ts file somewhere
      *   - --> move it to a utils file next to the selectors file

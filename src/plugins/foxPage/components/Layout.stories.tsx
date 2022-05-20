@@ -1,12 +1,13 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { Story } from '@storybook/react'
 import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
 
 import { AssetActions } from './AssetActions'
+import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
 import { Total } from './Total'
@@ -83,7 +84,13 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'Fox Page'}</Text>
+                <FoxOpportunity
+                  balance='--'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -108,7 +115,13 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'Foxy Page'}</Text>
+                <FoxOpportunity
+                  balance='--'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -133,7 +146,13 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'oneFOX page'}</Text>
+                <FoxOpportunity
+                  balance='--'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions

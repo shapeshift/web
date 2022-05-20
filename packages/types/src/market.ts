@@ -3,6 +3,8 @@ export type MarketData = {
   marketCap: string
   volume: string
   changePercent24Hr: number
+  supply?: string
+  maxSupply?: string
 }
 
 export enum HistoryTimeframe {

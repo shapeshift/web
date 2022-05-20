@@ -29,7 +29,7 @@
     "@shapeshiftoss/investor-yearn": "^2.0.0",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^4.0.0",
-    "@shapeshiftoss/swapper": "^5.0.0",
+    "@shapeshiftoss/swapper": "^5.1.1",
     "@shapeshiftoss/types": "^4.1.0",
     "@shapeshiftoss/unchained-client": "^8.0.0",
     "@visx/axis": "^2.6.0",

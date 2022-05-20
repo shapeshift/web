@@ -14,7 +14,7 @@ import { useSwapper } from '../useSwapper/useSwapper'
 const ETHEREUM_ASSET_ID = 'eip155:1/slip44:60'
 
 export const useTradeRoutes = (
-  defaultBuyAssetId?: AssetId,
+  selectedBuyAssetId?: AssetId,
 ): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
@@ -32,21 +32,27 @@ export const useTradeRoutes = (
     if (isEmpty(assets) || !feeAsset) return
 
     try {
-      const [sellAssetId, buyAssetId] = getDefaultPair()
-      const sellAsset = assets[sellAssetId]
+      const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
+      const sellAsset = assets[defaultSellAssetId]
 
-      if (!defaultBuyAssetId) return
+      const buyAssetToCheck = selectedBuyAssetId ?? defaultBuyAssetId
 
+      const bestSwapper = await swapperManager.getBestSwapper({
+        buyAssetId: buyAssetToCheck,
+        sellAssetId: defaultSellAssetId,
+      })
+
+      let isSupportedPair = false
       // check pair is valid
-      const isSupportedPair =
-        swapperManager.getSwappersByPair({
-          buyAssetId,
-          sellAssetId,
-        }).length > 0
+      try {
+        if (bestSwapper) {
+          isSupportedPair = true
+        }
+      } catch (e) {}
 
-      const supportedBuyAssetId = isSupportedPair ? buyAssetId : defaultBuyAssetId
+      const buyAssetId = isSupportedPair ? buyAssetToCheck : defaultBuyAssetId
 
-      const buyAsset = assets[supportedBuyAssetId]
+      const buyAsset = assets[buyAssetId]
 
       if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
@@ -63,7 +69,7 @@ export const useTradeRoutes = (
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, defaultBuyAssetId, feeAsset, getDefaultPair, setValue, swapperManager, updateQuote])
+  }, [assets, feeAsset, getDefaultPair, selectedBuyAssetId, setValue, swapperManager, updateQuote])
 
   useEffect(() => {
     setDefaultAssets()

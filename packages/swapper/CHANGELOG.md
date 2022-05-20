@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.1.0...@shapeshiftoss/swapper-v5.1.1) (2022-05-20)
+
+
+### Bug Fixes
+
+* add blacklist and make getBestSwapper return possibly undefined ([#672](https://github.com/shapeshift/lib/issues/672)) ([c2e3834](https://github.com/shapeshift/lib/commit/c2e38345a74af92c94890ccdcf1c6da2e30f99c1))
+
 # [@shapeshiftoss/swapper-v5.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.0.1...@shapeshiftoss/swapper-v5.1.0) (2022-05-20)
 
 

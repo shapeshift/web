@@ -5,12 +5,12 @@ import { Asset, ExecQuoteOutput, SupportedChainIds, SwapperType } from '@shapesh
 import debounce from 'lodash/debounce'
 import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { BuildQuoteTxOutput, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import {
   selectAssetIds,
@@ -32,17 +32,8 @@ type GetQuoteInput = {
   forceQuote?: boolean
 }
 
-export enum TRADE_ERRORS {
-  TITLE = 'trade.errors.title',
-  NOT_ENOUGH_ETH = 'trade.errors.notEnoughEth',
-  AMOUNT_TO_SMALL = 'trade.errors.amountToSmall',
-  DEX_TRADE_FAILED = 'trade.errors.dexTradeFailed',
-  QUOTE_FAILED = 'trade.errors.quoteFailed',
-}
-
 export const useSwapper = () => {
   const { setValue } = useFormContext()
-  const translate = useTranslate()
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
@@ -97,6 +88,8 @@ export const useSwapper = () => {
     selectFeeAssetById(state, sellTradeAsset?.asset.assetId ?? 'eip155:1/slip44:60'),
   )
 
+  const { showErrorToast } = useErrorHandler()
+
   const getSendMaxAmount = async ({
     sellAsset,
     feeAsset,
@@ -137,16 +130,6 @@ export const useSwapper = () => {
       buyAssetId: buyAsset.assetId,
       sellAssetId: sellAsset.assetId,
     })
-
-    const minSellAmount = toBaseUnit(quote.minimum, sellAsset.precision)
-
-    if (bnOrZero(amount).lt(minSellAmount)) {
-      return {
-        success: false,
-        statusReason: translate(TRADE_ERRORS.AMOUNT_TO_SMALL, { minLimit: quote.minimum }),
-      }
-    }
-
     const result = await swapper?.buildTrade({
       sellAmount: amount,
       sellAsset,
@@ -217,7 +200,7 @@ export const useSwapper = () => {
         setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
         setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
       } catch (e) {
-        console.error(e)
+        showErrorToast(e)
       }
     }, debounceTime),
   )
@@ -254,7 +237,7 @@ export const useSwapper = () => {
       case 'eip155:1':
         {
           const approvalFee = bnOrZero(trade?.feeData?.chainSpecific?.approvalFee)
-            .dividedBy(bn(10).exponentiatedBy(18))
+            .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
           const totalFee = feeBN.plus(approvalFee).toString()
           const gasPrice = bnOrZero(trade?.feeData?.chainSpecific?.gasPrice).toString()

@@ -28,12 +28,12 @@
     "ws": "^8.3.0"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^4.0.0",
+    "@shapeshiftoss/caip": "^4.0.1",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/types": "^4.0.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^4.0.0",
+    "@shapeshiftoss/caip": "^4.0.1",
     "@shapeshiftoss/common-api": "^6.11.0",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/types": "^4.0.0",

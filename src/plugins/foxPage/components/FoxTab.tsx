@@ -10,10 +10,10 @@ type FoxTabProps = {
   fiatAmount: string
   cryptoAmount: string
   isSelected?: boolean
-  onClick: () => void
+  onClick?: () => void
 } & TabProps
 
-export const FoxTab = ({
+export const FoxTab: React.FC<FoxTabProps> = ({
   assetIcon,
   assetSymbol,
   fiatAmount,
@@ -21,7 +21,7 @@ export const FoxTab = ({
   isSelected,
   onClick,
   ...props
-}: FoxTabProps) => {
+}) => {
   const bgHover = useColorModeValue('gray.100', 'gray.750')
 
   return (

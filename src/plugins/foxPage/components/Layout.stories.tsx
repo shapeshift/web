@@ -125,6 +125,9 @@ export const FoxLayout: Story = () => {
                       assetIcon={mockAsset.icon}
                       cryptoAmount={'3000'}
                       fiatAmount={'1000'}
+                      onClick={() => {
+                        setSelectedTabIndex(0)
+                      }}
                     />
                   </MenuItem>
                   <MenuItem
@@ -137,6 +140,9 @@ export const FoxLayout: Story = () => {
                       assetIcon={mockAsset.icon}
                       cryptoAmount={'3000'}
                       fiatAmount={'1000'}
+                      onClick={() => {
+                        setSelectedTabIndex(1)
+                      }}
                     />
                   </MenuItem>
                 </MenuList>

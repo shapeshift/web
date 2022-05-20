@@ -1,4 +1,3 @@
-import { SwapperManager } from '@shapeshiftoss/swapper'
 import { SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -31,10 +30,11 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     updateQuote,
-    getBestSwapper: () => SwapperType.Zrx,
     getDefaultPair: () => [mockETH.assetId, mockFOX.assetId],
+    swapperManager: {
+      getBestSwapper: jest.fn(),
+    },
   }))
-  ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({}))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     getValues: jest.fn((search: string) => {

@@ -1,5 +1,4 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { SwapperManager } from '@shapeshiftoss/swapper'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -13,7 +12,6 @@ import { selectAssets } from 'state/slices/selectors'
 import { useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_ASSET_ID = 'eip155:1/slip44:60'
-const swapperManager = new SwapperManager()
 
 export const useTradeRoutes = (
   selectedBuyAssetId?: AssetId,
@@ -23,7 +21,7 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<SupportedChainIds>>()
-  const { updateQuote, getDefaultPair } = useSwapper()
+  const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
@@ -37,10 +35,10 @@ export const useTradeRoutes = (
       const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
       const sellAsset = assets[defaultSellAssetId]
 
-      const buyAssetToCheck = selectedBuyAssetId ?? defaultBuyAssetId
+      const buyAssetToCheckId = selectedBuyAssetId ?? defaultBuyAssetId
 
       const bestSwapper = await swapperManager.getBestSwapper({
-        buyAssetId: buyAssetToCheck,
+        buyAssetId: buyAssetToCheckId,
         sellAssetId: defaultSellAssetId,
       })
 
@@ -49,12 +47,12 @@ export const useTradeRoutes = (
       // This works for now
       try {
         if (bestSwapper) {
-          await bestSwapper.getUsdRate({ ...assets[buyAssetToCheck] })
+          await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
           isSupportedPair = true
         }
       } catch (e) {}
 
-      const buyAssetId = isSupportedPair ? buyAssetToCheck : defaultBuyAssetId
+      const buyAssetId = isSupportedPair ? buyAssetToCheckId : defaultBuyAssetId
 
       const buyAsset = assets[buyAssetId]
 

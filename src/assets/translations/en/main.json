@@ -58,7 +58,8 @@
     "login": "Log In",
     "verify": "Verify",
     "notRobot": "I am not a Robot",
-    "skip": "Skip"
+    "skip": "Skip",
+    "generalError": "An error has occured"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -321,6 +322,8 @@
       },
       "uniV2": {
         "addLiquidityETH": "Add liquidity",
+        "stake": "Stake",
+        "exit": "Unstake",
         "removeLiquidityETH": "Remove liquidity"
       },
       "thor": {
@@ -377,10 +380,20 @@
       "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
       "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
       "hdwalletInvalidConfig": "An error occurred communicating with your hardware wallet",
+      "allowanceRequiredFailed": "An error occurred getting approving the allowance required to trade.",
+      "checkApprovalNeededFailed": "An error occurred checking the approval for your trade.",
+      "approveInfiniteFailed": "An error occurred approving your trade.",
+      "buildTradeFailed": "An error occurred building your trade.",
+      "grantAllowanceFailed": "An error occurred granting allowance.",
+      "minMaxError": "An error occured getting min / max trade amount",
+      "executeTradeFailed": "An error occurred executing your trade.",
+      "unsupportedPair": "This trading pair is not currently supported.",
+      "rateError": "An error occured getting trade rates",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
-      }
+      },
+      "generalError": "A trade error has occured"
     }
   },
   "modals": {
@@ -971,7 +984,16 @@
   "plugins": {
     "foxPage": {
       "totalFoxValue": "Total Fox Value",
-      "foxToken": "ShapeShift %{assetSymbol} Token"
+      "foxToken": "ShapeShift %{assetSymbol} Token",
+      "getAsset": "Get %{assetSymbol}",
+      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
+      "trade": "Trade",
+      "receive": "Receive",
+      "titleStaking": "%{assetSymbol} Token Staking",
+      "tvl": "TVL",
+      "currentApy": "Current APY",
+      "balance": "Balance",
+      "getStarted": "Get Started"
     }
   }
 }

@@ -13,16 +13,16 @@ export function register(): Plugins {
         providers: {
           chainAdapters: [
             [
-              ChainTypes.Cosmos,
+              ChainTypes.Osmosis,
               () => {
-                const http = new unchained.cosmos.V1Api(
-                  new unchained.cosmos.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+                const http = new unchained.osmosis.V1Api(
+                  new unchained.osmosis.Configuration({
+                    basePath: getConfig().REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL,
                   }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL,
+                  getConfig().REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
                 )
 
                 return new cosmossdk.osmosis.ChainAdapter({

@@ -24,6 +24,7 @@ import {
 } from '../../api'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
+import { UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
 import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
@@ -79,10 +80,15 @@ export class ZrxSwapper implements Swapper {
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
-    return assetIds.filter((id) => id.startsWith('eip155:1') && sellAssetId?.startsWith('eip155:1'))
+    return assetIds.filter(
+      (id) =>
+        id.startsWith('eip155:1') &&
+        sellAssetId?.startsWith('eip155:1') &&
+        !UNSUPPORTED_ASSETS.includes(id)
+    )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
-    return assetIds.filter((id) => id.startsWith('eip155:1'))
+    return assetIds.filter((id) => id.startsWith('eip155:1') && !UNSUPPORTED_ASSETS.includes(id))
   }
 }

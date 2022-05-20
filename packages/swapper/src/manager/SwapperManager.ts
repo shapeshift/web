@@ -41,6 +41,7 @@ export class SwapperManager {
    *
    * @param swapperType swapper type {SwapperType|string}
    * @returns {Swapper}
+   * @deprecated this will be removed, currently used in swapper tests
    */
   getSwapper(swapperType: SwapperType): Swapper {
     const swapper = this.swappers.get(swapperType)
@@ -68,7 +69,7 @@ export class SwapperManager {
     return this
   }
 
-  async getBestSwapper(args: ByPairInput): Promise<Swapper> {
+  async getBestSwapper(args: ByPairInput): Promise<Swapper | undefined> {
     // TODO: This will eventually have logic to determine the best swapper.
     // For now we return the first swapper we get from getSwappersByPair
     return this.getSwappersByPair(args)[0]

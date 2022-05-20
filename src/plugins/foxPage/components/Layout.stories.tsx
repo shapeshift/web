@@ -1,12 +1,11 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import { SimpleGrid, TabList, Tabs } from '@chakra-ui/react'
 import { Story } from '@storybook/react'
 import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
 
-import { AssetActions } from './AssetActions'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
 import { Total } from './Total'
@@ -74,7 +73,7 @@ export const FoxLayout: Story = () => {
           </SimpleGrid>
         </TabList>
 
-        <TabPanels>
+        {/*  <TabPanels>
           <TabPanel p={0}>
             <Stack
               alignItems='flex-start'
@@ -87,7 +86,7 @@ export const FoxLayout: Story = () => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
-                  assetIcon={mockAsset.icon}
+                  assetId={mockAsset.icon}
                   assetSymbol={mockAsset.symbol}
                   description={mockAsset.description}
                   buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
@@ -150,7 +149,7 @@ export const FoxLayout: Story = () => {
               </Stack>
             </Stack>
           </TabPanel>
-        </TabPanels>
+        </TabPanels> */}
       </Tabs>
     </Layout>
   )

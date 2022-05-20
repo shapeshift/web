@@ -9,39 +9,36 @@ import {
   Tabs,
   Text as CText,
 } from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
+import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type FoxTabProps = {
-  assetIcon: string
-  assetSymbol: string
-  description: string
-  buyCTA: string
-  sellCTA: string
+  assetId: AssetId
   onReceiveClick: () => void
   onBuyClick: () => void
 }
 
-export const AssetActions = ({
-  assetIcon,
-  assetSymbol,
-  description,
-  buyCTA,
-  sellCTA,
-  onReceiveClick,
-  onBuyClick,
-}: FoxTabProps) => {
+export const AssetActions = ({ assetId, onReceiveClick, onBuyClick }: FoxTabProps) => {
   const translate = useTranslate()
-
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  //const { name, description, isTrustedDescription } = asset || {}
+  const query = useGetAssetDescriptionQuery(assetId)
+  const isLoaded = !query.isLoading
   return (
     <Card display='block' borderRadius={8}>
       <Card.Body p={0}>
         <Tabs isFitted>
           <TabList>
             <Tab py={4} color='gray.500' fontWeight='semibold'>
-              {translate('plugins.foxPage.getAsset', { assetSymbol })}
+              {translate('plugins.foxPage.getAsset', {
+                assetSymbol: asset.symbol,
+              })}
             </Tab>
             <Tab py={4} color='gray.500' fontWeight='semibold'>
               {translate('plugins.foxPage.trade')}
@@ -50,18 +47,22 @@ export const AssetActions = ({
           <TabPanels>
             <TabPanel textAlign='center' p={6}>
               <Box mb={6}>
-                <AssetIcon src={assetIcon} boxSize='16' />
+                <AssetIcon src={asset.icon} boxSize='16' />
               </Box>
-              <SkeletonText isLoaded={true} noOfLines={3}>
-                <Text translation={description} color='gray.500' mb={6} />
+              <SkeletonText isLoaded={isLoaded} noOfLines={3}>
+                <Text translation={'TODO desc ....'} color='gray.500' mb={6} />
               </SkeletonText>
 
               <Stack width='full'>
                 <Button onClick={onBuyClick} colorScheme={'blue'} mb={2} size='lg'>
-                  <CText>{buyCTA}</CText>
+                  <CText>
+                    {translate('plugins.foxPage.buyAssetOnCoinbase', {
+                      assetSymbol: asset.symbol,
+                    })}
+                  </CText>
                 </Button>
                 <Button onClick={onReceiveClick} size='lg' colorScheme='gray'>
-                  <Text translation={sellCTA} />
+                  <Text translation={'plugins.foxPage.receive'} />
                 </Button>
               </Stack>
             </TabPanel>

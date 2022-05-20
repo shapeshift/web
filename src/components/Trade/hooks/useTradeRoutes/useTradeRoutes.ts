@@ -43,7 +43,8 @@ export const useTradeRoutes = (
       })
 
       let isSupportedPair = false
-      // check pair is valid
+      // TODO update swapper to have an official way to validate a pair is supported.
+      // This works for now
       try {
         if (bestSwapper) {
           await bestSwapper.getUsdRate({ ...assets[buyAssetToCheck] })

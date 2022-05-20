@@ -40,7 +40,7 @@ export type MarketDataState = {
   fiat: FiatMarketDataState
 }
 
-const initialPriceHistory: PriceHistoryByTimeframe = {
+export const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.HOUR]: {},
   [HistoryTimeframe.DAY]: {},
   [HistoryTimeframe.WEEK]: {},

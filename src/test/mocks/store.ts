@@ -1,6 +1,5 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-
-import { ReduxState } from '../../state/reducer'
+import { ReduxState } from 'state/reducer'
+import { initialPriceHistory } from 'state/slices/marketDataSlice/marketDataSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -70,26 +69,12 @@ export const mockStore: ReduxState = {
     crypto: {
       byId: {},
       ids: [],
-      priceHistory: {
-        [HistoryTimeframe.DAY]: {},
-        [HistoryTimeframe.HOUR]: {},
-        [HistoryTimeframe.WEEK]: {},
-        [HistoryTimeframe.MONTH]: {},
-        [HistoryTimeframe.YEAR]: {},
-        [HistoryTimeframe.ALL]: {},
-      },
+      priceHistory: initialPriceHistory,
     },
     fiat: {
       byId: {},
       ids: [],
-      priceHistory: {
-        [HistoryTimeframe.DAY]: {},
-        [HistoryTimeframe.HOUR]: {},
-        [HistoryTimeframe.WEEK]: {},
-        [HistoryTimeframe.MONTH]: {},
-        [HistoryTimeframe.YEAR]: {},
-        [HistoryTimeframe.ALL]: {},
-      },
+      priceHistory: initialPriceHistory,
     },
   },
   txHistory: {

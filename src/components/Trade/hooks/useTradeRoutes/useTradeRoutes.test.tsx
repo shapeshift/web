@@ -96,7 +96,7 @@ describe('useTradeRoutes', () => {
     const { result, setValue, updateQuote } = setup({ sellAmount: '234' })
     await result.current.handleBuyClick(mockFOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.asset', mockFOX)
-    expect(setValue).toHaveBeenCalledWith('sellAsset.asset', mockETH)
+    expect(setValue).toHaveBeenCalledWith('sellAsset.asset', WETH)
     expect(updateQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on buy click', async () => {

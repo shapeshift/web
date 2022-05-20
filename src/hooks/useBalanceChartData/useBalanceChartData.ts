@@ -16,13 +16,13 @@ import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
-import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { priceAtDate } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -44,22 +44,6 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
-
-type PriceAtBlockTimeArgs = {
-  date: number
-  assetPriceHistoryData: HistoryData[]
-}
-
-type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
-
-export const priceAtBlockTime: PriceAtBlockTime = ({ date, assetPriceHistoryData }): number => {
-  const { length } = assetPriceHistoryData
-  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
-  const i = sortedIndexBy(assetPriceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
-  if (i === 0) return assetPriceHistoryData[i].price
-  if (i >= length) return assetPriceHistoryData[length - 1].price
-  return assetPriceHistoryData[i].price
-}
 
 type CryptoBalance = {
   [k: AssetId]: BigNumber // map of asset to base units
@@ -194,7 +178,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
-    const price = priceAtBlockTime({ assetPriceHistoryData, date })
+    const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) {
       return acc

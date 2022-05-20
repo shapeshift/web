@@ -1,4 +1,3 @@
-import { SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'

@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-- [Docker](https://docs.docker.com/get-started/#download-and-install-docker) - used for dockerized code generation during `yarn build`
+- [OpenJDK 11](https://openjdk.java.net/install/) - required for [openapi-generator-cli](https://openapi-generator.tech/docs/usage#generate) to generate api clients from OpenAPI specs
 
 ## Getting started
 

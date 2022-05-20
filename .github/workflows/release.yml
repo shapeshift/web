@@ -15,6 +15,11 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: OpenJDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft'
+          java-version: '11'
       - name: Cache dependencies
         uses: actions/cache@v2
         with:

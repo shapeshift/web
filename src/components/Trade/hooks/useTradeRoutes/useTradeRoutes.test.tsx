@@ -1,3 +1,4 @@
+import { SwapperManager } from '@shapeshiftoss/swapper'
 import { SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -16,6 +17,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
+jest.mock('@shapeshiftoss/swapper')
 jest.mock('state/slices/selectors', () => ({
   selectAssets: () => ({
     'eip155:1/slip44:60': mockETH,
@@ -32,6 +34,7 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
     getBestSwapper: () => SwapperType.Zrx,
     getDefaultPair: () => [mockETH.assetId, mockFOX.assetId],
   }))
+  ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({}))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     getValues: jest.fn((search: string) => {

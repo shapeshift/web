@@ -1,4 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
+import { SwapperManager } from '@shapeshiftoss/swapper'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -12,6 +13,7 @@ import { selectAssets } from 'state/slices/selectors'
 import { useSwapper } from '../useSwapper/useSwapper'
 
 const ETHEREUM_ASSET_ID = 'eip155:1/slip44:60'
+const swapperManager = new SwapperManager()
 
 export const useTradeRoutes = (
   selectedBuyAssetId?: AssetId,
@@ -21,7 +23,7 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<SupportedChainIds>>()
-  const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
+  const { updateQuote, getDefaultPair } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)

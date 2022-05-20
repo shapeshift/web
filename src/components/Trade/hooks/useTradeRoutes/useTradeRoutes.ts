@@ -46,6 +46,7 @@ export const useTradeRoutes = (
       // check pair is valid
       try {
         if (bestSwapper) {
+          await bestSwapper.getUsdRate({ ...assets[buyAssetToCheck] })
           isSupportedPair = true
         }
       } catch (e) {}

@@ -11,6 +11,7 @@ import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
+import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
@@ -176,9 +177,7 @@ export const bucketEvents = (
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
-  priceHistoryData: {
-    [k: AssetId]: HistoryData[]
-  }
+  priceHistoryData: PriceHistoryData
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
@@ -398,7 +397,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const noDeviceId = isNil(walletInfo?.deviceId)
     const noAssetIds = !assetIds.length
-    if (noDeviceId || noAssetIds || priceHistoryDataLoading) {
+    const noPriceHistoryData = isEmpty(priceHistoryData)
+    if (noDeviceId || noAssetIds || priceHistoryDataLoading || noPriceHistoryData) {
       return setBalanceChartDataLoading(true)
     }
 

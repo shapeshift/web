@@ -17,7 +17,7 @@ import { logger } from 'lib/logger'
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
 export type PriceHistoryData = {
-  [k: AssetId]: HistoryData[]
+  [k: AssetId]: HistoryData[] | undefined
 }
 
 type PriceHistoryByTimeframe = {

@@ -74,11 +74,10 @@ export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
   (priceHistory, selectedCurrency, fiatPriceHistoryData, assetId, timeframe): HistoryData[] => {
     const assetPriceHistoryData = priceHistory[timeframe][assetId] ?? []
     const priceHistoryData = fiatPriceHistoryData[timeframe][selectedCurrency]
-    // fiat history not loaded yet
-    if (!priceHistoryData) return []
     return assetPriceHistoryData.reduce<HistoryData[]>((acc, assetHistoryDate) => {
       const { price, date } = assetHistoryDate
-      const fiatToUsdRate = priceAtDate({ priceHistoryData, date })
+      // fiat history not loaded yet - default to USD/USD rate = 1
+      const fiatToUsdRate = priceHistoryData ? priceAtDate({ priceHistoryData, date }) : 1
       acc.push({ price: bnOrZero(price).times(fiatToUsdRate).toNumber(), date })
       return acc
     }, [])

@@ -49,7 +49,7 @@ export const makeUniqueTxId = (
   accountId: AccountSpecifier,
   txId: Tx['txid'],
   txAddress: Tx['address'],
-): string => [accountId, txId, txAddress].join(UNIQUE_TX_ID_DELIMITER)
+): string => [accountId, txId, txAddress.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
 
 type DeserializeUniqueTxId = { txAccountSpecifier: string; txid: string; txAddress: string }
 

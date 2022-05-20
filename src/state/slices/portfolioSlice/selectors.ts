@@ -63,11 +63,11 @@ type OptionalParamFilterKey = keyof OptionalParamFilter
 const selectParamFromFilter =
   <T extends ParamFilterKey>(param: T) =>
   (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] =>
-    filter[param]
+    filter?.[param] ?? ''
 const selectParamFromFilterOptional =
   <T extends OptionalParamFilterKey>(param: T) =>
   (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] =>
-    filter[param]
+    filter?.[param] ?? ''
 
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = [ethAssetId, btcAssetId, cosmosAssetId, osmosisAssetId]
@@ -278,11 +278,11 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
     if (accountId && assetId) {
       return fromBaseUnit(
         bnOrZero(accountBalances?.[accountId]?.[assetId]),
-        assets[assetId]?.precision ?? 0,
+        assets?.[assetId]?.precision ?? 0,
       )
     }
 
-    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId].precision ?? 0)
+    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets?.[assetId]?.precision ?? 0)
   },
 )
 
@@ -353,7 +353,7 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   selectTotalStakingUndelegationCryptoByAccountSpecifier,
   (assetId, assets, totalDelegations, totalUndelegations) => {
     const total = bnOrZero(totalDelegations).plus(totalUndelegations)
-    return fromBaseUnit(total, assets[assetId].precision ?? 0).toString()
+    return fromBaseUnit(total, assets?.[assetId]?.precision ?? 0).toString()
   },
 )
 

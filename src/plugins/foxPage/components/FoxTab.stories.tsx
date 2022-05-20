@@ -37,12 +37,14 @@ export const FoxPageTabs: Story = () => (
           isSelected={true}
           cryptoAmount={'3000'}
           fiatAmount={'1000'}
+          onClick={() => {}}
         />
         <FoxTab
           assetIcon={fox.icon}
           assetSymbol={fox.symbol}
           cryptoAmount={'3000'}
           fiatAmount={'1000'}
+          onClick={() => {}}
         />
       </SimpleGrid>
     </TabList>

@@ -10,6 +10,7 @@ type FoxTabProps = {
   fiatAmount: string
   cryptoAmount: string
   isSelected?: boolean
+  onClick: () => void
 } & TabProps
 
 export const FoxTab = ({
@@ -18,6 +19,7 @@ export const FoxTab = ({
   fiatAmount,
   cryptoAmount,
   isSelected,
+  onClick,
   ...props
 }: FoxTabProps) => {
   const bgHover = useColorModeValue('gray.100', 'gray.750')
@@ -38,6 +40,7 @@ export const FoxTab = ({
       textAlign='left'
       p={0}
       isSelected={isSelected}
+      onClick={onClick}
       {...props}
     >
       <Card display='block' bg='none' border='none' boxShadow='none' p={0} width='full'>

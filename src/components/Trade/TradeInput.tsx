@@ -13,12 +13,13 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -63,6 +64,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       : null,
   )
 
+  const { showErrorToast } = useErrorHandler()
+
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
     feeAsset?.assetId === sellTradeAsset?.asset?.assetId
@@ -78,14 +81,20 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
 
-    try {
-      const result = await updateTrade({
-        wallet,
-        sellAsset: quote?.sellAsset,
-        buyAsset: quote?.buyAsset,
-        amount: quote?.sellAmount,
+    const minSellAmount = toBaseUnit(quote.minimum, quote.sellAsset.precision)
+
+    if (bnOrZero(quote.sellAmount).lt(minSellAmount)) {
+      toast({
+        description: translate('trade.errors.amountToSmall'),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
       })
-      if (!result?.success && result?.statusReason) handleToast(result.statusReason)
+      return
+    }
+
+    try {
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
         history.push({
@@ -96,10 +105,15 @@ export const TradeInput = ({ history }: RouterProps) => {
         })
         return
       }
+      await updateTrade({
+        wallet,
+        sellAsset: quote?.sellAsset,
+        buyAsset: quote?.buyAsset,
+        amount: quote?.sellAmount,
+      })
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
-    } catch (err) {
-      console.error(`TradeInput:onSubmit - ${err}`)
-      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
+    } catch (e) {
+      showErrorToast(e)
     }
   }
 
@@ -127,8 +141,6 @@ export const TradeInput = ({ history }: RouterProps) => {
       const currentSellAsset = getValues('sellAsset')
       const currentBuyAsset = getValues('buyAsset')
 
-      if (!maxSendAmount) return
-
       updateQuote({
         sellAsset: currentSellAsset.asset,
         buyAsset: currentBuyAsset.asset,
@@ -137,36 +149,29 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: maxSendAmount,
       })
     } catch (e) {
-      fnLogger.error(e, 'Building Quote Failed')
-      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
+      showErrorToast(e)
     } finally {
       setIsSendMaxLoading(false)
     }
   }
 
-  const handleToast = (description: string) => {
-    toast({
-      description,
-      status: 'error',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right',
-    })
-  }
-
   const toggleAssets = () => {
-    const currentSellAsset = getValues('sellAsset')
-    const currentBuyAsset = getValues('buyAsset')
-    setValue('sellAsset', currentBuyAsset)
-    setValue('buyAsset', currentSellAsset)
-    updateQuote({
-      forceQuote: true,
-      amount: bnOrZero(currentBuyAsset.amount).toString(),
-      sellAsset: currentBuyAsset.asset,
-      buyAsset: currentSellAsset.asset,
-      feeAsset,
-      action: TradeAmountInputField.SELL,
-    })
+    try {
+      const currentSellAsset = getValues('sellAsset')
+      const currentBuyAsset = getValues('buyAsset')
+      setValue('sellAsset', currentBuyAsset)
+      setValue('buyAsset', currentSellAsset)
+      updateQuote({
+        forceQuote: true,
+        amount: bnOrZero(currentBuyAsset.amount).toString(),
+        sellAsset: currentBuyAsset.asset,
+        buyAsset: currentSellAsset.asset,
+        feeAsset,
+        action: TradeAmountInputField.SELL,
+      })
+    } catch (e) {
+      showErrorToast(e)
+    }
   }
 
   const getTranslationKey = () => {
@@ -270,7 +275,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     size='sm'
                     variant='ghost'
                     colorScheme='blue'
-                    isDisabled={isSendMaxLoading || !hasValidBalance}
+                    isDisabled={isSendMaxLoading || !hasValidBalance || !quote}
                     onClick={onSetMaxTrade}
                     data-test='token-row-sell-max-button'
                   >
@@ -366,7 +371,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 !wallet ||
                 !hasValidTradeBalance ||
                 !hasEnoughBalanceForGas ||
-                !quote
+                !quote ||
+                !hasValidSellAmount
               }
               style={{
                 whiteSpace: 'normal',

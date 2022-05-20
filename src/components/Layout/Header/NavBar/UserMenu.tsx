@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronRightIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Button, ButtonGroup, Flex, HStack, IconButton, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
@@ -23,7 +23,7 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
     <MenuGroup title={translate('common.noWallet')} ml={3} color='gray.500'>
       <MenuItem onClick={onClick} alignItems='center' justifyContent='space-between'>
         {translate('common.connectWallet')}
-        <ChevronRightIcon />
+        <ChevronDownIcon />
       </MenuItem>
     </MenuGroup>
   )
@@ -138,8 +138,6 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
-  const [isOpen, setIsOpen] = useState(false)
-
   return (
     <ButtonGroup>
       <WalletButton
@@ -152,8 +150,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
         <MenuButton
           as={IconButton}
           aria-label='Open wallet dropdown menu'
-          onClick={() => setIsOpen(!isOpen)}
-          icon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
+          icon={<ChevronDownIcon />}
           data-test='navigation-wallet-dropdown-button'
         />
         <MenuList

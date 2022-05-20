@@ -1,10 +1,10 @@
-import { AssetNamespace, AssetReference, toAssetId, toChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import {
+  bitcoin,
   convertXpubVersion,
   toRootDerivationPath,
   utxoAccountParams,
 } from '@shapeshiftoss/chain-adapters'
-import { bitcoin } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
   supportsBTC,
@@ -19,6 +19,7 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
@@ -67,6 +68,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
+  const routeAssetId = useRouteAssetId()
 
   // keep track of pending tx ids, so we can refetch the portfolio when they confirm
   const [pendingTxIds, setPendingTxIds] = useState<Set<TxId>>(new Set<TxId>())
@@ -149,8 +151,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               const assetId = toAssetId({
                 chain,
                 network: NetworkTypes.MAINNET,
-                assetNamespace: AssetNamespace.Slip44,
-                assetReference: AssetReference.Bitcoin,
+                assetNamespace: 'slip44',
+                assetReference: ASSET_REFERENCE.Bitcoin,
               })
               const bitcoin = assetsById[assetId]
 
@@ -326,6 +328,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // marketDataIntervalId causes infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
+
+  // market data single-asset fetch, will use cached version if available
+  // This uses the assetId from /assets route
+  useEffect(() => {
+    // early return for routes that don't contain an assetId, no need to refetch marketData granularly
+    if (!routeAssetId) return
+
+    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
+  }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

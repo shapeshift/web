@@ -55,6 +55,8 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL,
     process.env.REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_COSMOS_WS_URL,
+    process.env.REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL,
+    process.env.REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
     // Explicitly whitelist our KeepKey versions file
     process.env.REACT_APP_KEEPKEY_VERSIONS_URL,
     process.env.REACT_APP_WALLET_MIGRATION_URL,

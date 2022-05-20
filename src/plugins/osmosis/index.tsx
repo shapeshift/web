@@ -27,7 +27,7 @@ export function register(): Plugins {
 
                 return new cosmossdk.osmosis.ChainAdapter({
                   providers: { http, ws },
-                  coinName: 'Cosmos',
+                  coinName: 'Osmosis',
                 })
               },
             ],

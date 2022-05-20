@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v4.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.1.0...@shapeshiftoss/market-service-v4.2.0) (2022-05-20)
+
+
+### Features
+
+* add supply and maxSupply fields to market service response ([#670](https://github.com/shapeshift/lib/issues/670)) ([9ad837b](https://github.com/shapeshift/lib/commit/9ad837bc8b56d105dc4892c242bd25ed15cb0cf0))
+
 # [@shapeshiftoss/market-service-v4.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.0.3...@shapeshiftoss/market-service-v4.1.0) (2022-05-20)
 
 

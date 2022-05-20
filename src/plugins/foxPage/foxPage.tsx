@@ -32,19 +32,8 @@ export const FoxPage = (props: FoxPageProps) => {
   const query = useGetAssetDescriptionQuery(FoxAssetId)
   const isLoaded = !query.isLoading
 
-  const handleFoxClick = () => {
-    if (isFoxSelected) {
-      return
-    }
-    history.push(FoxPageRoutes.Fox)
-  }
-
-  const handleFoxyClick = () => {
-    if (isFoxySelected) {
-      return
-    }
-    history.push(FoxPageRoutes.Foxy)
-  }
+  const handleFoxClick = () => !isFoxSelected && history.push(FoxPageRoutes.Fox)
+  const handleFoxyClick = () => !isFoxySelected && history.push(FoxPageRoutes.Foxy)
 
   if (!isLoaded) return null
 

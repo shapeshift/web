@@ -28,11 +28,6 @@ export function register(): Plugins {
                 label: 'navBar.foxToken',
                 main: () => <FoxPage activeTab={FoxPageTab.Foxy}></FoxPage>,
               },
-              {
-                path: '/onefox',
-                label: 'navBar.foxToken',
-                main: () => <FoxPage activeTab={FoxPageTab.OneFox}></FoxPage>,
-              },
             ],
           },
         ],

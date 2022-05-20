@@ -973,7 +973,8 @@
   "plugins": {
     "foxPage": {
       "totalFoxValue": "Total Fox Value",
-      "foxToken": "ShapeShift %{assetSymbol} Token"
+      "foxToken": "ShapeShift %{assetSymbol} Token",
+      "header": "FOX is an ERC-20 token created by ShapeShift which serves as the governance token for the ShapeShift DAO, token holders can vote on proposals relating to the operation..."
     }
   }
 }

@@ -67,9 +67,9 @@ export const marketData = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setCryptoMarketData: (state, { payload: { data } }) => {
-      state.crypto.byId = { ...state.crypto.byId, ...data } // upsert
-      const ids = Array.from(new Set([...state.crypto.ids, ...Object.keys(data)]))
+    setCryptoMarketData: (state, { payload }) => {
+      state.crypto.byId = { ...state.crypto.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...state.crypto.ids, ...Object.keys(payload)]))
       state.crypto.ids = ids // upsert unique
     },
     setCryptoPriceHistory: (
@@ -109,11 +109,10 @@ export const marketApi = createApi({
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
       // top 1000 assets
-      queryFn: async (args, { dispatch }) => {
+      queryFn: async (_, { dispatch }) => {
         try {
           const data = await findAll({ count: 1000 })
-          const payload = { args, data }
-          dispatch(marketData.actions.setCryptoMarketData(payload))
+          dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }
         } catch (e) {
           const error = { data: `findAll: could not find marketData for all assets`, status: 404 }

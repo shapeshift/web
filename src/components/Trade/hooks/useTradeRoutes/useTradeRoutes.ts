@@ -1,5 +1,4 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { SwapperManager } from '@shapeshiftoss/swapper'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'

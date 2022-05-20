@@ -46,7 +46,7 @@ export const useTradeRoutes = (
 
       const supportedBuyAssetId = isSupportedPair ? buyAssetId : defaultBuyAssetId
 
-      const buyAsset = assets[supportedBuyAssetId as string]
+      const buyAsset = assets[supportedBuyAssetId]
 
       if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)

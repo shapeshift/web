@@ -6,6 +6,13 @@ type AssetBalanceProps = {
 }
 export const Balance: React.FC<AssetBalanceProps> = ({ symbol, value, label }) => {
   return (
-    <Amount.Crypto color='gray.500' fontSize='sm' symbol={symbol} prefix={label} value={value} />
+    <Amount.Crypto
+      lineHeight={1}
+      color='gray.500'
+      fontSize='sm'
+      symbol={symbol}
+      prefix={label}
+      value={value}
+    />
   )
 }

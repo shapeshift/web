@@ -120,7 +120,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       </Stack>
       {(onMaxClick || balance) && (
-        <Stack direction='row' py={2} px={4} justifyContent='space-between'>
+        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
           {balance && <Balance value={balance} symbol='FOX' label='Balance' />}
           {onMaxClick && <MaxButtonGroup options={[0.25, 0.5, 0.75, 1]} onClick={onMaxClick} />}
         </Stack>

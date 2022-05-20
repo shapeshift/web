@@ -55,18 +55,21 @@ export const FoxLayout: Story = () => {
               isSelected={true}
               cryptoAmount={'3000'}
               fiatAmount={'1000'}
+              onClick={() => {}}
             />
             <FoxTab
               assetSymbol={mockAsset.symbol}
               assetIcon={mockAsset.icon}
               cryptoAmount={'3000'}
               fiatAmount={'1000'}
+              onClick={() => {}}
             />
             <FoxTab
               assetSymbol={mockAsset.symbol}
               assetIcon={mockAsset.icon}
               cryptoAmount={'3000'}
               fiatAmount={'1000'}
+              onClick={() => {}}
             />
           </SimpleGrid>
         </TabList>

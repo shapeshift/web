@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { AssetId } from '@shapeshiftoss/caip'
-import { HistoryData, HistoryTimeframe, MarketCapResult } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -17,8 +17,8 @@ export const selectMarketData = createDeepEqualOutputSelector(
   selectFiatMarketData,
   selectSelectedCurrency,
   (cryptoMarketData, fiatMarketData, selectedCurrency) => {
-    // fallback to usd
-    const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1)
+    const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
+    if (fiatPrice.eq(1)) return cryptoMarketData // don't unnecessarily compute price history for USD
     return Object.entries(cryptoMarketData).reduce<MarketCapResult>(
       (acc, [caip19, assetMarketData]) => {
         if (!assetMarketData) return acc
@@ -41,9 +41,16 @@ export const selectMarketDataById = createCachedSelector(
   selectAssetId,
   selectFiatMarketData,
   selectSelectedCurrency,
-  (marketData, assetId, fiatMarketData, selectedCurrency) => {
-    const assetMarketData = marketData[assetId]
-    const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1)
+  (cryptoMarketData, assetId, fiatMarketData, selectedCurrency): MarketData => {
+    const defaultMarketData: MarketData = {
+      price: '0',
+      marketCap: '0',
+      volume: '0',
+      changePercent24Hr: 0,
+    }
+    const assetMarketData = cryptoMarketData[assetId] ?? defaultMarketData
+    const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
+    if (fiatPrice.eq(1)) return assetMarketData // don't unnecessarily compute price history for USD
     return {
       ...assetMarketData,
       price: bnOrZero(assetMarketData?.price ?? 0)
@@ -74,10 +81,10 @@ export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
   (priceHistory, selectedCurrency, fiatPriceHistoryData, assetId, timeframe): HistoryData[] => {
     const assetPriceHistoryData = priceHistory[timeframe][assetId] ?? []
     const priceHistoryData = fiatPriceHistoryData[timeframe][selectedCurrency]
+    if (!priceHistoryData) return assetPriceHistoryData // dont unnecessarily reduce if we don't have it
     return assetPriceHistoryData.reduce<HistoryData[]>((acc, assetHistoryDate) => {
       const { price, date } = assetHistoryDate
-      // fiat history not loaded yet - default to USD/USD rate = 1
-      const fiatToUsdRate = priceHistoryData ? priceAtDate({ priceHistoryData, date }) : 1
+      const fiatToUsdRate = priceAtDate({ priceHistoryData, date })
       acc.push({ price: bnOrZero(price).times(fiatToUsdRate).toNumber(), date })
       return acc
     }, [])

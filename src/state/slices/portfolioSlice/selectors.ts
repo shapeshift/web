@@ -156,7 +156,7 @@ export const selectPortfolioFiatAccountBalances = createSelector(
         acc[accountId] = Object.entries(balanceObj).reduce(
           (acc, [assetId, cryptoBalance]) => {
             const precision = assetsById[assetId]?.precision
-            const price = marketData[assetId]?.price
+            const price = marketData[assetId]?.price ?? 0
             const cryptoValue = fromBaseUnit(cryptoBalance, precision)
             const fiatbalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
             acc[assetId] = fiatbalance
@@ -216,7 +216,7 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
       allStakingData,
       (acc, [accountSpecifier, baseUnitAmount]) => {
         const assetId = accountIdToFeeAssetId(accountSpecifier)
-        const price = marketData[assetId]?.price
+        const price = marketData[assetId]?.price ?? 0
         const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId].precision ?? 0)
         return bnOrZero(amount).times(price).plus(acc)
       },
@@ -363,7 +363,7 @@ export const selectTotalFiatBalanceWithDelegations = createSelector(
   selectMarketData,
   selectAssetIdParamFromFilter,
   (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
-    const price = marketData[assetId]?.price
+    const price = marketData[assetId]?.price ?? 0
     const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
       .plus(delegationCryptoBalance)
       .toString()
@@ -710,7 +710,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         const icon = assetsById[assetId]?.icon
         const symbol = assetsById[assetId]?.symbol
         const precision = assetsById[assetId]?.precision
-        const price = marketData[assetId]?.price
+        const price = marketData[assetId]?.price ?? '0'
         const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
         const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price))
         /**
@@ -722,7 +722,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
           .div(bnOrZero(totalPortfolioFiatBalance))
           .times(100)
           .toNumber()
-        const priceChange = marketData[assetId]?.changePercent24Hr
+        const priceChange = marketData[assetId]?.changePercent24Hr ?? 0
         const data = {
           assetId,
           name,

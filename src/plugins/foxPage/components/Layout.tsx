@@ -3,6 +3,8 @@ import { ReactNode } from 'react'
 import foxPageBg from 'assets/foxpage-bg.png'
 import { AssetIcon } from 'components/AssetIcon'
 
+import { TrimDescriptionWithEllipsis } from '../utils'
+
 type FoxLayoutProps = {
   children: ReactNode
   icon: string
@@ -10,11 +12,9 @@ type FoxLayoutProps = {
   description: string
 }
 
-const TrimmedDescriptionLength = 191
-
 export const Layout = ({ children, icon, title, description }: FoxLayoutProps) => {
   const descriptionColor = useColorModeValue('gray.750', 'gray.500')
-  const trimmedDescription = description.slice(0, TrimmedDescriptionLength).concat('...')
+  const trimmedDescription = TrimDescriptionWithEllipsis(description)
 
   return (
     <>

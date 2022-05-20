@@ -4,7 +4,7 @@ import { matchPath, useLocation } from 'react-router'
 
 export const useRouteAssetId = () => {
   const location = useLocation()
-  const [assetId, setAssetId] = useState<AssetId | null>(null)
+  const [assetId, setAssetId] = useState<AssetId>('')
 
   useEffect(() => {
     // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx

@@ -4035,10 +4035,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^4.0.0":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.0.1.tgz#e7e583dcfab31b10e6b06a97b422ed6152569975"
-  integrity sha512-f0Fr+63JsArAZuQfGJltHB9a95SHG98LP6++EsEaLJ6GTdhZSjiKjSCRSwBrj+qcZnNdj4dJ00fwpvHNEaoxNg==
+"@shapeshiftoss/market-service@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.2.0.tgz#ec9210797bc347f9ad572355ce438f912397fe61"
+  integrity sha512-fENZS43Qzm+z9sanI4rNnH/AOd91emqcFtMVhClHmmzbh28usu/JgM/TibOzhjauvxdCEFceNMz5zfoZ2ReeNQ==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.30"
@@ -4071,10 +4071,10 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.1.0.tgz#d8f16a6717fb2e73608b10f8ae03f1f02ffcca46"
-  integrity sha512-vMP41yzvT8l2dz9uc0lZgnMWXFWE9ozIa/dJcQZhsePyEJdXTMSEFRX/LBATScfbHBVDNkP0OiAHYq1OBJCdcg==
+"@shapeshiftoss/types@^4.3.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.3.0.tgz#6fe266ad6b737f94d627e03c5b24b3b62ebcc81d"
+  integrity sha512-gLiwbul53fpH0tNIYLdqLGosVE0KxFS4otIw3VKu6a6fVgBbZmy0B1DmI2/czHVmOCdbWPv4vitPpS/pdIBBWA==
 
 "@shapeshiftoss/unchained-client@^8.0.0":
   version "8.0.1"

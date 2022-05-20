@@ -1,4 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
+import { SwapperManager } from '@shapeshiftoss/swapper'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -21,7 +22,7 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<SupportedChainIds>>()
-  const { updateQuote, getDefaultPair } = useSwapper()
+  const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
@@ -35,13 +36,18 @@ export const useTradeRoutes = (
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
 
-      // ugly hack until we add proper error handling in another PR soon
-      const buyAsset =
-        assets[
-          defaultBuyAssetId?.startsWith('eip155:1') && defaultBuyAssetId !== 'eip155:1/slip44:60'
-            ? defaultBuyAssetId
-            : buyAssetId
-        ]
+      if (!defaultBuyAssetId) return
+
+      // check pair is valid
+      const isSupportedPair =
+        swapperManager.getSwappersByPair({
+          buyAssetId,
+          sellAssetId,
+        }).length > 0
+
+      const supportedBuyAssetId = isSupportedPair ? buyAssetId : defaultBuyAssetId
+
+      const buyAsset = assets[supportedBuyAssetId as string]
 
       if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
@@ -58,7 +64,7 @@ export const useTradeRoutes = (
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, defaultBuyAssetId, feeAsset, getDefaultPair, setValue, updateQuote])
+  }, [assets, defaultBuyAssetId, feeAsset, getDefaultPair, setValue, swapperManager, updateQuote])
 
   useEffect(() => {
     setDefaultAssets()

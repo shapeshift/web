@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v8.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.2.0...@shapeshiftoss/unchained-client-v8.3.0) (2022-05-20)
+
+
+### Features
+
+* chain and asset utility functions ([#654](https://github.com/shapeshift/lib/issues/654)) ([4e12ce6](https://github.com/shapeshift/lib/commit/4e12ce6fd10cd8bf34e059e63c2a162fb6576932))
+
 # [@shapeshiftoss/unchained-client-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.1.0...@shapeshiftoss/unchained-client-v8.2.0) (2022-05-18)
 
 

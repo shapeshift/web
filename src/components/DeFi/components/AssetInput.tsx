@@ -72,8 +72,6 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const focusBorder = useColorModeValue('blue.500', 'blue.400')
   return (
     <FormControl
-      as={Stack}
-      spacing={0}
       pb={2}
       borderWidth={1}
       borderColor={isFocused ? focusBorder : borderColor}
@@ -127,7 +125,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (
-        <Stack px={4} pb={2}>
+        <Stack px={4} py={2} mt={2} borderTopWidth={1} borderColor={borderColor}>
           {children}
         </Stack>
       )}

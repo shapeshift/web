@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.0.1...@shapeshiftoss/swapper-v5.1.0) (2022-05-20)
+
+
+### Features
+
+* chain and asset utility functions ([#654](https://github.com/shapeshift/lib/issues/654)) ([4e12ce6](https://github.com/shapeshift/lib/commit/4e12ce6fd10cd8bf34e059e63c2a162fb6576932))
+
 # [@shapeshiftoss/swapper-v5.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.0.0...@shapeshiftoss/swapper-v5.0.1) (2022-05-18)
 
 # [@shapeshiftoss/swapper-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v4.1.3...@shapeshiftoss/swapper-v5.0.0) (2022-05-18)

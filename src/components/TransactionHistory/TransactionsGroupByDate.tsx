@@ -1,11 +1,10 @@
 import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
-import { MatchParams } from 'pages/Assets/Asset'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { selectAssetById, selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -24,8 +23,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
   txIds,
   useCompactMode = false,
 }) => {
-  const params = useParams<MatchParams>()
-  const assetId = `${params.chainId}/${params.assetSubId}`
+  const assetId = useRouteAssetId()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const { setNode, entry } = useResizeObserver()

@@ -75,6 +75,39 @@ describe('coingecko market service', () => {
       last_updated: '2021-10-10T22:16:22.950Z'
     }
 
+    const fox: CoinGeckoMarketCap = {
+      id: 'shapeshift-fox-token',
+      symbol: 'fox',
+      name: 'ShapeShift FOX Token',
+      image: 'https://assets.coingecko.com/coins/images/9988/large/FOX.png?1574330622',
+      current_price: 0.162007,
+      market_cap: 59502764,
+      market_cap_rank: 387,
+      fully_diluted_valuation: null,
+      total_volume: 450668,
+      high_24h: 0.170539,
+      low_24h: 0.15958,
+      price_change_24h: 0.150135067397,
+      price_change_percentage_24h: 3.74881,
+      market_cap_change_24h: -3193491.5176411,
+      market_cap_change_percentage_24h: -5.09359,
+      circulating_supply: 368461498.77715254,
+      total_supply: 1000001337.0,
+      max_supply: null,
+      ath: 1.65,
+      ath_change_percentage: -20.19316,
+      ath_date: '2021-05-12T14:41:48.623Z',
+      atl: 0.432979,
+      atl_change_percentage: 802982.25606,
+      atl_date: '2015-10-20T00:00:00.000Z',
+      roi: {
+        times: 83.32608527170541,
+        currency: 'btc',
+        percentage: 8332.60852717054
+      },
+      last_updated: '2021-10-10T22:16:22.950Z'
+    }
+
     it('can flatten multiple responses', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: [eth] }).mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
@@ -135,6 +168,48 @@ describe('coingecko market service', () => {
       expect(btcKey).toEqual(btcAssetId)
       expect(ethKey).toEqual(ethAssetId)
     })
+
+    it('extract correct values for each asset', async () => {
+      const btcResult = {
+        price: '54810',
+        marketCap: '1032270421549',
+        changePercent24Hr: -0.33384,
+        volume: '38267223547',
+        supply: '18840237',
+        maxSupply: '21000000'
+      }
+
+      const ethResult = {
+        price: '3459.72',
+        marketCap: '407989270877',
+        changePercent24Hr: -3.74881,
+        volume: '17486135198',
+        supply: '117874980.3115'
+      }
+
+      mockedAxios.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
+      const result = await coinGeckoMarketService.findAll()
+      const btcAssetId = adapters.coingeckoToAssetId('bitcoin')
+      const ethAssetId = adapters.coingeckoToAssetId('ethereum')
+      expect(result[btcAssetId!]).toEqual(btcResult)
+      expect(result[ethAssetId!]).toEqual(ethResult)
+    })
+
+    it('extract correct values for fox', async () => {
+      const foxResult = {
+        price: '0.162007',
+        marketCap: '59502764',
+        changePercent24Hr: 3.74881,
+        volume: '450668',
+        supply: '368461498.77715254',
+        maxSupply: '1000001337'
+      }
+
+      mockedAxios.get.mockResolvedValue({ data: [fox] })
+      const result = await coinGeckoMarketService.findAll()
+      const foxAssetId = adapters.coingeckoToAssetId('shapeshift-fox-token')
+      expect(result[foxAssetId!]).toEqual(foxResult)
+    })
   })
 
   describe('findByAssetId', () => {
@@ -147,7 +222,8 @@ describe('coingecko market service', () => {
         price: 3611.19,
         marketCap: 424970837706,
         changePercent24Hr: 2.19682,
-        volume: 21999495657
+        volume: 21999495657,
+        supply: '120839129.44'
       }
       const market_data = {
         current_price: {
@@ -159,7 +235,66 @@ describe('coingecko market service', () => {
         price_change_percentage_24h: result.changePercent24Hr,
         total_volume: {
           usd: result.volume
-        }
+        },
+        circulating_supply: result.supply,
+        max_supply: null,
+        total_supply: null
+      }
+      mockedAxios.get.mockResolvedValue({ data: { market_data } })
+      expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
+    })
+
+    it('should return market data for BTC', async () => {
+      const result = {
+        price: 54810,
+        marketCap: 1032270421549,
+        changePercent24Hr: -0.33384,
+        volume: 38267223547,
+        supply: '18840237',
+        maxSupply: '21000000'
+      }
+      const market_data = {
+        current_price: {
+          usd: result.price
+        },
+        market_cap: {
+          usd: result.marketCap
+        },
+        price_change_percentage_24h: result.changePercent24Hr,
+        total_volume: {
+          usd: result.volume
+        },
+        circulating_supply: result.supply,
+        max_supply: result.maxSupply,
+        total_supply: result.maxSupply
+      }
+      mockedAxios.get.mockResolvedValue({ data: { market_data } })
+      expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
+    })
+
+    it('should return market data for FOX', async () => {
+      const result = {
+        price: 0.25007,
+        marketCap: 59502764,
+        changePercent24Hr: 5.45678,
+        volume: 1571401,
+        supply: '368444695.88',
+        maxSupply: '1000001337.0'
+      }
+      const market_data = {
+        current_price: {
+          usd: result.price
+        },
+        market_cap: {
+          usd: result.marketCap
+        },
+        price_change_percentage_24h: result.changePercent24Hr,
+        total_volume: {
+          usd: result.volume
+        },
+        circulating_supply: result.supply,
+        max_supply: null,
+        total_supply: result.maxSupply
       }
       mockedAxios.get.mockResolvedValue({ data: { market_data } })
       expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)

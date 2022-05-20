@@ -58,8 +58,11 @@ export class CoinCapMarketService implements MarketService {
               price: curWithoutId.priceUsd.toString(),
               marketCap: curWithoutId.marketCapUsd.toString(),
               volume: curWithoutId.volumeUsd24Hr.toString(),
-              changePercent24Hr: parseFloat(curWithoutId.changePercent24Hr)
+              changePercent24Hr: parseFloat(curWithoutId.changePercent24Hr),
+              supply: curWithoutId.supply,
+              maxSupply: curWithoutId.maxSupply?.toString()
             }
+
             return acc
           } catch {
             return acc // no AssetId found, we don't support this asset
@@ -82,7 +85,9 @@ export class CoinCapMarketService implements MarketService {
         price: marketData.priceUsd,
         marketCap: marketData.marketCapUsd,
         changePercent24Hr: parseFloat(marketData.changePercent24Hr),
-        volume: marketData.volumeUsd24Hr
+        volume: marketData.volumeUsd24Hr,
+        supply: marketData.supply,
+        maxSupply: marketData.maxSupply?.toString()
       }
     } catch (e) {
       console.warn(e)

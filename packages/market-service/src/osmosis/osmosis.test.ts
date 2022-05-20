@@ -43,7 +43,7 @@ describe('osmosis market service', () => {
         assetId:
           'cosmos:osmosis-1/ibc:0954E1C28EB7AF5B72D24F3BC2B47BBB2FDF91BDDFD57B74B99E133AED40972A'
       }
-      const result: MarketData = {
+      const expectedResult: MarketData = {
         price: '4.5456667708',
         marketCap: '17581752.09948758',
         volume: '3289855.395915219',
@@ -51,31 +51,38 @@ describe('osmosis market service', () => {
       }
 
       mockedAxios.get.mockResolvedValue({ data: [secretNetwork] })
-      expect(await osmosisMarketService.findByAssetId(args)).toEqual(result)
+      const result = await osmosisMarketService.findByAssetId(args)
+
+      expect(result).toEqual(expect.objectContaining(expectedResult))
+      expect(parseFloat(result!.supply!)).toBeCloseTo(3867804.88, 2)
     })
 
     it('should return market data for Ion', async () => {
       const args = { assetId: 'cosmos:osmosis-1/native:uion' }
-      const result: MarketData = {
+      const expectedResult: MarketData = {
         price: '7110.2708806483',
         marketCap: '8737040.33551496',
         volume: '353672.5116333088',
         changePercent24Hr: -15.5060091033
       }
       mockedAxios.get.mockResolvedValue({ data: [ion] })
-      expect(await osmosisMarketService.findByAssetId(args)).toEqual(result)
+      const result = await osmosisMarketService.findByAssetId(args)
+      expect(result).toEqual(expect.objectContaining(expectedResult))
+      expect(parseFloat(result!.supply!)).toBeCloseTo(1228.79, 2)
     })
 
     it('should return market data for Osmosis', async () => {
       const args = { assetId: 'cosmos:osmosis-1/slip44:118' }
-      const result: MarketData = {
+      const expectedResult = {
         price: '8.0939512289',
         marketCap: '513382677.98398143',
         volume: '169020038.66921267',
         changePercent24Hr: -8.5460553557
       }
       mockedAxios.get.mockResolvedValue({ data: [osmo] })
-      expect(await osmosisMarketService.findByAssetId(args)).toEqual(result)
+      const result = await osmosisMarketService.findByAssetId(args)
+      expect(result).toEqual(expect.objectContaining(expectedResult))
+      expect(parseFloat(result!.supply!)).toBeCloseTo(63427943.1, 2)
     })
   })
 

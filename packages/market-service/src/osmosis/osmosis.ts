@@ -32,7 +32,8 @@ export class OsmosisMarketService implements MarketService {
             price: token.price.toString(),
             marketCap: token.liquidity.toString(),
             volume: token.volume_24h.toString(),
-            changePercent24Hr: token.price_24h_change
+            changePercent24Hr: token.price_24h_change,
+            supply: bnOrZero(token.liquidity).div(token.price).toString()
           }
 
           return acc
@@ -60,7 +61,8 @@ export class OsmosisMarketService implements MarketService {
         price: marketData.price.toString(),
         marketCap: marketData.liquidity.toString(),
         volume: marketData.volume_24h.toString(),
-        changePercent24Hr: bnOrZero(marketData.price_24h_change).toNumber()
+        changePercent24Hr: bnOrZero(marketData.price_24h_change).toNumber(),
+        supply: bnOrZero(marketData.liquidity).div(marketData.price).toString()
       }
     } catch (e) {
       console.warn(e)

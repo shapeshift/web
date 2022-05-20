@@ -107,8 +107,26 @@ describe('coincap market service', () => {
   })
 
   describe('findByAssetId', () => {
-    const args = {
+    const args1 = {
       assetId: 'eip155:1/slip44:60'
+    }
+    const args2 = {
+      assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+    }
+
+    const btc: CoinCapMarketCap = {
+      id: 'bitcoin',
+      rank: '1',
+      symbol: 'BTC',
+      name: 'Bitcoin',
+      supply: '18901193.0000000000000000',
+      maxSupply: '21000000.0000000000000000',
+      marketCapUsd: '908356345541.2269154394485668',
+      volumeUsd24Hr: '19001957914.4173604708767279',
+      priceUsd: '48058.1487920485715076',
+      changePercent24Hr: '2.0370678507913180',
+      vwap24Hr: '47473.8260811456834087',
+      explorer: 'https://blockchain.info/'
     }
 
     const eth: CoinCapMarketCap = {
@@ -131,16 +149,30 @@ describe('coincap market service', () => {
         changePercent24Hr: 1.7301970732523704,
         marketCap: '461557096820.5397856216327206',
         price: '3887.1310740534754598',
-        volume: '13216473429.9114945699035335'
+        volume: '13216473429.9114945699035335',
+        supply: '118739782.1240000000000000'
       }
       mockedAxios.get.mockResolvedValue({ data: { data: eth } })
-      expect(await coinMarketService.findByAssetId(args)).toEqual(result)
+      expect(await coinMarketService.findByAssetId(args1)).toEqual(result)
+    })
+
+    it('should return market data for BTC', async () => {
+      const result = {
+        changePercent24Hr: 2.037067850791318,
+        marketCap: '908356345541.2269154394485668',
+        price: '48058.1487920485715076',
+        volume: '19001957914.4173604708767279',
+        supply: '18901193.0000000000000000',
+        maxSupply: '21000000.0000000000000000'
+      }
+      mockedAxios.get.mockResolvedValue({ data: { data: btc } })
+      expect(await coinMarketService.findByAssetId(args2)).toEqual(result)
     })
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(coinMarketService.findByAssetId(args)).rejects.toEqual(
+      await expect(coinMarketService.findByAssetId(args1)).rejects.toEqual(
         new Error('MarketService(findByAssetId): error fetching market data')
       )
     })

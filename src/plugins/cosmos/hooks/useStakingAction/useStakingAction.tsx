@@ -69,8 +69,6 @@ export const useStakingAction = () => {
               break
             }
           }
-        } else if (adapterType === ChainTypes.Osmosis) {
-          // TODO(gomes): implement this
         } else {
           throw new Error('unsupported adapterType')
         }

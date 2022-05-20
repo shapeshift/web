@@ -106,7 +106,7 @@ export const Address = () => {
                       setValue(SendFormFields.EnsName, value)
                       return true
                     }
-                    if (!validEnsAddress.valid && !validAddress.valid){
+                    if (!validEnsAddress.valid && !validAddress.valid) {
                       return 'common.invalidAddress'
                     }
                     // If a lookup exists for a 0x address, display ENS name instead

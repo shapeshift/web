@@ -35,7 +35,7 @@ export const useStakingAction = () => {
         let result
 
         const { chainSpecific, validator, action, value } = data
-        if (adapterType === ChainTypes.Cosmos) {
+        if (adapterType === ChainTypes.Cosmos || adapterType === ChainTypes.Osmosis) {
           switch (action) {
             case StakingAction.Claim: {
               result = await (

@@ -1,6 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -32,12 +31,12 @@ export const useFormSend = () => {
         let result
 
         const { memo, estimatedFees, feeType, address: to } = data
-        if (adapterType === ChainTypes.Cosmos) {
+        if (adapterType === ChainTypes.Cosmos || adapterType === ChainTypes.Osmosis) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Cosmos>
           const gas = fees.chainSpecific.gasLimit
           const fee = fees.txFee
           const address = to
-          result = await (adapter as ChainAdapter<ChainTypes.Cosmos>).buildSendTransaction({
+          result = await adapter.buildSendTransaction({
             to: address,
             memo,
             value,
@@ -45,8 +44,6 @@ export const useFormSend = () => {
             chainSpecific: { gas, fee },
             sendMax: data.sendMax,
           })
-        } else if (adapterType === ChainTypes.Osmosis) {
-          // TODO(gomes): implement this
         } else {
           throw new Error('unsupported adapterType')
         }

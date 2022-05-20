@@ -16,6 +16,8 @@ const validators = {
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
+  REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
   // TODO:
   //  Version control data and use a persistent URL

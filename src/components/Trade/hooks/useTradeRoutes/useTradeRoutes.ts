@@ -14,7 +14,7 @@ import { useSwapper } from '../useSwapper/useSwapper'
 const ETHEREUM_ASSET_ID = 'eip155:1/slip44:60'
 
 export const useTradeRoutes = (
-  selectedBuyAssetId?: AssetId,
+  routeBuyAssetId?: AssetId,
 ): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
@@ -35,7 +35,7 @@ export const useTradeRoutes = (
       const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
       const sellAsset = assets[defaultSellAssetId]
 
-      let preBuyAssetToCheckId = selectedBuyAssetId ?? defaultBuyAssetId
+      const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
 
       // make sure the same buy and sell assets arent selected
       const buyAssetToCheckId =
@@ -46,15 +46,17 @@ export const useTradeRoutes = (
         sellAssetId: defaultSellAssetId,
       })
 
-      let isSupportedPair = false
       // TODO update swapper to have an official way to validate a pair is supported.
       // This works for now
-      try {
-        if (bestSwapper) {
-          await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
-          isSupportedPair = true
-        }
-      } catch (e) {}
+      const isSupportedPair = await (async () => {
+        try {
+          if (bestSwapper) {
+            await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
+            return true
+          }
+        } catch (e) {}
+        return false
+      })()
 
       const buyAssetId = isSupportedPair ? buyAssetToCheckId : defaultBuyAssetId
 
@@ -75,7 +77,7 @@ export const useTradeRoutes = (
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, feeAsset, getDefaultPair, selectedBuyAssetId, setValue, swapperManager, updateQuote])
+  }, [assets, feeAsset, getDefaultPair, routeBuyAssetId, setValue, swapperManager, updateQuote])
 
   useEffect(() => {
     setDefaultAssets()

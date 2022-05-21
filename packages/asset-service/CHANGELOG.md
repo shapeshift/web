@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v4.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.2.0...@shapeshiftoss/asset-service-v4.2.1) (2022-05-21)
+
+
+### Bug Fixes
+
+* mintscan url osmosis ([#675](https://github.com/shapeshift/lib/issues/675)) ([5f3fc07](https://github.com/shapeshift/lib/commit/5f3fc0708672d348471383f83d2a16d8f3ae1496))
+
 # [@shapeshiftoss/asset-service-v4.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.1.0...@shapeshiftoss/asset-service-v4.2.0) (2022-05-20)
 
 

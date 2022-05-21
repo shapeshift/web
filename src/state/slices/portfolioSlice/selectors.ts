@@ -27,7 +27,10 @@ import {
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from '../validatorDataSlice/const'
+import {
+  SHAPESHIFT_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMO_VALIDATOR_ADDRESS,
+} from '../validatorDataSlice/const'
 import { selectValidators } from '../validatorDataSlice/selectors'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
@@ -91,6 +94,12 @@ export type OpportunitiesDataFull = {
   commission: string
 }
 
+export const validatorFromAccountSpecifier = (accountSpecifier: AccountSpecifier) => {
+  console.log('validatorFromAccountSpecifier')
+  console.log('comntains osmosis: ', accountSpecifier.includes('osmosis'))
+  if (accountSpecifier.includes('osmosis')) return SHAPESHIFT_OSMO_VALIDATOR_ADDRESS
+  else return SHAPESHIFT_VALIDATOR_ADDRESS
+}
 export const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.byId
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
@@ -829,7 +838,8 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
     console.log('accountSpecifier', accountSpecifier)
     const portfolioAccount = portfolioAccounts?.[accountSpecifier]
     if (!portfolioAccount) return []
-    if (!portfolioAccount?.validatorIds?.length) return [SHAPESHIFT_VALIDATOR_ADDRESS]
+    if (!portfolioAccount?.validatorIds?.length)
+      return [validatorFromAccountSpecifier(accountSpecifier)]
 
     return portfolioAccount.validatorIds
   },
@@ -855,6 +865,9 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
           ),
         )
         .toString()
+
+        console.log('validatorId', validatorId)
+        console.log('validatorsData', validatorsData)
       return {
         ...validatorsData[validatorId],
         // Delegated/Redelegated + Undelegation

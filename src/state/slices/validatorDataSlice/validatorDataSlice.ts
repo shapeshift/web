@@ -65,12 +65,14 @@ export const validatorDataApi = createApi({
   endpoints: build => ({
     getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
       queryFn: async ({ validatorAddress }, { dispatch }) => {
+        console.log('validatorAddress', validatorAddress)
         const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(
+        const cosmoAdapter = (await chainAdapters.byChainId(
           cosmosChainId,
         )) as cosmossdk.cosmos.ChainAdapter
+
         try {
-          const data = await adapter.getValidator(validatorAddress)
+          const data = await cosmoAdapter.getValidator(validatorAddress)
           dispatch(
             validatorData.actions.upsertValidatorData({
               validators: [data],

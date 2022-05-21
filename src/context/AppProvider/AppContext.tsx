@@ -29,7 +29,7 @@ import {
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
+import { cosmosChainId, osmosisChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
@@ -254,6 +254,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (tx.chainId === cosmosChainId) {
       // This block refetches validator data on subsequent Txs in case TVL or APR changed.
       const validators = portfolioAccounts[`${cosmosChainId}:${tx.address}`]?.validatorIds
+      validators?.forEach(validatorAddress => {
+        dispatch(
+          validatorDataApi.endpoints.getValidatorData.initiate({
+            validatorAddress,
+          }),
+        )
+      })
+      // cosmos txs only come in when they're confirmed, so refetch that account immediately
+      return refetchAccountByTxId(txId)
+    } else if (tx.chainId === osmosisChainId) {
+      // This block refetches validator data on subsequent Txs in case TVL or APR changed.
+      const validators = portfolioAccounts[`${osmosisChainId}:${tx.address}`]?.validatorIds
       validators?.forEach(validatorAddress => {
         dispatch(
           validatorDataApi.endpoints.getValidatorData.initiate({

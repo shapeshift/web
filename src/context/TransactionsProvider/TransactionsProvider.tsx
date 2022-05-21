@@ -23,7 +23,10 @@ import {
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import { SHAPESHIFT_OSMO_VALIDATOR_ADDRESS, SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
+import {
+  SHAPESHIFT_OSMO_VALIDATOR_ADDRESS,
+  SHAPESHIFT_VALIDATOR_ADDRESS,
+} from 'state/slices/validatorDataSlice/const'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -154,7 +157,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               if (accountSpecifierMap[osmosisChainId]) {
                 const osmosisAccountSpecifier = accountSpecifierMap[osmosisChainId]
                 const osmosisPortfolioAccount =
-                  portfolioAccounts[`${cosmosChainId}:${osmosisAccountSpecifier}`]
+                  portfolioAccounts[`${osmosisChainId}:${osmosisAccountSpecifier}`]
                 if (osmosisPortfolioAccount) {
                   const validatorIds = size(osmosisPortfolioAccount.validatorIds)
                     ? osmosisPortfolioAccount.validatorIds

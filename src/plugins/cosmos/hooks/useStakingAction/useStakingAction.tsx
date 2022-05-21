@@ -1,5 +1,5 @@
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -30,47 +30,40 @@ export const useStakingAction = () => {
     if (wallet) {
       try {
         const adapter = chainAdapterManager.byChain(data.asset.chain)
-        const adapterType = adapter.getType()
 
         let result
 
         const { chainSpecific, validator, action, value } = data
-        if (adapterType === ChainTypes.Cosmos || adapterType === ChainTypes.Osmosis) {
-          switch (action) {
-            case StakingAction.Claim: {
-              result = await (
-                adapter as cosmossdk.cosmos.ChainAdapter
-              ).buildClaimRewardsTransaction({
-                wallet,
-                validator,
-                chainSpecific,
-              })
-              break
-            }
-            case StakingAction.Stake: {
-              result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildDelegateTransaction({
-                wallet,
-                validator,
-                value,
-                chainSpecific,
-              })
-              break
-            }
-            case StakingAction.Unstake: {
-              result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildUndelegateTransaction({
-                wallet,
-                validator,
-                value,
-                chainSpecific,
-              })
-              break
-            }
-            default: {
-              break
-            }
+        switch (action) {
+          case StakingAction.Claim: {
+            result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildClaimRewardsTransaction({
+              wallet,
+              validator,
+              chainSpecific,
+            })
+            break
           }
-        } else {
-          throw new Error('unsupported adapterType')
+          case StakingAction.Stake: {
+            result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildDelegateTransaction({
+              wallet,
+              validator,
+              value,
+              chainSpecific,
+            })
+            break
+          }
+          case StakingAction.Unstake: {
+            result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildUndelegateTransaction({
+              wallet,
+              validator,
+              value,
+              chainSpecific,
+            })
+            break
+          }
+          default: {
+            break
+          }
         }
         const txToSign = result?.txToSign
 

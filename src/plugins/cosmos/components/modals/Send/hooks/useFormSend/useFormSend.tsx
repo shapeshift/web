@@ -26,27 +26,22 @@ export const useFormSend = () => {
           .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
-        const adapterType = adapter.getType()
-
         let result
 
         const { memo, estimatedFees, feeType, address: to } = data
-        if (adapterType === ChainTypes.Cosmos || adapterType === ChainTypes.Osmosis) {
-          const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Cosmos>
-          const gas = fees.chainSpecific.gasLimit
-          const fee = fees.txFee
-          const address = to
-          result = await adapter.buildSendTransaction({
-            to: address,
-            memo,
-            value,
-            wallet,
-            chainSpecific: { gas, fee },
-            sendMax: data.sendMax,
-          })
-        } else {
-          throw new Error('unsupported adapterType')
-        }
+        const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Cosmos> &
+          chainAdapters.FeeData<ChainTypes.Osmosis>
+        const gas = fees.chainSpecific.gasLimit
+        const fee = fees.txFee
+        const address = to
+        result = await adapter.buildSendTransaction({
+          to: address,
+          memo,
+          value,
+          wallet,
+          chainSpecific: { gas, fee },
+          sendMax: data.sendMax,
+        })
         const txToSign = result?.txToSign
 
         let broadcastTXID: string | undefined

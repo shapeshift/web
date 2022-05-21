@@ -108,7 +108,7 @@ export const Overview: React.FC<StakedProps> = ({
           </ModalBody>
           <ModalFooter flexDirection='column'>
             <Stack width='100%'>
-              <Text translation={'defi.asdrsadfasdfrewards'} color='gray.500' />
+              <Text translation={'defi.rewards'} color='gray.500' />
               <AssetClaimCard
                 assetSymbol={asset.symbol}
                 assetIcon={asset.icon}

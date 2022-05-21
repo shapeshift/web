@@ -27,7 +27,7 @@ import {
 export const ethChainId = 'eip155:1'
 export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const cosmosChainId = 'cosmos:cosmoshub-4'
-const osmosisChainId = 'cosmos:osmosis-1'
+export const osmosisChainId = 'cosmos:osmosis-1'
 export const ethAssetId = 'eip155:1/slip44:60'
 export const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
 export const cosmosAssetId = 'cosmos:cosmoshub-4/slip44:118'
@@ -98,6 +98,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     }
     case cosmosChainId: {
       return 'Cosmos'
+    }
+    case osmosisChainId: {
+      return 'Osmosis'
     }
     default: {
       return ''

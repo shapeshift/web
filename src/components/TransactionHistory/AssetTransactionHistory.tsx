@@ -1,6 +1,7 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -13,7 +14,6 @@ import {
   selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { useSelector } from 'react-redux'
 
 type AssetTransactionHistoryProps = {
   assetId: AssetId

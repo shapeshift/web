@@ -1,6 +1,7 @@
 import { Box, Flex, Heading, Image, SkeletonCircle } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
@@ -13,7 +14,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'
-import { useSelector } from 'react-redux'
 
 type AssetHeaderProps = {
   assetId: AssetId

@@ -7,11 +7,13 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
+  selectFeatureFlags,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'
+import { useSelector } from 'react-redux'
 
 type AssetHeaderProps = {
   assetId: AssetId
@@ -29,7 +31,8 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
     state: { wallet },
   } = useWallet()
 
-  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
+  const featureFlags = useSelector(selectFeatureFlags)
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet, featureFlags })
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance = useAppSelector(state =>

@@ -7,20 +7,18 @@ import {
   supportsOsmosis,
 } from "@shapeshiftoss/hdwallet-core";
 import { ChainTypes, NetworkTypes } from "@shapeshiftoss/types";
-import { useSelector } from "react-redux";
-import { selectFeatureFlags } from "state/slices/preferencesSlice/selectors";
+import { FeatureFlags } from "state/slices/preferencesSlice/preferencesSlice";
 
-type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null };
+type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null, featureFlags: FeatureFlags };
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean;
 
 // use outside react
 export const walletSupportsChain: UseWalletSupportsChain = ({
   chainId,
   wallet,
+  featureFlags
 }) => {
   if (!wallet) return false;
-  const featureFlags = useSelector(selectFeatureFlags);
-
   const ethChainId = toChainId({
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,

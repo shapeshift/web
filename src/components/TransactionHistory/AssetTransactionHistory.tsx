@@ -9,9 +9,11 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
+  selectFeatureFlags,
   selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { useSelector } from 'react-redux'
 
 type AssetTransactionHistoryProps = {
   assetId: AssetId
@@ -41,7 +43,8 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
     [assetId, accountId, accountIds],
   )
 
-  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
+  const featureFlags = useSelector(selectFeatureFlags)
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet, featureFlags })
 
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 

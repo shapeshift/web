@@ -880,7 +880,8 @@ export const selectHasActiveStakingOpportunity = createSelector(
     // More than one opportunity data means we have more than the default opportunity
     size(stakingOpportunitiesData) > 1 ||
     // If there's only one staking but it isn't the default opportunity, then it's an active staking
-    stakingOpportunitiesData[0]?.address !== SHAPESHIFT_VALIDATOR_ADDRESS ||
+    (stakingOpportunitiesData[0]?.address !== SHAPESHIFT_VALIDATOR_ADDRESS &&
+      stakingOpportunitiesData[0]?.address !== SHAPESHIFT_OSMO_VALIDATOR_ADDRESS) ||
     bnOrZero(stakingOpportunitiesData[0]?.rewards).gt(0) ||
     bnOrZero(stakingOpportunitiesData[0]?.totalDelegations).gt(0),
 )

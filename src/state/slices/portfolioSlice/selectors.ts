@@ -826,6 +826,7 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAccountSpecifierParamFromFilter,
   (portfolioAccounts, accountSpecifier): PubKey[] => {
+    console.log('accountSpecifier', accountSpecifier)
     const portfolioAccount = portfolioAccounts?.[accountSpecifier]
     if (!portfolioAccount) return []
     if (!portfolioAccount?.validatorIds?.length) return [SHAPESHIFT_VALIDATOR_ADDRESS]

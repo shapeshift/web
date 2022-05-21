@@ -9,7 +9,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { logger } from 'lib/logger'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { chainIdToFeeAssetId, osmosisChainId } from 'state/slices/portfolioSlice/utils'
 import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountIdByAddress,
@@ -23,7 +23,7 @@ import {
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
+import { SHAPESHIFT_OSMO_VALIDATOR_ADDRESS, SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -151,6 +151,24 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                   })
                 }
               }
+              if (accountSpecifierMap[osmosisChainId]) {
+                const osmosisAccountSpecifier = accountSpecifierMap[osmosisChainId]
+                const osmosisPortfolioAccount =
+                  portfolioAccounts[`${cosmosChainId}:${osmosisAccountSpecifier}`]
+                if (osmosisPortfolioAccount) {
+                  const validatorIds = size(osmosisPortfolioAccount.validatorIds)
+                    ? osmosisPortfolioAccount.validatorIds
+                    : [SHAPESHIFT_OSMO_VALIDATOR_ADDRESS]
+                  validatorIds?.forEach(validatorAddress => {
+                    dispatch(
+                      validatorDataApi.endpoints.getValidatorData.initiate({
+                        validatorAddress,
+                      }),
+                    )
+                  })
+                }
+              }
+
               const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
               const options = { forceRefetch: true }
               dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))

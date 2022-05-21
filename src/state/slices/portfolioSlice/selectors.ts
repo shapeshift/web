@@ -95,8 +95,6 @@ export type OpportunitiesDataFull = {
 }
 
 export const validatorFromAccountSpecifier = (accountSpecifier: AccountSpecifier) => {
-  console.log('validatorFromAccountSpecifier')
-  console.log('comntains osmosis: ', accountSpecifier.includes('osmosis'))
   if (accountSpecifier.includes('osmosis')) return SHAPESHIFT_OSMO_VALIDATOR_ADDRESS
   else return SHAPESHIFT_VALIDATOR_ADDRESS
 }
@@ -835,7 +833,6 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAccountSpecifierParamFromFilter,
   (portfolioAccounts, accountSpecifier): PubKey[] => {
-    console.log('accountSpecifier', accountSpecifier)
     const portfolioAccount = portfolioAccounts?.[accountSpecifier]
     if (!portfolioAccount) return []
     if (!portfolioAccount?.validatorIds?.length)
@@ -866,8 +863,6 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
         )
         .toString()
 
-        console.log('validatorId', validatorId)
-        console.log('validatorsData', validatorsData)
       return {
         ...validatorsData[validatorId],
         // Delegated/Redelegated + Undelegation

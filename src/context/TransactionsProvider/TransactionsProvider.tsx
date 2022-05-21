@@ -20,6 +20,7 @@ import {
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds,
+  validatorFromAccountSpecifier,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -135,42 +136,29 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             } catch (e: unknown) {
               moduleLogger.error(e, { chain }, 'Error subscribing to transaction history for chain')
             }
+
+            const cosmosNamespaceChainIds = [cosmosChainId, osmosisChainId]
             // RESTfully fetch all tx and rebase history for this chain.
             getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
-              if (accountSpecifierMap[cosmosChainId]) {
-                const cosmosAccountSpecifier = accountSpecifierMap[cosmosChainId]
-                const cosmosPortfolioAccount =
-                  portfolioAccounts[`${cosmosChainId}:${cosmosAccountSpecifier}`]
-                if (cosmosPortfolioAccount) {
-                  const validatorIds = size(cosmosPortfolioAccount.validatorIds)
-                    ? cosmosPortfolioAccount.validatorIds
-                    : [SHAPESHIFT_VALIDATOR_ADDRESS]
-                  validatorIds?.forEach(validatorAddress => {
-                    dispatch(
-                      validatorDataApi.endpoints.getValidatorData.initiate({
-                        validatorAddress,
-                      }),
-                    )
-                  })
+              cosmosNamespaceChainIds.forEach(chainId => {
+                if (accountSpecifierMap[chainId]) {
+                  const accountSpecifier = accountSpecifierMap[chainId]
+                  const portfolioAccount = portfolioAccounts[`${chainId}:${accountSpecifier}`]
+                  if (portfolioAccount) {
+                    const validatorIds = size(portfolioAccount.validatorIds)
+                      ? portfolioAccount.validatorIds
+                      : [validatorFromAccountSpecifier(accountSpecifier)]
+                    validatorIds?.forEach(validatorAddress => {
+                      dispatch(
+                        validatorDataApi.endpoints.getValidatorData.initiate({
+                          validatorAddress,
+                          chainId,
+                        }),
+                      )
+                    })
+                  }
                 }
-              }
-              if (accountSpecifierMap[osmosisChainId]) {
-                const osmosisAccountSpecifier = accountSpecifierMap[osmosisChainId]
-                const osmosisPortfolioAccount =
-                  portfolioAccounts[`${osmosisChainId}:${osmosisAccountSpecifier}`]
-                if (osmosisPortfolioAccount) {
-                  const validatorIds = size(osmosisPortfolioAccount.validatorIds)
-                    ? osmosisPortfolioAccount.validatorIds
-                    : [SHAPESHIFT_OSMO_VALIDATOR_ADDRESS]
-                  validatorIds?.forEach(validatorAddress => {
-                    dispatch(
-                      validatorDataApi.endpoints.getValidatorData.initiate({
-                        validatorAddress,
-                      }),
-                    )
-                  })
-                }
-              }
+              })
 
               const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
               const options = { forceRefetch: true }

@@ -64,8 +64,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
   )
 
-  console.log('stakingOpportunitiesData', stakingOpportunitiesData)
-
   const hasActiveStaking = useAppSelector(state =>
     selectHasActiveStakingOpportunity(state, { accountSpecifier, assetId }),
   )

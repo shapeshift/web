@@ -54,8 +54,6 @@ type AssetChartProps = {
   isLoaded: boolean
 }
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
-
-  console.log('AssetChart', accountId, assetId, isLoaded)
   const {
     number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })

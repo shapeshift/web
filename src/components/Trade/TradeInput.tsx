@@ -13,12 +13,13 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -55,13 +56,15 @@ export const TradeInput = ({ history }: RouterProps) => {
   )
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellTradeAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
-  const hasValidSellAmount = bnOrZero(sellTradeAsset.amount).gt(0)
+  const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
   const feeAssetBalance = useAppSelector(state =>
     feeAsset
       ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId })
       : null,
   )
+
+  const { showErrorToast } = useErrorHandler()
 
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
@@ -78,6 +81,19 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
 
+    const minSellAmount = toBaseUnit(quote.minimum, quote.sellAsset.precision)
+
+    if (bnOrZero(quote.sellAmount).lt(minSellAmount)) {
+      toast({
+        description: translate('trade.errors.amountToSmall'),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
+      return
+    }
+
     try {
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) {
@@ -89,20 +105,15 @@ export const TradeInput = ({ history }: RouterProps) => {
         })
         return
       }
-      const result = await updateTrade({
+      await updateTrade({
         wallet,
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
         amount: quote?.sellAmount,
       })
-      if (!result?.success && result?.statusReason) {
-        handleToast(result.statusReason)
-        return
-      }
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
-    } catch (err) {
-      console.error(`TradeInput:onSubmit - ${err}`)
-      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
+    } catch (e) {
+      showErrorToast(e)
     }
   }
 
@@ -130,8 +141,6 @@ export const TradeInput = ({ history }: RouterProps) => {
       const currentSellAsset = getValues('sellAsset')
       const currentBuyAsset = getValues('buyAsset')
 
-      if (!maxSendAmount) return
-
       updateQuote({
         sellAsset: currentSellAsset.asset,
         buyAsset: currentBuyAsset.asset,
@@ -140,36 +149,29 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: maxSendAmount,
       })
     } catch (e) {
-      fnLogger.error(e, 'Building Quote Failed')
-      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
+      showErrorToast(e)
     } finally {
       setIsSendMaxLoading(false)
     }
   }
 
-  const handleToast = (description: string) => {
-    toast({
-      description,
-      status: 'error',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right',
-    })
-  }
-
   const toggleAssets = () => {
-    const currentSellAsset = getValues('sellAsset')
-    const currentBuyAsset = getValues('buyAsset')
-    setValue('sellAsset', currentBuyAsset)
-    setValue('buyAsset', currentSellAsset)
-    updateQuote({
-      forceQuote: true,
-      amount: bnOrZero(currentBuyAsset.amount).toString(),
-      sellAsset: currentBuyAsset.asset,
-      buyAsset: currentSellAsset.asset,
-      feeAsset,
-      action: TradeAmountInputField.SELL,
-    })
+    try {
+      const currentSellAsset = getValues('sellAsset')
+      const currentBuyAsset = getValues('buyAsset')
+      setValue('sellAsset', currentBuyAsset)
+      setValue('buyAsset', currentSellAsset)
+      updateQuote({
+        forceQuote: true,
+        amount: bnOrZero(currentBuyAsset.amount).toString(),
+        sellAsset: currentBuyAsset.asset,
+        buyAsset: currentSellAsset.asset,
+        feeAsset,
+        action: TradeAmountInputField.SELL,
+      })
+    } catch (e) {
+      showErrorToast(e)
+    }
   }
 
   const getTranslationKey = () => {

@@ -10,6 +10,7 @@ type FoxTabProps = {
   fiatAmount: string
   cryptoAmount: string
   isSelected?: boolean
+  onClick: () => void
 }
 
 export const FoxTab = ({
@@ -18,21 +19,22 @@ export const FoxTab = ({
   fiatAmount,
   cryptoAmount,
   isSelected,
+  onClick,
 }: FoxTabProps) => {
   const bgHover = useColorModeValue('gray.100', 'gray.750')
 
   return (
     <Tab
-      _selected={{ bg: bgHover, borderColor: 'primary', borderWidth: '2px' }}
-      _focus={{ borderWidth: '0' }}
+      _focus={{ borderWidth: isSelected ? '2px' : '1px' }}
       borderRadius='xl'
-      borderColor={bgHover}
-      borderWidth={'1px'}
-      bg={'none'}
+      borderColor={isSelected ? 'primary' : bgHover}
+      borderWidth={isSelected ? '2px' : '1px'}
+      bg={isSelected ? bgHover : 'none'}
       _hover={{ textDecoration: 'none', bg: bgHover }}
       textAlign='left'
       p={0}
       isSelected={isSelected}
+      onClick={onClick}
     >
       <Card display='block' bg='none' border='none' boxShadow='none' p={0} width='full'>
         <Card.Body p={4}>

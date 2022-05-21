@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
+import { Box, Button, Divider, Link, Stack } from '@chakra-ui/react'
 import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -9,8 +9,9 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -34,7 +35,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     handleSubmit,
     formState: { isSubmitting },
   } = useFormContext<TradeState<SupportedChainIds>>()
-  const toast = useToast()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset } = useSwapper()
@@ -58,33 +58,28 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   )
   const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
 
+  const { showErrorToast } = useErrorHandler()
+
   const onSubmit = async () => {
-    if (!wallet) return
-    if (!isConnected) {
-      /**
-       * call handleBack to reset current form state
-       * before opening the connect wallet modal.
-       */
-      handleBack()
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
     try {
+      if (!wallet) return
+      if (!isConnected) {
+        /**
+         * call handleBack to reset current form state
+         * before opening the connect wallet modal.
+         */
+        handleBack()
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
+
       const result = await executeQuote({ wallet })
       const transactionId = result?.txid
       if (transactionId) {
         setTxid(transactionId)
       }
-    } catch (err) {
-      console.error(`TradeConfirm:onSubmit - ${err}`)
-      toast({
-        title: translate('trade.errors.title'),
-        description: translate(TRADE_ERRORS.DEX_TRADE_FAILED),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
+    } catch (e) {
+      showErrorToast(e)
     }
   }
 

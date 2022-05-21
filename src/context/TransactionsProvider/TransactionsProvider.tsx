@@ -1,4 +1,4 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import size from 'lodash/size'
@@ -9,8 +9,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { logger } from 'lib/logger'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { chainIdToFeeAssetId, osmosisChainId } from 'state/slices/portfolioSlice/utils'
-import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
+import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,
@@ -24,10 +23,6 @@ import {
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import {
-  SHAPESHIFT_OSMO_VALIDATOR_ADDRESS,
-  SHAPESHIFT_VALIDATOR_ADDRESS,
-} from 'state/slices/validatorDataSlice/const'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -137,26 +132,27 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               moduleLogger.error(e, { chain }, 'Error subscribing to transaction history for chain')
             }
 
-            const cosmosNamespaceChainIds = [cosmosChainId, osmosisChainId]
             // RESTfully fetch all tx and rebase history for this chain.
             getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
+              const cosmosNamespaceChainIds = Object.keys(accountSpecifierMap).filter(key =>
+                key.startsWith(CHAIN_NAMESPACE.Cosmos),
+              )
+
               cosmosNamespaceChainIds.forEach(chainId => {
-                if (accountSpecifierMap[chainId]) {
-                  const accountSpecifier = accountSpecifierMap[chainId]
-                  const portfolioAccount = portfolioAccounts[`${chainId}:${accountSpecifier}`]
-                  if (portfolioAccount) {
-                    const validatorIds = size(portfolioAccount.validatorIds)
-                      ? portfolioAccount.validatorIds
-                      : [validatorFromAccountSpecifier(accountSpecifier)]
-                    validatorIds?.forEach(validatorAddress => {
-                      dispatch(
-                        validatorDataApi.endpoints.getValidatorData.initiate({
-                          validatorAddress,
-                          chainId,
-                        }),
-                      )
-                    })
-                  }
+                const accountSpecifier = accountSpecifierMap[chainId]
+                const portfolioAccount = portfolioAccounts[`${chainId}:${accountSpecifier}`]
+                if (portfolioAccount) {
+                  const validatorIds = size(portfolioAccount.validatorIds)
+                    ? portfolioAccount.validatorIds
+                    : [validatorFromAccountSpecifier(accountSpecifier)]
+                  validatorIds?.forEach(validatorAddress => {
+                    dispatch(
+                      validatorDataApi.endpoints.getValidatorData.initiate({
+                        validatorAddress,
+                        chainId,
+                      }),
+                    )
+                  })
                 }
               })
 

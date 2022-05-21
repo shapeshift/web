@@ -84,7 +84,6 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   )
 
   const earnBalances = useEarnBalances()
-
   const delegationBalance = useMemo(() => {
     const assetEarnBalance = earnBalances.opportunities.find(balance => balance.assetId === assetId)
     return assetEarnBalance?.cryptoAmount ?? '0'

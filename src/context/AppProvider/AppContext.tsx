@@ -315,8 +315,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       })
 
     fetchMarketData() // fetch every time assetIds change
-    // refetch every two minutes
-    return () => clearInterval(setInterval(fetchMarketData, 1000 * 60 * 2))
+    const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
+    return () => clearInterval(interval) // clear interval when portfolioAssetIds change
   }, [portfolioAssetIds, dispatch])
 
   /**

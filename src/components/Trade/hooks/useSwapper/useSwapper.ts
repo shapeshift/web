@@ -130,7 +130,10 @@ export const useSwapper = () => {
       buyAssetId: buyAsset.assetId,
       sellAssetId: sellAsset.assetId,
     })
-    const result = await swapper?.buildTrade({
+
+    if (!swapper) throw new Error('no swapper available')
+
+    const result = await swapper.buildTrade({
       sellAmount: amount,
       sellAsset,
       buyAsset,
@@ -153,6 +156,7 @@ export const useSwapper = () => {
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,
     })
+    if (!swapper) throw new Error('no swapper available')
     return swapper.executeTrade({ trade, wallet })
   }
 
@@ -163,6 +167,8 @@ export const useSwapper = () => {
           buyAssetId: buyAsset.assetId,
           sellAssetId: sellAsset.assetId,
         })
+
+        if (!swapper) throw new Error('no swapper available')
 
         const { getUsdRate } = swapper
 
@@ -265,6 +271,8 @@ export const useSwapper = () => {
       buyAssetId: quote.buyAsset.assetId,
       sellAssetId: quote.sellAsset.assetId,
     })
+
+    if (!swapper) throw new Error('no swapper available')
     const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
   }
@@ -274,6 +282,8 @@ export const useSwapper = () => {
       buyAssetId: quote.buyAsset.assetId,
       sellAssetId: quote.sellAsset.assetId,
     })
+
+    if (!swapper) throw new Error('no swapper available')
     const txid = await swapper.approveInfinite({ quote, wallet })
     return txid
   }

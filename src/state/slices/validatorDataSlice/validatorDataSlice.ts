@@ -5,7 +5,7 @@ import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
-import { cosmosChainId } from '../portfolioSlice/utils'
+import { cosmosChainId, osmosisChainId } from '../portfolioSlice/utils'
 
 export type PubKey = string
 
@@ -66,26 +66,52 @@ export const validatorDataApi = createApi({
     getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
       queryFn: async ({ validatorAddress }, { dispatch }) => {
         console.log('validatorAddress', validatorAddress)
-        const chainAdapters = getChainAdapters()
-        const cosmoAdapter = (await chainAdapters.byChainId(
-          cosmosChainId,
-        )) as cosmossdk.cosmos.ChainAdapter
 
-        try {
-          const data = await cosmoAdapter.getValidator(validatorAddress)
-          dispatch(
-            validatorData.actions.upsertValidatorData({
-              validators: [data],
-            }),
-          )
-          return { data }
-        } catch (e) {
-          console.error('Error fetching single validator data', e)
-          return {
-            error: {
-              data: `Error fetching validator data`,
-              status: 500,
-            },
+        if (validatorAddress.startsWith('cosmo')) {
+          const chainAdapters = getChainAdapters()
+          const cosmoAdapter = (await chainAdapters.byChainId(
+            cosmosChainId,
+          )) as cosmossdk.cosmos.ChainAdapter
+
+          try {
+            const data = await cosmoAdapter.getValidator(validatorAddress)
+            dispatch(
+              validatorData.actions.upsertValidatorData({
+                validators: [data],
+              }),
+            )
+            return { data }
+          } catch (e) {
+            console.error('Error fetching single validator data', e)
+            return {
+              error: {
+                data: `Error fetching validator data`,
+                status: 500,
+              },
+            }
+          }
+        } else {
+          const chainAdapters = getChainAdapters()
+          const osmosisAdapter = (await chainAdapters.byChainId(
+            osmosisChainId,
+          )) as cosmossdk.osmosis.ChainAdapter
+
+          try {
+            const data = await osmosisAdapter.getValidator(validatorAddress)
+            dispatch(
+              validatorData.actions.upsertValidatorData({
+                validators: [data],
+              }),
+            )
+            return { data }
+          } catch (e) {
+            console.error('Error fetching single validator data', e)
+            return {
+              error: {
+                data: `Error fetching validator data`,
+                status: 500,
+              },
+            }
           }
         }
       },

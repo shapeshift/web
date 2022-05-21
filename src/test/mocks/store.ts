@@ -49,6 +49,7 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       ReduxLogging: false,
+      Osmosis: false,
       WalletMigration: false,
       BanxaRamp: false,
       FoxPage: false,

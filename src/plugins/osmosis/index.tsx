@@ -10,6 +10,7 @@ export function register(): Plugins {
       'osmosisChainAdapter',
       {
         name: 'osmosisChainAdapter',
+        featureFlag: 'Osmosis',
         providers: {
           chainAdapters: [
             [

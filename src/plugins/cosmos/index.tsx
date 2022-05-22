@@ -28,7 +28,7 @@ export function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
+                const ws = new unchained.ws.Client<unchained.osmosis.Tx>(
                   getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL,
                 )
 

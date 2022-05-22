@@ -993,7 +993,12 @@
       "tvl": "TVL",
       "currentApy": "Current APY",
       "balance": "Balance",
-      "getStarted": "Get Started"
+      "getStarted": "Get Started",
+      "otherOpportunitiesTitle": "Other opportunities",
+      "otherOpportunitiesDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget elit faucibus, vestibulum mauris sed, cursus nulla. Nunc tempor leo sit amet velit gravida lacinia. In sit amet luctus lectus. Pellentesque dapibus, justo vel iaculis ullamcorper, mi purus tristique libero, et laoreet nisi neque ut justo.",
+      "liquidityPools": "Liquidity Pools",
+      "farming": "Farming",
+      "borrowingAndLending": "Borrowing & Lending"
     }
   }
 }

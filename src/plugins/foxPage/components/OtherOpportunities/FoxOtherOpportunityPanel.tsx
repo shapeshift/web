@@ -51,7 +51,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
           <AccordionIcon color='gray.500' />
         </Flex>
       </AccordionButton>
-      <AccordionPanel py={8} px={2} my={-4}>
+      <AccordionPanel pb={8} pt={5} px={2} my={-4}>
         {opportunities?.map(opportunity => (
           <Flex
             as={Link}
@@ -79,7 +79,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
             </Flex>
             <Box>
               <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
-              <CText color='green.400' fontSize={'xl'} lineHeight='1'>
+              <CText color='green.400' fontSize={'xl'} fontWeight='semibold' lineHeight='1'>
                 <Amount.Percent value={opportunity.apy} />
               </CText>
             </Box>

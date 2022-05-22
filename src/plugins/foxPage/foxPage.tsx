@@ -1,4 +1,4 @@
-import { SimpleGrid, TabList, Tabs } from '@chakra-ui/react'
+import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -6,6 +6,7 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
@@ -84,6 +85,34 @@ export const FoxPage = (props: FoxPageProps) => {
             />
           </SimpleGrid>
         </TabList>
+        <TabPanels>
+          <TabPanel p={0}>
+            <Stack
+              alignItems='flex-start'
+              spacing={4}
+              mx='auto'
+              direction={{ base: 'column', xl: 'row' }}
+            >
+              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+                <FoxChart assetId={FoxAssetId} />
+              </Stack>
+            </Stack>
+          </TabPanel>
+          <TabPanel p={0}>
+            <Stack
+              alignItems='flex-start'
+              spacing={4}
+              mx='auto'
+              direction={{ base: 'column', xl: 'row' }}
+            >
+              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+                <FoxChart assetId={FoxyAssetId} />
+              </Stack>
+            </Stack>
+          </TabPanel>
+        </TabPanels>
       </Tabs>
     </Layout>
   )

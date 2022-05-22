@@ -993,7 +993,8 @@
       "tvl": "TVL",
       "currentApy": "Current APY",
       "balance": "Balance",
-      "getStarted": "Get Started"
+      "getStarted": "Get Started",
+      "currentPrice": "Current Price"
     }
   }
 }

@@ -1,10 +1,27 @@
-import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  SimpleGrid,
+  Stack,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
@@ -30,6 +47,9 @@ export const FoxPage = (props: FoxPageProps) => {
   const assetFoxy = useAppSelector(state => selectAssetById(state, FoxyAssetId))
   const isFoxSelected = props.activeAssetId === FoxAssetId
   const isFoxySelected = props.activeAssetId === FoxyAssetId
+  const selectedAsset = isFoxSelected ? assetFox : assetFoxy
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
   const { description } = assetFox || {}
   const query = useGetAssetDescriptionQuery(FoxAssetId)
   const isLoaded = !query.isLoading
@@ -38,6 +58,7 @@ export const FoxPage = (props: FoxPageProps) => {
     if (isFoxSelected) {
       return
     }
+
     history.push(FoxPageRoutes.Fox)
   }
 
@@ -45,6 +66,7 @@ export const FoxPage = (props: FoxPageProps) => {
     if (isFoxySelected) {
       return
     }
+
     history.push(FoxPageRoutes.Foxy)
   }
 
@@ -58,7 +80,7 @@ export const FoxPage = (props: FoxPageProps) => {
       description={description ? description : ''}
       icon={assetFox.icon}
     >
-      <Tabs variant='unstyled' px={20}>
+      <Tabs variant='unstyled' index={isFoxSelected ? 0 : 1}>
         <TabList>
           <SimpleGrid
             gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
@@ -67,22 +89,70 @@ export const FoxPage = (props: FoxPageProps) => {
             width='full'
           >
             <Total fiatAmount={'6000'} icons={[assetFox.icon, assetFoxy.icon]} />
-            <FoxTab
-              assetSymbol={assetFox.symbol}
-              assetIcon={assetFox.icon}
-              isSelected={isFoxSelected}
-              cryptoAmount={'3000'}
-              fiatAmount={'1000'}
-              onClick={handleFoxClick}
-            />
-            <FoxTab
-              assetSymbol={assetFoxy.symbol}
-              assetIcon={assetFoxy.icon}
-              isSelected={isFoxySelected}
-              cryptoAmount={'3000'}
-              fiatAmount={'1000'}
-              onClick={handleFoxyClick}
-            />
+            {isLargerThanMd && (
+              <>
+                <FoxTab
+                  assetSymbol={assetFox.symbol}
+                  assetIcon={assetFox.icon}
+                  isSelected={isFoxSelected}
+                  cryptoAmount={'3000'}
+                  fiatAmount={'1000'}
+                  onClick={handleFoxClick}
+                />
+                <FoxTab
+                  assetSymbol={assetFoxy.symbol}
+                  assetIcon={assetFoxy.icon}
+                  isSelected={isFoxySelected}
+                  cryptoAmount={'3000'}
+                  fiatAmount={'1000'}
+                  onClick={handleFoxyClick}
+                />
+              </>
+            )}
+            {!isLargerThanMd && (
+              <Box mb={4}>
+                <Menu>
+                  <MenuButton
+                    borderWidth='2px'
+                    borderColor='primary'
+                    height='auto'
+                    as={Button}
+                    rightIcon={<ChevronDownIcon />}
+                    bg={mobileTabBg}
+                    width='full'
+                  >
+                    <FoxTab
+                      assetSymbol={selectedAsset.symbol}
+                      assetIcon={selectedAsset.icon}
+                      cryptoAmount={'3000'}
+                      fiatAmount={'1000'}
+                      onClick={handleFoxClick}
+                    />
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem onClick={handleFoxClick}>
+                      <FoxTab
+                        assetSymbol={assetFox.symbol}
+                        assetIcon={assetFox.icon}
+                        isSelected={isFoxSelected}
+                        cryptoAmount={'3000'}
+                        fiatAmount={'1000'}
+                        onClick={handleFoxClick}
+                      />
+                    </MenuItem>
+                    <MenuItem onClick={handleFoxyClick}>
+                      <FoxTab
+                        assetSymbol={assetFoxy.symbol}
+                        assetIcon={assetFoxy.icon}
+                        isSelected={isFoxySelected}
+                        cryptoAmount={'3000'}
+                        fiatAmount={'1000'}
+                      />
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </Box>
+            )}
           </SimpleGrid>
         </TabList>
         <TabPanels>

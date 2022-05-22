@@ -28,7 +28,7 @@ export const FoxOpportunity = ({
     <Card display='block' width='full' borderRadius={8}>
       <Card.Header>
         <Flex flexDirection='row' alignItems='center' mb={2}>
-          <AssetIcon src={fox.icon} boxSize='6' mr={2} zIndex={2} />
+          <AssetIcon src={fox.icon} boxSize='6' mr={2} />
           <CText fontWeight='bold' color='inherit'>
             {translate('plugins.foxPage.titleStaking', {
               assetSymbol,

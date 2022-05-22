@@ -7,26 +7,15 @@ import {
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
-type UseWalletSupportsChainArgs = {
-  chainId: ChainId
-  wallet: HDWallet | null
-  featureFlags: FeatureFlags
-}
+type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 
 // use outside react
-export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet, featureFlags }) => {
+export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
-  const ethChainId = toChainId({
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
-  })
-  const btcChainId = toChainId({
-    chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.MAINNET,
-  })
+  const ethChainId = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+  const btcChainId = toChainId({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
   const cosmosChainId = toChainId({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
@@ -47,7 +36,7 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet, f
       return supportsCosmos(wallet)
     }
     case osmosisChainId: {
-      return featureFlags['Osmosis'] && supportsOsmosis(wallet)
+      return supportsOsmosis(wallet)
     }
     default: {
       console.error(`useWalletSupportsChain: unknown chain id ${chainId}`)

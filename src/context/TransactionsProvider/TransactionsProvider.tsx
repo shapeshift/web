@@ -15,7 +15,6 @@ import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,
   selectAssets,
-  selectFeatureFlags,
   selectIsPortfolioLoaded,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
@@ -75,7 +74,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   }, [accountSpecifiers, dispatch, chainAdapterManager, supportedChains])
 
   const portfolioAccounts = useAppSelector(state => selectPortfolioAccounts(state))
-  const featureFlags = useSelector(selectFeatureFlags)
 
   /**
    * tx history subscription logic
@@ -90,7 +88,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         supportedChains
           .filter(chain => {
             const chainId = chainAdapterManager.byChain(chain).getChainId()
-            return walletSupportsChain({ chainId, wallet, featureFlags })
+            return walletSupportsChain({ chainId, wallet })
           })
           .map(async chain => {
             const adapter = chainAdapterManager.byChain(chain)

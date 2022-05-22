@@ -1,7 +1,6 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -10,7 +9,6 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
-  selectFeatureFlags,
   selectTxIdsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -43,8 +41,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
     [assetId, accountId, accountIds],
   )
 
-  const featureFlags = useSelector(selectFeatureFlags)
-  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet, featureFlags })
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 

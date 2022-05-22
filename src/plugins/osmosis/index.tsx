@@ -5,38 +5,36 @@ import { getConfig } from 'config'
 import { Plugins } from 'plugins'
 
 export function register(): Plugins {
-  return !getConfig().REACT_APP_OSMOSIS
-    ? []
-    : [
-        [
-          'osmosisChainAdapter',
-          {
-            name: 'osmosisChainAdapter',
-            featureFlag: 'Osmosis',
-            providers: {
-              chainAdapters: [
-                [
-                  ChainTypes.Osmosis,
-                  () => {
-                    const http = new unchained.osmosis.V1Api(
-                      new unchained.osmosis.Configuration({
-                        basePath: getConfig().REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL,
-                      }),
-                    )
+  return [
+    [
+      'osmosisChainAdapter',
+      {
+        name: 'osmosisChainAdapter',
+        featureFlag: 'Osmosis',
+        providers: {
+          chainAdapters: [
+            [
+              ChainTypes.Osmosis,
+              () => {
+                const http = new unchained.osmosis.V1Api(
+                  new unchained.osmosis.Configuration({
+                    basePath: getConfig().REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL,
+                  }),
+                )
 
-                    const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
-                      getConfig().REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
-                    )
+                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
+                  getConfig().REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
+                )
 
-                    return new cosmossdk.osmosis.ChainAdapter({
-                      providers: { http, ws },
-                      coinName: 'Osmosis',
-                    })
-                  },
-                ],
-              ],
-            },
-          },
-        ],
-      ]
+                return new cosmossdk.osmosis.ChainAdapter({
+                  providers: { http, ws },
+                  coinName: 'Osmosis',
+                })
+              },
+            ],
+          ],
+        },
+      },
+    ],
+  ]
 }

@@ -24,7 +24,6 @@ import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
 import { breakpoints } from 'theme/theme'
 
-import { AssetActions } from './AssetActions'
 import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
@@ -169,7 +168,7 @@ export const FoxLayout: Story = () => {
                 />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <AssetActions assetId={mockAsset.assetId} />
+                {/* <AssetActions assetId={mockAsset.assetId} /> */}
               </Stack>
             </Stack>
           </TabPanel>
@@ -190,7 +189,7 @@ export const FoxLayout: Story = () => {
                 />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <AssetActions assetId={mockAsset.assetId} />
+                {/* <AssetActions assetId={mockAsset.assetId} /> */}
               </Stack>
             </Stack>
           </TabPanel>
@@ -211,7 +210,7 @@ export const FoxLayout: Story = () => {
                 />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <AssetActions assetId={mockAsset.assetId} />
+                {/* <AssetActions assetId={mockAsset.assetId} /> */}
               </Stack>
             </Stack>
           </TabPanel>

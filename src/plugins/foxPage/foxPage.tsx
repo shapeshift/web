@@ -7,20 +7,26 @@ import {
   MenuItem,
   MenuList,
   SimpleGrid,
+  Stack,
   TabList,
   Tabs,
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
+import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { FoxTab } from './components/FoxTab'
+import { FoxyAssetMarketData } from './components/FoxyAssetMarketData'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
 
@@ -39,6 +45,7 @@ export type FoxPageProps = {
 export const FoxPage = (props: FoxPageProps) => {
   const translate = useTranslate()
   const history = useHistory()
+  const dispatch = useDispatch()
   const assetFox = useAppSelector(state => selectAssetById(state, FoxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, FoxyAssetId))
   const isFoxSelected = props.activeAssetId === FoxAssetId
@@ -65,6 +72,10 @@ export const FoxPage = (props: FoxPageProps) => {
 
     history.push(FoxPageRoutes.Foxy)
   }
+
+  useEffect(() => {
+    dispatch(marketApi.endpoints.findByAssetId.initiate(FoxyAssetId))
+  }, [dispatch])
 
   if (!isLoaded) return null
 
@@ -151,6 +162,18 @@ export const FoxPage = (props: FoxPageProps) => {
             )}
           </SimpleGrid>
         </TabList>
+        <Stack
+          alignItems='flex-start'
+          spacing={4}
+          mx='auto'
+          direction={{ base: 'column', xl: 'row' }}
+        >
+          <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
+          <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+            {isFoxSelected && <AssetMarketData assetId={props.activeAssetId} />}
+            {isFoxySelected && <FoxyAssetMarketData assetId={props.activeAssetId} />}
+          </Stack>
+        </Stack>
       </Tabs>
     </Layout>
   )

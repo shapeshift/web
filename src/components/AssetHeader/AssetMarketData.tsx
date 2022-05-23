@@ -13,6 +13,8 @@ import { useAppSelector } from 'state/store'
 type AssetMarketDataProps = {
   assetId: AssetId
   isLoaded?: boolean
+  fallbackMarketCap?: string
+  fallbackMaxSupply?: string
 }
 
 type StatProps = TextProps & { isLoaded?: boolean }
@@ -46,7 +48,11 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
   </Skeleton>
 )
 
-export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
+export const AssetMarketData = ({
+  assetId,
+  fallbackMarketCap,
+  fallbackMaxSupply,
+}: AssetMarketDataProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
@@ -70,9 +76,16 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
             <StatLabel isLoaded={isLoaded}>
               <Text translation='assets.assetDetails.assetHeader.marketCap' />
             </StatLabel>
-            <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.marketCap || 0} />
-            </StatValue>
+            {marketData?.marketCap && marketData?.marketCap !== '0' && (
+              <StatValue isLoaded={isLoaded}>
+                <Amount.Fiat value={marketData?.marketCap} />
+              </StatValue>
+            )}
+            {(!marketData?.marketCap || marketData?.marketCap === '0') && (
+              <StatValue isLoaded={isLoaded}>
+                <Amount.Fiat value={fallbackMarketCap || 0} />
+              </StatValue>
+            )}
           </Stat>
           <Stat>
             <StatLabel isLoaded={isLoaded}>
@@ -96,13 +109,13 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
             </StatValue>
           </Stat>
 
-          {marketData?.maxSupply && (
+          {(marketData?.maxSupply || fallbackMaxSupply) && (
             <Stat>
               <StatLabel isLoaded={isLoaded}>
                 <Text translation='assets.assetDetails.assetHeader.maxTotalSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount.Supply value={marketData?.maxSupply} />
+                <Amount.Supply value={marketData?.maxSupply || fallbackMaxSupply || 0} />
               </StatValue>
             </Stat>
           )}

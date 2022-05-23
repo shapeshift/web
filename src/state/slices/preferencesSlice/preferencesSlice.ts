@@ -21,7 +21,7 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    Osmosis: getConfig().REACT_APP_OSMOSIS,
+    Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
     BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,

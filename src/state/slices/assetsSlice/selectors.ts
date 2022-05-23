@@ -58,7 +58,7 @@ export const selectAssetsByMarketCap = createSelector(
 const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): AssetReference => {
   if (chain === ChainTypes.Bitcoin) return ASSET_REFERENCE.Bitcoin
   if (chain === ChainTypes.Ethereum) return ASSET_REFERENCE.Ethereum
-  if (chain === ChainTypes.Cosmos || ChainTypes.Osmosis) {
+  if (chain === ChainTypes.Cosmos || chain === ChainTypes.Osmosis) {
     if (network === NetworkTypes.COSMOSHUB_MAINNET) return ASSET_REFERENCE.Cosmos
     if (network === NetworkTypes.OSMOSIS_MAINNET) return ASSET_REFERENCE.Osmosis
     throw new Error(`Network ${network} on ${chain} not supported.`)

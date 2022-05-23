@@ -92,15 +92,15 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/portis/failure', component: PortisFailure },
     ],
   },
-  [KeyManager.Demo]: {
-    ...DemoConfig,
-    routes: [],
-  },
   [KeyManager.XDefi]: {
     ...XDEFIConfig,
     routes: [
       { path: '/xdefi/connect', component: XDEFIConnect },
       { path: '/xdefi/failure', component: XDEFIFailure },
     ],
-  }
+  },
+  [KeyManager.Demo]: {
+    ...DemoConfig,
+    routes: [],
+  },
 }

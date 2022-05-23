@@ -11,14 +11,14 @@ export type ExternalOpportunity = {
   icons: string[]
 }
 
-export type OpportunitiesChunk = {
+export type OpportunitiesBucket = {
   type: OpportunityTypes
   title: string
   opportunities: ExternalOpportunity[]
 }
 
 // @TODO: When wiring this up, move this to foxPage.ts as icons and APY should be fetched from dynamic datas
-export const otherOpportunitiesChunks: OpportunitiesChunk[] = [
+export const otherOpportunitiesBuckets: OpportunitiesBucket[] = [
   {
     type: OpportunityTypes.LiquidityPool,
     title: 'plugins.foxPage.liquidityPools',

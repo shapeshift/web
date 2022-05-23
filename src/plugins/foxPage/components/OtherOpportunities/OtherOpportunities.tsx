@@ -4,7 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 
-import { otherOpportunitiesChunks } from '../../FoxCommon'
+import { otherOpportunitiesBuckets } from '../../FoxCommon'
 import { FoxOtherOpportunityPanel } from './FoxOtherOpportunityPanel'
 
 type OtherOpportunitiesProps = {
@@ -26,14 +26,14 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({ descript
       </Card.Header>
       <Card.Body pb={0}>
         <Accordion mx={-6} defaultIndex={[0]} allowToggle allowMultiple>
-          {otherOpportunitiesChunks.map(opportunitiesChunk => {
-            const { opportunities } = opportunitiesChunk
+          {otherOpportunitiesBuckets.map(opportunitiesBucket => {
+            const { opportunities } = opportunitiesBucket
             if (!opportunities.length) return null
 
             return (
               <FoxOtherOpportunityPanel
                 opportunities={opportunities}
-                title={opportunitiesChunk.title}
+                title={opportunitiesBucket.title}
               />
             )
           })}

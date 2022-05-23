@@ -34,6 +34,9 @@ type FoxTabProps = {
   assetId: AssetId
 }
 
+const GetFoxyModalRoute = `/defi/token_staking/ShapeShift/overview`
+const GetFoxCoinbaseExternalUrl = `https://www.coinbase.com/price/fox-token`
+
 export const AssetActions = ({ assetId }: FoxTabProps) => {
   const translate = useTranslate()
   const history = useHistory()
@@ -59,7 +62,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
 
   const onGetAssetClick = () => {
     history.push({
-      pathname: `/defi/token_staking/ShapeShift/overview`,
+      pathname: GetFoxyModalRoute,
       search: qs.stringify({
         chain: asset.chain,
         contractAddress: foxyAddresses[0].staking,
@@ -89,7 +92,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
               <Box mb={6}>
                 <AssetIcon src={asset.icon} boxSize='16' />
               </Box>
-              <SkeletonText isLoaded={isLoaded} noOfLines={3} textOverflow='ellipsis'>
+              <SkeletonText isLoaded={isLoaded} noOfLines={3}>
                 <CText color='gray.500' mb={6}>
                   {trimmedDescription}
                 </CText>
@@ -112,7 +115,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
                     size='lg'
                     as={Link}
                     leftIcon={<ExternalLinkIcon />}
-                    href={`https://www.coinbase.com/price/fox-token`}
+                    href={GetFoxCoinbaseExternalUrl}
                     isExternal
                   >
                     <CText>

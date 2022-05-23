@@ -19,8 +19,12 @@ import { useHistory, useLocation } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxAssetId } from '../constants'
@@ -28,10 +32,9 @@ import { TrimDescriptionWithEllipsis } from '../utils'
 
 type FoxTabProps = {
   assetId: AssetId
-  onReceiveClick: () => void
 }
 
-export const AssetActions = ({ assetId, onReceiveClick }: FoxTabProps) => {
+export const AssetActions = ({ assetId }: FoxTabProps) => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
@@ -41,6 +44,18 @@ export const AssetActions = ({ assetId, onReceiveClick }: FoxTabProps) => {
   const isLoaded = !query.isLoading
   const trimmedDescription = TrimDescriptionWithEllipsis(description)
   const isFoxAsset = assetId === FoxAssetId
+
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
+  const {
+    state: { isConnected },
+    dispatch,
+  } = useWallet()
+  const { receive } = useModal()
+  const handleWalletModalOpen = () =>
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const handleReceiveClick = () =>
+    isConnected ? receive.open({ asset, accountId: singleAccount }) : handleWalletModalOpen()
 
   const onGetAssetClick = () => {
     history.push({
@@ -107,7 +122,7 @@ export const AssetActions = ({ assetId, onReceiveClick }: FoxTabProps) => {
                     </CText>
                   </Button>
                 )}
-                <Button onClick={onReceiveClick} size='lg' colorScheme='gray'>
+                <Button onClick={handleReceiveClick} size='lg' colorScheme='gray'>
                   <Text translation={'plugins.foxPage.receive'} />
                 </Button>
               </Stack>

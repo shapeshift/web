@@ -147,7 +147,7 @@ export const FoxPage = (props: FoxPageProps) => {
         >
           <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
           <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-            <AssetActions assetId={props.activeAssetId} onReceiveClick={() => null} />
+            <AssetActions assetId={props.activeAssetId} />
           </Stack>
         </Stack>
       </Tabs>

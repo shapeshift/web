@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -79,7 +80,8 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
           payload: { wallet, name, icon, deviceId },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        history.push('/xdefi/success')
+        setLocalWalletTypeAndDeviceId(KeyManager.XDefi, deviceId)
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error('XDEFI Connect: There was an error initializing the wallet', e)

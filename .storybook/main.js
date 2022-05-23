@@ -1,4 +1,5 @@
 const { merge } = require('lodash')
+const webpack = require('webpack')
 
 module.exports = {
   core: {
@@ -22,7 +23,14 @@ module.exports = {
           stream: require.resolve('stream-browserify'),
           zlib: require.resolve('browserify-zlib')
         }
-      }
+      },
+      plugins: [
+        ...config.plugins,
+        new webpack.ProvidePlugin({
+          Buffer: ['buffer/', 'Buffer'],
+          process: ['process/browser.js']
+        })
+      ]
     })
   }
 };

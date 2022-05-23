@@ -66,13 +66,13 @@ describe('txHistorySlice:utils', () => {
     it('can deserialize a txId', () => {
       const ethChainId = EthSend.chainId
       const accountSpecifier = `${ethChainId}:0xdef1cafe`
-      const txId = makeUniqueTxId(EthSend, accountSpecifier)
+      const txId = makeUniqueTxId(accountSpecifier, EthSend.txid, EthSend.address)
 
       const { txAccountSpecifier, txid, txAddress } = deserializeUniqueTxId(txId)
 
       expect(txAccountSpecifier).toEqual(accountSpecifier)
       expect(txid).toEqual(EthSend.txid)
-      expect(txAddress).toEqual(EthSend.address)
+      expect(txAddress).toEqual(EthSend.address.toLowerCase())
     })
   })
 })

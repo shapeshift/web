@@ -27,6 +27,7 @@ export type TradeState<C extends SupportedChainIds> = {
   buyAsset: TradeAsset
   fiatSellAmount: string
   sellAssetFiatRate: string
+  feeAssetFiatRate: string
   fees?: QuoteFeeData<C>
   action?: TradeAmountInputField
   quote: TradeQuote<C>

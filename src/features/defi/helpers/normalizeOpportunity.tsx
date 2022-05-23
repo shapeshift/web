@@ -1,4 +1,4 @@
-import { AssetId, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -36,7 +36,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
   const assetIds = useSelector(selectAssetIds)
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
   const { vaults: vaultsWithBalances } = useVaultBalances()
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
     let fiatAmount = '0'

@@ -1,4 +1,3 @@
-import { AssetNamespace } from '@shapeshiftoss/caip'
 import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 
@@ -8,7 +7,7 @@ export const rune: Asset = {
   name: 'THORChain  ERC20 ',
   precision: 18,
   tokenId: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
-  contractType: AssetNamespace.ERC20,
+  contractType: 'erc20',
   color: '#FFFFFF',
   dataSource: AssetDataSource.CoinGecko,
   secondaryColor: '#FFFFFF',
@@ -71,7 +70,7 @@ export const aapl: Asset = {
   dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
-  contractType: AssetNamespace.ERC20,
+  contractType: 'erc20',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
@@ -93,7 +92,7 @@ export const zero: Asset = {
   dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
-  contractType: AssetNamespace.ERC20,
+  contractType: 'erc20',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
@@ -115,7 +114,7 @@ export const fox: Asset = {
   dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
-  contractType: AssetNamespace.ERC20,
+  contractType: 'erc20',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
@@ -137,7 +136,7 @@ export const cosmos: Asset = {
   dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.COSMOSHUB_MAINNET,
   color: '#FFFFFF',
-  contractType: AssetNamespace.ERC20,
+  contractType: 'erc20',
   explorer: 'https://www.mintscan.io/cosmos',
   explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
   explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',

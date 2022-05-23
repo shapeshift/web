@@ -23,7 +23,7 @@ export const useTradeRoutes = (
   const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
-  const feeAssetId = chainIdToFeeAssetId(sellTradeAsset.asset.chainId)
+  const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
 

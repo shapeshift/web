@@ -14,14 +14,14 @@ import { useSwapper } from '../useSwapper/useSwapper'
 const ETHEREUM_ASSET_ID = 'eip155:1/slip44:60'
 
 export const useTradeRoutes = (
-  defaultBuyAssetId?: AssetId,
+  routeBuyAssetId?: AssetId,
 ): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<SupportedChainIds>>()
-  const { updateQuote, getDefaultPair } = useSwapper()
+  const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
@@ -32,16 +32,35 @@ export const useTradeRoutes = (
     if (isEmpty(assets) || !feeAsset) return
 
     try {
-      const [sellAssetId, buyAssetId] = getDefaultPair()
-      const sellAsset = assets[sellAssetId]
+      const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
+      const sellAsset = assets[defaultSellAssetId]
 
-      // ugly hack until we add proper error handling in another PR soon
-      const buyAsset =
-        assets[
-          defaultBuyAssetId?.startsWith('eip155:1') && defaultBuyAssetId !== 'eip155:1/slip44:60'
-            ? defaultBuyAssetId
-            : buyAssetId
-        ]
+      const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
+
+      // make sure the same buy and sell assets arent selected
+      const buyAssetToCheckId =
+        preBuyAssetToCheckId === defaultSellAssetId ? defaultBuyAssetId : preBuyAssetToCheckId
+
+      const bestSwapper = await swapperManager.getBestSwapper({
+        buyAssetId: buyAssetToCheckId,
+        sellAssetId: defaultSellAssetId,
+      })
+
+      // TODO update swapper to have an official way to validate a pair is supported.
+      // This works for now
+      const isSupportedPair = await (async () => {
+        try {
+          if (bestSwapper) {
+            await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
+            return true
+          }
+        } catch (e) {}
+        return false
+      })()
+
+      const buyAssetId = isSupportedPair ? buyAssetToCheckId : defaultBuyAssetId
+
+      const buyAsset = assets[buyAssetId]
 
       if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
@@ -58,11 +77,11 @@ export const useTradeRoutes = (
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, defaultBuyAssetId, feeAsset, getDefaultPair, setValue, updateQuote])
+  }, [assets, feeAsset, getDefaultPair, routeBuyAssetId, setValue, swapperManager, updateQuote])
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, feeAsset]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assets, feeAsset, routeBuyAssetId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

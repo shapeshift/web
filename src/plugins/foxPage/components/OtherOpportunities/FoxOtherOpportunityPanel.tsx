@@ -15,10 +15,10 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text/Text'
 
-import { OtherOpportunity } from '../../FoxCommon'
+import { ExternalOpportunity } from '../../FoxCommon'
 
 type FoxOtherOpportunityPanelProps = {
-  opportunities?: OtherOpportunity[]
+  opportunities?: ExternalOpportunity[]
   title: string
 }
 
@@ -65,11 +65,11 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
             borderRadius={8}
           >
             <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
-              {opportunity.images.map((image, index) => (
+              {opportunity.icons.map((image, index) => (
                 <AssetIcon
                   src={image}
                   boxSize='8'
-                  mr={index === opportunity.images.length - 1 ? 2 : 0}
+                  mr={index === opportunity.icons.length - 1 ? 2 : 0}
                   ml={index === 0 ? 0 : '-3.5'}
                 />
               ))}

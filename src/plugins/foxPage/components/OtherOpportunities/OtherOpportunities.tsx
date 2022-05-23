@@ -4,22 +4,15 @@ import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 
-import { FoxOpportunities } from '../../FoxCommon'
+import { OpportunityTypeTitles, otherOpportunitiesChunks } from '../../FoxCommon'
 import { FoxOtherOpportunityPanel } from './FoxOtherOpportunityPanel'
 
 type OtherOpportunitiesProps = {
   description: string
-  opportunities: FoxOpportunities
 }
 
-export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
-  description,
-  opportunities,
-}) => {
+export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({ description }) => {
   const translate = useTranslate()
-  const hasLiquidityPools = opportunities.liquidityPools?.length
-  const hasFarming = opportunities.farming?.length
-  const hasBorrowingAndLending = opportunities.borrowingAndLending?.length
 
   return (
     <Card display='block' width='full' borderRadius={8}>
@@ -33,24 +26,16 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
       </Card.Header>
       <Card.Body pb={0}>
         <Accordion mx={-6} defaultIndex={[0]} allowToggle allowMultiple>
-          {hasLiquidityPools && (
-            <FoxOtherOpportunityPanel
-              opportunities={opportunities.liquidityPools}
-              title='plugins.foxPage.liquidityPools'
-            />
-          )}
-          {hasFarming && (
-            <FoxOtherOpportunityPanel
-              opportunities={opportunities.farming}
-              title='plugins.foxPage.farming'
-            />
-          )}
-          {hasBorrowingAndLending && (
-            <FoxOtherOpportunityPanel
-              opportunities={opportunities.borrowingAndLending}
-              title='plugins.foxPage.borrowingAndLending'
-            />
-          )}
+          {otherOpportunitiesChunks.map(opportunities => {
+            if (!opportunities.length) return null
+
+            return (
+              <FoxOtherOpportunityPanel
+                opportunities={opportunities}
+                title={OpportunityTypeTitles[opportunities[0].type]}
+              />
+            )
+          })}
         </Accordion>
       </Card.Body>
     </Card>

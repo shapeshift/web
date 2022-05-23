@@ -6,7 +6,6 @@ import { Story } from '@storybook/react'
 import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
 
-import { FoxOpportunities } from '../FoxCommon'
 import { AssetActions } from './AssetActions'
 import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
@@ -23,54 +22,6 @@ const mockAsset = {
   ...fox,
   description:
     'FOX is an ERC-20 token created by ShapeShift which serves as the governance token for the ShapeShift DAO, token holders can vote on proposals relating to the operation...',
-}
-
-const mockOtherOpportunities: FoxOpportunities = {
-  liquidityPools: [
-    {
-      title: 'Uniswap',
-      apy: '0.1161',
-      link: '#',
-      images: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
-    },
-    {
-      title: 'SushiSwap',
-      apy: '0.1161',
-      link: '#',
-      images: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
-    },
-  ],
-  farming: [
-    {
-      title: 'Fox Farm',
-      apy: '0.1161',
-      link: '#',
-      images: [
-        'https://assets.coincap.io/assets/icons/fox@2x.png',
-        'https://assets.coincap.io/assets/icons/fox@2x.png',
-      ],
-    },
-  ],
-  borrowingAndLending: [
-    {
-      title: 'ETH-FOX',
-      apy: '0.1161',
-      link: '#',
-      images: [
-        'https://assets.coincap.io/assets/icons/fox@2x.png',
-        'https://assets.coincap.io/assets/icons/fox@2x.png',
-      ],
-    },
-    {
-      title: 'Rari Pool 79',
-      apy: '0.1161',
-      link: '#',
-      images: [
-        'https://assets.coincap.io/assets/icons/fox@2x.png',
-        'https://assets.coincap.io/assets/icons/fox@2x.png',
-      ],
-    },
-  ],
 }
 
 export const FoxLayout: Story = () => {
@@ -141,10 +92,7 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
-                <OtherOpportunities
-                  opportunities={mockOtherOpportunities}
-                  description={'plugins.foxPage.otherOpportunitiesDescription'}
-                />
+                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -176,10 +124,7 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
-                <OtherOpportunities
-                  opportunities={mockOtherOpportunities}
-                  description={'plugins.foxPage.otherOpportunitiesDescription'}
-                />
+                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -211,10 +156,7 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
-                <OtherOpportunities
-                  opportunities={mockOtherOpportunities}
-                  description={'plugins.foxPage.otherOpportunitiesDescription'}
-                />
+                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions

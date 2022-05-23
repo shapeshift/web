@@ -31,7 +31,7 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
     const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
 
     const normalizedSellAmount = normalizeAmount(
-      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount.toString() : sellAmount
+      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount : sellAmount
     )
 
     /**

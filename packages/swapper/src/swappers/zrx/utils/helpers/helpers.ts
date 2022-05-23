@@ -44,8 +44,7 @@ type GrantAllowanceArgs = {
  * ETH or ERC20, we still keep 7 decimal places.
  * @param amount
  */
-export const normalizeAmount = (amount: string | undefined): string | undefined => {
-  if (!amount) return
+export const normalizeAmount = (amount: string | number | BigNumber): string => {
   return bnOrZero(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
 }
 

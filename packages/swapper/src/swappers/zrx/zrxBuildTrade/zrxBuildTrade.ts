@@ -77,7 +77,7 @@ export async function zrxBuildTrade(
         params: {
           buyToken,
           sellToken,
-          sellAmount: normalizeAmount(sellAmount?.toString()),
+          sellAmount: normalizeAmount(sellAmount),
           takerAddress: receiveAddress,
           slippagePercentage,
           skipValidation: false,

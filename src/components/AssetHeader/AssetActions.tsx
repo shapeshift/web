@@ -1,7 +1,9 @@
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -17,6 +19,8 @@ type AssetActionProps = {
 }
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+  const [isValidChainId, setIsValidChainId] = useState(true)
+  const chainAdapterManager = useChainAdapters()
   const { send, receive } = useModal()
   const translate = useTranslate()
   const {
@@ -24,6 +28,15 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  useEffect(() => {
+    try {
+      chainAdapterManager.byChainId(asset.chainId)
+      setIsValidChainId(true)
+    } catch (e) {
+      setIsValidChainId(false)
+    }
+  }, [chainAdapterManager, asset])
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -65,6 +78,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           {translate('common.send')}
         </Button>
         <Button
+          disabled={!isValidChainId}
           onClick={handleReceiveClick}
           leftIcon={<ArrowDownIcon />}
           width={{ base: '100%', md: 'auto' }}

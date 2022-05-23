@@ -32,7 +32,7 @@ export const useFormSend = () => {
         let result
 
         const { memo, estimatedFees, feeType, address: to } = data
-        const fees: CosmosSdkChainFees = estimatedFees[feeType] as CosmosSdkChainFees
+        const fees = estimatedFees[feeType] as CosmosSdkChainFees
         const gas = fees.chainSpecific.gasLimit
         const fee = fees.txFee
         const address = to

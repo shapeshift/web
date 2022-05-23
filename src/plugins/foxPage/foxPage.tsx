@@ -7,7 +7,10 @@ import {
   MenuItem,
   MenuList,
   SimpleGrid,
+  Stack,
   TabList,
+  TabPanel,
+  TabPanels,
   Tabs,
   useColorModeValue,
   useMediaQuery,
@@ -20,6 +23,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
+import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
@@ -151,6 +155,34 @@ export const FoxPage = (props: FoxPageProps) => {
             )}
           </SimpleGrid>
         </TabList>
+        <TabPanels>
+          <TabPanel p={0}>
+            <Stack
+              alignItems='flex-start'
+              spacing={4}
+              mx='auto'
+              direction={{ base: 'column', xl: 'row' }}
+            >
+              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+                <FoxChart assetId={FoxAssetId} />
+              </Stack>
+            </Stack>
+          </TabPanel>
+          <TabPanel p={0}>
+            <Stack
+              alignItems='flex-start'
+              spacing={4}
+              mx='auto'
+              direction={{ base: 'column', xl: 'row' }}
+            >
+              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+                <FoxChart assetId={FoxyAssetId} />
+              </Stack>
+            </Stack>
+          </TabPanel>
+        </TabPanels>
       </Tabs>
     </Layout>
   )

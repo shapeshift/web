@@ -1,4 +1,4 @@
-import { AssetId, ChainId, toAccountId, toChainId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, cosmosAssetId, toAccountId, toChainId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import {
   chainAdapters,
@@ -28,7 +28,6 @@ import {
   PortfolioAssets,
   PortfolioBalancesById,
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { cosmosAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectPortfolioAssets,

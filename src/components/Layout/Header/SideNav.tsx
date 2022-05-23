@@ -1,4 +1,5 @@
 import { chakra, useColorModeValue } from '@chakra-ui/react'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SideNavContent } from './SideNavContent'
@@ -9,7 +10,7 @@ export const SideNav = () => {
   const {
     state: { walletInfo },
   } = useWallet()
-  const top = walletInfo?.deviceId === 'DemoWallet' ? '7rem' : '4.5rem'
+  const top = walletInfo?.deviceId === DemoConfig.name ? '7rem' : '4.5rem'
   return (
     <>
       <chakra.header

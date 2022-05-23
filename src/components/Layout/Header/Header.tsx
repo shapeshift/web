@@ -15,6 +15,7 @@ import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -55,7 +56,7 @@ export const Header = () => {
   return (
     <>
       <Flex direction='column' bg={bg} width='full' position='sticky' zIndex='banner' top={0}>
-        {walletInfo?.deviceId === 'DemoWallet' && (
+        {walletInfo?.deviceId === DemoConfig.name && (
           <Box
             bg='blue.500'
             width='full'

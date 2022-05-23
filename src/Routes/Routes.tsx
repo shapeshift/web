@@ -1,5 +1,6 @@
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
@@ -30,7 +31,7 @@ export const Routes = () => {
             path: '/demo/:appRoute(.+)',
           })
           // Don't reconnect demo wallet if already connected
-          if (state.walletInfo?.deviceId !== 'DemoWallet') {
+          if (state.walletInfo?.deviceId !== DemoConfig.name) {
             connectDemo()
           }
           return (

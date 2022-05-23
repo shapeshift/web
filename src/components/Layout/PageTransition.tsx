@@ -1,5 +1,6 @@
 import { useMediaQuery } from '@chakra-ui/media-query'
 import { HTMLMotionProps, motion } from 'framer-motion'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { breakpoints } from 'theme/theme'
 
@@ -8,7 +9,7 @@ export const PageTransition = (props: HTMLMotionProps<'div'>) => {
   const walletContext = useWallet()
   const minHeight = isLargerThanMd
     ? `calc(100vh - ${
-        walletContext?.state?.walletInfo?.deviceId === 'DemoWallet' ? '7rem' : '4.5rem'
+        walletContext?.state?.walletInfo?.deviceId === DemoConfig.name ? '7rem' : '4.5rem'
       })`
     : 'auto'
 

@@ -80,6 +80,7 @@ const cspMeta = Object.entries({
     'https://raw.githack.com/shapeshift/lib/',
     'https://raw.githubusercontent.com/shapeshift/lib/',
     'https://raw.githubusercontent.com/cosmostation/',
+    'https://raw.githubusercontent.com/cosmos/chain-registry/',
   ],
   'script-src': [
     "'self'",

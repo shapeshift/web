@@ -51,6 +51,12 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       throw new Error('walletProvider.tally.errors.connectFailure')
     }
 
+    //Handles UX issues caused by MM and Tally Ho both being injected.
+    if (!provider.isTally) {
+      setErrorLoading('walletProvider.tallyHo.errors.tallyNotInstalledOrSetToDefault')
+      throw new Error('Tally Ho either not installed or not set to default')
+    }
+
     if (state.adapters && state.adapters?.has(KeyManager.TallyHo)) {
       const wallet = await state.adapters.get(KeyManager.TallyHo)?.pairDevice()
       if (!wallet) {

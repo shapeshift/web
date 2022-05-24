@@ -715,7 +715,8 @@
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
         "network": "MetaMask isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
+        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
+        "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
       },
       "connect": {
         "header": "Pair MetaMask",
@@ -737,7 +738,8 @@
         "unknown": "An unexpected error occurred communicating with Tally Ho",
         "connectFailure": "Unable to connect Tally Ho wallet",
         "network": "Tally Ho isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not Tally. Do you have multiple wallets installed?"
+        "multipleWallets": "Detected Ethereum provider is not Tally Ho. Do you have multiple wallets installed?",
+        "tallyNotInstalledOrSetToDefault":"We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
       },
       "connect": {
         "header": "Pair Tally",

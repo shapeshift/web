@@ -1,3 +1,31 @@
+# [@shapeshiftoss/caip-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v4.0.1...@shapeshiftoss/caip-v5.0.0) (2022-05-24)
+
+
+### Features
+
+* **caip:** update to & from type signatures ([#676](https://github.com/shapeshift/lib/issues/676)) ([9e97c56](https://github.com/shapeshift/lib/commit/9e97c564e19bf2d8368de8539d6c2d31c6bc664c))
+
+
+### BREAKING CHANGES
+
+* **caip:** changes type signatures of chainId, assetId, and accountId helpers
+
+* refactor: and spread chainId
+
+* chore: add utility tests
+
+* refactor: split out type guards, rename vars
+
+* chore: kick ci
+
+* chore: manually bump caip package to 5.0.0 for CI
+
+* chore: update README
+
+* chore: add chainId to toAssetId and refactor
+
+* chore: regex improvements
+
 # [@shapeshiftoss/caip-v4.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v4.0.0...@shapeshiftoss/caip-v4.0.1) (2022-05-19)
 
 # [@shapeshiftoss/caip-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v3.1.0...@shapeshiftoss/caip-v4.0.0) (2022-05-18)

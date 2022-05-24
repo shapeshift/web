@@ -1,44 +1,10 @@
-import { ChainTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawType } from '@shapeshiftoss/types'
 
 import { YearnWithdrawActions, YearnWithdrawActionType, YearnWithdrawState } from './WithdrawCommon'
 
 export const initialState: YearnWithdrawState = {
   txid: null,
-  vault: {
-    vaultAddress: '',
-    tokenAddress: '',
-    provider: '',
-    chain: ChainTypes.Ethereum,
-    type: '',
-    expired: false,
-    address: '',
-    typeId: 'VAULT_V2',
-    token: '',
-    name: '',
-    version: '',
-    symbol: '',
-    decimals: '',
-    tokenId: '',
-    underlyingTokenBalance: {
-      amount: '0',
-      amountUsdc: '0',
-    },
-    metadata: {
-      symbol: '',
-      pricePerShare: '',
-      migrationAvailable: false,
-      latestVaultAddress: '',
-      depositLimit: '',
-      emergencyShutdown: false,
-      controller: '',
-      totalAssets: '',
-      totalSupply: '',
-      displayName: '',
-      displayIcon: '',
-      defaultDisplayToken: '',
-      hideIfNoDeposits: false,
-    },
-  },
+  opportunity: null,
   userAddress: null,
   loading: false,
   approve: {},
@@ -56,7 +22,7 @@ export const initialState: YearnWithdrawState = {
 export const reducer = (state: YearnWithdrawState, action: YearnWithdrawActions) => {
   switch (action.type) {
     case YearnWithdrawActionType.SET_VAULT:
-      return { ...state, vault: { ...state.vault, ...action.payload } }
+      return { ...state, vault: { ...state.opportunity, ...action.payload } }
     case YearnWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case YearnWithdrawActionType.SET_USER_ADDRESS:

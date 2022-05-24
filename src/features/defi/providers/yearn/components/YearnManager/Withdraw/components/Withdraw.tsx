@@ -1,5 +1,4 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import {
   Withdraw as ReusableWithdraw,
@@ -20,15 +19,12 @@ import { useAppSelector } from 'state/store'
 import { WithdrawPath, YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type YearnWithdrawProps = {
-  api: YearnVaultApi
-}
-
-export const Withdraw = ({ api }: YearnWithdrawProps) => {
+export const Withdraw = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
+  const opportunity = state?.opportunity
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
@@ -54,21 +50,14 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   if (!state || !dispatch) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!(state.userAddress && opportunity && tokenId)) return
     try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateWithdrawGas({
-          tokenContractAddress: tokenId,
-          vaultAddress,
-          amountDesired: bnOrZero(withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-      return returVal
+      const preparedTx = await opportunity.prepareWithdrawal({
+        amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        address: state.userAddress,
+      })
+      // TODO(theobold): Figure out a better way for the safety factor
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.gasLimit).integerValue().toString()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error('YearnWithdraw:getWithdrawGasEstimate error:', error)
@@ -76,7 +65,7 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const handleContinue = async (formValues: WithdrawValues) => {
-    if (!state.userAddress) return
+    if (!(state.userAddress && opportunity)) return
     // set withdraw state for future use
     dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
 

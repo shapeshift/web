@@ -1,4 +1,4 @@
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 
 export enum WithdrawPath {
@@ -26,7 +26,7 @@ type YearnWithdrawValues = WithdrawValues &
   }
 
 export type YearnWithdrawState = {
-  vault: SupportedYearnVault
+  opportunity: YearnOpportunity | null
   userAddress: string | null
   approve: EstimatedGas
   withdraw: YearnWithdrawValues
@@ -47,7 +47,7 @@ export enum YearnWithdrawActionType {
 
 type SetVaultAction = {
   type: YearnWithdrawActionType.SET_VAULT
-  payload: YearnVault | null
+  payload: YearnOpportunity | null
 }
 
 type SetWithdraw = {

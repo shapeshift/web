@@ -61,7 +61,7 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !vaultAddress) return
+        if (!(walletState.wallet && vaultAddress)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           yearnInvestor.findByOpportunityId(vaultAddress),
@@ -88,7 +88,7 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
     if (!(state.userAddress && state.opportunity && tokenId)) return
     try {
       const preparedTx = await state.opportunity?.prepareDeposit({
-        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0),
+        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
         address: state.userAddress,
       })
       // TODO(theobold): Figure out a better way for the safety factor

@@ -4,7 +4,7 @@ import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
@@ -12,13 +12,14 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
-  const { state } = useContext(WithdrawContext)
+  const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
@@ -47,6 +48,20 @@ export const Status = () => {
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+
+  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, state?.txid || 'undefined'))
+
+  useEffect(() => {
+    if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {
+      dispatch({
+        type: YearnWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          txStatus: confirmedTransaction.status === 'confirmed' ? 'success' : 'failed',
+          usedGasFee: confirmedTransaction.fee?.value,
+        },
+      })
+    }
+  }, [confirmedTransaction, dispatch])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

@@ -1,38 +1,34 @@
 import { Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import isNil from 'lodash/isNil'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithdrawPath, YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type YearnConfirmProps = {
-  api: YearnVaultApi
-}
-
-export const Confirm = ({ api }: YearnConfirmProps) => {
+export const Confirm = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const chainAdapterManager = useChainAdapters()
   const { chain, contractAddress: vaultAddress, tokenId } = query
+  const opportunity = state?.opportunity
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
@@ -67,39 +63,32 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
 
   const handleConfirm = async () => {
     try {
-      if (!state.userAddress || !tokenId || !walletState.wallet) return
+      if (
+        !(
+          state.userAddress &&
+          tokenId &&
+          walletState.wallet &&
+          supportsETH(walletState.wallet) &&
+          opportunity
+        )
+      )
+        return
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
-      const [txid, gasPrice] = await Promise.all([
-        api.withdraw({
-          tokenContractAddress: tokenId,
-          userAddress: state.userAddress,
-          vaultAddress,
-          wallet: walletState.wallet,
-          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-        }),
-        api.getGasPrice(),
-      ])
+      const preparedTransaction = await opportunity.prepareWithdrawal({
+        address: state.userAddress,
+        amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+      })
+      const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+      const txid = await opportunity.signAndBroadcast(
+        { wallet: walletState.wallet, chainAdapter },
+        preparedTransaction,
+      )
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
       history.push(WithdrawPath.Status)
-
-      const transactionReceipt = await poll({
-        fn: () => api.getTxReceipt({ txid }),
-        validate: (result: TransactionReceipt) => !isNil(result),
-        interval: 15000,
-        maxAttempts: 30,
-      })
-      dispatch({
-        type: YearnWithdrawActionType.SET_WITHDRAW,
-        payload: {
-          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
-        },
-      })
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
       console.error('YearnWithdraw:handleConfirm error', error)
+    } finally {
+      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     }
   }
 

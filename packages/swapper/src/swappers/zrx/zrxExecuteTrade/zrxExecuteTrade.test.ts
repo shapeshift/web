@@ -1,6 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
-import { ExecuteTradeInput } from '../../../api'
+import { ExecuteTradeInput, ZrxTrade } from '../../../api'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { zrxExecuteTrade } from './zrxExecuteTrade'
@@ -21,37 +21,36 @@ describe('ZrxExecuteTrade', () => {
     }))
   }
   const deps = { adapterManager } as unknown as ZrxSwapperDeps
-  const execTradeInput: ExecuteTradeInput<'eip155:1'> = {
-    trade: {
-      buyAsset,
-      sellAsset,
-      success: true,
-      statusReason: '',
-      sellAmount: '1',
-      buyAmount: '',
-      depositAddress: '0x123',
-      allowanceContract: 'allowanceTargetAddress',
-      receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      sellAssetAccountId: '0',
-      txData: '0x123',
-      rate: '1',
-      feeData: {
-        fee: '0',
-        chainSpecific: { approvalFee: '123600000', estimatedGas: '1235', gasPrice: '1236' }
-      },
-      sources: []
+
+  const trade: ZrxTrade<'eip155:1'> = {
+    buyAsset,
+    sellAsset,
+    success: true,
+    statusReason: '',
+    sellAmount: '1',
+    buyAmount: '',
+    depositAddress: '0x123',
+    allowanceContract: 'allowanceTargetAddress',
+    receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    sellAssetAccountId: '0',
+    txData: '0x123',
+    rate: '1',
+    feeData: {
+      fee: '0',
+      chainSpecific: { approvalFee: '123600000', estimatedGas: '1235', gasPrice: '1236' }
     },
+    sources: []
+  }
+
+  const execTradeInput: ExecuteTradeInput<'eip155:1'> = {
+    trade,
     wallet
   }
 
   it('returns txid if offline signing is supported', async () => {
     expect(
       await zrxExecuteTrade(deps, {
-        ...execTradeInput,
-        trade: {
-          ...execTradeInput.trade,
-          depositAddress: '0x728F1973c71f7567dE2a34Fa2838D4F0FB7f9765'
-        }
+        ...execTradeInput
       })
     ).toEqual({ txid })
   })
@@ -64,11 +63,7 @@ describe('ZrxExecuteTrade', () => {
 
     expect(
       await zrxExecuteTrade(deps, {
-        ...execTradeInput,
-        trade: {
-          ...execTradeInput.trade,
-          depositAddress: '0x728F1973c71f7567dE2a34Fa2838D4F0FB7f9765'
-        }
+        ...execTradeInput
       })
     ).toEqual({ txid })
   })

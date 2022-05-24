@@ -19,8 +19,8 @@ import {
   ExecuteTradeInput,
   GetTradeQuoteInput,
   Swapper,
-  Trade,
-  TradeQuote
+  TradeQuote,
+  ZrxTrade
 } from '../../api'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
@@ -48,7 +48,7 @@ export class ZrxSwapper implements Swapper {
     return SwapperType.Zrx
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<Trade<SupportedChainIds>> {
+  async buildTrade(args: BuildTradeInput): Promise<ZrxTrade<SupportedChainIds>> {
     return zrxBuildTrade(this.deps, args)
   }
 

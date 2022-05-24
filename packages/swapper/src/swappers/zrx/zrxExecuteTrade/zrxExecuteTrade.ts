@@ -1,6 +1,6 @@
 import { numberToHex } from 'web3-utils'
 
-import { ExecuteTradeInput, SwapError, SwapErrorTypes, TradeResult } from '../../../api'
+import { ExecuteTradeInput, SwapError, SwapErrorTypes, TradeResult, ZrxTrade } from '../../../api'
 import { bnOrZero } from '../utils/bignumber'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
@@ -8,7 +8,8 @@ export async function zrxExecuteTrade(
   { adapterManager }: ZrxSwapperDeps,
   { trade, wallet }: ExecuteTradeInput<'eip155:1'>
 ): Promise<TradeResult> {
-  const { sellAsset } = trade
+  const zrxTrade = trade as ZrxTrade<'eip155:1'>
+  const { sellAsset } = zrxTrade
   try {
     // value is 0 for erc20s
     const value = sellAsset.assetId === 'eip155:1/slip44:60' ? trade.sellAmount : '0'
@@ -20,7 +21,7 @@ export async function zrxExecuteTrade(
     const buildTxResponse = await adapter.buildSendTransaction({
       value,
       wallet,
-      to: trade.depositAddress,
+      to: zrxTrade.depositAddress,
       chainSpecific: {
         gasPrice: numberToHex(trade.feeData?.chainSpecific?.gasPrice || 0),
         gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGas || 0)
@@ -30,7 +31,7 @@ export async function zrxExecuteTrade(
 
     const { txToSign } = buildTxResponse
 
-    const txWithQuoteData = { ...txToSign, data: trade.txData ?? '' }
+    const txWithQuoteData = { ...txToSign, data: zrxTrade.txData ?? '' }
 
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })

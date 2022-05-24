@@ -83,9 +83,12 @@ export interface TradeQuote<C extends SupportedChainIds> extends TradeBase<C> {
 }
 
 export interface Trade<C extends SupportedChainIds> extends TradeBase<C> {
+  receiveAddress: string
+}
+
+export interface ZrxTrade<C extends SupportedChainIds> extends Trade<C> {
   txData: string
   depositAddress: string
-  receiveAddress: string
 }
 
 export type ExecuteTradeInput<C extends SupportedChainIds> = {

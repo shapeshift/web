@@ -1,4 +1,4 @@
-# CAIPs
+# @shapeshiftoss/caip
 
 This package is ShapeShift's partial implementation of [CAIPs](https://github.com/ChainAgnostic/CAIPs) - Chain Agnostic Improvement Protocols.
 It is not exhaustive and is currently only used internally.

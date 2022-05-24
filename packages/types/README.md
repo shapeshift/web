@@ -1,4 +1,4 @@
-## ShapeShift Types
+# @shapeshiftoss/types
 
 ## Getting Started
 

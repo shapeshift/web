@@ -1,18 +1,18 @@
-# Unchained API Client
+# @shapeshiftoss/unchained-client
 
-Provides a typescript axios client to interact with all supported unchained API's
+Provides a TypeScript axios client to interact with all supported unchained APIs.
 
 ## Installing
 
 Using npm:
 
-```
+```sh
 npm install @shapeshiftoss/unchained-client
 ```
 
 Using yarn:
 
-```
+```sh
 yarn add @shapeshiftoss/unchained-client
 ```
 
@@ -23,7 +23,7 @@ yarn add @shapeshiftoss/unchained-client
 
 ## Usage
 
-```
+```typescript
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 const address = 'cosmos1t5u0jfg3ljsjrh2m9e47d4ny2hea7eehxrzdgd'

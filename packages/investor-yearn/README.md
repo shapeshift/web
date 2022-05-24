@@ -50,7 +50,7 @@ await api.initialize()
 
 // (object)
 await api.deposit({
-  amountDesired: new BigNumber(10).times(`1e+18`) // 10 underlying tokens
+  amountDesired: new BigNumber(10).times(`1e+18`), // 10 underlying tokens
   tokenContractAddress: '0xdef1cafe',
   vaultAddress: '0xdef1c4fe',
   userAddress: '0xdef1caf3',
@@ -61,10 +61,9 @@ await api.deposit({
 // returns a string of the txid
 //   '0x2d1e60192fe3f671ecb46d9165fdf2a03bd4a4fb8764dacc2a07c5df6307ac59'
 
-
 // (object)
 await api.deposit({
-  amountDesired: new BigNumber(10).times(`1e+18`) // 10 underlying tokens
+  amountDesired: new BigNumber(10).times(`1e+18`), // 10 underlying tokens
   tokenContractAddress: '0xdef1cafe',
   vaultAddress: '0xdef1c4fe',
   userAddress: '0xdef1caf3',
@@ -76,7 +75,7 @@ await api.deposit({
 
 // (object)
 await api.estimateDepositGas({
-  amountDesired: new BigNumber(10).times(`1e+18`) // 10 underlying tokens
+  amountDesired: new BigNumber(10).times(`1e+18`), // 10 underlying tokens
   tokenContractAddress: '0xdef1cafe',
   vaultAddress: '0xdef1c4fe',
   userAddress: '0xdef1caf3',
@@ -89,5 +88,4 @@ await api.apy({
 })
 // returns a string of the net_apy for that vault
 // '32.59'
-
 ```

@@ -1,4 +1,4 @@
-## ShapeShift Swapper
+# @shapeshiftoss/swapper
 
 ## Getting Started
 
@@ -10,16 +10,16 @@ yarn add @shapeshiftoss/swapper
 
 ### Swapper CLI
 - Copy the `sample.env` to `.env`
-```
+```sh
 cp sample.env .env
 ```
 
 - Usage:
-```
+```sh
 $ swapcli [sellSymbol] [buySymbol] [sellAmount](denominated in sell asset, not wei)
 ```
 ie:
-```
+```sh
 $ swapcli ETH USDC 0.001
 ```
 

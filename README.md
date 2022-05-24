@@ -11,7 +11,7 @@
 yarn
 ```
 
-If you're working in this repo, you're likely also working in [web](https://github.com/shapeshift/web). Run the following command to automatically `yarn link` all the packages in this repo so they can also be linked in `web`
+If you're working in this repo, you're likely also working in [web](https://github.com/shapeshift/web). Run the following command to automatically `yarn link` all the packages in this repo, so they can also be linked in `web`
 
 ```bash
 ➜ yarn link-packages
@@ -19,14 +19,26 @@ yarn run v1.22.15
 $ node scripts/linkPackages.js link
 success Registered "@shapeshiftoss/asset-service".
 info You can now run `yarn link "@shapeshiftoss/asset-service"` in the projects where you want to use this package and it will be used instead.
+success Registered "@shapeshiftoss/caip".
+info You can now run `yarn link "@shapeshiftoss/caip"` in the projects where you want to use this package and it will be used instead.
 success Registered "@shapeshiftoss/chain-adapters".
 info You can now run `yarn link "@shapeshiftoss/chain-adapters"` in the projects where you want to use this package and it will be used instead.
+success Registered "@shapeshiftoss/errors".
+info You can now run `yarn link "@shapeshiftoss/errors"` in the projects where you want to use this package and it will be used instead.
+success Registered "@shapeshiftoss/investor-foxy".
+info You can now run `yarn link "@shapeshiftoss/investor-foxy"` in the projects where you want to use this package and it will be used instead.
+success Registered "@shapeshiftoss/investor-yearn".
+info You can now run `yarn link "@shapeshiftoss/investor-yearn"` in the projects where you want to use this package and it will be used instead.
+success Registered "@shapeshiftoss/logger".
+info You can now run `yarn link "@shapeshiftoss/logger"` in the projects where you want to use this package and it will be used instead.
 success Registered "@shapeshiftoss/market-service".
 info You can now run `yarn link "@shapeshiftoss/market-service"` in the projects where you want to use this package and it will be used instead.
 success Registered "@shapeshiftoss/swapper".
 info You can now run `yarn link "@shapeshiftoss/swapper"` in the projects where you want to use this package and it will be used instead.
 success Registered "@shapeshiftoss/types".
 info You can now run `yarn link "@shapeshiftoss/types"` in the projects where you want to use this package and it will be used instead.
+success Registered "@shapeshiftoss/unchained-client".
+info You can now run `yarn link "@shapeshiftoss/unchained-client"` in the projects where you want to use this package and it will be used instead.
 
 ✨  Done in 0.47s.
 ```
@@ -39,14 +51,26 @@ yarn run v1.22.15
 $ node scripts/linkPackages.js unlink
 success Unregistered "@shapeshiftoss/asset-service".
 info You can now run `yarn unlink "@shapeshiftoss/asset-service"` in the projects where you no longer want to use this package.
+success Unregistered "@shapeshiftoss/caip".
+info You can now run `yarn unlink "@shapeshiftoss/caip"` in the projects where you no longer want to use this package.
 success Unregistered "@shapeshiftoss/chain-adapters".
 info You can now run `yarn unlink "@shapeshiftoss/chain-adapters"` in the projects where you no longer want to use this package.
+success Unregistered "@shapeshiftoss/errors".
+info You can now run `yarn unlink "@shapeshiftoss/errors"` in the projects where you no longer want to use this package.
+success Unregistered "@shapeshiftoss/investor-foxy".
+info You can now run `yarn unlink "@shapeshiftoss/investor-foxy"` in the projects where you no longer want to use this package.
+success Unregistered "@shapeshiftoss/investor-yearn".
+info You can now run `yarn unlink "@shapeshiftoss/investor-yearn"` in the projects where you no longer want to use this package.
+success Unregistered "@shapeshiftoss/logger".
+info You can now run `yarn unlink "@shapeshiftoss/logger"` in the projects where you no longer want to use this package.
 success Unregistered "@shapeshiftoss/market-service".
 info You can now run `yarn unlink "@shapeshiftoss/market-service"` in the projects where you no longer want to use this package.
 success Unregistered "@shapeshiftoss/swapper".
 info You can now run `yarn unlink "@shapeshiftoss/swapper"` in the projects where you no longer want to use this package.
 success Unregistered "@shapeshiftoss/types".
 info You can now run `yarn unlink "@shapeshiftoss/types"` in the projects where you no longer want to use this package.
+success Unregistered "@shapeshiftoss/unchained-client".
+info You can now run `yarn unlink "@shapeshiftoss/unchained-client"` in the projects where you no longer want to use this package.
 
 ✨  Done in 0.37s.
 ```

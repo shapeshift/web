@@ -1,6 +1,6 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnInvestor, YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -31,15 +31,16 @@ import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
 type YearnDepositProps = {
-  api: YearnInvestor
+  yearnInvestor: YearnInvestor
 }
 
-export const YearnDeposit = ({ api }: YearnDepositProps) => {
+export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const translate = useTranslate()
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const chainAdapterManager = useChainAdapters()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const assetNamespace = 'erc20'
@@ -53,7 +54,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
-  const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
@@ -64,7 +64,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         if (!walletState.wallet || !vaultAddress) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByOpportunityId(vaultAddress),
+          yearnInvestor.findByOpportunityId(vaultAddress),
         ])
         if (!opportunity) {
           return toast({
@@ -82,7 +82,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         console.error('YearnDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet])
+  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast])
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
     if (!(state.userAddress && state.opportunity && tokenId)) return
@@ -106,17 +106,14 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     if (!state.opportunity) return null
-    const apy = state.opportunity.metadata?.apy?.net_apy
 
     switch (route.path) {
       case DepositPath.Deposit:
-        return <Deposit api={api} apy={apy} getDepositGasEstimate={getDepositGasEstimate} />
+        return <Deposit getDepositGasEstimate={getDepositGasEstimate} />
       case DepositPath.Approve:
-        return (
-          <Approve opportunity={state.opportunity} getDepositGasEstimate={getDepositGasEstimate} />
-        )
+        return <Approve getDepositGasEstimate={getDepositGasEstimate} />
       case DepositPath.Confirm:
-        return <Confirm api={api} />
+        return <Confirm />
       case DepositPath.Status:
         return <Status />
       default:

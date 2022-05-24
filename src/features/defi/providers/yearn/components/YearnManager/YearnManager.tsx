@@ -70,7 +70,7 @@ const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) =>
           <Route path={YearnPath.Deposit} key={YearnPath.Deposit}>
             <MemoryRouter>
               <SlideTransition>
-                <YearnDeposit api={yearn} />
+                <YearnDeposit yearnInvestor={yearn} />
               </SlideTransition>
             </MemoryRouter>
           </Route>

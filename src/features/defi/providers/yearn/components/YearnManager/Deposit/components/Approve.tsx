@@ -1,7 +1,6 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -22,11 +21,10 @@ import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApproveProps = {
-  opportunity: YearnOpportunity
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
 }
 
-export const Approve = ({ opportunity, getDepositGasEstimate }: YearnApproveProps) => {
+export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -35,6 +33,7 @@ export const Approve = ({ opportunity, getDepositGasEstimate }: YearnApproveProp
   const alertText = useColorModeValue('blue.800', 'white')
   const chainAdapterManager = useChainAdapters()
   const network = NetworkTypes.MAINNET
+  const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
@@ -57,8 +56,17 @@ export const Approve = ({ opportunity, getDepositGasEstimate }: YearnApproveProp
   if (!state || !dispatch) return null
 
   const handleApprove = async () => {
-    if (!(tokenId && state.userAddress && walletState.wallet && supportsETH(walletState.wallet)))
+    if (
+      !(
+        tokenId &&
+        state.userAddress &&
+        walletState.wallet &&
+        supportsETH(walletState.wallet) &&
+        opportunity
+      )
+    )
       return
+
     try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       const preparedTransaction = await opportunity.prepareApprove(state.userAddress)

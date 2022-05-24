@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -20,17 +19,16 @@ import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnDepositProps = {
-  api: YearnVaultApi
-  apy: number | undefined
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
 }
 
-export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) => {
+export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, tokenId } = query
+  const opportunity = state?.opportunity
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
@@ -46,17 +44,14 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
 
   if (!state || !dispatch) return null
 
-  const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !tokenId) return
+  const getApproveGasEstimate = async (): Promise<string | undefined> => {
+    if (!(state.userAddress && tokenId && opportunity)) return
     try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateApproveGas({
-          tokenContractAddress: tokenId,
-          userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+      const preparedApproval = await opportunity.prepareApprove(state.userAddress)
+      return bnOrZero(preparedApproval.gasPrice)
+        .times(preparedApproval.gasLimit)
+        .integerValue()
+        .toString()
     } catch (error) {
       console.error('YearnDeposit:getApproveEstimate error:', error)
       toast({
@@ -69,15 +64,12 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
   }
 
   const handleContinue = async (formValues: DepositValues) => {
-    if (!state.userAddress) return
+    if (!(state.userAddress && opportunity)) return
     // set deposit state for future use
     dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
     try {
       // Check is approval is required for user address
-      const _allowance = await api.allowance({
-        tokenContractAddress: tokenId!,
-        userAddress: state.userAddress,
-      })
+      const _allowance = await opportunity.allowance(state.userAddress)
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
       // Skip approval step if user allowance is greater than requested deposit amount
@@ -136,7 +128,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
   return (
     <ReusableDeposit
       asset={asset}
-      apy={String(apy)}
+      apy={String(opportunity?.metadata.apy?.net_apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

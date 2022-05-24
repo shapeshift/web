@@ -80,7 +80,10 @@ export const marketData = createSlice({
       const { assetId, timeframe } = args
       state.crypto.priceHistory[timeframe][assetId] = data
     },
-    setFiatMarketData: (state, { payload }) => {
+    setFiatMarketData: (
+      state,
+      { payload }: { payload: Partial<{ [k in SupportedFiatCurrencies]: MarketData }> },
+    ) => {
       state.fiat.byId = { ...state.fiat.byId, ...payload } // upsert
       const ids = Array.from(new Set([...state.fiat.ids, ...Object.keys(payload)])).map(
         id => id as SupportedFiatCurrencies,

@@ -1,7 +1,8 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -9,6 +10,7 @@ import { useContext } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -20,19 +22,20 @@ import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApproveProps = {
-  api: YearnVaultApi
+  opportunity: YearnOpportunity
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
 }
 
-export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
+export const Approve = ({ opportunity, getDepositGasEstimate }: YearnApproveProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
-
+  const chainAdapterManager = useChainAdapters()
   const network = NetworkTypes.MAINNET
+
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
   const feeAssetId = toAssetId({
@@ -54,20 +57,20 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
   if (!state || !dispatch) return null
 
   const handleApprove = async () => {
-    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    if (!(tokenId && state.userAddress && walletState.wallet && supportsETH(walletState.wallet)))
+      return
     try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
-      await api.approve({
-        tokenContractAddress: tokenId,
-        userAddress: state.userAddress,
-        wallet: walletState.wallet,
-      })
+      const preparedTransaction = await opportunity.prepareApprove(state.userAddress)
+      // TODO(theobold): change to byChainId
+      const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+      await opportunity.signAndBroadcast(
+        { wallet: walletState.wallet, chainAdapter },
+        preparedTransaction,
+      )
+      const address = state.userAddress
       await poll({
-        fn: () =>
-          api.allowance({
-            tokenContractAddress: tokenId!,
-            userAddress: state.userAddress!,
-          }),
+        fn: () => opportunity.allowance(address),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)

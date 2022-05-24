@@ -1,6 +1,6 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
+import { YearnInvestor, YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -42,9 +42,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({
+    chain,
+    network: NetworkTypes.MAINNET,
+    assetNamespace,
+    assetReference: tokenId,
+  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -60,9 +64,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         if (!walletState.wallet || !vaultAddress) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByOpportunityId(vaultAddress)
+          api.findByOpportunityId(vaultAddress),
         ])
-        
         if (!opportunity) {
           return toast({
             position: 'top-right',
@@ -81,17 +84,15 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     })()
   }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
-  const getDepositGasEstimate = async (deposit: DepositValues) => {
+  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
     if (!(state.userAddress && state.opportunity && tokenId)) return
     try {
       const preparedTx = await state.opportunity?.prepareDeposit({
-          amount: bnOrZero(deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          address: state.userAddress
-        })
-        preparedTx.feePriority
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.gasLimit).integerValue()
+        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0),
+        address: state.userAddress,
+      })
+      // TODO(theobold): Figure out a better way for the safety factor
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.gasLimit).integerValue().toString()
     } catch (error) {
       console.error('YearnDeposit:getDepositGasEstimate error:', error)
       toast({
@@ -104,13 +105,16 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    const apy = state.vault.metadata?.apy?.net_apy
+    if (!state.opportunity) return null
+    const apy = state.opportunity.metadata?.apy?.net_apy
 
     switch (route.path) {
       case DepositPath.Deposit:
         return <Deposit api={api} apy={apy} getDepositGasEstimate={getDepositGasEstimate} />
       case DepositPath.Approve:
-        return <Approve api={api} getDepositGasEstimate={getDepositGasEstimate} />
+        return (
+          <Approve opportunity={state.opportunity} getDepositGasEstimate={getDepositGasEstimate} />
+        )
       case DepositPath.Confirm:
         return <Confirm api={api} />
       case DepositPath.Status:

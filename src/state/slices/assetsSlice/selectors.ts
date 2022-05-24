@@ -66,7 +66,7 @@ const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): 
   throw new Error(`Chain ${chain} not supported.`)
 }
 
-export const selectFeeAssetByChainId = createSelector(
+export const selectFeeAssetByChainId = createCachedSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
   (assetsById, chainId): Asset => {
@@ -79,7 +79,7 @@ export const selectFeeAssetByChainId = createSelector(
     })
     return assetsById[feeAssetId]
   },
-)
+)((_state: ReduxState, chainId: ChainId | undefined): ChainId => chainId ?? 'undefined')
 
 export const selectFeeAssetById = createSelector(
   selectAssets,

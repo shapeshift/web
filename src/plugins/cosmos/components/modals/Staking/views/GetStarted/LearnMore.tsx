@@ -14,6 +14,11 @@ import { Text } from 'components/Text'
 import { selectAssetNameById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+// This is IBC-chain specific
+// Hardcoded to CosmosHub staking for now, but in the future we should compose this with the right unbonding days per protocol-level unbonding days
+// https://docs.cosmos.network/v0.44/modules/staking/08_params.html
+const COSMOS_UNBONDING_DAYS = '21'
+
 const STEP_TO_ELEMENTS_MAPPING = [
   {
     bodies: [
@@ -47,6 +52,7 @@ type LearnMoreProps = {
 export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
   const history = useHistory()
   const assetName = useAppSelector(state => selectAssetNameById(state, assetId))
+  const unbondingDays = COSMOS_UNBONDING_DAYS
 
   const { nextStep, prevStep, setStep, activeStep } = useSteps({
     initialStep: 1,
@@ -105,7 +111,7 @@ export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
                   {currentElement.bodies.map((body, i) => (
                     <Box textAlign='left' key={i} mb='18px'>
                       <Text
-                        translation={[body, { assetName }]}
+                        translation={[body, { assetName, unbondingDays }]}
                         color='gray.500'
                         fontWeight='semibold'
                         fontSize='15px'

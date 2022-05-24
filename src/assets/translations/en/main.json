@@ -995,6 +995,8 @@
       "balance": "Balance",
       "getStarted": "Get Started",
       "currentPrice": "Current Price"
+      "governanceTitle": "Governance",
+      "seeAllProposals": "See All Proposals"
     }
   }
 }

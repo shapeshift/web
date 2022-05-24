@@ -23,6 +23,7 @@ import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
 import { useFoxyMarketData } from 'hooks/useFoxyMarketData/useFoxyMarketData'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById } from 'state/slices/selectors'
@@ -47,11 +48,7 @@ const assetsRoutes: Record<AssetId, FoxPageRoutes> = {
   [FoxyAssetId]: FoxPageRoutes.Foxy,
 }
 
-export type FoxPageProps = {
-  activeAssetId: AssetId
-}
-
-export const FoxPage = (props: FoxPageProps) => {
+export const FoxPage: React.FC<{}> = () => {
   const translate = useTranslate()
   const history = useHistory()
   const dispatch = useDispatch()
@@ -60,9 +57,10 @@ export const FoxPage = (props: FoxPageProps) => {
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
 
+  const activeAssetId = useRouteAssetId()
   const selectedAssetIndex = useMemo(
-    () => assets.findIndex(asset => asset.assetId === props.activeAssetId),
-    [props.activeAssetId, assets],
+    () => assets.findIndex(asset => asset.assetId === activeAssetId),
+    [activeAssetId, assets],
   )
 
   const selectedAsset = assets[selectedAssetIndex]
@@ -75,7 +73,7 @@ export const FoxPage = (props: FoxPageProps) => {
   const isLoaded = !query.isLoading
 
   const handleTabClick = (assetId: AssetId) => {
-    if (assetId === props.activeAssetId) {
+    if (assetId === activeAssetId) {
       return
     }
 
@@ -110,7 +108,7 @@ export const FoxPage = (props: FoxPageProps) => {
                 <FoxTab
                   assetSymbol={asset.symbol}
                   assetIcon={asset.icon}
-                  isSelected={props.activeAssetId === asset.assetId}
+                  isSelected={activeAssetId === asset.assetId}
                   cryptoAmount={'3000'}
                   fiatAmount={'1000'}
                   onClick={() => handleTabClick(asset.assetId)}
@@ -143,7 +141,7 @@ export const FoxPage = (props: FoxPageProps) => {
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}
-                          isSelected={asset.assetId === props.activeAssetId}
+                          isSelected={asset.assetId === activeAssetId}
                           cryptoAmount={'3000'}
                           fiatAmount={'1000'}
                           as={Box}

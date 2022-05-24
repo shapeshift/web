@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, toAssetId, toChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, cosmosChainId, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
@@ -29,7 +29,6 @@ import {
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,

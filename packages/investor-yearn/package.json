@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/investor-yearn",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "An api layer for interaction with the ShapeShift Yearn Router Contract and the Yearn Vault contracts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

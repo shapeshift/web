@@ -9,11 +9,11 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
-const selectAllCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
+const selectCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
 export const selectMarketData = createDeepEqualOutputSelector(
-  selectAllCryptoMarketData,
+  selectCryptoMarketData,
   selectFiatMarketData,
   selectSelectedCurrency,
   (cryptoMarketData, fiatMarketData, selectedCurrency) => {

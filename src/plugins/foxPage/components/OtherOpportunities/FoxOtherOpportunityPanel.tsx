@@ -18,7 +18,7 @@ import { Text } from 'components/Text/Text'
 import { ExternalOpportunity } from '../../FoxCommon'
 
 type FoxOtherOpportunityPanelProps = {
-  opportunities?: ExternalOpportunity[]
+  opportunities: ExternalOpportunity[]
   title: string
 }
 
@@ -46,7 +46,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
             borderRadius='md'
             mr={4}
           >
-            {opportunities?.length}
+            {opportunities.length}
           </Badge>
           <AccordionIcon color='gray.500' />
         </Flex>

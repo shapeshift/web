@@ -1,4 +1,4 @@
-import { getFeeAssetIdFromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, getFeeAssetIdFromAssetId } from '@shapeshiftoss/caip'
 import { ApprovalNeededOutput, SupportedChainIds } from '@shapeshiftoss/types'
 
 import { ApprovalNeededInput, SwapError, SwapErrorTypes } from '../../../api'
@@ -13,6 +13,8 @@ export async function ZrxApprovalNeeded(
   { quote, wallet }: ApprovalNeededInput<SupportedChainIds>
 ): Promise<ApprovalNeededOutput> {
   const { sellAsset } = quote
+
+  const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
 
   try {
     if (sellAsset.chainId !== 'eip155:1') {
@@ -33,8 +35,8 @@ export async function ZrxApprovalNeeded(
     const bip44Params = adapter.buildBIP44Params({ accountNumber })
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 
-    if (!quote.sellAsset.tokenId || !quote.allowanceContract) {
-      throw new SwapError('[ZrxApprovalNeeded] - tokenId and allowanceTarget are required', {
+    if (!quote.allowanceContract) {
+      throw new SwapError('[ZrxApprovalNeeded] - allowanceTarget is required', {
         code: SwapErrorTypes.VALIDATION_FAILED,
         details: { chainId: sellAsset.chainId }
       })
@@ -43,7 +45,7 @@ export async function ZrxApprovalNeeded(
     const allowanceResult = await getERC20Allowance({
       web3,
       erc20AllowanceAbi,
-      tokenId: quote.sellAsset.tokenId,
+      sellAssetErc20Address,
       spenderAddress: quote.allowanceContract,
       ownerAddress: receiveAddress
     })

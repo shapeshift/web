@@ -1,3 +1,4 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapSource } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
@@ -22,9 +23,15 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
       )
     }
 
+    const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
+      fromAssetId(sellAsset.assetId)
+    const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
+      buyAsset.assetId
+    )
+
     const useSellAmount = !!sellAmount
-    const buyToken = buyAsset.tokenId || buyAsset.symbol
-    const sellToken = sellAsset.tokenId || sellAsset.symbol
+    const buyToken = buyAssetNamespace === 'erc20' ? buyAssetErc20Address : buyAsset.symbol
+    const sellToken = sellAssetNamespace === 'erc20' ? sellAssetErc20Address : sellAsset.symbol
 
     const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
 
@@ -71,7 +78,7 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
           estimatedGas: estimatedGas.toString(),
           gasPrice: data.gasPrice,
           approvalFee:
-            sellAsset.tokenId &&
+            sellAssetErc20Address &&
             bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(data.gasPrice)).toString()
         }
       },

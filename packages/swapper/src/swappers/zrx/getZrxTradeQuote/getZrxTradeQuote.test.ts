@@ -108,32 +108,6 @@ describe('getZrxTradeQuote', () => {
       })
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
-  it('uses symbol when weth tokenId is undefined', async () => {
-    const { quoteInput, buyAsset } = setupQuote()
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: { success: true } })
-    )
-    const quote = await swapper.getTradeQuote({
-      ...quoteInput,
-      buyAsset: { ...buyAsset, tokenId: undefined }
-    })
-    expect(quote?.success).toBeTruthy()
-    expect(quote?.buyAsset.tokenId).toBeFalsy()
-  })
-  it('uses symbol when fox tokenId is undefined', async () => {
-    const { quoteInput, sellAsset } = setupQuote()
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: { success: true } })
-    )
-    const quote = await swapper.getTradeQuote({
-      ...quoteInput,
-      sellAsset: { ...sellAsset, tokenId: undefined }
-    })
-    expect(quote?.success).toBeTruthy()
-    expect(quote?.sellAsset.tokenId).toBeFalsy()
-  })
   it('use minQuoteSellAmount when sellAmount is 0', async () => {
     const { quoteInput, sellAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)

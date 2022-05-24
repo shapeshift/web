@@ -43,21 +43,27 @@ describe('utils', () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
         Promise.resolve({ data: { price: '2' } })
       )
-      const rate = await getUsdRate({ symbol: 'FOX' })
+      const rate = await getUsdRate({
+        symbol: 'FOX',
+        assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+      })
       expect(rate).toBe('0.5')
       expect(zrxService.get).toHaveBeenCalledWith('/swap/v1/price', {
         params: {
           buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
           buyAmount: '1000000000',
-          sellToken: 'FOX'
+          sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
         }
       })
     })
     it('getUsdRate fails', async () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
-      await expect(getUsdRate({ symbol: 'WETH', tokenId: '0x0001' })).rejects.toThrow(
-        '[getUsdRate]'
-      )
+      await expect(
+        getUsdRate({
+          symbol: 'WETH',
+          assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+        })
+      ).rejects.toThrow('[getUsdRate]')
     })
   })
 
@@ -154,26 +160,6 @@ describe('utils', () => {
       supportsOfflineSigning: jest.fn(() => true),
       ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
     } as unknown as HDWallet
-
-    it('should throw if sellAsset.tokenId is not provided', async () => {
-      const quote = {
-        ...tradeQuote,
-        sellAsset: { ...sellAsset, tokenId: '' }
-      }
-      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
-        methods: {
-          approve: jest.fn(() => ({
-            encodeABI: jest.fn(
-              () => '0x3a93b3190cbb22d23a07c18959c701a7e7d83257a775b6197b67c648a3f90419'
-            )
-          }))
-        }
-      }))
-
-      await expect(
-        grantAllowance({ quote, wallet, adapterManager, erc20Abi, web3: web3Instance })
-      ).rejects.toThrow('[grantAllowance]')
-    })
 
     it('should return a txid', async () => {
       const quote = {

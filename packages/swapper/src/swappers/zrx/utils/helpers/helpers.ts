@@ -1,3 +1,4 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
@@ -23,7 +24,7 @@ export type GetAllowanceRequiredArgs = {
 export type GetERC20AllowanceArgs = {
   erc20AllowanceAbi: AbiItem[]
   web3: Web3
-  tokenId: string
+  sellAssetErc20Address: string
   ownerAddress: string
   spenderAddress: string
 }
@@ -51,11 +52,11 @@ export const normalizeAmount = (amount: string | number | BigNumber): string => 
 export const getERC20Allowance = async ({
   erc20AllowanceAbi,
   web3,
-  tokenId,
+  sellAssetErc20Address,
   ownerAddress,
   spenderAddress
 }: GetERC20AllowanceArgs) => {
-  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, tokenId)
+  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, sellAssetErc20Address)
   return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
 }
 
@@ -74,20 +75,15 @@ export const getAllowanceRequired = async ({
 
     const ownerAddress = receiveAddress
     const spenderAddress = allowanceContract
-    const tokenId = sellAsset.tokenId
 
-    if (!tokenId) {
-      throw new SwapError('[getAllowanceRequired] - sellAsset.tokenId is required', {
-        code: SwapErrorTypes.VALIDATION_FAILED
-      })
-    }
+    const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
 
     const allowanceOnChain = await getERC20Allowance({
       web3,
       erc20AllowanceAbi,
       ownerAddress,
       spenderAddress,
-      tokenId
+      sellAssetErc20Address
     })
     if (allowanceOnChain === '0') return bnOrZero(sellAmount)
     if (!allowanceOnChain) {
@@ -107,18 +103,21 @@ export const getAllowanceRequired = async ({
   }
 }
 
-export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> => {
-  const { symbol, tokenId } = input
+export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> => {
+  const { symbol, assetId } = input
+
+  const { assetReference: erc20Address, assetNamespace } = fromAssetId(assetId)
+
   try {
     const USDC_CONTRACT_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-    if (tokenId?.toLowerCase() === USDC_CONTRACT_ADDRESS) return '1' // Will break if comparing against usdc
+    if (erc20Address?.toLowerCase() === USDC_CONTRACT_ADDRESS) return '1' // Will break if comparing against usdc
     const rateResponse: AxiosResponse<ZrxPriceResponse> = await zrxService.get<ZrxPriceResponse>(
       '/swap/v1/price',
       {
         params: {
           buyToken: USDC_CONTRACT_ADDRESS,
           buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
-          sellToken: tokenId || symbol
+          sellToken: assetNamespace === 'erc20' ? erc20Address : symbol
         }
       }
     )
@@ -148,14 +147,10 @@ export const grantAllowance = async ({
   web3
 }: GrantAllowanceArgs): Promise<string> => {
   try {
-    if (!quote.sellAsset.tokenId) {
-      throw new SwapError('[grantAllowance] - sellAsset.tokenId is required', {
-        code: SwapErrorTypes.VALIDATION_FAILED
-      })
-    }
+    const { assetReference: sellAssetErc20Address } = fromAssetId(quote.sellAsset.assetId)
 
     const adapter = await adapterManager.byChainId('eip155:1')
-    const erc20Contract = new web3.eth.Contract(erc20Abi, quote.sellAsset.tokenId)
+    const erc20Contract = new web3.eth.Contract(erc20Abi, sellAssetErc20Address)
     const approveTx = erc20Contract.methods
       .approve(quote.allowanceContract, quote.sellAmount)
       .encodeABI()
@@ -165,11 +160,11 @@ export const grantAllowance = async ({
 
     const { txToSign } = await adapter.buildSendTransaction({
       wallet,
-      to: quote.sellAsset.tokenId,
+      to: sellAssetErc20Address,
       bip44Params,
       value: '0',
       chainSpecific: {
-        erc20ContractAddress: quote.sellAsset.tokenId,
+        erc20ContractAddress: sellAssetErc20Address,
         gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
         gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0)
       }

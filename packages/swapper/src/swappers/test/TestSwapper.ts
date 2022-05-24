@@ -30,7 +30,7 @@ export class TestSwapper implements Swapper {
     ]
   }
 
-  getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> {
+  getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
     console.info(input)
     throw new Error('TestSwapper: getUsdRate unimplemented')
   }

@@ -16,7 +16,7 @@ export class ThorchainSwapper implements Swapper {
     return SwapperType.Thorchain
   }
 
-  getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> {
+  getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
     console.info(input)
     throw new Error('ThorchainSwapper: getUsdRate unimplemented')
   }

@@ -1,11 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { chainAdapters } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
-
-import { cosmosChainId } from '../portfolioSlice/utils'
 
 export type PubKey = string
 

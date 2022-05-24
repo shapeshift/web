@@ -1,5 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { AccountId, AssetId } from '@shapeshiftoss/caip'
+import {
+  AccountId,
+  AssetId,
+  btcAssetId,
+  cosmosAssetId,
+  ethAssetId,
+  osmosisAssetId,
+} from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
@@ -17,13 +24,7 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
-import {
-  accountIdToFeeAssetId,
-  btcAssetId,
-  cosmosAssetId,
-  ethAssetId,
-  osmosisAssetId,
-} from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'

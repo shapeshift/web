@@ -1,4 +1,4 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, chainIdToFeeAssetId } from '@shapeshiftoss/caip'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -7,11 +7,10 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapper'
-
-const ETHEREUM_ASSET_ID = 'eip155:1/slip44:60'
 
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,
@@ -24,8 +23,9 @@ export const useTradeRoutes = (
   const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
+  const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
-  const feeAsset = assets[ETHEREUM_ASSET_ID]
 
   const setDefaultAssets = useCallback(async () => {
     // wait for assets to be loaded

@@ -145,7 +145,7 @@
           "rateFluctuationInfo": "The rate of %{assetName} you earn, the Annual Percentage Return (APR), typically fluctuates between 7% - 20%.",
           "amountStakingInfo": "You can stake any amount of %{assetName} and they’ll immediately beginning earning rewards.",
           "withdrawInfo": "You can withdraw your rewards at anytime, which requires a small gas fee around ~$.01.",
-          "unbondingInfo": "When you unstake your tokens, they’ll remain locked for 14 days, during which time they won’t earn rewards. After the 14 days, your %{assetName} will return to your Primary Wallet.",
+          "unbondingInfo": "When you unstake your tokens, they’ll remain locked for %{unbondingDays} days, during which time they won’t earn rewards. After the %{unbondingDays} days, your %{assetName} will return to your Primary Wallet.",
           "slashingInfo": "Staking is done through a validator. It’s incredibly rare, but if the validator you’ve staked with messes up by allowing false or incorrect transactions to go through, you could lose a part of your assets.",
           "partnerInfo": "We’ve mitigated this risk by partnering with a reputable validator—which has a secure, reliable, and audited infrastructure."
         },
@@ -1016,7 +1016,8 @@
       "tvl": "TVL",
       "currentApy": "Current APY",
       "balance": "Balance",
-      "getStarted": "Get Started"
+      "getStarted": "Get Started",
+      "currentPrice": "Current Price"
     }
   }
 }

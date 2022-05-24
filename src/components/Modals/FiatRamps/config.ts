@@ -1,8 +1,8 @@
+import { btcAssetId } from '@shapeshiftoss/caip'
 import concat from 'lodash/concat'
 import banxalogo from 'assets/banxa.png'
 import gemlogo from 'assets/gem-mark.png'
 import onjunologo from 'assets/onjuno.png'
-import { btcAssetId } from 'state/slices/portfolioSlice/utils'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import {

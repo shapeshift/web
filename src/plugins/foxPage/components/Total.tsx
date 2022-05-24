@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from '@chakra-ui/layout'
+import { Flex, Text } from '@chakra-ui/layout'
 import { SkeletonText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -13,8 +13,13 @@ export const Total = ({ icons, fiatAmount }: TotalProps) => {
   const translate = useTranslate()
 
   return (
-    <Box p={4}>
-      <Flex mb={6} flexDirection='row'>
+    <Flex
+      p={4}
+      flexDirection={{ base: 'row-reverse', md: 'column' }}
+      alignItems={{ base: 'center', md: 'flex-start' }}
+      justifyContent={{ base: 'space-between', md: 'flex-start' }}
+    >
+      <Flex mb={{ base: 0, md: 6 }} flexDirection='row'>
         {icons.map((icon, index) => (
           <AssetIcon
             key={icon}
@@ -35,9 +40,9 @@ export const Total = ({ icons, fiatAmount }: TotalProps) => {
           value={fiatAmount}
           fontWeight='semibold'
           lineHeight={'1.2'}
-          fontSize={'2xl'}
+          fontSize={{ base: 'lg', md: '2xl' }}
         />
       </SkeletonText>
-    </Box>
+    </Flex>
   )
 }

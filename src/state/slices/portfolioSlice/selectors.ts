@@ -1,5 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { AccountId, AssetId } from '@shapeshiftoss/caip'
+import {
+  AccountId,
+  AssetId,
+  btcAssetId,
+  cosmosAssetId,
+  ethAssetId,
+  osmosisAssetId,
+} from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
@@ -17,13 +24,7 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
-import {
-  accountIdToFeeAssetId,
-  btcAssetId,
-  cosmosAssetId,
-  ethAssetId,
-  osmosisAssetId,
-} from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -63,11 +64,11 @@ type OptionalParamFilterKey = keyof OptionalParamFilter
 const selectParamFromFilter =
   <T extends ParamFilterKey>(param: T) =>
   (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] =>
-    filter[param]
+    filter?.[param] ?? ''
 const selectParamFromFilterOptional =
   <T extends OptionalParamFilterKey>(param: T) =>
   (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] =>
-    filter[param]
+    filter?.[param] ?? ''
 
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = [ethAssetId, btcAssetId, cosmosAssetId, osmosisAssetId]
@@ -278,11 +279,11 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
     if (accountId && assetId) {
       return fromBaseUnit(
         bnOrZero(accountBalances?.[accountId]?.[assetId]),
-        assets[assetId]?.precision ?? 0,
+        assets?.[assetId]?.precision ?? 0,
       )
     }
 
-    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId].precision ?? 0)
+    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets?.[assetId]?.precision ?? 0)
   },
 )
 
@@ -353,7 +354,7 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   selectTotalStakingUndelegationCryptoByAccountSpecifier,
   (assetId, assets, totalDelegations, totalUndelegations) => {
     const total = bnOrZero(totalDelegations).plus(totalUndelegations)
-    return fromBaseUnit(total, assets[assetId].precision ?? 0).toString()
+    return fromBaseUnit(total, assets?.[assetId]?.precision ?? 0).toString()
   },
 )
 

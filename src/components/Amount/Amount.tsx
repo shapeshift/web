@@ -21,7 +21,7 @@ export function Amount({
 }: any): React.ReactElement {
   const {
     number: { toString },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
 
   return (
     <RawText {...props}>
@@ -60,7 +60,7 @@ const Crypto = ({
 }: CryptoAmountProps) => {
   const {
     number: { toCrypto, toParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
 
   const crypto = toCrypto(value, symbol, { maximumFractionDigits })
 
@@ -96,7 +96,7 @@ const Crypto = ({
 const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: FiatAmountProps) => {
   const {
     number: { toFiat, toParts },
-  } = useLocaleFormatter({ fiatType: fiatType || 'USD' })
+  } = useLocaleFormatter({ fiatType })
 
   const fiat = toFiat(value, { fiatType })
 
@@ -132,7 +132,7 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: Fi
 const Percent = ({ value, autoColor, options, ...props }: PercentAmountProps) => {
   const {
     number: { toPercent },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const formattedNumber = toPercent(value, options)
 
   const color = useMemo(() => {

@@ -48,6 +48,8 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectSelectedCurrency } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type WithdrawProps = {
   asset: Asset
@@ -127,8 +129,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 }) => {
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const translate = useTranslate()
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
   const [percent, setPercent] = useState<number | null>(null)
   const amountRef = useRef<string | null>(null)
@@ -388,7 +391,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                     onClick={handleInputToggle}
                     width='full'
                   >
-                    {cryptoField ? asset.symbol : 'USD'}
+                    {cryptoField ? asset.symbol : selectedCurrency}
                   </Button>
                 </InputLeftElement>
                 {cryptoField && (

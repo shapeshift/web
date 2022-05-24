@@ -63,7 +63,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 }) => {
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const [isFiat, setIsFiat] = useState<boolean>(false)
   const [isFocused, setIsFocused] = useState(false)
   const borderColor = useColorModeValue('gray.100', 'gray.750')

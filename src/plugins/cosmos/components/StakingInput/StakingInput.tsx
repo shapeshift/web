@@ -54,7 +54,7 @@ export const StakingInput = ({
 }: StakingInputProps & InputGroupProps) => {
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   return (
     <InputGroup size='lg' {...styleProps}>
       <InputLeftElement ml={2} pos='relative' width='auto'>

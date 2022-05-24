@@ -20,7 +20,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
   const [percentChange, setPercentChange] = useState(0)
   const {
     number: { toFiat },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const translate = useTranslate()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}

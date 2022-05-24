@@ -1,5 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
+import { selectSelectedCurrency } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const CRYPTO_PRECISION = 8
 
@@ -134,27 +136,27 @@ export const getBrowserLocales = (options = {}) => {
   })[0]
 }
 
+type useLocaleFormatterArgs = {
+  locale?: string
+  fiatType?: string
+}
+
 /**
  * Set of helper functions for formatting using the user's locale
  * such as numbers, currencies, and dates
  */
 
-export const useLocaleFormatter = ({
-  locale,
-  fiatType = 'USD',
-}: {
-  locale?: string
-  fiatType: string
-}): NumberFormatter => {
-  const deviceLocale = locale ?? getBrowserLocales()
-
+export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatter => {
+  const deviceLocale = args?.locale ?? getBrowserLocales()
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const fiatTypeToUse = args?.fiatType ?? selectedCurrency
   /**
    * Parse a number in the current locale formatted in the selected currency.
    * This will determine the thousandth group separator, decimal separator, and minor units
    */
   const localeParts = useMemo((): LocaleParts => {
-    return getParts(deviceLocale, fiatType)
-  }, [fiatType, deviceLocale])
+    return getParts(deviceLocale, fiatTypeToUse)
+  }, [fiatTypeToUse, deviceLocale])
 
   /**
    * Parse a formatted number string into a prefix, number, and postfix
@@ -185,30 +187,33 @@ export const useLocaleFormatter = ({
     }
   }
 
-  const abbreviateNumber = (number: number, fiatType: string, options?: NumberFormatOptions) => {
-    const bounds = { min: 10000, max: 1000000 }
-    const noDecimals = bounds.min <= number && number < bounds.max
-    const minDisplayValue = 0.000001
-    const lessThanMin = 0 < number && minDisplayValue > number
-    const formatNumber = lessThanMin ? minDisplayValue : number
-    const minimumFractionDigits = noDecimals ? 0 : 2
-    const maximumFractionDigits = Math.max(
-      minimumFractionDigits,
-      lessThanMin ? 6 : getFiatNumberFractionDigits(number),
-    )
-    const formatter = new Intl.NumberFormat(deviceLocale, {
-      notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
-      compactDisplay: 'short',
-      style: 'currency',
-      currency: fiatType,
-      minimumFractionDigits,
-      maximumFractionDigits: 10,
-      ...options,
-    })
+  const abbreviateNumber = useCallback(
+    (number: number, fiatType: string, options?: NumberFormatOptions) => {
+      const bounds = { min: 10000, max: 1000000 }
+      const noDecimals = bounds.min <= number && number < bounds.max
+      const minDisplayValue = 0.000001
+      const lessThanMin = 0 < number && minDisplayValue > number
+      const formatNumber = lessThanMin ? minDisplayValue : number
+      const minimumFractionDigits = noDecimals ? 0 : 2
+      const maximumFractionDigits = Math.max(
+        minimumFractionDigits,
+        lessThanMin ? 6 : getFiatNumberFractionDigits(number),
+      )
+      const formatter = new Intl.NumberFormat(deviceLocale, {
+        notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
+        compactDisplay: 'short',
+        style: 'currency',
+        currency: fiatType,
+        minimumFractionDigits,
+        maximumFractionDigits: 10,
+        ...options,
+      })
 
-    const parts = formatter.formatToParts(formatNumber)
-    return parts.reduce(partsReducer(maximumFractionDigits), lessThanMin ? '<' : '')
-  }
+      const parts = formatter.formatToParts(formatNumber)
+      return parts.reduce(partsReducer(maximumFractionDigits), lessThanMin ? '<' : '')
+    },
+    [deviceLocale],
+  )
 
   /** If the number that is being formatted has a trailing decimal, add it back to the formatted number */
   const showTrailingDecimal = useCallback(
@@ -257,7 +262,7 @@ export const useLocaleFormatter = ({
     (value: NumberValue, options?: NumberFormatOptions): string => {
       try {
         const number = toNumber(value)
-        const numberFiat = options?.fiatType || fiatType
+        const numberFiat = options?.fiatType || fiatTypeToUse
         return abbreviateNumber(number, numberFiat, options)
       } catch (e) {
         // @TODO: figure out logging
@@ -265,7 +270,7 @@ export const useLocaleFormatter = ({
         return String(value)
       }
     },
-    [fiatType, deviceLocale], // eslint-disable-line react-hooks/exhaustive-deps
+    [abbreviateNumber, fiatTypeToUse],
   )
 
   /**
@@ -286,7 +291,7 @@ export const useLocaleFormatter = ({
         return String(num)
       }
     },
-    [localeParts, numberToFiat], // eslint-disable-line react-hooks/exhaustive-deps
+    [localeParts, numberToFiat, showTrailingDecimal],
   )
 
   const numberToPercent = (number: NumberValue, options: NumberFormatOptions = {}): string => {

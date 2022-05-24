@@ -35,7 +35,7 @@ export const AssetToAsset = ({
   const buyAssetColor = '#2775CA'
   const {
     number: { toCrypto },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const gray = useColorModeValue('white', 'gray.750')
   const red = useColorModeValue('white', 'red.500')
   const green = useColorModeValue('white', 'green.500')

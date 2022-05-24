@@ -43,6 +43,8 @@ import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectSelectedCurrency } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type DepositProps = {
   asset: Asset
@@ -117,7 +119,8 @@ export const Deposit = ({
 }: DepositProps) => {
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
   const [percent, setPercent] = useState<number | null>(null)
@@ -297,7 +300,7 @@ export const Deposit = ({
                       onClick={handleInputToggle}
                       width='full'
                     >
-                      {cryptoField ? asset.symbol : 'USD'}
+                      {cryptoField ? asset.symbol : selectedCurrency}
                     </Button>
                   </InputLeftElement>
                   {cryptoField && (

@@ -39,7 +39,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<SupportedChainIds>>()
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
   const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],

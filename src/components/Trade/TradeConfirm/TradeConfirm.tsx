@@ -42,7 +42,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const { fiatRate } = location.state
   const {
     number: { toFiat },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const {
     state: { wallet, isConnected },
     dispatch,

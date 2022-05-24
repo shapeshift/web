@@ -1,5 +1,5 @@
 import { ReduxState } from 'state/reducer'
-import { initialPriceHistory } from 'state/slices/marketDataSlice/marketDataSlice'
+import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -69,12 +69,12 @@ export const mockStore: ReduxState = {
     crypto: {
       byId: {},
       ids: [],
-      priceHistory: initialPriceHistory,
+      priceHistory: INITIAL_PRICE_HISTORY,
     },
     fiat: {
       byId: {},
       ids: [],
-      priceHistory: initialPriceHistory,
+      priceHistory: INITIAL_PRICE_HISTORY,
     },
   },
   txHistory: {

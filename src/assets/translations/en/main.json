@@ -615,9 +615,32 @@
     },
     "settings": {
       "settings": "Settings",
+      "currency": "Currency",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "Hide balances below this value"
+      "balanceThresholdTooltip": "Hide balances below this value",
+      "currencies": {
+        "CNY": "Chinese Yuan",
+        "USD": "United States Dollar (default)",
+        "EUR": "Euro",
+        "JPY": "Japanese Yen",
+        "GBP": "Great Britain Pound",
+        "KRW": "Korean Won",
+        "INR": "Indian Rupee",
+        "CAD": "Canadian Dollar",
+        "HKD": "Hong Kong Dollar",
+        "AUD": "Australian Dollar",
+        "TWD": "New Taiwan Dollar",
+        "BRL": "Brazilian Real",
+        "CHF": "Swiss Franc",
+        "THB": "Thai Baht",
+        "MXN": "Mexican Peso",
+        "RUB": "Russian Ruble",
+        "SAR": "Saudi Riyal",
+        "SGD": "Singapore Dollar",
+        "ILS": "Israeli Shekel",
+        "IDR": "Indonesian Rupiah"
+      }
     }
   },
   "walletProvider": {

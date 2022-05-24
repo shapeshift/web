@@ -11,17 +11,18 @@ import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
+import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
-import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { priceAtDate } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -30,10 +31,10 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountSpecifiers,
+  selectCryptoPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
-  selectPriceHistoryTimeframe,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
 } from 'state/slices/selectors'
@@ -42,22 +43,6 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
-
-type PriceAtBlockTimeArgs = {
-  date: number
-  assetPriceHistoryData: HistoryData[]
-}
-
-type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
-
-export const priceAtBlockTime: PriceAtBlockTime = ({ date, assetPriceHistoryData }): number => {
-  const { length } = assetPriceHistoryData
-  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
-  const i = sortedIndexBy(assetPriceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
-  if (i === 0) return assetPriceHistoryData[i].price
-  if (i >= length) return assetPriceHistoryData[length - 1].price
-  return assetPriceHistoryData[i].price
-}
 
 type CryptoBalance = {
   [k: AssetId]: BigNumber // map of asset to base units
@@ -175,9 +160,7 @@ export const bucketEvents = (
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
-  priceHistoryData: {
-    [k: AssetId]: HistoryData[]
-  }
+  priceHistoryData: PriceHistoryData
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
@@ -194,7 +177,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
-    const price = priceAtBlockTime({ assetPriceHistoryData, date })
+    const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) {
       return acc
@@ -382,7 +365,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
-  const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
+  const priceHistoryData = useAppSelector(state =>
+    selectCryptoPriceHistoryTimeframe(state, timeframe),
+  )
   const priceHistoryDataLoading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
@@ -393,9 +378,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // calculation
   useEffect(() => {
     // data prep
-    const noDeviceId = isNil(walletInfo?.deviceId)
-    const noAssetIds = !assetIds.length
-    if (noDeviceId || noAssetIds || priceHistoryDataLoading) {
+    const hasNoDeviceId = isNil(walletInfo?.deviceId)
+    const hasNoAssetIds = !assetIds.length
+    const hasNoPriceHistoryData = isEmpty(priceHistoryData)
+    if (hasNoDeviceId || hasNoAssetIds || priceHistoryDataLoading || hasNoPriceHistoryData) {
       return setBalanceChartDataLoading(true)
     }
 

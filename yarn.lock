@@ -4043,10 +4043,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^4.0.0":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.0.1.tgz#e7e583dcfab31b10e6b06a97b422ed6152569975"
-  integrity sha512-f0Fr+63JsArAZuQfGJltHB9a95SHG98LP6++EsEaLJ6GTdhZSjiKjSCRSwBrj+qcZnNdj4dJ00fwpvHNEaoxNg==
+"@shapeshiftoss/market-service@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.2.0.tgz#ec9210797bc347f9ad572355ce438f912397fe61"
+  integrity sha512-fENZS43Qzm+z9sanI4rNnH/AOd91emqcFtMVhClHmmzbh28usu/JgM/TibOzhjauvxdCEFceNMz5zfoZ2ReeNQ==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.30"

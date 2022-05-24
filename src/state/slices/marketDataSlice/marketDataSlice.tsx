@@ -40,14 +40,14 @@ export type MarketDataState = {
   fiat: FiatMarketDataState
 }
 
-export const initialPriceHistory: PriceHistoryByTimeframe = {
+export const initialPriceHistory: PriceHistoryByTimeframe = Object.freeze({
   [HistoryTimeframe.HOUR]: {},
   [HistoryTimeframe.DAY]: {},
   [HistoryTimeframe.WEEK]: {},
   [HistoryTimeframe.MONTH]: {},
   [HistoryTimeframe.YEAR]: {},
   [HistoryTimeframe.ALL]: {},
-}
+})
 
 const initialState: MarketDataState = {
   crypto: {

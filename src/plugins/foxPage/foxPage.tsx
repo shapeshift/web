@@ -22,6 +22,7 @@ import { useTranslate } from 'react-polyglot'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
+import { useFoxyMarketData } from 'hooks/useFoxyMarketData/useFoxyMarketData'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById } from 'state/slices/selectors'
@@ -30,7 +31,6 @@ import { breakpoints } from 'theme/theme'
 
 import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
-import { FoxyAssetMarketData } from './components/FoxyAssetMarketData'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
 
@@ -66,6 +66,7 @@ export const FoxPage = (props: FoxPageProps) => {
   )
 
   const selectedAsset = assets[selectedAssetIndex]
+  const foxyMaxTotalSupply = useFoxyMarketData().maxTotalSupply
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
@@ -174,7 +175,7 @@ export const FoxPage = (props: FoxPageProps) => {
                 <FoxChart assetId={FoxyAssetId} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <FoxyAssetMarketData assetId={FoxyAssetId} />
+                <AssetMarketData assetId={FoxyAssetId} fallbackMaxSupply={foxyMaxTotalSupply} />
               </Stack>
             </Stack>
           </TabPanel>

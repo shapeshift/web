@@ -2,10 +2,12 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
 
-const foxAssetToAssetId: Record<any, any> = {
+const FoxRoutePartToAssetId: Record<any, any> = {
   fox: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   foxy: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
 }
+
+const FoxPageDefaultAsset = 'fox'
 
 export const useRouteAssetId = () => {
   const location = useLocation()
@@ -16,13 +18,18 @@ export const useRouteAssetId = () => {
     const assetIdPathMatch = matchPath<{ chainId: string; assetSubId: string }>(location.pathname, {
       path: '/assets/:chainId/:assetSubId',
     })
+
+    // Extract the foxAsset part of a /fox route, can be 'fox', 'foxy' or undefined
     const foxPageAssetIdPathMatch = matchPath<{ foxAsset?: string }>(location.pathname, {
       path: '/fox/:foxAsset?',
     })
 
     if (foxPageAssetIdPathMatch) {
-      const foxAsset = foxPageAssetIdPathMatch?.params?.foxAsset ?? 'fox'
-      setAssetId(foxAssetToAssetId[foxAsset])
+      const foxAsset = foxPageAssetIdPathMatch?.params?.foxAsset ?? FoxPageDefaultAsset
+
+      if (FoxRoutePartToAssetId[foxAsset]) {
+        setAssetId(FoxRoutePartToAssetId[foxAsset])
+      }
       return
     }
 

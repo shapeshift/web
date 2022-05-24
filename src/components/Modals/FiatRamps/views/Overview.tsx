@@ -12,6 +12,7 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
+import { btcChainId, cosmosChainId, ethChainId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,13 +22,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  assetIdToChainId,
-  btcChainId,
-  ChainIdType,
-  cosmosChainId,
-  ethChainId,
-} from 'state/slices/portfolioSlice/utils'
+import { assetIdToChainId, ChainIdType } from 'state/slices/portfolioSlice/utils'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRamp, supportedFiatRamps } from '../config'

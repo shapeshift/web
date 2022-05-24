@@ -1,13 +1,12 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
-import last from 'lodash/last'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
+import { Tx, TxId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.byId,
@@ -114,14 +113,6 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
 
 export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byAssetId
 
-const selectAssetIdParam = (_state: ReduxState, assetId: AssetId) => assetId
-
-const selectTxIdsByAssetId = createSelector(
-  selectTxsByAssetId,
-  selectAssetIdParam,
-  (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? [],
-)
-
 type TxHistoryFilter = {
   assetIds: AssetId[]
   accountIds?: AccountSpecifier[]
@@ -153,15 +144,10 @@ export const selectTxsByFilter = createDeepEqualOutputSelector(
   (txs, txIds) => txIds.map(txId => txs[txId]),
 )
 
-// this is only used on trade confirm - new txs will be pushed
-// to the end of this array, so last is guaranteed to be latest
-// this can return undefined as we may be trading into this asset
-// for the first time
-export const selectLastTxStatusByAssetId = createSelector(
-  selectTxIdsByAssetId,
-  selectTxs,
-  (txIdsByAssetId, txs): Tx['status'] | undefined => txs[last(txIdsByAssetId) ?? '']?.status,
-)
+export const selectTxStatusById = createCachedSelector(
+  selectTxById,
+  (tx): Tx['status'] | undefined => tx?.status,
+)((_state: ReduxState, txId: TxId) => txId ?? 'undefined')
 
 const selectRebasesById = (state: ReduxState) => state.txHistory.rebases.byId
 export const selectRebasesByAssetId = (state: ReduxState) => state.txHistory.rebases.byAssetId

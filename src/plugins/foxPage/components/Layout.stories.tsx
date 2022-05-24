@@ -1,11 +1,31 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { SimpleGrid, Stack, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  SimpleGrid,
+  Stack,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import { Story } from '@storybook/react'
+import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
+import { breakpoints } from 'theme/theme'
 
+import { AssetActions } from './AssetActions'
+import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
 import { Total } from './Total'
@@ -23,6 +43,9 @@ const mockAsset = {
 
 export const FoxLayout: Story = () => {
   const translate = useTranslate()
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
 
   return (
     <Layout
@@ -32,10 +55,10 @@ export const FoxLayout: Story = () => {
       description={mockAsset.description}
       icon={'https://assets.coincap.io/assets/icons/fox@2x.png'}
     >
-      <Tabs variant='unstyled'>
-        <TabList>
+      <Tabs variant='unstyled' index={selectedTabIndex}>
+        <TabList flexDirection={{ base: 'column', md: 'row' }}>
           <SimpleGrid
-            gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(4, 1fr)' }}
+            gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
             gridGap={4}
             mb={4}
             width='full'
@@ -48,30 +71,88 @@ export const FoxLayout: Story = () => {
                 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x03352D267951E96c6F7235037C5DFD2AB1466232/logo.png',
               ]}
             />
-            <FoxTab
-              assetSymbol={mockAsset.symbol}
-              assetIcon={mockAsset.icon}
-              isSelected={true}
-              cryptoAmount={'3000'}
-              fiatAmount={'1000'}
-            />
-            <FoxTab
-              assetSymbol={mockAsset.symbol}
-              assetIcon={mockAsset.icon}
-              cryptoAmount={'3000'}
-              fiatAmount={'1000'}
-            />
-            <FoxTab
-              assetSymbol={mockAsset.symbol}
-              assetIcon={mockAsset.icon}
-              cryptoAmount={'3000'}
-              fiatAmount={'1000'}
-            />
+            {isLargerThanMd && (
+              <>
+                <FoxTab
+                  assetSymbol={mockAsset.symbol}
+                  assetIcon={mockAsset.icon}
+                  isSelected={true}
+                  cryptoAmount={'3000'}
+                  fiatAmount={'1000'}
+                  onClick={() => {
+                    setSelectedTabIndex(0)
+                  }}
+                />
+                <FoxTab
+                  assetSymbol={mockAsset.symbol}
+                  assetIcon={mockAsset.icon}
+                  cryptoAmount={'3000'}
+                  fiatAmount={'1000'}
+                  onClick={() => {
+                    setSelectedTabIndex(1)
+                  }}
+                />
+              </>
+            )}
           </SimpleGrid>
+          {!isLargerThanMd && (
+            <Box mb={4}>
+              <Menu>
+                <MenuButton
+                  borderWidth='2px'
+                  borderColor='primary'
+                  height='auto'
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  bg={mobileTabBg}
+                  width='full'
+                >
+                  <FoxTab
+                    assetSymbol={mockAsset.symbol}
+                    assetIcon={mockAsset.icon}
+                    cryptoAmount={'3000'}
+                    fiatAmount={'1000'}
+                  />
+                </MenuButton>
+                <MenuList>
+                  <MenuItem
+                    onClick={() => {
+                      setSelectedTabIndex(0)
+                    }}
+                  >
+                    <FoxTab
+                      assetSymbol={mockAsset.symbol}
+                      assetIcon={mockAsset.icon}
+                      cryptoAmount={'3000'}
+                      fiatAmount={'1000'}
+                      onClick={() => {
+                        setSelectedTabIndex(0)
+                      }}
+                    />
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setSelectedTabIndex(1)
+                    }}
+                  >
+                    <FoxTab
+                      assetSymbol={mockAsset.symbol}
+                      assetIcon={mockAsset.icon}
+                      cryptoAmount={'3000'}
+                      fiatAmount={'1000'}
+                      onClick={() => {
+                        setSelectedTabIndex(1)
+                      }}
+                    />
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </Box>
+          )}
         </TabList>
 
         <TabPanels>
-          <TabPanel p={0}>
+          <TabPanel key={'0'} p={0}>
             <Stack
               alignItems='flex-start'
               spacing={4}
@@ -79,18 +160,30 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'Fox Page'}</Text>
+                <FoxOpportunity
+                  balance='--'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <Text>
-                  {
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada rutrum erat. Aliquam commodo tincidunt ligula, sollicitudin semper velit aliquet id. Vestibulum at tincidunt diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam facilisis nisi vitae risus vulputate bibendum. Etiam vitae leo ac mauris congue varius. Nunc sit amet diam bibendum, hendrerit velit vel, porta sapien. Aenean ac enim ornare, consectetur justo at, sodales massa. Fusce sodales sapien ac dictum sagittis. Maecenas ornare ex at dolor tempus, ac iaculis dolor dapibus.'
-                  }
-                </Text>
+                <AssetActions
+                  assetIcon={mockAsset.icon}
+                  assetSymbol={mockAsset.symbol}
+                  description={mockAsset.description}
+                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                    assetSymbol: mockAsset.symbol,
+                  })}
+                  sellCTA='plugins.foxPage.receive'
+                  onReceiveClick={() => null}
+                  onBuyClick={() => null}
+                />
               </Stack>
             </Stack>
           </TabPanel>
-          <TabPanel p={0}>
+          <TabPanel key={'1'} p={0}>
             <Stack
               alignItems='flex-start'
               spacing={4}
@@ -98,18 +191,30 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'Foxy Page'}</Text>
+                <FoxOpportunity
+                  balance='--'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <Text>
-                  {
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada rutrum erat. Aliquam commodo tincidunt ligula, sollicitudin semper velit aliquet id. Vestibulum at tincidunt diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam facilisis nisi vitae risus vulputate bibendum. Etiam vitae leo ac mauris congue varius. Nunc sit amet diam bibendum, hendrerit velit vel, porta sapien. Aenean ac enim ornare, consectetur justo at, sodales massa. Fusce sodales sapien ac dictum sagittis. Maecenas ornare ex at dolor tempus, ac iaculis dolor dapibus.'
-                  }
-                </Text>
+                <AssetActions
+                  assetIcon={mockAsset.icon}
+                  assetSymbol={mockAsset.symbol}
+                  description={mockAsset.description}
+                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                    assetSymbol: mockAsset.symbol,
+                  })}
+                  sellCTA='plugins.foxPage.receive'
+                  onReceiveClick={() => null}
+                  onBuyClick={() => null}
+                />
               </Stack>
             </Stack>
           </TabPanel>
-          <TabPanel p={0}>
+          <TabPanel key={'2'} p={0}>
             <Stack
               alignItems='flex-start'
               spacing={4}
@@ -117,14 +222,26 @@ export const FoxLayout: Story = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <Text>{'oneFOX page'}</Text>
+                <FoxOpportunity
+                  balance='--'
+                  assetSymbol={mockAsset.symbol}
+                  tvl={'150000000'}
+                  apy='0.1161'
+                  onClick={() => null}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <Text>
-                  {
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada rutrum erat. Aliquam commodo tincidunt ligula, sollicitudin semper velit aliquet id. Vestibulum at tincidunt diam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam facilisis nisi vitae risus vulputate bibendum. Etiam vitae leo ac mauris congue varius. Nunc sit amet diam bibendum, hendrerit velit vel, porta sapien. Aenean ac enim ornare, consectetur justo at, sodales massa. Fusce sodales sapien ac dictum sagittis. Maecenas ornare ex at dolor tempus, ac iaculis dolor dapibus.'
-                  }
-                </Text>
+                <AssetActions
+                  assetIcon={mockAsset.icon}
+                  assetSymbol={mockAsset.symbol}
+                  description={mockAsset.description}
+                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
+                    assetSymbol: mockAsset.symbol,
+                  })}
+                  sellCTA='plugins.foxPage.receive'
+                  onReceiveClick={() => null}
+                  onBuyClick={() => null}
+                />
               </Stack>
             </Stack>
           </TabPanel>

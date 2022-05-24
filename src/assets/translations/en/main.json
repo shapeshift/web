@@ -58,7 +58,8 @@
     "login": "Log In",
     "verify": "Verify",
     "notRobot": "I am not a Robot",
-    "skip": "Skip"
+    "skip": "Skip",
+    "generalError": "An error has occured"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -144,7 +145,7 @@
           "rateFluctuationInfo": "The rate of %{assetName} you earn, the Annual Percentage Return (APR), typically fluctuates between 7% - 20%.",
           "amountStakingInfo": "You can stake any amount of %{assetName} and they’ll immediately beginning earning rewards.",
           "withdrawInfo": "You can withdraw your rewards at anytime, which requires a small gas fee around ~$.01.",
-          "unbondingInfo": "When you unstake your tokens, they’ll remain locked for 14 days, during which time they won’t earn rewards. After the 14 days, your %{assetName} will return to your Primary Wallet.",
+          "unbondingInfo": "When you unstake your tokens, they’ll remain locked for %{unbondingDays} days, during which time they won’t earn rewards. After the %{unbondingDays} days, your %{assetName} will return to your Primary Wallet.",
           "slashingInfo": "Staking is done through a validator. It’s incredibly rare, but if the validator you’ve staked with messes up by allowing false or incorrect transactions to go through, you could lose a part of your assets.",
           "partnerInfo": "We’ve mitigated this risk by partnering with a reputable validator—which has a secure, reliable, and audited infrastructure."
         },
@@ -379,10 +380,20 @@
       "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
       "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
       "hdwalletInvalidConfig": "An error occurred communicating with your hardware wallet",
+      "allowanceRequiredFailed": "An error occurred getting approving the allowance required to trade.",
+      "checkApprovalNeededFailed": "An error occurred checking the approval for your trade.",
+      "approveInfiniteFailed": "An error occurred approving your trade.",
+      "buildTradeFailed": "An error occurred building your trade.",
+      "grantAllowanceFailed": "An error occurred granting allowance.",
+      "minMaxError": "An error occured getting min / max trade amount",
+      "executeTradeFailed": "An error occurred executing your trade.",
+      "unsupportedPair": "This trading pair is not currently supported.",
+      "rateError": "An error occured getting trade rates",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
-      }
+      },
+      "generalError": "A trade error has occured"
     }
   },
   "modals": {
@@ -997,7 +1008,17 @@
   "plugins": {
     "foxPage": {
       "totalFoxValue": "Total Fox Value",
-      "foxToken": "ShapeShift %{assetSymbol} Token"
+      "foxToken": "ShapeShift %{assetSymbol} Token",
+      "getAsset": "Get %{assetSymbol}",
+      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
+      "trade": "Trade",
+      "receive": "Receive",
+      "titleStaking": "%{assetSymbol} Token Staking",
+      "tvl": "TVL",
+      "currentApy": "Current APY",
+      "balance": "Balance",
+      "getStarted": "Get Started",
+      "currentPrice": "Current Price"
     }
   }
 }

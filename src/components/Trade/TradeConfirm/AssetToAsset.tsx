@@ -1,5 +1,14 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Circle, Divider, Flex, FlexProps, Text, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Circle,
+  Divider,
+  Flex,
+  FlexProps,
+  Spinner,
+  Text,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { Trade } from '@shapeshiftoss/swapper'
 import { chainAdapters, SupportedChainIds } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
@@ -32,19 +41,36 @@ export const AssetToAsset = ({
   const green = useColorModeValue('white', 'green.500')
 
   const renderIcon = () => {
-    return status === chainAdapters.TxStatus.Confirmed ? (
-      <Circle bg={green} size='100%'>
-        <CheckIcon />
-      </Circle>
-    ) : status === chainAdapters.TxStatus.Failed ? (
-      <Circle bg={red} size='100%'>
-        <CloseIcon p={1} />
-      </Circle>
-    ) : (
-      <Circle bg={gray} size='100%'>
-        <ArrowForwardIcon />
-      </Circle>
-    )
+    switch (status) {
+      case chainAdapters.TxStatus.Confirmed: {
+        return (
+          <Circle bg={green} size='100%'>
+            <CheckIcon />
+          </Circle>
+        )
+      }
+      case chainAdapters.TxStatus.Failed: {
+        return (
+          <Circle bg={red} size='100%'>
+            <CloseIcon p={1} />
+          </Circle>
+        )
+      }
+      case chainAdapters.TxStatus.Pending: {
+        return (
+          <Circle bg={gray} size='100%'>
+            <Spinner />
+          </Circle>
+        )
+      }
+      default: {
+        return (
+          <Circle bg={gray} size='100%'>
+            <ArrowForwardIcon />
+          </Circle>
+        )
+      }
+    }
   }
 
   return (

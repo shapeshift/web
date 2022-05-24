@@ -1,4 +1,3 @@
-import { SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
@@ -16,10 +15,14 @@ jest.mock('react-router-dom', () => ({
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
+jest.mock('@shapeshiftoss/swapper')
 jest.mock('state/slices/selectors', () => ({
   selectAssets: () => ({
     'eip155:1/slip44:60': mockETH,
     'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': mockFOX,
+  }),
+  selectAssetById: () => ({
+    'eip155:1/slip44:60': mockETH,
   }),
 }))
 
@@ -29,8 +32,10 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     updateQuote,
-    getBestSwapper: () => SwapperType.Zrx,
     getDefaultPair: () => [mockETH.assetId, mockFOX.assetId],
+    swapperManager: {
+      getBestSwapper: jest.fn(),
+    },
   }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
@@ -94,7 +99,7 @@ describe('useTradeRoutes', () => {
     const { result, setValue, updateQuote } = setup({ sellAmount: '234' })
     await result.current.handleBuyClick(mockFOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.asset', mockFOX)
-    expect(setValue).toHaveBeenCalledWith('sellAsset.asset', mockETH)
+    expect(setValue).toHaveBeenCalledWith('sellAsset.asset', WETH)
     expect(updateQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on buy click', async () => {

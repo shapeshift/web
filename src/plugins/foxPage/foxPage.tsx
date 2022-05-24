@@ -16,16 +16,13 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
 import { useFoxyMarketData } from 'hooks/useFoxyMarketData/useFoxyMarketData'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -51,7 +48,6 @@ const assetsRoutes: Record<AssetId, FoxPageRoutes> = {
 export const FoxPage: React.FC<{}> = () => {
   const translate = useTranslate()
   const history = useHistory()
-  const dispatch = useDispatch()
   const assetFox = useAppSelector(state => selectAssetById(state, FoxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, FoxyAssetId))
 
@@ -64,7 +60,8 @@ export const FoxPage: React.FC<{}> = () => {
   )
 
   const selectedAsset = assets[selectedAssetIndex]
-  const foxyMaxTotalSupply = useFoxyMarketData().maxTotalSupply
+  const foxyMarketData = useFoxyMarketData()
+  const foxyMaxTotalSupply = foxyMarketData.maxTotalSupply
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
@@ -79,10 +76,6 @@ export const FoxPage: React.FC<{}> = () => {
 
     history.push(assetsRoutes[assetId])
   }
-
-  useEffect(() => {
-    dispatch(marketApi.endpoints.findByAssetId.initiate(FoxyAssetId))
-  }, [dispatch])
 
   if (!isLoaded) return null
 

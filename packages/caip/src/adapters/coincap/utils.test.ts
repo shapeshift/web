@@ -1,13 +1,7 @@
 import realFs from 'fs'
 
-import {
-  makeBtcData,
-  makeCosmosHubData,
-  makeOsmosisData,
-  parseData,
-  parseEthData,
-  writeFiles
-} from './utils'
+import { makeBtcData, makeCosmosHubData, makeOsmosisData } from '../../utils'
+import { parseData, parseEthData, writeFiles } from './utils'
 
 const makeEthMockCoincapResponse = () => ({
   id: 'ethereum',

@@ -2,7 +2,7 @@ import entries from 'lodash/entries'
 import toLower from 'lodash/toLower'
 
 import { fromAssetId } from '../../assetId/assetId'
-import { ChainId, toChainId } from '../../chainId/chainId'
+import { ChainId } from '../../chainId/chainId'
 
 const AssetIdToBanxaTickerMap = {
   'bip122:000000000019d6689c085ae165831e93/slip44:0': 'btc',
@@ -69,10 +69,9 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
  * @returns {string} - a Banxa chain identifier; e.g., 'cosmos'
  */
 export const getBanxaBlockchainFromBanxaAssetTicker = (banxaAssetId: string): string => {
-  const assetAssetId = banxaTickerToAssetId(banxaAssetId.toLowerCase())
-  if (!assetAssetId)
+  const assetId = banxaTickerToAssetId(banxaAssetId.toLowerCase())
+  if (!assetId)
     throw new Error(`getBanxaBlockchainFromBanxaAssetTicker: ${banxaAssetId} is not supported`)
-  const { chain, network } = fromAssetId(assetAssetId)
-  const chainId = toChainId({ network, chain })
+  const { chainId } = fromAssetId(assetId)
   return chainIdToBanxaBlockchainCodeMap[chainId]
 }

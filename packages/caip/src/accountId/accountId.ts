@@ -1,39 +1,58 @@
-import { CHAIN_NAMESPACE, ChainId, isChainId } from '../chainId/chainId'
+import { ChainId, ChainNamespace, ChainReference, fromChainId, toChainId } from '../chainId/chainId'
+import { CHAIN_NAMESPACE } from '../constants'
+import { assertIsChainId, assertIsChainNamespace, assertIsChainReference } from '../typeGuards'
 
 export type AccountId = string
 
-type ToAccountIdArgs = {
+type ToAccountIdWithChainId = {
   chainId: ChainId
   account: string
+  chainNamespace?: never
+  chainReference?: never
 }
 
-type ToAccountId = (args: ToAccountIdArgs) => string
+type ToAccountIdWithChainIdParts = {
+  chainId?: never
+  account: string
+  chainNamespace: ChainNamespace
+  chainReference: ChainReference
+}
 
-export const toAccountId: ToAccountId = ({ chainId, account }) => {
-  if (!isChainId(chainId)) {
-    throw new Error(`toAccountId: invalid ChainId ${chainId}`)
-  }
+type ToAccountIdArgs = ToAccountIdWithChainId | ToAccountIdWithChainIdParts
 
-  if (!account) {
-    throw new Error(`toAccountId: account is required`)
-  }
+type ToAccountId = (args: ToAccountIdArgs) => AccountId
 
-  const [namespace] = chainId.split(':')
+export const toAccountId: ToAccountId = ({
+  chainId: maybeChainId,
+  chainNamespace: maybeChainNamespace,
+  chainReference: maybeChainReference,
+  account
+}) => {
+  if (!account) throw new Error(`toAccountId: account is required`)
+
+  const chainId =
+    maybeChainId ??
+    toChainId({ chainNamespace: maybeChainNamespace, chainReference: maybeChainReference })
+  assertIsChainId(chainId)
+  const { chainNamespace } = fromChainId(chainId)
 
   // we lowercase eth accounts as per the draft spec
   // it's not explicit, but cHecKsUM can be recovered from lowercase eth accounts
   // we don't lowercase bitcoin addresses as they'll fail checksum
-  const outputAccount = namespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
+  const outputAccount =
+    chainNamespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
 
   return `${chainId}:${outputAccount}`
 }
 
 type FromAccountIdReturn = {
-  chainId: string
+  chainId: ChainId
   account: string
+  chainNamespace: ChainNamespace
+  chainReference: ChainReference
 }
 
-type FromAccountId = (accountId: string) => FromAccountIdReturn
+type FromAccountId = (accountId: AccountId) => FromAccountIdReturn
 
 export const fromAccountId: FromAccountId = (accountId) => {
   const parts = accountId.split(':')
@@ -42,24 +61,25 @@ export const fromAccountId: FromAccountId = (accountId) => {
     throw new Error(`fromAccountId: invalid AccountId ${accountId}`)
   }
 
+  const chainNamespace = parts[0]
+  const chainReference = parts[1]
   const chainId = parts.slice(0, 2).join(':')
-  if (!isChainId(chainId)) {
-    throw new Error(`fromAccountId: invalid ChainId ${chainId}`)
-  }
-  const account = parts[2]
+  assertIsChainNamespace(chainNamespace)
+  assertIsChainReference(chainReference)
+  assertIsChainId(chainId)
 
+  const account = parts[2]
   if (!account) {
     throw new Error(`fromAccountId: account required`)
   }
 
-  const [namespace] = chainId.split(':')
-
   // we lowercase eth accounts as per the draft spec
   // it's not explicit, but cHecKsUM can be recovered from lowercase eth accounts
   // we don't lowercase bitcoin addresses as they'll fail checksum
-  const outputAccount = namespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
+  const outputAccount =
+    chainNamespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
 
-  return { chainId, account: outputAccount }
+  return { chainId, account: outputAccount, chainNamespace, chainReference }
 }
 
 export const toCAIP10 = toAccountId

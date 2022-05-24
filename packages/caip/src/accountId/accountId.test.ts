@@ -1,3 +1,5 @@
+import { ChainNamespace, ChainReference, toChainId } from '../chainId/chainId'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../constants'
 import { fromAccountId, fromCAIP10, toAccountId, toCAIP10 } from './accountId'
 
 describe('toAccountId', () => {
@@ -6,34 +8,51 @@ describe('toAccountId', () => {
     expect(fromAccountId).toEqual(fromCAIP10)
   })
   it('throws on invalid chainId', () => {
-    const chainId = 'eeep:123'
+    const chainNamespace = 'eeep' as ChainNamespace
+    const chainReference = '123' as ChainReference
+    const chainId = `${chainNamespace}:${chainReference}`
     const account = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
     expect(() => toAccountId({ chainId, account })).toThrow()
+    expect(() => toAccountId({ chainNamespace, chainReference, account })).toThrow()
   })
 
   it('throws on empty account', () => {
-    const chainId = 'eip155:1'
+    const chainNamespace = CHAIN_NAMESPACE.Ethereum
+    const chainReference = CHAIN_REFERENCE.EthereumMainnet
+    const chainId = toChainId({ chainNamespace, chainReference })
     const account = ''
     expect(() => toAccountId({ chainId, account })).toThrow()
+    expect(() => toAccountId({ chainNamespace, chainReference, account })).toThrow()
   })
 
   it('accepts valid eth chainId and account', () => {
-    const chainId = 'eip155:1'
+    const chainNamespace = CHAIN_NAMESPACE.Ethereum
+    const chainReference = CHAIN_REFERENCE.EthereumMainnet
+    const chainId = toChainId({ chainNamespace, chainReference })
     const account = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-    expect(toAccountId({ chainId, account })).toEqual(`${chainId}:${account}`)
+    const expectedAccountId = `${chainId}:${account}`
+    expect(toAccountId({ chainId, account })).toEqual(expectedAccountId)
+    expect(toAccountId({ chainNamespace, chainReference, account })).toEqual(expectedAccountId)
   })
 
   it('lowercases eth address', () => {
-    const chainId = 'eip155:1'
+    const chainNamespace = CHAIN_NAMESPACE.Ethereum
+    const chainReference = CHAIN_REFERENCE.EthereumMainnet
+    const chainId = toChainId({ chainNamespace, chainReference })
     const account = '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'
-    const lowerAccount = account.toLowerCase()
-    expect(toAccountId({ chainId, account })).toEqual(`${chainId}:${lowerAccount}`)
+    const expectedAccountId = `${chainId}:${account.toLowerCase()}`
+    expect(toAccountId({ chainId, account })).toEqual(expectedAccountId)
+    expect(toAccountId({ chainNamespace, chainReference, account })).toEqual(expectedAccountId)
   })
 
   it('does not lowercase bitcoin account', () => {
-    const chainId = 'bip122:000000000019d6689c085ae165831e93'
+    const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+    const chainReference = CHAIN_REFERENCE.BitcoinMainnet
+    const chainId = toChainId({ chainNamespace, chainReference })
     const account = '327aHcrjdooNUzG3qqZkuVZkm3MyjgxScn'
-    expect(toAccountId({ chainId, account })).toEqual(`${chainId}:${account}`)
+    const expectedAccountId = `${chainId}:${account}`
+    expect(toAccountId({ chainId, account })).toEqual(expectedAccountId)
+    expect(toAccountId({ chainNamespace, chainReference, account })).toEqual(expectedAccountId)
   })
 })
 
@@ -45,24 +64,38 @@ describe('fromAccountId', () => {
 
   it('returns chainId and account for bitcoin', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:327aHcrjdooNUzG3qqZkuVZkm3MyjgxScn'
-    const { account, chainId } = fromAccountId(accountId)
-    expect(account).toEqual('327aHcrjdooNUzG3qqZkuVZkm3MyjgxScn')
-    expect(chainId).toEqual('bip122:000000000019d6689c085ae165831e93')
+    const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
+    const expectedAccount = '327aHcrjdooNUzG3qqZkuVZkm3MyjgxScn'
+    const expectedChainNamespace = CHAIN_NAMESPACE.Bitcoin
+    const expectedChainReference = CHAIN_REFERENCE.BitcoinMainnet
+    expect(account).toEqual(expectedAccount)
+    expect(chainNamespace).toEqual(expectedChainNamespace)
+    expect(chainReference).toEqual(expectedChainReference)
+    expect(chainId).toEqual(`${expectedChainNamespace}:${expectedChainReference}`)
   })
 
   it('returns chainId and account for eth', () => {
     const accountId = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-    const { chainId, account } = fromAccountId(accountId)
-    expect(chainId).toEqual('eip155:1')
-    expect(account).toEqual('0xa44c286ba83bb771cd0107b2c1df678435bd1535')
+    const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
+    const expectedAccount = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
+    const expectedChainNamespace = CHAIN_NAMESPACE.Ethereum
+    const expectedChainReference = CHAIN_REFERENCE.EthereumMainnet
+    expect(account).toEqual(expectedAccount)
+    expect(chainNamespace).toEqual(expectedChainNamespace)
+    expect(chainReference).toEqual(expectedChainReference)
+    expect(chainId).toEqual(`${expectedChainNamespace}:${expectedChainReference}`)
   })
 
   it('lowercases eth account', () => {
     const accountId = 'eip155:1:0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'
-    const { chainId, account } = fromAccountId(accountId)
-    const lowerAccount = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-    expect(chainId).toEqual('eip155:1')
-    expect(account).toEqual(lowerAccount)
+    const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
+    const expectedAccount = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
+    const expectedChainNamespace = CHAIN_NAMESPACE.Ethereum
+    const expectedChainReference = CHAIN_REFERENCE.EthereumMainnet
+    expect(account).toEqual(expectedAccount)
+    expect(chainNamespace).toEqual(expectedChainNamespace)
+    expect(chainReference).toEqual(expectedChainReference)
+    expect(chainId).toEqual(`${expectedChainNamespace}:${expectedChainReference}`)
   })
 
   it('throws on empty account', () => {

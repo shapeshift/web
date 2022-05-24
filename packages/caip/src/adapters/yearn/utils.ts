@@ -1,5 +1,4 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Token, Vault, Yearn } from '@yfi/sdk'
 import fs from 'fs'
 import toLower from 'lodash/toLower'
@@ -7,6 +6,7 @@ import uniqBy from 'lodash/uniqBy'
 
 import { toAssetId } from '../../assetId/assetId'
 import { toChainId } from '../../chainId/chainId'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 
 const network = 1 // 1 for mainnet
 const provider = new JsonRpcProvider(process.env.REACT_APP_ETHEREUM_NODE_URL)
@@ -33,16 +33,17 @@ export const fetchData = async () => {
 }
 
 export const parseEthData = (data: (Token | Vault)[]) => {
-  const chain = ChainTypes.Ethereum
   const assetNamespace = 'erc20'
+  const chainNamespace = CHAIN_NAMESPACE.Ethereum
+  const chainReference = CHAIN_REFERENCE.EthereumMainnet
 
   return data.reduce((acc, datum) => {
     const { address } = datum
     const id = address
     const assetReference = toLower(address)
     const assetId = toAssetId({
-      chain,
-      network: NetworkTypes.MAINNET,
+      chainNamespace,
+      chainReference,
       assetNamespace,
       assetReference
     })
@@ -52,6 +53,9 @@ export const parseEthData = (data: (Token | Vault)[]) => {
 }
 
 export const parseData = (d: (Token | Vault)[]) => {
-  const ethMainnet = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+  const ethMainnet = toChainId({
+    chainNamespace: CHAIN_NAMESPACE.Ethereum,
+    chainReference: CHAIN_REFERENCE.EthereumMainnet
+  })
   return { [ethMainnet]: parseEthData(d) }
 }

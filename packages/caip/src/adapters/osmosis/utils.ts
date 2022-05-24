@@ -1,9 +1,9 @@
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
 import fs from 'fs'
 
-import { ASSET_REFERENCE, AssetNamespace, toAssetId } from '../../assetId/assetId'
+import { AssetNamespace, toAssetId } from '../../assetId/assetId'
 import { toChainId } from '../../chainId/chainId'
+import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 
 export type OsmosisCoin = {
   price: number
@@ -45,9 +45,9 @@ export const parseOsmosisData = (data: OsmosisCoin[]) => {
       assetNamespace = 'ibc'
     }
 
-    const chain = ChainTypes.Osmosis
-    const network = NetworkTypes.OSMOSIS_MAINNET
-    const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+    const chainNamespace = CHAIN_NAMESPACE.Cosmos
+    const chainReference = CHAIN_REFERENCE.OsmosisMainnet
+    const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
 
     acc[assetId] = symbol
     return acc
@@ -58,8 +58,8 @@ export const parseOsmosisData = (data: OsmosisCoin[]) => {
 
 export const parseData = (d: OsmosisCoin[]) => {
   const osmosisMainnet = toChainId({
-    chain: ChainTypes.Osmosis,
-    network: NetworkTypes.OSMOSIS_MAINNET
+    chainNamespace: CHAIN_NAMESPACE.Cosmos,
+    chainReference: CHAIN_REFERENCE.OsmosisMainnet
   })
 
   return {

@@ -1,16 +1,39 @@
+import { ChainNamespace, ChainReference } from 'packages/caip/src/chainId/chainId'
+
 import {
-  accountIdToChainId,
-  accountIdToSpecifier,
-  assetIdToChainId,
+  ASSET_NAMESPACE_STRINGS,
+  ASSET_REFERENCE,
   btcAssetId,
   btcChainId,
-  chainIdToFeeAssetId,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
   cosmosAssetId,
   cosmosChainId,
   ethAssetId,
   ethChainId,
-  getChainReferenceFromChainId,
-  getFeeAssetIdFromAssetId
+  osmosisAssetId,
+  osmosisChainId
+} from './constants'
+import {
+  assertIsAssetNamespace,
+  assertIsAssetReference,
+  assertIsChainId,
+  assertIsChainNamespace,
+  assertIsChainReference,
+  assertValidChainPartsPair,
+  isAssetId,
+  isAssetNamespace,
+  isAssetReference,
+  isChainId,
+  isChainNamespace,
+  isChainReference
+} from './typeGuards'
+import {
+  accountIdToChainId,
+  accountIdToSpecifier,
+  chainIdToFeeAssetId,
+  getFeeAssetIdFromAssetId,
+  isValidChainPartsPair
 } from './utils'
 
 describe('accountIdToChainId', () => {
@@ -43,41 +66,6 @@ describe('accountIdToSpecifier', () => {
   })
 })
 
-describe('assetIdToChainId', () => {
-  it('returns a ETH chainId for a given ETH assetId', () => {
-    const erc20AssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
-    const chainId = 'eip155:1'
-    const result = assetIdToChainId(erc20AssetId)
-    expect(result).toEqual(chainId)
-  })
-
-  it('returns a BTC chainId for a given BTC assetId', () => {
-    const result = assetIdToChainId(btcAssetId)
-    expect(result).toEqual(btcChainId)
-  })
-})
-
-describe('getChainReferenceFromChainId', () => {
-  it('returns the reference from a chainId string with a valid reference', () => {
-    const validChainId = 'cosmos:cosmoshub-4'
-    const validChainIdReference = 'cosmoshub-4'
-
-    const reference = getChainReferenceFromChainId(validChainId)
-    expect(reference).toEqual(validChainIdReference)
-  })
-  it('returns undefined from an empty chainId string', () => {
-    const invalidChainId = ''
-
-    expect(() => getChainReferenceFromChainId(invalidChainId)).toThrow()
-  })
-
-  it('returns undefined from an invalid chainId string', () => {
-    const invalidChainId = 'foobar'
-
-    expect(() => getChainReferenceFromChainId(invalidChainId)).toThrow()
-  })
-})
-
 describe('chainIdToFeeAssetId', () => {
   it('returns a chain fee assetId for a given Ethereum chainId', () => {
     const result = chainIdToFeeAssetId(ethChainId)
@@ -103,5 +91,148 @@ describe('getFeeAssetIdFromAssetId', () => {
       'cosmos:cosmoshub-4/ibc:46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED'
     const result = getFeeAssetIdFromAssetId(junoAssetId)
     expect(result).toEqual(cosmosAssetId)
+  })
+})
+
+describe('isValidChainPartsPair', () => {
+  it('correctly validates pairs', () => {
+    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
+      true
+    )
+    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
+      false
+    )
+    expect(
+      isValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet)
+    ).toEqual(false)
+    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, 'invalid' as ChainReference)).toEqual(
+      false
+    )
+  })
+})
+
+describe('type guard', () => {
+  describe('isChainNamespace', () => {
+    it('correctly determines type', () => {
+      expect(isChainNamespace(CHAIN_NAMESPACE.Bitcoin)).toEqual(true)
+      expect(isChainNamespace(CHAIN_NAMESPACE.Ethereum)).toEqual(true)
+      expect(isChainNamespace('invalid')).toEqual(false)
+      expect(isChainNamespace('')).toEqual(false)
+    })
+  })
+
+  describe('isChainReference', () => {
+    it('correctly determines type', () => {
+      expect(isChainReference(CHAIN_REFERENCE.EthereumMainnet)).toEqual(true)
+      expect(isChainReference(CHAIN_REFERENCE.BitcoinTestnet)).toEqual(true)
+      expect(isChainReference('invalid')).toEqual(false)
+      expect(isChainReference('')).toEqual(false)
+    })
+  })
+
+  describe('isValidChainId', () => {
+    it('correctly determines type', () => {
+      expect(isChainId(ethChainId)).toEqual(true)
+      expect(isChainId(btcChainId)).toEqual(true)
+      expect(isChainId(cosmosChainId)).toEqual(true)
+      expect(isChainId(osmosisChainId)).toEqual(true)
+      expect(isChainId('invalid')).toEqual(false)
+      expect(isChainId('')).toEqual(false)
+    })
+  })
+
+  describe('isAssetNamespace', () => {
+    it('correctly determines type', () => {
+      expect(isAssetNamespace(ASSET_NAMESPACE_STRINGS[0])).toEqual(true)
+      expect(isAssetNamespace(ASSET_NAMESPACE_STRINGS[1])).toEqual(true)
+      expect(isAssetNamespace('invalid')).toEqual(false)
+      expect(isAssetNamespace('')).toEqual(false)
+    })
+  })
+
+  describe('isAssetReference', () => {
+    it('correctly determines type', () => {
+      expect(isAssetReference(ASSET_REFERENCE.Bitcoin)).toEqual(true)
+      expect(isAssetReference(ASSET_REFERENCE.Ethereum)).toEqual(true)
+      expect(isAssetReference('invalid')).toEqual(false)
+      expect(isAssetReference('')).toEqual(false)
+    })
+  })
+
+  describe('isAssetId', () => {
+    it('correctly determines type', () => {
+      expect(isAssetId(btcAssetId)).toEqual(true)
+      expect(isAssetId(ethAssetId)).toEqual(true)
+      expect(isAssetId(cosmosAssetId)).toEqual(true)
+      expect(isAssetId(osmosisAssetId)).toEqual(true)
+      expect(isAssetId('invalid')).toEqual(false)
+      expect(isAssetId('')).toEqual(false)
+    })
+  })
+})
+
+describe('type guard assertion', () => {
+  describe('assertIsChainId', () => {
+    it('correctly asserts type', () => {
+      expect(() => assertIsChainId(ethChainId)).not.toThrow()
+      expect(() => assertIsChainId(btcChainId)).not.toThrow()
+      expect(() => assertIsChainId(cosmosChainId)).not.toThrow()
+      expect(() => assertIsChainId(osmosisChainId)).not.toThrow()
+      expect(() => assertIsChainId('invalid')).toThrow()
+      expect(() => assertIsChainId('')).toThrow()
+    })
+  })
+
+  describe('assertIsChainNamespace', () => {
+    it('correctly asserts type', () => {
+      expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Bitcoin)).not.toThrow()
+      expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Ethereum)).not.toThrow()
+      expect(() => assertIsChainNamespace('invalid')).toThrow()
+      expect(() => assertIsChainNamespace('')).toThrow()
+    })
+  })
+
+  describe('assertIsChainReference', () => {
+    it('correctly asserts type', () => {
+      expect(() => assertIsChainReference(CHAIN_REFERENCE.EthereumMainnet)).not.toThrow()
+      expect(() => assertIsChainReference(CHAIN_REFERENCE.BitcoinTestnet)).not.toThrow()
+      expect(() => assertIsChainReference('invalid')).toThrow()
+      expect(() => assertIsChainReference('')).toThrow()
+    })
+  })
+
+  describe('assertIsAssetNamespace', () => {
+    it('correctly asserts type', () => {
+      expect(() => assertIsAssetNamespace(ASSET_NAMESPACE_STRINGS[0])).not.toThrow()
+      expect(() => assertIsAssetNamespace(ASSET_NAMESPACE_STRINGS[1])).not.toThrow()
+      expect(() => assertIsAssetNamespace('invalid')).toThrow()
+      expect(() => assertIsAssetNamespace('')).toThrow()
+    })
+  })
+
+  describe('assertIsAssetReference', () => {
+    it('correctly asserts type', () => {
+      expect(() => assertIsAssetReference(ASSET_REFERENCE.Bitcoin)).not.toThrow()
+      expect(() => assertIsAssetReference(ASSET_REFERENCE.Ethereum)).not.toThrow()
+      expect(() => assertIsAssetReference('invalid')).toThrow()
+      expect(() => assertIsAssetReference('')).toThrow()
+    })
+  })
+
+  describe('assertValidChainPartsPair', () => {
+    it('correctly asserts type', () => {
+      expect(() =>
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet)
+      ).not.toThrow()
+      expect(() =>
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.EthereumMainnet)
+      ).toThrow()
+      expect(() =>
+        assertValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet)
+      ).toThrow()
+      expect(() =>
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, 'invalid' as ChainReference)
+      ).toThrow()
+    })
   })
 })

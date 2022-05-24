@@ -12,19 +12,19 @@ Usage
 ### `toChainId` | `toCAIP2`
 
 ```ts
-const chain = ChainTypes.Ethereum
-const network = NetworkTypes.MAINNET
-const result = toChainId({ chain, network })
+const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainReference = CHAIN_REFERENCE.EthereumMainnet
+const result = toChainId({ chainNamespace, chainReference })
 expect(result).toEqual('eip155:1')
 ```
 
 ### `fromChainId` | `fromCAIP2`
 
 ```ts
-const ethChainId = 'eip155:1'
-const { chain, network } = fromChainId(ethChainId)
-expect(chain).toEqual(ChainTypes.Ethereum)
-expect(network).toEqual(NetworkTypes.MAINNET)
+const ethereumChainId = 'eip155:1'
+const { chainNamespace, chainReference } = fromChainId(ethereumChainId)
+expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Ethereum)
+expect(chainReference).toEqual(CHAIN_REFERENCE.EthereumMainnet)
 ```
 
 ## AccountId (CAIP10) - Blockchain ID Specification
@@ -36,19 +36,24 @@ Usage
 ### `toAccountId` | `toCAIP10`
 
 ```ts
-const chainId = 'eip155:1'
-const account = '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'
-const result = (toAccountId({ chainId, account }))
-expect(result).toEqual('eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535')
+const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainReference = CHAIN_REFERENCE.EthereumMainnet
+const chainId = toChainId({ chainNamespace, chainReference })
+const account = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
+const expectedAccountId = `${chainId}:${account}`
+expect(toAccountId({ chainId, account })).toEqual('eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535')
+expect(toAccountId({ chainNamespace, chainReference, account })).toEqual('eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535')
 ```
 
 ### `fromAccountId` | `fromCAIP10`
 
 ```ts
 const accountId = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-const { chainId, account } = fromAccountId(accountId)
+const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
+expect(account).toEqual(0xa44c286ba83bb771cd0107b2c1df678435bd1535)
+expect(chainNamespace).toEqual('eip155')
+expect(chainReference).toEqual('1')
 expect(chainId).toEqual('eip155:1')
-expect(account).toEqual('0xa44c286ba83bb771cd0107b2c1df678435bd1535')
 ```
 
 ## AssetId (CAIP19) - Asset Type and Asset ID Specification
@@ -62,23 +67,25 @@ Usage
 Ether
 
 ```ts
-const chain = ChainTypes.Ethereum
-const network = NetworkTypes.MAINNET
+const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainReference = CHAIN_REFERENCE.EthereumMainnet
+const chainId = toChainId({ chainNamespace, chainReference })
 const assetNamespace = 'slip44'
 const assetReference = ASSET_REFERENCE.Ethereum
-const result = toAssetId({ chain, network, assetNamespace, assetReference })
-expect(result).toEqual('eip155:1/slip44:60')
+expect(toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })).toEqual('eip155:1/slip44:60')
+expect(toAssetId({ chainId, assetNamespace, assetReference })).toEqual('eip155:1/slip44:60')
 ```
 
 ERC20 token
 
 ```ts
-const chain = ChainTypes.Ethereum
-const network = NetworkTypes.MAINNET
-const contractType = 'erc20'
-const tokenId = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-const result = toAssetId({ chain, network, contractType, tokenId })
-expect(result).toEqual('eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
+const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainReference = CHAIN_REFERENCE.EthereumMainnet
+const chainId = toChainId({ chainNamespace, chainReference })
+const assetNamespace = 'erc20'
+const assetReference = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+expect(toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })).toEqual('eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
+expect(toAssetId({ chainId, assetNamespace, assetReference })).toEqual('eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
 ```
 
 ### `fromAssetId` | `fromCAIP19`
@@ -87,22 +94,24 @@ Ether
 
 ```ts
 const assetId = 'eip155:1/slip44:60'
-const { chain, network, contractType, tokenId } = fromAssetId(assetId)
-expect(chain).toEqual(ChainTypes.Ethereum)
-expect(network).toEqual(NetworkTypes.MAINNET)
-expect(contractType).toEqual('slip44')
-expect(tokenId).toEqual(ASSET_REFERENCE.Ethereum)
+const { chainId, chainReference, chainNamespace, assetNamespace, assetReference } = fromAssetId(AssetId)
+expect(chainNamespace).toEqual('eip155')
+expect(chainReference).toEqual('1')
+expect(chainId).toEqual('eip155:1')
+expect(assetNamespace).toEqual('slip44')
+expect(assetReference).toEqual('60')
 ```
 
 ERC20 token
 
 ```ts
 const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-const { chain, network, contractType, tokenId } = fromAssetId(assetId)
-expect(chain).toEqual(ChainTypes.Ethereum)
-expect(network).toEqual(NetworkTypes.MAINNET)
-expect(contractType).toEqual('erc20')
-expect(tokenId).toEqual('0xc770eefad204b5180df6a14ee197d99d808ee52d')
+const { chainId, chainReference, chainNamespace, assetNamespace, assetReference } = fromAssetId(AssetId)
+expect(chainNamespace).toEqual('eip155')
+expect(chainReference).toEqual('1')
+expect(chainId).toEqual('eip155:1')
+expect(assetNamespace).toEqual('erc20')
+expect(assetReference).toEqual('0xc770eefad204b5180df6a14ee197d99d808ee52d')
 ```
 
 ## Adapters

@@ -1,16 +1,15 @@
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-
-import { ASSET_REFERENCE, toAssetId } from '../../assetId/assetId'
+import { toAssetId } from '../../assetId/assetId'
+import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 import { assetIdToCoinCap, coincapToAssetId } from '.'
 
 describe('adapters:coincap', () => {
   describe('coincapToAssetId', () => {
     it('can get AssetId for bitcoin', () => {
-      const chain = ChainTypes.Bitcoin
-      const network = NetworkTypes.MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainReference = CHAIN_REFERENCE.BitcoinMainnet
       const assetId = toAssetId({
-        chain,
-        network,
+        chainNamespace,
+        chainReference,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Bitcoin
       })
@@ -18,11 +17,11 @@ describe('adapters:coincap', () => {
     })
 
     it('can get AssetId id for ethereum', () => {
-      const chain = ChainTypes.Ethereum
-      const network = NetworkTypes.MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Ethereum
+      const chainReference = CHAIN_REFERENCE.EthereumMainnet
       const assetId = toAssetId({
-        chain,
-        network,
+        chainNamespace,
+        chainReference,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Ethereum
       })
@@ -30,21 +29,21 @@ describe('adapters:coincap', () => {
     })
 
     it('can get AssetId id for FOX', () => {
-      const chain = ChainTypes.Ethereum
-      const network = NetworkTypes.MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Ethereum
+      const chainReference = CHAIN_REFERENCE.EthereumMainnet
       const assetNamespace = 'erc20'
       const assetReference = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+      const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
       expect(coincapToAssetId('fox-token')).toEqual(assetId)
     })
   })
 
   it('can get AssetId for cosmos', () => {
-    const chain = ChainTypes.Cosmos
-    const network = NetworkTypes.COSMOSHUB_MAINNET
+    const chainNamespace = CHAIN_NAMESPACE.Cosmos
+    const chainReference = CHAIN_REFERENCE.CosmosHubMainnet
     const assetId = toAssetId({
-      chain,
-      network,
+      chainNamespace,
+      chainReference,
       assetNamespace: 'slip44',
       assetReference: ASSET_REFERENCE.Cosmos
     })
@@ -52,11 +51,11 @@ describe('adapters:coincap', () => {
   })
 
   it('can get AssetId for osmosis', () => {
-    const chain = ChainTypes.Osmosis
-    const network = NetworkTypes.OSMOSIS_MAINNET
+    const chainNamespace = CHAIN_NAMESPACE.Cosmos
+    const chainReference = CHAIN_REFERENCE.OsmosisMainnet
     const assetId = toAssetId({
-      chain,
-      network,
+      chainNamespace,
+      chainReference,
       assetNamespace: 'slip44',
       assetReference: ASSET_REFERENCE.Osmosis
     })
@@ -65,11 +64,11 @@ describe('adapters:coincap', () => {
 
   describe('assetIdToCoinCap', () => {
     it('can get coincap id for bitcoin AssetId', () => {
-      const chain = ChainTypes.Bitcoin
-      const network = NetworkTypes.MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainReference = CHAIN_REFERENCE.BitcoinMainnet
       const assetId = toAssetId({
-        chain,
-        network,
+        chainNamespace,
+        chainReference,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Bitcoin
       })
@@ -77,11 +76,11 @@ describe('adapters:coincap', () => {
     })
 
     it('can get coincap id for ethereum AssetId', () => {
-      const chain = ChainTypes.Ethereum
-      const network = NetworkTypes.MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Ethereum
+      const chainReference = CHAIN_REFERENCE.EthereumMainnet
       const assetId = toAssetId({
-        chain,
-        network,
+        chainNamespace,
+        chainReference,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Ethereum
       })
@@ -89,20 +88,20 @@ describe('adapters:coincap', () => {
     })
 
     it('can get coincap id for FOX', () => {
-      const chain = ChainTypes.Ethereum
-      const network = NetworkTypes.MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Ethereum
+      const chainReference = CHAIN_REFERENCE.EthereumMainnet
       const assetNamespace = 'erc20'
       const assetReference = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+      const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
       expect(assetIdToCoinCap(assetId)).toEqual('fox-token')
     })
 
     it('can get coincap id for cosmos AssetId', () => {
-      const chain = ChainTypes.Cosmos
-      const network = NetworkTypes.COSMOSHUB_MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Cosmos
+      const chainReference = CHAIN_REFERENCE.CosmosHubMainnet
       const assetId = toAssetId({
-        chain,
-        network,
+        chainNamespace,
+        chainReference,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Cosmos
       })
@@ -110,11 +109,11 @@ describe('adapters:coincap', () => {
     })
 
     it('can get coincap id for osmosis AssetId', () => {
-      const chain = ChainTypes.Osmosis
-      const network = NetworkTypes.OSMOSIS_MAINNET
+      const chainNamespace = CHAIN_NAMESPACE.Cosmos
+      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
       const assetId = toAssetId({
-        chain,
-        network,
+        chainNamespace,
+        chainReference,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Osmosis
       })

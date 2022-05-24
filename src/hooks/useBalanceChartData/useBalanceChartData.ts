@@ -378,10 +378,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // calculation
   useEffect(() => {
     // data prep
-    const noDeviceId = isNil(walletInfo?.deviceId)
-    const noAssetIds = !assetIds.length
-    const noPriceHistoryData = isEmpty(priceHistoryData)
-    if (noDeviceId || noAssetIds || priceHistoryDataLoading || noPriceHistoryData) {
+    const hasNoDeviceId = isNil(walletInfo?.deviceId)
+    const hasNoAssetIds = !assetIds.length
+    const hasNoPriceHistoryData = isEmpty(priceHistoryData)
+    if (hasNoDeviceId || hasNoAssetIds || priceHistoryDataLoading || hasNoPriceHistoryData) {
       return setBalanceChartDataLoading(true)
     }
 

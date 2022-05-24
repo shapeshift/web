@@ -1,4 +1,4 @@
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 
 export enum DepositPath {
@@ -30,7 +30,7 @@ type YearnDepositValues = DepositValues &
   }
 
 export type YearnDepositState = {
-  vault: SupportedYearnVault
+  opportunity: YearnOpportunity | null
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues
@@ -51,7 +51,7 @@ export enum YearnDepositActionType {
 
 type SetVaultAction = {
   type: YearnDepositActionType.SET_VAULT
-  payload: YearnVault | null
+  payload: YearnOpportunity | null
 }
 
 type SetApprove = {

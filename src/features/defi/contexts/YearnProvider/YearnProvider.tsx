@@ -1,4 +1,4 @@
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
+import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { useContext, useEffect, useState } from 'react'
@@ -6,7 +6,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 
 type YearnContextProps = {
   loading: boolean
-  yearn: YearnVaultApi | null
+  yearn: YearnInvestor | null
 }
 
 const YearnContext = React.createContext<YearnContextProps | null>(null)
@@ -18,7 +18,7 @@ export const useYearn = () => {
 }
 
 export const YearnProvider: React.FC = ({ children }) => {
-  const [yearn, setYearn] = useState<YearnVaultApi | null>(null)
+  const [yearn, setYearn] = useState<YearnInvestor | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const { chainAdapterManager, supportedChains } = usePlugins()
 
@@ -27,8 +27,7 @@ export const YearnProvider: React.FC = ({ children }) => {
       try {
         if (!chainAdapterManager.getSupportedChains().includes(ChainTypes.Ethereum)) return
         setLoading(true)
-        const api = new YearnVaultApi({
-          adapter: chainAdapterManager.byChain(ChainTypes.Ethereum),
+        const api = new YearnInvestor({
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
         })
         await api.initialize()

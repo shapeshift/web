@@ -1,44 +1,8 @@
-import { ChainTypes } from '@shapeshiftoss/types'
-
 import { YearnDepositActions, YearnDepositActionType, YearnDepositState } from './DepositCommon'
 
 export const initialState: YearnDepositState = {
   txid: null,
-  vault: {
-    vaultAddress: '',
-    tokenAddress: '',
-    provider: '',
-    chain: ChainTypes.Ethereum,
-    type: '',
-    expired: false,
-    address: '',
-    typeId: 'VAULT_V2',
-    token: '',
-    name: '',
-    version: '',
-    symbol: '',
-    decimals: '',
-    tokenId: '',
-    underlyingTokenBalance: {
-      amount: '0',
-      amountUsdc: '0',
-    },
-    metadata: {
-      symbol: '',
-      pricePerShare: '',
-      migrationAvailable: false,
-      latestVaultAddress: '',
-      depositLimit: '',
-      emergencyShutdown: false,
-      controller: '',
-      totalAssets: '',
-      totalSupply: '',
-      displayName: '',
-      displayIcon: '',
-      defaultDisplayToken: '',
-      hideIfNoDeposits: false,
-    },
-  },
+  opportunity: null,
   userAddress: null,
   loading: false,
   approve: {},
@@ -55,7 +19,7 @@ export const initialState: YearnDepositState = {
 export const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
   switch (action.type) {
     case YearnDepositActionType.SET_VAULT:
-      return { ...state, vault: { ...state.vault, ...action.payload } }
+      return { ...state, vault: { ...state.opportunity, ...action.payload } }
     case YearnDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case YearnDepositActionType.SET_DEPOSIT:

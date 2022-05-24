@@ -1,6 +1,6 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
+import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -31,7 +31,7 @@ import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
 type YearnDepositProps = {
-  api: YearnVaultApi
+  api: YearnInvestor
 }
 
 export const YearnDeposit = ({ api }: YearnDepositProps) => {
@@ -58,17 +58,22 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     ;(async () => {
       try {
         if (!walletState.wallet || !vaultAddress) return
-        const [address, vault, pricePerShare] = await Promise.all([
+        const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositVaultAddress(vaultAddress),
-          api.pricePerShare({ vaultAddress }),
+          api.findByOpportunityId(vaultAddress)
         ])
+        
+        if (!opportunity) {
+          return toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+
         dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnDepositActionType.SET_VAULT, payload: vault })
-        dispatch({
-          type: YearnDepositActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString(),
-        })
+        dispatch({ type: YearnDepositActionType.SET_VAULT, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnDeposit error:', error)
@@ -77,20 +82,16 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getDepositGasEstimate = async (deposit: DepositValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!(state.userAddress && state.opportunity && tokenId)) return
     try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateDepositGas({
-          tokenContractAddress: tokenId,
-          amountDesired: bnOrZero(deposit.cryptoAmount)
+      const preparedTx = await state.opportunity?.prepareDeposit({
+          amount: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
-          userAddress: state.userAddress,
-          vaultAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+          address: state.userAddress
+        })
+        preparedTx.feePriority
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.gasLimit).integerValue()
     } catch (error) {
       console.error('YearnDeposit:getDepositGasEstimate error:', error)
       toast({

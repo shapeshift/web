@@ -115,13 +115,12 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explore The",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
-    "orViewADemo": "or view a demo"
+    "viewADemo": "View a Demo"
   },
   "connectWallet": {
     "menu": {
@@ -293,7 +292,9 @@
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token",
-    "featureFlags": "Feature Flags"
+    "featureFlags": "Feature Flags",
+    "demoMode": "Demo Mode",
+    "clickToConnect": "Click to connect a wallet"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",

@@ -66,7 +66,6 @@ export const FoxPage = (props: FoxPageProps) => {
   )
 
   const selectedAsset = assets[selectedAssetIndex]
-  const isFoxSelected = selectedAsset === assetFox
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
@@ -158,32 +157,24 @@ export const FoxPage = (props: FoxPageProps) => {
         </TabList>
         <TabPanels>
           <TabPanel p={0}>
-            <Stack
-              alignItems='flex-start'
-              spacing={4}
-              mx='auto'
-              direction={{ base: 'column', xl: 'row' }}
-            >
+            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
               <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <FoxChart assetId={FoxAssetId} />
               </Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                {isFoxSelected && <AssetMarketData assetId={props.activeAssetId} />}
-                {!isFoxSelected && <FoxyAssetMarketData assetId={props.activeAssetId} />}
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+                <AssetMarketData assetId={FoxAssetId} />
               </Stack>
             </Stack>
           </TabPanel>
           <TabPanel p={0}>
-            <Stack
-              alignItems='flex-start'
-              spacing={4}
-              mx='auto'
-              direction={{ base: 'column', xl: 'row' }}
-            >
+            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
               <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <FoxChart assetId={FoxyAssetId} />
+              </Stack>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+                <FoxyAssetMarketData assetId={FoxyAssetId} />
               </Stack>
             </Stack>
           </TabPanel>

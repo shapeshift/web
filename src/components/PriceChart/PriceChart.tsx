@@ -1,4 +1,5 @@
 import { Alert, Box } from '@chakra-ui/react'
+import { ChakraStyledOptions } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
@@ -20,13 +21,16 @@ type PriceChartArgs = {
   timeframe: HistoryTimeframe
   percentChange: number
   setPercentChange: (percentChange: number) => void
-}
+  chartHeight?: string
+} & ChakraStyledOptions
 
 export const PriceChart: React.FC<PriceChartArgs> = ({
   assetId,
   timeframe,
   percentChange,
+  chartHeight = '350px',
   setPercentChange,
+  ...props
 }) => {
   const assetIds = useMemo(() => [assetId], [assetId])
   // fetch price history for this asset
@@ -61,7 +65,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     )
 
   return (
-    <Card.Body p={0} height='350px'>
+    <Card.Body p={0} height={chartHeight} {...props}>
       <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
     </Card.Body>
   )

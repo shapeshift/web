@@ -70,7 +70,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -89,7 +89,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/axldai.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -108,7 +108,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra/images/luna.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -127,7 +127,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/akash/images/akt.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -146,7 +146,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/emoney/images/ngm.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -165,7 +165,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/regen/images/regen.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -184,7 +184,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra/images/krt.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -203,7 +203,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -222,7 +222,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/neta.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -241,7 +241,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/dig/images/dig.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -260,7 +260,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/konstellation/images/darc.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -279,7 +279,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/panacea/images/med.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -298,7 +298,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cerberus/images/crbrus.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -317,7 +317,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/juno.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -336,7 +336,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bitsong/images/btsg.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -355,7 +355,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/starname/images/iov.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -374,7 +374,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/emoney/images/eeur.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -393,7 +393,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/fetchhub/images/fet.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -412,7 +412,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/umee/images/umee.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -431,7 +431,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cheqd/images/cheq.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -450,7 +450,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/irisnet/images/iris.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -469,7 +469,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/persistence/images/pstake.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -488,7 +488,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/sifchain/images/rowan.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -507,7 +507,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/lumnetwork/images/lum.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -526,7 +526,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/carbon/images/swth.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -545,7 +545,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/sentinel/images/dvpn.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -564,7 +564,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/stargaze/images/stars.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -583,7 +583,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/likecoin/images/like.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -602,7 +602,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/sommelier/images/somm.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -621,7 +621,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/decentr/images/dec.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -640,7 +640,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/persistence/images/xprt.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -659,7 +659,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kichain/images/xki.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -678,7 +678,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/chihuahua/images/huahua.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -697,7 +697,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra/images/ust.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -716,7 +716,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/assetmantle/images/mntl.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -735,7 +735,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/axlusdc.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -754,7 +754,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bitcanna/images/bcna.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -773,7 +773,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cryptoorgchain/images/cro.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -792,7 +792,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/vidulum/images/vdl.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -811,7 +811,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/grav.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -830,7 +830,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/axlweth.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -849,7 +849,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/comdex/images/cmdx.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -868,7 +868,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/desmos/images/dsm.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -887,7 +887,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/impacthub/images/ixo.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -906,7 +906,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/marble.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -925,7 +925,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bandchain/images/band.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -944,7 +944,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bostrom/images/boot.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -963,7 +963,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/ion.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -982,7 +982,7 @@
     "secondaryColor": "#FFFFFF",
     "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.png",
     "explorer": "https://mintscan.io",
-    "explorerAddressLink": "https://mintscan.io/osmosis/account",
+    "explorerAddressLink": "https://mintscan.io/osmosis/account/",
     "explorerTxLink": "https://mintscan.io/osmosis/txs/",
     "sendSupport": true,
     "receiveSupport": true
@@ -1845,21 +1845,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "SPT"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x01d5609df23dee77fe8db8e03c66be11dca7d21b",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Mittens",
-        "precision": 9,
-        "tokenId": "0x01d5609df23dee77fe8db8e03c66be11dca7d21b",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20776/thumb/TjoOrv6u_400x400.jpg?1637661110",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "MITTEN"
       },
       {
         "assetId": "eip155:1/erc20:0x01e0e2e61f554ecaaec0cc933e739ad90f24a86d",
@@ -3500,7 +3485,7 @@
         "assetId": "eip155:1/erc20:0x066798d9ef0833ccc719076dab77199ecbd178b0",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "SakeToken",
+        "name": "SakeSwap",
         "precision": 18,
         "tokenId": "0x066798d9ef0833ccc719076dab77199ecbd178b0",
         "contractType": "erc20",
@@ -5015,7 +5000,7 @@
         "assetId": "eip155:1/erc20:0x0b342c51d1592c41068d5d4b4da4a68c0a04d5a4",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "OneSwap DAO Token",
+        "name": "OneSwap DAO",
         "precision": 18,
         "tokenId": "0x0b342c51d1592c41068d5d4b4da4a68c0a04d5a4",
         "contractType": "erc20",
@@ -7715,7 +7700,7 @@
         "assetId": "eip155:1/erc20:0x1378ec93ab2b07ba5a0eaef19cf354a33f64b9fd",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Yearn Finance Diamond Token",
+        "name": "Yearn Finance Diamond",
         "precision": 18,
         "tokenId": "0x1378ec93ab2b07ba5a0eaef19cf354a33f64b9fd",
         "contractType": "erc20",
@@ -11222,6 +11207,21 @@
         "symbol": "GOTHAM"
       },
       {
+        "assetId": "eip155:1/erc20:0x1d72e76e38c815b9f91661c340949e8673e897b3",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Global Gold Token",
+        "precision": 18,
+        "tokenId": "0x1d72e76e38c815b9f91661c340949e8673e897b3",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/6513/thumb/global_gold_token.png?1547042737",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "GGT"
+      },
+      {
         "assetId": "eip155:1/erc20:0x1d7ca62f6af49ec66f6680b8606e634e55ef22c1",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -11330,7 +11330,7 @@
         "assetId": "eip155:1/erc20:0x1dd80016e3d4ae146ee2ebb484e8edd92dacc4ce",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Lead Token",
+        "name": "Lead",
         "precision": 18,
         "tokenId": "0x1dd80016e3d4ae146ee2ebb484e8edd92dacc4ce",
         "contractType": "erc20",
@@ -11642,21 +11642,6 @@
         "symbol": "NEKO"
       },
       {
-        "assetId": "eip155:1/erc20:0x1ec1b3fffd5072d97b27110a667c35025c96d5c5",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Gobble",
-        "precision": 18,
-        "tokenId": "0x1ec1b3fffd5072d97b27110a667c35025c96d5c5",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20775/thumb/4lAtqZZv_400x400.jpg?1637660828",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "GOBBLE"
-      },
-      {
         "color": "#7057F5",
         "contractType": "erc20",
         "dataSource": "yearnfinance",
@@ -11825,7 +11810,7 @@
         "assetId": "eip155:1/erc20:0x1f3f9d3068568f8040775be2e8c03c103c61f3af",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Archer DAO Governance Token",
+        "name": "Archer DAO Governance",
         "precision": 18,
         "tokenId": "0x1f3f9d3068568f8040775be2e8c03c103c61f3af",
         "contractType": "erc20",
@@ -13142,19 +13127,19 @@
         "symbol": "WAL"
       },
       {
-        "color": "#7057F5",
-        "contractType": "erc20",
-        "dataSource": "yearnfinance",
-        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x22dE9912cd3D74953B1cd1F250B825133cC2C1b3/logo.png",
-        "name": "DREP",
-        "precision": 18,
-        "receiveSupport": true,
-        "secondaryColor": "#7057F5",
-        "sendSupport": true,
-        "symbol": "DREP",
-        "tokenId": "0x22de9912cd3d74953b1cd1f250b825133cc2c1b3",
+        "assetId": "eip155:1/erc20:0x22de9912cd3d74953b1cd1f250b825133cc2c1b3",
         "chainId": "eip155:1",
-        "assetId": "eip155:1/erc20:0x22de9912cd3d74953b1cd1f250b825133cc2c1b3"
+        "dataSource": "coingecko",
+        "name": "Drep",
+        "precision": 18,
+        "tokenId": "0x22de9912cd3d74953b1cd1f250b825133cc2c1b3",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x22dE9912cd3D74953B1cd1F250B825133cC2C1b3/logo.png",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "DREP"
       },
       {
         "assetId": "eip155:1/erc20:0x22e5e3e5cd12042c532394437627bc5ea9708afe",
@@ -15095,7 +15080,7 @@
         "assetId": "eip155:1/erc20:0x2840ad41cf25ad58303ba24c416e79dce4161b4f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "1X Short BNB Token",
+        "name": "1X Short BNB",
         "precision": 18,
         "tokenId": "0x2840ad41cf25ad58303ba24c416e79dce4161b4f",
         "contractType": "erc20",
@@ -15830,7 +15815,7 @@
         "assetId": "eip155:1/erc20:0x2a9bdcff37ab68b95a53435adfd8892e86084f93",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Alpha Quark Token",
+        "name": "Alpha Quark",
         "precision": 18,
         "tokenId": "0x2a9bdcff37ab68b95a53435adfd8892e86084f93",
         "contractType": "erc20",
@@ -16685,7 +16670,7 @@
         "assetId": "eip155:1/erc20:0x2d80f5f5328fdcb6eceb7cacf5dd8aedaec94e20",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "AGA Token",
+        "name": "AGA",
         "precision": 4,
         "tokenId": "0x2d80f5f5328fdcb6eceb7cacf5dd8aedaec94e20",
         "contractType": "erc20",
@@ -16865,7 +16850,7 @@
         "assetId": "eip155:1/erc20:0x2e2364966267b5d7d2ce6cd9a9b5bd19d9c7c6a9",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Voice Token",
+        "name": "Voice",
         "precision": 18,
         "tokenId": "0x2e2364966267b5d7d2ce6cd9a9b5bd19d9c7c6a9",
         "contractType": "erc20",
@@ -17675,7 +17660,7 @@
         "assetId": "eip155:1/erc20:0x308564dc5217c39386f5eae96545159e1d396661",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "HLP Token",
+        "name": "HLP",
         "precision": 18,
         "tokenId": "0x308564dc5217c39386f5eae96545159e1d396661",
         "contractType": "erc20",
@@ -18135,21 +18120,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "QDAO"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x316f17a75978575e9fedc839ba393395a9d83877",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Ether Terrestrial",
-        "precision": 9,
-        "tokenId": "0x316f17a75978575e9fedc839ba393395a9d83877",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20703/thumb/et_logo-1920w.png?1637567036",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "ET"
       },
       {
         "assetId": "eip155:1/erc20:0x31820af2d43c08bd82bd94b08974062482bd98d3",
@@ -18707,6 +18677,21 @@
         "symbol": "EMP"
       },
       {
+        "assetId": "eip155:1/erc20:0x32b666599411f4721de6724c968ed9b3d1cabd79",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Yaapoo",
+        "precision": 8,
+        "tokenId": "0x32b666599411f4721de6724c968ed9b3d1cabd79",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/10565/thumb/logo-alt.png?1580939556",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "YAP"
+      },
+      {
         "assetId": "eip155:1/erc20:0x32c4adb9cf57f972bc375129de91c897b4f364f1",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -18836,7 +18821,7 @@
         "contractType": "erc20",
         "color": "#FFFFFF",
         "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/14097/thumb/photo_2021-05-03_14.20.41.jpeg?1620022863",
+        "icon": "https://assets.coingecko.com/coins/images/14097/thumb/Maple_Logo_Mark_Maple_Orange.png?1653381382",
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "MPL"
@@ -19700,7 +19685,7 @@
         "assetId": "eip155:1/erc20:0x355376d6471e09a4ffca8790f50da625630c5270",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Libartysharetoken",
+        "name": "Libartyshare",
         "precision": 18,
         "tokenId": "0x355376d6471e09a4ffca8790f50da625630c5270",
         "contractType": "erc20",
@@ -20630,7 +20615,7 @@
         "assetId": "eip155:1/erc20:0x37e808f084101f75783612407e7c3f5f92d8ee3f",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "RI Token",
+        "name": "Xiotri RI",
         "precision": 18,
         "tokenId": "0x37e808f084101f75783612407e7c3f5f92d8ee3f",
         "contractType": "erc20",
@@ -21075,21 +21060,6 @@
         "tokenId": "0x38c4102d11893351ced7ef187fcf43d33eb1abe6",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0x38c4102d11893351ced7ef187fcf43d33eb1abe6"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x38c6a68304cdefb9bec48bbfaaba5c5b47818bb2",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "High Performance Blockchain",
-        "precision": 18,
-        "tokenId": "0x38c6a68304cdefb9bec48bbfaaba5c5b47818bb2",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/2363/thumb/HPB_Logo_2020_-_Colour.jpg?1596097580",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "HPB"
       },
       {
         "assetId": "eip155:1/erc20:0x38c87aa89b2b8cd9b95b736e1fa7b612ea972169",
@@ -23012,21 +22982,6 @@
         "symbol": "TAILS"
       },
       {
-        "assetId": "eip155:1/erc20:0x3d875a26d9afcbf4f58c920509c876b594499c87",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "K Chain",
-        "precision": 18,
-        "tokenId": "0x3d875a26d9afcbf4f58c920509c876b594499c87",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/25531/thumb/IMG_3487.PNG?1652250658",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "KCT"
-      },
-      {
         "assetId": "eip155:1/erc20:0x3d9233f15bb93c78a4f07b5c5f7a018630217cb3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -23040,6 +22995,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "UUNICLY"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x3d97edb1c1d87c0cbf098a0d2230d7380d4b1432",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Candle",
+        "precision": 18,
+        "tokenId": "0x3d97edb1c1d87c0cbf098a0d2230d7380d4b1432",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/23958/thumb/18327.png?1645777988",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "CNDL"
       },
       {
         "color": "#276BDB",
@@ -23420,7 +23390,7 @@
         "assetId": "eip155:1/erc20:0x3ef36d53a168c44ed2ec7a98129ca0308bc1ae45",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "DigiDinar StableToken",
+        "name": "DigiDinar Stable",
         "precision": 8,
         "tokenId": "0x3ef36d53a168c44ed2ec7a98129ca0308bc1ae45",
         "contractType": "erc20",
@@ -26732,6 +26702,21 @@
         "symbol": "KNG"
       },
       {
+        "assetId": "eip155:1/erc20:0x471ea49dd8e60e697f4cac262b5fafcc307506e4",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "RMRK",
+        "precision": 10,
+        "tokenId": "0x471ea49dd8e60e697f4cac262b5fafcc307506e4",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/18656/thumb/download_%281%29_%281%29.png?1632865271",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "RMRK"
+      },
+      {
         "assetId": "eip155:1/erc20:0x47252a63c723889814aebcac0683e615624cec64",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -27797,19 +27782,19 @@
         "symbol": "CYFM"
       },
       {
-        "color": "#7057F5",
-        "contractType": "erc20",
-        "dataSource": "yearnfinance",
-        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x4A64515E5E1d1073e83f30cB97BEd20400b66E10/logo.png",
-        "name": "WZEC",
-        "precision": 18,
-        "receiveSupport": true,
-        "secondaryColor": "#7057F5",
-        "sendSupport": true,
-        "symbol": "WZEC",
-        "tokenId": "0x4a64515e5e1d1073e83f30cb97bed20400b66e10",
+        "assetId": "eip155:1/erc20:0x4a64515e5e1d1073e83f30cb97bed20400b66e10",
         "chainId": "eip155:1",
-        "assetId": "eip155:1/erc20:0x4a64515e5e1d1073e83f30cb97bed20400b66e10"
+        "dataSource": "coingecko",
+        "name": "Wrapped Zcash",
+        "precision": 18,
+        "tokenId": "0x4a64515e5e1d1073e83f30cb97bed20400b66e10",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x4A64515E5E1d1073e83f30cB97BEd20400b66E10/logo.png",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "WZEC"
       },
       {
         "assetId": "eip155:1/erc20:0x4a66e967d4bf0170fe74c26980073028b1f2809a",
@@ -27845,7 +27830,7 @@
         "assetId": "eip155:1/erc20:0x4a7397b0b86bb0f9482a3f4f16de942f04e88702",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Freeway Token",
+        "name": "Freeway",
         "precision": 18,
         "tokenId": "0x4a7397b0b86bb0f9482a3f4f16de942f04e88702",
         "contractType": "erc20",
@@ -27870,6 +27855,21 @@
         "tokenId": "0x4a7adcb083fe5e3d6b58edc3d260e2e61668e7a2",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0x4a7adcb083fe5e3d6b58edc3d260e2e61668e7a2"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x4a8f44be523580a11cdb20e2c7c470adf44ec9bb",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Bit Miner Chain",
+        "precision": 18,
+        "tokenId": "0x4a8f44be523580a11cdb20e2c7c470adf44ec9bb",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x4A8F44BE523580a11cdB20e2C7C470Adf44Ec9BB/logo.png",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "BTMC"
       },
       {
         "assetId": "eip155:1/erc20:0x4a8f5f96d5436e43112c2fbc6a9f70da9e4e16d4",
@@ -28520,7 +28520,7 @@
         "assetId": "eip155:1/erc20:0x4c11249814f11b9346808179cf06e71ac328c1b5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Oraichain Token",
+        "name": "Oraichain",
         "precision": 18,
         "tokenId": "0x4c11249814f11b9346808179cf06e71ac328c1b5",
         "contractType": "erc20",
@@ -28850,7 +28850,7 @@
         "assetId": "eip155:1/erc20:0x4cff49d0a19ed6ff845a9122fa912abcfb1f68a6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "WadzPay Token",
+        "name": "WadzPay",
         "precision": 18,
         "tokenId": "0x4cff49d0a19ed6ff845a9122fa912abcfb1f68a6",
         "contractType": "erc20",
@@ -29340,21 +29340,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "BSCGIRL"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x4ea507bf90b2d206bff56999dc76e39e447d2587",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "The Rare Antiquities",
-        "precision": 9,
-        "tokenId": "0x4ea507bf90b2d206bff56999dc76e39e447d2587",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/24485/thumb/Seov3eF6_400x400.jpg?1647843449",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "RAT"
       },
       {
         "assetId": "eip155:1/erc20:0x4eadbfe053dcecdf13e51dc5e429305be6a802d3",
@@ -31565,7 +31550,7 @@
         "assetId": "eip155:1/erc20:0x56015bbe3c01fe05bc30a8a9a9fd9a88917e7db3",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Cat Token",
+        "name": "Mooncat CAT",
         "precision": 18,
         "tokenId": "0x56015bbe3c01fe05bc30a8a9a9fd9a88917e7db3",
         "contractType": "erc20",
@@ -31772,6 +31757,21 @@
         "symbol": "TRISM"
       },
       {
+        "assetId": "eip155:1/erc20:0x56bd0c900acaf04125ee26f546d6214634fd970f",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "HubCoin",
+        "precision": 18,
+        "tokenId": "0x56bd0c900acaf04125ee26f546d6214634fd970f",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25671/thumb/logo-200_%281%29.png?1653358021",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "HUB"
+      },
+      {
         "color": "#7057F5",
         "contractType": "erc20",
         "dataSource": "yearnfinance",
@@ -31860,6 +31860,21 @@
         "tokenId": "0x56ed2f7dac19243df100bac10364c56df20cb1e9",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0x56ed2f7dac19243df100bac10364c56df20cb1e9"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x56ee175fe37cd461486ce3c3166e0cafccd9843f",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Wrapped Wit",
+        "precision": 9,
+        "tokenId": "0x56ee175fe37cd461486ce3c3166e0cafccd9843f",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/17435/thumb/ewit.PNG?1627630891",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "EWIT"
       },
       {
         "assetId": "eip155:1/erc20:0x5732046a883704404f284ce41ffadd5b007fd668",
@@ -32042,6 +32057,21 @@
         "symbol": "POND"
       },
       {
+        "assetId": "eip155:1/erc20:0x57be5cf6cbd6843a1470eeabef8498347821366e",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "The Rare Antiquities",
+        "precision": 9,
+        "tokenId": "0x57be5cf6cbd6843a1470eeabef8498347821366e",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/24485/thumb/Seov3eF6_400x400.jpg?1647843449",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "RAT"
+      },
+      {
         "assetId": "eip155:1/erc20:0x57c75eccc8557136d32619a191fbcdc88560d711",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -32070,6 +32100,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "SNAP"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x57d579f483854c62fef850b8a5332b0d8424b7e2",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "OpenSwap One",
+        "precision": 18,
+        "tokenId": "0x57d579f483854c62fef850b8a5332b0d8424b7e2",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/19274/thumb/oswap_asset.96f04d15.png?1634869019",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "OPENX"
       },
       {
         "assetId": "eip155:1/erc20:0x57db3ffca78dbbe0efa0ec745d55f62aa0cbd345",
@@ -32462,21 +32507,6 @@
         "symbol": "EXCHBULL"
       },
       {
-        "assetId": "eip155:1/erc20:0x592f77f18893c8657cbf7cfc93e3f7cf7b02662d",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Team Clean Seas",
-        "precision": 9,
-        "tokenId": "0x592f77f18893c8657cbf7cfc93e3f7cf7b02662d",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20714/thumb/top-logo-300x146.png?1637577379",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "TCS"
-      },
-      {
         "assetId": "eip155:1/erc20:0x593114f03a0a575aece9ed675e52ed68d2172b8c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -32535,6 +32565,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "GLDY"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x594d3d44a040de44dc9c505b0a12fcd1da237ea3",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Reu",
+        "precision": 18,
+        "tokenId": "0x594d3d44a040de44dc9c505b0a12fcd1da237ea3",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25662/thumb/Image.jpeg?1653284763",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "REU"
       },
       {
         "color": "#276BDB",
@@ -33497,6 +33542,21 @@
         "assetId": "eip155:1/erc20:0x5c4ac68aac56ebe098d621cd8ce9f43270aaa355"
       },
       {
+        "assetId": "eip155:1/erc20:0x5c59a5b139b0538cb106d775a022cad98dd14b5a",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "XREATORS",
+        "precision": 18,
+        "tokenId": "0x5c59a5b139b0538cb106d775a022cad98dd14b5a",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25678/thumb/mczAAHWp_400x400.jpg?1653366759",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "ORT"
+      },
+      {
         "assetId": "eip155:1/erc20:0x5c62da804298d5972a323c80b539b8e7517a0dde",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -33735,6 +33795,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "BIPS"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x5cbb89b03534d82692b183882c2a2a9ff7fdeb44",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "BGT",
+        "precision": 18,
+        "tokenId": "0x5cbb89b03534d82692b183882c2a2a9ff7fdeb44",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/6666/thumb/bgt.jpg?1547042870",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "BGT"
       },
       {
         "color": "#7057F5",
@@ -36032,6 +36107,21 @@
         "symbol": "CVXCRV"
       },
       {
+        "assetId": "eip155:1/erc20:0x62cc7d1790e5a9470be22ae9f14065cbfe44bf10",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Akihiko Inu",
+        "precision": 18,
+        "tokenId": "0x62cc7d1790e5a9470be22ae9f14065cbfe44bf10",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25669/thumb/__rCQoaf_400x400.jpeg?1653300038",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "AKIHIKO"
+      },
+      {
         "assetId": "eip155:1/erc20:0x62d3c05b9c3d916fbc111819bbd3cee52906c1ae",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -36572,6 +36662,21 @@
         "symbol": "HEYSHIB"
       },
       {
+        "assetId": "eip155:1/erc20:0x64875aaa68d1d5521666c67d692ee0b926b08b2f",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "CelsiusX Wrapped ADA",
+        "precision": 18,
+        "tokenId": "0x64875aaa68d1d5521666c67d692ee0b926b08b2f",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/23536/thumb/cxADA_128x128.png?1644388456",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "CXADA"
+      },
+      {
         "assetId": "eip155:1/erc20:0x64a60493d888728cf42616e034a0dfeae38efcf0",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -36965,7 +37070,7 @@
         "assetId": "eip155:1/erc20:0x65d9bc970aa9b2413027fa339f7f179b3f3f2604",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Chemix Ecology Governance Token",
+        "name": "Chemix Ecology Governance",
         "precision": 18,
         "tokenId": "0x65d9bc970aa9b2413027fa339f7f179b3f3f2604",
         "contractType": "erc20",
@@ -37115,7 +37220,7 @@
         "assetId": "eip155:1/erc20:0x6628606c321faf52b7230a57b26c01b19aa68e82",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "BitHash Token",
+        "name": "BitHash",
         "precision": 18,
         "tokenId": "0x6628606c321faf52b7230a57b26c01b19aa68e82",
         "contractType": "erc20",
@@ -38810,7 +38915,7 @@
         "assetId": "eip155:1/erc20:0x69e8b9528cabda89fe846c67675b5d73d463a916",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "OPEN Governance Token",
+        "name": "OPEN Governance",
         "precision": 18,
         "tokenId": "0x69e8b9528cabda89fe846c67675b5d73d463a916",
         "contractType": "erc20",
@@ -38945,7 +39050,7 @@
         "assetId": "eip155:1/erc20:0x6a6c2ada3ce053561c2fbc3ee211f23d9b8c520a",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "TONToken",
+        "name": "TON",
         "precision": 18,
         "tokenId": "0x6a6c2ada3ce053561c2fbc3ee211f23d9b8c520a",
         "contractType": "erc20",
@@ -40085,7 +40190,7 @@
         "assetId": "eip155:1/erc20:0x6d7917864003a9bb13cbbec8f1cdd4e36ddf6fc8",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Semitoken",
+        "name": "Semi",
         "precision": 18,
         "tokenId": "0x6d7917864003a9bb13cbbec8f1cdd4e36ddf6fc8",
         "contractType": "erc20",
@@ -41372,6 +41477,21 @@
         "symbol": "BULLETH"
       },
       {
+        "assetId": "eip155:1/erc20:0x716523231368d43bdfe1f06afe1c62930731ab13",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Wrapped 0xEthereum Token",
+        "precision": 8,
+        "tokenId": "0x716523231368d43bdfe1f06afe1c62930731ab13",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/10486/thumb/logo200_%281%29.png?1580163129",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "W0XETH"
+      },
+      {
         "assetId": "eip155:1/erc20:0x7169ba45cf03e0377b464462aacbccdf1f721125",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -41705,7 +41825,7 @@
         "assetId": "eip155:1/erc20:0x72630b1e3b42874bf335020ba0249e3e9e47bafc",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Paypolitan Token",
+        "name": "Paypolitan",
         "precision": 18,
         "tokenId": "0x72630b1e3b42874bf335020ba0249e3e9e47bafc",
         "contractType": "erc20",
@@ -41960,7 +42080,7 @@
         "assetId": "eip155:1/erc20:0x72e9d9038ce484ee986fea183f8d8df93f9ada13",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "SmartCredit Token",
+        "name": "SmartCredit",
         "precision": 18,
         "tokenId": "0x72e9d9038ce484ee986fea183f8d8df93f9ada13",
         "contractType": "erc20",
@@ -45347,6 +45467,21 @@
         "assetId": "eip155:1/erc20:0x7d529a5b3c41126760a0fa3c1a9652d8a7a07793"
       },
       {
+        "assetId": "eip155:1/erc20:0x7d608cfaa805a752788847e5c46ce9c03fb43c21",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Blockify Games",
+        "precision": 18,
+        "tokenId": "0x7d608cfaa805a752788847e5c46ce9c03fb43c21",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25693/thumb/cmc-logo.png?1653382345",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "BLOCKIFY"
+      },
+      {
         "assetId": "eip155:1/erc20:0x7d8daff6d70cead12c6f077048552cf89130a2b1",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -45750,21 +45885,6 @@
         "tokenId": "0x7eb40e450b9655f4b3cc4259bcc731c63ff55ae6",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0x7eb40e450b9655f4b3cc4259bcc731c63ff55ae6"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x7ed037eb22982b839a5f0b67f6a652c9857ccd4d",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Multi Stake Capital",
-        "precision": 9,
-        "tokenId": "0x7ed037eb22982b839a5f0b67f6a652c9857ccd4d",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20843/thumb/MSC-Logo-Coin.png?1637743979",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "MSC"
       },
       {
         "assetId": "eip155:1/erc20:0x7ed621d37e30214d5e197454f08b1c5c9558517a",
@@ -46745,7 +46865,7 @@
         "assetId": "eip155:1/erc20:0x821144518dfe9e7b44fcf4d0824e15e8390d4637",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Atlantis Token",
+        "name": "Atlantis ATIS",
         "precision": 18,
         "tokenId": "0x821144518dfe9e7b44fcf4d0824e15e8390d4637",
         "contractType": "erc20",
@@ -48512,21 +48632,6 @@
         "symbol": "JET"
       },
       {
-        "assetId": "eip155:1/erc20:0x872d63d889d4b445c89a0887dcdbcc179b026432",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Axus Coin",
-        "precision": 18,
-        "tokenId": "0x872d63d889d4b445c89a0887dcdbcc179b026432",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20713/thumb/-rUSqDLk_400x400.png?1637575970",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "AXUS"
-      },
-      {
         "color": "#276BDB",
         "contractType": "erc20",
         "dataSource": "yearnfinance",
@@ -49035,6 +49140,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "CARR"
+      },
+      {
+        "assetId": "eip155:1/erc20:0x88536c9b2c4701b8db824e6a16829d5b5eb84440",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Atlas USV",
+        "precision": 9,
+        "tokenId": "0x88536c9b2c4701b8db824e6a16829d5b5eb84440",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/22066/thumb/7iUyjg5t.png?1640744823",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "USV"
       },
       {
         "color": "#7057F5",
@@ -50102,6 +50222,21 @@
         "symbol": "PTOY"
       },
       {
+        "assetId": "eip155:1/erc20:0x8aedb297fed4b6884b808ee61faf0837713670d0",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Wrapped MarbleCards",
+        "precision": 18,
+        "tokenId": "0x8aedb297fed4b6884b808ee61faf0837713670d0",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x8AedB297FED4b6884b808ee61fAf0837713670d0/logo.png",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "WMC"
+      },
+      {
         "assetId": "eip155:1/erc20:0x8af17a6396c8f315f6b6dbc6aa686c85f9b3e554",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -50775,21 +50910,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "USDTBULL"
-      },
-      {
-        "assetId": "eip155:1/erc20:0x8cd439cb2e0e01de6aa08c1c5e7f49e8b992de16",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Planet of Apes",
-        "precision": 18,
-        "tokenId": "0x8cd439cb2e0e01de6aa08c1c5e7f49e8b992de16",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20792/thumb/photo_2021-11-23_21.17.27.jpeg?1637673462",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "POA"
       },
       {
         "assetId": "eip155:1/erc20:0x8cd480260a47f04589670a313d27a15b321ad266",
@@ -51911,7 +52031,7 @@
         "contractType": "erc20",
         "color": "#FFFFFF",
         "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/18611/thumb/DvXVFEkp_400x400.png?1632669379",
+        "icon": "https://assets.coingecko.com/coins/images/18611/thumb/1_FVXTRf8HogOiXOQDzonE5g.png?1653199708",
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "ZKP"
@@ -58385,7 +58505,7 @@
         "assetId": "eip155:1/erc20:0xa287fd349d80dfd2a8aee1c0d90f17281f24c061",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "REUCOIN",
+        "name": "REUCOIN  OLD ",
         "precision": 18,
         "tokenId": "0xa287fd349d80dfd2a8aee1c0d90f17281f24c061",
         "contractType": "erc20",
@@ -58700,7 +58820,7 @@
         "assetId": "eip155:1/erc20:0xa393473d64d2f9f026b60b6df7859a689715d092",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Lattice Token",
+        "name": "Lattice",
         "precision": 8,
         "tokenId": "0xa393473d64d2f9f026b60b6df7859a689715d092",
         "contractType": "erc20",
@@ -60960,6 +61080,21 @@
         "tokenId": "0xa9fe4601811213c340e850ea305481aff02f5b28",
         "chainId": "eip155:1",
         "assetId": "eip155:1/erc20:0xa9fe4601811213c340e850ea305481aff02f5b28"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xa9ff725189fe00da9c5f27a580dc67fea61e3fb2",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Armours",
+        "precision": 18,
+        "tokenId": "0xa9ff725189fe00da9c5f27a580dc67fea61e3fb2",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/8319/thumb/8e-jHcvB_400x400.jpg?1557478705",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "ARM"
       },
       {
         "color": "#7057F5",
@@ -63440,7 +63575,7 @@
         "assetId": "eip155:1/erc20:0xb2279b6769cfba691416f00609b16244c0cf4b20",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Waifu Token",
+        "name": "Waifu",
         "precision": 18,
         "tokenId": "0xb2279b6769cfba691416f00609b16244c0cf4b20",
         "contractType": "erc20",
@@ -66392,21 +66527,6 @@
         "symbol": "BBND"
       },
       {
-        "assetId": "eip155:1/erc20:0xbc138bd20c98186cc0342c8e380953af0cb48ba8",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Candle",
-        "precision": 18,
-        "tokenId": "0xbc138bd20c98186cc0342c8e380953af0cb48ba8",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/23958/thumb/18327.png?1645777988",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "CNDL"
-      },
-      {
         "color": "#7057F5",
         "contractType": "erc20",
         "dataSource": "yearnfinance",
@@ -66845,7 +66965,7 @@
         "assetId": "eip155:1/erc20:0xbce7bd79558dda90b261506768f265c5543a9f90",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "TKN Token",
+        "name": "TKN",
         "precision": 18,
         "tokenId": "0xbce7bd79558dda90b261506768f265c5543a9f90",
         "contractType": "erc20",
@@ -67950,21 +68070,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "WCX"
-      },
-      {
-        "assetId": "eip155:1/erc20:0xc0142666e595e54c9bf54655b91c36da573e7b91",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Bunny Farm",
-        "precision": 18,
-        "tokenId": "0xc0142666e595e54c9bf54655b91c36da573e7b91",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20723/thumb/1212121212.png?1637593411",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "BNF"
       },
       {
         "assetId": "eip155:1/erc20:0xc01a327e30b0fbf32861333f238b5c36a60abc09",
@@ -73865,7 +73970,7 @@
         "assetId": "eip155:1/erc20:0xd241d7b5cb0ef9fc79d9e4eb9e21f5e209f52f7d",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Hoo Token",
+        "name": "Hoo",
         "precision": 8,
         "tokenId": "0xd241d7b5cb0ef9fc79d9e4eb9e21f5e209f52f7d",
         "contractType": "erc20",
@@ -74000,7 +74105,7 @@
         "assetId": "eip155:1/erc20:0xd291e7a03283640fdc51b121ac401383a46cc623",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Rari Governance Token",
+        "name": "Rari Governance",
         "precision": 18,
         "tokenId": "0xd291e7a03283640fdc51b121ac401383a46cc623",
         "contractType": "erc20",
@@ -74990,7 +75095,7 @@
         "assetId": "eip155:1/erc20:0xd533a949740bb3306d119cc777fa900ba034cd52",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Curve DAO Token",
+        "name": "Curve DAO",
         "precision": 18,
         "tokenId": "0xd533a949740bb3306d119cc777fa900ba034cd52",
         "contractType": "erc20",
@@ -75090,21 +75195,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "BRT"
-      },
-      {
-        "assetId": "eip155:1/erc20:0xd58f55b2c7b64afed8d21c5e852bcccae721e376",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Baby Shibnobi",
-        "precision": 9,
-        "tokenId": "0xd58f55b2c7b64afed8d21c5e852bcccae721e376",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20709/thumb/Ino0FHzd_400x400.jpg?1637573613",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "BABYSHINJA"
       },
       {
         "assetId": "eip155:1/erc20:0xd5930c307d7395ff807f2921f12c5eb82131a789",
@@ -75395,7 +75485,7 @@
         "assetId": "eip155:1/erc20:0xd6c67b93a7b248df608a653d82a100556144c5da",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "ExNetwork Token",
+        "name": "ExNetwork",
         "precision": 16,
         "tokenId": "0xd6c67b93a7b248df608a653d82a100556144c5da",
         "contractType": "erc20",
@@ -77915,7 +78005,7 @@
         "assetId": "eip155:1/erc20:0xdecade1c6bf2cd9fb89afad73e4a519c867adcf5",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Experty Wisdom Token",
+        "name": "Experty Wisdom",
         "precision": 18,
         "tokenId": "0xdecade1c6bf2cd9fb89afad73e4a519c867adcf5",
         "contractType": "erc20",
@@ -79880,7 +79970,7 @@
         "assetId": "eip155:1/erc20:0xe4883bcb919386bb5f48ef59b7c31c1d93a51a57",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Satopay Yield Token",
+        "name": "Satopay Yield",
         "precision": 18,
         "tokenId": "0xe4883bcb919386bb5f48ef59b7c31c1d93a51a57",
         "contractType": "erc20",
@@ -80330,7 +80420,7 @@
         "assetId": "eip155:1/erc20:0xe58c8df0088cf27b26c7d546a9835deacc29496c",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "1X Short TRX Token",
+        "name": "1X Short TRX",
         "precision": 18,
         "tokenId": "0xe58c8df0088cf27b26c7d546a9835deacc29496c",
         "contractType": "erc20",
@@ -82190,7 +82280,7 @@
         "assetId": "eip155:1/erc20:0xeaccb6e0f24d66cf4aa6cbda33971b9231d332a1",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Polyient Games Governance Token",
+        "name": "Polyient Games Governance",
         "precision": 18,
         "tokenId": "0xeaccb6e0f24d66cf4aa6cbda33971b9231d332a1",
         "contractType": "erc20",
@@ -82487,21 +82577,6 @@
         "symbol": "ESPL"
       },
       {
-        "assetId": "eip155:1/erc20:0xebd880564d73566b7479801ed6c17d1c395decb4",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "E P",
-        "precision": 18,
-        "tokenId": "0xebd880564d73566b7479801ed6c17d1c395decb4",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20689/thumb/%D0%BB%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF.png?1637560050",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "EP"
-      },
-      {
         "assetId": "eip155:1/erc20:0xebd9d99a3982d547c5bb4db7e3b1f9f14b67eb83",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -82710,6 +82785,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "SPIDEYXMAS"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xec79e0efa4ae3d8b3c9fbcee21683c7f2e507b66",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Dengba Planet",
+        "precision": 18,
+        "tokenId": "0xec79e0efa4ae3d8b3c9fbcee21683c7f2e507b66",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/9042/thumb/FVNxxLbx_400x400.jpg?1563833177",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "DBT"
       },
       {
         "assetId": "eip155:1/erc20:0xec7d3e835da3f6118079fa9a236b267d044fd7ca",
@@ -83582,6 +83672,21 @@
         "symbol": "ASKO"
       },
       {
+        "assetId": "eip155:1/erc20:0xeeeeeb57642040be42185f49c52f7e9b38f8eeee",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Elk Finance",
+        "precision": 18,
+        "tokenId": "0xeeeeeb57642040be42185f49c52f7e9b38f8eeee",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/17813/thumb/elk.png?1629336971",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "ELK"
+      },
+      {
         "assetId": "eip155:1/erc20:0xeeeeeeeee2af8d0e1940679860398308e0ef24d6",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
@@ -83660,7 +83765,7 @@
         "assetId": "eip155:1/erc20:0xef2e239b21a81719abaabc6239e2e90859b44d9b",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "Talent Token",
+        "name": "Talent TTX",
         "precision": 18,
         "tokenId": "0xef2e239b21a81719abaabc6239e2e90859b44d9b",
         "contractType": "erc20",
@@ -84075,21 +84180,6 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "REX"
-      },
-      {
-        "assetId": "eip155:1/erc20:0xf0607300cb81b1bfdb55768d7386863a759a4e06",
-        "chainId": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Cycle Punk",
-        "precision": 9,
-        "tokenId": "0xf0607300cb81b1bfdb55768d7386863a759a4e06",
-        "contractType": "erc20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://assets.coingecko.com/coins/images/20759/thumb/bike.png?1638350012",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "BIKE"
       },
       {
         "assetId": "eip155:1/erc20:0xf063fe1ab7a291c5d06a86e14730b00bf24cb589",
@@ -86240,7 +86330,7 @@
         "assetId": "eip155:1/erc20:0xf6832ea221ebfdc2363729721a146e6745354b14",
         "chainId": "eip155:1",
         "dataSource": "coingecko",
-        "name": "FRMx Token",
+        "name": "FRMx",
         "precision": 18,
         "tokenId": "0xf6832ea221ebfdc2363729721a146e6745354b14",
         "contractType": "erc20",
@@ -86250,6 +86340,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "FRMX"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xf6a9baef8c66e9b24152014222871c8e02d0ee97",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "CelsiusX Wrapped BTC",
+        "precision": 18,
+        "tokenId": "0xf6a9baef8c66e9b24152014222871c8e02d0ee97",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/25535/thumb/cxBTC.png?1652252129",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "CXBTC"
       },
       {
         "assetId": "eip155:1/erc20:0xf6c0aa7ebfe9992200c67e5388e4f42da49e1783",
@@ -86417,19 +86522,19 @@
         "symbol": "CLA"
       },
       {
-        "color": "#7057F5",
-        "contractType": "erc20",
-        "dataSource": "yearnfinance",
-        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xf72FCd9DCF0190923Fadd44811E240Ef4533fc86/logo.png",
-        "name": "mVIXY",
-        "precision": 18,
-        "receiveSupport": true,
-        "secondaryColor": "#7057F5",
-        "sendSupport": true,
-        "symbol": "mVIXY",
-        "tokenId": "0xf72fcd9dcf0190923fadd44811e240ef4533fc86",
+        "assetId": "eip155:1/erc20:0xf72fcd9dcf0190923fadd44811e240ef4533fc86",
         "chainId": "eip155:1",
-        "assetId": "eip155:1/erc20:0xf72fcd9dcf0190923fadd44811e240ef4533fc86"
+        "dataSource": "coingecko",
+        "name": "Mirrored ProShares VIX",
+        "precision": 18,
+        "tokenId": "0xf72fcd9dcf0190923fadd44811e240ef4533fc86",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xf72FCd9DCF0190923Fadd44811E240Ef4533fc86/logo.png",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "MVIXY"
       },
       {
         "assetId": "eip155:1/erc20:0xf73fc4b74a4cc6f9ea203a9d5bbff4ffce3a4c48",
@@ -87240,6 +87345,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "IDO"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xf9e293d5d793ddc1ae4f778761e0b3e4aa7cf2dd",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "CelsiusX Wrapped DOGE",
+        "precision": 18,
+        "tokenId": "0xf9e293d5d793ddc1ae4f778761e0b3e4aa7cf2dd",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://assets.coingecko.com/coins/images/23683/thumb/R2747rb.png?1644997607",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "CXDOGE"
       },
       {
         "assetId": "eip155:1/erc20:0xf9e5af7b42d31d51677c75bbbd37c1986ec79aee",
@@ -88785,6 +88905,21 @@
         "sendSupport": true,
         "receiveSupport": true,
         "symbol": "VIDT"
+      },
+      {
+        "assetId": "eip155:1/erc20:0xff0a024b66739357c4ed231fb3dbc0c8c22749f5",
+        "chainId": "eip155:1",
+        "dataSource": "coingecko",
+        "name": "Wrapped WRX",
+        "precision": 8,
+        "tokenId": "0xff0a024b66739357c4ed231fb3dbc0c8c22749f5",
+        "contractType": "erc20",
+        "color": "#FFFFFF",
+        "secondaryColor": "#FFFFFF",
+        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xFF0a024B66739357c4ED231fB3DBC0c8C22749F5/logo.png",
+        "sendSupport": true,
+        "receiveSupport": true,
+        "symbol": "BWRX"
       },
       {
         "assetId": "eip155:1/erc20:0xff0e5e014cf97e0615cb50f6f39da6388e2fae6e",

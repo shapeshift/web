@@ -47,7 +47,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Osmosis> {
     })
 
     // TODO this will need to change to the osmosis tx parser once we support osmosis specic things (trading, lping)
-    this.parser = new unchained.cosmos.TransactionParser({ chainId: this.chainId })
+    this.parser = new unchained.cosmos.TransactionParser({
+      chainId: this.chainId,
+      assetId: this.getFeeAssetId()
+    })
   }
 
   getFeeAssetId(): AssetId {

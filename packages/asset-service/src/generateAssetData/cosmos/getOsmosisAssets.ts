@@ -70,7 +70,7 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
       secondaryColor: '#FFFFFF',
       icon: current.logo_URIs.png,
       explorer: 'https://mintscan.io',
-      explorerAddressLink: 'https://mintscan.io/osmosis/account',
+      explorerAddressLink: 'https://mintscan.io/osmosis/account/',
       explorerTxLink: 'https://mintscan.io/osmosis/txs/',
       sendSupport: true,
       receiveSupport: true

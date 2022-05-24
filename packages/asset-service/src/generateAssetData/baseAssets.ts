@@ -120,7 +120,7 @@ export const atom: BaseAsset = {
 export const osmosis: BaseAsset = {
   assetId: 'cosmos:osmosis-1/slip44:118',
   chainId: 'cosmos:osmosis-1',
-  chain: ChainTypes.Cosmos,
+  chain: ChainTypes.Osmosis,
   dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.OSMOSIS_MAINNET,
   symbol: 'OSMO',

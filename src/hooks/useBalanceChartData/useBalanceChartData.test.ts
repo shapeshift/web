@@ -1,5 +1,5 @@
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
@@ -95,9 +95,10 @@ describe('calculateBucketPrices', () => {
 
     const txs = [FOXSend]
 
-    const priceHistoryData: PriceHistoryData = {
+    const cryptoPriceHistoryData: PriceHistoryData = {
       [foxAssetId]: [{ price: 0, date: Number() }],
     }
+    const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
 
     const portfolioAssets: PortfolioAssets = {
       [foxAssetId]: fox,
@@ -109,7 +110,8 @@ describe('calculateBucketPrices', () => {
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
       buckets,
-      priceHistoryData,
+      cryptoPriceHistoryData,
+      fiatPriceHistoryData,
       portfolioAssets,
       delegationTotal: '0',
     })
@@ -127,9 +129,10 @@ describe('calculateBucketPrices', () => {
     }
     const assetIds = [ethAssetId]
     const timeframe = HistoryTimeframe.YEAR
-    const priceHistoryData: PriceHistoryData = {
+    const cryptoPriceHistoryData: PriceHistoryData = {
       [ethAssetId]: [{ price: 0, date: Number() }],
     }
+    const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
     const portfolioAssets: PortfolioAssets = {
       [ethAssetId]: ethereum,
     }
@@ -140,7 +143,8 @@ describe('calculateBucketPrices', () => {
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
       buckets,
-      priceHistoryData,
+      cryptoPriceHistoryData,
+      fiatPriceHistoryData,
       portfolioAssets,
       delegationTotal: '0',
     })

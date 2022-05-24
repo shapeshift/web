@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v4.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.2.2...@shapeshiftoss/asset-service-v4.2.3) (2022-05-24)
+
+
+### Bug Fixes
+
+* fix osmosis assets & parsing ([#689](https://github.com/shapeshift/lib/issues/689)) ([5360fba](https://github.com/shapeshift/lib/commit/5360fba40c050ef9e793b4b44ab5527cbf73d455))
+
 # [@shapeshiftoss/asset-service-v4.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.2.1...@shapeshiftoss/asset-service-v4.2.2) (2022-05-24)
 
 # [@shapeshiftoss/asset-service-v4.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.2.0...@shapeshiftoss/asset-service-v4.2.1) (2022-05-21)

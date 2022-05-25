@@ -23,12 +23,12 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxAssetId } from '../constants'
-import { TrimDescriptionWithEllipsis } from '../utils'
+import { FoxAssetId, TrimmedDescriptionLength } from '../constants'
 
 type FoxTabProps = {
   assetId: AssetId
@@ -45,7 +45,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
   const { description } = asset || {}
   const query = useGetAssetDescriptionQuery(assetId)
   const isLoaded = !query.isLoading
-  const trimmedDescription = TrimDescriptionWithEllipsis(description)
+  const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === FoxAssetId
 
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))

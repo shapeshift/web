@@ -304,6 +304,12 @@
     "amount": "거래량",
     "for": "for",
     "parser": {
+      "weth": {
+        "deposit": "자산 입금",
+        "approve": "승인하기",
+        "withdraw": "자산 출금",
+        "receive": "받음"
+      },
       "yearn": {
         "deposit": "자산 입금",
         "approve": "승인하기",

@@ -118,12 +118,23 @@ const initialState: TxHistory = {
   },
 }
 
+/** TODO(0xdef1cafe): write a bulk upsert tx function for the restful history
+ * note we can probably reuse/abstract a lot of the logic from the single upsert
+ */
+
+export type BulkUpsertTxs = (
+  txHistory: TxHistory,
+  txs: Tx[],
+  accountSpecifier: AccountSpecifier,
+) => void
+
 /**
  * Manage state of the txHistory slice
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
 
+// we need to keep this function as we need to be able to upsert individual txs over the websocket
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
   const { txs } = txHistory
   const txid = makeUniqueTxId(accountSpecifier, tx.txid, tx.address)
@@ -236,6 +247,8 @@ export const txHistory = createSlice({
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsertTx(txState, payload.message, payload.accountSpecifier),
     upsertTxs: (txState, { payload }: TxsMessage) => {
+      // TODO(0xdef1cafe): make this a bulk upsert so we don't dispatch hundreds of actions
+      // and hence rerenders of the dashboard
       for (const tx of payload.txs) {
         updateOrInsertTx(txState, tx, payload.accountSpecifier)
       }
@@ -318,12 +331,17 @@ export const txHistoryApi = createApi({
       },
     }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
+      /** TODO(0xdef1cafe): question - do we want to wait for all chains to be loaded from the getAccount calls
+       * or, be more failure tolerant and call them individually? calling individually makes it slightly harder
+       * to set the loaded status when they're all done
+       */
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
         if (isEmpty(accountSpecifierMap)) {
           const data = 'getAllTxHistory: No account specifier given to get all tx history'
           const error = { data, status: 400 }
           return { error }
         }
+        // TODO(0xdef1cafe): don't just use the first account specifier
         const [chainId, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
         const accountSpecifier = `${chainId}:${pubkey}`
         try {

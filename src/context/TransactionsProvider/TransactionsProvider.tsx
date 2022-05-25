@@ -16,8 +16,6 @@ import {
   selectIsPortfolioLoaded,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
-  selectTxHistoryStatus,
-  selectTxIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -42,8 +40,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
-  const txHistoryStatus = useSelector(selectTxHistoryStatus)
-  const txIds = useAppSelector(selectTxIds)
 
   const getAccountSpecifiersByChainId = useCallback(
     (chainId: ChainId): AccountSpecifierMap[] => {
@@ -97,9 +93,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
             const asset = assets[chainIdToFeeAssetId(chainId)]
 
-            // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
-            // this state machine should be removed, and managed by the txHistory RTK query api
-            dispatch(txHistory.actions.setStatus('loading'))
             try {
               await Promise.all(
                 supportedAccountTypes.map(async accountType => {
@@ -183,33 +176,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     getAccountSpecifiersByChainId,
     portfolioAssetIds,
   ])
-
-  /**
-   * TODO(0xdef1cafe)
-   * until all coinstacks (btc and eth) support restful tx pagination
-   * we can't know when txs are actually loaded, but we can kind of infer it
-   * like we do on the balance charts, by debouncing the txids coming in
-   * over the websocket
-   *
-   * once we connect a wallet and subscribe to tx history, and leave sufficient
-   * time (TX_DEBOUNCE_DELAY), we can be pretty sure they're finished loading,
-   * and set a loaded flag
-   *
-   * after this, other parts of the app can useEffect on txids changing,
-   * and act on new txs coming in
-   */
-
-  useEffect(() => {
-    if (isEmpty(assets)) return
-    if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
-    if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
-    const TX_DEBOUNCE_DELAY = 5000
-    const timer = setTimeout(
-      () => dispatch(txHistory.actions.setStatus('loaded')),
-      TX_DEBOUNCE_DELAY,
-    )
-    return () => clearTimeout(timer) // clear if the input changes
-  }, [assets, dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
 
   return <>{children}</>
 }

@@ -150,7 +150,9 @@ export const routes: Array<NestedRoute> = [
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
-    hide: window.location.hostname !== 'localhost',
+    hide:
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== process.env.REACT_APP_LOCAL_IP,
     main: Flags,
   },
 ]

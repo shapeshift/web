@@ -29,25 +29,38 @@ type OpportunityCardProps = {
   isLoaded?: boolean
 } & EarnOpportunityType
 
+const foxIcon = 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/logo.png'
+const foxyIcon = 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png'
+
+export const replaceIcon = ( valueToCheck: string, valueToCompare: string, replacementValue: string) : string => {
+  if (valueToCheck == valueToCompare)
+    return replacementValue
+  else return valueToCheck
+}
+
+
+
 export const OpportunityCard = ({
-  type,
-  tokenAddress,
-  rewardAddress,
-  contractAddress,
-  provider,
-  chain,
-  isLoaded,
-  apy,
-  cryptoAmount,
-  fiatAmount,
-  expired,
-  moniker,
-  assetId,
-}: OpportunityCardProps) => {
+                                  type,
+                                  tokenAddress,
+                                  rewardAddress,
+                                  contractAddress,
+                                  provider,
+                                  chain,
+                                  isLoaded,
+                                  apy,
+                                  cryptoAmount,
+                                  fiatAmount,
+                                  expired,
+                                  moniker,
+                                  assetId,
+                                }: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+
   const { cosmosStaking } = useModal()
   const isCosmosStaking = chain === ChainTypes.Cosmos
 
@@ -69,9 +82,9 @@ export const OpportunityCard = ({
       // TODO remove this condition once staking modals are unified
       // Currently vault staking modals do not have overview tab
       const pathname =
-        type === DefiType.TokenStaking
-          ? `/defi/${type}/${provider}/overview`
-          : `/defi/${type}/${provider}/withdraw`
+          type === DefiType.TokenStaking
+              ? `/defi/${type}/${provider}/overview`
+              : `/defi/${type}/${provider}/withdraw`
 
       history.push({
         pathname,
@@ -92,58 +105,58 @@ export const OpportunityCard = ({
   if (!asset) return null
 
   return (
-    <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
-      <Card.Body>
-        <Flex alignItems='center'>
-          <Flex>
-            <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon src={asset.icon} boxSize='10' zIndex={2} />
-            </SkeletonCircle>
+      <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
+        <Card.Body>
+          <Flex alignItems='center'>
+            <Flex>
+              <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
+                <AssetIcon src={replaceIcon(asset.icon, foxIcon, foxyIcon )} boxSize='10' zIndex={2} />
+              </SkeletonCircle>
+            </Flex>
+            <Box ml={4}>
+              <SkeletonText isLoaded={isLoaded} noOfLines={2}>
+                <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
+                  {!isCosmosStaking && `${asset.symbol} ${type?.replace('_', ' ')}`}
+                  {isCosmosStaking && `${moniker}`}
+                </RawText>
+                <Amount.Crypto
+                    color='gray.500'
+                    value={cryptoAmount}
+                    symbol={asset.symbol}
+                    lineHeight={1}
+                />
+              </SkeletonText>
+            </Box>
           </Flex>
-          <Box ml={4}>
-            <SkeletonText isLoaded={isLoaded} noOfLines={2}>
-              <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosStaking && `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {isCosmosStaking && `${moniker}`}
-              </RawText>
-              <Amount.Crypto
-                color='gray.500'
-                value={cryptoAmount}
-                symbol={asset.symbol}
-                lineHeight={1}
-              />
-            </SkeletonText>
-          </Box>
-        </Flex>
-      </Card.Body>
-      <Card.Footer>
-        <StatGroup>
-          <Stat>
-            <Skeleton isLoaded={isLoaded}>
-              <StatLabel>
-                <Text translation='defi.currentValue' />
-              </StatLabel>
-            </Skeleton>
-            <Skeleton isLoaded={isLoaded}>
-              <StatNumber>
-                <Amount.Fiat color={expired ? 'red.500' : ''} value={fiatAmount} />
-              </StatNumber>
-            </Skeleton>
-          </Stat>
-          <Stat textAlign='right'>
-            <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
-              <StatLabel>
-                <Text translation='defi.currentAPY' />
-              </StatLabel>
-            </Skeleton>
-            <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
-              <StatNumber color='green.500'>
-                <Amount.Percent value={String(apy)} />
-              </StatNumber>
-            </Skeleton>
-          </Stat>
-        </StatGroup>
-      </Card.Footer>
-    </Card>
+        </Card.Body>
+        <Card.Footer>
+          <StatGroup>
+            <Stat>
+              <Skeleton isLoaded={isLoaded}>
+                <StatLabel>
+                  <Text translation='defi.currentValue' />
+                </StatLabel>
+              </Skeleton>
+              <Skeleton isLoaded={isLoaded}>
+                <StatNumber>
+                  <Amount.Fiat color={expired ? 'red.500' : ''} value={fiatAmount} />
+                </StatNumber>
+              </Skeleton>
+            </Stat>
+            <Stat textAlign='right'>
+              <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
+                <StatLabel>
+                  <Text translation='defi.currentAPY' />
+                </StatLabel>
+              </Skeleton>
+              <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
+                <StatNumber color='green.500'>
+                  <Amount.Percent value={String(apy)} />
+                </StatNumber>
+              </Skeleton>
+            </Stat>
+          </StatGroup>
+        </Card.Footer>
+      </Card>
   )
 }

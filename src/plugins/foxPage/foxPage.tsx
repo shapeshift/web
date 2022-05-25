@@ -20,7 +20,6 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
-import { useFoxyMarketData } from 'hooks/useFoxyMarketData/useFoxyMarketData'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById } from 'state/slices/selectors'
@@ -31,6 +30,7 @@ import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
+import { useFoxyMarketData } from './hooks/useFoxyMarketData'
 
 export enum FoxPageRoutes {
   Fox = '/fox/fox',

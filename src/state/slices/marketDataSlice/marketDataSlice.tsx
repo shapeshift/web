@@ -1,40 +1,65 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { findAll, findByAssetId, findPriceHistoryByAssetId } from '@shapeshiftoss/market-service'
+import {
+  FiatMarketDataArgs,
+  FiatPriceHistoryArgs,
+  findAll,
+  findByAssetId,
+  findByFiatSymbol,
+  findPriceHistoryByAssetId,
+  findPriceHistoryByFiatSymbol,
+  SupportedFiatCurrencies,
+} from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import { logger } from 'lib/logger'
+
+const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
 export type PriceHistoryData = {
-  [k: AssetId]: HistoryData[]
+  [k: AssetId]: HistoryData[] | undefined
 }
 
 type PriceHistoryByTimeframe = {
   [k in HistoryTimeframe]: PriceHistoryData
 }
 
-export type MarketDataState = {
-  loading: boolean // remove this, if selector returns null we don't have it
+type MarketDataStateVariant<T extends string> = {
   byId: {
-    [k: AssetId]: MarketData
+    [k in T]?: MarketData
   }
-  ids: AssetId[]
   priceHistory: PriceHistoryByTimeframe
+  ids: T[]
 }
 
-const initialPriceHistory: PriceHistoryByTimeframe = {
+type FiatMarketDataState = MarketDataStateVariant<SupportedFiatCurrencies>
+type CryptoMarketDataState = MarketDataStateVariant<AssetId>
+
+export type MarketDataState = {
+  crypto: CryptoMarketDataState
+  fiat: FiatMarketDataState
+}
+
+export const INITIAL_PRICE_HISTORY: PriceHistoryByTimeframe = Object.freeze({
   [HistoryTimeframe.HOUR]: {},
   [HistoryTimeframe.DAY]: {},
   [HistoryTimeframe.WEEK]: {},
   [HistoryTimeframe.MONTH]: {},
   [HistoryTimeframe.YEAR]: {},
   [HistoryTimeframe.ALL]: {},
-}
+})
 
 const initialState: MarketDataState = {
-  byId: {},
-  ids: [],
-  priceHistory: initialPriceHistory,
-  loading: false,
+  crypto: {
+    byId: {},
+    ids: [],
+    priceHistory: INITIAL_PRICE_HISTORY,
+  },
+  fiat: {
+    byId: {},
+    ids: [],
+    priceHistory: INITIAL_PRICE_HISTORY,
+  },
 }
 
 export const marketData = createSlice({
@@ -42,19 +67,36 @@ export const marketData = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setMarketData: (state, { payload }) => {
-      state.byId = { ...state.byId, ...payload } // upsert
-      const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))
-      state.ids = ids // upsert unique
+    setCryptoMarketData: (state, { payload }) => {
+      state.crypto.byId = { ...state.crypto.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...state.crypto.ids, ...Object.keys(payload)]))
+      state.crypto.ids = ids // upsert unique
     },
-    setPriceHistory: (
+    setCryptoPriceHistory: (
       state,
-      {
-        payload: { data, args },
-      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
+      { payload }: { payload: { data: HistoryData[]; args: FindPriceHistoryByAssetIdArgs } },
     ) => {
+      const { args, data } = payload
       const { assetId, timeframe } = args
-      state.priceHistory[timeframe][assetId] = data
+      state.crypto.priceHistory[timeframe][assetId] = data
+    },
+    setFiatMarketData: (
+      state,
+      { payload }: { payload: Partial<{ [k in SupportedFiatCurrencies]: MarketData }> },
+    ) => {
+      state.fiat.byId = { ...state.fiat.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...state.fiat.ids, ...Object.keys(payload)])).map(
+        id => id as SupportedFiatCurrencies,
+      )
+      state.fiat.ids = ids
+    },
+    setFiatPriceHistory: (
+      state,
+      { payload }: { payload: { data: HistoryData[]; args: FiatPriceHistoryArgs } },
+    ) => {
+      const { args, data } = payload
+      const { symbol, timeframe } = args
+      state.fiat.priceHistory[timeframe][symbol] = data
     },
   },
 })
@@ -70,22 +112,24 @@ export const marketApi = createApi({
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
       // top 1000 assets
-      queryFn: async () => ({ data: await findAll({ count: 1000 }) }),
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        data && dispatch(marketData.actions.setMarketData(data))
+      queryFn: async (_, { dispatch }) => {
+        try {
+          const data = await findAll({ count: 1000 })
+          dispatch(marketData.actions.setCryptoMarketData(data))
+          return { data }
+        } catch (e) {
+          const error = { data: `findAll: could not find marketData for all assets`, status: 404 }
+          return { error }
+        }
       },
     }),
     findByAssetId: build.query<MarketCapResult, AssetId>({
-      queryFn: async (assetId: AssetId, baseQuery) => {
+      queryFn: async (assetId: AssetId, { dispatch }) => {
         try {
           const currentMarketData = await findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
           const data = { [assetId]: currentMarketData }
-          // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
-          // to prevent edge cases like #858
-          baseQuery.dispatch(marketData.actions.setMarketData(data))
+          dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }
         } catch (e) {
           const error = { data: `findByAssetId: no market data for ${assetId}`, status: 404 }
@@ -94,9 +138,12 @@ export const marketApi = createApi({
       },
     }),
     findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
-      queryFn: async ({ assetId, timeframe }) => {
+      queryFn: async (args, { dispatch }) => {
+        const { assetId, timeframe } = args
         try {
           const data = await findPriceHistoryByAssetId({ timeframe, assetId })
+          const payload = { args, data }
+          dispatch(marketData.actions.setCryptoPriceHistory(payload))
           return { data }
         } catch (e) {
           const error = {
@@ -106,23 +153,41 @@ export const marketApi = createApi({
           return { error }
         }
       },
-      onQueryStarted: async (args, { dispatch, queryFulfilled, getCacheEntry }) => {
-        // empty data helps selectors know it's loaded, even if it's unavailable
-        const data: HistoryData[] = []
-        const payload = { data, args }
+    }),
+    findByFiatSymbol: build.query<MarketCapResult, FiatMarketDataArgs>({
+      queryFn: async ({ symbol }: { symbol: SupportedFiatCurrencies }, baseQuery) => {
         try {
-          await queryFulfilled
-          const data = getCacheEntry().data
-          payload.data = data ?? []
+          const currentMarketData = await findByFiatSymbol({ symbol })
+          if (!currentMarketData) throw new Error()
+          const data = { [symbol]: currentMarketData }
+          baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
+          return { data }
         } catch (e) {
-          // swallow
-        } finally {
-          dispatch(marketData.actions.setPriceHistory(payload))
+          const data = `findByFiatSymbol: no market data for ${symbol}`
+          moduleLogger.error(e, data)
+          const error = { data, status: 404 }
+          return { error }
+        }
+      },
+    }),
+    findPriceHistoryByFiatSymbol: build.query<HistoryData[], FiatPriceHistoryArgs>({
+      queryFn: async (args, { dispatch }) => {
+        const { symbol, timeframe } = args
+        try {
+          const data = await findPriceHistoryByFiatSymbol({ timeframe, symbol })
+          const payload = { args, data }
+          dispatch(marketData.actions.setFiatPriceHistory(payload))
+          return { data }
+        } catch (e) {
+          const error = {
+            data: `findPriceHistoryByFiatSymbol: error fetching price history for ${symbol}`,
+            status: 400,
+          }
+          return { error }
         }
       },
     }),
   }),
 })
 
-export const { useFindAllQuery, useFindByAssetIdQuery, useFindPriceHistoryByAssetIdQuery } =
-  marketApi
+export const { useFindAllQuery } = marketApi

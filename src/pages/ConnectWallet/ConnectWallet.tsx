@@ -1,7 +1,6 @@
 import { Button } from '@chakra-ui/button'
 import { DarkMode } from '@chakra-ui/color-mode'
-import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Badge, Center, Circle, Flex, Link } from '@chakra-ui/layout'
+import { Center, Circle, Flex, Link, Stack } from '@chakra-ui/layout'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
@@ -117,12 +116,6 @@ export const ConnectWallet = () => {
         alignItems={'center'}
       >
         <DarkMode>
-          <Flex width='full' alignItems='center' justifyContent='center'>
-            <Text color='white' fontWeight='bold' translation='connectWalletPage.shapeshift' />
-            <Badge colorScheme='blue' ml={2}>
-              {translate('connectWalletPage.alpha')}
-            </Badge>
-          </Flex>
           <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
             <Link href='/#/legal/terms-of-service'>
               <Text color='gray.500' translation='common.terms' />
@@ -168,27 +161,40 @@ export const ConnectWallet = () => {
           textAlign='center'
           translation='connectWalletPage.body'
         />
-        <Button
-          size='lg'
-          zIndex={1}
-          colorScheme='blue'
-          onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-          data-test='connect-wallet-button'
+        <Stack
+          alignItems='center'
+          spacing={{ base: 2, md: 8 }}
+          mx='auto'
+          direction={{ base: 'column', md: 'row' }}
         >
-          <Text translation='connectWalletPage.cta' />
-        </Button>
-        <Button
-          size='md'
-          zIndex={1}
-          colorScheme='blue'
-          variant='ghost'
-          mt={6}
-          rightIcon={<ArrowForwardIcon />}
-          onClick={connectDemo}
-          isLoading={state.isLoadingLocalWallet}
-        >
-          <Text translation='connectWalletPage.orViewADemo' />
-        </Button>
+          <Button
+            size='lg'
+            zIndex={1}
+            colorScheme='blue'
+            onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+            data-test='connect-wallet-button'
+          >
+            <Text translation='connectWalletPage.cta' />
+          </Button>
+          <Flex alignItems='center' justifyContent='center'>
+            <Text
+              color='gray.500'
+              fontSize='lg'
+              fontWeight='bold'
+              textAlign='center'
+              translation='common.or'
+            />
+          </Flex>
+          <Button
+            size='lg'
+            zIndex={1}
+            colorScheme='gray'
+            onClick={connectDemo}
+            isLoading={state.isLoadingLocalWallet}
+          >
+            <Text translation='connectWalletPage.viewADemo' />
+          </Button>
+        </Stack>
       </Center>
     </Page>
   )

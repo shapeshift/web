@@ -1,6 +1,5 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-
-import { ReduxState } from '../../state/reducer'
+import { ReduxState } from 'state/reducer'
+import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -55,6 +54,7 @@ export const mockStore: ReduxState = {
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
+    selectedCurrency: 'USD',
     // the following object is required by redux-persist
     _persist: {
       version: 0,
@@ -66,17 +66,16 @@ export const mockStore: ReduxState = {
     ids: [],
   },
   marketData: {
-    byId: {},
-    ids: [],
-    priceHistory: {
-      [HistoryTimeframe.DAY]: {},
-      [HistoryTimeframe.HOUR]: {},
-      [HistoryTimeframe.WEEK]: {},
-      [HistoryTimeframe.MONTH]: {},
-      [HistoryTimeframe.YEAR]: {},
-      [HistoryTimeframe.ALL]: {},
+    crypto: {
+      byId: {},
+      ids: [],
+      priceHistory: INITIAL_PRICE_HISTORY,
     },
-    loading: false,
+    fiat: {
+      byId: {},
+      ids: [],
+      priceHistory: INITIAL_PRICE_HISTORY,
+    },
   },
   txHistory: {
     txs: {

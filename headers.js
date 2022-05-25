@@ -37,12 +37,15 @@ const cspMeta = Object.entries({
     'https://api.coincap.io/v2/assets',
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
+    // @shapeshiftoss/market-service-v2.2.0: https://github.com/shapeshift/lib/blob/7f4bc4390cfbb6470abc630998c14f7701e0b1b9/packages/market-service/src/exchange-rates-host/exchange-rates-host.ts#L15
+    'https://api.exchangerate.host/',
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L40
     process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L50
     process.env.REACT_APP_GEM_WYRE_SUPPORTED_COINS,
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L13
     process.env.REACT_APP_GEM_ASSET_LOGO,
+    // @gem(onramp) to get coinify supported currencies
     'https://onramp.gem.co',
     // @shapeshiftoss/market-service@2.0.0: https://github.com/shapeshift/lib/blob/1efccc3401eccb3125e1f09b7f829b886b457b89/packages/market-service/src/osmosis/osmosis.ts#L21
     'https://api-osmosis.imperator.co/tokens/',

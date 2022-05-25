@@ -21,6 +21,9 @@ jest.mock('state/slices/selectors', () => ({
     'eip155:1/slip44:60': mockETH,
     'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': mockFOX,
   }),
+  selectAssetById: () => ({
+    'eip155:1/slip44:60': mockETH,
+  }),
 }))
 
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {

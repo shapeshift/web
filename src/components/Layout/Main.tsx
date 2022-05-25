@@ -34,7 +34,6 @@ export const Main: React.FC<MainProps> = ({ children, titleComponent, ...rest })
           bg={bg}
           borderColor={borderColor}
           ref={ref}
-          top='4.5rem'
           zIndex='sticky'
           shadow={y > height ? 'sm' : undefined}
         >

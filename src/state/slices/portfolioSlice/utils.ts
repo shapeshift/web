@@ -1,8 +1,13 @@
 import {
   AccountId,
   AssetId,
+  btcChainId,
   ChainId,
+  chainIdToFeeAssetId,
+  cosmosChainId,
+  ethChainId,
   fromAssetId,
+  osmosisChainId,
   toAccountId,
   toChainId,
 } from '@shapeshiftoss/caip'
@@ -23,27 +28,8 @@ import {
   PortfolioAccounts as PortfolioSliceAccounts,
 } from './portfolioSliceCommon'
 
-// TODO(gomes): Import from caip after lib#572 is merged
-export const ethChainId = 'eip155:1'
-export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
-export const cosmosChainId = 'cosmos:cosmoshub-4'
-const osmosisChainId = 'cosmos:osmosis-1'
-export const ethAssetId = 'eip155:1/slip44:60'
-export const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-export const cosmosAssetId = 'cosmos:cosmoshub-4/slip44:118'
-export const osmosisAssetId = 'cosmos:osmosis-1/slip44:118'
-
-export const chainIds = [ethChainId, btcChainId, cosmosChainId] as const
+export const chainIds = [ethChainId, btcChainId, cosmosChainId, osmosisChainId] as const
 export type ChainIdType = typeof chainIds[number]
-
-// we only need to update this when we support additional chains, which is infrequent
-// so it's ok to hardcode this map here
-const chainIdToAssetId: Record<string, string> = {
-  [ethChainId]: ethAssetId,
-  [btcChainId]: btcAssetId,
-  [cosmosChainId]: cosmosAssetId,
-  [osmosisChainId]: osmosisAssetId,
-}
 
 export const assetIdToChainId = (assetId: AssetId): ChainIdType =>
   assetId.split('/')[0] as ChainIdType
@@ -104,8 +90,6 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     }
   }
 }
-
-export const chainIdToFeeAssetId = (chainId: ChainId): AssetId => chainIdToAssetId[chainId]
 
 // note - this is not really a selector, more of a util
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>

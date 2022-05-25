@@ -107,7 +107,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explora El",
     "defiUniverse": "Universo DeFi",
     "body": "100% gratis. Código abierto. Propiedad de la comunidad. Sin custodia. Privado.",
@@ -137,7 +136,7 @@
           "rateFluctuationInfo": "La tasa de %{assetName} que gana, el rendimiento porcentual anual (APR), normalmente fluctúa entre el 7 % y el 20 %.",
           "amountStakingInfo": "Puede hacer staking en cualquier cantidad de %{assetName} e inmediatamente comenzará a ganar recompensas.",
           "withdrawInfo": "Puede retirar sus recompensas en cualquier momento, lo que requiere una pequeña tarifa de gasolina alrededor de ~ $ 0,01.",
-          "unbondingInfo": "Cuando realice unstaking de sus activos, permanecerán bloqueados durante 14 días, sin generar recompensas. Después de los 14 días, su %{assetName} volverá a su billetera principal.",
+          "unbondingInfo": "Cuando realice unstaking de sus activos, permanecerán bloqueados durante %{unbondingDays} días, sin generar recompensas. Después de los %{unbondingDays} días, su %{assetName} volverá a su billetera principal.",
           "slashingInfo": "El staking se realiza a través de un validador. Es increíblemente raro, pero si el validador delegado se equivoca al permitir que se realicen transacciones falsas o incorrectas, podría perder parte de sus activos.",
           "partnerInfo": "Hemos mitigado este riesgo al asociarnos con un validador acreditado, que tiene una infraestructura segura, confiable y auditada."
         },

@@ -1,5 +1,5 @@
-import { toAssetId, toChainId } from '@shapeshiftoss/caip'
-import { AssetDataSource, ChainTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
+import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetDataSource, TokenAsset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
 
@@ -27,8 +27,6 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
     'https://tokens.coingecko.com/uniswap/all.json'
   )
 
-  const chain = ChainTypes.Ethereum
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
 
   return uniswapTokenData.tokens.reduce<TokenAsset[]>((acc, token) => {
@@ -49,8 +47,8 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
       return acc
     }
     const result: TokenAsset = {
-      assetId: toAssetId({ chain, network, assetNamespace, assetReference }),
-      chainId: toChainId({ chain, network }),
+      assetId: toAssetId({ chainId, assetNamespace, assetReference }),
+      chainId,
       dataSource: AssetDataSource.CoinGecko,
       name: token.name,
       precision: token.decimals,

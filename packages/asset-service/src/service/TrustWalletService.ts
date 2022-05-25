@@ -1,16 +1,16 @@
-import { ChainTypes } from '@shapeshiftoss/types'
+import { CHAIN_NAMESPACE, ChainNamespace } from '@shapeshiftoss/caip'
 import Web3 from 'web3'
 
 type TrustWalletServiceProps = {
-  chain: ChainTypes
+  chainNamespace: ChainNamespace
   tokenId: string
 }
-export const generateTrustWalletUrl = ({ chain, tokenId }: TrustWalletServiceProps) => {
-  let url = `https://rawcdn.githack.com/trustwallet/assets/master/blockchains/${chain}`
+export const generateTrustWalletUrl = ({ chainNamespace, tokenId }: TrustWalletServiceProps) => {
+  let url = `https://rawcdn.githack.com/trustwallet/assets/master/blockchains/${chainNamespace}`
   if (tokenId) {
     url += `/assets/`
-    switch (chain) {
-      case ChainTypes.Ethereum:
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Ethereum:
         url += Web3.utils.toChecksumAddress(tokenId)
         break
     }

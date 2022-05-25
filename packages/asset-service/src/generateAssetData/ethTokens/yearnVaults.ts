@@ -1,5 +1,5 @@
-import { toAssetId, toChainId } from '@shapeshiftoss/caip'
-import { AssetDataSource, ChainTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
+import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetDataSource, TokenAsset } from '@shapeshiftoss/types'
 import { Token, Vault } from '@yfi/sdk'
 import toLower from 'lodash/toLower'
 
@@ -21,13 +21,9 @@ export const getYearnVaults = async (): Promise<TokenAsset[]> => {
       sendSupport: true,
       symbol: vault.symbol,
       tokenId: toLower(vault.address),
-      chainId: toChainId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET
-      }),
+      chainId,
       assetId: toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainId,
         assetNamespace: 'erc20',
         assetReference: vault.address
       })
@@ -50,13 +46,9 @@ export const getIronBankTokens = async (): Promise<TokenAsset[]> => {
       sendSupport: true,
       symbol: token.symbol,
       tokenId: toLower(token.address),
-      chainId: toChainId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET
-      }),
+      chainId,
       assetId: toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainId,
         assetNamespace: 'erc20',
         assetReference: token.address
       })
@@ -79,13 +71,9 @@ export const getZapperTokens = async (): Promise<TokenAsset[]> => {
       sendSupport: true,
       symbol: token.symbol,
       tokenId: toLower(token.address),
-      chainId: toChainId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET
-      }),
+      chainId,
       assetId: toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainId,
         assetNamespace: 'erc20',
         assetReference: token.address
       })
@@ -108,13 +96,9 @@ export const getUnderlyingVaultTokens = async (): Promise<TokenAsset[]> => {
       sendSupport: true,
       symbol: token.symbol,
       tokenId: toLower(token.address),
-      chainId: toChainId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET
-      }),
+      chainId,
       assetId: toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainId,
         assetNamespace: 'erc20',
         assetReference: token.address
       })

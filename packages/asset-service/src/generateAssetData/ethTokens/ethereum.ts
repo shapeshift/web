@@ -53,8 +53,8 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
   for (const [i, batch] of tokenBatches.entries()) {
     console.info(`processing batch ${i + 1} of ${tokenBatches.length}`)
     const promises = batch.map(async (token) => {
-      const { chain } = fromAssetId(token.assetId)
-      const { info } = generateTrustWalletUrl({ chain, tokenId: token.tokenId })
+      const { chainNamespace } = fromAssetId(token.assetId)
+      const { info } = generateTrustWalletUrl({ chainNamespace, tokenId: token.tokenId })
       return axios.head(info) // return promise
     })
     const result = await Promise.allSettled(promises)
@@ -80,8 +80,11 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
         }
         return uniqueTokens[key] // token without modified icon
       } else {
-        const { chain } = fromAssetId(uniqueTokens[key].assetId)
-        const { icon } = generateTrustWalletUrl({ chain, tokenId: uniqueTokens[key].tokenId })
+        const { chainNamespace } = fromAssetId(uniqueTokens[key].assetId)
+        const { icon } = generateTrustWalletUrl({
+          chainNamespace,
+          tokenId: uniqueTokens[key].tokenId
+        })
         return { ...uniqueTokens[key], icon }
       }
     })

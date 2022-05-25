@@ -29,7 +29,6 @@ type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 type UseSendDetailsReturnType = {
   balancesLoading: boolean
   fieldName: AmountFieldName
-  handleInputChange(inputValue: string): void
   handleNextClick(): void
   handleSendMax(): Promise<void>
   inputHandler(inputValue: string): Promise<void>
@@ -116,8 +115,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return cosmosChainAdapter.getFeeData({})
       }
       case ChainTypes.Osmosis: {
-        const osmosisChainAdapter = await chainAdapterManager.byChainId('cosmos:osmosis-1')
-        return osmosisChainAdapter.getFeeData({})
+        // TODO(gomes): implement Osmosis support
+        return {} as chainAdapters.FeeDataEstimate<ChainTypes>
       }
       case ChainTypes.Ethereum: {
         const from = await adapter.getAddress({
@@ -349,22 +348,27 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const inputHandler = useCallback(
     async (inputValue: string) => {
+      setLoading(true)
       const prevInput = curInput
       setCurInput(inputValue)
       setValue(SendFormFields.SendMax, false)
+
       const key =
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount
           : SendFormFields.CryptoAmount
+
       if (inputValue === '') {
         // Cancel any pending requests
         debouncedEstimateFormFees.cancel()
         // Don't show an error message when the input is empty
         setValue(SendFormFields.AmountFieldError, '')
+        setLoading(false)
         // Set value of the other input to an empty string as well
         setValue(key, '')
         return
       }
+
       const amount =
         fieldName === SendFormFields.FiatAmount
           ? bnOrZero(bn(inputValue).div(price)).toString()
@@ -376,7 +380,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       let hasEnoughNativeTokenForGas = false
 
       try {
-        setLoading(true)
         // Make API call when input goes from empty to some length > 0
         // otherwise, debounce user input and use last call
         if (inputValue.length && prevInput === '') {
@@ -416,11 +419,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     [estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
   )
 
-  const handleInputChange = useMemo(
-    () => debounce(inputHandler, 1000, { leading: true }),
-    [inputHandler],
-  )
-
   const toggleCurrency = () => {
     setFieldName(
       fieldName === SendFormFields.FiatAmount
@@ -434,7 +432,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     fieldName,
     cryptoHumanBalance,
     fiatBalance,
-    handleInputChange,
     handleNextClick,
     handleSendMax,
     inputHandler,

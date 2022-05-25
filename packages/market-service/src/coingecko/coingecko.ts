@@ -1,4 +1,4 @@
-import { adapters, fromAssetId } from '@shapeshiftoss/caip'
+import { adapters, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import {
   ChainTypes,
   FindAllMarketArgs,
@@ -94,8 +94,8 @@ export class CoinGeckoMarketService implements MarketService {
   findByAssetId = async ({ assetId }: MarketDataArgs): Promise<MarketData | null> => {
     try {
       if (!adapters.assetIdToCoingecko(assetId)) return null
-      const { chain, assetReference } = fromAssetId(assetId)
-      const isToken = chain === ChainTypes.Ethereum && assetReference.startsWith('0x')
+      const { chainNamespace, assetReference } = fromAssetId(assetId)
+      const isToken = chainNamespace === CHAIN_NAMESPACE.Ethereum && assetReference.startsWith('0x')
       const id = isToken ? 'ethereum' : adapters.assetIdToCoingecko(assetId)
       const contractUrl = isToken ? `/contract/${assetReference}` : ''
 
@@ -131,8 +131,8 @@ export class CoinGeckoMarketService implements MarketService {
   }: PriceHistoryArgs): Promise<HistoryData[]> => {
     if (!adapters.assetIdToCoingecko(assetId)) return []
     try {
-      const { chain, assetReference } = fromAssetId(assetId)
-      const isToken = chain === ChainTypes.Ethereum && assetReference.startsWith('0x')
+      const { chainNamespace, assetReference } = fromAssetId(assetId)
+      const isToken = chainNamespace === CHAIN_NAMESPACE.Ethereum && assetReference.startsWith('0x')
       const id = isToken ? 'ethereum' : adapters.assetIdToCoingecko(assetId)
       const contract = isToken ? `/contract/${assetReference}` : ''
 

@@ -1,5 +1,4 @@
-import { toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 
 import { YearnTokenMarketCapService } from './yearn-tokens'
 import { mockYearnTokenRestData } from './yearnMockData'
@@ -69,14 +68,14 @@ describe('yearn token market service', () => {
     it('can map yearn to assetIds', async () => {
       const result = await yearnTokenMarketCapService.findAll()
       const yvBtcAssetId = toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnTokenRestData[0].address.toLowerCase()
       })
       const yvDaiAssetId = toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnTokenRestData[1].address.toLowerCase()
       })

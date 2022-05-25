@@ -36,11 +36,11 @@
     "p-ratelimit": "^1.0.1"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^4.0.1",
+    "@shapeshiftoss/caip": "^5.0.0",
     "@shapeshiftoss/types": "^4.3.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^4.0.1",
+    "@shapeshiftoss/caip": "^5.0.0",
     "@shapeshiftoss/types": "^4.3.0",
     "limiter": "^2.1.0"
   }

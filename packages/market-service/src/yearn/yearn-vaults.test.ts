@@ -1,5 +1,5 @@
-import { toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 
 import { YearnVaultMarketCapService } from './yearn-vaults'
 import { mockYearnGQLData, mockYearnVaultRestData } from './yearnMockData'
@@ -38,8 +38,8 @@ describe('yearn market service', () => {
       const result = await yearnVaultMarketCapService.findAll()
       expect(Object.keys(result)[0]).toEqual(
         toAssetId({
-          chain: ChainTypes.Ethereum,
-          network: NetworkTypes.MAINNET,
+          chainNamespace: CHAIN_NAMESPACE.Ethereum,
+          chainReference: CHAIN_REFERENCE.EthereumMainnet,
           assetNamespace: 'erc20',
           assetReference: yvBTCAddress.toLowerCase()
         })
@@ -73,14 +73,14 @@ describe('yearn market service', () => {
     it('can map yearn to AssetIds', async () => {
       const result = await yearnVaultMarketCapService.findAll()
       const yvBtcAssetId = toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnVaultRestData[0].address.toLowerCase()
       })
       const yvDaiAssetId = toAssetId({
-        chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnVaultRestData[1].address.toLowerCase()
       })

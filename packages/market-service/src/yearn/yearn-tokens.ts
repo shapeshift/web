@@ -1,12 +1,10 @@
-import { adapters, toAssetId } from '@shapeshiftoss/caip'
+import { adapters, CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import {
-  ChainTypes,
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
   MarketData,
-  MarketDataArgs,
-  NetworkTypes
+  MarketDataArgs
 } from '@shapeshiftoss/types'
 import { ChainId, Token, Yearn } from '@yfi/sdk'
 import uniqBy from 'lodash/uniqBy'
@@ -57,8 +55,8 @@ export class YearnTokenMarketCapService implements MarketService {
 
       return tokens.reduce((acc, token) => {
         const _assetId: string = toAssetId({
-          chain: ChainTypes.Ethereum,
-          network: NetworkTypes.MAINNET,
+          chainNamespace: CHAIN_NAMESPACE.Ethereum,
+          chainReference: CHAIN_REFERENCE.EthereumMainnet,
           assetNamespace: 'erc20',
           assetReference: token.address
         })

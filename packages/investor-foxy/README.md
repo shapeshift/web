@@ -12,11 +12,11 @@ yarn add @shapeshiftoss/investor-foxy
 
 ```javascript
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { toChainId } from '@shapeshiftoss/caip'
+import { toChainId, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 
 const api = new FoxyApi({
   adapter: await adapterManager.byChainId(
-    toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+    toChainId({ chainNamespace: CHAIN_NAMESPACE.Ethereum, chainReference: CHAIN_REFERENCE.EthereumMainnet })
   ), // adapter is an ETH @shapeshiftoss/chain-adapters
   providerUrl: '<your eth node privider url>'
 })
@@ -60,7 +60,7 @@ For more in-depth examples, check out ./src/foxycli.ts
 ```javascript
 const api = new FoxyApi({
   adapter: await adapterManager.byChainId(
-    toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+    toChainId({ chainNamespace: CHAIN_NAMESPACE.Ethereum, chainReference: CHAIN_REFERENCE.EthereumMainnet })
   ),
   providerUrl: 'https://dev-api.ethereum.shapeshift.com'
 })

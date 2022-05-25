@@ -85,6 +85,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     case cosmosChainId: {
       return 'Cosmos'
     }
+    case osmosisChainId: {
+      return 'Osmosis'
+    }
     default: {
       return ''
     }

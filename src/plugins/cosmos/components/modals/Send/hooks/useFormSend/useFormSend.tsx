@@ -1,6 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -19,6 +18,9 @@ export const useFormSend = () => {
     state: { wallet },
   } = useWallet()
 
+  type CosmosSdkChainFees = chainAdapters.FeeData<ChainTypes.Cosmos> &
+    chainAdapters.FeeData<ChainTypes.Osmosis>
+
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
@@ -27,29 +29,21 @@ export const useFormSend = () => {
           .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
-        const adapterType = adapter.getType()
-
         let result
 
         const { memo, estimatedFees, feeType, address: to } = data
-        if (adapterType === ChainTypes.Cosmos) {
-          const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Cosmos>
-          const gas = fees.chainSpecific.gasLimit
-          const fee = fees.txFee
-          const address = to
-          result = await (adapter as ChainAdapter<ChainTypes.Cosmos>).buildSendTransaction({
-            to: address,
-            memo,
-            value,
-            wallet,
-            chainSpecific: { gas, fee },
-            sendMax: data.sendMax,
-          })
-        } else if (adapterType === ChainTypes.Osmosis) {
-          // TODO(gomes): implement this
-        } else {
-          throw new Error('unsupported adapterType')
-        }
+        const fees = estimatedFees[feeType] as CosmosSdkChainFees
+        const gas = fees.chainSpecific.gasLimit
+        const fee = fees.txFee
+        const address = to
+        result = await adapter.buildSendTransaction({
+          to: address,
+          memo,
+          value,
+          wallet,
+          chainSpecific: { gas, fee },
+          sendMax: data.sendMax,
+        })
         const txToSign = result?.txToSign
 
         let broadcastTXID: string | undefined

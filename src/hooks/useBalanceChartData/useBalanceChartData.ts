@@ -23,7 +23,9 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
+import { logger } from 'lib/logger'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioAssets,
@@ -31,6 +33,7 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountSpecifiers,
+  selectAssets,
   selectCryptoPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
@@ -43,6 +46,8 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
+
+const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
 type CryptoBalance = {
   [k: AssetId]: BigNumber // map of asset to base units
@@ -304,6 +309,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
+  const assets = useAppSelector(selectAssets)
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
@@ -399,11 +405,14 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       delegationTotal,
     })
 
+    debugCharts({ assets, calculatedBuckets, txs })
+
     const chartData = bucketsToChartData(calculatedBuckets)
 
     setBalanceChartData(chartData)
     setBalanceChartDataLoading(false)
   }, [
+    assets,
     assetIds,
     accountIds,
     priceHistoryData,
@@ -419,4 +428,40 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   ])
 
   return { balanceChartData, balanceChartDataLoading }
+}
+
+type DebugChartsArgs = {
+  assets: AssetsById
+  calculatedBuckets: Bucket[]
+  txs: Tx[]
+}
+
+type DebugCharts = (args: DebugChartsArgs) => void
+
+const debugCharts: DebugCharts = ({ assets, calculatedBuckets, txs }) => {
+  /**
+   * there is a long tail of potentially obscure bugs in the charts
+   * the best way to address this is log when it happens, and fix the edge cases
+   */
+  if (!txs?.length) return // no chart if no txs
+  const firstTxTimestamp = txs[0].blockTime * 1000 // unchained uses seconds
+  const firstBucket = calculatedBuckets[0]
+  const startOfChartTimestamp = firstBucket.start.valueOf()
+  const shouldHaveZeroBalance = firstTxTimestamp > startOfChartTimestamp
+  if (!shouldHaveZeroBalance) return
+  Object.entries(firstBucket.balance.crypto).forEach(([assetId, balance]) => {
+    if (balance.eq(0)) return // this is expected, charts should be zero at the beginning
+    /**
+     * at this point, we have a non zero balance for an asset at the start of the chart
+     * but the earlierst tx is after the start of the chart - this should not happen
+     * and something is wrong
+     */
+    const asset = assets[assetId]
+    const baseUnitBalance = balance.toString()
+    const baseUnitHuman = balance.div(bn(10).exponentiatedBy(asset.precision)).toString()
+    moduleLogger.error(
+      { asset, assetId, baseUnitBalance, baseUnitHuman, balance },
+      'NON-ZERO BALANCE AT START OF CHART',
+    )
+  })
 }

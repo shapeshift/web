@@ -158,7 +158,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
     return Object.values(opportunities).map(opportunity => {
       const asset = assets[opportunity.tokenAssetId]
       const fiatAmount = makeFiatAmount(opportunity)
-      const marketPrice = marketData[opportunity.tokenAssetId]?.price
+      const marketPrice = marketData[opportunity.tokenAssetId]?.price ?? 0
       const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
       const data = {
         ...opportunity,

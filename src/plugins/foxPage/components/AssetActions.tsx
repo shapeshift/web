@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
+import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyManager'
 import qs from 'qs'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
@@ -34,7 +35,7 @@ type FoxTabProps = {
   assetId: AssetId
 }
 
-const GetFoxyModalRoute = `/defi/token_staking/ShapeShift/overview`
+const GetFoxyModalRoute = FoxyPath.Overview
 const GetFoxCoinbaseExternalUrl = `https://www.coinbase.com/price/fox-token`
 
 export const AssetActions = ({ assetId }: FoxTabProps) => {

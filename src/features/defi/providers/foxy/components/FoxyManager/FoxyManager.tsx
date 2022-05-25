@@ -13,7 +13,7 @@ import { FoxyDeposit } from './Deposit/FoxyDeposit'
 import { FoxyOverview } from './Overview/FoxyOverview'
 import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
 
-enum FoxyPath {
+export enum FoxyPath {
   Deposit = '/defi/token_staking/ShapeShift/deposit',
   Withdraw = '/defi/token_staking/ShapeShift/withdraw',
   Overview = `/defi/token_staking/ShapeShift/overview`,

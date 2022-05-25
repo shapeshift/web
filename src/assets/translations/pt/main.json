@@ -107,7 +107,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
@@ -137,7 +136,7 @@
           "rateFluctuationInfo": "A taxa de %{assetName} que você ganha, o Retorno Percentual Anual (APR), normalmente oscila entre 7% e 20%.",
           "amountStakingInfo": "Você pode fazer stake de qualquer quantia de %{assetName} e eles começarão imediatamente a gerar recompensas.",
           "withdrawInfo": "Você pode retirar suas recompensas a qualquer momento, o que exige uma pequena taxa de gás em torno de ~$0,01.",
-          "unbondingInfo": "Quando você retirar seus tokens, eles permanecerão bloqueados por 14 dias, durante os quais não ganharão recompensas. Após os 14 dias, seu %{assetName} retornará à sua Carteira.",
+          "unbondingInfo": "Quando você retirar seus tokens, eles permanecerão bloqueados por %{unbondingDays} dias, durante os quais não ganharão recompensas. Após os %{unbondingDays} dias, seu %{assetName} retornará à sua Carteira.",
           "slashingInfo": "O staking é feito através de um validador. É incrivelmente raro, mas se o validador com o qual você realizou o stake errar ao permitir transações falsas ou incorretas, você poderá perder uma parte de seus ativos.",
           "partnerInfo": "Reduzimos esse risco em parceria com validadores confiáveis, que possuem uma infraestrutura segura e auditada."
         },

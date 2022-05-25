@@ -1,4 +1,4 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 
 import {
@@ -6,8 +6,6 @@ import {
   accountIdToLabel,
   accountIdToSpecifier,
   assetIdToChainId,
-  btcChainId,
-  ethChainId,
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,

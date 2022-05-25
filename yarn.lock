@@ -3788,10 +3788,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^4.0.0":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.0.1.tgz#50102cdf78295f58023d95421b08e236a87df64b"
-  integrity sha512-LhjhFftD47ZLSyKSm+pwK8V+RaCHUnIRwalHQk45JGbCCNoe231eG2sU4jInJJFuoIIROefjxYtPFMbhImhmOg==
+"@shapeshiftoss/asset-service@^4.2.3":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.2.3.tgz#571ba2e356ab17e59917a5e87df81a5fa6496198"
+  integrity sha512-7S0nAXZG39XPjUgHzHUWzX3SVNHly2+4PHTIG3cZX36brmf1tdbh6iR6RMTIOxVV6pn4BHEH+CpXtFK1MY1fXg==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"
@@ -3831,15 +3831,15 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-4.0.0.tgz#8d854a17dcfac3354f860322795bd52dff0886b4"
-  integrity sha512-RQrcjneQ9HbirBrFE8AH6aM5uSw0MudYeamYR66rtzvZnaOpIc2t8dwHLqgQ0Y/DVi2XGyN6jQkcdjcMi64ERA==
-
-"@shapeshiftoss/chain-adapters@^4.0.0":
+"@shapeshiftoss/caip@^4.0.1":
   version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-4.0.1.tgz#e209323f80c6312c4659700d5e3250926e22437e"
-  integrity sha512-L2GTlSkb5ua/kUd0cGNU/sMhjBVr7TscLP5YJNEPmfc/fSKSz3TUe6btCncFZ1Q/zX+QShb5ryDP+8lGNpWD5g==
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-4.0.1.tgz#e1afdfafd540769c2d9ee9c2236fbbf4136467f6"
+  integrity sha512-kwb2S3QUKLJ5lPhumi6FYm1x9/bhzjJqPVR4NvEqU6kQgE03Ovf4zVT6FWxWPqcqNGK6w4DJIsmvy2YBRmdCEQ==
+
+"@shapeshiftoss/chain-adapters@^4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-4.3.2.tgz#6de9c80ca4489ec76ab8b95986eabee4ba73b465"
+  integrity sha512-kb+Jx1mv2FezkQoeVoNRjvBu6/avNiOC1lWwdh+hNr64tKefQG9Jk7QFsD65yOu289q5wbiCH9CL/z6Uwx8W4Q==
   dependencies:
     axios "^0.26.0"
     bech32 "^2.0.0"
@@ -4004,6 +4004,14 @@
     p-lazy "^3.1.0"
     web3 "^1.5.1"
 
+"@shapeshiftoss/hdwallet-xdefi@^1.21.2":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-xdefi/-/hdwallet-xdefi-1.22.0.tgz#74b39347bb39d165cdc4cc0a90b786b2bef7a6d2"
+  integrity sha512-XsczkfSteFLhNNgWEKiOqJO6ZPWTwJB9jevwxPks+yOzk4E/tEoGRRyybI3BJgnmnqCghb+7OwbIAhEnMgf4dA==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "1.22.0"
+    lodash "^4.17.21"
+
 "@shapeshiftoss/investor-foxy@^3.0.0":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.0.1.tgz#64ae368f117ad98c5933b7bc2baff5798e880641"
@@ -4035,10 +4043,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^4.0.0":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.0.1.tgz#e7e583dcfab31b10e6b06a97b422ed6152569975"
-  integrity sha512-f0Fr+63JsArAZuQfGJltHB9a95SHG98LP6++EsEaLJ6GTdhZSjiKjSCRSwBrj+qcZnNdj4dJ00fwpvHNEaoxNg==
+"@shapeshiftoss/market-service@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.2.0.tgz#ec9210797bc347f9ad572355ce438f912397fe61"
+  integrity sha512-fENZS43Qzm+z9sanI4rNnH/AOd91emqcFtMVhClHmmzbh28usu/JgM/TibOzhjauvxdCEFceNMz5zfoZ2ReeNQ==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.30"
@@ -4060,10 +4068,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^5.0.0":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-5.0.1.tgz#434f54d7babd12cd7569cb36cd7796d23448e0cb"
-  integrity sha512-7NiRF322Pd03GwkF1X8KG02OHjDXgoTEyYdYaF0gK2QDOBnBMWGNqHJe0iW71wzLRS1nSpNYytobod8cvhan1g==
+"@shapeshiftoss/swapper@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-5.1.1.tgz#3e9cee411b9179a8efe77a6442bfb1761acb3e0e"
+  integrity sha512-tJ9VnoyxPaGE19TV+FYb2a5yEumK8PZ53o30b2A+Fg7mNjzjdlmZNbCh6VAveGminu6r3uqODJ6jKgkdnSTKjA==
   dependencies:
     axios "^0.26.0"
     bignumber.js "^9.0.1"
@@ -4076,10 +4084,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.1.0.tgz#d8f16a6717fb2e73608b10f8ae03f1f02ffcca46"
   integrity sha512-vMP41yzvT8l2dz9uc0lZgnMWXFWE9ozIa/dJcQZhsePyEJdXTMSEFRX/LBATScfbHBVDNkP0OiAHYq1OBJCdcg==
 
-"@shapeshiftoss/unchained-client@^8.0.0":
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-8.0.1.tgz#056d1d3c3c4bb7319e55550d262cdc682db59715"
-  integrity sha512-KpZ9EuudzC6iufRCh1+zAENwqLzZ8859mIwGlXqzcHpekmkXUX7LF1qeIxafl+yV4W95ELPzzdLjSqdN40Qdow==
+"@shapeshiftoss/unchained-client@^8.3.3":
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-8.3.3.tgz#08a407cf3cc6b7cdfbbb9510be491d524d653d01"
+  integrity sha512-Gy3ONWaku379toIWCxIG0KWmxUqtUUMsN89gXAL9wZedZ61Ub0JBo82FBqIl1u2nYF6/VBkGxFYzzOQ5Jq4Ouw==
   dependencies:
     "@shapeshiftoss/blockbook" "^6.11.0"
     "@yfi/sdk" "^1.0.30"
@@ -11911,9 +11919,9 @@ follow-redirects@1.5.10:
     debug "=3.1.0"
 
 follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.14.0, follow-redirects@^1.14.8:
-  version "1.14.9"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
-  integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.0.tgz#06441868281c86d0dda4ad8bdaead2d02dca89d4"
+  integrity sha512-aExlJShTV4qOUOL7yF1U5tvLCB0xQuudbf6toyYA0E/acBNw71mvjFTnLaRp50aQaYocMR0a/RMMBIHeZnGyjQ==
 
 for-in@^1.0.2:
   version "1.0.2"

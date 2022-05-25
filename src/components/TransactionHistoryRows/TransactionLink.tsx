@@ -22,6 +22,8 @@ export const TransactionLink = ({
     height='auto'
     fontSize='inherit'
     _hover={{ bg: 'transparent' }}
+    display='flex'
+    alignItems='center'
   >
     <MiddleEllipsis address={txid} />
   </Button>

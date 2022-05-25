@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, toAssetId, toChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, cosmosChainId, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
@@ -12,13 +12,14 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
@@ -28,13 +29,13 @@ import {
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
+  selectSelectedCurrency,
   selectTxHistoryStatus,
   selectTxIds,
   selectTxs,
@@ -45,6 +46,9 @@ import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataS
 import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
+
+// used by AssetChart, Portfolio, and this file to prefetch price history
+export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -67,6 +71,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
+  const routeAssetId = useRouteAssetId()
 
   // keep track of pending tx ids, so we can refetch the portfolio when they confirm
   const [pendingTxIds, setPendingTxIds] = useState<Set<TxId>>(new Set<TxId>())
@@ -298,34 +303,42 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // for more obscure assets, if we don't have it, fetch it
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
 
-  // creating a variable to store the intervals in
-  const [marketDataIntervalId, setMarketDataIntervalId] = useState<NodeJS.Timer | undefined>()
-
   // market data pre and refetch management
   useEffect(() => {
-    if (!portfolioAssetIds.length) return
-
-    const fetchMarketData = () => {
+    const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, { forceRefetch: true }))
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+        const timeframe = DEFAULT_HISTORY_TIMEFRAME
+        const payload = { assetId, timeframe }
+        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
       })
-    }
 
-    // do this the first time once
-    fetchMarketData()
+    fetchMarketData() // fetch every time assetIds change
+    const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
+    return () => clearInterval(interval) // clear interval when portfolioAssetIds change
+  }, [portfolioAssetIds, dispatch])
 
-    // clear the old timer
-    if (marketDataIntervalId) {
-      clearInterval(marketDataIntervalId)
-      setMarketDataIntervalId(undefined)
-    }
+  /**
+   * fetch forex spot and history for user's selected currency
+   */
+  const selectedCurrency = useAppSelector(state => selectSelectedCurrency(state))
+  useEffect(() => {
+    const symbol = selectedCurrency
+    const timeframe = DEFAULT_HISTORY_TIMEFRAME
+    const getFiatPriceHistory = marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate
+    const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
+    dispatch(getFiatPriceHistory({ symbol, timeframe }))
+    dispatch(fetchForexRate({ symbol }))
+  }, [dispatch, selectedCurrency])
 
-    const MARKET_DATA_REFRESH_INTERVAL = 1000 * 60 * 2 // two minutes
-    setMarketDataIntervalId(setInterval(fetchMarketData, MARKET_DATA_REFRESH_INTERVAL))
+  // market data single-asset fetch, will use cached version if available
+  // This uses the assetId from /assets route
+  useEffect(() => {
+    // early return for routes that don't contain an assetId, no need to refetch marketData granularly
+    if (!routeAssetId) return
 
-    // marketDataIntervalId causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
+    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
+  }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

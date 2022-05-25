@@ -1,5 +1,4 @@
 import { Box, Skeleton, Stack, Stat, StatArrow, StatNumber } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
@@ -7,6 +6,7 @@ import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'context/AppProvider/AppContext'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
@@ -16,7 +16,7 @@ import {
 import { AccountTable } from './components/AccountList/AccountTable'
 
 export const Portfolio = () => {
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
+  const [timeframe, setTimeframe] = useState(DEFAULT_HISTORY_TIMEFRAME)
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useSelector(selectPortfolioAssetIds)

@@ -1,16 +1,12 @@
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
-import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
-import React, { useEffect, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
 import { ConnectModal } from '../../components/ConnectModal'
-import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { WalletConnectConfig } from '../config'
 
@@ -32,45 +28,30 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [provider, setProvider] = useState<WalletConnectProvider>()
 
   const setErrorLoading = (e: string | null) => {
     setError(e)
     setLoading(false)
   }
 
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const rpcUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
-        if (!rpcUrl) {
-          console.error('ConfigNotFound: ethereum node url not set')
-          return
-        }
-        const opts = {
-          rpc: {
-            1: rpcUrl,
-          },
-        }
-        setProvider(new WalletConnectProvider(opts))
-      } catch (e) {
-        if (!isMobile) console.error(e)
-      }
-    })()
-  }, [setProvider])
-
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
 
-    if (!provider) {
-      throw new Error('walletProvider.walletConnect.errors.connectFailure')
+    const rpcUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
+    if (!rpcUrl) {
+      throw new Error('walletProvider.walletConnect.errors.rpcUrlNotFound')
+    }
+    const config = {
+      rpc: {
+        1: rpcUrl,
+      },
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
       const wallet = (await state.adapters
         .get(KeyManager.WalletConnect)
-        ?.pairDevice(provider)) as WalletConnectHDWallet
+        ?.pairDevice(config)) as WalletConnectHDWallet
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-walletconnect::pairDevice returned null or undefined')
@@ -79,14 +60,6 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       const { name, icon } = WalletConnectConfig
       try {
         const deviceId = await wallet.getDeviceID()
-
-        wallet.provider.onConnect(async () => {
-          const { connected } = await provider.getWalletConnector()
-          console.info(`connector connected: ${connected}`)
-        })
-
-        //  Enable session (triggers QR Code modal)
-        await wallet.initialize()
 
         dispatch({
           type: WalletActions.SET_WALLET,
@@ -108,28 +81,8 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     setLoading(false)
   }
 
-  // This constructs the WalletConnect deep-linking target from the currently-loaded
-  // window.location. The port will be blank if not specified, in which case it
-  // should be omitted.
-  const mmDeeplinkTarget = [window.location.hostname, window.location.port]
-    .filter(x => !!x)
-    .join(':')
-
-  // TODO: test native app
-  // The WalletConnect mobile app itself injects a provider, so we'll use pairDevice once
-  // we've reopened ourselves in that environment.
-  return !provider && isMobile ? (
-    <RedirectModal
-      headerText={'walletProvider.walletConnect.redirect.header'}
-      bodyText={'walletProvider.walletConnect.redirect.body'}
-      buttonText={'walletProvider.walletConnect.redirect.button'}
-      onClickAction={(): any => {
-        window.location.assign(`https://walletconnect.app.link/dapp/${mmDeeplinkTarget}`)
-      }}
-      loading={loading}
-      error={error}
-    ></RedirectModal>
-  ) : (
+  // The WalletConnect modal handles desktop and mobile detection as well as deep linking
+  return (
     <ConnectModal
       headerText={'walletProvider.walletConnect.connect.header'}
       bodyText={'walletProvider.walletConnect.connect.body'}

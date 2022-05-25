@@ -1040,7 +1040,10 @@
       "currentApy": "Current APY",
       "balance": "Balance",
       "getStarted": "Get Started",
-      "currentPrice": "Current Price"
+      "availableToTradeOn": "Available to Trade On",
+      "currentPrice": "Current Price",
+      "dex": "DEX",
+      "centralized": "Centralized"
     }
   }
 }

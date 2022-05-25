@@ -94,7 +94,7 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "web-vitals": "^2.1.0",
-    "web3": "^1.6.1"
+    "web3": "^1.7.1"
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",

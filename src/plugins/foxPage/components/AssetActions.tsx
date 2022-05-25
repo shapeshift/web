@@ -37,7 +37,7 @@ type FoxTabProps = {
 
 const GetFoxyModalRoute = `/defi/token_staking/ShapeShift/overview`
 const GetFoxCoinbaseExternalUrl = `https://www.coinbase.com/price/fox-token`
-const TradeFoxyElasticSwapUrl = `https://elasticswap.org/`
+const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
 
 export const AssetActions = ({ assetId }: FoxTabProps) => {
   const translate = useTranslate()

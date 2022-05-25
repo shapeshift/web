@@ -22,6 +22,7 @@ import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
@@ -36,6 +37,7 @@ type FoxTabProps = {
 
 const GetFoxyModalRoute = `/defi/token_staking/ShapeShift/overview`
 const GetFoxCoinbaseExternalUrl = `https://www.coinbase.com/price/fox-token`
+const TradeFoxyElasticSwapUrl = `https://elasticswap.org/`
 
 export const AssetActions = ({ assetId }: FoxTabProps) => {
   const translate = useTranslate()
@@ -130,7 +132,35 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
                 </Button>
               </Stack>
             </TabPanel>
-            <TabPanel p={6}></TabPanel>
+            <TabPanel textAlign='center' p={0}>
+              {isFoxAsset && <TradeCard defaultBuyAssetId={assetId} />}
+              {!isFoxAsset && (
+                <Stack width='full' p={6}>
+                  <SkeletonText isLoaded={isLoaded} noOfLines={3}>
+                    <CText color='gray.500' mt={6} mb={6}>
+                      {translate('plugins.foxPage.tradingUnavailable', {
+                        assetSymbol: asset.symbol,
+                      })}
+                    </CText>
+                  </SkeletonText>
+                  <Button
+                    colorScheme={'blue'}
+                    mb={6}
+                    size='lg'
+                    as={Link}
+                    leftIcon={<ExternalLinkIcon />}
+                    href={TradeFoxyElasticSwapUrl}
+                    isExternal
+                  >
+                    <CText>
+                      {translate('plugins.foxPage.tradeOnElasticSwap', {
+                        assetSymbol: asset.symbol,
+                      })}
+                    </CText>
+                  </Button>
+                </Stack>
+              )}
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Card.Body>

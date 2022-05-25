@@ -1040,7 +1040,9 @@
       "currentApy": "Current APY",
       "balance": "Balance",
       "getStarted": "Get Started",
-      "currentPrice": "Current Price"
+      "currentPrice": "Current Price",
+      "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
+      "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap"
     }
   }
 }

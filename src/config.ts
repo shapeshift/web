@@ -16,6 +16,8 @@ const validators = {
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
+  REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
   // TODO:
   //  Version control data and use a persistent URL
@@ -34,6 +36,7 @@ const validators = {
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
+  REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
   REACT_APP_FEATURE_BANXA_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE: bool({ default: false }),

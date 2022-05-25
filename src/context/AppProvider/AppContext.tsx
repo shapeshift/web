@@ -12,7 +12,7 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
@@ -35,6 +35,7 @@ import {
   selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
+  selectSelectedCurrency,
   selectTxHistoryStatus,
   selectTxIds,
   selectTxs,
@@ -45,6 +46,9 @@ import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataS
 import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
+
+// used by AssetChart, Portfolio, and this file to prefetch price history
+export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -299,34 +303,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // for more obscure assets, if we don't have it, fetch it
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
 
-  // creating a variable to store the intervals in
-  const [marketDataIntervalId, setMarketDataIntervalId] = useState<NodeJS.Timer | undefined>()
-
   // market data pre and refetch management
   useEffect(() => {
-    if (!portfolioAssetIds.length) return
-
-    const fetchMarketData = () => {
+    const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, { forceRefetch: true }))
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+        const timeframe = DEFAULT_HISTORY_TIMEFRAME
+        const payload = { assetId, timeframe }
+        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
       })
-    }
 
-    // do this the first time once
-    fetchMarketData()
+    fetchMarketData() // fetch every time assetIds change
+    const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
+    return () => clearInterval(interval) // clear interval when portfolioAssetIds change
+  }, [portfolioAssetIds, dispatch])
 
-    // clear the old timer
-    if (marketDataIntervalId) {
-      clearInterval(marketDataIntervalId)
-      setMarketDataIntervalId(undefined)
-    }
-
-    const MARKET_DATA_REFRESH_INTERVAL = 1000 * 60 * 2 // two minutes
-    setMarketDataIntervalId(setInterval(fetchMarketData, MARKET_DATA_REFRESH_INTERVAL))
-
-    // marketDataIntervalId causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
+  /**
+   * fetch forex spot and history for user's selected currency
+   */
+  const selectedCurrency = useAppSelector(state => selectSelectedCurrency(state))
+  useEffect(() => {
+    const symbol = selectedCurrency
+    const timeframe = DEFAULT_HISTORY_TIMEFRAME
+    const getFiatPriceHistory = marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate
+    const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
+    dispatch(getFiatPriceHistory({ symbol, timeframe }))
+    dispatch(fetchForexRate({ symbol }))
+  }, [dispatch, selectedCurrency])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route

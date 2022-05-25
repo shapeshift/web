@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, Tag, useToast } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -17,9 +17,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -31,23 +30,21 @@ type YearnConfirmProps = {
 export const Confirm = ({ api }: YearnConfirmProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = 'erc20'
   const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
   const feeAssetId = toAssetId({
     chain,
     network,
-    assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Ethereum,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
   const vaultAssetId = toAssetId({

@@ -1,15 +1,15 @@
-import { Box, BoxProps } from '@chakra-ui/react'
+import { Flex, FlexProps } from '@chakra-ui/react'
 import { firstFourLastFour } from 'state/slices/portfolioSlice/utils'
 
 type MiddleEllipsisProps = {
   address: string
   shouldShorten?: boolean
-} & BoxProps
+} & FlexProps
 
 export const MiddleEllipsis = ({ address, shouldShorten = true, ...rest }: MiddleEllipsisProps) => {
   return (
-    <Box whiteSpace='nowrap' {...rest}>
-      <span>{shouldShorten ? firstFourLastFour(address) : address}</span>
-    </Box>
+    <Flex alignItems='center' whiteSpace='nowrap' {...rest}>
+      <span style={{ lineHeight: 1 }}>{shouldShorten ? firstFourLastFour(address) : address}</span>
+    </Flex>
   )
 }

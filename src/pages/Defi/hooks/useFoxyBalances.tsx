@@ -1,4 +1,4 @@
-import { AssetId, AssetNamespace, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -62,19 +62,19 @@ async function getFoxyOpportunities(
     const rewardTokenAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: opportunity.rewardToken,
     })
     const contractAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: opportunity.contractAddress,
     })
     const tokenAssetId = toAssetId({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
-      assetNamespace: AssetNamespace.ERC20,
+      assetNamespace: 'erc20',
       assetReference: opportunity.stakingToken,
     })
     const balance = balances[rewardTokenAssetId]
@@ -158,7 +158,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
     return Object.values(opportunities).map(opportunity => {
       const asset = assets[opportunity.tokenAssetId]
       const fiatAmount = makeFiatAmount(opportunity)
-      const marketPrice = marketData[opportunity.tokenAssetId]?.price
+      const marketPrice = marketData[opportunity.tokenAssetId]?.price ?? 0
       const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
       const data = {
         ...opportunity,

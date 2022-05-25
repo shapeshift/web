@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import {
+  ASSET_REFERENCE,
   AssetId,
-  AssetNamespace,
   AssetReference,
   ChainId,
   fromAssetId,
@@ -14,7 +14,7 @@ import sortBy from 'lodash/sortBy'
 import createCachedSelector from 're-reselect'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectMarketDataIds } from 'state/slices/marketDataSlice/selectors'
+import { selectCryptoMarketDataIds } from 'state/slices/marketDataSlice/selectors'
 
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
@@ -35,7 +35,7 @@ export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createSelector(
   selectAssets,
-  selectMarketDataIds,
+  selectCryptoMarketDataIds,
   (assetsByIdOriginal, marketDataIds) => {
     const assetById = cloneDeep(assetsByIdOriginal)
     // we only prefetch market data for some
@@ -56,11 +56,11 @@ export const selectAssetsByMarketCap = createSelector(
 // @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById
 // work with the update to the toAssetId function where assetNamespace and assetReference are now required.
 const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): AssetReference => {
-  if (chain === ChainTypes.Bitcoin) return AssetReference.Bitcoin
-  if (chain === ChainTypes.Ethereum) return AssetReference.Ethereum
-  if (chain === ChainTypes.Cosmos) {
-    if (network === NetworkTypes.COSMOSHUB_MAINNET) return AssetReference.Cosmos
-    if (network === NetworkTypes.OSMOSIS_MAINNET) return AssetReference.Osmosis
+  if (chain === ChainTypes.Bitcoin) return ASSET_REFERENCE.Bitcoin
+  if (chain === ChainTypes.Ethereum) return ASSET_REFERENCE.Ethereum
+  if (chain === ChainTypes.Cosmos || chain === ChainTypes.Osmosis) {
+    if (network === NetworkTypes.COSMOSHUB_MAINNET) return ASSET_REFERENCE.Cosmos
+    if (network === NetworkTypes.OSMOSIS_MAINNET) return ASSET_REFERENCE.Osmosis
     throw new Error(`Network ${network} on ${chain} not supported.`)
   }
   throw new Error(`Chain ${chain} not supported.`)
@@ -74,7 +74,7 @@ export const selectFeeAssetByChainId = createSelector(
     const feeAssetId = toAssetId({
       chain,
       network,
-      assetNamespace: AssetNamespace.Slip44,
+      assetNamespace: 'slip44',
       assetReference: chainIdFeeAssetReferenceMap(chain, network),
     })
     return assetsById[feeAssetId]
@@ -89,7 +89,7 @@ export const selectFeeAssetById = createSelector(
     const feeAssetId = toAssetId({
       chain,
       network,
-      assetNamespace: AssetNamespace.Slip44,
+      assetNamespace: 'slip44',
       assetReference: chainIdFeeAssetReferenceMap(chain, network),
     })
     return assetsById[feeAssetId]

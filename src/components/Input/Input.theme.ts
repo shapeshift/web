@@ -32,6 +32,15 @@ export const InputStyle = {
         },
       },
     }),
+    inline: (props: Record<string, any>) => ({
+      field: {
+        bg: 'none',
+        p: 0,
+        _invalid: {
+          color: mode('red.500', 'red.300')(props),
+        },
+      },
+    }),
   },
   // The default `size` or `variant` values
   defaultProps: {},

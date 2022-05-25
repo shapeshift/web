@@ -407,7 +407,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     const hasNoDeviceId = isNil(walletInfo?.deviceId)
     const hasNoAssetIds = !assetIds.length
     const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData?.length
-    if (hasNoDeviceId || hasNoAssetIds || hasNoPriceHistoryData) {
+    if (hasNoDeviceId || hasNoAssetIds || hasNoPriceHistoryData || cryptoPriceHistoryDataLoading) {
       return setBalanceChartDataLoading(true)
     }
 

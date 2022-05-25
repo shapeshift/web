@@ -1,6 +1,6 @@
 import { Box, Button, Collapse, Skeleton, SkeletonText } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
@@ -26,6 +26,11 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   const { name, description, isTrustedDescription } = asset || {}
   const query = useGetAssetDescriptionQuery(assetId)
   const isLoaded = !query.isLoading
+
+  // Collapse about section any time description changes
+  useLayoutEffect(() => {
+    setShowDescription(false)
+  }, [description])
 
   // If the height of the description is higher than the collapse element when it's closed
   // we should display the Show More button

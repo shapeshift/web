@@ -19,8 +19,14 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  selectTotalCryptoBalanceWithDelegations,
+  selectTotalFiatBalanceWithDelegations,
+} from 'state/slices/portfolioSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
+import { selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
@@ -61,6 +67,36 @@ export const FoxPage = (props: FoxPageProps) => {
 
   const selectedAsset = assets[selectedAssetIndex]
 
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, selectedAsset?.chainId),
+  )
+
+  const fiatBalanceFox = useAppSelector(state =>
+    selectTotalFiatBalanceWithDelegations(state, { assetId: FoxAssetId, accountSpecifier }),
+  )
+
+  const fiatBalanceFoxy = useAppSelector(state =>
+    selectTotalFiatBalanceWithDelegations(state, { assetId: FoxyAssetId, accountSpecifier }),
+  )
+
+  const cryptoBalanceFox = useAppSelector(state =>
+    selectTotalCryptoBalanceWithDelegations(state, { assetId: FoxAssetId, accountSpecifier }),
+  )
+
+  const cryptoBalanceFoxy = useAppSelector(state =>
+    selectTotalCryptoBalanceWithDelegations(state, { assetId: FoxyAssetId, accountSpecifier }),
+  )
+
+  const fiatBalances = useMemo(() => {
+    return [fiatBalanceFox, fiatBalanceFoxy]
+  }, [fiatBalanceFox, fiatBalanceFoxy])
+
+  const cryptoBalances = useMemo(() => {
+    return [cryptoBalanceFox, cryptoBalanceFoxy]
+  }, [cryptoBalanceFox, cryptoBalanceFoxy])
+
+  const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
+
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
   const { description } = assetFox || {}
@@ -93,15 +129,15 @@ export const FoxPage = (props: FoxPageProps) => {
             mb={4}
             width='full'
           >
-            <Total fiatAmount={'6000'} icons={[assetFox.icon, assetFoxy.icon]} />
+            <Total fiatAmount={totalFiatBalance} icons={[assetFox.icon, assetFoxy.icon]} />
             {isLargerThanMd &&
-              assets.map(asset => (
+              assets.map((asset, index) => (
                 <FoxTab
                   assetSymbol={asset.symbol}
                   assetIcon={asset.icon}
                   isSelected={props.activeAssetId === asset.assetId}
-                  cryptoAmount={'3000'}
-                  fiatAmount={'1000'}
+                  cryptoAmount={cryptoBalances[index]}
+                  fiatAmount={fiatBalances[index]}
                   onClick={() => handleTabClick(asset.assetId)}
                 />
               ))}
@@ -121,20 +157,20 @@ export const FoxPage = (props: FoxPageProps) => {
                       <FoxTab
                         assetSymbol={selectedAsset.symbol}
                         assetIcon={selectedAsset.icon}
-                        cryptoAmount={'3000'}
-                        fiatAmount={'1000'}
+                        cryptoAmount={cryptoBalances[selectedAssetIndex]}
+                        fiatAmount={fiatBalances[selectedAssetIndex]}
                       />
                     )}
                   </MenuButton>
                   <MenuList>
-                    {assets.map(asset => (
+                    {assets.map((asset, index) => (
                       <MenuItem onClick={() => handleTabClick(asset.assetId)}>
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}
                           isSelected={asset.assetId === props.activeAssetId}
-                          cryptoAmount={'3000'}
-                          fiatAmount={'1000'}
+                          cryptoAmount={cryptoBalances[index]}
+                          fiatAmount={fiatBalances[index]}
                           as={Box}
                         />
                       </MenuItem>

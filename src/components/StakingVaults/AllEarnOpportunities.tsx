@@ -10,6 +10,7 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -43,7 +44,7 @@ export const AllEarnOpportunities = () => {
     (opportunity: EarnOpportunityType) => {
       const { type, provider, contractAddress, chain, tokenAddress, rewardAddress, assetId } =
         opportunity
-      if (!isConnected && walletInfo?.deviceId !== 'DemoWallet') {
+      if (!isConnected && walletInfo?.deviceId !== DemoConfig.name) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }

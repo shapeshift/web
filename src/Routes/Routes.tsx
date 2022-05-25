@@ -1,5 +1,7 @@
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
@@ -18,12 +20,44 @@ function useLocationBackground() {
 
 export const Routes = () => {
   const { background, location } = useLocationBackground()
-  const { state } = useWallet()
+  const { connectDemo, state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
+  const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
+  const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
+    path: ['/demo/:appRoute(.+)', '/demo'],
+  })
+
+  useEffect(() => {
+    if (!matchDemoPath && shouldRedirectDemoRoute) return setShouldRedirectDemoRoute(false)
+    if (!matchDemoPath || state.isLoadingLocalWallet) return
+
+    state.walletInfo?.deviceId === DemoConfig.name
+      ? setShouldRedirectDemoRoute(true)
+      : connectDemo()
+  }, [
+    matchDemoPath,
+    shouldRedirectDemoRoute,
+    location.pathname,
+    state.walletInfo?.deviceId,
+    state.isLoadingLocalWallet,
+    connectDemo,
+  ])
 
   return (
     <Switch location={background || location}>
+      <Route path='/demo'>
+        {() => {
+          return shouldRedirectDemoRoute ? (
+            <Redirect
+              from='/'
+              to={
+                matchDemoPath?.params?.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'
+              }
+            />
+          ) : null
+        }}
+      </Route>
       {appRoutes.map((route, index) => {
         const MainComponent = route.main
         return (

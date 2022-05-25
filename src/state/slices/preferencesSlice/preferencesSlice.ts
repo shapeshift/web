@@ -1,9 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import { simpleLocale } from 'lib/browserLocale'
 
 import { getConfig } from '../../../config'
 
 export type FeatureFlags = {
+  Osmosis: boolean
   ReduxLogging: boolean
   WalletMigration: boolean
   BanxaRamp: boolean
@@ -16,10 +18,12 @@ export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
   balanceThreshold: string
+  selectedCurrency: SupportedFiatCurrencies
 }
 
 const initialState: Preferences = {
   featureFlags: {
+    Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
     BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,
@@ -27,6 +31,7 @@ const initialState: Preferences = {
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
+  selectedCurrency: 'USD',
 }
 
 export const preferences = createSlice({
@@ -41,6 +46,9 @@ export const preferences = createSlice({
     },
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
       state.selectedLocale = payload.locale
+    },
+    setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {
+      state.selectedCurrency = payload.currency
     },
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold

@@ -115,13 +115,12 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explore The",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
-    "orViewADemo": "or view a demo"
+    "viewADemo": "View a Demo"
   },
   "connectWallet": {
     "menu": {
@@ -293,7 +292,9 @@
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token",
-    "featureFlags": "Feature Flags"
+    "featureFlags": "Feature Flags",
+    "demoMode": "Demo Mode",
+    "clickToConnect": "Click to connect a wallet"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",
@@ -615,9 +616,32 @@
     },
     "settings": {
       "settings": "Settings",
+      "currency": "Currency",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "Hide balances below this value"
+      "balanceThresholdTooltip": "Hide balances below this value",
+      "currencies": {
+        "CNY": "Chinese Yuan",
+        "USD": "United States Dollar (default)",
+        "EUR": "Euro",
+        "JPY": "Japanese Yen",
+        "GBP": "Great Britain Pound",
+        "KRW": "Korean Won",
+        "INR": "Indian Rupee",
+        "CAD": "Canadian Dollar",
+        "HKD": "Hong Kong Dollar",
+        "AUD": "Australian Dollar",
+        "TWD": "New Taiwan Dollar",
+        "BRL": "Brazilian Real",
+        "CHF": "Swiss Franc",
+        "THB": "Thai Baht",
+        "MXN": "Mexican Peso",
+        "RUB": "Russian Ruble",
+        "SAR": "Saudi Riyal",
+        "SGD": "Singapore Dollar",
+        "ILS": "Israeli Shekel",
+        "IDR": "Indonesian Rupiah"
+      }
     }
   },
   "walletProvider": {
@@ -756,6 +780,28 @@
       "failure": {
         "header": "Error",
         "body": "Unable to connect Portis wallet"
+      }
+    },
+    "xdefi": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with XDEFI",
+        "connectFailure": "Unable to connect XDEFI wallet",
+        "network": "XDEFI isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed?"
+      },
+      "connect": {
+        "header": "Pair XDEFI",
+        "body": "Click Pair and login to XDEFI from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect XDEFI wallet"
+      },
+      "redirect": {
+        "header": "Open in XDEFI App",
+        "body": "Click to open ShapeShift dashboard in XDEFI",
+        "button": "Open"
       }
     },
     "shapeShift": {

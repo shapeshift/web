@@ -111,7 +111,6 @@ describe('ChainAdapterManager', () => {
 
   describe('getSupportedAdapters', () => {
     it('should return array of adapter classes', () => {
-      // @ts-ignore
       expect(getCAM().getSupportedAdapters()).toStrictEqual([expect.any(Function)])
     })
   })
@@ -133,12 +132,12 @@ describe('ChainAdapterManager', () => {
 
     it('should throw an error for an invalid ChainId', () => {
       const cam = new ChainAdapterManager({})
-      expect(() => cam.byChainId('fake:chainId')).toThrow('invalid')
+      expect(() => cam.byChainId('fake:chainId')).toThrow('Chain [fake:chainId] is not supported')
     })
 
     it('should throw an error if there is no supported adapter', () => {
       const cam = new ChainAdapterManager({})
-      expect(() => cam.byChainId('eip155:1')).toThrow('not supported')
+      expect(() => cam.byChainId('eip155:1')).toThrow('Chain [eip155:1] is not supported')
     })
   })
 })

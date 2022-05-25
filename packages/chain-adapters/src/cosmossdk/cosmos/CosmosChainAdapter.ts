@@ -1,10 +1,4 @@
-import {
-  ASSET_REFERENCE,
-  AssetId,
-  CHAIN_REFERENCE,
-  fromChainId,
-  toAssetId
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   CosmosSignTx,
@@ -37,11 +31,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<ChainTypes.Cosmos> {
   constructor(args: ChainAdapterArgs) {
     super(args)
 
-    const { chain, network } = fromChainId(this.chainId)
+    const chainId = this.chainId
 
     this.assetId = toAssetId({
-      chain,
-      network,
+      chainId,
       assetNamespace: 'slip44',
       assetReference: ASSET_REFERENCE.Cosmos
     })

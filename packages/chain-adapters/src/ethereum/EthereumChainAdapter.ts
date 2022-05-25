@@ -2,6 +2,7 @@ import { Contract } from '@ethersproject/contracts'
 import {
   ASSET_REFERENCE,
   AssetId,
+  CHAIN_NAMESPACE,
   ChainId,
   fromAssetId,
   fromChainId,
@@ -52,8 +53,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   constructor(args: ChainAdapterArgs) {
     if (args.chainId) {
       try {
-        const { chain } = fromChainId(args.chainId)
-        if (chain !== ChainTypes.Ethereum) {
+        const { chainNamespace } = fromChainId(args.chainId)
+        if (chainNamespace !== CHAIN_NAMESPACE.Ethereum) {
           throw new Error()
         }
         this.chainId = args.chainId
@@ -79,7 +80,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   async getAccount(pubkey: string): Promise<chainAdapters.Account<ChainTypes.Ethereum>> {
     try {
       const chainId = this.getChainId()
-      const { chain, network } = fromChainId(chainId)
       const { data } = await this.providers.http.getAccount({ pubkey })
 
       const balance = bnOrZero(data.balance).plus(bnOrZero(data.unconfirmedBalance))
@@ -88,8 +88,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         balance: balance.toString(),
         chainId,
         assetId: toAssetId({
-          chain,
-          network,
+          chainId,
           assetNamespace: 'slip44',
           assetReference: ASSET_REFERENCE.Ethereum
         }),
@@ -99,8 +98,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
           tokens: data.tokens.map((token) => ({
             balance: token.balance,
             assetId: toAssetId({
-              chain,
-              network,
+              chainId,
               assetNamespace: getAssetNamespace(token.type),
               assetReference: token.contract
             })

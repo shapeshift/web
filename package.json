@@ -39,7 +39,6 @@
     "@visx/responsive": "^2.8.0",
     "@visx/shape": "^2.4.0",
     "@visx/tooltip": "^2.8.0",
-    "@walletconnect/web3-provider": "^1.7.8",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",

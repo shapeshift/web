@@ -27,6 +27,11 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   const query = useGetAssetDescriptionQuery(assetId)
   const isLoaded = !query.isLoading
 
+  // Collapse about section any time description changes
+  useEffect(() => {
+    setShowDescription(false)
+  }, [description])
+
   // If the height of the description is higher than the collapse element when it's closed
   // we should display the Show More button
   useEffect(() => {

@@ -11,6 +11,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
@@ -27,21 +28,8 @@ import { useAppSelector } from 'state/store'
 
 type OpportunityCardProps = {
   isLoaded?: boolean
+  overrideAssetIconID: (asset: Asset) => string
 } & EarnOpportunityType
-
-const foxIcon =
-  'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/logo.png'
-const foxyIcon =
-  'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png'
-
-export const replaceIcon = (
-  valueToCheck: string,
-  valueToCompare: string,
-  replacementValue: string,
-): string => {
-  if (valueToCheck === valueToCompare) return replacementValue
-  else return valueToCheck
-}
 
 export const OpportunityCard = ({
   type,
@@ -57,6 +45,7 @@ export const OpportunityCard = ({
   expired,
   moniker,
   assetId,
+  overrideAssetIconID,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
@@ -112,7 +101,7 @@ export const OpportunityCard = ({
         <Flex alignItems='center'>
           <Flex>
             <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon src={replaceIcon(asset.icon, foxIcon, foxyIcon)} boxSize='10' zIndex={2} />
+              <AssetIcon src={overrideAssetIconID(asset)} boxSize='10' zIndex={2} />
             </SkeletonCircle>
           </Flex>
           <Box ml={4}>

@@ -1,13 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import {
-  AssetId,
-  ChainId,
-  fromChainId,
-  toAccountId,
-  toAssetId,
-  toChainId,
-} from '@shapeshiftoss/caip'
+import { AssetId, fromChainId, toAccountId, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
@@ -32,8 +25,7 @@ export type TxHistoryById = {
   [k: TxId]: Tx
 }
 
-/* this is a one to many relationship of asset id to tx id, built up as
- * tx's come into the store over websockets
+/* this is a one to many relationship of asset id to tx id
  *
  * e.g. an account with a single trade of FOX to USDC will produce the following
  * three related assets
@@ -58,10 +50,8 @@ export type TxIdByAccountId = {
   [k: AccountSpecifier]: TxId[]
 }
 
-// before the wallet is connected, we're idle
-// when we subscribe to the history, we're loading
-// after logic managing a delay after no new tx's in TransactionsProvider, we're loaded
-export type TxHistoryStatus = 'idle' | 'loading' | 'loaded'
+// loading status until all tx history is fetched
+export type TxHistoryStatus = 'loading' | 'loaded'
 
 type RebaseId = string
 type RebaseById = {
@@ -108,7 +98,7 @@ const initialState: TxHistory = {
     ids: [], // sorted, newest first
     byAssetId: {},
     byAccountId: {},
-    status: 'idle',
+    status: 'loading',
   },
   rebases: {
     byAssetId: {},
@@ -309,7 +299,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = (await adapters.byChainId(chainId)) as ChainAdapter<ChainTypes.Ethereum>
+        const adapter = adapters.byChainId(chainId) as ChainAdapter<ChainTypes.Ethereum>
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
@@ -331,45 +321,48 @@ export const txHistoryApi = createApi({
       },
     }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
-      /** TODO(0xdef1cafe): question - do we want to wait for all chains to be loaded from the getAccount calls
-       * or, be more failure tolerant and call them individually? calling individually makes it slightly harder
-       * to set the loaded status when they're all done
-       */
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
         if (isEmpty(accountSpecifierMap)) {
-          const data = 'getAllTxHistory: No account specifier given to get all tx history'
-          const error = { data, status: 400 }
-          return { error }
+          return { error: { data: 'getAllTxHistory: account specifier required', status: 400 } }
         }
-        // TODO(0xdef1cafe): don't just use the first account specifier
-        const [chainId, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
-        const accountSpecifier = `${chainId}:${pubkey}`
-        try {
-          let txs: chainAdapters.Transaction<ChainTypes>[] = []
-          const chainAdapters = getChainAdapters()
-          const { chain } = fromChainId(chainId)
-          const adapter = chainAdapters.byChain(chain)
-          let currentCursor: string = ''
-          const pageSize = 100
-          do {
-            const { cursor: _cursor, transactions } = await adapter.getTxHistory({
-              cursor: currentCursor,
-              pubkey,
-              pageSize,
-            })
-            currentCursor = _cursor
-            txs = [...txs, ...transactions]
-          } while (currentCursor)
-          dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier }))
-          return { data: txs }
-        } catch (err) {
-          return {
-            error: {
-              data: `getAllTxHistory: An error occurred fetching all tx history for accountSpecifier: ${accountSpecifier}`,
-              status: 500,
-            },
+
+        const txHistories = await Promise.allSettled(
+          Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
+            const { chain } = fromChainId(chainId)
+            const accountSpecifier = toAccountId({ chainId, account: pubkey })
+
+            const adapter = getChainAdapters().byChain(chain)
+
+            let currentCursor: string = ''
+            const txs: Array<chainAdapters.Transaction<ChainTypes>> = []
+            try {
+              do {
+                const { cursor, transactions } = await adapter.getTxHistory({
+                  cursor: currentCursor,
+                  pubkey,
+                  pageSize: 100,
+                })
+
+                txs.push(...transactions)
+                currentCursor = cursor
+              } while (currentCursor)
+            } catch (err) {
+              throw new Error(`failed to fetch tx history for account: ${accountSpecifier}: ${err}`)
+            }
+
+            dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier }))
+          }),
+        )
+
+        txHistories.forEach(promise => {
+          if (promise.status === 'rejected') {
+            moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
           }
-        }
+        })
+
+        dispatch(txHistory.actions.setStatus('loaded'))
+
+        return { data: [] }
       },
     }),
   }),

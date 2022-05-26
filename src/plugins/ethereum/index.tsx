@@ -21,11 +21,14 @@ export function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.ethereum.ParsedTx>(
+                const ws = new unchained.ws.Client<unchained.ethereum.EthereumTx>(
                   getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
                 )
 
-                return new ethereum.ChainAdapter({ providers: { http, ws } })
+                return new ethereum.ChainAdapter({
+                  providers: { http, ws },
+                  rpcUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+                })
               },
             ],
           ],

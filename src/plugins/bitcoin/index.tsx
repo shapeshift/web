@@ -21,7 +21,7 @@ export function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.Tx>(
+                const ws = new unchained.ws.Client<unchained.bitcoin.BitcoinTx>(
                   getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL,
                 )
 

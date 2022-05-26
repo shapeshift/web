@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v8.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.3.4...@shapeshiftoss/unchained-client-v8.4.0) (2022-05-26)
+
+
+### Features
+
+* thorswapper initialize ([#703](https://github.com/shapeshift/lib/issues/703)) ([73cc081](https://github.com/shapeshift/lib/commit/73cc081b66cc58177415bf425f7899b289cc33af))
+
 # [@shapeshiftoss/unchained-client-v8.3.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.3.3...@shapeshiftoss/unchained-client-v8.3.4) (2022-05-25)
 
 # [@shapeshiftoss/unchained-client-v8.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.3.2...@shapeshiftoss/unchained-client-v8.3.3) (2022-05-24)

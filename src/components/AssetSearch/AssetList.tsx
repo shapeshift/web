@@ -55,8 +55,8 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
    */
   const enrichAsset = (assets: Asset[]): Asset[] => {
     return assets.map(asset => {
-      const amount = rowData.find(d => d.assetId === asset.caip19)?.cryptoAmount
-      const assetMarketData = marketData.crypto.byId[asset.caip19]
+      const amount = rowData.find(d => d.assetId === asset.assetId)?.cryptoAmount
+      const assetMarketData = marketData.crypto.byId[asset.assetId]
       return {
         ...asset,
         cryptoAmount: amount ? Number(amount) : 0,
@@ -74,7 +74,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   }
 
   const sortedAssets = sortByAccountAndMarketCap(enrichAsset(assets))
-
+  
   return (
     <AutoSizer disableWidth className='auto-sizered'>
       {({ height }) =>

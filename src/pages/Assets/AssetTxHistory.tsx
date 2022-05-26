@@ -1,22 +1,14 @@
-import { useParams } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { Main } from 'components/Layout/Main'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 
-import { MatchParams } from './Asset'
-
-type AssetTransactionProps = {
-  route?: Route
-}
-
-export const AssetTxHistory: React.FC<AssetTransactionProps> = ({ route }) => {
-  const params = useParams<MatchParams>()
-  const assetId = `${params.chainId}/${params.assetSubId}`
-  if (!params.assetSubId && !params.chainId) return null
+export const AssetTxHistory: React.FC = () => {
+  const assetId = useRouteAssetId()
+  if (!assetId) return null
 
   return (
-    <Main route={route} titleComponent={<AssetHeader assetId={assetId} />}>
+    <Main titleComponent={<AssetHeader assetId={assetId} />}>
       <AssetTransactionHistory assetId={assetId} useCompactMode={false} />
     </Main>
   )

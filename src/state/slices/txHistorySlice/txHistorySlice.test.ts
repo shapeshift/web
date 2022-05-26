@@ -5,20 +5,31 @@ import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/t
 import { store } from 'state/store'
 
 import { selectLastNTxIds } from './selectors'
-import { makeUniqueTxId, TxHistory, txHistory } from './txHistorySlice'
+import { RebasesState, TxHistory, txHistory, TxsState } from './txHistorySlice'
+import { makeUniqueTxId } from './utils'
 
 describe('txHistorySlice', () => {
+  const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)
   beforeAll(() => {
     jest.resetModules()
   })
+  afterAll(() => consoleInfoSpy.mockRestore())
 
   it('returns empty object for initialState', async () => {
     expect(store.getState().txHistory).toEqual({
-      byId: {},
-      byAssetId: {},
-      byAccountId: {},
-      ids: [],
-      status: 'idle'
+      txs: {
+        byId: {},
+        byAssetId: {},
+        byAccountId: {},
+        ids: [],
+        status: 'idle',
+      },
+      rebases: {
+        byAssetId: {},
+        byAccountId: {},
+        ids: [],
+        byId: {},
+      },
     })
   })
 
@@ -26,25 +37,27 @@ describe('txHistorySlice', () => {
     const BtcSendSegwit = {
       ...BtcSend,
       accountType: UtxoAccountType.SegwitP2sh,
-      txid: '974983662185eaa16f3a4a880f753c9085ef99cd8182d0135c90aa9d7193c6cf'
+      txid: '974983662185eaa16f3a4a880f753c9085ef99cd8182d0135c90aa9d7193c6cf',
     }
 
     it('can sort txs going into store', async () => {
       // testTxs are in ascending order by time
       const transactions = reverse([...ethereumTransactions])
-      const ethCAIP2 = EthSend.caip2
-      const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
+      const ethChainId = EthSend.chainId
+      const accountSpecifier = `${ethChainId}:0xdef1cafe`
       // expected transaction order
-      const expected = map(transactions, tx => makeUniqueTxId(tx, accountSpecifier))
+      const expected = map(transactions, tx =>
+        makeUniqueTxId(accountSpecifier, tx.txid, tx.address),
+      )
 
       store.dispatch(txHistory.actions.clear())
 
       // shuffle txs before inserting them into the store
       const shuffledTxs = reverse(transactions) // transactions in the wrong order
       shuffledTxs.forEach(tx =>
-        store.dispatch(txHistory.actions.onMessage({ message: tx, accountSpecifier }))
+        store.dispatch(txHistory.actions.onMessage({ message: tx, accountSpecifier })),
       )
-      const history = store.getState().txHistory
+      const history = store.getState().txHistory.txs
 
       // The full list of transactions should be sorted by time
       expect(history.ids).toStrictEqual(expected)
@@ -57,172 +70,191 @@ describe('txHistorySlice', () => {
     it('should add new transactions', async () => {
       store.dispatch(txHistory.actions.clear())
 
-      const ethAccountSpecifier = `${EthSend.caip2}:0xdef1cafe`
+      const ethAccountSpecifier = `${EthSend.chainId}:0xdef1cafe`
 
       // new eth transaction (send)
       store.dispatch(
-        txHistory.actions.onMessage({ message: EthSend, accountSpecifier: ethAccountSpecifier })
+        txHistory.actions.onMessage({ message: EthSend, accountSpecifier: ethAccountSpecifier }),
       )
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(1)
+      expect(Object.values(store.getState().txHistory.txs.ids).length).toBe(1)
 
       // duplicate eth transaction (send)
       store.dispatch(
-        txHistory.actions.onMessage({ message: EthSend, accountSpecifier: ethAccountSpecifier })
+        txHistory.actions.onMessage({ message: EthSend, accountSpecifier: ethAccountSpecifier }),
       )
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(1)
+      expect(Object.values(store.getState().txHistory.txs.ids).length).toBe(1)
 
       // new eth transaction (receive)
       store.dispatch(
-        txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier })
+        txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier }),
       )
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(2)
+      expect(Object.values(store.getState().txHistory.txs.ids).length).toBe(2)
 
       // eth data exists
-      expect(store.getState().txHistory.byId[makeUniqueTxId(EthSend, ethAccountSpecifier)]).toEqual(
-        EthSend
-      )
       expect(
-        store.getState().txHistory.byId[makeUniqueTxId(EthReceive, ethAccountSpecifier)]
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthSend.txid, EthSend.address)
+        ],
+      ).toEqual(EthSend)
+      expect(
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
+        ],
       ).toEqual(EthReceive)
 
-      const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
+      const segwitNativeAccountSpecifier = `${BtcSend.chainId}:zpub`
 
       // new btc transaction (send)
       store.dispatch(
         txHistory.actions.onMessage({
           message: BtcSend,
-          accountSpecifier: segwitNativeAccountSpecifier
-        })
+          accountSpecifier: segwitNativeAccountSpecifier,
+        }),
       )
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(3)
+      expect(Object.values(store.getState().txHistory.txs.ids).length).toBe(3)
 
       // duplicate btc transaction (send)
       store.dispatch(
         txHistory.actions.onMessage({
           message: BtcSend,
-          accountSpecifier: segwitNativeAccountSpecifier
-        })
+          accountSpecifier: segwitNativeAccountSpecifier,
+        }),
       )
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(3)
+      expect(Object.values(store.getState().txHistory.txs.ids).length).toBe(3)
 
-      const segwitAccountSpecifier = `${BtcSend.caip2}:ypub`
+      const segwitAccountSpecifier = `${BtcSend.chainId}:ypub`
 
       // new btc transaction, different account type (send)
       store.dispatch(
         txHistory.actions.onMessage({
           message: BtcSendSegwit,
-          accountSpecifier: segwitAccountSpecifier
-        })
+          accountSpecifier: segwitAccountSpecifier,
+        }),
       )
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(4)
+      expect(Object.values(store.getState().txHistory.txs.ids).length).toBe(4)
 
       // btc data exists
       expect(
-        store.getState().txHistory.byId[makeUniqueTxId(BtcSend, segwitNativeAccountSpecifier)]
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address)
+        ],
       ).toEqual(BtcSend)
       expect(
-        store.getState().txHistory.byId[makeUniqueTxId(BtcSendSegwit, segwitAccountSpecifier)]
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address)
+        ],
       ).toEqual(BtcSendSegwit)
     })
 
     it('should update existing transactions', async () => {
       const EthReceivePending = { ...EthReceive, status: chainAdapters.TxStatus.Pending }
-      const ethAccountSpecifier = `${EthReceive.caip2}:0xdef1cafe`
+      const ethAccountSpecifier = `${EthReceive.chainId}:0xdef1cafe`
       store.dispatch(
         txHistory.actions.onMessage({
           message: EthReceivePending,
-          accountSpecifier: ethAccountSpecifier
-        })
+          accountSpecifier: ethAccountSpecifier,
+        }),
       )
 
       expect(
-        store.getState().txHistory.byId[makeUniqueTxId(EthReceivePending, ethAccountSpecifier)]
-          .status
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthReceivePending.txid, EthReceivePending.address)
+        ].status,
       ).toBe(chainAdapters.TxStatus.Pending)
 
       store.dispatch(
-        txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier })
+        txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier }),
       )
       expect(
-        store.getState().txHistory.byId[makeUniqueTxId(EthReceive, ethAccountSpecifier)].status
+        store.getState().txHistory.txs.byId[
+          makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
+        ].status,
       ).toBe(chainAdapters.TxStatus.Confirmed)
     })
 
     it('should add txids by accountSpecifier', async () => {
-      const ethAccountSpecifier = `${EthSend.caip2}:0xdef1cafe`
-      const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
-      const segwitAccountSpecifier = `${BtcSend.caip2}:ypub`
+      const ethAccountSpecifier = `${EthSend.chainId}:0xdef1cafe`
+      const segwitNativeAccountSpecifier = `${BtcSend.chainId}:zpub`
+      const segwitAccountSpecifier = `${BtcSend.chainId}:ypub`
 
       // new eth transaction (send)
       store.dispatch(
-        txHistory.actions.onMessage({ message: EthSend, accountSpecifier: ethAccountSpecifier })
+        txHistory.actions.onMessage({ message: EthSend, accountSpecifier: ethAccountSpecifier }),
       )
 
       // new eth transaction (receive)
       store.dispatch(
-        txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier })
+        txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier }),
       )
 
       // new btc transaction (send)
       store.dispatch(
         txHistory.actions.onMessage({
           message: BtcSend,
-          accountSpecifier: segwitNativeAccountSpecifier
-        })
+          accountSpecifier: segwitNativeAccountSpecifier,
+        }),
       )
 
       // new btc transaction, different account type (send)
       store.dispatch(
         txHistory.actions.onMessage({
           message: BtcSendSegwit,
-          accountSpecifier: segwitAccountSpecifier
-        })
+          accountSpecifier: segwitAccountSpecifier,
+        }),
       )
 
-      expect(store.getState().txHistory.byAccountId[ethAccountSpecifier]).toStrictEqual([
-        makeUniqueTxId(EthSend, ethAccountSpecifier),
-        makeUniqueTxId(EthReceive, ethAccountSpecifier)
+      expect(store.getState().txHistory.txs.byAccountId[ethAccountSpecifier]).toStrictEqual([
+        makeUniqueTxId(ethAccountSpecifier, EthSend.txid, EthSend.address),
+        makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address),
       ])
 
-      expect(store.getState().txHistory.byAccountId[segwitNativeAccountSpecifier]).toStrictEqual([
-        makeUniqueTxId(BtcSend, segwitNativeAccountSpecifier)
-      ])
+      expect(
+        store.getState().txHistory.txs.byAccountId[segwitNativeAccountSpecifier],
+      ).toStrictEqual([makeUniqueTxId(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address)])
 
-      expect(store.getState().txHistory.byAccountId[segwitAccountSpecifier]).toStrictEqual([
-        makeUniqueTxId(BtcSendSegwit, segwitAccountSpecifier)
+      expect(store.getState().txHistory.txs.byAccountId[segwitAccountSpecifier]).toStrictEqual([
+        makeUniqueTxId(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address),
       ])
     })
   })
 
   describe('selectLastNTxIds', () => {
     it('should memoize', () => {
-      const txHistory: TxHistory = {
+      const txs: TxsState = {
         byId: {},
         byAssetId: {},
         byAccountId: {},
         ids: ['a', 'b'],
-        status: 'idle'
+        status: 'idle',
       }
+      const rebases: RebasesState = {
+        byAssetId: {},
+        byAccountId: {},
+        ids: [],
+        byId: {},
+      }
+
+      const txHistory: TxHistory = { txs, rebases }
 
       const state = {
         ...mockStore,
-        txHistory
+        txHistory,
       }
       const first = selectLastNTxIds(state, 1)
 
       const newTxHistory: TxHistory = {
-        byId: {},
-        byAssetId: {},
-        byAccountId: {},
-        // this array will always change on every new tx
-        ids: ['a', 'b', 'c'],
-        status: 'idle'
+        txs: {
+          ...txs,
+          // this array will always change on every new tx
+          ids: ['a', 'b', 'c'],
+        },
+        rebases,
       }
 
       // redux will replace the array on update
       const newState = {
         ...mockStore,
-        txHistory: newTxHistory
+        txHistory: newTxHistory,
       }
       const second = selectLastNTxIds(newState, 1)
 

@@ -6,7 +6,7 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import { lazy, Suspense, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -15,8 +15,8 @@ import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
-import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import type { SendInput } from '../Form'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 
 const PERMISSION_ERROR = 'Permission denied'
 

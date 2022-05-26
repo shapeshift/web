@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react'
 import { AccountAssetsList } from 'components/AccountAssets/AccountAssetsList'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { Card } from 'components/Card/Card'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -12,7 +12,7 @@ type AccountRowWithTokensProps = {
 
 export const AccountRowWithTokens = ({ accountId }: AccountRowWithTokensProps) => {
   const assetIds = useAppSelector(state =>
-    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId)
+    selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
   return (
     <Card variant='outline'>

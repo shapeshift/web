@@ -1,26 +1,6 @@
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { WithdrawType, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { ChainTypes, WithdrawType } from '@shapeshiftoss/types'
 
-type EstimatedGas = {
-  estimatedGasCrypto?: string
-}
-
-type YearnWithdrawValues = WithdrawValues &
-  EstimatedGas & {
-    txStatus: string
-    usedGasFee: string
-  }
-
-type YearnWithdrawState = {
-  vault: SupportedYearnVault
-  userAddress: string | null
-  approve: EstimatedGas
-  withdraw: YearnWithdrawValues
-  loading: boolean
-  pricePerShare: string
-  txid: string | null
-}
+import { YearnWithdrawActions, YearnWithdrawActionType, YearnWithdrawState } from './WithdrawCommon'
 
 export const initialState: YearnWithdrawState = {
   txid: null,
@@ -41,7 +21,7 @@ export const initialState: YearnWithdrawState = {
     tokenId: '',
     underlyingTokenBalance: {
       amount: '0',
-      amountUsdc: '0'
+      amountUsdc: '0',
     },
     metadata: {
       symbol: '',
@@ -56,8 +36,8 @@ export const initialState: YearnWithdrawState = {
       displayName: '',
       displayIcon: '',
       defaultDisplayToken: '',
-      hideIfNoDeposits: false
-    }
+      hideIfNoDeposits: false,
+    },
   },
   userAddress: null,
   loading: false,
@@ -69,57 +49,9 @@ export const initialState: YearnWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: WithdrawType.Instant
-  }
+    withdrawType: WithdrawType.INSTANT,
+  },
 }
-
-export enum YearnWithdrawActionType {
-  SET_VAULT = 'SET_VAULT',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
-  SET_WITHDRAW = 'SET_WITHDRAW',
-  SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
-  SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS'
-}
-
-type SetVaultAction = {
-  type: YearnWithdrawActionType.SET_VAULT
-  payload: YearnVault | null
-}
-
-type SetWithdraw = {
-  type: YearnWithdrawActionType.SET_WITHDRAW
-  payload: Partial<YearnWithdrawValues>
-}
-
-type SetUserAddress = {
-  type: YearnWithdrawActionType.SET_USER_ADDRESS
-  payload: string
-}
-
-type SetLoading = {
-  type: YearnWithdrawActionType.SET_LOADING
-  payload: boolean
-}
-
-type SetPricePerShare = {
-  type: YearnWithdrawActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
-type SetTxid = {
-  type: YearnWithdrawActionType.SET_TXID
-  payload: string
-}
-
-type YearnWithdrawActions =
-  | SetVaultAction
-  | SetWithdraw
-  | SetUserAddress
-  | SetLoading
-  | SetPricePerShare
-  | SetTxid
 
 export const reducer = (state: YearnWithdrawState, action: YearnWithdrawActions) => {
   switch (action.type) {

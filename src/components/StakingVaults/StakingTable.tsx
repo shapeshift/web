@@ -1,11 +1,11 @@
-import { Tag } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { Skeleton, Tag } from '@chakra-ui/react'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AssetCell } from './Cells'
 
@@ -24,27 +24,33 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: '#',
         Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
-        )
+        ),
       },
       {
         Header: 'Asset',
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => (
-          <AssetCell
-            assetId={row.original.assetId}
-            subText={row.original.provider}
-            showTeaser={showTeaser}
-            postFix={`(${row.original.version})`}
-            onClick={() => onClick(row.original)}
-          />
+          <Skeleton isLoaded={row.original.isLoaded}>
+            <AssetCell
+              assetId={row.original.assetId}
+              subText={row.original.provider}
+              showTeaser={showTeaser}
+              showAssetSymbol={row.original.showAssetSymbol}
+              postFix={row.original.version && `(${row.original.version})`}
+            />
+          </Skeleton>
         ),
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: 'Type',
         accessor: 'type',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value }: { value: string }) => <Tag textTransform='capitalize'>{value}</Tag>
+        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+          <Skeleton isLoaded={row.original.isLoaded}>
+            <Tag textTransform='capitalize'>{value.replace('_', ' ')}</Tag>
+          </Skeleton>
+        ),
       },
       {
         Header: 'APY',
@@ -52,35 +58,46 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         isNumeric: true,
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
-          <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
-            <Amount.Percent value={value} />
-          </Tag>
+          <Skeleton isLoaded={row.original.isLoaded}>
+            <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
+              <Amount.Percent value={value} />
+            </Tag>
+          </Skeleton>
         ),
         sortType: (a: RowProps, b: RowProps): number =>
-          bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1
+          bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1,
       },
       {
         Header: 'TVL',
         accessor: 'tvl',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value }: { value: string }) => <Amount.Fiat value={value} />
+        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+          <Skeleton isLoaded={row.original.isLoaded}>
+            <Amount.Fiat value={value} />
+          </Skeleton>
+        ),
       },
       {
         Header: 'Balance',
         accessor: 'fiatAmount',
-        Cell: ({ value }: { value: string }) =>
-          bnOrZero(value).gt(0) ? (
-            <Amount.Fiat value={value} color='green.500' />
-          ) : (
-            <RawText>-</RawText>
-          )
-      }
+        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+          <Skeleton isLoaded={row.original.isLoaded}>
+            {bnOrZero(value).gt(0) ? (
+              <Amount.Fiat value={value} color='green.500' />
+            ) : (
+              <RawText>-</RawText>
+            )}
+          </Skeleton>
+        ),
+      },
     ],
-    // React-tables requires the use of a useMemo
-    // but we do not want it to recompute the values onClick
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showTeaser]
+    [showTeaser],
   )
 
-  return <ReactTable data={data} columns={columns} />
+  const handleRowClick = useCallback(
+    (row: Row<EarnOpportunityType>) => onClick(row.original),
+    [onClick],
+  )
+
+  return <ReactTable data={data} columns={columns} onRowClick={handleRowClick} />
 }

@@ -3,78 +3,134 @@ import { Flex } from '@chakra-ui/layout'
 import {
   Button,
   FormControl,
-  ModalCloseButton,
   ModalFooter,
   ModalHeader,
+  Stack,
   Text as CText,
-  Tooltip
+  Tooltip,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
-import { Asset } from '@shapeshiftoss/types'
-import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
-import { FormProvider, useForm } from 'react-hook-form'
+import { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+// @ts-ignore this will fail at 'file differs in casing' error
+import {
+  ConfirmFormFields,
+  ConfirmFormInput,
+  TxFeeRadioGroup,
+} from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
+import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
+import { useEffect, useMemo, useState } from 'react'
+import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId,
+  selectRewardsByValidator,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import { ClaimPath } from './ClaimConfirmRouter'
-
-export enum Field {
-  FeeType = 'feeType'
-}
-
-export type StakingValues = {
-  [Field.FeeType]: chainAdapters.FeeDataKey
-}
+import { ClaimPath, Field, StakingValues } from '../StakingCommon'
 
 type ClaimConfirmProps = {
-  assetId: CAIP19
-  cryptoStakeAmount: BigNumber
-  fiatAmountAvailable: string
+  assetId: AssetId
+  accountSpecifier: AccountId
+  validatorAddress: string
 }
 
-// TODO: Wire up the whole component with staked data
 export const ClaimConfirm = ({
   assetId,
-  cryptoStakeAmount,
-  fiatAmountAvailable
+  accountSpecifier,
+  validatorAddress,
 }: ClaimConfirmProps) => {
-  const methods = useForm<StakingValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FeeType]: chainAdapters.FeeDataKey.Average
-    }
+  const [feeData, setFeeData] = useState<FeePrice | null>(null)
+  const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
+    name: ConfirmFormFields.FeeType,
   })
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
+
+  const methods = useFormContext<StakingValues>()
 
   const { handleSubmit } = methods
 
+  const { cosmosStaking } = useModal()
+  const translate = useTranslate()
   const memoryHistory = useHistory()
-  const onSubmit = (result: any) => {
-    memoryHistory.push(ClaimPath.Broadcast, { result })
+  const chainAdapterManager = useChainAdapters()
+  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
+
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
+  useEffect(() => {
+    ;(async () => {
+      const feeData = await adapter.getFeeData({})
+
+      const txFees = getFormFees(feeData, asset.precision, marketData.price)
+
+      setFeeData(txFees)
+    })()
+  }, [adapter, asset.precision, marketData.price])
+
+  const {
+    state: { wallet, isConnected },
+    dispatch,
+  } = useWallet()
+
+  const rewardsCryptoAmount = useAppSelector(state =>
+    selectRewardsByValidator(state, { accountSpecifier, validatorAddress, assetId }),
+  )
+
+  const rewardsCryptoAmountPrecision = useMemo(
+    () => bnOrZero(rewardsCryptoAmount).div(`1e+${asset.precision}`).toString(),
+    [asset.precision, rewardsCryptoAmount],
+  )
+  const rewardsFiatAmountPrecision = useMemo(
+    () => bnOrZero(rewardsCryptoAmountPrecision).times(marketData.price).toString(),
+    [marketData, rewardsCryptoAmountPrecision],
+  )
+
+  const onSubmit = async () => {
+    if (!wallet || !feeData) return
+    if (!isConnected) {
+      memoryHistory.goBack()
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
+
+    const fees = feeData[activeFee]
+    const gas = fees.chainSpecific.gasLimit
+
+    methods.setValue(Field.GasLimit, gas)
+    methods.setValue(Field.TxFee, fees.txFee)
+    methods.setValue(Field.FiatFee, fees.fiatFee)
+    methods.setValue(Field.CryptoAmount, rewardsCryptoAmount)
+
+    memoryHistory.push(ClaimPath.Broadcast)
   }
 
-  const translate = useTranslate()
+  const hasEnoughBalance = useMemo(
+    () => feeData && cryptoBalanceHuman.gt(bnOrZero(feeData[activeFee].txFee)),
+    [cryptoBalanceHuman, feeData, activeFee],
+  )
 
-  const { cosmosStaking } = useModal()
+  const handleCancel = () => {
+    memoryHistory.goBack()
+    cosmosStaking.close()
+  }
 
-  const handleCancel = cosmosStaking.close
-
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId,
-    chain: 'osmosis'
-  }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
       <SlideTransition>
-        <ModalCloseButton borderRadius='full' />
         <Flex
           as='form'
           pt='14px'
@@ -86,13 +142,18 @@ export const ClaimConfirm = ({
           justifyContent='space-between'
         >
           <ModalHeader textAlign='center'>
-            <Amount.Fiat fontWeight='bold' fontSize='4xl' mb={-4} value={fiatAmountAvailable} />
+            <Amount.Fiat
+              fontWeight='bold'
+              fontSize='4xl'
+              mb={-4}
+              value={rewardsFiatAmountPrecision}
+            />
           </ModalHeader>
           <Amount.Crypto
             color='gray.500'
             fontWeight='normal'
             fontSize='xl'
-            value={cryptoStakeAmount.toPrecision()}
+            value={rewardsCryptoAmountPrecision}
             symbol={asset.symbol}
           />
           <Flex mb='6px' mt='15px' width='100%'>
@@ -101,7 +162,7 @@ export const ClaimConfirm = ({
               &nbsp;
               <Tooltip
                 label={translate('defi.modals.staking.tooltip.gasFees', {
-                  networkName: asset.name
+                  networkName: asset.name,
                 })}
               >
                 <InfoOutlineIcon />
@@ -109,24 +170,7 @@ export const ClaimConfirm = ({
             </CText>
           </Flex>
           <FormControl>
-            <TxFeeRadioGroup
-              asset={asset}
-              mb='10px'
-              fees={{
-                slow: {
-                  txFee: '0',
-                  fiatFee: '0'
-                },
-                average: {
-                  txFee: '0.01',
-                  fiatFee: '0.02'
-                },
-                fast: {
-                  txFee: '0.03',
-                  fiatFee: '0.04'
-                }
-              }}
-            />
+            <TxFeeRadioGroup asset={asset} mb='10px' fees={feeData} />
           </FormControl>
           <Text
             mt={1}
@@ -135,8 +179,8 @@ export const ClaimConfirm = ({
             fontSize={'sm'}
             translation='defi.modals.claim.rewardDepositInfo'
           />
-          <ModalFooter width='100%' flexDir='column' textAlign='center' mt={10}>
-            <Flex width='full' justifyContent='space-between'>
+          <ModalFooter width='100%' p='0' flexDir='column' textAlign='center' mt={10}>
+            <Stack direction='row' width='full' justifyContent='space-between'>
               <Button
                 onClick={handleCancel}
                 size='lg'
@@ -146,10 +190,23 @@ export const ClaimConfirm = ({
               >
                 <Text translation='common.cancel' mx={5} />
               </Button>
-              <Button colorScheme={'blue'} mb={2} size='lg' type='submit' fontWeight='normal'>
-                <Text translation={'defi.modals.claim.confirmAndClaim'} />
+              <Button
+                colorScheme={!hasEnoughBalance ? 'red' : 'blue'}
+                isDisabled={!hasEnoughBalance}
+                mb={2}
+                size='lg'
+                type='submit'
+                fontWeight='normal'
+              >
+                <Text
+                  translation={
+                    hasEnoughBalance
+                      ? 'defi.modals.claim.confirmAndClaim'
+                      : 'common.insufficientFunds'
+                  }
+                />
               </Button>
-            </Flex>
+            </Stack>
           </ModalFooter>
         </Flex>
       </SlideTransition>

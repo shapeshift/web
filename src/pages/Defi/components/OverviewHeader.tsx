@@ -30,14 +30,16 @@ function EarnStat({ label, value }: EarnStatProps) {
 
 export const OverviewHeader = ({
   earnBalance,
-  walletBalance
+  walletBalance,
 }: {
   earnBalance: UseEarnBalancesReturn
   walletBalance: string
 }) => {
-  if (earnBalance.vaults.loading) return null
+  if (earnBalance.loading) return null
 
-  const netWorth = bn(earnBalance.totalEarningBalance).plus(bn(walletBalance)).toString()
+  const walletBalanceWithoutEarn = bn(walletBalance)
+    .minus(bn(earnBalance.totalEarningBalance))
+    .toString()
 
   return (
     <Card variant='unstyled' textAlign='center'>
@@ -48,7 +50,7 @@ export const OverviewHeader = ({
               <Text translation='defi.netWorth' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value={netWorth} />
+              <Amount.Fiat value={walletBalance} />
             </StatNumber>
           </Stat>
         </StatGroup>
@@ -58,7 +60,7 @@ export const OverviewHeader = ({
           gridTemplateColumns='repeat(auto-fit,minmax(200px,1fr))'
           gridGap={{ base: 0, lg: 6 }}
         >
-          <EarnStat label='defi.walletBalance' value={walletBalance} />
+          <EarnStat label='defi.walletBalance' value={walletBalanceWithoutEarn} />
           <EarnStat label='defi.earnBalance' value={earnBalance.totalEarningBalance} />
         </SimpleGrid>
       </Card.Footer>

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useNormalizeOpportunities returns transformed array of active opportunities sorted by cryptoAmount when there are active staking opportunities 1`] = `
+Array [
+  Object {
+    "apy": "0.1528209855",
+    "assetId": "cosmos:cosmoshub-4/slip44:118",
+    "chain": "cosmos",
+    "contractAddress": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+    "cryptoAmount": "0.407785",
+    "fiatAmount": "4.2",
+    "isLoaded": true,
+    "moniker": "ShapeShift DAO",
+    "provider": "Cosmos",
+    "rewardAddress": "",
+    "showAssetSymbol": false,
+    "tokenAddress": "118",
+    "tvl": "21040543.6367982",
+    "type": "token_staking",
+    "version": "ShapeShift DAO Validator",
+  },
+  Object {
+    "apy": "0.1546887975",
+    "assetId": "cosmos:cosmoshub-4/slip44:118",
+    "chain": "cosmos",
+    "contractAddress": "cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn",
+    "cryptoAmount": "0.013967",
+    "fiatAmount": "0.24",
+    "isLoaded": true,
+    "moniker": "Cosmostation",
+    "provider": "Cosmos",
+    "rewardAddress": "",
+    "showAssetSymbol": false,
+    "tokenAddress": "118",
+    "tvl": "63799889.014332",
+    "type": "token_staking",
+    "version": "Cosmostation Validator",
+  },
+]
+`;
+
+exports[`useNormalizeOpportunities returns transformed array of staking opportunities when there is no active staking opportunity 1`] = `Array []`;

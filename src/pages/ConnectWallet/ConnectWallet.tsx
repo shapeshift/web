@@ -1,7 +1,6 @@
 import { Button } from '@chakra-ui/button'
 import { DarkMode } from '@chakra-ui/color-mode'
-import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Badge, Center, Circle, Flex, Link } from '@chakra-ui/layout'
+import { Center, Circle, Flex, Link, Stack } from '@chakra-ui/layout'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
@@ -9,22 +8,25 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { Dispatch, useEffect } from 'react'
 import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
+import { generatePath, matchPath } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import Orbs from 'assets/orbs.svg'
 import OrbsStatic from 'assets/orbs-static.png'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
-import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { ActionTypes, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useQuery } from 'hooks/useQuery/useQuery'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { colors } from 'theme/colors'
 
 async function connectCypressWallet(
   keyring: Keyring,
   dispatch: Dispatch<ActionTypes>,
   walletSeed: string,
-  walletPassword: string
+  walletPassword: string,
 ) {
   // Import wallet
   const vault = await Vault.create()
@@ -49,14 +51,14 @@ async function connectCypressWallet(
       name,
       icon,
       deviceId,
-      meta: { label: vault.meta.get('name') as string }
-    }
+      meta: { label: vault.meta.get('name') as string },
+    },
   })
   dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 }
 
 export const ConnectWallet = () => {
-  const { state, dispatch } = useWallet()
+  const { state, dispatch, connectDemo } = useWallet()
   const isCypressTest =
     localStorage.hasOwnProperty('cypressWalletSeed') &&
     localStorage.hasOwnProperty('cypressWalletPassword')
@@ -66,7 +68,23 @@ export const ConnectWallet = () => {
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
-    hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
+    // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
+    // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+    // The (/:chainId/:assetSubId) part is URI encoded as one entity in the regular app flow in <AssetAccountRow />, using generatePath()
+    // This applies a similar logic here, that works with history.push()
+    const match = matchPath<{ accountId?: string; chainId?: string; assetSubId?: string }>(
+      query.returnUrl,
+      {
+        path: '/accounts/:accountId/:chainId/:assetSubId',
+      },
+    )
+    const path = match
+      ? generatePath('/accounts/:accountId/:assetId', {
+          accountId: match?.params?.accountId ?? '',
+          assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
+        })
+      : query?.returnUrl
+    hasWallet && history.push(path ?? '/dashboard')
     // Programmatic login for Cypress tests
     // The first `!state.isConnected` filters any re-render if the wallet is already connected.
     if (isCypressTest && !state.isConnected) {
@@ -98,17 +116,11 @@ export const ConnectWallet = () => {
         alignItems={'center'}
       >
         <DarkMode>
-          <Flex width='full' alignItems='center' justifyContent='center'>
-            <Text color='white' fontWeight='bold' translation='connectWalletPage.shapeshift' />
-            <Badge colorScheme='blue' ml={2}>
-              {translate('connectWalletPage.alpha')}
-            </Badge>
-          </Flex>
           <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
-            <Link href='/legal/terms-of-service'>
+            <Link href='/#/legal/terms-of-service'>
               <Text color='gray.500' translation='common.terms' />
             </Link>
-            <Link href='/legal/privacy-policy'>
+            <Link href='/#/legal/privacy-policy'>
               <Text color='gray.500' translation='common.privacy' />
             </Link>
           </Flex>
@@ -128,7 +140,7 @@ export const ConnectWallet = () => {
           height: '100vh',
           backgroundImage: `url(${isFirefox ? OrbsStatic : Orbs})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center center'
+          backgroundPosition: 'center center',
         }}
       >
         <Circle size='100px' mb={6}>
@@ -149,16 +161,40 @@ export const ConnectWallet = () => {
           textAlign='center'
           translation='connectWalletPage.body'
         />
-        <Button
-          size='lg'
-          zIndex={1}
-          colorScheme='blue'
-          rightIcon={<ArrowForwardIcon />}
-          onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-          data-test='connect-wallet-button'
+        <Stack
+          alignItems='center'
+          spacing={{ base: 2, md: 8 }}
+          mx='auto'
+          direction={{ base: 'column', md: 'row' }}
         >
-          <Text translation='connectWalletPage.cta' />
-        </Button>
+          <Button
+            size='lg'
+            zIndex={1}
+            colorScheme='blue'
+            onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+            data-test='connect-wallet-button'
+          >
+            <Text translation='connectWalletPage.cta' />
+          </Button>
+          <Flex alignItems='center' justifyContent='center'>
+            <Text
+              color='gray.500'
+              fontSize='lg'
+              fontWeight='bold'
+              textAlign='center'
+              translation='common.or'
+            />
+          </Flex>
+          <Button
+            size='lg'
+            zIndex={1}
+            colorScheme='gray'
+            onClick={connectDemo}
+            isLoading={state.isLoadingLocalWallet}
+          >
+            <Text translation='connectWalletPage.viewADemo' />
+          </Button>
+        </Stack>
       </Center>
     </Page>
   )

@@ -1,62 +1,77 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
-  useNormalizeOpportunities
+  useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
 type EarnOpportunitiesProps = {
   tokenId?: string
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   isLoaded?: boolean
 }
 
-export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
+export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   const history = useHistory()
   const location = useLocation()
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const vaults = useYearnVaults()
-  //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
+  const { opportunities: foxyRows } = useFoxyBalances()
+  //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
-    foxyArray: []
-  }).filter(vault => vault.tokenAddress === asset.tokenId)
+    foxyArray: foxyRows,
+    cosmosStakingOpportunities: [],
+  }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chain, tokenAddress } = opportunity
+    const { type, provider, contractAddress, chain, tokenAddress, rewardAddress } = opportunity
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
 
+    // TODO remove this condition once staking modals are unified
+    // Currently vault staking modals do not have overview tab
+    const pathname =
+      type === DefiType.TokenStaking
+        ? `/defi/${type}/${provider}/overview`
+        : `/defi/${type}/${provider}/deposit`
+
     history.push({
-      pathname: `/defi/${type}/${provider}/deposit`,
+      pathname,
       search: qs.stringify({
         chain,
         contractAddress,
-        tokenId: tokenAddress
+        tokenId: tokenAddress,
+        rewardId: rewardAddress,
       }),
-      state: { background: location }
+      state: { background: location },
     })
   }
+
+  if (allRows.length === 0) return null
 
   return (
     <Card>

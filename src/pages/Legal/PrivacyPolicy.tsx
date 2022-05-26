@@ -10,7 +10,7 @@ export const PrivacyPolicy = () => {
           <Center flexDirection={'column'}>
             <Text as='h3' translation={'connectWalletPage.shapeshift'} />
             <Text as='h1' translation={'common.privacy'} />
-            <Text as='h3' translation={'Dated: January 2022'} mt={4} />
+            <Text as='h3' translation={'common.legalDated'} mt={4} />
           </Center>
           <RawText as='p'>
             This notice summarizes our data collection, transfer, and protection practices

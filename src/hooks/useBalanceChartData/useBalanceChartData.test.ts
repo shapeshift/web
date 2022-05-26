@@ -1,29 +1,30 @@
+import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
+import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import {
   Bucket,
-  bucketTxs,
+  bucketEvents,
   calculateBucketPrices,
   makeBuckets,
-  timeframeMap
+  timeframeMap,
 } from './useBalanceChartData'
 
 const mockedDate = '2021-11-20T00:00:00Z'
 
-const ethCaip19 = 'eip155:1/slip44:60'
-const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+const ethAssetId = 'eip155:1/slip44:60'
+const foxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 
 describe('makeBuckets', () => {
   it('can make buckets', () => {
-    const assetIds = [ethCaip19]
+    const assetIds = [ethAssetId]
     const ethBalance = '42069'
     const balances = {
-      [ethCaip19]: ethBalance
+      [ethAssetId]: ethBalance,
     }
     ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
       const bucketsAndMeta = makeBuckets({ assetIds, balances, timeframe })
@@ -32,7 +33,7 @@ describe('makeBuckets', () => {
         const { balance } = bucket
         expect(balance.fiat.toNumber()).toEqual(0)
         expect(Object.keys(balance.crypto)).toEqual(assetIds)
-        expect(balance.crypto[ethCaip19]).toEqual(bn(ethBalance))
+        expect(balance.crypto[ethAssetId]).toEqual(bn(ethBalance))
       })
     })
   })
@@ -51,15 +52,16 @@ describe('bucketTxs', () => {
     const value = transfer.value
 
     const balances = {
-      [foxCaip19]: value
+      [foxAssetId]: value,
     }
-    const assetIds = [foxCaip19]
+    const assetIds = [foxAssetId]
     const timeframe = HistoryTimeframe.YEAR
     const buckets = makeBuckets({ assetIds, balances, timeframe })
 
     const txs = [FOXSend]
+    const rebases: RebaseHistory[] = []
 
-    const bucketedTxs = bucketTxs(txs, buckets)
+    const bucketedTxs = bucketEvents(txs, rebases, buckets)
 
     const totalTxs = bucketedTxs.reduce<number>((acc, bucket: Bucket) => acc + bucket.txs.length, 0)
 
@@ -85,60 +87,63 @@ describe('calculateBucketPrices', () => {
     const value = transfer.value
 
     const balances = {
-      [foxCaip19]: '0'
+      [foxAssetId]: '0',
     }
-    const assetIds = [foxCaip19]
+    const assetIds = [foxAssetId]
     const timeframe = HistoryTimeframe.YEAR
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
 
     const txs = [FOXSend]
 
     const priceHistoryData: PriceHistoryData = {
-      [foxCaip19]: [{ price: 0, date: Number() }]
+      [foxAssetId]: [{ price: 0, date: Number() }],
     }
 
     const portfolioAssets: PortfolioAssets = {
-      [foxCaip19]: fox
+      [foxAssetId]: fox,
     }
 
-    const buckets = bucketTxs(txs, emptyBuckets)
+    const rebases: RebaseHistory[] = []
+    const buckets = bucketEvents(txs, rebases, emptyBuckets)
 
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal: '0',
     })
 
-    expect(calculatedBuckets[0].balance.crypto[foxCaip19].toFixed(0)).toEqual(value)
+    expect(calculatedBuckets[0].balance.crypto[foxAssetId].toFixed(0)).toEqual(value)
     expect(
-      calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[foxCaip19].toFixed(0)
+      calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[foxAssetId].toFixed(0),
     ).toEqual(value)
   })
 
   it('has zero balance 1 year back', () => {
     const txs = [...ethereumTransactions]
     const balances = {
-      [ethCaip19]: '52430152924656054'
+      [ethAssetId]: '52430152924656054',
     }
-    const assetIds = [ethCaip19]
+    const assetIds = [ethAssetId]
     const timeframe = HistoryTimeframe.YEAR
     const priceHistoryData: PriceHistoryData = {
-      [ethCaip19]: [{ price: 0, date: Number() }]
+      [ethAssetId]: [{ price: 0, date: Number() }],
     }
     const portfolioAssets: PortfolioAssets = {
-      [ethCaip19]: ethereum
+      [ethAssetId]: ethereum,
     }
-
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
-    const buckets = bucketTxs(txs, emptyBuckets)
+    const rebases: RebaseHistory[] = []
+    const buckets = bucketEvents(txs, rebases, emptyBuckets)
 
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal: '0',
     })
-    expect(calculatedBuckets[0].balance.crypto[ethCaip19].toNumber()).toEqual(0)
+    expect(calculatedBuckets[0].balance.crypto[ethAssetId].toNumber()).toEqual(0)
   })
 })

@@ -2,13 +2,16 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
-import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import {
   setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId
+  setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { NativeConfig } from '../config'
 
 export type UseNativeSuccessPropTypes = { vault: Vault }
 
@@ -26,11 +29,11 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         const deviceId = vault.id
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = (await vault.get(
-          '#mnemonic'
+          '#mnemonic',
         )) as native.crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
         await wallet.loadDevice({ mnemonic, deviceId })
-        const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+        const { name, icon } = NativeConfig
         const walletLabel = vault.meta.get('name') as string
         dispatch({
           type: WalletActions.SET_WALLET,
@@ -39,8 +42,8 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
             name,
             icon,
             deviceId,
-            meta: { label: walletLabel }
-          }
+            meta: { label: walletLabel },
+          },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

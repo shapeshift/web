@@ -1,6 +1,7 @@
 import { theme } from "../src/theme/theme";
 import { themes } from "@storybook/theming";
 import { initialize, mswDecorator } from 'msw-storybook-addon';
+import { I18nDecorator } from "./decorators";
 
 initialize({
   onUnhandledRequest: 'error'
@@ -36,4 +37,4 @@ export const parameters = {
   },
 };
 
-export const decorators = [mswDecorator];
+export const decorators = [mswDecorator, I18nDecorator];

@@ -9,7 +9,7 @@ type Scenario = [string, FiatTypeEnum, string[]]
 
 function setup({
   locale,
-  fiat
+  fiat,
 }: {
   locale?: string
   fiat: FiatTypeEnum
@@ -36,8 +36,8 @@ describe('useLocaleFormatter', () => {
         '$0.000123',
         '$0.0000123',
         '$0.00000123',
-        '<$0.000001'
-      ]
+        '<$0.000001',
+      ],
     ],
     [
       'en-GB',
@@ -56,8 +56,8 @@ describe('useLocaleFormatter', () => {
         '€0.000123',
         '€0.0000123',
         '€0.00000123',
-        '<€0.000001'
-      ]
+        '<€0.000001',
+      ],
     ],
     [
       'de-DE',
@@ -76,8 +76,8 @@ describe('useLocaleFormatter', () => {
         '0,000123 €',
         '0,0000123 €',
         '0,00000123 €',
-        '<0,000001 €'
-      ]
+        '<0,000001 €',
+      ],
     ],
     [
       'en',
@@ -96,8 +96,8 @@ describe('useLocaleFormatter', () => {
         '¥0.000123',
         '¥0.0000123',
         '¥0.00000123',
-        '<¥0.000001'
-      ]
+        '<¥0.000001',
+      ],
     ],
     [
       'ja-JP',
@@ -116,8 +116,8 @@ describe('useLocaleFormatter', () => {
         '￥0.000123',
         '￥0.0000123',
         '￥0.00000123',
-        '<￥0.000001'
-      ]
+        '<￥0.000001',
+      ],
     ],
     [
       'en',
@@ -136,8 +136,8 @@ describe('useLocaleFormatter', () => {
         'LBP 0.000123',
         'LBP 0.0000123',
         'LBP 0.00000123',
-        '<LBP 0.000001'
-      ]
+        '<LBP 0.000001',
+      ],
     ],
     [
       'hi-IN',
@@ -156,8 +156,8 @@ describe('useLocaleFormatter', () => {
         '₹0.000123',
         '₹0.0000123',
         '₹0.00000123',
-        '<₹0.000001'
-      ]
+        '<₹0.000001',
+      ],
     ],
     [
       'en-US',
@@ -176,9 +176,9 @@ describe('useLocaleFormatter', () => {
         'BHD 0.000123',
         'BHD 0.0000123',
         'BHD 0.00000123',
-        '<BHD 0.000001'
-      ]
-    ]
+        '<BHD 0.000001',
+      ],
+    ],
   ]
 
   it.each(scenarios)('formats the number in %s format', async (locale, fiat, expected) => {
@@ -214,8 +214,8 @@ describe('useLocaleFormatter', () => {
           groupSize: 3,
           prefix: '€',
           postfix: '',
-          secondaryGroupSize: 3
-        }
+          secondaryGroupSize: 3,
+        },
       ],
       [
         'es',
@@ -227,8 +227,8 @@ describe('useLocaleFormatter', () => {
           groupSize: 3,
           prefix: '',
           postfix: ' €',
-          secondaryGroupSize: 3
-        }
+          secondaryGroupSize: 3,
+        },
       ],
       [
         'en',
@@ -240,9 +240,9 @@ describe('useLocaleFormatter', () => {
           groupSize: 3,
           prefix: 'BHD ',
           postfix: '',
-          secondaryGroupSize: 3
-        }
-      ]
+          secondaryGroupSize: 3,
+        },
+      ],
     ])('should get locale parts for %s (%s)', async (locale, fiat, expected) => {
       const { result } = setup({ locale, fiat })
 
@@ -259,7 +259,7 @@ describe('useLocaleFormatter', () => {
         groupSize: 3,
         prefix: '$',
         postfix: '',
-        secondaryGroupSize: 3
+        secondaryGroupSize: 3,
       })
     })
 
@@ -280,7 +280,7 @@ describe('useLocaleFormatter', () => {
       ['$10.52', { number: '10.52', prefix: '$', postfix: '' }],
       ['50.00%', { number: '50.00', prefix: '', postfix: '%' }],
       ['42.3 1INCH', { number: '42.3', prefix: '', postfix: '1INCH' }],
-      ['5 1INCH', { number: '5', prefix: '', postfix: '1INCH' }]
+      ['5 1INCH', { number: '5', prefix: '', postfix: '1INCH' }],
     ]
     it.each(scenarios)('correctly parses %s parts', async (input, expected) => {
       const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
@@ -293,7 +293,7 @@ describe('useLocaleFormatter', () => {
       [{ number: 12.3 }, '12.3 BTC'],
       [{ number: '0.066044968372961102', symbol: 'ETH' }, '0.06604497 ETH'],
       [{ number: '12.', symbol: '1INCH' }, '12. 1INCH'],
-      [{ number: '.01', symbol: '' }, '0.01 ']
+      [{ number: '.01', symbol: '' }, '0.01 '],
     ]
 
     it.each(scenarios)('parses %p and returns %s', async ({ number, symbol }, expected) => {
@@ -306,16 +306,16 @@ describe('useLocaleFormatter', () => {
   describe('toCrypto', () => {
     const scenarios: [
       { number: NumberValue; symbol?: string; options?: { maximumFractionDigits?: number } },
-      string
+      string,
     ][] = [
       [{ number: 12.3 }, '12.3 BTC'],
       [{ number: '0.066044968372961102', symbol: 'ETH' }, '0.06604497 ETH'],
       [
         { number: '0.066044968372961102', symbol: 'ETH', options: { maximumFractionDigits: 6 } },
-        '0.066045 ETH'
+        '0.066045 ETH',
       ],
       [{ number: '12.', symbol: '1INCH' }, '12 1INCH'],
-      [{ number: '.01', symbol: '' }, '0.01 ']
+      [{ number: '.01', symbol: '' }, '0.01 '],
     ]
 
     it.each(scenarios)(
@@ -324,7 +324,7 @@ describe('useLocaleFormatter', () => {
         const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
 
         expect(result.current.number.toCrypto(number, symbol, options)).toEqual(expected)
-      }
+      },
     )
   })
 })

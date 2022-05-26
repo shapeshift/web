@@ -1,5 +1,3 @@
-import { Listener } from 'eventemitter2'
-
 /**
  * Override the type definitions of EventEmitter2
  *
@@ -28,7 +26,7 @@ export enum FailureType {
   NOTENOUGHFUNDS = 10,
   NOTINITIALIZED = 11,
   PINMISMATCH = 12,
-  FIRMWAREERROR = 99
+  FIRMWAREERROR = 99,
 }
 
 export enum ButtonRequestType {
@@ -69,13 +67,13 @@ export enum ButtonRequestType {
   CONFIRMMEMO = 35,
   REMOVEWIPECODE = 36,
   CHANGEWIPECODE = 37,
-  CREATEWIPECODE = 38
+  CREATEWIPECODE = 38,
 }
 
 export enum PinMatrixRequestType {
   CURRENT = 1,
   NEWFIRST = 2,
-  NEWSECOND = 3
+  NEWSECOND = 3,
 }
 
 export enum MessageType {
@@ -194,5 +192,5 @@ export enum MessageType {
   TENDERMINTMSGREQUEST = 1003,
   TENDERMINTMSGACK = 1004,
   TENDERMINTMSGSEND = 1005,
-  TENDERMINTSIGNEDTX = 1006
+  TENDERMINTSIGNEDTX = 1006,
 }

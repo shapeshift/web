@@ -16,11 +16,11 @@ export const EstimatedReturnsRow = ({
 }: EstimatedReturnsRowProps & RowProps) => (
   <Row {...styleProps}>
     <Row.Label>
-      <Text translation='modals.deposit.estimatedReturns' />
+      <Text fontSize='14px' translation='modals.deposit.estimatedReturns' />
     </Row.Label>
     <Row.Value>
       <Box textAlign='right'>
-        <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
+        <Amount.Fiat value={fiatYield} lineHeight='1' mb={1} />
         <Amount.Crypto value={cryptoYield} symbol={assetSymbol} color='gray.500' lineHeight='1' />
       </Box>
     </Row.Value>

@@ -4,28 +4,19 @@ import {
   AlertIcon,
   Button,
   ModalBody,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
-import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { LocationState } from '../../NativeWallet/types'
-import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
+import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
-
-export interface KeepKeySetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
-  dispatch: React.Dispatch<ActionTypes>
-}
 
 const translateError = (event: Event) => {
   let t: string
@@ -44,7 +35,7 @@ const translateError = (event: Event) => {
   return `walletProvider.keepKey.errors.${t}`
 }
 
-export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
+export const KeepKeyConnect = () => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -78,7 +69,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
         return
       }
 
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
+      const { name, icon } = KeepKeyConfig
       try {
         const deviceId = await wallet.getDeviceID()
         // This gets the firmware version needed for some KeepKey "supportsX" functions
@@ -95,7 +86,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name: label, icon, deviceId, meta: { label } }
+          payload: { wallet, name: label, icon, deviceId, meta: { label } },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         /**
@@ -103,8 +94,8 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
          * deviceId recieved from the wallet, so we need to keep
          * aliases[deviceId] in the local wallet storage.
          */
-        setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.aliases[deviceId])
-        history.push('/keepkey/success')
+        setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
         console.error('KeepKey Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')

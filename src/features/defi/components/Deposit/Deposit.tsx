@@ -13,6 +13,7 @@ import {
   InputLeftElement,
   InputProps,
   InputRightElement,
+  Link,
   ModalBody,
   ModalFooter,
   Popover,
@@ -24,7 +25,7 @@ import {
   PopoverTrigger,
   Stack,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
@@ -73,8 +74,7 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     type='number'
     border={0}
-    borderBottomRadius={0}
-    borderTopLeftRadius={0}
+    borderRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -82,13 +82,13 @@ const CryptoInput = (props: InputProps) => (
 
 enum InputType {
   Crypto = 'crypto',
-  Fiat = 'fiat'
+  Fiat = 'fiat',
 }
 
 enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
-  Slippage = 'slippage'
+  Slippage = 'slippage',
 }
 
 export type DepositValues = {
@@ -113,11 +113,10 @@ export const Deposit = ({
   fiatInputValidation,
   enableSlippage = true,
   onContinue,
-  onCancel,
-  percentOptions
+  percentOptions,
 }: DepositProps) => {
   const {
-    number: { localeParts }
+    number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -132,14 +131,14 @@ export const Deposit = ({
     formState: { errors, isValid },
     handleSubmit,
     setError,
-    setValue
+    setValue,
   } = useForm<DepositValues>({
     mode: 'onChange',
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: DEFAULT_SLIPPAGE
-    }
+      [Field.Slippage]: DEFAULT_SLIPPAGE,
+    },
   })
 
   const values = useWatch({ control })
@@ -148,13 +147,17 @@ export const Deposit = ({
   const fiatError = get(errors, 'fiatAmount.message', null)
   const fieldError = cryptoError || fiatError
 
+  const handleTosLink = () => {
+    window.open('/#/legal/terms-of-service')
+  }
+
   const handleInputToggle = () => {
     const field = cryptoField ? InputType.Fiat : InputType.Crypto
     if (fieldError) {
       // Toggles an existing error to the other field if present
       clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
       setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
-        message: 'common.insufficientFunds'
+        message: 'common.insufficientFunds',
       })
     }
     setActiveField(field)
@@ -261,6 +264,29 @@ export const Deposit = ({
                 divider={<Divider />}
                 spacing={0}
               >
+                <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
+                  {percentOptions.map(option => (
+                    <Button
+                      isActive={option === percent}
+                      key={option}
+                      variant='ghost'
+                      colorScheme='blue'
+                      onClick={() => handlePercentClick(option)}
+                    >
+                      {option === 1 ? (
+                        'Max'
+                      ) : (
+                        <Amount.Percent
+                          value={option}
+                          options={{
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          }}
+                        />
+                      )}
+                    </Button>
+                  ))}
+                </ButtonGroup>
                 <InputGroup size='lg'>
                   <InputLeftElement pos='relative' ml={1} width='auto'>
                     <Button
@@ -285,7 +311,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={value}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            onChange={() => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null
@@ -312,7 +338,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={bnOrZero(value).toFixed(2)}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            onChange={() => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null
@@ -356,29 +382,6 @@ export const Deposit = ({
                     </InputRightElement>
                   )}
                 </InputGroup>
-                <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
-                  {percentOptions.map(option => (
-                    <Button
-                      isActive={option === percent}
-                      key={option}
-                      variant='ghost'
-                      colorScheme='blue'
-                      onClick={() => handlePercentClick(option)}
-                    >
-                      {option === 1 ? (
-                        'Max'
-                      ) : (
-                        <Amount.Percent
-                          value={option}
-                          options={{
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                          }}
-                        />
-                      )}
-                    </Button>
-                  ))}
-                </ButtonGroup>
                 <Row px={4} py={4}>
                   <Row.Label>{translate('modals.deposit.estimatedReturns')}</Row.Label>
                   <Row.Value>
@@ -400,19 +403,19 @@ export const Deposit = ({
             </FormControl>
           </Stack>
         </ModalBody>
-        <ModalFooter>
-          <Text
-            fontSize='sm'
-            color='gray.500'
-            mb={2}
-            width='full'
-            translation='modals.deposit.footerDisclaimer'
-          />
+        <ModalFooter as={Stack} direction={{ base: 'column', md: 'row' }}>
+          <RawText color='gray.500' fontSize='sm' mb={2}>
+            {translate('modals.deposit.footerDisclaimer')}
+            <Link onClick={handleTosLink} color={useColorModeValue('blue.500', 'blue.200')}>
+              {translate('modals.deposit.footerDisclaimerLink')}
+            </Link>
+          </RawText>
           <Button
             colorScheme={fieldError ? 'red' : 'blue'}
             isDisabled={!isValid}
             mb={2}
             size='lg'
+            data-test='defi-modal-continue-button'
             type='submit'
           >
             {translate(fieldError || 'common.continue')}

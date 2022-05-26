@@ -6,15 +6,16 @@ import {
   RouteComponentProps,
   Switch,
   useHistory,
-  useLocation
+  useLocation,
 } from 'react-router-dom'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectPortfolioAccounts } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SelectAccount } from './SelectAccount'
-import { SelectAssetLocation, SelectAssetRoutes } from './SelectAssetRouter'
+import { SelectAssetRoutes } from './SelectAssetCommon'
+import type { SelectAssetLocation } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
 type SelectAssetViewProps = {
@@ -29,9 +30,9 @@ export const SelectAssetView = ({ onClick, toRoute, assetId }: SelectAssetViewPr
   const accounts = useAppSelector(state => selectPortfolioAccounts(state))
 
   const handleAssetSelect = (asset: Asset) => {
-    const assetAccounts = findAccountsByAssetId(accounts, asset.caip19)
+    const assetAccounts = findAccountsByAssetId(accounts, asset.assetId)
     if (assetAccounts && assetAccounts.length > 1) {
-      history.push(SelectAssetRoutes.Account, { assetId: asset.caip19 })
+      history.push(SelectAssetRoutes.Account, { assetId: asset.assetId })
     } else {
       handleAccountSelect(asset, assetAccounts[0])
     }

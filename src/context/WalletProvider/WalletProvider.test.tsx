@@ -3,36 +3,43 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { TestProviders } from 'test/TestProviders'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { KeyManager, SUPPORTED_WALLETS } from './config'
-import { useWallet, WalletActions, WalletProvider } from './WalletProvider'
+import { SUPPORTED_WALLETS } from './config'
+import { KeyManager } from './KeyManager'
+import { WalletProvider } from './WalletProvider'
 
 jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
   WebUSBKeepKeyAdapter: {
-    useKeyring: jest.fn()
-  }
+    useKeyring: jest.fn(),
+  },
+}))
+
+jest.mock('friendly-challenge', () => ({
+  WidgetInstance: {},
 }))
 
 jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
   MetaMaskAdapter: {
-    useKeyring: jest.fn()
-  }
+    useKeyring: jest.fn(),
+  },
 }))
 
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,
   deviceId: '',
-  meta: { label: '', address: '' }
+  meta: { label: '', address: '' },
 }
 const setup = async () => {
   // @ts-ignore
   WebUSBKeepKeyAdapter.useKeyring.mockImplementation(() => ({
-    initialize: jest.fn(() => Promise.resolve())
+    initialize: jest.fn(() => Promise.resolve()),
   }))
   // @ts-ignore
   MetaMaskAdapter.useKeyring.mockImplementation(() => ({
-    initialize: jest.fn(() => Promise.resolve())
+    initialize: jest.fn(() => Promise.resolve()),
   }))
   const wrapper: React.FC = ({ children }) => (
     <TestProviders>
@@ -61,7 +68,7 @@ describe('WalletProvider', () => {
       act(() => {
         result.current.dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet: {} as unknown as HDWallet, ...walletInfoPayload }
+          payload: { wallet: {} as unknown as HDWallet, ...walletInfoPayload },
         })
       })
 
@@ -146,8 +153,8 @@ describe('WalletProvider', () => {
           type: WalletActions.SET_WALLET,
           payload: {
             wallet: { disconnect: walletDisconnect } as unknown as HDWallet,
-            ...walletInfoPayload
-          }
+            ...walletInfoPayload,
+          },
         })
         result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       })

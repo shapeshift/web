@@ -17,72 +17,57 @@ jobs:
       REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
       REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
       REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
-      REACT_APP_FEATURE_COSMOS_INVESTOR: false
+      REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
+      REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: FCMM7AFC0S6A8NUK
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # Restore the previous yarn modules and Cypress binary archives.
-      # Any updated archives will be saved automatically after the entire
-      # workflow successfully finishes.
-      # We use exact restore key to avoid yarn module snowballing
-      # https://glebbahmutov.com/blog/do-not-let-npm-cache-snowball/
-      - name: Cache central yarn modules
-        uses: actions/cache@v2
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-node-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
 
-      # We use the exact restore key to avoid Cypress binary snowballing
-      # https://glebbahmutov.com/blog/do-not-let-cypress-cache-snowball/
       - name: Cache Cypress binary
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/Cypress
-          key: cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/package.json') }}
+          key: cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/package.json') }}
+            cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-
-      # Cache local node_modules to pass to testing jobs
-      - name: Cache local node_modules
-        uses: actions/cache@v2
+      - name: Cache Node Modules
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.ref }}-
 
-      - name: Cache build folder
-        uses: actions/cache@v2
+      - name: Install Cypress & Build Project
+        uses: cypress-io/github-action@v3
         with:
-          path: build
-          key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ github.ref }}-
-            
-      - name: install dependencies and verify Cypress
+          # Disable running of tests within install job
+          runTests: false
+          build: yarn build
+
+      - name: Verify Cypress
         env:
           # Make sure every Cypress install prints minimal information
           CI: 1
         run: |
-          yarn install --frozen-lockfile
           npx cypress cache path
           npx cypress cache list
           npx cypress verify
           npx cypress info
 
-      - name: build
-        run: yarn run build
+      - name: Save Build Folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          if-no-files-found: error
+          path: build
 
   call-pr-workflow:
     uses: ./.github/workflows/pr.yml

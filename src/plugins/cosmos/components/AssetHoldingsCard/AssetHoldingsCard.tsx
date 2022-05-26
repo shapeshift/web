@@ -1,46 +1,46 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { Text as CText } from '@chakra-ui/react'
-import osmosis from 'assets/osmosis.svg'
+import { Asset } from '@shapeshiftoss/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card, CardProps } from 'components/Card/Card'
+import { RawText } from 'components/Text'
 
 type AssetHoldingsCardProps = {
-  assetSymbol: string
-  assetName: string
+  asset: Asset
   cryptoAmountAvailable: string
   fiatAmountAvailable: string
-}
+} & CardProps
 
 export const AssetHoldingsCard = ({
-  assetSymbol,
-  assetName,
+  asset,
   cryptoAmountAvailable,
   fiatAmountAvailable,
   ...styleProps
-}: AssetHoldingsCardProps & CardProps) => (
-  <Card size='sm' width='full' variant='group' {...styleProps}>
-    <Card.Body>
-      <Flex alignItems='center'>
-        <AssetIcon src={osmosis} boxSize='40px' />
-        <Box ml={2}>
-          <CText fontWeight='bold' lineHeight='1' mb={1}>
-            {assetSymbol}
-          </CText>
-          <CText color='gray.500' lineHeight='1'>
-            {assetName}
-          </CText>
-        </Box>
-        <Box ml='auto' textAlign='right'>
-          <Amount.Fiat fontWeight='medium' lineHeight='1' mb={1} value={fiatAmountAvailable} />
-          <Amount.Crypto
-            color='gray.500'
-            lineHeight='1'
-            symbol={assetSymbol}
-            value={cryptoAmountAvailable}
-          />
-        </Box>
-      </Flex>
-    </Card.Body>
-  </Card>
-)
+}: AssetHoldingsCardProps) => {
+  return (
+    <Card size='sm' width='full' variant='group' {...styleProps}>
+      <Card.Body>
+        <Flex alignItems='center'>
+          <AssetIcon src={asset.icon} boxSize='40px' />
+          <Box ml={2}>
+            <RawText fontWeight='bold' lineHeight='1' mb={1}>
+              {asset.name}
+            </RawText>
+            <RawText color='gray.500' lineHeight='1'>
+              {asset.symbol}
+            </RawText>
+          </Box>
+          <Box ml='auto' textAlign='right'>
+            <Amount.Fiat fontWeight='bold' lineHeight='1' mb={1} value={fiatAmountAvailable} />
+            <Amount.Crypto
+              color='gray.500'
+              lineHeight='1'
+              symbol={asset.symbol}
+              value={cryptoAmountAvailable}
+            />
+          </Box>
+        </Flex>
+      </Card.Body>
+    </Card>
+  )
+}

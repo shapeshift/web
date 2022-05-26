@@ -27,7 +27,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       justifyContent='flex-start'
       style={style}
       _focus={{
-        shadow: 'outline-inset'
+        shadow: 'outline-inset',
       }}
     >
       <AssetIcon src={asset?.icon} boxSize='24px' mr={4} />

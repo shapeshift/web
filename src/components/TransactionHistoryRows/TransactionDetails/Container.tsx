@@ -1,25 +1,32 @@
-import { Box, Collapse, Flex } from '@chakra-ui/react'
+import { Collapse, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 
 export const TransactionDetailsContainer = ({
   children,
   isOpen,
-  compactMode
+  compactMode,
 }: {
   children: ReactNode
   isOpen: boolean
   compactMode: boolean
-}) => (
-  <Collapse in={isOpen} unmountOnExit>
-    <Box pl={{ base: 2, lg: 10 }} pr={{ base: 2, lg: 10 }} pb={6}>
-      <Flex
-        flexDir={{ base: 'column', lg: compactMode ? 'column' : 'row' }}
-        flexWrap='wrap'
-        pl={{ base: 1, lg: 3 }}
-        mb={{ base: 0, lg: 3 }}
+}) => {
+  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  return (
+    <Collapse in={isOpen} unmountOnExit>
+      <Stack
+        direction={{ base: 'column-reverse', lg: compactMode ? 'column-reverse' : 'row' }}
+        spacing={4}
+        divider={<StackDivider />}
+        pl={{ base: 4, lg: compactMode ? 4 : 6 }}
+        pr={4}
+        py={{ base: 4, lg: compactMode ? 4 : 0 }}
+        alignItems='flex-start'
+        borderTopWidth={1}
+        borderColor={borderColor}
+        fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
       >
         {children}
-      </Flex>
-    </Box>
-  </Collapse>
-)
+      </Stack>
+    </Collapse>
+  )
+}

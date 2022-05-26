@@ -34,12 +34,12 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     onInit: node => {
       if (!node) return
       const index = node.props.itemData?.items.findIndex(
-        ({ tokenId: address }: Asset) => address === match.params.address
+        ({ tokenId: address }: Asset) => address === match.params.address,
       )
       if (typeof index === 'number' && index >= 0) {
         node.scrollToItem?.(index, 'center')
       }
-    }
+    },
   })
 
   useEffect(() => {

@@ -1,39 +1,24 @@
-import { HistoryData } from '@shapeshiftoss/types'
 import { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
+import { ReactNode } from 'react'
 
 export interface LineChartProps {
-  data: HistoryData[]
   xScale: AxisScale<number>
-  yScale: AxisScale<number>
   width: number
   yMax: number
   label: string
   xDate: Date
   yText: number
-  xText: number
-  margin: { top: number; right: number; bottom: number; left: number }
   hideBottomAxis?: boolean
   stroke: string
   hideLeftAxis?: boolean
   top?: number
   left?: number
-  children?: React.ReactNode
+  children?: ReactNode
   xTickFormat?: (d: any) => any
 }
 
-export const MaxPrice = ({
-  data,
-  label,
-  yText,
-  yScale,
-  xScale,
-  stroke,
-  width,
-  xDate,
-  xText,
-  margin
-}: LineChartProps) => {
+export const MaxPrice = ({ label, yText, xScale, stroke, width, xDate }: LineChartProps) => {
   const handleTextPos = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
     const offsetWidth = width / 2
     const buffer = 16
@@ -41,9 +26,9 @@ export const MaxPrice = ({
     if (x < offsetWidth) {
       return { x: x + buffer, anchor: 'start' }
     } else if (x > end) {
-      return { x: x, anchor: 'end' }
+      return { x, anchor: 'end' }
     } else {
-      return { x: x, anchor: 'start' }
+      return { x, anchor: 'start' }
     }
   }
   return (

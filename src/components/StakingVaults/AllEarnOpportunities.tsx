@@ -1,14 +1,21 @@
 import { Box } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import {
   EarnOpportunityType,
-  useNormalizeOpportunities
+  useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
+import { useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
+import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { StakingTable } from './StakingTable'
 
@@ -16,32 +23,55 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const {
-    state: { isConnected },
-    dispatch
+    state: { isConnected, walletInfo },
+    dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
+  const { opportunities: foxyRows } = useFoxyBalances()
+  const { cosmosStakingOpportunities } = useCosmosStakingBalances({
+    assetId: 'cosmos:cosmoshub-4/slip44:118',
+  })
+
+  const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: []
+    foxyArray: foxyRows,
+    cosmosStakingOpportunities,
   })
 
-  const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chain, tokenAddress } = opportunity
-    if (!isConnected) {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
-    history.push({
-      pathname: `/defi/${type}/${provider}/deposit`,
-      search: qs.stringify({
-        chain,
-        contractAddress,
-        tokenId: tokenAddress
-      }),
-      state: { background: location }
-    })
-  }
+  const handleClick = useCallback(
+    (opportunity: EarnOpportunityType) => {
+      const { type, provider, contractAddress, chain, tokenAddress, rewardAddress, assetId } =
+        opportunity
+      if (!isConnected && walletInfo?.deviceId !== DemoConfig.name) {
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
+
+      if (chain === ChainTypes.Cosmos) {
+        cosmosStaking.open({
+          assetId,
+          validatorAddress: contractAddress,
+        })
+
+        return
+      }
+
+      history.push({
+        pathname: `/defi/${type}/${provider}/overview`,
+        search: qs.stringify({
+          chain,
+          contractAddress,
+          tokenId: tokenAddress,
+          rewardId: rewardAddress,
+        }),
+        state: { background: location },
+      })
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, history, isConnected, location],
+  )
 
   return (
     <Card variant='outline' my={6}>

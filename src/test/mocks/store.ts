@@ -1,6 +1,5 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-
-import { ReduxState } from '../../state/reducer'
+import { ReduxState } from 'state/reducer'
+import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -15,8 +14,8 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
     middlewareRegistered: false,
     refetchOnFocus: false,
     refetchOnMountOrArgChange: false,
-    refetchOnReconnect: false
-  }
+    refetchOnReconnect: false,
+  },
 })
 
 export const mockStore: ReduxState = {
@@ -24,53 +23,78 @@ export const mockStore: ReduxState = {
   portfolioApi: mockApiFactory('portfolioApi' as const),
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
+  validatorDataApi: mockApiFactory('validatorDataApi' as const),
   portfolio: {
     accounts: {
       byId: {},
-      ids: []
+      ids: [],
     },
     assetBalances: {
       byId: {},
-      ids: []
+      ids: [],
     },
     accountBalances: {
       byId: {},
-      ids: []
+      ids: [],
     },
     accountSpecifiers: {
       byId: {},
-      ids: []
-    }
+      ids: [],
+    },
+  },
+  accountSpecifiers: {
+    accountSpecifiers: [],
   },
   preferences: {
     featureFlags: {
-      CosmosInvestor: false,
-      CosmosPlugin: false,
-      GemRamp: false
-    }
+      ReduxLogging: false,
+      Osmosis: false,
+      WalletMigration: false,
+      BanxaRamp: false,
+      FoxPage: false,
+    },
+    selectedLocale: 'en',
+    balanceThreshold: '0',
+    selectedCurrency: 'USD',
+    // the following object is required by redux-persist
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
   },
   assets: {
     byId: {},
-    ids: []
+    ids: [],
   },
   marketData: {
-    byId: {},
-    ids: [],
-    priceHistory: {
-      [HistoryTimeframe.DAY]: {},
-      [HistoryTimeframe.HOUR]: {},
-      [HistoryTimeframe.WEEK]: {},
-      [HistoryTimeframe.MONTH]: {},
-      [HistoryTimeframe.YEAR]: {},
-      [HistoryTimeframe.ALL]: {}
+    crypto: {
+      byId: {},
+      ids: [],
+      priceHistory: INITIAL_PRICE_HISTORY,
     },
-    loading: false
+    fiat: {
+      byId: {},
+      ids: [],
+      priceHistory: INITIAL_PRICE_HISTORY,
+    },
   },
   txHistory: {
-    byId: {},
-    byAssetId: {},
-    byAccountId: {},
-    ids: [],
-    status: 'idle'
-  }
+    txs: {
+      byId: {},
+      byAssetId: {},
+      byAccountId: {},
+      ids: [],
+      status: 'idle',
+    },
+    rebases: {
+      byAssetId: {},
+      byAccountId: {},
+      ids: [],
+      byId: {},
+    },
+  },
+  validatorData: {
+    byValidator: {},
+    validatorIds: [],
+  },
 }

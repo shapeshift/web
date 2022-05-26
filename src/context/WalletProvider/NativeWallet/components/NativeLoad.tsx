@@ -8,7 +8,7 @@ import {
   IconButton,
   ModalBody,
   ModalHeader,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
@@ -19,13 +19,15 @@ import { RouteComponentProps } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import {
   setLocalNativeWalletName,
-  setLocalWalletTypeAndDeviceId
+  setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { KeyManager, SUPPORTED_WALLETS } from '../../config'
+import { NativeConfig } from '../config'
 
 type VaultInfo = {
   id: string
@@ -54,7 +56,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
               const createdAt = Number(meta?.get('createdAt') ?? null)
               const name = String(meta?.get('name') ?? id)
               return { id, name, createdAt }
-            })
+            }),
           )
 
           setWallets(storedWallets)
@@ -70,7 +72,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     const adapter = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
     if (adapter) {
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+      const { name, icon } = NativeConfig
       try {
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet.isInitialized())) {
@@ -81,12 +83,13 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId, meta: { label: item.name } }
+            payload: { wallet, name, icon, deviceId, meta: { label: item.name } },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
+        history.push('/native/enter-password', { deviceId })
         // Always close the modal after trying to pair the wallet
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         setLocalNativeWalletName(item.name)
       } catch (e) {
@@ -100,8 +103,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   const handleDelete = async (wallet: VaultInfo) => {
     const result = window.confirm(
       translate('walletProvider.shapeShift.load.confirmForget', {
-        wallet: wallet.name ?? wallet.id
-      })
+        wallet: wallet.name ?? wallet.id,
+      }),
     )
     if (result) {
       try {
@@ -125,7 +128,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
       </ModalHeader>
       <ModalBody>
         <VStack mx={-4} spacing={0}>
-          {wallets.map((wallet, i) => {
+          {wallets.map(wallet => {
             return (
               <Row
                 key={wallet.id}

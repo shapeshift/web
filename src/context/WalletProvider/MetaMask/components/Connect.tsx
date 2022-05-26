@@ -2,13 +2,15 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
-import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
-import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
+import { MetaMaskConfig } from '../config'
 
 export interface MetaMaskSetupProps
   extends RouteComponentProps<
@@ -53,7 +55,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         throw new Error('Call to hdwallet-metamask::pairDevice returned null or undefined')
       }
 
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
+      const { name, icon } = MetaMaskConfig
       try {
         const deviceId = await wallet.getDeviceID()
 
@@ -70,6 +72,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
         provider?.on?.('accountsChanged', resetState)
         provider?.on?.('chainChanged', resetState)
+        const isLocked = await wallet.isLocked()
 
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
@@ -82,11 +85,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId }
+          payload: { wallet, name, icon, deviceId },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
-        history.push('/metamask/success')
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error('MetaMask Connect: There was an error initializing the wallet', e)

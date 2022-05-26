@@ -7,10 +7,10 @@ import {
   InputGroup,
   InputRightElement,
   ModalBody,
-  ModalHeader
+  ModalHeader,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -42,7 +42,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
       console.error('WalletProvider:NativeWallet:Rename - Error invalid password', e)
       setError('password', {
         type: 'manual',
-        message: translate('modals.shapeShift.password.error.invalid')
+        message: translate('modals.shapeShift.password.error.invalid'),
       })
     }
   }
@@ -51,8 +51,8 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
     setError,
     handleSubmit,
     register,
-    formState: { errors, isSubmitting }
-  } = useForm({ mode: 'onChange' })
+    formState: { errors, isSubmitting },
+  } = useForm({ mode: 'onChange', shouldUnregister: true })
 
   return (
     <>
@@ -67,8 +67,8 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
               {...register('name', {
                 maxLength: {
                   value: 64,
-                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 })
-                }
+                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
+                },
               })}
               size='lg'
               variant='filled'
@@ -84,8 +84,8 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
                   required: translate('modals.shapeShift.password.error.required'),
                   minLength: {
                     value: 8,
-                    message: translate('modals.shapeShift.password.error.length', { length: 8 })
-                  }
+                    message: translate('modals.shapeShift.password.error.length', { length: 8 }),
+                  },
                 })}
                 pr='4.5rem'
                 type={showPw ? 'text' : 'password'}

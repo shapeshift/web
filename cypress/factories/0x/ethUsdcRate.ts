@@ -18,6 +18,6 @@ export const makeEthUsdcRateResponse = () => {
     sources,
     allowanceTarget: '0x0000000000000000000000000000000000000000',
     sellTokenToEthRate: '1',
-    buyTokenToEthRate: '2653.65836'
+    buyTokenToEthRate: '2653.65836',
   }
 }

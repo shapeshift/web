@@ -1,53 +1,77 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Button, useColorModeValue } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import {
+  StakeRoutes,
+  StakingPath,
+  UnstakingPath,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { matchPath, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type CosmosActionButtonsProps = {
-  activeAction: StakingAction
   asset: Asset
 }
 export const CosmosActionButtons = ({
-  activeAction,
   asset,
   ...styleProps
 }: CosmosActionButtonsProps & FlexProps) => {
-  const { cosmosStaking } = useModal()
+  const history = useHistory()
 
-  const handleUnstakeClick = () => {
-    cosmosStaking.open({ assetId: asset.caip19, action: StakingAction.Unstake })
+  const handleOverviewClick = () => {
+    history.push(StakeRoutes.Overview)
   }
 
   const handleStakeClick = () => {
-    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Stake })
+    history.push(StakeRoutes.Stake)
   }
 
-  const bgColor = useColorModeValue('gray.50', 'gray.850')
+  const handleUnstakeClick = () => {
+    history.push(StakeRoutes.Unstake)
+  }
+
+  const isOverview = matchPath(history.location.pathname, {
+    path: [StakeRoutes.Overview],
+    exact: true,
+  })
+
+  const isStake = matchPath(history.location.pathname, {
+    path: [StakeRoutes.Stake, StakingPath.Confirm, StakingPath.Broadcast],
+    exact: true,
+  })
+
+  const isUnstake = matchPath(history.location.pathname, {
+    path: [StakeRoutes.Unstake, UnstakingPath.Confirm, UnstakingPath.Broadcast],
+    exact: true,
+  })
+
   return (
-    <Flex width='100%' bgColor={bgColor} borderRadius='12px' {...styleProps}>
+    <Flex width='100%' borderRadius='12px' justifyContent='center' {...styleProps}>
       <Button
-        flexGrow={1}
         colorScheme='blue'
-        isActive={activeAction === StakingAction.Stake}
-        variant={activeAction === StakingAction.Unstake ? 'ghost' : undefined}
-        onClick={handleStakeClick}
+        variant={!isOverview ? 'ghost' : 'ghost-filled'}
+        onClick={handleOverviewClick}
+        mx='2px'
         isDisabled={false}
       >
-        <Text translation={['defi.stakeAsset', { assetSymbol: asset.symbol }]} fontWeight='bold' />
+        <Text translation='defi.overview' fontWeight='normal' />
       </Button>
       <Button
-        isActive={activeAction === StakingAction.Unstake}
+        colorScheme='blue'
+        variant={!isStake ? 'ghost' : 'ghost-filled'}
+        onClick={handleStakeClick}
+        isDisabled={false}
+        mx='2px'
+      >
+        <Text translation='defi.stake' fontWeight='normal' />
+      </Button>
+      <Button
         colorScheme='blue'
         onClick={handleUnstakeClick}
-        flexGrow={1}
-        variant={activeAction === StakingAction.Stake ? 'ghost' : undefined}
+        variant={!isUnstake ? 'ghost' : 'ghost-filled'}
+        mx='2px'
       >
-        <Text
-          translation={['defi.unstakeAsset', { assetSymbol: asset.symbol }]}
-          fontWeight='bold'
-        />
+        <Text translation='defi.unstake' fontWeight='normal' />
       </Button>
     </Flex>
   )

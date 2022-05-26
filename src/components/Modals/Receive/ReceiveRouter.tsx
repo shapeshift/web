@@ -2,10 +2,11 @@ import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'
-import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
+import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
-import { ReceiveRoutes } from './Receive'
+import { ReceiveRoutes } from './ReceiveCommon'
 import { ReceiveInfo } from './ReceiveInfo'
 
 type ReceiveRouterProps = {
@@ -30,7 +31,7 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
     } else if (selectedAsset && asset && !accountId) {
       history.push(ReceiveRoutes.Select, {
         toRoute: SelectAssetRoutes.Account,
-        assetId: asset.caip19
+        assetId: asset.assetId,
       })
     } else if (asset && accountId) {
       setSelectedAccount(accountId)

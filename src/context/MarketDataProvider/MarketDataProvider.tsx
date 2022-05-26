@@ -11,8 +11,8 @@ export interface MarketContextProps {
 export const MarketDataContext = React.createContext<MarketContextProps>({
   filteredDataState: {
     filteredData: [],
-    setFilteredData: () => {}
-  }
+    setFilteredData: () => {},
+  },
 })
 
 // TODO(0xdef1cafe): remove this whole provider
@@ -22,7 +22,7 @@ export const MarketDataProvider: React.FC = ({ children }) => {
   return (
     <MarketDataContext.Provider
       value={{
-        filteredDataState: { filteredData, setFilteredData }
+        filteredDataState: { filteredData, setFilteredData },
       }}
     >
       {children}

@@ -1,10 +1,13 @@
 import { translations } from 'assets/translations'
 
+import { autoRecord } from '../plugins/autorecord'
+
 const baseUrl = Cypress.config().baseUrl
 const seed = Cypress.env('testSeed')
 const password = Cypress.env('testPassword')
 
 describe('The Dashboard', () => {
+  autoRecord()
   before(() => {
     cy.clearIndexedDB()
   })
@@ -14,33 +17,30 @@ describe('The Dashboard', () => {
 
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('wallet-native-button').click()
+    cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-import-button').click()
 
     // Test 'empty` seed validation
     cy.getBySel('wallet-native-seed-submit-button').click()
-    cy.getBySel('wallet-native-seed-validation-message').should(
-      'have.text',
-      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseRequired
+    cy.getBySel('wallet-native-seed-validation-message').contains(
+      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseRequired,
     )
 
     // Test 'too-short` seed validation
     cy.getBySel('wallet-native-seed-input').click().type('too-short')
     cy.getBySel('wallet-native-seed-submit-button').click()
-    cy.getBySel('wallet-native-seed-validation-message').should(
-      'have.text',
-      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseTooShort
+    cy.getBySel('wallet-native-seed-validation-message').contains(
+      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseTooShort,
     )
     cy.getBySel('wallet-native-seed-input').clear()
 
     // Test 'invalid bip39 mnemonic` seed validation
     cy.getBySel('wallet-native-seed-input').type(
-      'this-is-long-enough-but-is-not-a-valid-seed-phrase'
+      'this-is-long-enough-but-is-not-a-valid-seed-phrase',
     )
     cy.getBySel('wallet-native-seed-submit-button').click()
-    cy.getBySel('wallet-native-seed-validation-message').should(
-      'have.text',
-      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseError
+    cy.getBySel('wallet-native-seed-validation-message').contains(
+      translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseError,
     )
 
     // Load wallet from seed and password
@@ -58,10 +58,10 @@ describe('The Dashboard', () => {
     // This will use the wallet created in `supports log in via an imported Native wallet`
     cy.visit('')
     cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('wallet-native-button').click()
+    cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-load-button').click()
     cy.getBySel('native-saved-wallet').should('have.length', 1)
-    cy.getBySel('native-saved-wallet-name').should('have.text', 'cypress-test')
+    cy.getBySel('native-saved-wallet-name').contains('cypress-test')
     cy.getBySel('native-saved-wallet-button').click()
     cy.getBySel('wallet-password-input').type(password)
     cy.getBySel('wallet-password-submit-button').click()
@@ -72,7 +72,7 @@ describe('The Dashboard', () => {
     cy.clearIndexedDB().then(() => {
       cy.visit('')
       cy.getBySel('connect-wallet-button').click()
-      cy.getBySel('wallet-native-button').click()
+      cy.getBySel('connect-wallet-native-button').click()
       cy.getBySel('wallet-native-load-button').should('be.disabled')
     })
   })
@@ -82,7 +82,7 @@ describe('The Dashboard', () => {
 
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('wallet-portis-button').click()
+    cy.getBySel('connect-wallet-portis-button').click()
 
     // This would open an external page to log in with Portis, which is outside the scope of Cypress
     // cy.getBySel('wallet-pair-button').click()

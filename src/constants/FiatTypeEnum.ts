@@ -318,5 +318,5 @@ export enum FiatTypeEnum {
   /** zambian-kwacha */
   ZMW = 'ZMW',
   /** zimbabwean-dollar */
-  ZWL = 'ZWL'
+  ZWL = 'ZWL',
 }

@@ -1,6 +1,6 @@
 import { Box, BoxProps, useColorModeValue } from '@chakra-ui/react'
 import { Location } from 'history'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 
@@ -8,12 +8,13 @@ export type RouteConfig = {
   step?: number
   path: string
   label: string
+  isCompleted?: boolean
 }
 
 export enum StatusTextEnum {
   pending = 'modals.status.header.pending',
   success = 'modals.status.header.success',
-  failed = 'modals.status.header.failed'
+  failed = 'modals.status.header.failed',
 }
 
 type RouteStepsProps = {

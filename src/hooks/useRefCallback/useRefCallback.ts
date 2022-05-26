@@ -11,7 +11,7 @@ type RefCallback<T> = {
 // This will allow a function to be called when the ref.current is initialized or updated
 export function useRefCallback<T>({
   onInit,
-  onDestroy
+  onDestroy,
 }: RefCallback<T>): [Nullable<T>, (node: Nullable<T>) => Nullable<T>] {
   const ref = useRef<Nullable<T>>(null)
   const setRef = useCallback((node: Nullable<T>) => {

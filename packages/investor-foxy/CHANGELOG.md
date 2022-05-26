@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v3.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v3.1.1...@shapeshiftoss/investor-foxy-v3.2.0) (2022-05-26)
+
+
+### Features
+
+* thorswapper initialize ([#703](https://github.com/shapeshift/lib/issues/703)) ([73cc081](https://github.com/shapeshift/lib/commit/73cc081b66cc58177415bf425f7899b289cc33af))
+
 # [@shapeshiftoss/investor-foxy-v3.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v3.1.0...@shapeshiftoss/investor-foxy-v3.1.1) (2022-05-25)
 
 # [@shapeshiftoss/investor-foxy-v3.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v3.0.1...@shapeshiftoss/investor-foxy-v3.1.0) (2022-05-20)

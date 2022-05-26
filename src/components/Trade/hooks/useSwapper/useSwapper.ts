@@ -1,7 +1,14 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { QuoteFeeData, SwapperManager, Trade, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
-import { Asset, ExecQuoteOutput, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
+import {
+  QuoteFeeData,
+  SwapperManager,
+  Trade,
+  TradeQuote,
+  TradeResult,
+  ZrxSwapper,
+} from '@shapeshiftoss/swapper'
+import { Asset, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -147,11 +154,7 @@ export const useSwapper = () => {
     return result
   }
 
-  const executeQuote = async ({
-    wallet,
-  }: {
-    wallet: HDWallet
-  }): Promise<ExecQuoteOutput | undefined> => {
+  const executeQuote = async ({ wallet }: { wallet: HDWallet }): Promise<TradeResult> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,

@@ -1,8 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { SwapSource } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
-import { GetTradeQuoteInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
+import { GetTradeQuoteInput, SwapError, SwapErrorTypes, SwapSource, TradeQuote } from '../../../api'
 import { getZrxMinMax } from '../getZrxMinMax/getZrxMinMax'
 import { ZrxPriceResponse } from '../types'
 import { bn, bnOrZero } from '../utils/bignumber'

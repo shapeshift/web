@@ -1,15 +1,16 @@
 import { AssetId } from '@shapeshiftoss/caip'
+import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
+
 import {
   ApprovalNeededOutput,
-  Asset,
-  ExecQuoteOutput,
   GetMinMaxInput,
   MinMaxOutput,
-  SupportedChainIds,
-  SwapperType
-} from '@shapeshiftoss/types'
-
-import { Swapper, Trade, TradeQuote } from '../../api'
+  Swapper,
+  SwapperType,
+  Trade,
+  TradeQuote,
+  TradeResult
+} from '../../api'
 export class ThorchainSwapper implements Swapper {
   getType() {
     return SwapperType.Thorchain
@@ -53,7 +54,7 @@ export class ThorchainSwapper implements Swapper {
     throw new Error('ThorchainSwapper: getTradeQuote unimplemented')
   }
 
-  async executeTrade(): Promise<ExecQuoteOutput> {
+  async executeTrade(): Promise<TradeResult> {
     throw new Error('ThorchainSwapper: executeTrade unimplemented')
   }
 }

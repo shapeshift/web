@@ -1,16 +1,7 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import {
-  ApprovalNeededOutput,
-  Asset,
-  ChainSpecific,
-  ExecQuoteOutput,
-  GetMinMaxInput,
-  MinMaxOutput,
-  SupportedChainIds,
-  SwapperType
-} from '@shapeshiftoss/types'
+import { Asset, ChainSpecific, SupportedChainIds } from '@shapeshiftoss/types'
 
 export const SwapError = createErrorClass('SwapError')
 
@@ -100,11 +91,6 @@ export type TradeResult = {
   txid: string
 }
 
-export type SwapSource = {
-  name: string
-  proportion: string
-}
-
 export type ApproveInfiniteInput<C extends SupportedChainIds> = {
   quote: TradeQuote<C>
   wallet: HDWallet
@@ -113,6 +99,33 @@ export type ApproveInfiniteInput<C extends SupportedChainIds> = {
 export type ApprovalNeededInput<C extends SupportedChainIds> = {
   quote: TradeQuote<C>
   wallet: HDWallet
+}
+
+export type SwapSource = {
+  name: string
+  proportion: string
+}
+
+export interface MinMaxOutput {
+  minimum: string
+  maximum: string
+}
+
+export type GetMinMaxInput = {
+  sellAsset: Asset
+  buyAsset: Asset
+}
+
+export type ApprovalNeededOutput = {
+  approvalNeeded: boolean
+  gas?: string
+  gasPrice?: string
+}
+
+export enum SwapperType {
+  Zrx = '0x',
+  Thorchain = 'Thorchain',
+  Test = 'Test'
 }
 
 // Swap Errors
@@ -164,7 +177,7 @@ export interface Swapper {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  executeTrade(args: ExecuteTradeInput<SupportedChainIds>): Promise<ExecQuoteOutput>
+  executeTrade(args: ExecuteTradeInput<SupportedChainIds>): Promise<TradeResult>
 
   /**
    * Get a boolean if a quote needs approval

@@ -93,34 +93,9 @@ export type BaseAsset = AbstractAsset & { tokens?: TokenAsset[] }
 export type Asset = AbstractAsset & Partial<TokenAssetFields>
 
 // swapper
-
+// TODO remove this once web is using the type from swapper
 export enum SwapperType {
   Zrx = '0x',
   Thorchain = 'Thorchain',
   Test = 'Test'
-}
-
-export type SwapSource = {
-  name: string
-  proportion: string
-}
-
-export interface MinMaxOutput {
-  minimum: string
-  maximum: string
-}
-
-export type GetMinMaxInput = {
-  sellAsset: Asset
-  buyAsset: Asset
-}
-
-export type ExecQuoteOutput = {
-  txid: string
-}
-
-export type ApprovalNeededOutput = {
-  approvalNeeded: boolean
-  gas?: string
-  gasPrice?: string
 }

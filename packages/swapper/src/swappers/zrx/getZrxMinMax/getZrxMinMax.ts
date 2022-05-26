@@ -1,6 +1,6 @@
-import { Asset, MinMaxOutput } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 
-import { SwapError, SwapErrorTypes } from '../../../api'
+import { MinMaxOutput, SwapError, SwapErrorTypes } from '../../../api'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getUsdRate } from '../utils/helpers/helpers'

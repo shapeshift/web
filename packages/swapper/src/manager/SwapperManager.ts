@@ -1,8 +1,7 @@
-import { SwapperType } from '@shapeshiftoss/types'
 import uniq from 'lodash/uniq'
 
 import { BuyAssetBySellIdInput, ByPairInput, SupportedSellAssetsInput, Swapper } from '..'
-import { SwapError, SwapErrorTypes } from '../api'
+import { SwapError, SwapErrorTypes, SwapperType } from '../api'
 
 function validateSwapper(swapper: Swapper) {
   if (!(typeof swapper === 'object' && typeof swapper.getType === 'function'))

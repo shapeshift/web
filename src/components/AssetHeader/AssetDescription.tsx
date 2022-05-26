@@ -1,6 +1,6 @@
 import { Box, Button, Collapse, Skeleton, SkeletonText } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'

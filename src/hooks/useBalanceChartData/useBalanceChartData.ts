@@ -1,12 +1,6 @@
-import { AssetId, ChainId, cosmosAssetId, toAccountId, toChainId } from '@shapeshiftoss/caip'
+import { AssetId, cosmosAssetId, cosmosChainId, toAccountId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import {
-  chainAdapters,
-  ChainTypes,
-  HistoryData,
-  HistoryTimeframe,
-  NetworkTypes,
-} from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -314,11 +308,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // Get total delegation
   // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const cosmosChainId: ChainId = toChainId({
-    chain: ChainTypes.Cosmos,
-    network: NetworkTypes.COSMOSHUB_MAINNET,
-  })
-
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
     if (accountSpecifier[cosmosChainId]) {

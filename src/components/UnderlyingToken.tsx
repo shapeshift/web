@@ -1,7 +1,6 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
 import { AssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import toLower from 'lodash/toLower'
 import { useEffect, useMemo, useState } from 'react'
@@ -46,22 +45,22 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
       try {
         if (shouldHide || !wallet) return
         moduleLogger.trace(
-          { tokenId: asset.tokenId, chain: asset.chain, fn: 'yearn.token' },
+          { tokenId: asset.tokenId, chain: asset.chainId, fn: 'yearn.token' },
           'Get Yearn Token',
         )
         const token = await yearn.token({ vaultAddress: asset.tokenId! })
-        const chain = asset.chain
-        const network = NetworkTypes.MAINNET
+        // FIXME: confirm we have a .chainId here
+        const chainId = asset.chainId
         const assetNamespace = 'erc20'
         const assetReference = toLower(token)
-        const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+        const assetId = toAssetId({ chainId, assetNamespace, assetReference })
         moduleLogger.trace({ assetId, fn: 'yearn.token' }, 'Yearn Asset')
         setUnderlyingAssetId(assetId)
       } catch (error) {
         moduleLogger.error(error, 'yearn.token() failed')
       }
     })()
-  }, [shouldHide, asset.tokenId, asset.chain, vault, wallet, yearn])
+  }, [shouldHide, asset.tokenId, vault, wallet, yearn, asset.chainId])
 
   if (shouldHide || loading || !underlyingAssetId) return null
 

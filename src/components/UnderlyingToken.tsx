@@ -49,7 +49,6 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
           'Get Yearn Token',
         )
         const token = await yearn.token({ vaultAddress: asset.tokenId! })
-        // FIXME: confirm we have a .chainId here
         const chainId = asset.chainId
         const assetNamespace = 'erc20'
         const assetReference = toLower(token)

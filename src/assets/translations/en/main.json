@@ -315,6 +315,12 @@
     "amount": "Amount",
     "for": "for",
     "parser": {
+      "weth": {
+        "deposit": "Deposit",
+        "approve": "Approve",
+        "withdraw": "Withdraw",
+        "receive": "Receive"
+      },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",

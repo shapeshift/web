@@ -81,7 +81,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, feeAsset, routeBuyAssetId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assets, routeBuyAssetId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

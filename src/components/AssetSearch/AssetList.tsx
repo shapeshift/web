@@ -56,11 +56,11 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   const enrichAsset = (assets: Asset[]): Asset[] => {
     return assets.map(asset => {
       const amount = rowData.find(d => d.assetId === asset.caip19)?.cryptoAmount
-      const assetMarketData = marketData.byId[asset.caip19]
+      const assetMarketData = marketData.crypto.byId[asset.caip19]
       return {
         ...asset,
         cryptoAmount: amount ? Number(amount) : 0,
-        marketCap: assetMarketData ? Number(assetMarketData.marketCap) : 0
+        marketCap: assetMarketData ? Number(assetMarketData.marketCap) : 0,
       } as Asset
     })
   }
@@ -87,7 +87,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
             width='100%'
             itemData={{
               items: sortedAssets,
-              handleClick
+              handleClick,
             }}
             itemCount={sortedAssets.length}
             ref={setTokenListRef}

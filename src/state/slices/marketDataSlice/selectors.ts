@@ -46,3 +46,5 @@ export const selectPriceHistoryTimeframe = createSelector(
   (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
   (priceHistory, timeframe) => priceHistory[timeframe]
 )
+
+export const selectAllMarketData = (state: ReduxState) => state.marketData

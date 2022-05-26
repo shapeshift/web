@@ -293,7 +293,7 @@ export const txHistoryApi = createApi({
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
 
-        foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
+        for (const tokenContractAddress of foxyTokenContractAddressWithBalances) {
           const assetReference = tokenContractAddress
           const assetNamespace = 'erc20'
           const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -301,7 +301,7 @@ export const txHistoryApi = createApi({
           const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
           const upsertPayload = { accountId: accountSpecifier, assetId, data }
           if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-        })
+        }
 
         // we don't really care about the caching of this, we're dispatching
         // into another part of the portfolio above, we kind of abuse RTK query,

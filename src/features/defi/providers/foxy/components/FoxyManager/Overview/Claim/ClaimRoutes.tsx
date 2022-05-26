@@ -21,11 +21,11 @@ export const routes = [
   { step: 1, path: OverviewPath.ClaimStatus, label: 'Status' },
 ]
 
-type CliamRouteProps = {
+type ClaimRouteProps = {
   onBack: () => void
 }
 
-export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
+export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, tokenId, chain } = query
   const chainId = chainTypeToMainnetChainId(chain)

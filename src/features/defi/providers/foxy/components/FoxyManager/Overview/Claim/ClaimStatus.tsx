@@ -97,7 +97,7 @@ export const ClaimStatus = () => {
         const gasPrice = await foxy.getGasPrice()
         setState({
           ...state,
-          txStatus: transactionReceipt.status === true ? TxStatus.SUCCESS : TxStatus.FAILED,
+          txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
         })
       } catch (error) {

@@ -98,7 +98,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
+          txStatus: transactionReceipt.status ? 'success' : 'failed',
           usedGasFee: bnOrZero(bn(gasPrice).times(transactionReceipt.gasUsed)).toFixed(0),
         },
       })

@@ -294,15 +294,14 @@ export const txHistoryApi = createApi({
         const foxyApi = new FoxyApi(foxyArgs)
 
         await Promise.all(
-          foxyTokenContractAddressWithBalances.map(tokenContractAddress => {
+          foxyTokenContractAddressWithBalances.map(async tokenContractAddress => {
             const rebaseHistoryArgs = { userAddress, tokenContractAddress }
-            return foxyApi.getRebaseHistory(rebaseHistoryArgs).then(data => {
-              const assetReference = tokenContractAddress
-              const assetNamespace = 'erc20'
-              const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-              const upsertPayload = { accountId: accountSpecifier, assetId, data }
-              if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-            })
+            const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
+            const assetReference = tokenContractAddress
+            const assetNamespace = 'erc20'
+            const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+            const upsertPayload = { accountId: accountSpecifier, assetId, data }
+            if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
           }),
         )
 

@@ -1,5 +1,6 @@
 import { ListProps } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
+import * as _ from 'lodash'
 import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useRouteMatch } from 'react-router-dom'
@@ -11,6 +12,7 @@ import { selectAllMarketData, selectPortfolioAccountRows } from 'state/slices/se
 import { useAppSelector } from 'state/store'
 
 import { AssetRow } from './AssetRow'
+import { enrichAsset } from './helpers/enrichAsset/enrichAsset'
 
 type AssetListProps = {
   handleClick: (asset: Asset) => void
@@ -21,8 +23,6 @@ type ItemData<T> = {
   items: Asset[]
   handleClick: T
 }
-
-type EnrichAsset = { cryptoAmount: number; marketCap: number } & Asset
 
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   const rowData = useSelector(selectPortfolioAccountRows)
@@ -48,32 +48,11 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets])
 
-  /**
-   * This function enrich the Asset by adding the user cryptoAmount and marketCap for each asset for facilitate sorting.
-   * @param assets Asset[]
-   * @returns
-   */
-  const enrichAsset = (assets: Asset[]): Asset[] => {
-    return assets.map(asset => {
-      const amount = rowData.find(d => d.assetId === asset.assetId)?.cryptoAmount
-      const assetMarketData = marketData.crypto.byId[asset.assetId]
-      return {
-        ...asset,
-        cryptoAmount: amount ? Number(amount) : 0,
-        marketCap: assetMarketData ? Number(assetMarketData.marketCap) : 0,
-      } as Asset
-    })
-  }
-
   const sortByAccountAndMarketCap = (assets: Asset[]): Asset[] => {
-    return assets.sort((a, b) => {
-      const first = a as EnrichAsset
-      const second = b as EnrichAsset
-      return second.cryptoAmount - first.cryptoAmount || second.marketCap - first.marketCap
-    })
+    return _.sortBy(assets, ['cryptoAmount', 'marketCap']).reverse()
   }
 
-  const sortedAssets = sortByAccountAndMarketCap(enrichAsset(assets))
+  const sortedAssets = sortByAccountAndMarketCap(enrichAsset(assets, rowData, marketData))
 
   return (
     <AutoSizer disableWidth className='auto-sizered'>

@@ -8,8 +8,8 @@ import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { logger } from 'lib/logger'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,

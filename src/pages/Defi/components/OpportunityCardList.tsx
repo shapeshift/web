@@ -1,6 +1,8 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import { FaPiggyBank } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -10,6 +12,18 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { OpportunityCard } from './OpportunityCard'
+
+export const iconReplaceMap = new Map<AssetId, string>()
+
+// Override FOX icon with FOXY icon
+iconReplaceMap.set(
+  'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+)
+
+export const overrideIconAssetId = (asset: Asset) => {
+  return iconReplaceMap.get(asset.assetId) || asset.icon
+}
 
 export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
   const activeOpportunities = balances.opportunities.filter(o => bnOrZero(o.cryptoAmount).gt(0))
@@ -39,9 +53,14 @@ export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesRet
         gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={6}
       >
-        {/*Staked Token Card here*/}
         {activeOpportunities.map(opportunity => {
-          return <OpportunityCard key={opportunity.assetId} {...opportunity} />
+          return (
+            <OpportunityCard
+              key={opportunity.assetId}
+              overrideAssetIconID={overrideIconAssetId}
+              {...opportunity}
+            />
+          )
         })}
       </SimpleGrid>
       {activeOpportunities.length === 0 && (

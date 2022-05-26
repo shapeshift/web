@@ -9,7 +9,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,6 +23,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -52,11 +53,10 @@ export const ClaimConfirm = ({
   const history = useHistory()
 
   // Asset Info
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })

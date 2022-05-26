@@ -2,18 +2,23 @@ import { Button, ButtonGroup } from '@chakra-ui/react'
 import {
   DefiAction,
   DefiParams,
-  DefiQueryParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
-export const DefiActionButtons = ({ vaultExpired }: { vaultExpired: boolean }) => {
+type DefiActionButtonProps = {
+  vaultExpired?: boolean
+  showOverview?: boolean
+}
+
+export const DefiActionButtons = ({ vaultExpired, showOverview }: DefiActionButtonProps) => {
   const translate = useTranslate()
   const { location, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const match = matchPath<DefiParams>(location.pathname, {
     path: '/defi/:earnType/:provider/:action',
-    exact: true
+    exact: true,
   })
 
   const handleClick = (action: DefiAction) => {
@@ -21,13 +26,21 @@ export const DefiActionButtons = ({ vaultExpired }: { vaultExpired: boolean }) =
       const { earnType, provider } = match.params
       history.replace({
         ...location,
-        pathname: `/defi/${earnType}/${provider}/${action}/`
+        pathname: `/defi/${earnType}/${provider}/${action}/`,
       })
     }
   }
 
   return (
     <ButtonGroup variant='ghost' colorScheme='blue'>
+      {showOverview && (
+        <Button
+          isActive={match?.params?.action === DefiAction.Overview}
+          onClick={() => handleClick(DefiAction.Overview)}
+        >
+          {translate('common.overview')}
+        </Button>
+      )}
       <Button
         isActive={match?.params?.action === DefiAction.Deposit}
         onClick={() => handleClick(DefiAction.Deposit)}

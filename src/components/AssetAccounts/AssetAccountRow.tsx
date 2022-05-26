@@ -6,22 +6,23 @@ import {
   Stack,
   Tag,
   useColorModeValue,
-  useMediaQuery
+  useMediaQuery,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssetByCAIP19,
+  selectAssetById,
+  selectFirstAccountSpecifierByChainId,
   selectPortfolioAllocationPercentByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter
+  selectTotalCryptoBalanceWithDelegations,
+  selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -32,7 +33,7 @@ import { breakpoints } from 'theme/theme'
 
 type AssetAccountRowProps = {
   accountId: AccountSpecifier
-  assetId?: CAIP19
+  assetId?: AssetId
   showAllocation?: boolean
   isCompact?: boolean
 } & SimpleGridProps
@@ -48,19 +49,26 @@ export const AssetAccountRow = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, rowAssetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
-  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
-  const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
+  const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+  )
+
+  const filter = useMemo(
+    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
+    [rowAssetId, accountId, accountSpecifier],
+  )
+  const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
+    selectTotalCryptoBalanceWithDelegations(state, filter),
   )
   const allocation = useAppSelector(state =>
-    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId })
+    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
   )
   const path = generatePath(
     assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
-    filter
+    filter,
   )
   const label = accountIdToLabel(accountId)
 
@@ -75,7 +83,7 @@ export const AssetAccountRow = ({
         md: '1fr repeat(2, 1fr)',
         lg: showAllocation
           ? 'minmax(0, 2fr) 150px repeat(2, 1fr)'
-          : `minmax(0, 2fr) repeat(${isCompact ? '1' : '2'}, 1fr)`
+          : `minmax(0, 2fr) repeat(${isCompact ? '1' : '2'}, 1fr)`,
       }}
       py={4}
       pl={4}
@@ -134,7 +142,7 @@ export const AssetAccountRow = ({
       </Flex>
       {showAllocation && (
         <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-          <Allocations value={allocation} color={'#000'} />
+          <Allocations value={allocation} />
         </Flex>
       )}
       {!isCompact && (

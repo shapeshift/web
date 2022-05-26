@@ -1,11 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import { AssetId } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-
-import { ReduxState } from '../../reducer'
 
 let service: AssetService | undefined = undefined
 
@@ -24,14 +22,14 @@ const getAssetService = async () => {
 
 export type AssetsState = {
   byId: {
-    [key: CAIP19]: Asset
+    [key: AssetId]: Asset
   }
-  ids: CAIP19[]
+  ids: AssetId[]
 }
 
 const initialState: AssetsState = {
   byId: {},
-  ids: []
+  ids: [],
 }
 
 export const assets = createSlice({
@@ -42,8 +40,8 @@ export const assets = createSlice({
     setAssets: (state, action: PayloadAction<AssetsState>) => {
       state.byId = { ...state.byId, ...action.payload.byId } // upsert
       state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
-    }
-  }
+    },
+  },
 })
 
 export const assetApi = createApi({
@@ -55,20 +53,14 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: async (_, { getState }) => {
+      queryFn: async () => {
         // @ts-ignore
-        const state = getState() as ReduxState
         const service = await getAssetService()
-        const assetArray = service?.byNetwork(
-          // Cosmos assets have a network type of COSMOSHUB_MAINNET
-          // If the flag is OFF then we'll filter out only Bitcoin/Ethereum assets
-          // If the flag is ON then we'll allow all assets through
-          state.preferences.featureFlags.CosmosPlugin ? undefined : NetworkTypes.MAINNET
-        )
+        const assetArray = service?.byNetwork()
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
-          const { caip19 } = cur
-          acc.byId[caip19] = cur
-          acc.ids.push(caip19)
+          const { assetId } = cur
+          acc.byId[assetId] = cur
+          acc.ids.push(assetId)
           return acc
         }, cloneDeep(initialState))
         return { data }
@@ -77,9 +69,9 @@ export const assetApi = createApi({
         await cacheDataLoaded
         const data = getCacheEntry().data
         data && dispatch(assets.actions.setAssets(data))
-      }
+      },
     }),
-    getAssetDescription: build.query<AssetsState, CAIP19>({
+    getAssetDescription: build.query<AssetsState, AssetId>({
       queryFn: async (assetId, { getState }) => {
         const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
@@ -102,9 +94,9 @@ export const assetApi = createApi({
         await cacheDataLoaded
         const data = getCacheEntry().data
         data && dispatch(assets.actions.setAssets(data))
-      }
-    })
-  })
+      },
+    }),
+  }),
 })
 
 export const { useGetAssetsQuery, useGetAssetDescriptionQuery } = assetApi

@@ -1,20 +1,22 @@
-import { Button, Divider, Flex, Image, Link, SkeletonCircle, useToast } from '@chakra-ui/react'
-import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeState } from 'components/Trade/Trade'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeRoutePaths, TradeState } from 'components/Trade/types'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { theme } from 'theme/theme'
 
 type ApprovalParams = {
@@ -23,101 +25,85 @@ type ApprovalParams = {
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
+const moduleLogger = logger.child({ namespace: ['Approval'] })
+
 export const Approval = () => {
   const history = useHistory()
   const location = useLocation<ApprovalParams>()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
-  const toast = useToast()
-  const translate = useTranslate()
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const { fiatRate } = location.state
 
   const {
     getValues,
     handleSubmit,
-    formState: { errors, isSubmitting }
-  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
-  const { approveInfinite, checkApprovalNeeded, buildQuoteTx } = useSwapper()
+    formState: { errors, isSubmitting },
+  } = useFormContext<TradeState<SupportedChainIds>>()
+  const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
   const {
-    number: { toCrypto, toFiat }
+    number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet }
+    state: { wallet, isConnected },
+    dispatch,
   } = useWallet()
-  const { quote, sellAsset, fees } = getValues()
+  const { showErrorToast } = useErrorHandler()
+  const { quote, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
-  const symbol = sellAsset.currency?.symbol
+  const symbol = quote?.sellAsset?.symbol
 
   const approve = async () => {
-    if (!wallet) return
-    let txId
     try {
-      txId = await approveInfinite(wallet)
-    } catch (e) {
-      console.error(`Approval:approve - ${e}`)
-      // TODO: (ryankk) this toast is currently assuming that the error is 'Not enough eth for tx fee' because we don't
-      // get the full error response back from unchained (we get a 500 error). We can make this more precise by returning
-      // the full error returned from unchained.
-      handleToast(translate(TRADE_ERRORS.NOT_ENOUGH_ETH))
-    }
-
-    if (!txId) return
-    setApprovalTxId(txId)
-
-    const interval = setInterval(async () => {
-      try {
-        const approvalNeeded = await checkApprovalNeeded(wallet)
-        if (approvalNeeded) return
-      } catch (e) {
-        console.error(`Approval:approve:checkApprovalNeeded - ${e}`)
-        handleToast()
-        approvalInterval.current && clearInterval(approvalInterval.current)
-        return history.push('/trade/input')
+      if (!wallet) return
+      if (!isConnected) {
+        /**
+         * call history.goBack() to reset current form state
+         * before opening the connect wallet modal.
+         */
+        history.goBack()
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
       }
+      const fnLogger = logger.child({ name: 'approve' })
+      fnLogger.trace('Attempting Approval...')
 
-      approvalInterval.current && clearInterval(approvalInterval.current)
-      if (!sellAsset.amount) return
-      if (!quote) return
-      let result
-      try {
-        result = await buildQuoteTx({
+      const txId = await approveInfinite(wallet)
+
+      setApprovalTxId(txId)
+
+      approvalInterval.current = setInterval(async () => {
+        fnLogger.trace({ fn: 'checkApprovalNeeded' }, 'Checking Approval Needed...')
+        try {
+          const approvalNeeded = await checkApprovalNeeded(wallet)
+          if (approvalNeeded) return
+        } catch (e) {
+          showErrorToast(e)
+          approvalInterval.current && clearInterval(approvalInterval.current)
+          return history.push(TradeRoutePaths.Input)
+        }
+        approvalInterval.current && clearInterval(approvalInterval.current)
+
+        await updateTrade({
           wallet,
           sellAsset: quote?.sellAsset,
           buyAsset: quote?.buyAsset,
-          amount: sellAsset?.amount
+          amount: quote?.sellAmount,
         })
-      } catch (e) {
-        console.error(`Approval:approve:buildQuoteTx - ${e}`)
-      }
 
-      if (!result?.success && result?.statusReason) {
-        handleToast(result.statusReason)
-      }
-
-      if (result?.success) {
-        history.push({ pathname: '/trade/confirm', state: { fiatRate } })
-      } else {
-        history.push('/trade/input')
-      }
-    }, 5000)
-    approvalInterval.current = interval
-  }
-
-  const handleToast = (description: string = '') => {
-    toast({
-      title: translate(TRADE_ERRORS.TITLE),
-      description,
-      status: 'error',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right'
-    })
+        history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
+      }, 5000)
+    } catch (e) {
+      showErrorToast(e)
+    }
   }
 
   useEffect(() => {
     // TODO: (ryankk) fix errors to reflect correct attribute
     const error = errors?.quote?.rate ?? null
-    if (error) history.push('/trade/input')
+    if (error) {
+      moduleLogger.debug({ fn: 'validation', errors }, 'Form Validation Failed')
+      history.push(TradeRoutePaths.Input)
+    }
   }, [errors, history])
 
   return (
@@ -145,14 +131,14 @@ export const Approval = () => {
               duration={60}
               colors={[
                 [theme.colors.blue[500], 0.4],
-                [theme.colors.blue[500], 0.4]
+                [theme.colors.blue[500], 0.4],
               ]}
               onComplete={() => {
                 return [true, 0]
               }}
             >
               <Image
-                src={sellAsset.currency?.icon}
+                src={quote?.sellAsset?.icon}
                 boxSize='60px'
                 fallback={<SkeletonCircle boxSize='60px' />}
               />
@@ -174,7 +160,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && sellAsset.currency?.explorerTxLink && (
+              {approvalTxId && quote?.sellAsset?.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -183,8 +169,7 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      // TODO:(ryankk) create explorer links given a link template and a value
-                      href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
+                      href={`${quote?.sellAsset?.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis address={approvalTxId} />
                     </Link>

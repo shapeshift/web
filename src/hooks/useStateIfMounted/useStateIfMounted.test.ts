@@ -24,7 +24,7 @@ describe('useStateIfMounted hook tied to component', () => {
         act(() => {
           result.current[1](1)
         }),
-      0
+      0,
     )
 
     expect(result.current[0]).toBe(0)
@@ -45,7 +45,7 @@ describe('useStateIfMounted hook tied to component', () => {
         act(() => {
           setState(1)
         }),
-      0
+      0,
     )
 
     unmount()

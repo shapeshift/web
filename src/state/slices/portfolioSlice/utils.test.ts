@@ -1,21 +1,24 @@
+import { AssetId, btcChainId, ethChainId } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
+
 import {
   accountIdToChainId,
   accountIdToLabel,
   accountIdToSpecifier,
-  assetIdtoChainId,
-  btcChainId,
-  ethChainId,
-  findAccountsByAssetId
+  assetIdToChainId,
+  findAccountsByAssetId,
+  makeBalancesByChainBucketsFlattened,
+  makeSortedAccountBalances,
 } from './utils'
 
 describe('accountIdToChainId', () => {
-  it('can get eth caip2 from accountId', () => {
+  it('can get eth chainId from accountId', () => {
     const accountId = 'eip155:1:0xdef1cafe'
     const chainId = accountIdToChainId(accountId)
     expect(chainId).toEqual(ethChainId)
   })
 
-  it('can get btc caip2 from accountId', () => {
+  it('can get btc chainId from accountId', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
     const chainId = accountIdToChainId(accountId)
     expect(chainId).toEqual(btcChainId)
@@ -68,18 +71,18 @@ describe('accountIdToLabel', () => {
   })
 })
 
-describe('assetIdtoChainId', () => {
+describe('assetIdToChainId', () => {
   it('returns a ETH chainId for a given ETH assetId', () => {
     const ethAssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
     const chainId = 'eip155:1'
-    const result = assetIdtoChainId(ethAssetId)
+    const result = assetIdToChainId(ethAssetId)
     expect(result).toEqual(chainId)
   })
 
   it('returns a BTC chainId for a given BTC assetId', () => {
     const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
     const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
-    const result = assetIdtoChainId(btcAssetId)
+    const result = assetIdToChainId(btcAssetId)
     expect(result).toEqual(btcChainId)
   })
 })
@@ -91,22 +94,22 @@ describe('findAccountsByAssetId', () => {
   const ethAsset2Id = 'eip155:1/erc20:0xryankk'
 
   it('returns correct accountId for a given assetId', () => {
-    const portolioAccounts = {
-      [ethAccountId]: [ethAssetId],
-      [ethAccount2Id]: [ethAsset2Id]
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAssetId] },
+      [ethAccount2Id]: { assetIds: [ethAsset2Id] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAssetId)
     expect(result).toEqual([ethAccountId])
   })
 
   it('returns correct accountIds for a given assetId', () => {
-    const portolioAccounts = {
-      [ethAccountId]: [ethAssetId, ethAsset2Id],
-      [ethAccount2Id]: [ethAsset2Id]
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAssetId, ethAsset2Id] },
+      [ethAccount2Id]: { assetIds: [ethAsset2Id] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAsset2Id)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAsset2Id)
     expect(result).toEqual([ethAccountId, ethAccount2Id])
   })
 
@@ -114,16 +117,87 @@ describe('findAccountsByAssetId', () => {
     const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
     const btcAccountId = 'bip122:000000000019d6689c085ae165831e93:zpubfoobarbaz'
 
-    const portolioAccounts = {
-      [ethAccountId]: [ethAsset2Id],
-      [ethAccount2Id]: [],
-      [btcAccountId]: []
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAsset2Id] },
+      [ethAccount2Id]: { assetIds: [] },
+      [btcAccountId]: { assetIds: [] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAssetId)
     expect(result).toEqual([ethAccountId, ethAccount2Id])
 
-    const result2 = findAccountsByAssetId(portolioAccounts, btcAssetId)
+    const result2 = findAccountsByAssetId(portfolioAccounts, btcAssetId)
     expect(result2).toEqual([btcAccountId])
+  })
+})
+
+describe('makeSortedAccountBalances', () => {
+  it('makes sorted account balances - mixed assets', () => {
+    const accountBalances = {
+      'bip122:000000000019d6689c085ae165831e93:someXpub': '8',
+      'bip122:000000000019d6689c085ae165831e93:someZpub': '7',
+      'eip155:1:someEthAccount': '0.00',
+      'bip122:someYpub': '3',
+      'cosmos:cosmoshub-4:someCosmosAccount': '10',
+    }
+
+    const result = makeSortedAccountBalances(accountBalances)
+    expect(result).toEqual([
+      'cosmos:cosmoshub-4:someCosmosAccount',
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:someYpub',
+      'eip155:1:someEthAccount',
+    ])
+  })
+})
+
+describe('makeBalancesByChainBucketsFlattened', () => {
+  const assets = {
+    'cosmos:cosmoshub-4/slip44:118': {
+      chain: 'cosmos',
+    },
+    'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+      chain: 'bitcoin',
+    },
+    'bip122:000000000933ea01ad0ee984209779ba/slip44:0': {
+      chain: 'bitcoin',
+    },
+    'eip155:1/slip44:60': {
+      chain: 'ethereum',
+    },
+  } as unknown as { [k: AssetId]: Asset }
+
+  it('makes flattened balances by chain buckets - mixed assets', () => {
+    const accountBalances = [
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'eip155:1:someEthAccount',
+      'cosmos:cosmoshub-4:someCosmosAccount',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+    ]
+
+    const result = makeBalancesByChainBucketsFlattened(accountBalances, assets)
+    expect(result).toEqual([
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+      'eip155:1:someEthAccount',
+      'cosmos:cosmoshub-4:someCosmosAccount',
+    ])
+  })
+  it('makes flattened balances by chain buckets - Bitcoin assets only', () => {
+    const accountBalances = [
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+    ]
+
+    const result = makeBalancesByChainBucketsFlattened(accountBalances, assets)
+    expect(result).toEqual([
+      'bip122:000000000019d6689c085ae165831e93:someXpub',
+      'bip122:000000000019d6689c085ae165831e93:someZpub',
+      'bip122:000000000019d6689c085ae165831e93:someYpub',
+    ])
   })
 })

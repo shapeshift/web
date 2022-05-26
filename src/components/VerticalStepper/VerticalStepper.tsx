@@ -3,6 +3,9 @@ import { Step, Steps } from 'chakra-ui-steps'
 
 export type StepConfig = {
   label: string
+  isCompleted?: boolean
+  step?: number
+  path: string
 }
 
 export type StepperState = 'loading' | 'error' | undefined
@@ -24,7 +27,7 @@ export const VerticalStepper = ({ state, activeStep, steps }: VerticalStepperPro
         size='sm'
       >
         {steps.map(step => (
-          <Step key={step.label} label={step.label} />
+          <Step key={step.label} label={step.label} isCompletedStep={step.isCompleted} />
         ))}
       </Steps>
     </VStack>

@@ -25,7 +25,7 @@ export function partitionCompare<T>(first: T[], second: T[]) {
   return {
     remove: difference<T>(first, second),
     keep: intersection<T>(first, second),
-    add: difference<T>(second, first)
+    add: difference<T>(second, first),
   }
 }
 
@@ -39,7 +39,7 @@ export function partitionCompare<T>(first: T[], second: T[]) {
 export function partitionCompareWith<T>(
   first: T[],
   second: T[],
-  fns: { add: (item: T) => void; remove: (item: T) => void }
+  fns: { add: (item: T) => void; remove: (item: T) => void },
 ) {
   const result = partitionCompare(first, second)
 

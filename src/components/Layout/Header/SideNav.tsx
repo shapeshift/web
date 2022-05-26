@@ -1,15 +1,16 @@
 import { chakra, useColorModeValue } from '@chakra-ui/react'
-import React from 'react'
-import { Route } from 'Routes/helpers'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SideNavContent } from './SideNavContent'
 
-export const NAV_PADDING = { base: 6, lg: 16 }
-
-export const SideNav = ({ route }: { route: Route }) => {
+export const SideNav = () => {
   const bg = useColorModeValue('white', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-
+  const {
+    state: { walletInfo },
+  } = useWallet()
+  const top = walletInfo?.deviceId === DemoConfig.name ? '7rem' : '4.5rem'
   return (
     <>
       <chakra.header
@@ -19,14 +20,14 @@ export const SideNav = ({ route }: { route: Route }) => {
         borderColor={borderColor}
         left='0'
         right='0'
-        height='calc(100vh - 4.5rem)'
+        height={`calc(100vh - ${top})`}
         position='sticky'
-        top='4.5rem'
+        top={top}
         maxWidth='xs'
         flex={{ base: 'inherit', '2xl': '1 1 0%' }}
         display={{ base: 'none', md: 'flex' }}
       >
-        <SideNavContent route={route} isCompact={true} />
+        <SideNavContent isCompact={true} />
       </chakra.header>
     </>
   )

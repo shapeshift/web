@@ -36,7 +36,7 @@ export const AreaChart = ({
   hideLeftAxis = false,
   top,
   left,
-  children
+  children,
 }: AreaChartProps) => {
   // accessors
   const getDate = (d: HistoryData) => new Date(d?.date)

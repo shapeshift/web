@@ -1,13 +1,18 @@
-import { Flex } from '@chakra-ui/react'
+import { BoxProps } from '@chakra-ui/react'
+import { Row as RowStyle } from 'components/Row/Row'
 import { Text } from 'components/Text'
 
-export const Row = ({ title, children }: { title: string; children: React.ReactNode }) => {
+export const Row = ({
+  title,
+  children,
+  ...rest
+}: { title: string; children: React.ReactNode } & BoxProps) => {
   return (
-    <Flex mb={1} flexBasis='50%' alignItems='center' lineHeight={1}>
-      <Flex flex={1}>
-        <Text lineHeight={1} color='gray.600' translation={`transactionHistory.${title}`} />
-      </Flex>
-      <Flex flex={1}>{children}</Flex>
-    </Flex>
+    <RowStyle alignItems='center' {...rest}>
+      <RowStyle.Label>
+        <Text translation={`transactionHistory.${title}`} />
+      </RowStyle.Label>
+      <RowStyle.Value>{children}</RowStyle.Value>
+    </RowStyle>
   )
 }

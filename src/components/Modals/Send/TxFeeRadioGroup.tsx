@@ -4,7 +4,8 @@ import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
-import { SendFormFields, SendInput } from './Form'
+import type { SendInput } from './Form'
+import { SendFormFields } from './SendCommon'
 import { FeePrice } from './views/Confirm'
 
 type TxFeeRadioGroupProps = {
@@ -38,7 +39,7 @@ function getFeeTranslation(key: chainAdapters.FeeDataKey): string {
 const feesOrder: chainAdapters.FeeDataKey[] = [
   chainAdapters.FeeDataKey.Slow,
   chainAdapters.FeeDataKey.Average,
-  chainAdapters.FeeDataKey.Fast
+  chainAdapters.FeeDataKey.Fast,
 ]
 
 export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
@@ -47,7 +48,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
     name: SendFormFields.FeeType,
     control,
     rules: { required: true },
-    defaultValue: chainAdapters.FeeDataKey.Average
+    defaultValue: chainAdapters.FeeDataKey.Average,
   })
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const activeFee = useWatch<SendInput, SendFormFields.FeeType>({ name: SendFormFields.FeeType })

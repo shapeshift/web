@@ -1,0 +1,960 @@
+{
+  "common": {
+    "back": "뒤로",
+    "next": "다음",
+    "error": "오류 발생",
+    "cancel": "취소",
+    "close": "닫기",
+    "continue": "계속하기",
+    "approve": "승인",
+    "confirm": "확인",
+    "reject": "거절",
+    "connected": "연결됨",
+    "created": "%{date}에 생성됨",
+    "noResultsFound": "결과가 없습니다.",
+    "insufficientFunds": "자금이 부족합니다.",
+    "estimatedGas": "예상 가스 요금",
+    "insufficientAmountForGas": "지불해야 할 ETH 가스가 부족합니다.",
+    "invalidAddress": "유효하지 않은 주소입니다.",
+    "unresolvableEnsDomain": "ENS 도메인 확인 중에 문제가 발생했습니다.",
+    "deposit": "입금",
+    "withdraw": "출금",
+    "withdrawal": "출금",
+    "overview": "개요",
+    "getStarted": "시작하기",
+    "connectWallet": "지갑 연결하기",
+    "connectedWallet": "지갑 연결됨",
+    "connectedWalletSettings": "지갑 설정",
+    "noWallet": "연결된 지갑이 없습니다.",
+    "seeAll": "전체 보기",
+    "darkMode": "다크 모드",
+    "darkTheme": "다크 모드",
+    "lightTheme": "라이트 모드",
+    "rename": "이름 바꾸기",
+    "forget": "삭제하시겠습니까?",
+    "pending": "보류 중",
+    "available": "이용 가능",
+    "or": "혹은",
+    "somethingWentWrong": "문제 발생",
+    "somethingWentWrongBody": "문제가 발생했습니다.",
+    "success": "완료",
+    "transactionFailed": "거래 실패",
+    "transactionFailedBody": "거래가 실패하였습니다.",
+    "submitFeedback": "의견 제출",
+    "send": "보내기",
+    "receive": "받기",
+    "privacy": "개인 정보 보호 정책",
+    "terms": "서비스 약관",
+    "days": "일",
+    "copied": "클립보드에 복사했습니다.",
+    "copyFailed": "클립보드에 복사하지 못했습니다.",
+    "copyFailedDescription": "클립보드에 복사하지 못했습니다. 직접 복사해주세요.",
+    "viewAsset": "자산 보기",
+    "apy": "%{apy}% APY",
+    "settings": "설정",
+    "legalDated": "날짜: 2022년 1월",
+    "approveOnWallet": "지갑에서 승인하기",
+    "confirmOnWallet": "지갑에서 확인하기",
+    "login": "로그인",
+    "verify": "확인",
+    "notRobot": "저는 로봇이 아닙니다",
+    "skip": "넘기기"
+  },
+  "updateToast": {
+    "body": "새로운 버전의 앱이 출시되었습니다.",
+    "cta": "페이지 새로고침"
+  },
+  "dashboard": {
+    "portfolio": {
+      "addAsset": "자산 추가",
+      "yourAssets": "보유 자산",
+      "asset": "자산",
+      "portfolioBalance": "포트폴리오 현황",
+      "balance": "총 보유 자산",
+      "price": "가격",
+      "value": "현 가치",
+      "priceChange": "가격 변동",
+      "allocation": "보유 비율",
+      "empty": {
+        "title": "짤랑거리는 소리만이 들립니다...",
+        "cta": "토큰이 하나도 없어요 😢"
+      },
+      "stakedInfo": "스테이킹된 금액을 보내거나 거래할 수 없습니다."
+    },
+    "recentTransactions": {
+      "recentTransactions": "최근 트랜잭션 내역"
+    }
+  },
+  "fiatRamps": {
+    "routeTitle": "구매하기",
+    "routeTitleForGem": "Gem으로 on-Ramp 거래하기",
+    "title": "암호화폐 거래하기",
+    "titleMessage": "ShapeShift에서는 암호화폐의 원활한 매매를 위해 여러 fiat-on-ramp 서비스 제공 업체들과 제휴 중입니다.",
+    "gem": "GEM",
+    "gemMessage": "Gem으로 암호화폐 거래하기",
+    "onJuno": "OnJuno",
+    "comingSoon": "개발 중입니다 - 나중에 확인해주세요",
+    "buy": "구매",
+    "sell": "판매",
+    "assetToBuy": "구매할 자산 선택하기",
+    "selectAnAssetToBuy": "아래 전체 목록에서 구매할 자산을 선택하세요",
+    "assetToSell": "판매할 자산 선택하기",
+    "selectAnAssetToSell": "아래 전체 목록에서 판매할 자산을 선택하세요",
+    "fundsTo": "다음 주소로 해당 자산을 입금합니다.",
+    "fundsFrom": "다음 주소에서 해당 자산을 출금합니다.",
+    "headerLabel": "암호화폐 거래하기",
+    "insufficientCryptoAmountToSell": "최소 거래 가능 수량 $%{amount}"
+  },
+  "connectWalletPage": {
+    "shapeshift": "ShapeShift (셰이프시프트)",
+    "exploreThe": "광활한 Defi Universe를",
+    "defiUniverse": "지금 탐험해 보세요",
+    "body": "100% 무료인, 중개인이 없는 비 수탁형(Non-custodial) 오픈소스 플랫폼입니다.",
+    "header": "지갑을 연결하여 시작하세요",
+    "cta": "지갑 연결하기",
+    "orViewADemo": "테스트 화면으로 연결하기"
+  },
+  "connectWallet": {
+    "menu": {
+      "triggerButton": "지갑 연결",
+      "switchWallet": "다른 지갑으로 연결하기",
+      "disconnect": "연결 끊기",
+      "disconnected": "연결 끊김"
+    }
+  },
+  "defi": {
+    "modals": {
+      "learnMore": {
+        "next": "다음",
+        "close": "닫기",
+        "headers": {
+          "aboutStakingRewards": "스테이킹 보상 정보",
+          "unstaking": "%{assetName}의 스테이킹 해제",
+          "risks": "어떠한 리스크가 있나요?"
+        },
+        "bodies": {
+          "rateFluctuationInfo": "귀하가 벌어들이는 %{assetName}의 비율인 연간 수익률(APR)은 일반적으로 7% - 20% 사이에서 변동합니다.",
+          "amountStakingInfo": "%{assetName}의 금액에 관계없이 스테이킹할 수 있으며 스테이킹 즉시 보상이 쌓이기 시작합니다.",
+          "withdrawInfo": "언제든지 보상을 인출할 수 있으며, 인출 시에는 약간의 가스 요금(~$.01)이 지불됩니다.",
+          "unbondingInfo": "토큰 스테이킹을 해제하면 %{unbondingDays}일 동안 잠김 상태로 들어가며, 그 동안에는 보상을 받지 못합니다. %{unbondingDays}일이 지나면 %{assetName}이 기본 지갑으로 돌아갑니다.",
+          "slashingInfo": "스테이킹은 검증자(Validator)를 통해 이루어집니다. 매우 드문 경우지만, 당신이 스테이킹한 토큰의 검증자가 부정하거나 잘못된 트랜잭션를 시도하게 되면 스테이킹한 자산의 일부를 잃을 수 있습니다.",
+          "partnerInfo": "우리는 안전하고 신뢰할 수 있으며 검증된 인프라를 갖춘 평판 좋은 검증자(Validator)와 협력하여 이러한 위험을 완화하려 지속적으로 노력하고 있습니다."
+        },
+        "userProtectionInfo": "*추정 수익은 시장 상황에 따라 변동될 수 있습니다.",
+        "cta": {
+          "startStaking": "스테이킹 시작하기",
+          "learnMore": "더 알아보기"
+        }
+      },
+      "getStarted": {
+        "header": "%{assetName} 스테이킹하여 최대 %{maxApr}% APR*을 받으세요.",
+        "body": "스테이킹은 블록체인 네트워크 운영을 지원하기 위해 암호화폐 지갑에 자금을 보유하는 과정이며, 그 대가로 보유자는 기여에 대한 보상을 받습니다.",
+        "userProtectionInfo": "*수익은 추정된 것으로 시장 상황에 따라 변동됩니다.",
+        "cta": {
+          "startStaking": "스테이킹 시작",
+          "learnMore": "더 알아보기"
+        }
+      },
+      "staking": {
+        "estimateDisclaimer": "*추정치는 시장 상황에 따라 변동될 수 있습니다.",
+        "byContinuing": "계속 진행하면 본 기능에 참여하고",
+        "risks": "약관에",
+        "ofParticipating": "동의하는",
+        "terms": "위험을 감수하게 됩니다.",
+        "stakingYourTokens": "토큰 스테이킹",
+        "unstakingYourTokens": "토큰 스테이킹 해제",
+        "tooltip": {
+          "validator": "검증자(Validator)는 트랜잭션의 처리와 데이터 저장 및 블록체인에 블록을 기록하는 역할을 합니다.",
+          "gasFees": "%{networkName}의 가스 요금은 이더리움 메인넷의 가스 요금보다 훨씬 낮습니다. 이 수수료는 네트워크를 보호하고 운영하는 검증자에게 직접 지불되며 ShapeShift에는 지불되지 않습니다."
+        }
+      },
+      "foxyOverview": {
+        "header": "FOXy를 적립하려면 FOX를 입금하세요.",
+        "body": "FOXy는 FOX 가격에 페깅되어 있는 리베이스 토큰입니다. 스테이크된 FOX는 다양한 DeFi 프로토콜에 연동되어 가능한 한 최고의 수익을 얻을 수 있게 합니다.",
+        "rewards": "획득한 보상은 자동으로 적립됩니다.",
+        "cta": "FOX 입금하기",
+        "foxyBalance": "FOXy 밸런스",
+        "withdrawals": "출금",
+        "emptyWithdraws": "보류 중이거나 활성인 출금이 여기에 표시됩니다.",
+        "availableDate": "가능한 날짜 %{date}"
+      },
+      "claim": {
+        "rewardDepositInfo": "보상은 기본 지갑에 입금됩니다.",
+        "title": "스테이킹 보상 청구",
+        "confirmAndClaim": "확인 및 청구",
+        "rewardAmount": "보상 금액",
+        "claimingRewards": "보상 청구",
+        "claimAmount": "청구 금액",
+        "claimToAddress": "청구 대상 주소",
+        "confirmClaim": "청구 확인",
+        "claimNow": "지금 청구하기"
+      }
+    },
+    "amountToStake": "스테이크할 금액",
+    "amountToUnstake": "스테이킹을 해제 할 금액",
+    "confirmDetails": "세부정보 확인",
+    "broadcastingTransaction": "거래 방송 중",
+    "transactionComplete": "거래 완료",
+    "transactionFailed": "거래 실패",
+    "notEnoughFundsInReserve": "유동성 준비금 계약에 자금이 부족합니다.",
+    "validator": "검증자 (Validator)",
+    "validatorMoniker": "%{moniker} 검증자 (Validator)",
+    "stakedAmount": "스테이킹 금액",
+    "unstakeFrom": "스테이크 해제",
+    "gasFee": "가스비",
+    "unbondInfoItWillTake": "토큰이 스테이킹되는 동안에는 토큰을 전송하거나 사용할 수 없습니다. 언스테이킹 후 잠금을 해제하는 데 %{unbondingDays}일이 걸립니다.",
+    "unbondInfoItWillTakeShort": "토큰을 언스테이킹하는 데 %{unbondingDays}일이 소요됩니다.",
+    "confirmAndBroadcast": "확인",
+    "signAndBroadcast": "거래 사인하기",
+    "averageApr": "평균 연이율(APR)",
+    "estimatedYearlyRewards": "예상 연간 보상",
+    "staked": "스테이킹",
+    "amountStaked": "스테이킹된 금액",
+    "assetStaking": "%{assetName} 스테이킹",
+    "stake": "스테이크",
+    "unstake": "언스테이킹",
+    "stakeAsset": "%{assetSymbol} 스테이킹",
+    "unstakeAsset": "%{assetSymbol} 스테이크 해제",
+    "claimAsset": "스테이킹 보상 청구",
+    "claim": "보상 청구",
+    "rewards": "보상",
+    "unstaking": "스테이킹 상태 해제중",
+    "available": "사용 가능 %{unbondingEnd}",
+    "earn": "보상 찾기",
+    "asset": "자산",
+    "category": "카테고리",
+    "tvl": "TVL",
+    "apy": "APY",
+    "apr": "APR",
+    "balance": "잔액",
+    "defi": "디파이",
+    "defiBody": "성장하는 디파이 유니버스에서 각종 기회를 창출해 보세요!",
+    "netWorth": "순자산",
+    "walletBalance": "보유 자산",
+    "earnBalance": "평가손익",
+    "earnBody": "자산 예치(스테이킹)을 통하여 패시브 인컴(Passive income, 수동적 수입)을 얻을 수도 있고, 또한 DeFi에 예치하여 추가 보상을 얻을 수 있습니다.",
+    "overview": "개요",
+    "liquidityPools": "유동성 자금 풀",
+    "stakingVaults": "스테이킹 및 금고",
+    "farming": "코인 파밍",
+    "totalEarningBalance": "총 평가손익",
+    "stakingBalance": "스테이킹 자산",
+    "farmingBalance": "파밍 자산",
+    "liquidityPoolBalance": "유동성 풀 자산",
+    "poolValue": "풀 가치",
+    "currentValue": "현재 시가",
+    "currentAPY": "현재 연 수익률",
+    "currentAPR": "현재 연 이자율",
+    "yearn": "연 파이낸스(Yearn Finance)",
+    "emptyEarn": "각종 이자 수익을 얻으실 수 있는 여러 기회들이 여기에 올라옵니다.",
+    "empty": {
+      "farming": {
+        "body": "현재 진행중인 이자 농사가 없습니다",
+        "cta": "이자 농사할 자금 찾아보기"
+      },
+      "stakingVaults": {
+        "body": "보유중인 암호화폐 자산의 이자를 얻을 수 있는 기회를 찾아보세요",
+        "cta": "스테이킹 가능한 자금 찾아보기"
+      },
+      "pools": {
+        "body": "예치한 유동성 풀이 없습니다",
+        "cta": "유동성 풀 찾아보기"
+      }
+    },
+    "viewOnChain": "체인에서 확인하기"
+  },
+  "staking": {
+    "staking": "스테이킹",
+    "itWillTake": "언스테이킹 시간이 ",
+    "toUnlock": "%{assetSymbol}을 언스테이크 후 잠금을 해제합니다. ※ 스테이킹 보상은 따로 출금하셔야 합니다.",
+    "assetStakingBalance": "%{assetSymbol} 스테이킹 잔액"
+  },
+  "navBar": {
+    "dashboard": "대시보드",
+    "assets": "자산 목록",
+    "assetDetails": "자산 정보",
+    "accounts": "계정",
+    "accountAsset": "계정 자산",
+    "accountDetails": "계정 세부정보",
+    "earn": "자산 획득",
+    "defi": "디파이",
+    "transactionHistory": "거래 내역",
+    "overview": "개요",
+    "transactions": "트랜잭션 기록",
+    "tradeHistory": "거래 내역",
+    "foxToken": "FOX 토큰",
+    "featureFlags": "Feature Flags"
+  },
+  "transactionRow": {
+    "send": "%{symbol} 송신",
+    "receive": "%{symbol} 수신",
+    "moreDetails": "자세한 정보",
+    "date": "날짜",
+    "txid": "거래 아이디",
+    "fee": "수수료",
+    "status": "상태",
+    "confirmed": "확인됨",
+    "pending": "보류",
+    "failed": "실패",
+    "network": "네트워크",
+    "blockHeight": "블록번호",
+    "to": "받은 주소",
+    "from": "보낸 주소",
+    "trade": "거래",
+    "amount": "거래량",
+    "for": "for",
+    "parser": {
+      "yearn": {
+        "deposit": "자산 입금",
+        "approve": "승인하기",
+        "withdraw": "자산 출금",
+        "receive": "받음"
+      },
+      "uniV2": {
+        "addLiquidityETH": "유동성 추가",
+        "removeLiquidityETH": "유동성 제거"
+      },
+      "thor": {
+        "transferOut": "출금"
+      },
+      "foxy": {
+        "stake": "스테이크",
+        "unstake": "언스테이크",
+        "instantUnstake": "즉시 언스테이크",
+        "claimWithdraw": "출금 요청"
+      }
+    },
+    "unknown": "거래"
+  },
+  "trade": {
+    "searchingRate": "최적의 거래를 찾는 중...",
+    "previewTrade": "거래 미리보기",
+    "rate": "가격",
+    "minerFee": "마이너 수수료",
+    "shapeshiftFee": "셰이프시프트 수수료",
+    "confirmDetails": "세부 정보 확인",
+    "confirmAndTrade": "확인 및 거래",
+    "complete": "거래 완료",
+    "approveAsset": "%{symbol} 상호 작용 승인",
+    "needPermission": "%{symbol} 사용하려면 귀하의 허가가 필요합니다.",
+    "whyNeedThis": "이 작업은 왜 필요한가요?",
+    "estimatedGasFee": "예상 가스 요금",
+    "approvingAsset": "%{symbol} 승인 중",
+    "viewTransaction": "트랜잭션 내역 확인",
+    "tooltip": {
+      "rate": "해당 거래 페어에 대한 예상 거래 비율입니다.",
+      "minerFee": "이 수수료는 해당 블록체인에 거래를 하기 위한 수수료이며, 절대 셰이프시프트에서 부과하는 수수료가 아닙니다!",
+      "shapeshiftFee": "ShapeShift는 별도의 거래 수수료를 요구하지 않습니다 🎉"
+    },
+    "errors": {
+      "title": "문제가 발생했습니다.",
+      "notEnoughEth": "거래하기 위해 내야 하는 가스 비용으로 변환할 ETH가 충분하지 않습니다.",
+      "amountToSmall": "거래 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
+      "negativeMax": "채굴 수수료로 지불할 자금이 부족합니다. 추정 채굴 수수료는 %{estimatedMinerFee} 입니다.",
+      "invalidMax": "잘못된 값입니다. 이 페어에 예치할 수 있는 최대 거래 금액은 %{maxLimit} 입니다.",
+      "insufficientFunds": "채굴 수수료 및 금액에 대한 자금이 부족합니다.",
+      "transactionRejected": "트랜잭션을 거절했습니다.",
+      "broadcastFailed": "트랜잭션을 브로드캐스트 하는 중에 오류가 발생했습니다.",
+      "insufficientFundsForLimit": "자금이 부족합니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
+      "insufficientFundsForAmount": "자금이 부족합니다. 보유한 %{symbol} 잔액이 입력한 값보다 적습니다.",
+      "noLiquidityError": "유동성이 충분하지 않습니다.",
+      "overMaxSlippage": "※ 이 거래는 %{slippagePercentage}% 이상의 슬리피지가 발생할 수 있습니다. 더 나은 가격으로 거래하기 위해서는 보다 적은 양으로 거래하셔야 합니다.",
+      "balanceToLow": "보유 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
+      "dexTradeFailed": "거래가 실패하여 토큰이 반환되었습니다.",
+      "quoteFailed": "거래 견적을 책정하는 동안 오류가 발생했습니다.",
+      "failedQuoteExecuted": "실패한 견적으로는 거래할 수 없습니다.",
+      "sellAssetRequired": "판매 가능한 자산이 없이는 견적을 책정할 수 없습니다.",
+      "sellAmountRequired": "판매 가능한 보유량이 충분하지 않아 견적을 책정할 수 없습니다.",
+      "depositAddressRequired": "DEX 주소가 없으면 ETH 견적을 책정할 수 없습니다.",
+      "sellAssetNetworkAndSymbolRequired": "견적을 책정하려면 걸맞는 자산 네트워크와 알맞는 심볼이 필요합니다.",
+      "hdwalletInvalidConfig": "하드웨어 지갑과 연결하는 동안 오류가 발생했습니다.",
+      "signing": {
+        "failed": "거래에 서명하는 도중 오류가 발생했습니다.",
+        "required": "거래에 서명이 필요합니다."
+      }
+    }
+  },
+  "modals": {
+    "keepKey": {
+      "passphrase": {
+        "errors": {
+          "unknown": "암호키를 제출하는 과정에서 오류가 발생했습니다.",
+          "empty": "현재 빈 암호키를 사용하고 있습니다. 보안에 유의하세요."
+        },
+        "header": "암호키를 입력하십시오.",
+        "body": "암호키를 입력, 제출한 후에 KeepKey의 버튼을 눌러 암호키를 승인하십시오.",
+        "button": "암호키 제출하기"
+      },
+      "label": {
+        "header": "KeepKey 레이블 지정하기",
+        "body": "각 지갑에 레이블을 지정하면 쉽게 구별할 수 있습니다.",
+        "setLabelButton": "레이블 설정",
+        "skipLabelButton": "건너뛰기",
+        "placeholder": "고급",
+        "button": "레이블 설정"
+      },
+      "recoverySettings": {
+        "header": "지갑 복구하기",
+        "sentenceLengthLabel": "복구 문장으로 복구하기",
+        "recoveryPassphraseLabel": "암호키로 복구하기",
+        "recoveryPassphraseToggle": "암호키를 사용해 복구하시겠습니까?",
+        "recoveryPassphraseDescription": "복구 문장이 암호 키로 보호되고 있는지 확실하지 않다면, 이 과정을 더 이상 진행하지 마세요.",
+        "wordEntropy": "%{wordEntropy} 단어",
+        "button": "지갑 복구하기"
+      },
+      "recoverySentence": {
+        "header": "복구 문장을 반드시 따로 기록해두세요",
+        "body": "KeepKey 화면에서 복구 문장을 보실 수 있습니다. 반드시 따로 적어두세요. 만약 KeepKey 장치를 잃어버리셨다면, 이 복구 문장을 통해서만 보유 자산에 접근하실 수 있습니다.",
+        "infoFirst": "KeepKey 화면에 나타난 문장은 '정확하게' 적어두셔야 합니다.",
+        "infoSecond": "이 복구 문장을 통해서 당신이 KeepKey에 보유한 모든 자산에 접근할 수 있습니다. 이 복구 문장은 '절대' 다른 어디에도 공유하지 마세요.",
+        "awaitingButtonPress": "KeepKey의 단계에 따라 복구 문장을 확인하시고, 반드시 따로 적어두세요."
+      },
+      "wiped": {
+        "header": "KeepKey 초기화 성공",
+        "body": "KeepKey의 공장 초기화가 완료되었습니다. 이제, KeepKey에 기존의 복구 시드를 사용하여 복원하거나, 새 지갑을 만들 수 있습니다.",
+        "createButton": "새 지갑 만들기",
+        "recoverButton": "지갑 복구"
+      },
+      "recoverySentenceEntry": {
+        "header": "복구 문장을 입력해주세요",
+        "body": "KeepKey에 있는 스크램블 키보드를 사용해, 각 단어의 앞 4글자를 입력해주세요. 단어가 4글자보다 적다면, 엔터를 입력하고 스페이스 바를 눌러주세요. 입력이 완료되었으면 '다음'을 클릭해주세요.",
+        "button": "다음",
+        "awaitingButtonPress": "KeepKey의 안내 사항에 따라 설정을 계속하세요.",
+        "toastMessage": "KeepKey가 성공적으로 복구되었습니다!"
+      },
+      "recoverySettingUp": {
+        "header": "장치 설정 중...",
+        "body": "장치와 지갑 주소의 연동 작업이 완료될 때까지 기다려주세요."
+      }
+    },
+    "shapeShift": {
+      "password": {
+        "header": "비밀번호를 입력하세요.",
+        "walletName": "지갑 닉네임 (선택사항)",
+        "body": "비밀번호를 입력하여 지갑을 복호화하세요.",
+        "placeholder": "비밀번호 입력",
+        "show": "비밀번호 표시",
+        "hide": "비밀번호 숨기기",
+        "error": {
+          "invalid": "잘못된 비밀번호",
+          "required": "비밀번호가 필요합니다.",
+          "length": "비밀번호는 반드시 %{length}자 이상이어야 합니다.",
+          "maxLength": "닉네임은 최대 %{length}자 이내로 작성해주세요."
+        }
+      }
+    },
+    "stake": {
+      "txFees": {
+        "low": "낮음",
+        "medium": "중간",
+        "high": "높음"
+      }
+    },
+    "send": {
+      "getBalanceError": "지갑 잔액을 가져오는 중에 오류가 발생했습니다.",
+      "broadcastingTransaction": "트랜잭션을 브로드캐스팅하는 중입니다.",
+      "youHaveSent": "%{amount} %{symbol}를 성공적으로 전송하였습니다.",
+      "tokenAddress": "토큰 주소",
+      "scanQrCode": "QR 코드 스캔하기",
+      "permissionsButton": "다시 시도해주세요.",
+      "sent": "%{asset} 전송 완료",
+      "errorTitle": "%{asset} 전송에 실패하였습니다.",
+      "errors": {
+        "generic": "오류가 발생했습니다.",
+        "notEnoughNativeToken": "가스 비용을 충당하기에 %{asset} 이 충분하지 않습니다.",
+        "transactionRejected": "사용자가 트랜잭션을 취소했습니다.",
+        "qrPermissions": "이 기능을 사용하려면 카메라에 대한 접근 권한 설정이 필요합니다. 이용하시는 브라우저에서 해당 설정을 변경해주세요."
+      },
+      "confirm": {
+        "sendAsset": "%{asset} 전송",
+        "send": "전송",
+        "sendTo": "보낼 주소",
+        "edit": "수정",
+        "total": "총 수수료",
+        "amount": "거래량",
+        "transactionFee": "TX 수수료",
+        "fees": "수수료 %{feeType}"
+      },
+      "sendForm": {
+        "optionalAssetMemo": "%{assetSymbol} 메모 (선택적)",
+        "assetMemo": "%{assetSymbol} 메모 ",
+        "charactersRemaining": "%{charactersRemaining}자 남음",
+        "memoExplainer": "일부 %{assetSymbol} 수신자는 거래를 올바르게 처리하기 위해 메모가 필요할 수 있습니다.",
+        "sendAsset": "%{asset} 전송",
+        "sendTo": "보낼 대상",
+        "sendAmount": "보내는 금액",
+        "max": "최대 / 최대치",
+        "transactionFee": "거래 수수료",
+        "slow": "느린 속도",
+        "average": "평균 속도",
+        "fast": "빠른 속도",
+        "enterAmount": "거래량 입력"
+      }
+    },
+    "receive": {
+      "connectAWallet": "지갑을 연결하여 %{symbol}를 받으십시오",
+      "receiveAsset": "%{asset} 수신",
+      "onlySend": "이 주소로 %{asset}(%{symbol})만 보내십시오. 다른 코인을 보낼시 영구적인 손실이 발생할 수 있습니다.",
+      "copy": "복사",
+      "copied": "%{symbol} 수신 주소가 클립보드에 복사되었습니다.",
+      "copyFailed": "%{symbol} 수신 주소를 클립보드에 복사하지 못했습니다.",
+      "copyFailedDescription": "주소를 수동으로 복사하십시오.",
+      "setAmount": "금액 설정 / 거래량 설정",
+      "verify": "확인",
+      "verified": "확인됨",
+      "notVerified": "주소 불일치",
+      "blockExplorer": "탐험가"
+    },
+    "deposit": {
+      "amountToDeposit": "입금할 금액",
+      "estimatedReturns": "연간 예상 수익*",
+      "estimateDisclaimer": "*예상 견적은 시장 상황에 따라 변동될 수 있습니다.",
+      "footerDisclaimer": "계속하시면, 약관에 동의하는 것으로 간주합니다.",
+      "footerDisclaimerLink": " 서비스 약관 확인하기",
+      "slippageSettings": "슬리피지 설정"
+    },
+    "withdraw": {
+      "amountToWithdraw": "인출 금액",
+      "footerDisclaimer": "이 거래에는 단일 트랜잭션에 대한 가스 수수료를 지불해야 합니다.",
+      "slippageSettings": "슬리피지 설정",
+      "withdrawType": "인출 종류",
+      "instant": "즉시",
+      "delayed": "최대 7-14일",
+      "fee": "%{fee}% %{symbol} 수수료",
+      "noFee": "%{symbol} 수수료 없음",
+      "requestWithdraw": "인출 요청",
+      "withdrawFee": "인출 요청 시, 단일 트랜잭션 수수료를 필요로 합니다.",
+      "disclaimer": "전체 인출을 위해 후속 요청을 합치는 것에 충분한 시간을 필요로 합니다.",
+      "withDrawalFee": "전체 인출 수수료",
+      "info": {
+        "delayed": "지연된 출금에는 두 가지 거래가 있습니다:",
+        "delayedOne": "전체 인출 요청",
+        "delayedTwo": "7-14일 이후에 전체 인출을 요청합니다.",
+        "instant": "즉시 전체 인출은 스테이크한 모든 비용을 총합하여 하나의 트랜잭션으로 만들 필요가 있습니다."
+      }
+    },
+    "approve": {
+      "header": "ShapeShift DAO 라우터가 %{asset} 에 사용할 수 있도록 허용하기",
+      "body": "사용자의 %{asset} 에 접근하기 위해 사용자의 허가가 필요합니다.",
+      "learnMore": "왜 이 작업이 필요한가요?",
+      "depositFee": "입금 시에는 별도의 가스비가 발생합니다.",
+      "estimatedGas": "예상 가스 요금",
+      "confirm": "확인",
+      "reject": "거절"
+    },
+    "confirm": {
+      "withdraw": {
+        "header": "인출 확인"
+      },
+      "deposit": {
+        "header": "입금 확인",
+        "averageApr": "평균 연이율",
+        "estimatedReturns": "연간 예상 수익*",
+        "preFooter": "보상은 자동으로 적립됩니다."
+      },
+      "withdrawTo": "인출 대상",
+      "withdrawFrom": "인출 할곳",
+      "depositTo": "입금 대상",
+      "averageApy": "연 평균 복리 수익률",
+      "withdrawTime": "출금 시간",
+      "withdrawFee": "출금 수수료",
+      "withdrawInstantTime": "바로",
+      "withdrawDelayedTime": "7-14일",
+      "estimatedReturns": "연간 예상 수익*",
+      "estimatedGas": "예상 가스 요금",
+      "preFooter": "보상은 자동으로 적립됩니다.",
+      "signBroadcast": "서명 및 브로드캐스트",
+      "cancel": "취소"
+    },
+    "status": {
+      "header": {
+        "pending": "확인 대기 중",
+        "success": "거래 확인 완료",
+        "failed": "거래 실행 실패"
+      },
+      "depositTo": "입금 대상",
+      "transactionId": "TX 아이디",
+      "averageApy": "연 평균 복리 수익률",
+      "estimatedReturns": "연간 예상 수익*",
+      "estimatedGas": "예상 가스 비용",
+      "gasUsed": "총 가스 비용",
+      "continue": "거래내역 보기",
+      "position": "위치 확인",
+      "viewAsset": "자산 확인하기",
+      "close": "닫기",
+      "viewExplorer": "블록 익스플로러에서 확인하기"
+    },
+    "connect": {
+      "loadingText": "지갑 연결"
+    },
+    "settings": {
+      "settings": "설정하기",
+      "language": "언어 설정",
+      "balanceThreshold": "표기 금액 제한 설정",
+      "balanceThresholdTooltip": "해당 금액보다 적은 자산은 목록에 표기하지 않습니다."
+    }
+  },
+  "walletProvider": {
+    "errors": {
+      "walletNotFound": "지갑과 연결할 수 없습니다."
+    },
+    "keepKey": {
+      "errors": {
+        "unknown": "KeepKey와 연결하는 도중 예기치 못한 오류가 발생했습니다.",
+        "pinCancelled": "PIN 입력이 취소되었습니다.",
+        "pinInvalid": "유효하지 않은 PIN 입니다.",
+        "pinMismatch": "입력한 PIN이 서로 일치하지 않습니다."
+      },
+      "connect": {
+        "header": "KeepKey 연동하기",
+        "body": "KeepKey 장치를 연결한 후 '연결하기' 버튼을 누르세요",
+        "button": "연결하기",
+        "conflictingApp": "KeepKey를 찾을 수 없습니다. 다른 프로그램이 KeepKey에 연결을 시도하는 중일 수 있습니다."
+      },
+      "pin": {
+        "header": "PIN을 입력하세요",
+        "body": "장치에 표시된 PIN 배치를 확인 후 PIN 패드에서 숫자를 누르십시오.",
+        "button": "잠금 해제"
+      },
+      "newPin": {
+        "header": "새로운 PIN 입력",
+        "body": "장치에 표시된 PIN 배치를 확인 후 PIN 패드에서 숫자를 누르십시오.",
+        "button": "확인"
+      },
+      "newPinConfirm": {
+        "header": "새 PIN 확인",
+        "body": "장치에 표시된 PIN 배치를 확인 후 PIN 패드에서 숫자를 누르십시오.",
+        "button": "PIN 저장"
+      },
+      "settings": {
+        "loadingText": "로딩 중...",
+        "menuLabels": {
+          "bootloader": "부트로더",
+          "firmware": "펌웨어",
+          "pin": "PIN",
+          "advanced": "고급",
+          "deviceTimeout": "기기 타임아웃",
+          "passphrase": "암호키",
+          "wipeDevice": "기기 초기화",
+          "label": "라벨",
+          "pinCaching": "PIN 캐싱"
+        },
+        "status": {
+          "enabled": "활성화됨",
+          "disabled": "비활성화됨",
+          "upToDate": "최신 상태",
+          "updateAvailable": "업데이트 가능"
+        },
+        "headings": {
+          "deviceSetting": "기기 %{setting}",
+          "enterPin": "현재 PIN 입력",
+          "setPin": "새 PIN 설정하기",
+          "confirmPin": "새 PIN 확인하기",
+          "passphrase": "암호키",
+          "pinCaching": "PIN 캐싱"
+        },
+        "descriptions": {
+          "pin": "KeepKey 초기화 이후 9개 숫자의 조합으로 PIN을 구성합니다. PIN을 통해 보유하신 KeepKey를 부정한 접근으로부터 보호하실 수 있습니다.",
+          "passphrase": "각 지갑마다 고유한 암호키를 작성하면 여러 지갑에 접근할 수 있습니다.",
+          "label": "기기마다 별도의 명칭을 작성해두면 보유한 기기를 쉽게 구분하실 수 있습니다. ",
+          "timeout": "기본적으로 KeepKey는 10분 이내에 절전 모드에 들어가도록 설정되어 있습니다. (이 설정은 별도의 변경이 가능합니다.)",
+          "buttonPrompt": "KeepKey %{setting} 내용을 변경하기 위해 KeepKey에 있는 버튼을 꾹 눌러주세요.",
+          "updateSuccess": "%{setting} 내용이 성공적으로 업데이트되었습니다.",
+          "updateFailed": "%{setting} 내용을 업데이트하는 도중 에러가 발생하였습니다.",
+          "timeoutDuration": "%{minutes} 분",
+          "pinCaching": "이 기능을 활성화하면 KeepKey 기기가 PIN을 기억하게 할 수 있습니다."
+        },
+        "alerts": {
+          "passphrase": {
+            "title": "이 조합은 안전하지 않습니다.",
+            "body": "만약 암호키를 잃어버리면 보유하신 모든 자산에 접근할 수 없게 됩니다.",
+            "link": "더 알아보기"
+          }
+        },
+        "placeholders": {
+          "label": "기기 명칭을 입력해주세요."
+        },
+        "actions": {
+          "update": "%{setting} 업데이트",
+          "enable": "%{setting} 활성화",
+          "learnMore": "더 알아보기"
+        }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "KeepKey 초기화하기"
+        },
+        "descriptions": {
+          "wipeKeepKey": "복구 구문 없이 KeepKey를 초기화하면, KeepKey에 보유한 모든 자산에 접근할 수 없다는 것을 이해하였습니다."
+        },
+        "actions": {
+          "wipeDevice": "기기 초기화"
+        },
+        "confirmations": {
+          "wipeKeepKey": "공장 초기화를 진행하기 위해 KeepKey의 버튼을 꾹 눌러주세요."
+        },
+        "checkboxes": {
+          "wipeKeepKey": "내가 무엇을 하려는 지 이해하고 있으며, 복구 구문을 백업해두었습니다."
+        }
+      }
+    },
+    "metaMask": {
+      "errors": {
+        "unknown": "Metamask 연동 중 예기치 못한 오류가 발생했습니다.",
+        "connectFailure": "Metamask 지갑에 연결할 수 없습니다.",
+        "network": "Metamask 지갑이 이더리움 메인넷으로 설정되지 않았습니다.",
+        "multipleWallets": "확인된 이더리움 프로바이더가 Metamask가 아닙니다. 혹시 여러개의 지갑이 설치되어있나요?"
+      },
+      "connect": {
+        "header": "Metamask에 연결",
+        "body": "연결하기 버튼을 눌러 Metamask에 로그인해주세요.",
+        "button": "연결하기"
+      },
+      "failure": {
+        "header": "오류 발생",
+        "body": "Metamask 지갑을 연결할 수 없습니다."
+      },
+      "redirect": {
+        "header": "Metamask 앱에서 열기",
+        "body": "Metamask 앱에서 셰이프시프트 대시보드를 열려면 클릭하세요.",
+        "button": "열기"
+      }
+    },
+    "portis": {
+      "errors": {
+        "unknown": "Portis와 연동하는 도중에 예기치 못한 오류가 발생했습니다.",
+        "connectFailure": "Portis 지갑을 연결할 수 없습니다."
+      },
+      "connect": {
+        "header": "Portis 지갑 연동하기",
+        "body": "연결하기 버튼을 누른 후 팝업창에서 Portis를 선택하세요.",
+        "button": "연결하기"
+      },
+      "failure": {
+        "header": "오류 발생",
+        "body": "Portis 지갑을 연결할 수 없습니다."
+      }
+    },
+    "shapeShift": {
+      "load": {
+        "error": {
+          "delete": "지갑을 삭제할 수 없습니다.",
+          "noWallet": "연결된 지갑이 없습니다.",
+          "pair": "지갑을 연결할 수 없습니다."
+        },
+        "header": "연결된 지갑",
+        "body": "연결된 지갑 불러오는 중... 완료 후 비밀번호를 입력하세요.",
+        "button": "계속",
+        "confirmForget": "%{wallet} 을 삭제하시겠습니까?"
+      },
+      "import": {
+        "header": "지갑 가져오기",
+        "body": "기존 지갑을 기져오려면 시드 구문을 입력하세요.",
+        "button": "다음",
+        "secretRecoveryPhraseError": "복구용 시드 구문 단어들 사이에는 반드시 띄어쓰기를 이용해 구분하세요. 쉼표, 줄바꿈 혹은 특수문자를 절대 사용하지 마세요.",
+        "secretRecoveryPhraseRequired": "복구용 시드 구문은 필수 항목입니다.",
+        "secretRecoveryPhraseTooShort": "복구용 시드 구문이 너무 짧습니다."
+      },
+      "password": {
+        "header": "비밀번호를 입력하세요.",
+        "body": "지갑을 암호화할 비밀번호를 입력하세요. 비밀번호를 입력하여 보유한 지갑에 접근 가능합니다. 이 비밀번호는 절대 잊어버리지 않도록 주의하세요.",
+        "button": "다음",
+        "connect": "다른 지갑에 연결하기"
+      },
+      "create": {
+        "header": "시드 구문",
+        "body": "다음의 12개의 시드 구문을 종이에 적어 안전하게 보관해 주세요. 보시게 될 시드 구문은 개인 키를 잊었을 때 지갑을 복구하는 용도로 사용됩니다.",
+        "button": "다음",
+        "hideWords": "단어 숨기기",
+        "showWords": "단어 표시"
+      },
+      "start": {
+        "header": "셰이프시프트 지갑",
+        "body": "셰이프시프트에서는 여러개의 지갑을 연결할 수 있습니다. 이미 보유한 지갑을 가져오거나, 보유하고 있는 시드 구문으로 지갑을 가져올 수 있고, 혹은 새로운 지갑을 만드실 수도 있습니다.",
+        "import": "지갑 가져오기",
+        "create": "새 지갑 만들기",
+        "load": "저장된 지갑"
+      },
+      "success": {
+        "encryptingWallet": "지갑 암호화 중... 영구 저장소에 데이터 저장을 요청하면 허용 버튼을 눌러주세요.",
+        "header": "지갑 연결 완료",
+        "success": "이 확인창을 직접 닫으시거나, 직접 닫지 않아도 잠시 후 자동으로 닫힙니다.",
+        "error": "지갑을 연결하는 동안 오류가 발생했습니다."
+      },
+      "testPhrase": {
+        "header": "시드 구문 확인 / 시드 구문을 확인해 주세요.",
+        "body": "이 중 어느 것이",
+        "body2": "단어",
+        "body3": "비밀 구문에",
+        "button": "다음"
+      },
+      "rename": {
+        "header": "지갑 이름 바꾸기",
+        "walletName": "지갑 닉네임 변경",
+        "body": "지갑의 닉네임을 변경하고 암호를 입력하여 지갑을 복구 하십시오.",
+        "button": "다음",
+        "confirmDelete": "이 지갑의 닉네임을 삭제하시겠습니까?"
+      },
+      "legacy": {
+        "deprecatedWarning": "ShapeShift 로그인 기능은 곧 사라집니다",
+        "learnMore": "더 알아보기",
+        "alreadySavedConfirm": "저는 비밀 복구 구문을 별도로 안전한 장소에 백업해두었습니다.",
+        "mobileWalletTitle": "ShapeShift 모바일 지갑",
+        "importInformations": "ShapeShift 모바일 지갑을 사용하기 위해서는 우선 지갑을 가져올 필요가 있습니다.",
+        "importWallet": "지갑 가져오기",
+        "haveMobileWallet": "ShapeShift 모바일 지갑을 갖고 계신가요?",
+        "loginWithAccount": "ShapeShift 계정으로 로그인하기",
+        "loginInformations": "ShapeShift 모바일 앱에 로그인하기 위해 사용하시는 이메일 주소와 비밀번호를 입력해주세요.",
+        "loginSuccess": "로그인 성공",
+        "emailAddress": "이메일 주소",
+        "password": "비밀번호",
+        "emailRequired": "이메일 입력이 필요합니다",
+        "invalidEmail": "올바른 이메일이 아닙니다",
+        "invalidCaptcha": "올바른 Captcha가 아닙니다",
+        "invalidLogin": "로그인 실패",
+        "noWallet": "로그인을 하기 위한 ShapeShift 기본 지갑을 찾을 수 없습니다. 이 안내에 오류가 있다고 생각하시면 ShapeShift 고객 지원 센터에 문의해주세요.",
+        "decryptionError": "지갑을 복호화하는 중에 오류가 발생하였습니다.",
+        "twoFactorAuthentication": "이중 보안 인증(2FA)",
+        "twoFactorPlaceholder": "6자리 숫자 코드",
+        "twoFactorRequired": "이중 인증(2FA)이 필요합니다",
+        "invalidTwoFactor": "숫자 코드가 올바르지 않습니다",
+        "twoFactorDescription": "계정에 이중 보안 인증(2FA)을 활성화합니다. 보유하신 인증 앱에서 아래의 코드를 입력해주세요."
+      }
+    },
+    "selectModal": {
+      "header": "지갑 연결하기",
+      "body": "지갑을 연결하는 것으로, 셰이프시프트의 서비스 약관에 동의하며 셰이프시프트의 면책 및 면피 조항을 읽고 이해했음을 확인합니다.",
+      "footer": "지갑이 없으신가요?",
+      "create": "지갑 만들기"
+    }
+  },
+  "graph": {
+    "timeControls": {
+      "1H": "1시간",
+      "24H": "24시간",
+      "1W": "일주일",
+      "1M": "한 달",
+      "1Y": "1년",
+      "all": "전체 기간"
+    }
+  },
+  "assets": {
+    "assetDetails": {
+      "assetHeader": {
+        "balance": "합계",
+        "price": "가격",
+        "marketCap": "시가 총액",
+        "24HrVolume": "일일 거래량",
+        "dayChange": "날짜 변경",
+        "aboutAsset": "%{asset} 정보",
+        "SegwitP2sh": "세그윗",
+        "SegwitNative": "네이티브 세그윗",
+        "P2pkh": "레거시",
+        "SegwitNativeTooltip": "대부분의 사용자에게 추천합니다. 반드시 정확한 용도를 알고 있을 때에 한해서 다른 주소를 이용하세요.",
+        "btcFormat": "BTC 형식",
+        "assetUnavailable": "해당 자산에 대한 시장 데이터가 아직 준비되지 않았습니다. 작업 중이니 조금만 기다려주세요!",
+        "loading": "가격 히스토리를 확인합니다... 조금만 기다려주세요. 열심히 작업하고 있습니다."
+      },
+      "assetDescription": {
+        "showMore": "상세보기",
+        "showLess": "간략히 보기"
+      },
+      "assetHistory": {
+        "transactionHistory": "거래 내역",
+        "recentTransactions": "최근 거래",
+        "emptyTransactions": "거래 내역이 없습니다. 트랜잭션 내역을 여기에서 확인할 수 있습니다."
+      },
+      "assetAccounts": {
+        "account": "종류",
+        "assetAllocation": "자산 보유",
+        "allocation": "보유 비중",
+        "amount": "수량",
+        "value": "평가 금액"
+      }
+    },
+    "assetCards": {
+      "assetActions": {
+        "buy": "매도",
+        "sell": "매수",
+        "trade": "거래"
+      },
+      "accountTokens": "보유 토큰",
+      "showTokens": "토큰 표시 (%{amount})",
+      "hideTokens": "토큰 숨기기 (%{amount})",
+      "underlyingAssets": "기초 자산",
+      "rewards": {
+        "farmingRewards": "파밍 보상",
+        "currentRewards": "현재 보상",
+        "currentAPY": "현재 수익률(APY)",
+        "yourRewards": "보상 총액",
+        "currentAPYLabel": "현재 연 수익률(APY)",
+        "claimRewards": "보상 청구하기"
+      },
+      "accounts": "계정",
+      "stakingVaults": "자산 예치 금고",
+      "stakingBody": "자산 예치(스테이킹)를 통하여 패시브 인컴(Passive income, 수동적 수입)을 얻을 수 있습니다.",
+      "pools": "코인 풀"
+    }
+  },
+  "accounts": {
+    "accounts": "보유 자산 종류"
+  },
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "거래 내역",
+    "recentTransactions": "최근 거래",
+    "filter": "필터",
+    "filters": {
+      "filters": "필터 목록",
+      "resetFilters": "필터 초기화",
+      "to": "ㅡ",
+      "categories": "카테고리",
+      "dayRange": "날짜 범위 설정",
+      "10days": "10일 이내",
+      "30days": "30일 이내",
+      "90days": "90일 이내",
+      "send": "보냄",
+      "trade": "거래",
+      "receive": "받음",
+      "custom": "기타",
+      "apply": "필터 적용하기"
+    },
+    "downloadCSV": "CSV 파일로 다운로드",
+    "csv": {
+      "fileName": "ShapeShift Transaction History",
+      "txid": "TX ID",
+      "type": "TX type",
+      "timestamp": "Timestamp",
+      "status": "Status",
+      "minerFee": "Miner fee",
+      "minerFeeCurrency": "Miner fee Currency",
+      "inputAmount": "Input amount",
+      "inputCurrency": "Input currency",
+      "inputAddress": "Input address",
+      "outputAmount": "Output amount",
+      "outputCurrency": "Output currency",
+      "outputAddress": "Output address"
+    },
+    "transactionTypes": {
+      "send": "보냄",
+      "receive": "받음",
+      "trade": "거래"
+    },
+    "assets": "자산",
+    "txid": "트랜잭션 ID",
+    "fee": "수수료",
+    "youSent": "보낸 금액",
+    "youReceived": "받은 금액",
+    "sentTo": "보낸 대상",
+    "receivedFrom": "받은 대상",
+    "orderRoute": "주문 경로",
+    "status": "상태",
+    "transactionType": "거래 유형",
+    "minerFee": "채굴 수수료",
+    "unknownType": "거래",
+    "from": "보낸 주소",
+    "to": "받은 주소",
+    "for": "종류",
+    "transfers": "전송 내역"
+  }
+}

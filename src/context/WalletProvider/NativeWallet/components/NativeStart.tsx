@@ -1,13 +1,20 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+import { selectFeatureFlag } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
+  const translate = useTranslate()
+  const walletMigrationFeatureFlag = useAppSelector(state =>
+    selectFeatureFlag(state, 'WalletMigration'),
+  )
 
   useEffect(() => {
     ;(async () => {
@@ -28,7 +35,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.start.body'} />
-        <Stack my={6} spacing={4}>
+        <Stack mt={6} spacing={4}>
           <Button
             variant='ghost-filled'
             colorScheme='blue'
@@ -73,6 +80,29 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
+          {walletMigrationFeatureFlag && (
+            <>
+              <Divider mt={4} />
+              <Flex
+                direction={['column', 'row']}
+                mt={2}
+                pt={4}
+                justifyContent='center'
+                alignItems='center'
+              >
+                <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
+                <Button
+                  variant='link'
+                  ml={[0, 1.5]}
+                  borderTopRadius='none'
+                  colorScheme='blue'
+                  onClick={() => history.push('/native/legacy/login')}
+                >
+                  {translate('common.login')}
+                </Button>
+              </Flex>
+            </>
+          )}
         </Stack>
       </ModalBody>
     </>

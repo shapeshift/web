@@ -24,8 +24,8 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
-      search: ''
-    }
+      search: '',
+    },
   })
 
   const searchString = watch('search')
@@ -33,7 +33,7 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
 
   useEffect(() => {
     setFilteredAssets(
-      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets
+      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets,
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])
@@ -41,9 +41,9 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
   const debounceBlur = debounce(() => setIsFocused(false), 150)
 
   const handleClick = (asset: Asset) => {
-    // CAIP19 has a `/` separator so the router will have to parse 2 variables
+    // AssetId has a `/` separator so the router will have to parse 2 variables
     // e.g., /assets/:chainId/:assetSubId
-    const url = `/assets/${asset.caip19}`
+    const url = `/assets/${asset.assetId}`
     history.push(url)
     setIsFocused(false)
   }
@@ -57,7 +57,8 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
         onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
       >
         <InputGroup size='lg'>
-          <InputLeftElement pointerEvents='none'>
+          {/* Override zIndex to prevent element deplaying on overlay components */}
+          <InputLeftElement pointerEvents='none' zIndex={1}>
             <SearchIcon color='gray.300' />
           </InputLeftElement>
           <Input

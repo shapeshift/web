@@ -24,13 +24,13 @@ export const SanitizedHtml = ({
   ...rest
 }: { dirtyHtml: string; isTrusted?: boolean } & TextProps) => {
   let cleanText = sanitize(dirtyHtml ?? '', {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span']
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span'],
   })
   return (
     <RawText
       {...rest}
       dangerouslySetInnerHTML={{
-        __html: cleanText
+        __html: cleanText,
       }}
     ></RawText>
   )

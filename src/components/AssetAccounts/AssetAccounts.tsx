@@ -1,22 +1,24 @@
 import { Grid, Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectAccountIdsByAssetIdAboveBalanceThreshold } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetAccountRow } from './AssetAccountRow'
 
 type AssetAccountsProps = {
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
 }
 
 export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   const translate = useTranslate()
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const accountIds = useAppSelector(state =>
+    selectAccountIdsByAssetIdAboveBalanceThreshold(state, { assetId }),
+  )
   if ((accountIds && accountIds.length === 0) || accountId) return null
   return (
     <Card>
@@ -31,7 +33,7 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
             templateColumns={{
               base: '1fr 1fr',
               md: '1fr 1fr 1fr',
-              lg: '2fr 150px repeat(2, 1fr)'
+              lg: '2fr 150px repeat(2, 1fr)',
             }}
             gap='1rem'
             pl={4}

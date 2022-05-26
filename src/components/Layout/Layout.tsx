@@ -1,18 +1,18 @@
-import { Container, Flex } from '@chakra-ui/react'
+import { Container, ContainerProps, Flex } from '@chakra-ui/react'
 import React from 'react'
-import { Route } from 'Routes/helpers'
 
 import { Header } from './Header/Header'
 import { SideNav } from './Header/SideNav'
 
-export const Layout = ({ route }: { route: Route }) => {
-  const MainComponent = route.main
+type LayoutProps = ContainerProps
+
+export const Layout: React.FC<LayoutProps> = ({ children, ...rest }) => {
   return (
     <>
-      <Header route={route} />
+      <Header />
 
       <Flex>
-        <SideNav route={route} />
+        <SideNav />
         <Container
           as='main'
           maxWidth='full'
@@ -22,8 +22,9 @@ export const Layout = ({ route }: { route: Route }) => {
           paddingInlineStart='0'
           paddingInlineEnd='0'
           flex='1 1 0%'
+          {...rest}
         >
-          {MainComponent && <MainComponent route={route} />}
+          {children}
         </Container>
       </Flex>
     </>

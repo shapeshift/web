@@ -11,7 +11,7 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
-  Stack
+  Stack,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
@@ -23,11 +23,12 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
-import { SendFormFields, SendInput } from '../Form'
+import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
-import { SendRoutes } from '../Send'
+import { SendFormFields } from '../SendCommon'
+import { SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
@@ -36,7 +37,7 @@ export const Details = () => {
   const translate = useTranslate()
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
-    control
+    control,
   })
 
   const { send } = useModal()
@@ -49,7 +50,7 @@ export const Details = () => {
     handleNextClick,
     handleSendMax,
     loading,
-    toggleCurrency
+    toggleCurrency,
   } = useSendDetails()
 
   if (
@@ -137,7 +138,7 @@ export const Details = () => {
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-crypto-input'
             />
@@ -164,7 +165,7 @@ export const Details = () => {
                 <SendMaxButton onClick={handleSendMax} data-test='send-max-button' />
               }
               rules={{
-                required: true
+                required: true,
               }}
               data-test='send-modal-fiat-input'
             />

@@ -15,6 +15,6 @@ export const useInfiniteScroll = (array: any[]) => {
   return {
     next,
     data,
-    hasMore
+    hasMore,
   }
 }

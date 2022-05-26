@@ -1,41 +1,41 @@
-import { CAIP2, caip2 } from '@shapeshiftoss/caip'
+import { ChainId, toChainId } from '@shapeshiftoss/caip'
 import {
   HDWallet,
   supportsBTC,
   supportsCosmos,
   supportsETH,
-  supportsOsmosis
+  supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-type UseWalletSupportsChainArgs = { chainId: CAIP2; wallet: HDWallet | null }
+type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 
 // use outside react
-export const walletSupportChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
+export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
-  const ethCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
-  const btcCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
-  const cosmosCaip2 = caip2.toCAIP2({
+  const ethChainId = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+  const btcChainId = toChainId({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
+  const cosmosChainId = toChainId({
     chain: ChainTypes.Cosmos,
-    network: NetworkTypes.COSMOSHUB_MAINNET
+    network: NetworkTypes.COSMOSHUB_MAINNET,
   })
 
-  const osmosisCaip2 = caip2.toCAIP2({
+  const osmosisChainId = toChainId({
     chain: ChainTypes.Osmosis,
-    network: NetworkTypes.OSMOSIS_MAINNET
+    network: NetworkTypes.OSMOSIS_MAINNET,
   })
   switch (chainId) {
-    case ethCAIP2: {
+    case ethChainId: {
       return supportsETH(wallet)
     }
-    case btcCAIP2: {
+    case btcChainId: {
       return supportsBTC(wallet)
     }
-    case cosmosCaip2: {
+    case cosmosChainId: {
       return supportsCosmos(wallet)
     }
-    case osmosisCaip2: {
+    case osmosisChainId: {
       return supportsOsmosis(wallet)
     }
     default: {
@@ -46,4 +46,4 @@ export const walletSupportChain: UseWalletSupportsChain = ({ chainId, wallet }) 
 }
 
 // TODO(0xdef1cafe): this whole thing should belong in chain adapters
-export const useWalletSupportsChain: UseWalletSupportsChain = args => walletSupportChain(args)
+export const useWalletSupportsChain: UseWalletSupportsChain = args => walletSupportsChain(args)

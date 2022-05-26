@@ -10,14 +10,14 @@ const pageVariants = {
   exit: {
     opacity: 0,
     x: -20,
-    transition
-  }
+    transition,
+  },
 }
 
 const pageTransition = {
   type: 'tween',
   ease: 'anticipate',
-  duration: 0.05
+  duration: 0.05,
 }
 
 export const SlideTransition = ({

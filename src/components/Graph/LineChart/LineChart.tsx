@@ -36,7 +36,7 @@ export const LineChart = ({
   top,
   left,
   xTickFormat,
-  children
+  children,
 }: LineChartProps) => {
   const strokeColor = useColorModeValue(colors.gray[200], colors.gray[750])
   const labelColor = useColorModeValue(colors.gray[300], colors.gray[700])
@@ -44,14 +44,14 @@ export const LineChart = ({
     textAnchor: 'middle' as const,
     fontSize: 12,
     fontWeight: 'bold',
-    fill: labelColor
+    fill: labelColor,
   }
   const AXIS_LEFT_TICK_LABEL_PROPS = {
     dx: '-0.25em',
     dy: '0.25em',
     fontSize: 12,
     textAnchor: 'end' as const,
-    fill: labelColor
+    fill: labelColor,
   }
   if (!data) return null
   // accessors

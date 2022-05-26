@@ -1,6 +1,5 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
-import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -21,50 +20,63 @@ export type TransactionRowProps = {
   compactMode: boolean
   isOpen: boolean
   toggleOpen: Function
+  parentWidth: number
 }
 
 export const TransactionRow = ({
   txId,
   activeAsset,
   showDateAndGuide = false,
-  useCompactMode = false
+  useCompactMode = false,
+  parentWidth,
 }: {
   txId: string
   activeAsset?: Asset
   showDateAndGuide?: boolean
   useCompactMode?: boolean
+  parentWidth: number
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
+  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const txDetails = useTxDetails(txId, activeAsset)
+
   const renderTransactionType = (
     txDetails: TxDetails,
     showDateAndGuide: boolean,
-    useCompactMode: boolean
+    useCompactMode: boolean,
   ): JSX.Element => {
     const props: TransactionRowProps = {
       txDetails,
       showDateAndGuide,
       compactMode: useCompactMode,
       toggleOpen,
-      isOpen
+      isOpen,
+      parentWidth,
     }
     switch (txDetails.type || txDetails.direction) {
-      case TxType.Send:
+      case chainAdapters.TxType.Send:
         return <TransactionSend {...props} />
-      case TxType.Receive:
+      case chainAdapters.TxType.Receive:
         return <TransactionReceive {...props} />
-      case TradeType.Trade:
+      case chainAdapters.TradeType.Trade:
         return <TransactionTrade {...props} />
-      case TxType.Contract:
+      case chainAdapters.TxType.Contract:
         return <TransactionContract {...props} />
       default:
         return <UnknownTransaction {...props} />
     }
   }
   return (
-    <Box width='full' px={4} rounded='lg' _hover={{ bg: rowHoverBg }}>
+    <Box
+      width='full'
+      rounded='lg'
+      _hover={{ bg: rowHoverBg }}
+      bg={isOpen ? rowHoverBg : 'transparent'}
+      borderColor={isOpen ? borderColor : 'transparent'}
+      borderWidth={1}
+    >
       {renderTransactionType(txDetails, showDateAndGuide, useCompactMode)}
     </Box>
   )

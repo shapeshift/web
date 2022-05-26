@@ -1,78 +1,92 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { ButtonGroup, IconButton, Skeleton, Tooltip } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Button, Link, Stack } from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {
-  isLoaded: boolean
-  assetId: CAIP19
+  assetId: AssetId
   accountId?: AccountSpecifier
   cryptoBalance: string
 }
 
-export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: AssetActionProps) => {
+export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+  const [isValidChainId, setIsValidChainId] = useState(true)
+  const chainAdapterManager = useChainAdapters()
   const { send, receive } = useModal()
   const translate = useTranslate()
   const {
     state: { isConnected },
-    dispatch
+    dispatch,
   } = useWallet()
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  useEffect(() => {
+    try {
+      chainAdapterManager.byChainId(asset.chainId)
+      setIsValidChainId(true)
+    } catch (e) {
+      setIsValidChainId(false)
+    }
+  }, [chainAdapterManager, asset])
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleSendClick = () =>
-    isConnected ? send.open({ asset: asset, accountId }) : handleWalletModalOpen()
+    isConnected ? send.open({ asset, accountId }) : handleWalletModalOpen()
   const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset: asset, accountId }) : handleWalletModalOpen()
+    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   return (
-    <ButtonGroup
+    <Stack
       ml={{ base: 0, lg: 'auto' }}
       mt={{ base: 6, lg: 0 }}
-      width={{ base: 'full', lg: 'auto' }}
+      direction={{ base: 'column-reverse', md: 'row' }}
+      width={{ base: 'full', md: 'auto' }}
     >
-      <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
-        <Tooltip
-          label={
-            !hasValidBalance ? translate('common.insufficientFunds') : translate('common.send')
-          }
-          fontSize='md'
-          px={4}
-          hasArrow
+      <Button
+        as={Link}
+        leftIcon={<ExternalLinkIcon />}
+        // If tokenId is undefined, redirect to the basic explorer link
+        // else redirect to the token explorer link
+        href={`${asset?.tokenId ? asset?.explorerAddressLink : asset?.explorer}${
+          asset?.tokenId ?? ''
+        }`}
+        variant='solid'
+        width={{ base: '100%', md: 'auto' }}
+        isExternal
+      >
+        {translate('defi.viewOnChain')}
+      </Button>
+      <Stack direction='row'>
+        <Button
+          onClick={handleSendClick}
+          leftIcon={<ArrowUpIcon />}
+          width={{ base: '100%', md: 'auto' }}
+          isDisabled={!hasValidBalance}
+          data-test='asset-action-send'
         >
-          <div>
-            <IconButton
-              onClick={handleSendClick}
-              isRound
-              width='full'
-              icon={<ArrowUpIcon />}
-              aria-label={translate('common.send')}
-              isDisabled={!hasValidBalance}
-              data-test='asset-action-send'
-            />
-          </div>
-        </Tooltip>
-      </Skeleton>
-      <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
-        <Tooltip label={translate('common.receive')} fontSize='md' px={4} hasArrow>
-          <IconButton
-            onClick={handleReceiveClick}
-            isRound
-            width='full'
-            icon={<ArrowDownIcon />}
-            aria-label={translate('common.receive')}
-            data-test='asset-action-receive'
-          />
-        </Tooltip>
-      </Skeleton>
-    </ButtonGroup>
+          {translate('common.send')}
+        </Button>
+        <Button
+          disabled={!isValidChainId}
+          onClick={handleReceiveClick}
+          leftIcon={<ArrowDownIcon />}
+          width={{ base: '100%', md: 'auto' }}
+          data-test='asset-action-receive'
+        >
+          {translate('common.receive')}
+        </Button>
+      </Stack>
+    </Stack>
   )
 }

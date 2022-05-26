@@ -18,8 +18,8 @@ export default {
           <Story />
         </Container>
       </TestProviders>
-    )
-  ]
+    ),
+  ],
 }
 
 const Template: Story<HelperTooltipProps> = args => (
@@ -31,5 +31,5 @@ const Template: Story<HelperTooltipProps> = args => (
 export const Basic = Template.bind({})
 Basic.args = {
   children: 'hover to see effect',
-  label: 'Label prop'
+  label: 'Label prop',
 }

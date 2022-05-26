@@ -24,23 +24,23 @@ jest.mock('pages/Defi/hooks/useVaultBalances', () => {
       const vaults: Record<string, MergedEarnVault> = {}
       vaults[addressWithBalance1] = mockVaultWithBalance({
         vaultAddress: addressWithBalance1,
-        fiatAmount: '222'
+        fiatAmount: '222',
       })
       vaults[addressWithBalance2] = mockVaultWithBalance({
         vaultAddress: addressWithBalance2,
-        fiatAmount: '111'
+        fiatAmount: '111',
       })
       vaults[addressWithBalance3] = mockVaultWithBalance({
         vaultAddress: addressWithBalance3,
-        fiatAmount: '333'
+        fiatAmount: '333',
       })
 
       return {
-        vaults: vaults,
+        vaults,
         totalBalance: '0',
-        loading: false
+        loading: false,
       }
-    }
+    },
   }
 })
 
@@ -51,57 +51,57 @@ jest.mock('hooks/useVaultWithoutBalance/useVaultWithoutBalance', () => {
       vaults[address400KTVL3] = mockVault({
         vaultAddress: address400KTVL3,
         underlyingTokenBalanceUsdc: '400000',
-        apy: 0.03
+        apy: 0.03,
       })
       vaults[address10MTVL2] = mockVault({
         vaultAddress: address10MTVL2,
         underlyingTokenBalanceUsdc: '10000002',
-        apy: 0.03
+        apy: 0.03,
       })
       vaults[addressWithBalance1] = mockVault({ vaultAddress: addressWithBalance1 })
       vaults[address5MTVL3] = mockVault({
         vaultAddress: address5MTVL3,
         underlyingTokenBalanceUsdc: '5000002',
-        apy: 0.3
+        apy: 0.3,
       })
       vaults[addressWithBalance2] = mockVault({ vaultAddress: addressWithBalance2 })
       vaults[address10MTVL1] = mockVault({
         vaultAddress: address10MTVL1,
         underlyingTokenBalanceUsdc: '10000001',
-        apy: 0.01
+        apy: 0.01,
       })
       vaults[address5MTVL2] = mockVault({
         vaultAddress: address5MTVL2,
         underlyingTokenBalanceUsdc: '5000001',
-        apy: 0.2
+        apy: 0.2,
       })
       vaults[address5MTVL1] = mockVault({
         vaultAddress: address5MTVL1,
         underlyingTokenBalanceUsdc: '5000003',
-        apy: 0.1
+        apy: 0.1,
       })
       vaults[address400KTVL1] = mockVault({
         vaultAddress: address400KTVL1,
         underlyingTokenBalanceUsdc: '400000',
-        apy: 0.004
+        apy: 0.004,
       })
       vaults[address400KTVL2] = mockVault({
         vaultAddress: address400KTVL2,
         underlyingTokenBalanceUsdc: '400000',
-        apy: 0.5
+        apy: 0.5,
       })
       vaults[addressWithBalance3] = mockVault({ vaultAddress: addressWithBalance3 })
       vaults[address10MTVL3] = mockVault({
         vaultAddress: address10MTVL3,
         underlyingTokenBalanceUsdc: '10000003',
-        apy: 0.02
+        apy: 0.02,
       })
 
       return {
         vaultsWithoutBalance: vaults,
-        loading: false
+        loading: false,
       }
-    }
+    },
   }
 })
 

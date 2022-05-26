@@ -1,5 +1,4 @@
 import { Stack } from '@chakra-ui/react'
-import { Route } from 'Routes/helpers'
 import { Main } from 'components/Layout/Main'
 
 import { DashboardSidebar } from './DashboardSidebar'
@@ -9,9 +8,9 @@ export type MatchParams = {
   assetId: string
 }
 
-export const Dashboard = ({ route }: { route?: Route }) => {
+export const Dashboard = () => {
   return (
-    <Main route={route}>
+    <Main>
       <Stack
         alignItems='flex-start'
         spacing={4}

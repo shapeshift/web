@@ -1,27 +1,27 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 import {
   createInitialState,
-  createModalContext,
   createModalProvider,
-  makeUseModal,
-  modalReducer as instanceReducer
+  modalReducer as instanceReducer,
 } from 'context/ModalProvider/ModalProvider'
+import { makeUseModal } from 'hooks/useModal/useModal'
+
+import { createModalContext } from './ModalContext'
 
 function setup<M>(modals: M) {
   const instanceInitialState = createInitialState(modals)
   const InstanceModalContext = createModalContext(instanceInitialState)
-  const useModal = makeUseModal(InstanceModalContext)
   const ModalProvider = createModalProvider({
     instanceInitialState,
     instanceReducer,
-    InstanceModalContext
+    InstanceModalContext,
   })
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <ModalProvider>{children}</ModalProvider>
   )
 
-  return renderHook(() => useModal(), { wrapper })
+  return renderHook(() => makeUseModal(InstanceModalContext)(), { wrapper })
 }
 
 describe('useModal', () => {

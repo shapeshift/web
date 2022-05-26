@@ -80,5 +80,5 @@ export const PortisIcon = createIcon({
       </g>
     </svg>
   ),
-  viewBox: '0 0 301.38 455.87'
+  viewBox: '0 0 301.38 455.87',
 })

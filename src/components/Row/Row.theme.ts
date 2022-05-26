@@ -5,25 +5,25 @@ export const RowStyle = {
     row: {
       width: 'full',
       display: 'flex',
-      alignItems: 'flex-start'
+      alignItems: 'flex-start',
     },
     label: {
       color: 'gray.500',
-      fontWeight: 'medium'
+      fontWeight: 'medium',
     },
-    value: {}
+    value: {},
   }),
   variants: {
     horizontal: {
       row: {
         justifyContent: 'space-between',
-        flexDirection: 'row'
-      }
+        flexDirection: 'row',
+      },
     },
     vertical: {
       row: {
-        flexDirection: 'column'
-      }
+        flexDirection: 'column',
+      },
     },
     'btn-ghost': (props: Record<string, any>) => {
       const { colorScheme: c = 'gray', theme } = props
@@ -34,13 +34,13 @@ export const RowStyle = {
           backgroundColor: 'transparent',
           color: mode(`${c}.600`, `${c}.200`)(props),
           _hover: {
-            backgroundColor: mode(`${c}.50`, darkHoverBg)(props)
-          }
-        }
+            backgroundColor: mode(`${c}.50`, darkHoverBg)(props),
+          },
+        },
       }
-    }
+    },
   },
   defaultProps: {
-    variant: 'horizontal'
-  }
+    variant: 'horizontal',
+  },
 }

@@ -8,7 +8,7 @@ import { FaCalendarAlt } from 'react-icons/fa'
 
 export const DatePicker = ({ control, name }: { control: Control; name: string }) => {
   const {
-    field: { onChange, value }
+    field: { onChange, value },
   } = useController({ control, name })
   return (
     <InputGroup className={useColorModeValue('light-theme', 'dark-theme')}>

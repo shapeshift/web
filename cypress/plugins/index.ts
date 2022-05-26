@@ -4,6 +4,7 @@ const { resolve } = require('path')
 const fs = require('fs')
 
 const execa = require('execa')
+const addAutoRecordPlugin = require('./autorecord/plugin')
 
 const findBrave = (): Cypress.Browser | undefined => {
   const browserPath: string | undefined = (() => {
@@ -15,7 +16,7 @@ const findBrave = (): Cypress.Browser | undefined => {
       }
       case 'linux': {
         const braveLinuxOsPath = execSync(
-          resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh')
+          resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh'),
         )
         return braveLinuxOsPath ? braveLinuxOsPath.toString().trim() : undefined
       }
@@ -40,7 +41,7 @@ const findBrave = (): Cypress.Browser | undefined => {
               displayName: 'Brave',
               version,
               path: browserPath,
-              majorVersion
+              majorVersion,
             }
           : undefined
       })
@@ -51,6 +52,9 @@ const findBrave = (): Cypress.Browser | undefined => {
  * @type {Cypress.PluginConfig}
  */
 module.exports = async (on: any, config: any) => {
+  // adds cy.tasks provided by autorecord
+  addAutoRecordPlugin(on, config, fs)
+
   if (config.testingType === 'component') {
     require('@cypress/react/plugins/react-scripts')(on, config)
   }
@@ -68,7 +72,6 @@ module.exports = async (on: any, config: any) => {
   config.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL = process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL
   config.env.REACT_APP_PORTIS_DAPP_ID = process.env.REACT_APP_PORTIS_DAPP_ID
   config.env.REACT_APP_ETHEREUM_NODE_URL = process.env.REACT_APP_ETHEREUM_NODE_URL
-  config.env.REACT_APP_METAMASK_DEEPLINK_URL = process.env.REACT_APP_METAMASK_DEEPLINK_URL
 
   return config
 }

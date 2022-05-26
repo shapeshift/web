@@ -3,12 +3,10 @@ import { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { FiatRampAction } from '../../const'
-import { GemCurrency } from '../../FiatRamps'
-import { getAssetLogoUrl } from '../../utils'
+import { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
-  const asset: GemCurrency = data.items[index]
+  const asset: FiatRampAsset = data.items[index]
 
   const { type, handleClick } = data
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')
@@ -24,21 +22,21 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       alignItems='center'
       style={style}
       _focus={{
-        shadow: 'outline-inset'
+        shadow: 'outline-inset',
       }}
     >
       <Box style={{ display: 'flex', flexDirection: 'row' }}>
-        <AssetIcon src={getAssetLogoUrl(asset)} boxSize='24px' mr={4} />
+        <AssetIcon src={asset.imageUrl} symbol={asset.symbol.toLowerCase()} boxSize='24px' mr={4} />
         <Box textAlign='left'>
           <Text lineHeight={1}>{asset.name}</Text>
           <Text fontWeight='normal' fontSize='sm' color={color}>
-            {asset.ticker}
+            {asset.symbol}
           </Text>
         </Box>
       </Box>
       {type === FiatRampAction.Sell && asset.cryptoBalance && asset.fiatBalance && (
         <Box textAlign='right'>
-          <Amount.Crypto symbol={asset.ticker} value={asset.cryptoBalance.toPrecision()} />
+          <Amount.Crypto symbol={asset.symbol} value={asset.cryptoBalance.toPrecision()} />
           <Amount.Fiat value={asset.fiatBalance.toPrecision()} />
         </Box>
       )}

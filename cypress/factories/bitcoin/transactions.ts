@@ -1,6 +1,6 @@
-import { TxHistory } from '@shapeshiftoss/unchained-client/dist/generated/bitcoin'
+import { bitcoin } from '@shapeshiftoss/unchained-client'
 
-export const makeTransactions = (): TxHistory => {
+export const makeTransactions = (): bitcoin.TxHistory => {
   return {
     page: 1,
     totalPages: 290,
@@ -16,7 +16,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 75144,
         timestamp: 1598700231,
         value: '510611',
-        fee: '224'
+        fee: '224',
       },
       {
         txid: 'ccb8a7e96e1f89eba45b7183979e71344e2531e7f8654d43a5df3875822cac2a',
@@ -28,7 +28,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 97589,
         timestamp: 1585454220,
         value: '833400',
-        fee: '300'
+        fee: '300',
       },
       {
         txid: 'd4a0ec05d50d239d2dd0d67004f2cb5999da7177c37d584ada2dd406964b34ac',
@@ -40,7 +40,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 100050,
         timestamp: 1583757917,
         value: '191600',
-        fee: '300'
+        fee: '300',
       },
       {
         txid: 'c6740f99b1d89fd6f6796b3c64675d830f791ada8aeeb0e4b7059af678ad7f31',
@@ -52,7 +52,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 115668,
         timestamp: 1574665532,
         value: '1407422172675',
-        fee: '170948'
+        fee: '170948',
       },
       {
         txid: 'facf8d643677c5a27aed31ef23e224bd1a8e33cb631a8480a12e1d18fa1ff7a7',
@@ -64,7 +64,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 116119,
         timestamp: 1574414085,
         value: '1204981159409',
-        fee: '1209057'
+        fee: '1209057',
       },
       {
         txid: 'ac828b906453893ba24eb996f1ff6788ceb90e096f6de9f3c71865ff680c5b27',
@@ -76,7 +76,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 116381,
         timestamp: 1574235514,
         value: '13319374657',
-        fee: '11654'
+        fee: '11654',
       },
       {
         txid: 'cbda7bf8be7c9ef3774a2b4659572539fa200a2664bca85b30042cf76a2844ad',
@@ -88,7 +88,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 117101,
         timestamp: 1573812618,
         value: '45049848804',
-        fee: '8225'
+        fee: '8225',
       },
       {
         txid: '1a3080c5b22b9fac28f43968ef25eace2e590b5322446c901ace44faccabfa15',
@@ -100,7 +100,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 117441,
         timestamp: 1573634407,
         value: '261840617116',
-        fee: '556346'
+        fee: '556346',
       },
       {
         txid: '3b54004f5a7695b8045cc2e4fceedf12923882cd6efb42f012ca0544f5328b70',
@@ -112,7 +112,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 117444,
         timestamp: 1573632904,
         value: '162933169440',
-        fee: '483374'
+        fee: '483374',
       },
       {
         txid: '16bbb35780a952324e6043b114aa63e850f4a0f43cf38ca20ddbbc482492995b',
@@ -124,7 +124,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 117598,
         timestamp: 1573532070,
         value: '47902282746',
-        fee: '9065'
+        fee: '9065',
       },
       {
         txid: 'c15963df4a496aee8eeccde9aa468d8165a9511316bf1d3c324b0047490a5b2e',
@@ -136,7 +136,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 117603,
         timestamp: 1573529806,
         value: '41147724606',
-        fee: '8672'
+        fee: '8672',
       },
       {
         txid: '03d87ed30ad21c049769af1702b3f3de894e1378482d325bf1f6072fe7fb5b7b',
@@ -148,7 +148,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 117723,
         timestamp: 1573458700,
         value: '20615159911',
-        fee: '14113'
+        fee: '14113',
       },
       {
         txid: '605c006627fe5f570659730f8cddab2f651b84493398266f97c6f6ae820a71a6',
@@ -160,7 +160,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 118155,
         timestamp: 1573206144,
         value: '38371754592',
-        fee: '14681'
+        fee: '14681',
       },
       {
         txid: '807eff96b3dd756fa1ec5280690f9350695f3742618aec24191226ad09052254',
@@ -172,7 +172,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 118176,
         timestamp: 1573194437,
         value: '91945225556',
-        fee: '597419'
+        fee: '597419',
       },
       {
         txid: 'a20c9ef3c4b8c1f789c20b03adf922f77d6b1fd6bae342c35a8617600a76bf16',
@@ -184,7 +184,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 118296,
         timestamp: 1573114893,
         value: '43747719',
-        fee: '14084'
+        fee: '14084',
       },
       {
         txid: '5db0575c3ac0e39dcb7afd987858c4fe121f6c9312538ac6e4d60d2f37e78587',
@@ -196,7 +196,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 118987,
         timestamp: 1572677406,
         value: '1672920475',
-        fee: '197932'
+        fee: '197932',
       },
       {
         txid: 'a8e64fd041c84f4d801117ce96e5a92924d25f8f33f5722577417dff0fc78c2c',
@@ -208,7 +208,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119022,
         timestamp: 1572653887,
         value: '131226729',
-        fee: '32261'
+        fee: '32261',
       },
       {
         txid: '5b69019f05a34ca30c82a95062065f1219cdbe4a622dbb0d954f11efb3376499',
@@ -220,7 +220,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119028,
         timestamp: 1572649344,
         value: '46054182',
-        fee: '18994'
+        fee: '18994',
       },
       {
         txid: '20761b564bbeef7abe26a34d0970fa05a1be6d9a3609ab951cc248bf2b9bb3d3',
@@ -232,7 +232,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119034,
         timestamp: 1572647092,
         value: '83060735',
-        fee: '80847'
+        fee: '80847',
       },
       {
         txid: '22236483f9ebe3d289e9796ab9a1080b90f3771af382b8460618a32c6d8bef27',
@@ -244,7 +244,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119056,
         timestamp: 1572629944,
         value: '711014876',
-        fee: '30470'
+        fee: '30470',
       },
       {
         txid: '6b1f2c8717b06075ac1f3a24908aaadb60983918cda5c7566e9b2e9a85f56f01',
@@ -256,7 +256,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119056,
         timestamp: 1572629944,
         value: '139068266',
-        fee: '53411'
+        fee: '53411',
       },
       {
         txid: '2bdb47f3f53e7b794486408e577daefa440ddca29b6544b9ec4830c39319b29e',
@@ -268,7 +268,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119059,
         timestamp: 1572629380,
         value: '43761803',
-        fee: '42926'
+        fee: '42926',
       },
       {
         txid: '146f94c3001a5671857328dacbc6ad51b57e260ec2865a3bcd9399c2bdd218d3',
@@ -280,7 +280,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119066,
         timestamp: 1572626358,
         value: '88535738',
-        fee: '27830'
+        fee: '27830',
       },
       {
         txid: 'afbedaa7b538c1aa2a563b2de13f5bece30a6f0e6bb74d1fe152dee6681cde20',
@@ -292,7 +292,7 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119070,
         timestamp: 1572623405,
         value: '145864874',
-        fee: '45464'
+        fee: '45464',
       },
       {
         txid: 'ba1df0327eca81a95f3a953985de572bade04654494cb109777129ef7635fd73',
@@ -304,8 +304,8 @@ export const makeTransactions = (): TxHistory => {
         confirmations: 119072,
         timestamp: 1572621912,
         value: '95377772',
-        fee: '49877'
-      }
-    ]
+        fee: '49877',
+      },
+    ],
   }
 }

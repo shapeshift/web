@@ -6,7 +6,7 @@ import {
   TextProps,
   ThemingProps,
   useMultiStyleConfig,
-  useStyles
+  useStyles,
 } from '@chakra-ui/react'
 
 export type RowProps = BoxProps & ThemingProps & Pick<ButtonProps, 'colorScheme'>
@@ -28,7 +28,7 @@ const Label = (props: BoxProps) => {
 
 const Value = (props: TextProps) => {
   const styles = useStyles()
-  return <Box __css={styles.value} {...props} />
+  return <Box __css={styles.value} fontSize='md' {...props} />
 }
 
 Row.Label = Label

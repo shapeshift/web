@@ -25,23 +25,23 @@ export default {
         '6xl',
         '7xl',
         '8xl',
-        '9xl'
+        '9xl',
       ],
       control: { type: 'select' },
       description: 'Size of text',
-      default: undefined
+      default: undefined,
     },
     children: {
-      description: ''
-    }
+      description: '',
+    },
   },
   decorators: [
     (Story: any) => (
       <Container mt='40px'>
         <Story />
       </Container>
-    )
-  ]
+    ),
+  ],
 }
 
 const Template: Story<TextProps> = args => <RawText {...args} />
@@ -49,7 +49,7 @@ const Template: Story<TextProps> = args => <RawText {...args} />
 export const Basic = Template.bind({})
 Basic.args = {
   fontSize: undefined,
-  children: 'RawText Children'
+  children: 'RawText Children',
 }
 
 export const Sizes: Story = () => (

@@ -6,12 +6,16 @@ import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetToAsset, AssetToAssetProps } from 'components/AssetToAsset/AssetToAsset'
 import { SlideTransition } from 'components/SlideTransition'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 type ConfirmProps = {
   onCancel(): void
   onConfirm(): Promise<void>
   headerText: string
   prefooter?: React.ReactNode
+  loading: boolean
+  loadingText?: string
   children?: React.ReactNode
 } & AssetToAssetProps
 
@@ -20,10 +24,27 @@ export const Confirm = ({
   onCancel,
   children,
   prefooter,
+  loading,
+  loadingText,
   headerText,
   ...rest
 }: ConfirmProps) => {
   const translate = useTranslate()
+
+  const {
+    state: { isConnected },
+    dispatch,
+  } = useWallet()
+
+  const handleWalletModalOpen = () => {
+    /**
+     * call onCancel to close the current modal
+     * before opening the connect wallet modal.
+     */
+    onCancel()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   return (
     <SlideTransition>
       <ModalBody pt={0} flexDir={{ base: 'column', md: 'row' }}>
@@ -37,10 +58,17 @@ export const Confirm = ({
         <Stack width='full'>
           {prefooter}
           <Flex width='full' justifyContent='space-between'>
-            <Button size='lg' colorScheme='gray' onClick={onCancel}>
+            <Button size='lg' colorScheme='gray' onClick={onCancel} isDisabled={loading}>
               {translate('modals.confirm.cancel')}
             </Button>
-            <Button size='lg' colorScheme='blue' onClick={onConfirm}>
+            <Button
+              size='lg'
+              colorScheme='blue'
+              data-test='defi-modal-confirm-button'
+              onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+              isLoading={loading}
+              loadingText={loadingText}
+            >
               {translate('modals.confirm.signBroadcast')}
             </Button>
           </Flex>

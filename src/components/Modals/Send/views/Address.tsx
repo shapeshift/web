@@ -8,25 +8,24 @@ import {
   ModalCloseButton,
   ModalFooter,
   ModalHeader,
-  Stack
+  Stack,
 } from '@chakra-ui/react'
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos/CosmosChainAdapter'
-import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/ethereum/EthereumChainAdapter'
+import { cosmossdk, ethereum } from '@shapeshiftoss/chain-adapters'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
+import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { ensLookup, ensReverseLookup } from 'lib/ens'
 
 import { AddressInput } from '../AddressInput/AddressInput'
-import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import type { SendInput } from '../Form'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
@@ -36,7 +35,7 @@ export const Address = () => {
   const translate = useTranslate()
   const {
     setValue,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
@@ -67,7 +66,7 @@ export const Address = () => {
         onClick={() =>
           history.push(SendRoutes.Select, {
             toRoute: SelectAssetRoutes.Account,
-            assetId: asset.caip19
+            assetId: asset.assetId,
           })
         }
       />
@@ -85,14 +84,14 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
-                  if (adapter instanceof CosmosChainAdapter) {
+                  if (adapter instanceof cosmossdk.cosmos.ChainAdapter) {
                     setIsValidatingCosmosAddress(true)
                     const validAddress = await adapter.validateAddress(value)
                     setIsValidatingCosmosAddress(false)
                     return validAddress.valid || 'common.invalidAddress'
                   }
                   const validAddress = await adapter.validateAddress(value)
-                  if (adapter instanceof EthereumChainAdapter) {
+                  if (adapter instanceof ethereum.ChainAdapter) {
                     const validEnsAddress = await adapter.validateEnsAddress(value)
                     if (validEnsAddress.valid) {
                       // Verify that the ENS name resolves to an address
@@ -107,14 +106,17 @@ export const Address = () => {
                       setValue(SendFormFields.EnsName, value)
                       return true
                     }
+                    if (!validEnsAddress.valid && !validAddress.valid) {
+                      return 'common.invalidAddress'
+                    }
                     // If a lookup exists for a 0x address, display ENS name instead
                     const reverseValueLookup = await ensReverseLookup(value)
                     !reverseValueLookup.error &&
                       setValue(SendFormFields.EnsName, reverseValueLookup.name)
                   }
                   return validAddress.valid || 'common.invalidAddress'
-                }
-              }
+                },
+              },
             }}
           />
         </FormControl>

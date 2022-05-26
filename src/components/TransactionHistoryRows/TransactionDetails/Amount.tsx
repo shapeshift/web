@@ -4,7 +4,7 @@ import { fromBaseUnit } from 'lib/math'
 export const Amount = ({
   value,
   symbol,
-  precision
+  precision,
 }: {
   value: string
   symbol: string

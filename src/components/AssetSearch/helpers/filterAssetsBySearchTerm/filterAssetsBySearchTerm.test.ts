@@ -1,12 +1,11 @@
-import { AssetNamespace } from '@shapeshiftoss/caip'
 import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 
 const assets: Asset[] = [
   {
-    caip2: 'eip155:1',
-    caip19: 'eip155:1/slip44:60',
+    chainId: 'eip155:1',
+    assetId: 'eip155:1/slip44:60',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
@@ -21,11 +20,11 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
-    receiveSupport: true
+    receiveSupport: true,
   },
   {
-    caip2: 'eip155:1',
-    caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+    chainId: 'eip155:1',
+    assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
@@ -40,18 +39,18 @@ const assets: Asset[] = [
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     sendSupport: false,
-    receiveSupport: false
+    receiveSupport: false,
   },
   {
-    caip2: 'eip155:1',
-    caip19: 'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',
+    chainId: 'eip155:1',
+    assetId: 'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     name: 'Aave AMM DAI',
     precision: 18,
     tokenId: '0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',
-    contractType: AssetNamespace.ERC20,
+    contractType: 'erc20',
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/17197/thumb/aAMMDAI_2x.png?1626940032',
@@ -61,18 +60,18 @@ const assets: Asset[] = [
     explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'AAMMDAI'
+    symbol: 'AAMMDAI',
   },
   {
-    caip2: 'eip155:1',
-    caip19: 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+    chainId: 'eip155:1',
+    assetId: 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     name: 'Dai',
     precision: 18,
     tokenId: '0x6b175474e89094c44da98b954eedeac495271d0f',
-    contractType: AssetNamespace.ERC20,
+    contractType: 'erc20',
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/9956/thumb/dai-multi-collateral-mcd.png?1574218774',
@@ -82,8 +81,8 @@ const assets: Asset[] = [
     explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'DAI'
-  }
+    symbol: 'DAI',
+  },
 ]
 
 describe('filterAssetsBySearchTerm', () => {

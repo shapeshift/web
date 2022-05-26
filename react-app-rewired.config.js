@@ -11,6 +11,7 @@ const { sha256 } = require('multiformats/hashes/sha2')
 const ssri = require('ssri')
 const webpack = require('webpack')
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
+const CircularDependencyPlugin = require('circular-dependency-plugin')
 
 const headers = require('./headers')
 process.env.REACT_APP_CSP_META = headers.cspMeta ?? ''
@@ -155,6 +156,23 @@ module.exports = {
       ]
     })
 
+    _.merge(config, {
+      plugins: [
+        ...config.plugins,
+        new CircularDependencyPlugin({
+          exclude: /node_modules/,
+          include: /src/,
+          // raise error on circular imports
+          failOnError: true,
+          // allow import cycles that include an asyncronous import,
+          // e.g. via import(/* webpackMode: "weak" */ './file.js')
+          allowAsyncCycles: false,
+          // set the current working directory for displaying module paths
+          cwd: process.cwd()
+        })
+      ]
+    })
+
     // Collect env vars that would have been injected via DefinePlugin. We will emit them
     // as dynamically-loaded JSON later instead of find/replacing the string 'process.env'.
     // This ensures that the minified Webpack output will be the same no matter the build
@@ -283,20 +301,6 @@ module.exports = {
           }
         : {}
     )
-
-    // Remove data-test="" attributes from production builds
-    //
-    // data-test attributes are used as unique identifiers in Cypress integration and e2e tests.
-    // They aren't needed in production and
-    //   a) only bump up the bundle size, as well as
-    //   b) make it stupidly easy for potential bot authors
-    //      to automate site interactions.
-    //      (After all, that automation is what cypress tests do)
-    if (isProduction) {
-      const oneOfLoaders = config.module.rules.find(rule => Array.isArray(rule.oneOf))?.oneOf
-      const babelLoader = oneOfLoaders.find(rule => rule.loader?.includes('babel-loader'))
-      babelLoader.options.plugins.push(['react-remove-properties', { properties: ['data-test'] }])
-    }
 
     return config
   },

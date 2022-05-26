@@ -1,11 +1,33 @@
 {
-  "baseUrl": "http://localhost:3000/",
+  "baseUrl": "http://localhost:3000/#/",
   "projectId": "vpyrho",
   "chromeWebSecurity": false,
   "viewportWidth": 1920,
   "viewportHeight": 1920,
-  "defaultCommandTimeout": 25000,
+  "defaultCommandTimeout": 60000,
   "env": {
+    "forceRecord": false,
+    "cleanMocks": false,
+    "mocksFolder": null,
+    "whitelistHeaders": [
+      "content-type"
+    ],
+    "mocksName": "All Integration Specs",
+    "includeHosts": [
+      "dev-api.ethereum.shapeshift.com",
+      "assets.coincap.io",
+      "raw.githubusercontent.com",
+      "api.0x.org",
+      "api.github.com",
+      "dev-api.bitcoin.shapeshift.com",
+      "dev-api.cosmos.shapeshift.com",
+      "static.coincap.io",
+      "mainnet.infura.io",
+      "raw.githack.com",
+      "rawcdn.githack.com",
+      "api.coingecko.com",
+      "cache.yearn.finance"
+    ],
     "testPublicKey": "0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde",
     "testSeed": "attract alcohol strike orphan decline flush option goat path offer sense know",
     "testPassword": "tnj7!NNY@#ep",

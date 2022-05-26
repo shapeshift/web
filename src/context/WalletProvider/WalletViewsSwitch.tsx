@@ -5,48 +5,69 @@ import {
   Modal,
   ModalCloseButton,
   ModalContent,
-  ModalOverlay
+  ModalOverlay,
 } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/toast'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
 import { SelectModal } from './SelectModal'
-import { useWallet, WalletActions } from './WalletProvider'
 
 export const WalletViewsSwitch = () => {
   const history = useHistory()
   const location = useLocation()
+  const toast = useToast()
+  const translate = useTranslate()
   const match = useRouteMatch('/')
-  const { state, dispatch } = useWallet()
+  const {
+    state: { wallet, modal, showBackButton, initialRoute, type },
+    dispatch,
+  } = useWallet()
 
-  const onClose = () => {
+  const cancelWalletRequests = useCallback(async () => {
+    await wallet?.cancel().catch(e => {
+      console.error(e)
+      toast({
+        title: translate('common.error'),
+        description: e?.message ?? translate('common.somethingWentWrong'),
+        status: 'error',
+        isClosable: true,
+      })
+    })
+  }, [toast, translate, wallet])
+
+  const onClose = async () => {
     history.replace('/')
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    await cancelWalletRequests()
   }
 
-  const handleBack = () => {
+  const handleBack = async () => {
     history.goBack()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
     if (history.location.pathname === '/') {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
+    await cancelWalletRequests()
   }
 
   useEffect(() => {
-    if (state?.initialRoute) {
-      history.push(state.initialRoute)
+    if (initialRoute) {
+      history.push(initialRoute)
     }
-  }, [history, state?.initialRoute])
+  }, [history, initialRoute])
 
   return (
     <>
       <Modal
-        isOpen={state.modal}
+        isOpen={modal}
         onClose={onClose}
         isCentered
         trapFocus={false}
@@ -55,7 +76,7 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && (
+            {!match?.isExact && showBackButton && (
               <IconButton
                 icon={<ArrowBackIcon />}
                 aria-label='Back'
@@ -71,8 +92,8 @@ export const WalletViewsSwitch = () => {
           <AnimatePresence exitBeforeEnter initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
-                {state.type &&
-                  SUPPORTED_WALLETS[state.type].routes.map((route, index) => {
+                {type &&
+                  SUPPORTED_WALLETS[type].routes.map((route, index) => {
                     const Component = route.component
                     return !Component ? null : (
                       <Route

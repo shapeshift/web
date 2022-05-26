@@ -1,34 +1,33 @@
-import { Button, Link, useColorModeValue } from '@chakra-ui/react'
+import { Button, Link } from '@chakra-ui/react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
 export const Address = ({
   explorerAddressLink,
   address,
-  ens
+  ens,
 }: {
-  explorerAddressLink: string
+  explorerAddressLink?: string
   address: string
   ens?: string
-}) => (
-  <Link
-    isExternal
-    color={useColorModeValue('blue.400', 'blue.200')}
-    _hover={{ textDecoration: 'none' }}
-    href={`${explorerAddressLink}${ens || address}`}
-    onClick={e => {
-      // don't trigger parent onClick
-      e.stopPropagation()
-    }}
-  >
+}) =>
+  explorerAddressLink ? (
     <Button
-      bg={useColorModeValue('gray.200', 'gray.900')}
+      as={Link}
+      href={`${explorerAddressLink}${ens || address}`}
+      isExternal
+      bg='transparent'
+      variant='ghost'
+      colorScheme='blue'
       fontWeight='normal'
-      p={2}
-      height={{ base: 6, md: 8 }}
-      fontSize={{ base: 'sm', md: 'md' }}
-      _hover={{ bg: useColorModeValue('gray.300', 'gray.800') }}
+      p={0}
+      onClick={e => e.stopPropagation()}
+      height='auto'
+      fontFamily='monospace'
+      _hover={{ bg: 'transparent' }}
+      fontSize='inherit'
     >
       <MiddleEllipsis address={ens || address} />
     </Button>
-  </Link>
-)
+  ) : (
+    <MiddleEllipsis address={ens || address} />
+  )

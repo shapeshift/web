@@ -8,28 +8,28 @@ export const StepsStyle = {
       ...StepsStyleConfig.baseStyle(props),
       stepIconContainer: {
         ...StepsStyleConfig.baseStyle(props).stepIconContainer,
-        bg: 'transparent'
+        bg: 'transparent',
       },
       labelContainer: {
         ...StepsStyleConfig.baseStyle(props).labelContainer,
         '& span': {
-          color: 'gray.500'
+          color: 'gray.500',
         },
         _highlighted: {
           '& span': {
-            color: 'green.500'
-          }
+            color: 'green.500',
+          },
         },
         _activeStep: {
           '& span': {
-            color: mode('black', 'white')(props)
-          }
-        }
+            color: mode('black', 'white')(props),
+          },
+        },
       },
       connector: {
         ...StepsStyleConfig.baseStyle(props).connector,
-        borderColor: 'transparent'
-      }
+        borderColor: 'transparent',
+      },
     }
-  }
+  },
 }

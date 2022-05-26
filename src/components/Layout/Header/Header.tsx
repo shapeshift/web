@@ -1,4 +1,4 @@
-import { HamburgerIcon } from '@chakra-ui/icons'
+import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
   Drawer,
@@ -8,26 +8,30 @@ import {
   HStack,
   IconButton,
   useColorModeValue,
-  useDisclosure
+  useDisclosure,
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
-import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
-import { ReduxState } from 'state/reducer'
-import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
+import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
-export const Header = ({ route }: { route: Route }) => {
+export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const {
+    state: { walletInfo },
+    dispatch,
+  } = useWallet()
 
   /**
    * FOR DEVELOPERS:
@@ -39,7 +43,7 @@ export const Header = ({ route }: { route: Route }) => {
         history.push('/flags')
       }
     },
-    [history]
+    [history],
   )
 
   useEffect(() => {
@@ -47,23 +51,34 @@ export const Header = ({ route }: { route: Route }) => {
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
-  // TODO(gomes): There's currently a runtime error when using the typed useAppSelector here.
-  // Find out the root cause and use it instead
-  const gemRampFlag = useSelector((state: ReduxState) => selectFeatureFlag(state, 'GemRamp'))
+  const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   return (
     <>
-      <Flex
-        height='4.5rem'
-        bg={bg}
-        borderBottomWidth={1}
-        borderColor={borderColor}
-        width='full'
-        position='sticky'
-        zIndex='banner'
-        top={0}
-      >
-        <HStack width='full' px={4}>
+      <Flex direction='column' bg={bg} width='full' position='sticky' zIndex='banner' top={0}>
+        {walletInfo?.deviceId === DemoConfig.name && (
+          <Box
+            bg='blue.500'
+            width='full'
+            minHeight='2.5rem'
+            fontSize={{ base: 'sm', md: 'md' }}
+            as='button'
+            onClick={handleBannerClick}
+          >
+            <HStack
+              verticalAlign='middle'
+              justifyContent='center'
+              spacing={3}
+              color='white'
+              wrap='wrap'
+            >
+              <InfoIcon boxSize='1.3em' />
+              <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
+              <Text display='inline' translation='navBar.clickToConnect' />
+            </HStack>
+          </Box>
+        )}
+        <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
           <Box flex={1} display={{ base: 'block', md: 'none' }}>
             <IconButton
               aria-label='Open menu'
@@ -86,15 +101,13 @@ export const Header = ({ route }: { route: Route }) => {
             <AutoCompleteSearch />
           </HStack>
           <Flex justifyContent='flex-end' flex={1}>
-            {gemRampFlag && (
-              <Box
-                display={{ base: 'none', md: 'block' }}
-                mr={{ base: 0, md: 4 }}
-                mb={{ base: 4, md: 0 }}
-              >
-                <FiatRamps />
-              </Box>
-            )}
+            <Box
+              display={{ base: 'none', md: 'block' }}
+              mr={{ base: 0, md: 4 }}
+              mb={{ base: 4, md: 0 }}
+            >
+              <FiatRamps />
+            </Box>
             <Box display={{ base: 'none', md: 'block' }}>
               <UserMenu />
             </Box>
@@ -103,7 +116,9 @@ export const Header = ({ route }: { route: Route }) => {
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent>{route && <SideNavContent route={route} />}</DrawerContent>
+        <DrawerContent>
+          <SideNavContent onClose={onClose} />
+        </DrawerContent>
       </Drawer>
     </>
   )

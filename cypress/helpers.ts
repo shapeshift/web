@@ -6,6 +6,6 @@ export const getWalletDbInstance = (): LocalForage => {
   return localforage.createInstance({
     name: walletIndexedDbName,
     storeName: 'keyval',
-    driver: localforage.INDEXEDDB
+    driver: localforage.INDEXEDDB,
   })
 }

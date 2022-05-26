@@ -9,19 +9,19 @@ import {
   PopoverHeader,
   Portal,
   SkeletonText,
-  Stack
+  Stack,
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const AssetTeaser = ({ assetId }: { assetId: CAIP19 }) => {
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { description, icon, name } = asset || {}
   const { isLoading } = useGetAssetDescriptionQuery(assetId, { skip: !!description })
   const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])

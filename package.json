@@ -198,7 +198,7 @@
     "@types/react-window": "^1.8.5",
     "@types/redux-logger": "^3.0.9",
     "circular-dependency-plugin": "^5.2.2",
-    "cypress": "9.6.1",
+    "cypress": "9.7.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",

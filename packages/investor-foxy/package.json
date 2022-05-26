@@ -37,14 +37,14 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^5.0.0",
-    "@shapeshiftoss/chain-adapters": "^4.0.0",
+    "@shapeshiftoss/chain-adapters": "^4.3.3",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "^4.0.0"
+    "@shapeshiftoss/types": "^4.3.1"
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^5.0.0",
-    "@shapeshiftoss/chain-adapters": "^4.0.0",
+    "@shapeshiftoss/chain-adapters": "^4.3.3",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "^4.0.0"
+    "@shapeshiftoss/types": "^4.3.1"
   }
 }

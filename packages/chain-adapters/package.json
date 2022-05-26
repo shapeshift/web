@@ -40,16 +40,16 @@
     "@shapeshiftoss/caip": "^5.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
     "@shapeshiftoss/hdwallet-native": "^1.20.0",
-    "@shapeshiftoss/types": "^4.0.0",
-    "@shapeshiftoss/unchained-client": "^8.2.0",
+    "@shapeshiftoss/types": "^4.3.1",
+    "@shapeshiftoss/unchained-client": "^8.3.4",
     "bs58check": "^2.0.0"
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^5.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
     "@shapeshiftoss/hdwallet-native": "^1.20.0",
-    "@shapeshiftoss/types": "^4.0.0",
-    "@shapeshiftoss/unchained-client": "^8.2.0",
+    "@shapeshiftoss/types": "^4.3.1",
+    "@shapeshiftoss/unchained-client": "^8.3.4",
     "@types/bs58check": "^2.1.0",
     "@types/multicoin-address-validator": "^0.5.0"
   }

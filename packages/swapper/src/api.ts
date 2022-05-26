@@ -135,6 +135,9 @@ export enum SwapErrorTypes {
 }
 
 export interface Swapper {
+  /** perform any necessary async initialization */
+  initialize(): Promise<void>
+
   /** Returns the swapper type */
   getType(): SwapperType
 

@@ -31,10 +31,10 @@
     "type-check": "tsc --project ./tsconfig.build.json --noEmit"
   },
   "peerDependencies": {
-    "@shapeshiftoss/types": "3.1.3"
+    "@shapeshiftoss/types": "4.3.1"
   },
   "devDependencies": {
-    "@shapeshiftoss/types": "3.1.3",
+    "@shapeshiftoss/types": "4.3.1",
     "@yfi/sdk": "^1.0.30",
     "axios": "^0.26.1",
     "ts-node": "^10.7.0"

@@ -2767,16 +2767,6 @@
     lodash "^4.17.4"
     read-pkg-up "^7.0.0"
 
-"@shapeshiftoss/asset-service@^3.0.0":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-3.0.1.tgz#a141d8954e070735e0e161ea8eb6cfaae32ffcc5"
-  integrity sha512-4bzPFjAsvjQU1uHRxsUi8j6uxEeYoqQjWovKkZQm17UchgtLaqbeDA18S66MqujvJFWk6d5fI2JjZyaDWqCZPw==
-  dependencies:
-    axios "^0.26.0"
-    identicon.js "^2.3.3"
-    js-pixel-fonts "^1.5.0"
-    lodash "^4.17.21"
-
 "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2":
   version "5.2.0-shapeshift.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-5.2.0-shapeshift.2.tgz#f000da26302a8a35822201a6c49a4cf7e1379ed4"
@@ -2809,11 +2799,6 @@
     swagger-ui-express "^4.3.0"
     tsoa "^3.4.0"
     ws "^8.3.0"
-
-"@shapeshiftoss/caip@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-4.0.1.tgz#e1afdfafd540769c2d9ee9c2236fbbf4136467f6"
-  integrity sha512-kwb2S3QUKLJ5lPhumi6FYm1x9/bhzjJqPVR4NvEqU6kQgE03Ovf4zVT6FWxWPqcqNGK6w4DJIsmvy2YBRmdCEQ==
 
 "@shapeshiftoss/common-api@^6.11.0":
   version "6.11.0"
@@ -2910,11 +2895,6 @@
     cosmjs-types "^0.4.1"
     google-protobuf "^3.17.0"
     long "^4.0.0"
-
-"@shapeshiftoss/types@3.1.3":
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.1.3.tgz#26b1d626d2b342b107e2ea538b5aedb0bee896ab"
-  integrity sha512-Nhrs8gQelmsFAQQHTEq8TS3wueBKqjBf0pX6VxOiIQyasordSHQT4Di6WQOL1NWhciYptJ2nHPbarmhKOD63Eg==
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"

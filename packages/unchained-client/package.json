@@ -32,14 +32,14 @@
   "peerDependencies": {
     "@shapeshiftoss/caip": "^5.0.0",
     "@shapeshiftoss/logger": "^1.1.2",
-    "@shapeshiftoss/types": "^4.0.0"
+    "@shapeshiftoss/types": "^4.3.1"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.5.1",
     "@shapeshiftoss/caip": "^5.0.0",
     "@shapeshiftoss/common-api": "^6.11.0",
     "@shapeshiftoss/logger": "^1.1.2",
-    "@shapeshiftoss/types": "^4.0.0",
+    "@shapeshiftoss/types": "^4.3.1",
     "@types/ws": "^8.2.1"
   }
 }

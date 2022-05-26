@@ -10,11 +10,14 @@ import {
 } from '@shapeshiftoss/types'
 
 import { Swapper, Trade, TradeQuote } from '../../api'
-
 export class ThorchainSwapper implements Swapper {
   getType() {
     return SwapperType.Thorchain
   }
+
+  // TODO populate supported assets from midgard
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async initialize() {}
 
   getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
     console.info(input)

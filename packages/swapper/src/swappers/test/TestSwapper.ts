@@ -18,6 +18,10 @@ import { BuyAssetBySellIdInput, Swapper, Trade, TradeQuote } from '../../api'
 export class TestSwapper implements Swapper {
   supportAssets: string[]
 
+  // noop for test
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async initialize() {}
+
   getType() {
     return SwapperType.Test
   }

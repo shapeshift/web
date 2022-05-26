@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v4.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.2.2...@shapeshiftoss/market-service-v4.3.0) (2022-05-26)
+
+
+### Features
+
+* thorswapper initialize ([#703](https://github.com/shapeshift/lib/issues/703)) ([73cc081](https://github.com/shapeshift/lib/commit/73cc081b66cc58177415bf425f7899b289cc33af))
+
 # [@shapeshiftoss/market-service-v4.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.2.1...@shapeshiftoss/market-service-v4.2.2) (2022-05-25)
 
 # [@shapeshiftoss/market-service-v4.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.2.0...@shapeshiftoss/market-service-v4.2.1) (2022-05-24)

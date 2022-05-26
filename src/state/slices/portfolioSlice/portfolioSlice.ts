@@ -99,7 +99,6 @@ export const portfolioApi = createApi({
           ChainId,
           string,
         ]
-
         // TODO(0xdef1cafe): chainAdapters.ChainId()
         const { chain } = fromChainId(chainId)
         try {

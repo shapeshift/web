@@ -50,7 +50,7 @@ export type TxIdByAccountId = {
   [k: AccountSpecifier]: TxId[]
 }
 
-// loading status until all tx history is fetched
+// status is loading until all tx history is fetched
 export type TxHistoryStatus = 'loading' | 'loaded'
 
 type RebaseId = string
@@ -108,23 +108,12 @@ const initialState: TxHistory = {
   },
 }
 
-/** TODO(0xdef1cafe): write a bulk upsert tx function for the restful history
- * note we can probably reuse/abstract a lot of the logic from the single upsert
- */
-
-export type BulkUpsertTxs = (
-  txHistory: TxHistory,
-  txs: Tx[],
-  accountSpecifier: AccountSpecifier,
-) => void
-
 /**
  * Manage state of the txHistory slice
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
 
-// we need to keep this function as we need to be able to upsert individual txs over the websocket
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
   const { txs } = txHistory
   const txid = makeUniqueTxId(accountSpecifier, tx.txid, tx.address)
@@ -237,8 +226,6 @@ export const txHistory = createSlice({
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsertTx(txState, payload.message, payload.accountSpecifier),
     upsertTxs: (txState, { payload }: TxsMessage) => {
-      // TODO(0xdef1cafe): make this a bulk upsert so we don't dispatch hundreds of actions
-      // and hence rerenders of the dashboard
       for (const tx of payload.txs) {
         updateOrInsertTx(txState, tx, payload.accountSpecifier)
       }

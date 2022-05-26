@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.1.5...@shapeshiftoss/swapper-v5.2.0) (2022-05-26)
+
+
+### Features
+
+* thorswapper initialize ([#703](https://github.com/shapeshift/lib/issues/703)) ([73cc081](https://github.com/shapeshift/lib/commit/73cc081b66cc58177415bf425f7899b289cc33af))
+
 # [@shapeshiftoss/swapper-v5.1.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.1.4...@shapeshiftoss/swapper-v5.1.5) (2022-05-25)
 
 # [@shapeshiftoss/swapper-v5.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.1.3...@shapeshiftoss/swapper-v5.1.4) (2022-05-24)

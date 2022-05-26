@@ -107,7 +107,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
@@ -305,6 +304,12 @@
     "amount": "Montante",
     "for": "Por",
     "parser": {
+      "weth": {
+        "deposit": "Depósito",
+        "approve": "Aprovar",
+        "withdraw": "Retirar",
+        "receive": "Receber"
+      },
       "yearn": {
         "deposit": "Depósito",
         "approve": "Aprovar",

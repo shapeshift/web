@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -45,57 +46,65 @@ export type UseFoxyBalancesReturn = {
   loading: boolean
 }
 
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Hooks', 'UseFoxyBalances'],
+})
+
 async function getFoxyOpportunities(
   balances: PortfolioBalancesById,
   api: FoxyApi,
   userAddress: string,
 ) {
   const acc: Record<string, FoxyOpportunity> = {}
-  const opps = await api.getFoxyOpportunities()
-  for (let index = 0; index < opps.length; index++) {
-    // TODO: assetIds in vaults
-    const opportunity = opps[index]
-    const withdrawInfo = await api.getWithdrawInfo({
-      contractAddress: opportunity.contractAddress,
-      userAddress,
-    })
-    const rewardTokenAssetId = toAssetId({
-      chain: opportunity.chain,
-      network: NetworkTypes.MAINNET,
-      assetNamespace: 'erc20',
-      assetReference: opportunity.rewardToken,
-    })
-    const contractAssetId = toAssetId({
-      chain: opportunity.chain,
-      network: NetworkTypes.MAINNET,
-      assetNamespace: 'erc20',
-      assetReference: opportunity.contractAddress,
-    })
-    const tokenAssetId = toAssetId({
-      chain: opportunity.chain,
-      network: NetworkTypes.MAINNET,
-      assetNamespace: 'erc20',
-      assetReference: opportunity.stakingToken,
-    })
-    const balance = balances[rewardTokenAssetId]
+  try {
+    const opportunities = await api.getFoxyOpportunities()
+    for (let index = 0; index < opportunities.length; index++) {
+      // TODO: assetIds in vaults
+      const opportunity = opportunities[index]
+      const withdrawInfo = await api.getWithdrawInfo({
+        contractAddress: opportunity.contractAddress,
+        userAddress,
+      })
+      const rewardTokenAssetId = toAssetId({
+        chain: opportunity.chain,
+        network: NetworkTypes.MAINNET,
+        assetNamespace: 'erc20',
+        assetReference: opportunity.rewardToken,
+      })
+      const contractAssetId = toAssetId({
+        chain: opportunity.chain,
+        network: NetworkTypes.MAINNET,
+        assetNamespace: 'erc20',
+        assetReference: opportunity.contractAddress,
+      })
+      const tokenAssetId = toAssetId({
+        chain: opportunity.chain,
+        network: NetworkTypes.MAINNET,
+        assetNamespace: 'erc20',
+        assetReference: opportunity.stakingToken,
+      })
+      const balance = balances[rewardTokenAssetId]
 
-    const pricePerShare = api.pricePerShare()
-    acc[opportunity.contractAddress] = {
-      ...opportunity,
-      balance: bnOrZero(balance).toString(),
-      contractAssetId,
-      tokenAssetId,
-      rewardTokenAssetId,
-      pricePerShare: bnOrZero(pricePerShare),
-      withdrawInfo,
+      const pricePerShare = api.pricePerShare()
+      acc[opportunity.contractAddress] = {
+        ...opportunity,
+        balance: bnOrZero(balance).toString(),
+        contractAssetId,
+        tokenAssetId,
+        rewardTokenAssetId,
+        pricePerShare: bnOrZero(pricePerShare),
+        withdrawInfo,
+      }
     }
+    return acc
+  } catch (e) {
+    moduleLogger.error(e, { fn: 'getFoxyOpportunities' }, 'Error getting opportunities')
   }
-  return acc
 }
 
 export function useFoxyBalances(): UseFoxyBalancesReturn {
   const [loading, setLoading] = useState(false)
-  const [opportunities, setOpportunites] = useState<Record<string, FoxyOpportunity>>({})
+  const [opportunities, setOpportunities] = useState<Record<string, FoxyOpportunity>>({})
   const marketData = useSelector(selectMarketData)
   const assets = useSelector(selectAssets)
 
@@ -117,13 +126,14 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const userAddress = await chainAdapter.getAddress({ wallet })
         const foxyOpportunities = await getFoxyOpportunities(balances, foxy, userAddress)
+        if (!foxyOpportunities) return
 
         // remove when Tokemak has api to get real apy
         for (const key in foxyOpportunities) {
           foxyOpportunities[key].apy = bnOrZero(getConfig().REACT_APP_FOXY_APY).toString()
         }
 
-        setOpportunites(foxyOpportunities)
+        setOpportunities(foxyOpportunities)
       } catch (error) {
         console.error('error', error)
       } finally {
@@ -158,7 +168,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
     return Object.values(opportunities).map(opportunity => {
       const asset = assets[opportunity.tokenAssetId]
       const fiatAmount = makeFiatAmount(opportunity)
-      const marketPrice = marketData[opportunity.tokenAssetId]?.price
+      const marketPrice = marketData[opportunity.tokenAssetId]?.price ?? 0
       const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
       const data = {
         ...opportunity,

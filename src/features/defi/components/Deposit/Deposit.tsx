@@ -285,7 +285,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={value}
-                            onChange={e => {
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null
@@ -312,7 +312,7 @@ export const Deposit = ({
                             inputMode='decimal'
                             thousandSeparator={localeParts.group}
                             value={bnOrZero(value).toFixed(2)}
-                            onChange={e => {
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               onChange(amountRef.current)
                               handleInputChange(amountRef.current as string)
                               amountRef.current = null

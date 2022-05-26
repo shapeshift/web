@@ -1,4 +1,11 @@
-import { ASSET_REFERENCE, cosmosChainId, toAssetId, toChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_REFERENCE,
+  btcChainId,
+  cosmosChainId,
+  ethChainId,
+  osmosisChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
@@ -12,7 +19,7 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
@@ -22,7 +29,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { chainTypeToMainnetChainParts } from 'lib/utils'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   AccountSpecifierMap,
   accountSpecifiers,
@@ -139,19 +146,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         for (const chain of supportedChains) {
           const adapter = chainAdapterManager.byChain(chain)
-          const { chainNamespace, chainReference } = chainTypeToMainnetChainParts(chain)
-          const chainId = toChainId({ chainNamespace, chainReference })
+          const chainId = chainTypeToMainnetChainId(chain)
 
-          switch (chain) {
-            // TODO: Handle Cosmos ChainType here
-            case ChainTypes.Ethereum: {
+          switch (chainId) {
+            case ethChainId: {
               if (!supportsETH(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
-            case ChainTypes.Bitcoin: {
+            case btcChainId: {
               if (!supportsBTC(wallet)) continue
               const assetId = toAssetId({
                 chainId,
@@ -185,14 +190,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               }
               break
             }
-            case ChainTypes.Cosmos: {
+            case cosmosChainId: {
               if (!supportsCosmos(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey })
               break
             }
-            case ChainTypes.Osmosis: {
+            case osmosisChainId: {
               if (!supportsOsmosis(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue

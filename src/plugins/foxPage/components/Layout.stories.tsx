@@ -27,6 +27,7 @@ import { breakpoints } from 'theme/theme'
 import { AssetActions } from './AssetActions'
 import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
+import { Governance } from './Governance'
 import { Layout } from './Layout'
 import { OtherOpportunities } from './OtherOpportunities/OtherOpportunities'
 import { Total } from './Total'
@@ -169,6 +170,7 @@ export const FoxLayout: Story = () => {
                   onClick={() => null}
                 />
                 <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
+                <Governance />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions

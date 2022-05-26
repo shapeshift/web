@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v5.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.0.1...@shapeshiftoss/caip-v5.1.0) (2022-05-26)
+
+
+### Features
+
+* thorswapper initialize ([#703](https://github.com/shapeshift/lib/issues/703)) ([73cc081](https://github.com/shapeshift/lib/commit/73cc081b66cc58177415bf425f7899b289cc33af))
+
 # [@shapeshiftoss/caip-v5.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.0.0...@shapeshiftoss/caip-v5.0.1) (2022-05-24)
 
 # [@shapeshiftoss/caip-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v4.0.1...@shapeshiftoss/caip-v5.0.0) (2022-05-24)

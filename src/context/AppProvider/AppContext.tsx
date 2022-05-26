@@ -1,9 +1,10 @@
 import {
   ASSET_REFERENCE,
+  btcChainId,
   cosmosChainId,
   ethChainId,
+  osmosisChainId,
   toAssetId,
-  toChainId,
 } from '@shapeshiftoss/caip'
 import {
   bitcoin,
@@ -18,7 +19,7 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -26,6 +27,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   AccountSpecifierMap,
   accountSpecifiers,
@@ -189,22 +191,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         for (const chain of supportedChains) {
           const adapter = chainAdapterManager.byChain(chain)
+          const chainId = chainTypeToMainnetChainId(chain)
 
-          switch (chain) {
-            // TODO: Handle Cosmos ChainType here
-            case ChainTypes.Ethereum: {
+          switch (chainId) {
+            case ethChainId: {
               if (!supportsETH(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const chainId = toChainId({ chain, network: NetworkTypes.MAINNET })
               acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
-            case ChainTypes.Bitcoin: {
+            case btcChainId: {
               if (!supportsBTC(wallet)) continue
               const assetId = toAssetId({
-                chain,
-                network: NetworkTypes.MAINNET,
+                chainId,
                 assetNamespace: 'slip44',
                 assetReference: ASSET_REFERENCE.Bitcoin,
               })
@@ -231,24 +231,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
                 if (!pubkey) continue
-                const chainId = toChainId({ chain, network: NetworkTypes.MAINNET })
                 acc.push({ [chainId]: pubkey })
               }
               break
             }
-            case ChainTypes.Cosmos: {
+            case cosmosChainId: {
               if (!supportsCosmos(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const chainId = toChainId({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
               acc.push({ [chainId]: pubkey })
               break
             }
-            case ChainTypes.Osmosis: {
+            case osmosisChainId: {
               if (!supportsOsmosis(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const chainId = toChainId({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
               acc.push({ [chainId]: pubkey })
               break
             }
@@ -263,7 +260,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
     })()
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
-
 
   // market data pre and refetch management
   // we only prefetch market data for the top 1000 assets

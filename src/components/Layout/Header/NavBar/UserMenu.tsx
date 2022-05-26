@@ -11,6 +11,7 @@ import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
@@ -97,7 +98,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
-          {!(isConnected || walletInfo?.deviceId === 'DemoWallet') && (
+          {!(isConnected || walletInfo?.deviceId === DemoConfig.name) && (
             <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />
           )}
           <WalletImage walletInfo={walletInfo} />
@@ -157,10 +158,12 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           maxWidth={{ base: 'full', md: 'xs' }}
           minWidth={{ base: 0, md: 'xs' }}
           overflow='hidden'
+          // Override zIndex to prevent InputLeftElement displaying over menu
+          zIndex={2}
         >
           {hasWallet ? (
             <WalletConnected
-              isConnected={isConnected || walletInfo?.deviceId === 'DemoWallet'}
+              isConnected={isConnected || walletInfo?.deviceId === DemoConfig.name}
               walletInfo={walletInfo}
               onDisconnect={disconnect}
               onSwitchProvider={handleConnect}

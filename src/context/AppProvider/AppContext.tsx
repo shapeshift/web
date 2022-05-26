@@ -1,4 +1,11 @@
-import { ASSET_REFERENCE, toAssetId, toChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_REFERENCE,
+  btcChainId,
+  cosmosChainId,
+  ethChainId,
+  osmosisChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
@@ -12,7 +19,7 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
@@ -22,6 +29,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   AccountSpecifierMap,
   accountSpecifiers,
@@ -29,13 +37,13 @@ import {
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { cosmosChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
+  selectSelectedCurrency,
   selectTxHistoryStatus,
   selectTxIds,
   selectTxs,
@@ -46,6 +54,9 @@ import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataS
 import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
+
+// used by AssetChart, Portfolio, and this file to prefetch price history
+export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -135,22 +146,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         for (const chain of supportedChains) {
           const adapter = chainAdapterManager.byChain(chain)
+          const chainId = chainTypeToMainnetChainId(chain)
 
-          switch (chain) {
-            // TODO: Handle Cosmos ChainType here
-            case ChainTypes.Ethereum: {
+          switch (chainId) {
+            case ethChainId: {
               if (!supportsETH(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const chainId = toChainId({ chain, network: NetworkTypes.MAINNET })
               acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
-            case ChainTypes.Bitcoin: {
+            case btcChainId: {
               if (!supportsBTC(wallet)) continue
               const assetId = toAssetId({
-                chain,
-                network: NetworkTypes.MAINNET,
+                chainId,
                 assetNamespace: 'slip44',
                 assetReference: ASSET_REFERENCE.Bitcoin,
               })
@@ -177,24 +186,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
                 if (!pubkey) continue
-                const chainId = toChainId({ chain, network: NetworkTypes.MAINNET })
                 acc.push({ [chainId]: pubkey })
               }
               break
             }
-            case ChainTypes.Cosmos: {
+            case cosmosChainId: {
               if (!supportsCosmos(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const chainId = toChainId({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
               acc.push({ [chainId]: pubkey })
               break
             }
-            case ChainTypes.Osmosis: {
+            case osmosisChainId: {
               if (!supportsOsmosis(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              const chainId = toChainId({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
               acc.push({ [chainId]: pubkey })
               break
             }
@@ -300,34 +306,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // for more obscure assets, if we don't have it, fetch it
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
 
-  // creating a variable to store the intervals in
-  const [marketDataIntervalId, setMarketDataIntervalId] = useState<NodeJS.Timer | undefined>()
-
   // market data pre and refetch management
   useEffect(() => {
-    if (!portfolioAssetIds.length) return
-
-    const fetchMarketData = () => {
+    const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, { forceRefetch: true }))
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+        const timeframe = DEFAULT_HISTORY_TIMEFRAME
+        const payload = { assetId, timeframe }
+        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
       })
-    }
 
-    // do this the first time once
-    fetchMarketData()
+    fetchMarketData() // fetch every time assetIds change
+    const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
+    return () => clearInterval(interval) // clear interval when portfolioAssetIds change
+  }, [portfolioAssetIds, dispatch])
 
-    // clear the old timer
-    if (marketDataIntervalId) {
-      clearInterval(marketDataIntervalId)
-      setMarketDataIntervalId(undefined)
-    }
-
-    const MARKET_DATA_REFRESH_INTERVAL = 1000 * 60 * 2 // two minutes
-    setMarketDataIntervalId(setInterval(fetchMarketData, MARKET_DATA_REFRESH_INTERVAL))
-
-    // marketDataIntervalId causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
+  /**
+   * fetch forex spot and history for user's selected currency
+   */
+  const selectedCurrency = useAppSelector(state => selectSelectedCurrency(state))
+  useEffect(() => {
+    const symbol = selectedCurrency
+    const timeframe = DEFAULT_HISTORY_TIMEFRAME
+    const getFiatPriceHistory = marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate
+    const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
+    dispatch(getFiatPriceHistory({ symbol, timeframe }))
+    dispatch(fetchForexRate({ symbol }))
+  }, [dispatch, selectedCurrency])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route

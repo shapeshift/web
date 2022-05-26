@@ -1,40 +1,37 @@
-import { AssetId, ChainId, toAccountId, toChainId } from '@shapeshiftoss/caip'
+import { AssetId, cosmosAssetId, cosmosChainId, toAccountId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import {
-  chainAdapters,
-  ChainTypes,
-  HistoryData,
-  HistoryTimeframe,
-  NetworkTypes,
-} from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
+import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
-import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { priceAtDate } from 'lib/charts'
+import { logger } from 'lib/logger'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioAssets,
   PortfolioBalancesById,
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { cosmosAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
+  selectAssets,
+  selectCryptoPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
-  selectPriceHistoryTimeframe,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
 } from 'state/slices/selectors'
@@ -44,21 +41,7 @@ import { useAppSelector } from 'state/store'
 
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
-type PriceAtBlockTimeArgs = {
-  date: number
-  assetPriceHistoryData: HistoryData[]
-}
-
-type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
-
-export const priceAtBlockTime: PriceAtBlockTime = ({ date, assetPriceHistoryData }): number => {
-  const { length } = assetPriceHistoryData
-  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
-  const i = sortedIndexBy(assetPriceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
-  if (i === 0) return assetPriceHistoryData[i].price
-  if (i >= length) return assetPriceHistoryData[length - 1].price
-  return assetPriceHistoryData[i].price
-}
+const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
 type CryptoBalance = {
   [k: AssetId]: BigNumber // map of asset to base units
@@ -176,9 +159,7 @@ export const bucketEvents = (
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
-  priceHistoryData: {
-    [k: AssetId]: HistoryData[]
-  }
+  priceHistoryData: PriceHistoryData
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
@@ -195,7 +176,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
-    const price = priceAtBlockTime({ assetPriceHistoryData, date })
+    const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) {
       return acc
@@ -322,6 +303,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
+  const assets = useAppSelector(selectAssets)
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
@@ -332,11 +314,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // Get total delegation
   // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const cosmosChainId: ChainId = toChainId({
-    chain: ChainTypes.Cosmos,
-    network: NetworkTypes.COSMOSHUB_MAINNET,
-  })
-
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
     if (accountSpecifier[cosmosChainId]) {
@@ -383,7 +360,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
-  const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
+  const priceHistoryData = useAppSelector(state =>
+    selectCryptoPriceHistoryTimeframe(state, timeframe),
+  )
   const priceHistoryDataLoading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
@@ -394,9 +373,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // calculation
   useEffect(() => {
     // data prep
-    const noDeviceId = isNil(walletInfo?.deviceId)
-    const noAssetIds = !assetIds.length
-    if (noDeviceId || noAssetIds || priceHistoryDataLoading) {
+    const hasNoDeviceId = isNil(walletInfo?.deviceId)
+    const hasNoAssetIds = !assetIds.length
+    const hasNoPriceHistoryData = isEmpty(priceHistoryData)
+    if (hasNoDeviceId || hasNoAssetIds || priceHistoryDataLoading || hasNoPriceHistoryData) {
       return setBalanceChartDataLoading(true)
     }
 
@@ -414,11 +394,14 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       delegationTotal,
     })
 
+    debugCharts({ assets, calculatedBuckets, txs })
+
     const chartData = bucketsToChartData(calculatedBuckets)
 
     setBalanceChartData(chartData)
     setBalanceChartDataLoading(false)
   }, [
+    assets,
     assetIds,
     accountIds,
     priceHistoryData,
@@ -434,4 +417,40 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   ])
 
   return { balanceChartData, balanceChartDataLoading }
+}
+
+type DebugChartsArgs = {
+  assets: AssetsById
+  calculatedBuckets: Bucket[]
+  txs: Tx[]
+}
+
+type DebugCharts = (args: DebugChartsArgs) => void
+
+const debugCharts: DebugCharts = ({ assets, calculatedBuckets, txs }) => {
+  /**
+   * there is a long tail of potentially obscure bugs in the charts
+   * the best way to address this is log when it happens, and fix the edge cases
+   */
+  if (!txs?.length) return // no chart if no txs
+  const firstTxTimestamp = txs[0].blockTime * 1000 // unchained uses seconds
+  const firstBucket = calculatedBuckets[0]
+  const startOfChartTimestamp = firstBucket.start.valueOf()
+  const shouldHaveZeroBalance = firstTxTimestamp > startOfChartTimestamp
+  if (!shouldHaveZeroBalance) return
+  Object.entries(firstBucket.balance.crypto).forEach(([assetId, balance]) => {
+    if (balance.eq(0)) return // this is expected, charts should be zero at the beginning
+    /**
+     * at this point, we have a non zero balance for an asset at the start of the chart
+     * but the earlierst tx is after the start of the chart - this should not happen
+     * and something is wrong
+     */
+    const asset = assets[assetId]
+    const baseUnitBalance = balance.toString()
+    const baseUnitHuman = balance.div(bn(10).exponentiatedBy(asset.precision)).toString()
+    moduleLogger.error(
+      { asset, assetId, baseUnitBalance, baseUnitHuman, balance },
+      'NON-ZERO BALANCE AT START OF CHART',
+    )
+  })
 }

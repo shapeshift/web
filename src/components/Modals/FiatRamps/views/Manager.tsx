@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
@@ -18,11 +19,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
 import { logger } from 'lib/logger'
-import {
-  ChainIdType,
-  ethChainId,
-  isAssetSupportedByWallet,
-} from 'state/slices/portfolioSlice/utils'
+import { ChainIdType, isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 
 import { FiatRamp } from '../config'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'

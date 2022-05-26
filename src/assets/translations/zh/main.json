@@ -107,7 +107,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift 平台",
-    "alpha": "α版",
     "exploreThe": "探索",
     "defiUniverse": "去中心化金融的宇宙",
     "body": "100%免费。 完全开源。 社区拥有。 非托管。 高度私密。",
@@ -137,7 +136,7 @@
           "rateFluctuationInfo": "您赚取的 %{assetName} 比率，即年利率 (APR)，通常在 7% - 20% 之间波动。",
           "amountStakingInfo": "您可以质押任意数量的 %{assetName}，他们会立即开始赚取奖励。",
           "withdrawInfo": "您可以随时提取奖励，这需要大约 0.01 美元的小额 gas 费用。",
-          "unbondingInfo": "当您取消质押代币时，他们将被继续锁定 14 天，在此期间他们不会产生收益。 14 天后，您的 %{assetName} 将返还到您的主钱包。",
+          "unbondingInfo": "当您取消质押代币时，他们将被继续锁定 %{unbondingDays} 天，在此期间他们不会产生收益。 %{unbondingDays} 天后，您的 %{assetName} 将返还到您的主钱包。",
           "slashingInfo": "质押是通过验证者完成的。这种情况非常罕见，但如果您质押的验证者因允许虚假或错误的交易通过而作恶，您可能会损失部分资产。",
           "partnerInfo": "我们通过与信誉良好的验证者合作降低了这种风险，验证者拥有安全、可靠且经过审计的基础设施。"
         },
@@ -305,6 +304,12 @@
     "amount": "金额",
     "for": "为了",
     "parser": {
+      "weth": {
+        "deposit": "存款",
+        "approve": "批准",
+        "withdraw": "取款",
+        "receive": "收到"
+      },
       "yearn": {
         "deposit": "存款",
         "approve": "批准",

@@ -2,7 +2,6 @@ import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss
 import { MarketDataState } from 'state/slices/marketDataSlice/marketDataSlice'
 import { AccountRowData } from 'state/slices/portfolioSlice/selectors'
 
-import { assetIds } from './../../../../test/mocks/accounts'
 import { enrichAsset } from './enrichAsset'
 
 const assets: Asset[] = [
@@ -137,7 +136,7 @@ describe('enrichAsset', () => {
     )
 
     expect(Number(secondAsset.marketCap)).toEqual(
-        Number(marketData.crypto.byId[secondAsset.assetId]?.marketCap),
+      Number(marketData.crypto.byId[secondAsset.assetId]?.marketCap),
     )
   })
 })

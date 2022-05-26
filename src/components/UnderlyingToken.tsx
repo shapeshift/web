@@ -1,9 +1,7 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import toLower from 'lodash/toLower'
 import { useEffect, useMemo, useState } from 'react'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { Card } from 'components/Card/Card'
@@ -25,7 +23,7 @@ const moduleLogger = logger.child({ namespace: ['UnderlyingToken'] })
 // In the future we should add a hook to get the provider interface by vault provider
 export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   const [underlyingAssetId, setUnderlyingAssetId] = useState('')
-  const { loading, yearn } = useYearn()
+  const { loading, yearn: yearnInvestor } = useYearn()
   const vaults: SupportedYearnVault[] = useYearnVaults()
 
   // Get asset from assetId
@@ -39,7 +37,7 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
     return vaults.find(_vault => _vault.vaultAddress === asset.tokenId)
   }, [vaults, asset.tokenId])
 
-  const shouldHide = !asset?.tokenId || !yearn || !vault
+  const shouldHide = !asset?.tokenId || !yearnInvestor || !vault
 
   useEffect(() => {
     ;(async () => {
@@ -49,19 +47,16 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
           { tokenId: asset.tokenId, chain: asset.chain, fn: 'yearn.token' },
           'Get Yearn Token',
         )
-        const token = await yearn.token({ vaultAddress: asset.tokenId! })
-        const chain = asset.chain
-        const network = NetworkTypes.MAINNET
-        const assetNamespace = 'erc20'
-        const assetReference = toLower(token)
-        const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+        const opportunity = await yearnInvestor.findByOpportunityId(asset.tokenId!)
+        if (!opportunity) return
+        const assetId = opportunity.underlyingAsset.assetId
         moduleLogger.trace({ assetId, fn: 'yearn.token' }, 'Yearn Asset')
         setUnderlyingAssetId(assetId)
       } catch (error) {
         moduleLogger.error(error, 'yearn.token() failed')
       }
     })()
-  }, [shouldHide, asset.tokenId, asset.chain, vault, wallet, yearn])
+  }, [shouldHide, asset.tokenId, asset.chain, vault, wallet, yearnInvestor])
 
   if (shouldHide || loading || !underlyingAssetId) return null
 

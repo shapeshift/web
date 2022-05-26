@@ -77,7 +77,7 @@ const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) =>
           <Route path={YearnPath.Withdraw} key={YearnPath.Withdraw}>
             <MemoryRouter>
               <SlideTransition>
-                <YearnWithdraw api={yearn} />
+                <YearnWithdraw yearnInvestor={yearn} />
               </SlideTransition>
             </MemoryRouter>
           </Route>

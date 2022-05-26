@@ -66,7 +66,7 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress)) return
+        if (!(walletState.wallet && vaultAddress && yearnInvestor)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           yearnInvestor.findByOpportunityId(vaultAddress),

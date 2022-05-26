@@ -27,11 +27,11 @@ export const YearnProvider: React.FC = ({ children }) => {
       try {
         if (!chainAdapterManager.getSupportedChains().includes(ChainTypes.Ethereum)) return
         setLoading(true)
-        const api = new YearnInvestor({
+        const yearnInvestor = new YearnInvestor({
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
         })
-        await api.initialize()
-        setYearn(api)
+        await yearnInvestor.initialize()
+        setYearn(yearnInvestor)
       } catch (error) {
         console.error('YearnManager: error', error)
       } finally {

@@ -38,7 +38,7 @@ type FoxTabProps = {
 const GetFoxyModalRoute = FoxyPath.Overview
 const GetFoxCoinbaseExternalUrl = `https://www.coinbase.com/price/fox-token`
 
-export const AssetActions = ({ assetId }: FoxTabProps) => {
+export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
@@ -50,7 +50,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
   const isFoxAsset = assetId === FoxAssetId
 
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
-  const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
+  const accountId = accountIds?.[0]
   const {
     state: { isConnected },
     dispatch,
@@ -59,7 +59,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset, accountId: singleAccount }) : handleWalletModalOpen()
+    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
 
   const onGetAssetClick = () => {
     history.push({

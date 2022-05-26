@@ -28,7 +28,7 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   const isLoaded = !query.isLoading
 
   // Collapse about section any time description changes
-  useLayoutEffect(() => {
+  useEffect(() => {
     setShowDescription(false)
   }, [description])
 

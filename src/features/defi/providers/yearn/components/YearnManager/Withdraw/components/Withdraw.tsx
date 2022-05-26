@@ -1,5 +1,4 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import {
   Withdraw as ReusableWithdraw,
   WithdrawValues,
@@ -9,6 +8,7 @@ import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -26,18 +26,16 @@ export const Withdraw = () => {
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const opportunity = state?.opportunity
 
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: tokenId,
   })
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: vaultAddress,
   })

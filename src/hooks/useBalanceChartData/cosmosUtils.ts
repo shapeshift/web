@@ -1,13 +1,11 @@
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, cosmosChainId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { Bucket } from './useBalanceChartData'
 
 const cosmosAssetId = toAssetId({
-  chain: ChainTypes.Cosmos,
-  network: NetworkTypes.COSMOSHUB_MAINNET,
+  chainId: cosmosChainId,
   assetNamespace: 'slip44',
   assetReference: ASSET_REFERENCE.Cosmos,
 })

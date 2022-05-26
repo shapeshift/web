@@ -44,7 +44,7 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
       try {
         if (shouldHide || !wallet) return
         moduleLogger.trace(
-          { tokenId: asset.tokenId, chain: asset.chain, fn: 'yearn.token' },
+          { tokenId: asset.tokenId, chain: asset.chainId, fn: 'yearn.token' },
           'Get Yearn Token',
         )
         const opportunity = await yearnInvestor.findByOpportunityId(asset.tokenId!)
@@ -56,7 +56,7 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
         moduleLogger.error(error, 'yearn.token() failed')
       }
     })()
-  }, [shouldHide, asset.tokenId, asset.chain, vault, wallet, yearnInvestor])
+  }, [shouldHide, asset.tokenId, asset.chainId, vault, wallet, yearnInvestor])
 
   if (shouldHide || loading || !underlyingAssetId) return null
 

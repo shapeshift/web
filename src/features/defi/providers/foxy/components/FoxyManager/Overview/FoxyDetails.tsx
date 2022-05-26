@@ -1,6 +1,5 @@
 import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchPath } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -9,6 +8,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -31,18 +31,16 @@ export const FoxyDetails = () => {
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: tokenId,
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const rewardAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: rewardId,
   })

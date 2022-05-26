@@ -1,6 +1,6 @@
 import { AssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -9,6 +9,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -66,20 +67,17 @@ async function getFoxyOpportunities(
         userAddress,
       })
       const rewardTokenAssetId = toAssetId({
-        chain: opportunity.chain,
-        network: NetworkTypes.MAINNET,
+        chainId: chainTypeToMainnetChainId(opportunity.chain),
         assetNamespace: 'erc20',
         assetReference: opportunity.rewardToken,
       })
       const contractAssetId = toAssetId({
-        chain: opportunity.chain,
-        network: NetworkTypes.MAINNET,
+        chainId: chainTypeToMainnetChainId(opportunity.chain),
         assetNamespace: 'erc20',
         assetReference: opportunity.contractAddress,
       })
       const tokenAssetId = toAssetId({
-        chain: opportunity.chain,
-        network: NetworkTypes.MAINNET,
+        chainId: chainTypeToMainnetChainId(opportunity.chain),
         assetNamespace: 'erc20',
         assetReference: opportunity.stakingToken,
       })

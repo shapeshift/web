@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext } from 'react'
@@ -8,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -30,9 +30,9 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   const { chain, tokenId } = query
   const opportunity = state?.opportunity
 
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 

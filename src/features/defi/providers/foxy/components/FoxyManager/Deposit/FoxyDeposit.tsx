@@ -1,7 +1,6 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
@@ -15,6 +14,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -41,9 +41,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId } = query
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

@@ -1,7 +1,6 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -14,6 +13,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,14 +32,14 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
   const { chain, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
   const chainAdapterManager = useChainAdapters()
-  const network = NetworkTypes.MAINNET
   const opportunity = state?.opportunity
 
+
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
@@ -71,7 +71,7 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       const preparedTransaction = await opportunity.prepareApprove(state.userAddress)
       // TODO(theobold): change to byChainId
-      const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+      const chainAdapter = chainAdapterManager.byChainId(chainId)
       await opportunity.signAndBroadcast(
         { wallet: walletState.wallet, chainAdapter },
         preparedTransaction,

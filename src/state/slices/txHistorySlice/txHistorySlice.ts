@@ -1,21 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import {
-  AssetId,
-  ChainId,
-  fromChainId,
-  toAccountId,
-  toAssetId,
-  toChainId,
-} from '@shapeshiftoss/caip'
+import { AssetId, ChainId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
+import { chainIdToChainType } from 'lib/utils'
 import {
   AccountSpecifier,
   AccountSpecifierMap,
@@ -275,10 +269,8 @@ export const txHistoryApi = createApi({
         if (!foxyTokenContractAddressWithBalances.length) return { data: [] }
 
         // we load rebase history on app load, but pass in all the specifiers
-        const chain = ChainTypes.Ethereum
-        const network = NetworkTypes.MAINNET
         // foxy is only on eth mainnet
-        const chainId = toChainId({ chain, network })
+        const chainId = ethChainId
         const entries = Object.entries(accountSpecifierMap)[0]
         const [accountChainId, userAddress] = entries
 
@@ -301,15 +293,17 @@ export const txHistoryApi = createApi({
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
 
-        foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
-          const assetReference = tokenContractAddress
-          const assetNamespace = 'erc20'
-          const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
-          const rebaseHistoryArgs = { userAddress, tokenContractAddress }
-          const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
-          const upsertPayload = { accountId: accountSpecifier, assetId, data }
-          if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-        })
+        await Promise.all(
+          foxyTokenContractAddressWithBalances.map(async tokenContractAddress => {
+            const rebaseHistoryArgs = { userAddress, tokenContractAddress }
+            const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
+            const assetReference = tokenContractAddress
+            const assetNamespace = 'erc20'
+            const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+            const upsertPayload = { accountId: accountSpecifier, assetId, data }
+            if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
+          }),
+        )
 
         // we don't really care about the caching of this, we're dispatching
         // into another part of the portfolio above, we kind of abuse RTK query,
@@ -329,7 +323,7 @@ export const txHistoryApi = createApi({
         try {
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
-          const { chain } = fromChainId(chainId)
+          const chain = chainIdToChainType(chainId)
           const adapter = chainAdapters.byChain(chain)
           let currentCursor: string = ''
           const pageSize = 100

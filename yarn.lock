@@ -3788,10 +3788,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^4.2.3":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.2.3.tgz#571ba2e356ab17e59917a5e87df81a5fa6496198"
-  integrity sha512-7S0nAXZG39XPjUgHzHUWzX3SVNHly2+4PHTIG3cZX36brmf1tdbh6iR6RMTIOxVV6pn4BHEH+CpXtFK1MY1fXg==
+"@shapeshiftoss/asset-service@^4.2.4":
+  version "4.2.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.2.4.tgz#065295e49fa46a5979c0d6519e8bc4b999f8c3cb"
+  integrity sha512-AiKM4skT2pllqPPjrd1gwL6tNtRTUOv0ToVRBu45VGZHM+VTGr+jOIWZIjGNDXgVEDoNVH/B4DPn18lTYTTCqw==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"
@@ -4012,10 +4012,10 @@
     "@shapeshiftoss/hdwallet-core" "1.22.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/investor-foxy@^3.0.0":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.0.1.tgz#64ae368f117ad98c5933b7bc2baff5798e880641"
-  integrity sha512-ImAGOn/vdfd1g1lMwncQzo0fXGpIZ+JrhaBIXnVtB2HZiA0CakZ1sFDj6L2x+Rn7XWv2ENrJYEFcUD6XE5Sq9w==
+"@shapeshiftoss/investor-foxy@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.1.1.tgz#bd2bbf1adb5dd65956268b22d13ba73ae18eff37"
+  integrity sha512-6Kbxbf2/7rpm63xbveoIBiiSyV6KKH5w0FzoOASdH2gcgx79isdUnHWq/wyFLekqsLMn/lItelkyeqKBu7uvuw==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"
@@ -4025,10 +4025,10 @@
     web3-core "^1.7.1"
     web3-utils "^1.7.1"
 
-"@shapeshiftoss/investor-yearn@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-2.0.0.tgz#c7c201a1ab2a681529f00c19ee4d483634e34a49"
-  integrity sha512-IB1xfgbg4Pnih7eMUW1YXkDFdfwF8sj/oVc3FCwFTE5UiEaUzsNYbKQqmbtuAsxGGZdYn2jog6I4gIn8uzw1Hw==
+"@shapeshiftoss/investor-yearn@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-2.0.2.tgz#59d12c3c33011c22d5b0a3c39aa4fe5a5fd7ffec"
+  integrity sha512-i7XmXmF6Rk9N7etr5XEIyAOVXR7LzlXZH0liIFmo3cLddn3Sc6O5BytcQLh5oW9iFZeba48s9R6T/ZsGIJtpqA==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"

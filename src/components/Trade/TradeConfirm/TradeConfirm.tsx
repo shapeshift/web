@@ -58,6 +58,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   )
   const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
 
+  console.log('parsedTxId', parsedTxId)
+  console.log('status', status)
+
   const { showErrorToast } = useErrorHandler()
 
   const onSubmit = async () => {
@@ -74,18 +77,23 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await executeQuote({ wallet })
-
       console.log('executeQuote result', result)
-      const interval = setInterval(async () => {
-        console.log('checking trade status on interval')
-        const status = await checkTradeStatus(result)
-        console.log('status is', status)
-        if (status.buyTxid) {
-          console.log('setting the txid and clearing interval')
-          setTxid(status.buyTxid)
-          clearInterval(interval)
-        }
-      }, 1000 * 30 * 1) // refetch every 30 seconds
+      const initialStatus = await checkTradeStatus(result)
+      if (initialStatus.buyTxid) {
+        console.log('have txid immedietly')
+        setTxid(initialStatus.buyTxid)
+      } else {
+        const interval = setInterval(async () => {
+          console.log('checking trade status on interval')
+          const status = await checkTradeStatus(result)
+          console.log('status1 is', status)
+          if (status.buyTxid) {
+            console.log('setting the txid and clearing interval')
+            setTxid(status.buyTxid)
+            clearInterval(interval)
+          }
+        }, 1000 * 5 * 1) // refetch every 5 seconds
+      }
 
       // const transactionId = result?.txid
       // if (transactionId) {

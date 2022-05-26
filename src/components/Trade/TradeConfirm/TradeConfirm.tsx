@@ -37,7 +37,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<SupportedChainIds>>()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
-  const { executeQuote, reset } = useSwapper()
+  const { executeQuote, reset, checkTradeStatus } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
   const {
@@ -74,10 +74,23 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await executeQuote({ wallet })
-      const transactionId = result?.txid
-      if (transactionId) {
-        setTxid(transactionId)
-      }
+
+      console.log('executeQuote result', result)
+      const interval = setInterval(async () => {
+        console.log('checking trade status on interval')
+        const status = await checkTradeStatus(result)
+        console.log('status is', status)
+        if (status.buyTxid) {
+          console.log('setting the txid and clearing interval')
+          setTxid(status.buyTxid)
+          clearInterval(interval)
+        }
+      }, 1000 * 30 * 1) // refetch every 30 seconds
+
+      // const transactionId = result?.txid
+      // if (transactionId) {
+      //   setTxid(transactionId)
+      // }
     } catch (e) {
       showErrorToast(e)
     }

@@ -6,6 +6,7 @@ import {
   Trade,
   TradeQuote,
   TradeResult,
+  TradeStatus,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
 import { Asset, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
@@ -152,6 +153,15 @@ export const useSwapper = () => {
     setFees(result, sellAsset)
     setValue('trade', result)
     return result
+  }
+
+  const checkTradeStatus = async (tradeResult: TradeResult): Promise<TradeStatus> => {
+    const swapper = await swapperManager.getBestSwapper({
+      buyAssetId: trade.buyAsset.assetId,
+      sellAssetId: trade.sellAsset.assetId,
+    })
+    if (!swapper) throw new Error('no swapper available')
+    return swapper.getTradeStatus(tradeResult)
   }
 
   const executeQuote = async ({ wallet }: { wallet: HDWallet }): Promise<TradeResult> => {
@@ -310,5 +320,6 @@ export const useSwapper = () => {
     getSendMaxAmount,
     reset,
     feeAsset,
+    checkTradeStatus,
   }
 }

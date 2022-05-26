@@ -49,7 +49,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   }, [assets])
 
   const sortByAccountAndMarketCap = (assets: Asset[]): Asset[] => {
-    return _.sortBy(assets, ['cryptoAmount', 'marketCap']).reverse()
+    return _.sortBy(assets, ['fiatAmount', 'marketCap']).reverse()
   }
 
   const sortedAssets = sortByAccountAndMarketCap(enrichAsset(assets, rowData, marketData))

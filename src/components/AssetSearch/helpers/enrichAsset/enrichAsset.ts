@@ -15,11 +15,13 @@ export const enrichAsset = (
   marketData: MarketDataState,
 ): Asset[] => {
   return assets.map(asset => {
-    const amount = rowData.find(d => d.assetId === asset.assetId)?.cryptoAmount
+    const fAmount = rowData.find(d => d.assetId === asset.assetId)?.fiatAmount
+    const cAmount = rowData.find(d => d.assetId === asset.assetId)?.cryptoAmount
     const assetMarketData = marketData.crypto.byId[asset.assetId]
     return {
       ...asset,
-      cryptoAmount: amount ? Number(amount) : 0,
+      fiatAmount: fAmount ? Number(fAmount) : 0,
+      cryptoAmount: cAmount ? Number(cAmount) : 0,
       marketCap: assetMarketData ? Number(assetMarketData.marketCap) : 0,
     } as Asset
   })

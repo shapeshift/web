@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.0.2...@shapeshiftoss/investor-yearn-v2.1.0) (2022-05-26)
+
+
+### Features
+
+* thorswapper initialize ([#703](https://github.com/shapeshift/lib/issues/703)) ([73cc081](https://github.com/shapeshift/lib/commit/73cc081b66cc58177415bf425f7899b289cc33af))
+
 # [@shapeshiftoss/investor-yearn-v2.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.0.1...@shapeshiftoss/investor-yearn-v2.0.2) (2022-05-24)
 
 # [@shapeshiftoss/investor-yearn-v2.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.0.0...@shapeshiftoss/investor-yearn-v2.0.1) (2022-05-18)

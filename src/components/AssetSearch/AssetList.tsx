@@ -74,7 +74,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   }
 
   const sortedAssets = sortByAccountAndMarketCap(enrichAsset(assets))
-  
+
   return (
     <AutoSizer disableWidth className='auto-sizered'>
       {({ height }) =>

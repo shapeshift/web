@@ -4,12 +4,13 @@ import {
   SupportedYearnVault,
   YearnVaultApi,
 } from '@shapeshiftoss/investor-yearn'
-import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -28,14 +29,12 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
     // TODO: assetIds in vaults
     const vault = vaults[index]
     const vaultAssetId = toAssetId({
-      chain: vault.chain,
-      network: NetworkTypes.MAINNET,
+      chainId: chainTypeToMainnetChainId(vault.chain),
       assetNamespace: 'erc20',
       assetReference: vault.vaultAddress,
     })
     const tokenAssetId = toAssetId({
-      chain: vault.chain,
-      network: NetworkTypes.MAINNET,
+      chainId: chainTypeToMainnetChainId(vault.chain),
       assetNamespace: 'erc20',
       assetReference: vault.tokenAddress,
     })

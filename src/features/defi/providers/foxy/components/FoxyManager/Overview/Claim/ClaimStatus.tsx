@@ -1,6 +1,6 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
 import { useEffect, useState } from 'react'
@@ -19,6 +19,7 @@ import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -73,11 +74,10 @@ export const ClaimStatus = () => {
   })
 
   // Asset Info
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
@@ -97,7 +97,7 @@ export const ClaimStatus = () => {
         const gasPrice = await foxy.getGasPrice()
         setState({
           ...state,
-          txStatus: transactionReceipt.status === true ? TxStatus.SUCCESS : TxStatus.FAILED,
+          txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
         })
       } catch (error) {

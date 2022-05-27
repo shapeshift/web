@@ -37,7 +37,6 @@ export type YearnWithdrawState = {
   approve: EstimatedGas
   withdraw: YearnWithdrawValues
   loading: boolean
-  pricePerShare: string
   txid: string | null
 }
 
@@ -46,7 +45,6 @@ export enum YearnWithdrawActionType {
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
   SET_TX_STATUS = 'SET_TX_STATUS',
 }
@@ -71,11 +69,6 @@ type SetLoading = {
   payload: boolean
 }
 
-type SetPricePerShare = {
-  type: YearnWithdrawActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
 type SetTxid = {
   type: YearnWithdrawActionType.SET_TXID
   payload: string
@@ -86,5 +79,4 @@ export type YearnWithdrawActions =
   | SetWithdraw
   | SetUserAddress
   | SetLoading
-  | SetPricePerShare
   | SetTxid

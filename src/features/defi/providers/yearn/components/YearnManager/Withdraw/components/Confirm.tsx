@@ -121,7 +121,7 @@ export const Confirm = () => {
           ...underlyingAsset,
           color: '#FF0000',
           cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-            .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
+            .times(bnOrZero(state.opportunity?.positionAsset.price).div(`1e+${asset.precision}`))
             .toString(),
           fiatAmount: state.withdraw.fiatAmount,
         },

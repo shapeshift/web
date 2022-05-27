@@ -6,7 +6,6 @@ export const initialState: YearnDepositState = {
   userAddress: null,
   loading: false,
   approve: {},
-  pricePerShare: '',
   deposit: {
     fiatAmount: '',
     cryptoAmount: '',
@@ -31,8 +30,6 @@ export const reducer = (
       return { ...state, userAddress: action.payload }
     case YearnDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case YearnDepositActionType.SET_PRICE_PER_SHARE:
-      return { ...state, pricePerShare: action.payload }
     case YearnDepositActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:

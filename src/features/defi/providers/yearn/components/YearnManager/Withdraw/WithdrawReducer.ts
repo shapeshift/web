@@ -8,7 +8,6 @@ export const initialState: YearnWithdrawState = {
   userAddress: null,
   loading: false,
   approve: {},
-  pricePerShare: '',
   withdraw: {
     fiatAmount: '',
     cryptoAmount: '',
@@ -32,8 +31,6 @@ export const reducer = (
       return { ...state, userAddress: action.payload }
     case YearnWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case YearnWithdrawActionType.SET_PRICE_PER_SHARE:
-      return { ...state, pricePerShare: action.payload }
     case YearnWithdrawActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:

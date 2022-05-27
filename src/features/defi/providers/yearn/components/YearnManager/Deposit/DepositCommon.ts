@@ -41,7 +41,6 @@ export type YearnDepositState = {
   approve: EstimatedGas
   deposit: YearnDepositValues
   loading: boolean
-  pricePerShare: string
   txid: string | null
 }
 
@@ -51,7 +50,6 @@ export enum YearnDepositActionType {
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
 }
 
@@ -80,11 +78,6 @@ type SetLoading = {
   payload: boolean
 }
 
-type SetPricePerShare = {
-  type: YearnDepositActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
 type SetTxid = {
   type: YearnDepositActionType.SET_TXID
   payload: string
@@ -96,5 +89,4 @@ export type YearnDepositActions =
   | SetDeposit
   | SetUserAddress
   | SetLoading
-  | SetPricePerShare
   | SetTxid

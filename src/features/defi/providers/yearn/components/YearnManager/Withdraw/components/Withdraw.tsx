@@ -104,7 +104,9 @@ export const Withdraw = () => {
   }
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-  const pricePerShare = bnOrZero(state.pricePerShare).div(`1e+${asset?.precision}`)
+  const pricePerShare = bnOrZero(state.opportunity?.positionAsset.price).div(
+    `1e+${asset?.precision}`,
+  )
   const vaultTokenPrice = pricePerShare.times(marketData.price)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 

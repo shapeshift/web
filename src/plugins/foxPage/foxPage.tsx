@@ -52,9 +52,13 @@ export type FoxPageProps = {
   activeAssetId: AssetId
 }
 
+const FOX_DESCRIPTION =
+  'Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.'
 export const FoxPage = (props: FoxPageProps) => {
   const translate = useTranslate()
   const history = useHistory()
+
+  // TODO(gomes): Use useRouteAssetId and selectAssetById programatically
   const assetFox = useAppSelector(state => selectAssetById(state, FoxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, FoxyAssetId))
 
@@ -99,7 +103,10 @@ export const FoxPage = (props: FoxPageProps) => {
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
-  const { description } = assetFox || {}
+  const description =
+    selectedAsset?.assetId === 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+      ? FOX_DESCRIPTION // FOX has a custom description, other assets can use the asset-service one
+      : selectedAsset?.description
   const query = useGetAssetDescriptionQuery(FoxAssetId)
   const isLoaded = !query.isLoading
 

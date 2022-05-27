@@ -10,6 +10,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
@@ -48,8 +49,7 @@ export const OpportunityCard = ({
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
-  // TODO(gomes): when we find new home for "supported chainIds", use it here. Don't metastize supportedChainId imports from caip
-  const isCosmosStaking = chainId === 'cosmos:cosmoshub-4'
+  const isCosmosStaking = chainId === cosmosChainId
 
   const {
     state: { isConnected },

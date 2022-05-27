@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -48,8 +49,7 @@ export const AllEarnOpportunities = () => {
         return
       }
 
-      // TODO(gomes): when we find new home for "supported chainIds", use it here. Don't metastize supportedChainId imports from caip
-      if (chainId === 'cosmos:cosmoshub-4') {
+      if (chainId === cosmosChainId) {
         cosmosStaking.open({
           assetId,
           validatorAddress: contractAddress,

@@ -1,10 +1,11 @@
+import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import { ChainId } from '@shapeshiftoss/caip'
 
 export const chainIdToLabel = (chainId: ChainId): string => {
   switch (chainId) {
-    case 'cosmos:cosmoshub-4':
+    case cosmosChainId:
       return 'Cosmos'
-    case 'cosmos:osmosis-1':
+    case osmosisChainId:
       return 'Osmosis'
     default: {
       return ''

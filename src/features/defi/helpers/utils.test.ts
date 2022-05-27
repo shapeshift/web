@@ -1,16 +1,14 @@
-import { ChainTypes } from '@shapeshiftoss/types'
+import { chainIdToLabel } from './utils'
 
-import { chainTypeToLabel } from './utils'
-
-describe('chainTypeToLabel', () => {
+describe('chainIdToLabel', () => {
   it('can get label from chaintype', () => {
-    let result = chainTypeToLabel(ChainTypes.Cosmos)
+    let result = chainIdToLabel('cosmos:cosmoshub-4')
     expect(result).toEqual('Cosmos')
 
-    result = chainTypeToLabel(ChainTypes.Osmosis)
+    result = chainIdToLabel('cosmos:osmosis-1')
     expect(result).toEqual('Osmosis')
 
-    result = chainTypeToLabel(ChainTypes.Ethereum)
+    result = chainIdToLabel('eip155:1')
     expect(result).toEqual('')
   })
 })

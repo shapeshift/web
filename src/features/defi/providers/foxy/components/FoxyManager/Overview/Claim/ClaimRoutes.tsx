@@ -1,15 +1,10 @@
-<<<<<<< HEAD
-import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
-=======
-import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
->>>>>>> 23e5c817 (feat: DeFi chain -> chainId qs refactor)
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { ClaimConfirm } from './ClaimConfirm'
@@ -32,7 +27,7 @@ type ClaimRouteProps = {
 export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, tokenId, chainId } = query
-  const { chain } = fromChainId(chainId)
+
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
@@ -51,7 +46,7 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
           <Route exact path='/'>
             <ClaimConfirm
               assetId={stakingAssetId}
-              chain={chain}
+              chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
               amount={opportunity?.withdrawInfo.amount}

@@ -32,7 +32,6 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
   const { chainId, contractAddress, rewardId } = query
   const toast = useToast()
 
-  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({

@@ -2,6 +2,7 @@ import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -27,6 +28,7 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { yearn: yearnInvestor } = useYearn()
   const { chain, tokenId } = query
   const opportunity = state?.opportunity
 
@@ -47,7 +49,11 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   const getApproveGasEstimate = async (): Promise<string | undefined> => {
     if (!(state.userAddress && tokenId && opportunity)) return
     try {
-      const preparedApproval = await opportunity.prepareApprove(state.userAddress)
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedApproval = await yearnOpportunity.prepareApprove(state.userAddress)
       return bnOrZero(preparedApproval.gasPrice)
         .times(preparedApproval.gasLimit)
         .integerValue()
@@ -69,7 +75,11 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
     dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
     try {
       // Check is approval is required for user address
-      const _allowance = await opportunity.allowance(state.userAddress)
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const _allowance = await yearnOpportunity.allowance(state.userAddress)
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
       // Skip approval step if user allowance is greater than requested deposit amount

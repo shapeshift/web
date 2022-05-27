@@ -1,9 +1,12 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -32,8 +35,8 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
   const { chain, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
   const chainAdapterManager = useChainAdapters()
+  const { yearn: yearnInvestor } = useYearn()
   const opportunity = state?.opportunity
-
 
   const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
@@ -69,16 +72,21 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
 
     try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
-      const preparedTransaction = await opportunity.prepareApprove(state.userAddress)
-      // TODO(theobold): change to byChainId
-      const chainAdapter = chainAdapterManager.byChainId(chainId)
-      await opportunity.signAndBroadcast(
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedTransaction = await yearnOpportunity.prepareApprove(state.userAddress)
+      const chainAdapter = chainAdapterManager.byChainId(
+        chainId,
+      ) as ChainAdapter<ChainTypes.Ethereum>
+      await yearnOpportunity.signAndBroadcast(
         { wallet: walletState.wallet, chainAdapter },
         preparedTransaction,
       )
       const address = state.userAddress
       await poll({
-        fn: () => opportunity.allowance(address),
+        fn: () => yearnOpportunity.allowance(address),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)

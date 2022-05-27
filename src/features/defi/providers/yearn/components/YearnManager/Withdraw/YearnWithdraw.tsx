@@ -68,7 +68,9 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
         if (!(walletState.wallet && vaultAddress && yearnInvestor)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          yearnInvestor.findByOpportunityId(vaultAddress),
+          yearnInvestor.findByOpportunityId(
+            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
+          ),
         ])
         if (!opportunity) {
           return toast({
@@ -79,7 +81,7 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
           })
         }
         dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnWithdrawActionType.SET_VAULT, payload: opportunity })
+        dispatch({ type: YearnWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnWithdraw error:', error)

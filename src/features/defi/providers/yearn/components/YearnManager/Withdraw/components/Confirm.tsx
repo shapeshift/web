@@ -1,7 +1,11 @@
 import { Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -26,6 +30,7 @@ export const Confirm = () => {
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const chainAdapterManager = useChainAdapters()
+  const { yearn: yearnInvestor } = useYearn()
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const opportunity = state?.opportunity
 
@@ -70,12 +75,18 @@ export const Confirm = () => {
       )
         return
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
-      const preparedTransaction = await opportunity.prepareWithdrawal({
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedTransaction = await yearnOpportunity.prepareWithdrawal({
         address: state.userAddress,
         amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
-      const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-      const txid = await opportunity.signAndBroadcast(
+      const chainAdapter = chainAdapterManager.byChainId(
+        chainId,
+      ) as ChainAdapter<ChainTypes.Ethereum>
+      const txid = await yearnOpportunity.signAndBroadcast(
         { wallet: walletState.wallet, chainAdapter },
         preparedTransaction,
       )

@@ -4,6 +4,7 @@ import {
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -23,6 +24,7 @@ export const Withdraw = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { yearn: yearnInvestor } = useYearn()
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const opportunity = state?.opportunity
 
@@ -50,7 +52,11 @@ export const Withdraw = () => {
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     if (!(state.userAddress && opportunity && tokenId)) return
     try {
-      const preparedTx = await opportunity.prepareWithdrawal({
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        opportunity?.positionAsset.assetId,
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedTx = await yearnOpportunity.prepareWithdrawal({
         amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
         address: state.userAddress,
       })

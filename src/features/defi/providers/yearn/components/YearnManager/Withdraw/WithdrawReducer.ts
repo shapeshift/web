@@ -19,10 +19,13 @@ export const initialState: YearnWithdrawState = {
   },
 }
 
-export const reducer = (state: YearnWithdrawState, action: YearnWithdrawActions) => {
+export const reducer = (
+  state: YearnWithdrawState,
+  action: YearnWithdrawActions,
+): YearnWithdrawState => {
   switch (action.type) {
-    case YearnWithdrawActionType.SET_VAULT:
-      return { ...state, vault: { ...state.opportunity, ...action.payload } }
+    case YearnWithdrawActionType.SET_OPPORTUNITY:
+      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case YearnWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case YearnWithdrawActionType.SET_USER_ADDRESS:

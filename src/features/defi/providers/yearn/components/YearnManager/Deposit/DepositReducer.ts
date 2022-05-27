@@ -16,10 +16,13 @@ export const initialState: YearnDepositState = {
   },
 }
 
-export const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
+export const reducer = (
+  state: YearnDepositState,
+  action: YearnDepositActions,
+): YearnDepositState => {
   switch (action.type) {
-    case YearnDepositActionType.SET_VAULT:
-      return { ...state, vault: { ...state.opportunity, ...action.payload } }
+    case YearnDepositActionType.SET_OPPORTUNITY:
+      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case YearnDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case YearnDepositActionType.SET_DEPOSIT:

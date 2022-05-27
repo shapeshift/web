@@ -60,7 +60,9 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
         if (!(walletState.wallet && vaultAddress)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          yearnInvestor.findByOpportunityId(vaultAddress),
+          yearnInvestor.findByOpportunityId(
+            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
+          ),
         ])
         if (!opportunity) {
           return toast({
@@ -72,18 +74,22 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
         }
 
         dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnDepositActionType.SET_VAULT, payload: opportunity })
+        dispatch({ type: YearnDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnDeposit error:', error)
       }
     })()
-  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast])
+  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
     if (!(state.userAddress && state.opportunity && tokenId)) return
     try {
-      const preparedTx = await state.opportunity?.prepareDeposit({
+      const yearnOpportunity = await yearnInvestor.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedTx = await yearnOpportunity.prepareDeposit({
         amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
         address: state.userAddress,
       })

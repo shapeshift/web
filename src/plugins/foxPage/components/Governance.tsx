@@ -34,8 +34,8 @@ export const Governance = () => {
             color='gray.500'
           />
         </Card.Header>
-        {governanceData?.data.map(proposal => (
-          <Card.Body>
+        {governanceData?.data.map((proposal, i) => (
+          <Card.Body key={i}>
             <Box>
               <Link
                 isExternal
@@ -48,7 +48,7 @@ export const Governance = () => {
                 <CText>{proposal.title}</CText>
               </Link>
               {proposal.choices.map((choice, i) => (
-                <Box mb={4}>
+                <Box mb={4} key={i}>
                   <Flex justifyContent='space-between' mb={2}>
                     <CText fontWeight='semibold'>{choice}</CText>
 

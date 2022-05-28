@@ -1,5 +1,4 @@
-import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { MarketDataState } from 'state/slices/marketDataSlice/marketDataSlice'
+import { Asset, AssetDataSource, ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { AccountRowData } from 'state/slices/portfolioSlice/selectors'
 
 import { enrichAsset } from './enrichAsset'
@@ -74,43 +73,18 @@ const rowData: AccountRowData[] = [
   },
 ]
 
-const marketData: MarketDataState = {
-  crypto: {
-    byId: {
-      'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': {
-        marketCap: '39939393',
-        price: '1',
-        volume: '',
-        changePercent24Hr: 3,
-      },
-      'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4': {
-        marketCap: '20392093290',
-        price: '1',
-        volume: '',
-        changePercent24Hr: 3,
-      },
-    },
-    priceHistory: {
-      '1H': { AssetId: undefined },
-      '1M': { AssetId: undefined },
-      '1W': { AssetId: undefined },
-      '1Y': { AssetId: undefined },
-      '24H': { AssetId: undefined },
-      All: { AssetId: undefined },
-    },
-    ids: [],
+const marketData: { [x: string]: MarketData | undefined } = {
+  'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': {
+    marketCap: '39939393',
+    price: '1',
+    volume: '',
+    changePercent24Hr: 3,
   },
-  fiat: {
-    byId: {},
-    priceHistory: {
-      '1H': { AssetId: undefined },
-      '1M': { AssetId: undefined },
-      '1W': { AssetId: undefined },
-      '1Y': { AssetId: undefined },
-      '24H': { AssetId: undefined },
-      All: { AssetId: undefined },
-    },
-    ids: [],
+  'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4': {
+    marketCap: '20392093290',
+    price: '1',
+    volume: '',
+    changePercent24Hr: 3,
   },
 }
 
@@ -131,12 +105,10 @@ describe('enrichAsset', () => {
 
     const firstAsset = returnedAssets[0] as any
     const secondAsset = returnedAssets[1] as any
-    expect(Number(firstAsset.marketCap)).toEqual(
-      Number(marketData.crypto.byId[firstAsset.assetId]?.marketCap),
-    )
+    expect(Number(firstAsset.marketCap)).toEqual(Number(marketData[firstAsset.assetId]?.marketCap))
 
     expect(Number(secondAsset.marketCap)).toEqual(
-      Number(marketData.crypto.byId[secondAsset.assetId]?.marketCap),
+      Number(marketData[secondAsset.assetId]?.marketCap),
     )
   })
 })

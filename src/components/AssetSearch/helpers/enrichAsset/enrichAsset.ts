@@ -1,6 +1,5 @@
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, MarketData } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { MarketDataState } from 'state/slices/marketDataSlice/marketDataSlice'
 import { AccountRowData } from 'state/slices/portfolioSlice/selectors'
 
 /**
@@ -13,7 +12,9 @@ import { AccountRowData } from 'state/slices/portfolioSlice/selectors'
 export const enrichAsset = (
   assets: Asset[],
   portfolioAcountRows: AccountRowData[],
-  marketData: MarketDataState,
+  marketData: {
+    [x: string]: MarketData | undefined
+  },
 ): Asset[] => {
   return assets.map(asset => {
     const fiatAmount = portfolioAcountRows.find(
@@ -24,7 +25,7 @@ export const enrichAsset = (
       portfoioAccountRow => portfoioAccountRow.assetId === asset.assetId,
     )?.cryptoAmount
 
-    const assetMarketData = marketData.crypto.byId[asset.assetId]
+    const assetMarketData = marketData[asset.assetId]
     return {
       ...asset,
       fiatAmount: bnOrZero(fiatAmount).toString(),

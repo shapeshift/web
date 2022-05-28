@@ -8,7 +8,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
-import { selectAllMarketData, selectPortfolioAccountRows } from 'state/slices/selectors'
+import { selectMarketData, selectPortfolioAccountRows } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetRow } from './AssetRow'
@@ -28,7 +28,8 @@ type EnrichAsset = Asset & { fiatAmount: string; cryptoAmount: string; marketCap
 
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   const portfolioAcountRows = useSelector(selectPortfolioAccountRows)
-  const marketData = useAppSelector(state => selectAllMarketData(state))
+  const marketData = useAppSelector(state => selectMarketData(state))
+
   type HandleClick = ReturnType<typeof handleClick>
 
   const match = useRouteMatch<{ address: string }>()

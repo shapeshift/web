@@ -122,5 +122,3 @@ export const selectFiatPriceHistoriesLoadingByTimeframe = createSelector(
   // if we don't have the data it's loading
   (fiatPriceHistory, currency, timeframe) => !Boolean(fiatPriceHistory[timeframe][currency]),
 )
-
-export const selectAllMarketData = (state: ReduxState) => state.marketData

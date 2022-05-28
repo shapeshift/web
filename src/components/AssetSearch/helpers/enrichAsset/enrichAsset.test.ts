@@ -115,9 +115,9 @@ const marketData: MarketDataState = {
 }
 
 describe('enrichAsset', () => {
-  it('check that all the element in the array have a valide cryptoAmount property', () => {
+  it('check that all the element in the array have a valid cryptoAmount property', () => {
     const returnedAssets = enrichAsset(assets, rowData, marketData)
-    // check that all the element in the array have a valide cryptoAmount and marketCap property
+    // check that all the element in the array have a valid cryptoAmount and marketCap property
 
     const firstAsset = returnedAssets[0] as any
     const secondAsset = returnedAssets[1] as any
@@ -126,7 +126,7 @@ describe('enrichAsset', () => {
     expect(Number(secondAsset.cryptoAmount)).toEqual(Number(rowData[0].cryptoAmount))
   })
 
-  it('check that all the element in the array have a valide marketCap property', () => {
+  it('check that all the element in the array have a valid marketCap property', () => {
     const returnedAssets = enrichAsset(assets, rowData, marketData)
 
     const firstAsset = returnedAssets[0] as any

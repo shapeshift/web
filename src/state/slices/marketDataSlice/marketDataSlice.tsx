@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
@@ -11,10 +12,22 @@ import {
   findPriceHistoryByFiatSymbol,
   SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
-import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import {
+  ChainTypes,
+  HistoryData,
+  HistoryTimeframe,
+  MarketCapResult,
+  MarketData,
+} from '@shapeshiftoss/types'
+import { getConfig } from 'config'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
+
+// TODO use constant from constants file when get FOX wire up is merged
+const FoxyAssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
+const FoxyAssetPrecision = '18'
 
 export type PriceHistoryData = {
   [k: AssetId]: HistoryData[] | undefined
@@ -128,6 +141,22 @@ export const marketApi = createApi({
         try {
           const currentMarketData = await findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
+
+          //FOXy specific api call to retrieve max supply
+          if (assetId === FoxyAssetId) {
+            const chainAdapters = getChainAdapters()
+            const api = new FoxyApi({
+              adapter: chainAdapters.byChain(ChainTypes.Ethereum),
+              providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+              foxyAddresses,
+            })
+            const tokenContractAddress = foxyAddresses[0].foxy
+            const foxyTotalSupply = await api.totalSupply({ tokenContractAddress })
+            currentMarketData.maxSupply = foxyTotalSupply
+              ?.div(`1e+${FoxyAssetPrecision}`)
+              .toString()
+          }
+
           const data = { [assetId]: currentMarketData }
           dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }

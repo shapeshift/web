@@ -133,7 +133,7 @@ export const FoxPage = (props: FoxPageProps) => {
             {isLargerThanMd &&
               assets.map((asset, index) => (
                 <FoxTab
-                  key={index}
+                  key={asset.assetId}
                   assetSymbol={asset.symbol}
                   assetIcon={asset.icon}
                   cryptoAmount={cryptoBalances[index]}
@@ -164,7 +164,7 @@ export const FoxPage = (props: FoxPageProps) => {
                   </MenuButton>
                   <MenuList>
                     {assets.map((asset, index) => (
-                      <MenuItem key={index} onClick={() => handleTabClick(asset.assetId)}>
+                      <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId)}>
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}

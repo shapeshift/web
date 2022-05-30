@@ -22,7 +22,7 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   // @TODO: This filters for ETH to not show tokens component on tokens
-  if (asset.tokenId || assetIds.length === 0) return null
+  if (!(asset.symbol === 'ETH') || assetIds.length === 0) return null
 
   return (
     <Card>

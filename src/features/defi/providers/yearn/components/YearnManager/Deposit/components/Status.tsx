@@ -19,10 +19,10 @@ import { DepositContext } from '../DepositContext'
 export const Status = () => {
   const { state } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',

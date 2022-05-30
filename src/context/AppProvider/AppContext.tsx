@@ -170,7 +170,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 adapter as bitcoin.ChainAdapter
               ).getSupportedAccountTypes()
               for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(bitcoin, accountType, 0)
+                const accountParams = utxoAccountParams(accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 const pubkeys = await wallet.getPublicKeys([
                   {

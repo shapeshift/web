@@ -1,3 +1,4 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -59,7 +60,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.AccountId,
   })
 
-  const { assetId } = asset
+  const { assetId, chain } = asset
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.assetId)).price)
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
@@ -93,7 +94,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet },
   } = useWallet()
 
-  const { chain, tokenId } = asset
+  const { assetReference } = fromAssetId(assetId)
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
@@ -130,13 +131,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           value,
           chainSpecific: {
             from,
-            contractAddress: values.asset.tokenId,
+            contractAddress: assetReference,
           },
           sendMax: values.sendMax,
         })
       }
       case ChainTypes.Bitcoin: {
-        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+        const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
         if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
         if (!accountType) {
           throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
@@ -166,7 +167,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       default:
         throw new Error('unsupported chain type')
     }
-  }, [accountId, adapter, asset, chainAdapterManager, getValues, wallet])
+  }, [accountId, adapter, assetReference, chainAdapterManager, getValues, wallet])
 
   const handleNextClick = async () => {
     try {
@@ -218,7 +219,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+        const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
         fnLogger.trace({ utxoParams, accountType, chain }, 'Getting Address...')
         const from = await adapter.getAddress({
           wallet,
@@ -227,7 +228,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })
 
         // Assume fast fee for send max
-        // This is used to make make sure its impossible to send more than our balance
+        // This is used to make sure it's impossible to send more than our balance
         let fastFee: string = ''
         let adapterFees
         switch (chain) {
@@ -239,7 +240,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           }
           case ChainTypes.Ethereum: {
             const ethAdapter = await chainAdapterManager.byChainId('eip155:1')
-            const contractAddress = tokenId
+            const contractAddress = assetReference
             const value = assetBalance
             adapterFees = await ethAdapter.getFeeData({
               to,

@@ -29,9 +29,9 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, tokenId } = query
+  const { chainId, contractAddress, assetReference } = query
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -45,11 +45,11 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   if (!state || !dispatch) return null
 
   const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !assetReference) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateApproveGas({
-          tokenContractAddress: tokenId,
+          tokenContractAddress: assetReference,
           contractAddress,
           userAddress: state.userAddress,
         }),
@@ -74,7 +74,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
-        tokenContractAddress: tokenId,
+        tokenContractAddress: assetReference,
         contractAddress,
         userAddress: state.userAddress,
       })

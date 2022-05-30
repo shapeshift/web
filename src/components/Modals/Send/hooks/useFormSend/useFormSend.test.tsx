@@ -1,12 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import {
-  AssetDataSource,
-  chainAdapters,
-  ChainTypes,
-  NetworkTypes,
-  UtxoAccountType,
-} from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { EthSend } from 'test/mocks/txs'
@@ -45,20 +39,15 @@ const formData: SendInput = {
     assetId: '',
     description: '',
     chain: ChainTypes.Ethereum,
-    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
-    slip44: 60,
     color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
-    sendSupport: true,
-    receiveSupport: true,
   },
   [SendFormFields.AmountFieldError]: '',
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,

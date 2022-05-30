@@ -1,5 +1,5 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import toLower from 'lodash/toLower'
@@ -29,37 +29,38 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
 
   // Get asset from assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const { assetReference } = fromAssetId(assetId)
 
   const {
     state: { wallet },
   } = useWallet()
 
   const vault = useMemo(() => {
-    return vaults.find(_vault => _vault.vaultAddress === asset.tokenId)
-  }, [vaults, asset.tokenId])
+    return vaults.find(_vault => _vault.vaultAddress === assetReference)
+  }, [vaults, assetReference])
 
-  const shouldHide = !asset?.tokenId || !yearn || !vault
+  const shouldHide = !assetReference || !yearn || !vault
 
   useEffect(() => {
     ;(async () => {
       try {
         if (shouldHide || !wallet) return
         moduleLogger.trace(
-          { tokenId: asset.tokenId, chain: asset.chainId, fn: 'yearn.token' },
+          { tokenId: assetReference, chain: asset.chainId, fn: 'yearn.token' },
           'Get Yearn Token',
         )
-        const token = await yearn.token({ vaultAddress: asset.tokenId! })
+        const token = await yearn.token({ vaultAddress: assetReference })
         const chainId = asset.chainId
         const assetNamespace = 'erc20'
-        const assetReference = toLower(token)
-        const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+        const yearnAssetReference = toLower(token)
+        const assetId = toAssetId({ chainId, assetNamespace, assetReference: yearnAssetReference })
         moduleLogger.trace({ assetId, fn: 'yearn.token' }, 'Yearn Asset')
         setUnderlyingAssetId(assetId)
       } catch (error) {
         moduleLogger.error(error, 'yearn.token() failed')
       }
     })()
-  }, [shouldHide, asset.tokenId, vault, wallet, yearn, asset.chainId])
+  }, [shouldHide, assetReference, vault, wallet, yearn, asset.chainId])
 
   if (shouldHide || loading || !underlyingAssetId) return null
 

@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -55,7 +56,7 @@ export const useFormSend = () => {
             value,
             wallet,
             chainSpecific: {
-              erc20ContractAddress: data.asset.tokenId,
+              erc20ContractAddress: fromAssetId(data.asset.assetId).assetReference,
               gasLimit,
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             },
@@ -64,7 +65,7 @@ export const useFormSend = () => {
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
 
-          const { accountType, utxoParams } = accountIdToUtxoParams(data.asset, data.accountId, 0)
+          const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
 
           if (!accountType) {
             throw new Error(

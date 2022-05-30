@@ -31,10 +31,10 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -61,14 +61,14 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
 
   const handleDeposit = async () => {
     try {
-      if (!state.userAddress || !tokenId || !walletState.wallet) return
+      if (!state.userAddress || !assetReference || !walletState.wallet) return
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.deposit({
           amountDesired: bnOrZero(state.deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
-          tokenContractAddress: tokenId,
+          tokenContractAddress: assetReference,
           userAddress: state.userAddress,
           vaultAddress,
           wallet: walletState.wallet,

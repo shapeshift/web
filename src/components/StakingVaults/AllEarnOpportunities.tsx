@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { cosmosChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -42,8 +42,8 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const { type, provider, contractAddress, chainId, tokenAddress, rewardAddress, assetId } =
-        opportunity
+      const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
+      const { assetReference } = fromAssetId(assetId)
       if (!isConnected && walletInfo?.deviceId !== DemoConfig.name) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
@@ -63,7 +63,7 @@ export const AllEarnOpportunities = () => {
         search: qs.stringify({
           chainId,
           contractAddress,
-          tokenId: tokenAddress,
+          assetReference,
           rewardId: rewardAddress,
         }),
         state: { background: location },

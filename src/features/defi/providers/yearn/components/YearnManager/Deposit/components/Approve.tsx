@@ -28,11 +28,11 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, tokenId } = query
+  const { chainId, assetReference } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -51,18 +51,18 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
   if (!state || !dispatch) return null
 
   const handleApprove = async () => {
-    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    if (!assetReference || !state.userAddress || !walletState.wallet) return
     try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       await api.approve({
-        tokenContractAddress: tokenId,
+        tokenContractAddress: assetReference,
         userAddress: state.userAddress,
         wallet: walletState.wallet,
       })
       await poll({
         fn: () =>
           api.allowance({
-            tokenContractAddress: tokenId!,
+            tokenContractAddress: assetReference,
             userAddress: state.userAddress!,
           }),
         validate: (result: string) => {

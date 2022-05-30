@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -46,6 +46,13 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
+  const { assetReference } = fromAssetId(assetId)
+  // If tokenId is undefined, redirect to the basic explorer link
+  // else redirect to the token explorer link
+  const href = `${assetReference ? asset?.explorerAddressLink : asset?.explorer}${
+    assetReference ?? ''
+  }`
+
   return (
     <Stack
       ml={{ base: 0, lg: 'auto' }}
@@ -56,11 +63,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
       <Button
         as={Link}
         leftIcon={<ExternalLinkIcon />}
-        // If tokenId is undefined, redirect to the basic explorer link
-        // else redirect to the token explorer link
-        href={`${asset?.tokenId ? asset?.explorerAddressLink : asset?.explorer}${
-          asset?.tokenId ?? ''
-        }`}
+        href={href}
         variant='solid'
         width={{ base: '100%', md: 'auto' }}
         isExternal

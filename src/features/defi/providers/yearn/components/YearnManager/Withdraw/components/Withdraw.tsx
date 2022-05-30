@@ -27,14 +27,14 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const assetId = toAssetId({
     chainId,
@@ -50,11 +50,11 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   if (!state || !dispatch) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !assetReference) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateWithdrawGas({
-          tokenContractAddress: tokenId,
+          tokenContractAddress: assetReference,
           vaultAddress,
           amountDesired: bnOrZero(withdraw.cryptoAmount)
             .times(`1e+${asset.precision}`)

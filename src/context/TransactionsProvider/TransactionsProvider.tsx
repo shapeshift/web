@@ -1,4 +1,4 @@
-import { ChainId, chainIdToFeeAssetId, cosmosChainId } from '@shapeshiftoss/caip'
+import { ChainId, cosmosChainId } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import size from 'lodash/size'
@@ -19,8 +19,7 @@ import {
   selectTxHistoryStatus,
   selectTxIds,
 } from 'state/slices/selectors'
-import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store, useAppSelector } from 'state/store'
@@ -94,16 +93,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             const supportedAccountTypes = adapter.getSupportedAccountTypes?.() ?? [undefined]
             const chainId = adapter.getChainId()
 
-            // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
-            const asset = assets[chainIdToFeeAssetId(chainId)]
-
             // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
             // this state machine should be removed, and managed by the txHistory RTK query api
             dispatch(txHistory.actions.setStatus('loading'))
             try {
               await Promise.all(
                 supportedAccountTypes.map(async accountType => {
-                  const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+                  const accountParams = accountType ? utxoAccountParams(accountType, 0) : {}
                   moduleLogger.info({ chainId, accountType }, 'subscribing txs')
                   return adapter.subscribeTxs(
                     { wallet, accountType, ...accountParams },

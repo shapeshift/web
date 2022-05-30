@@ -73,9 +73,9 @@ describe('filterAssetsBySearchTerm', () => {
     expect(returnedAssets[0].name).toBe('Bitcoin')
   })
 
-  it('returns based on address', () => {
+  it('returns based on assetId', () => {
     const returnedAssets = filterAssetsBySearchTerm(
-      fromAssetId(assets[0]?.assetId).assetReference ?? '',
+      fromAssetId(assets[2]?.assetId).assetReference ?? '',
       assets,
     )
     expect(returnedAssets[0].symbol).toBe('AAMMDAI')

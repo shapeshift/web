@@ -26,8 +26,8 @@ import { logger } from 'lib/logger'
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
 // TODO use constant from constants file when get FOX wire up is merged
-const FoxyAssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
-const FoxyAssetPrecision = '18'
+const FOXY_ASSET_ID = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
+const FOXY_ASSET_PRECISION = '18'
 
 export type PriceHistoryData = {
   [k: AssetId]: HistoryData[] | undefined
@@ -143,7 +143,7 @@ export const marketApi = createApi({
           if (!currentMarketData) throw new Error()
 
           //FOXy specific api call to retrieve max supply
-          if (assetId === FoxyAssetId) {
+          if (assetId === FOXY_ASSET_ID) {
             const chainAdapters = getChainAdapters()
             const api = new FoxyApi({
               adapter: chainAdapters.byChain(ChainTypes.Ethereum),
@@ -153,7 +153,7 @@ export const marketApi = createApi({
             const tokenContractAddress = foxyAddresses[0].foxy
             const foxyTotalSupply = await api.totalSupply({ tokenContractAddress })
             currentMarketData.maxSupply = foxyTotalSupply
-              ?.div(`1e+${FoxyAssetPrecision}`)
+              ?.div(`1e+${FOXY_ASSET_PRECISION}`)
               .toString()
           }
 

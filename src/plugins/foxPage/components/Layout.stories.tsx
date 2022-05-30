@@ -77,7 +77,6 @@ export const FoxLayout: Story = () => {
                 <FoxTab
                   assetSymbol={mockAsset.symbol}
                   assetIcon={mockAsset.icon}
-                  isSelected={true}
                   cryptoAmount={'3000'}
                   fiatAmount={'1000'}
                   onClick={() => {

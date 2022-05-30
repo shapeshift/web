@@ -35,8 +35,7 @@ type FoxTabProps = {
   assetId: AssetId
 }
 
-const GetFoxyModalRoute = FoxyPath.Overview
-const GetFoxCoinbaseExternalUrl = `https://www.coinbase.com/price/fox-token`
+const COINBASE_FOX_EXTERNAL_URL = `https://www.coinbase.com/price/fox-token`
 
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
@@ -63,7 +62,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
 
   const onGetAssetClick = () => {
     history.push({
-      pathname: GetFoxyModalRoute,
+      pathname: FoxyPath.Overview,
       search: qs.stringify({
         chain: asset.chain,
         contractAddress: foxyAddresses[0].staking,
@@ -116,7 +115,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     size='lg'
                     as={Link}
                     leftIcon={<ExternalLinkIcon />}
-                    href={GetFoxCoinbaseExternalUrl}
+                    href={COINBASE_FOX_EXTERNAL_URL}
                     isExternal
                   >
                     <CText>

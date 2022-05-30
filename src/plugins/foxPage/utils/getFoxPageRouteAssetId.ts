@@ -5,7 +5,7 @@ const FoxRoutePartToAssetId: Record<string, string> = {
   foxy: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
 }
 
-const FoxPageDefaultAsset = 'fox'
+const FOX_PAGE_DEFAULT_ASSET = 'fox'
 
 export const getFoxPageRouteAssetId = (pathname: string) => {
   const foxPageAssetIdPathMatch = matchPath<{ foxAsset?: string }>(pathname, {
@@ -13,7 +13,7 @@ export const getFoxPageRouteAssetId = (pathname: string) => {
   })
 
   if (foxPageAssetIdPathMatch) {
-    const foxAsset = foxPageAssetIdPathMatch?.params?.foxAsset ?? FoxPageDefaultAsset
+    const foxAsset = foxPageAssetIdPathMatch?.params?.foxAsset ?? FOX_PAGE_DEFAULT_ASSET
 
     if (FoxRoutePartToAssetId[foxAsset]) {
       return FoxRoutePartToAssetId[foxAsset]

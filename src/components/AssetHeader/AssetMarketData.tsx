@@ -13,7 +13,6 @@ import { useAppSelector } from 'state/store'
 type AssetMarketDataProps = {
   assetId: AssetId
   isLoaded?: boolean
-  fallbackMaxSupply?: string
 }
 
 type StatProps = TextProps & { isLoaded?: boolean }
@@ -47,7 +46,7 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
   </Skeleton>
 )
 
-export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId, fallbackMaxSupply }) => {
+export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
@@ -97,13 +96,13 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId, fallb
             </StatValue>
           </Stat>
 
-          {(marketData?.maxSupply || fallbackMaxSupply) && (
+          {marketData?.maxSupply && (
             <Stat>
               <StatLabel isLoaded={isLoaded}>
                 <Text translation='assets.assetDetails.assetHeader.maxTotalSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount.Supply value={marketData?.maxSupply || fallbackMaxSupply || 0} />
+                <Amount.Supply value={marketData?.maxSupply || 0} />
               </StatValue>
             </Stat>
           )}

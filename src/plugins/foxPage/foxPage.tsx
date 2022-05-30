@@ -36,7 +36,6 @@ import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
-import { useFoxyMarketData } from './hooks/useFoxyMarketData'
 
 export enum FoxPageRoutes {
   Fox = '/fox/fox',
@@ -66,8 +65,6 @@ export const FoxPage: React.FC<{}> = () => {
   )
 
   const selectedAsset = assets[selectedAssetIndex]
-  const foxyMarketData = useFoxyMarketData()
-  const foxyMaxTotalSupply = foxyMarketData.maxTotalSupply
 
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, selectedAsset?.chainId),
@@ -184,28 +181,19 @@ export const FoxPage: React.FC<{}> = () => {
           </SimpleGrid>
         </TabList>
         <TabPanels>
-          <TabPanel p={0}>
-            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
-              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <FoxChart assetId={FoxAssetId} />
+          {assets.map(asset => (
+            <TabPanel p={0}>
+              <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
+                <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
+                <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+                  <FoxChart assetId={asset.assetId} />
+                </Stack>
+                <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+                  <AssetMarketData assetId={asset.assetId} />
+                </Stack>
               </Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <AssetMarketData assetId={FoxAssetId} />
-              </Stack>
-            </Stack>
-          </TabPanel>
-          <TabPanel p={0}>
-            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
-              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <FoxChart assetId={FoxyAssetId} />
-              </Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <AssetMarketData assetId={FoxyAssetId} fallbackMaxSupply={foxyMaxTotalSupply} />
-              </Stack>
-            </Stack>
-          </TabPanel>
+            </TabPanel>
+          ))}
         </TabPanels>
       </Tabs>
     </Layout>

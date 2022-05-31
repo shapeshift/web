@@ -6,6 +6,18 @@ import { getWeb3Instance } from 'lib/web3-instance'
 
 import { TRADING_FEE_RATE } from './const'
 
+// The provider we get from getWeb3Instance is a web3.js Provider
+// But uniswap SDK needs a Web3Provider from ethers.js
+export const getEthersProvider = () => {
+  const provider = getWeb3Instance().currentProvider
+
+  const ethersProvider = new providers.Web3Provider(
+    provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?
+  )
+
+  return ethersProvider
+}
+
 export const getToken0Volume24Hr = async ({
   blockNumber,
   uniswapLPContract,
@@ -36,18 +48,6 @@ export const getToken0Volume24Hr = async ({
 
   const token0Volume24hr = token0SwapAmounts.reduce((a: BN, b: BN) => bnOrZero(a).plus(b))
   return token0Volume24hr.decimalPlaces(0).valueOf()
-}
-
-// The provider we get from getWeb3Instance is a web3.js Provider
-// But uniswap SDK needs a Web3Provider from ethers.js
-export const getEthersProvider = () => {
-  const provider = getWeb3Instance().currentProvider
-
-  const ethersProvider = new providers.Web3Provider(
-    provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?
-  )
-
-  return ethersProvider
 }
 
 export const calculateAPRFromToken0 = async ({

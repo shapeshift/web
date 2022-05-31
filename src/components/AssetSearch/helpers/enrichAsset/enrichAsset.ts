@@ -18,11 +18,11 @@ export const enrichAsset = (
 ): Asset[] => {
   return assets.map(asset => {
     const fiatAmount = portfolioAcountRows.find(
-      portfoioAccountRow => portfoioAccountRow.assetId === asset.assetId,
+      portfolioAccountRow => portfolioAccountRow.assetId === asset.assetId,
     )?.fiatAmount
 
     const cryptoAmount = portfolioAcountRows.find(
-      portfoioAccountRow => portfoioAccountRow.assetId === asset.assetId,
+      portfolioAccountRow => portfolioAccountRow.assetId === asset.assetId,
     )?.cryptoAmount
 
     const assetMarketData = marketData[asset.assetId]

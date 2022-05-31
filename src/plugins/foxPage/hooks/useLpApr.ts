@@ -1,6 +1,7 @@
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { useEffect, useState } from 'react'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import {
   FOX_TOKEN_CONTRACT_ADDRESS,
@@ -35,14 +36,13 @@ export const useLpApr = () => {
         ethersProvider,
       )
 
-      setLpApr(
-        await calculateAPRFromToken0({
-          token0Decimals: pair.token0.decimals,
-          token0Reserves: pair.reserve0,
-          blockNumber,
-          uniswapLPContract,
-        }),
-      )
+      const apr = await calculateAPRFromToken0({
+        token0Decimals: pair.token0.decimals,
+        token0Reserves: pair.reserve0,
+        blockNumber,
+        uniswapLPContract,
+      })
+      setLpApr(bnOrZero(apr).div(100).toString())
       setLoaded(true)
     })()
   }, [blockNumber, uniswapLPContract])

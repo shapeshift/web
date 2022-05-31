@@ -52,11 +52,10 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
       (acc: Record<string, YearnVaultWithApyAndTvl>, [_, vault]) => {
-        const yearnVault = yearn?.findByVaultTokenId(vault.vaultAddress)
         acc[vault.vaultAddress] = {
           ...vault,
-          apy: yearnVault?.metadata?.apy?.net_apy,
-          underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
+          apy: vault?.metadata?.apy?.net_apy,
+          underlyingTokenBalanceUsdc: bnOrZero(vault?.underlyingTokenBalance.amountUsdc)
             .div(`1e+${USDC_PRECISION}`)
             .toString(),
         }
@@ -64,7 +63,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
       },
       {},
     )
-  }, [vaults, yearn])
+  }, [vaults])
 
   return {
     vaultsWithoutBalance: mergedVaults,

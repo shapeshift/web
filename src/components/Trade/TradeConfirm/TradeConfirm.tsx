@@ -37,7 +37,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<SupportedChainIds>>()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
-  const { executeQuote, reset, checkTradeStatus } = useSwapper()
+  const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
   const {
@@ -78,18 +78,18 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
       const result = await executeQuote({ wallet })
       console.log('executeQuote result', result)
-      const initialStatus = await checkTradeStatus(result)
+      const initialStatus = await getTradeTxs(result)
       if (initialStatus.buyTxid) {
         console.log('have txid immedietly')
         setTxid(initialStatus.buyTxid)
       } else {
         const interval = setInterval(async () => {
-          console.log('checking trade status on interval')
-          const status = await checkTradeStatus(result)
-          console.log('status1 is', status)
-          if (status.buyTxid) {
+          console.log('checking trade txs on interval')
+          const txs = await getTradeTxs(result)
+          console.log('txs is', txs)
+          if (txs.buyTxid) {
             console.log('setting the txid and clearing interval')
-            setTxid(status.buyTxid)
+            setTxid(txs.buyTxid)
             clearInterval(interval)
           }
         }, 1000 * 5 * 1) // refetch every 5 seconds

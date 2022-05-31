@@ -155,13 +155,13 @@ export const useSwapper = () => {
     return result
   }
 
-  const checkTradeStatus = async (tradeResult: TradeResult): Promise<TradeStatus> => {
+  const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeStatus> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,
     })
     if (!swapper) throw new Error('no swapper available')
-    return swapper.getTradeStatus(tradeResult)
+    return swapper.getTradeTxs(tradeResult)
   }
 
   const executeQuote = async ({ wallet }: { wallet: HDWallet }): Promise<TradeResult> => {
@@ -320,6 +320,6 @@ export const useSwapper = () => {
     getSendMaxAmount,
     reset,
     feeAsset,
-    checkTradeStatus,
+    getTradeTxs,
   }
 }

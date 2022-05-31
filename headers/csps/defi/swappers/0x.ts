@@ -1,5 +1,6 @@
-/** @type {Record<string, Array<string>>} */
-module.exports = {
+import type { Csp } from '../../../types'
+
+export const csp: Csp = {
   'connect-src': [
     // @shapeshiftoss/swapper@1.15.0: https://github.com/shapeshift/lib/blob/f833ac7f8c70dee801eaa24525336ca6992e5903/packages/swapper/src/swappers/zrx/utils/zrxService.ts#L4
     'https://api.0x.org',

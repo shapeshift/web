@@ -1,5 +1,6 @@
-/** @type {Record<string, Array<string>>} */
-module.exports = {
+import type { Csp } from '../../types'
+
+export const csp: Csp = {
   'connect-src': [
     // @shapeshiftoss/caip@1.6.1: https://github.com/shapeshift/lib/blob/1689995812e81a866e2c60150bdbb9afc7ce32b9/packages/caip/src/adapters/coingecko/index.ts#L5
     // @shapeshiftoss/asset-service@1.10.0: https://github.com/shapeshift/lib/blob/636c6c9460ac5ae4d1189165eddd3a105406e0ef/packages/asset-service/src/service/AssetService.ts#L130

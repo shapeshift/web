@@ -1,5 +1,6 @@
-/** @type {Record<string, Array<string>>} */
-module.exports = {
+import type { Csp } from '../types'
+
+export const csp: Csp = {
   'default-src': ["'self'"],
   'child-src': ["'self'", 'blob:'],
   'connect-src': ["'self'", 'data:'],

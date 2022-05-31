@@ -13,8 +13,8 @@ const webpack = require('webpack')
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 
-const headers = require('./headers')
-process.env.REACT_APP_CSP_META = headers.cspMeta ?? ''
+const { headers, cspMeta, serializeCsp } = require('./headers')
+process.env.REACT_APP_CSP_META = serializeCsp(cspMeta)
 
 // The HTML template can pull in static assets from outside of the Webpack
 // pipeline; these need SRI too. This generates SRI attributes for each static
@@ -307,7 +307,7 @@ module.exports = {
   devServer: configFunction => {
     return (proxy, allowedHost) => {
       const config = configFunction(proxy, allowedHost)
-      config.headers = headers.headers
+      config.headers = headers
       return config
     }
   },

@@ -23,8 +23,6 @@ type ItemData<T> = {
   handleClick: T
 }
 
-type EnrichAsset = Asset & { fiatAmount: string; cryptoAmount: string; marketCap: string }
-
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   const portfolioAcountRows = useAppSelector(state => selectPortfolioAccountRows(state))
   const marketData = useAppSelector(state => selectMarketData(state))
@@ -50,22 +48,20 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets])
 
+  const enrichedAssetData = enrichAsset(assets, portfolioAcountRows, marketData)
+
   const sortByAccountAndMarketCap = (assets: Asset[]): Asset[] => {
     return sortBy(assets, [
       asset => {
-        const enrichAsset = asset as EnrichAsset
-        return Number(enrichAsset.fiatAmount)
+        return Number(enrichedAssetData[asset.assetId].fiatAmount)
       },
       asset => {
-        const enrichAsset = asset as EnrichAsset
-        return Number(enrichAsset.marketCap)
+        return Number(enrichedAssetData[asset.assetId].marketCap)
       },
     ]).reverse()
   }
 
-  const sortedAssets = sortByAccountAndMarketCap(
-    enrichAsset(assets, portfolioAcountRows, marketData),
-  )
+  const sortedAssets = sortByAccountAndMarketCap(assets)
   return (
     <AutoSizer disableWidth className='auto-sizered'>
       {({ height }) =>

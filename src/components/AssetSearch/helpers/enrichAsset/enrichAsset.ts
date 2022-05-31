@@ -15,8 +15,12 @@ export const enrichAsset = (
   marketData: {
     [x: string]: MarketData | undefined
   },
-): Asset[] => {
-  return assets.map(asset => {
+): Record<string, { fiatAmount: string; cryptoAmount: string; marketCap: string }> => {
+  const result = {} as Record<
+    string,
+    { fiatAmount: string; cryptoAmount: string; marketCap: string }
+  >
+  assets.forEach(asset => {
     const fiatAmount = portfolioAcountRows.find(
       portfolioAccountRow => portfolioAccountRow.assetId === asset.assetId,
     )?.fiatAmount
@@ -26,11 +30,12 @@ export const enrichAsset = (
     )?.cryptoAmount
 
     const assetMarketData = marketData[asset.assetId]
-    return {
-      ...asset,
+
+    result[asset.assetId] = {
       fiatAmount: bnOrZero(fiatAmount).toString(),
       cryptoAmount: bnOrZero(cryptoAmount).toString(),
       marketCap: bnOrZero(assetMarketData?.marketCap).toString(),
-    } as Asset
+    }
   })
+  return result
 }

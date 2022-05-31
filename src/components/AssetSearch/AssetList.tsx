@@ -1,7 +1,6 @@
 import { ListProps } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import sortBy from 'lodash/sortBy'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useRouteMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -12,6 +11,7 @@ import { useAppSelector } from 'state/store'
 
 import { AssetRow } from './AssetRow'
 import { enrichAsset } from './helpers/enrichAsset/enrichAsset'
+import { sortAssetsByAccountAndMarketCap } from './helpers/sortAssetsByAccountAndMarketCap/sortAssetsByAccountAndMarketCap'
 
 type AssetListProps = {
   handleClick: (asset: Asset) => void
@@ -26,6 +26,15 @@ type ItemData<T> = {
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   const portfolioAcountRows = useAppSelector(state => selectPortfolioAccountRows(state))
   const marketData = useAppSelector(state => selectMarketData(state))
+  const enrichedAssetData = useMemo(
+    () => enrichAsset(assets, portfolioAcountRows, marketData),
+    [assets, marketData, portfolioAcountRows],
+  )
+
+  const sortedAssets = useMemo(
+    () => sortAssetsByAccountAndMarketCap(assets, enrichedAssetData),
+    [assets, enrichedAssetData],
+  )
 
   type HandleClick = ReturnType<typeof handleClick>
 
@@ -48,20 +57,6 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets])
 
-  const enrichedAssetData = enrichAsset(assets, portfolioAcountRows, marketData)
-
-  const sortByAccountAndMarketCap = (assets: Asset[]): Asset[] => {
-    return sortBy(assets, [
-      asset => {
-        return Number(enrichedAssetData[asset.assetId].fiatAmount)
-      },
-      asset => {
-        return Number(enrichedAssetData[asset.assetId].marketCap)
-      },
-    ]).reverse()
-  }
-
-  const sortedAssets = sortByAccountAndMarketCap(assets)
   return (
     <AutoSizer disableWidth className='auto-sizered'>
       {({ height }) =>

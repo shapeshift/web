@@ -10,7 +10,8 @@ import {
   SwapperType,
   Trade,
   TradeQuote,
-  TradeResult
+  TradeResult,
+  TradeTxs
 } from '../../api'
 
 /**
@@ -73,6 +74,10 @@ export class TestSwapper implements Swapper {
   }
 
   async executeTrade(): Promise<TradeResult> {
+    throw new Error('TestSwapper: executeTrade unimplemented')
+  }
+
+  async getTradeTxs(): Promise<TradeTxs> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 }

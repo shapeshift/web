@@ -38,14 +38,14 @@ export async function zrxExecuteTrade(
 
       const txid = await adapter.broadcastTransaction(signedTx)
 
-      return { txid }
+      return { tradeId: txid }
     } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
       const txid = await adapter.signAndBroadcastTransaction?.({
         txToSign: txWithQuoteData,
         wallet
       })
 
-      return { txid }
+      return { tradeId: txid }
     } else {
       throw new SwapError('[zrxExecuteTrade]', {
         code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED

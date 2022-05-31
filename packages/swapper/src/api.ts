@@ -88,7 +88,7 @@ export type ExecuteTradeInput<C extends SupportedChainIds> = {
 }
 
 export type TradeResult = {
-  txid: string
+  tradeId: string
 }
 
 export type ApproveInfiniteInput<C extends SupportedChainIds> = {
@@ -126,6 +126,11 @@ export enum SwapperType {
   Zrx = '0x',
   Thorchain = 'Thorchain',
   Test = 'Test'
+}
+
+export type TradeTxs = {
+  sellTxid: string
+  buyTxid?: string
 }
 
 // Swap Errors
@@ -198,4 +203,6 @@ export interface Swapper {
    * Get supported sell assetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[]
+
+  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs>
 }

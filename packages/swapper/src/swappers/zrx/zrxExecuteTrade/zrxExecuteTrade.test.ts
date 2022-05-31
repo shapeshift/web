@@ -52,7 +52,7 @@ describe('ZrxExecuteTrade', () => {
       await zrxExecuteTrade(deps, {
         ...execTradeInput
       })
-    ).toEqual({ txid })
+    ).toEqual({ tradeId: txid })
   })
 
   it('returns txid if offline signing is unsupported', async () => {
@@ -65,6 +65,6 @@ describe('ZrxExecuteTrade', () => {
       await zrxExecuteTrade(deps, {
         ...execTradeInput
       })
-    ).toEqual({ txid })
+    ).toEqual({ tradeId: txid })
   })
 })

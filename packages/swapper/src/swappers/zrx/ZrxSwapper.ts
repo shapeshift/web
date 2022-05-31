@@ -17,6 +17,7 @@ import {
   SwapperType,
   TradeQuote,
   TradeResult,
+  TradeTxs,
   ZrxTrade
 } from '../../api'
 import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
@@ -91,5 +92,12 @@ export class ZrxSwapper implements Swapper {
 
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
     return assetIds.filter((id) => id.startsWith('eip155:1') && !UNSUPPORTED_ASSETS.includes(id))
+  }
+
+  async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
+    return {
+      sellTxid: tradeResult.tradeId,
+      buyTxid: tradeResult.tradeId
+    }
   }
 }

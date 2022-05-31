@@ -79,15 +79,9 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
             fontWeight='normal'
             py={2}
           >
-            <Flex
-              flexDirection='row'
-              justifyContent='flex-start'
-              alignItems='center'
-              gap={['1em', 0]}
-              width='100%'
-            >
+            <Flex flexDirection='row' justifyContent='flex-start' alignItems='center' width='100%'>
               <AssetIcon src={fiatRampConfig.logo} />
-              <Box textAlign='left' ml={[0, 2]}>
+              <Box textAlign='left' ml={2}>
                 <Text fontWeight='bold' translation={fiatRampConfig.label} />
                 <Text translation='fiatRamps.comingSoon' />
               </Box>

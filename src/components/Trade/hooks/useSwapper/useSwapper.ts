@@ -1,33 +1,26 @@
-import { HDWallet } from "@shapeshiftoss/hdwallet-core";
-import { NativeHDWallet } from "@shapeshiftoss/hdwallet-native";
+
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import {
   OsmosisSwapper,
   QuoteFeeData,
   SwapperManager,
   Trade,
   TradeQuote,
+  TradeResult,
   ZrxSwapper,
-} from "@shapeshiftoss/swapper";
-import {
-  Asset,
-  ExecQuoteOutput,
-  SupportedChainIds,
-  SwapperType,
-} from "@shapeshiftoss/types";
-import debounce from "lodash/debounce";
-import { useCallback, useRef, useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
-import { useSelector } from "react-redux";
-import {
-  BuildQuoteTxOutput,
-  TradeAmountInputField,
-  TradeAsset,
-} from "components/Trade/types";
-import { useChainAdapters } from "context/PluginProvider/PluginProvider";
-import { useErrorHandler } from "hooks/useErrorToast/useErrorToast";
-import { bn, bnOrZero } from "lib/bignumber/bignumber";
-import { fromBaseUnit } from "lib/math";
-import { getWeb3Instance } from "lib/web3-instance";
+} from '@shapeshiftoss/swapper'
+import { Asset, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
+import debounce from 'lodash/debounce'
+import { useCallback, useRef, useState } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { useSelector } from 'react-redux'
+import { BuildQuoteTxOutput, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { getWeb3Instance } from 'lib/web3-instance'
 import {
   selectAssetIds,
   selectFeeAssetById,
@@ -189,11 +182,7 @@ export const useSwapper = () => {
     return result;
   };
 
-  const executeQuote = async ({
-    wallet,
-  }: {
-    wallet: HDWallet;
-  }): Promise<ExecQuoteOutput | undefined> => {
+  const executeQuote = async ({ wallet }: { wallet: HDWallet }): Promise<TradeResult> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,

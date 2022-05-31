@@ -59,7 +59,7 @@
     "verify": "Verify",
     "notRobot": "I am not a Robot",
     "skip": "Skip",
-    "generalError": "An error has occured"
+    "generalError": "An error has occurred"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -315,6 +315,12 @@
     "amount": "Amount",
     "for": "for",
     "parser": {
+      "weth": {
+        "deposit": "Deposit",
+        "approve": "Approve",
+        "withdraw": "Withdraw",
+        "receive": "Receive"
+      },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
@@ -386,15 +392,15 @@
       "approveInfiniteFailed": "An error occurred approving your trade.",
       "buildTradeFailed": "An error occurred building your trade.",
       "grantAllowanceFailed": "An error occurred granting allowance.",
-      "minMaxError": "An error occured getting min / max trade amount",
+      "minMaxError": "An error occurred getting min / max trade amount",
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
-      "rateError": "An error occured getting trade rates",
+      "rateError": "An error occurred getting trade rates",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
       },
-      "generalError": "A trade error has occured"
+      "generalError": "A trade error has occurred"
     }
   },
   "modals": {
@@ -487,7 +493,7 @@
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
-        "generic": "An error occured.",
+        "generic": "An error occurred.",
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
         "transactionRejected": "User has rejected the transaction",
         "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings."
@@ -1040,7 +1046,14 @@
       "currentApy": "Current APY",
       "balance": "Balance",
       "getStarted": "Get Started",
-      "currentPrice": "Current Price"
+      "otherOpportunitiesTitle": "Other opportunities",
+      "otherOpportunitiesDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget elit faucibus, vestibulum mauris sed, cursus nulla. Nunc tempor leo sit amet velit gravida lacinia. In sit amet luctus lectus. Pellentesque dapibus, justo vel iaculis ullamcorper, mi purus tristique libero, et laoreet nisi neque ut justo.",
+      "liquidityPools": "Liquidity Pools",
+      "farming": "Farming",
+      "borrowingAndLending": "Borrowing & Lending",
+      "currentPrice": "Current Price",
+      "governanceTitle": "Governance",
+      "seeAllProposals": "See All Proposals"
     }
   }
 }

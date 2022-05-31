@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawType } from '@shapeshiftoss/types'
 import {
   Withdraw as ReusableWithdraw,
   WithdrawValues,
@@ -15,6 +15,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -38,12 +39,11 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   const { chain, contractAddress, rewardId } = query
   const toast = useToast()
 
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: rewardId,
   })

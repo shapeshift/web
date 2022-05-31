@@ -3,6 +3,9 @@ import * as path from 'path'
 
 import type { Csp, CspEntry } from './types'
 
+/**
+ * Splits a CSP object into a list of [directive, source] entries.
+ */
 export function cspToEntries(x: Csp): CspEntry[] {
   return Object.entries(x).flatMap(([k, v]) => {
     return v.map(entry => {
@@ -12,6 +15,11 @@ export function cspToEntries(x: Csp): CspEntry[] {
   })
 }
 
+/**
+ * Collects a list of [directive, source] entries into a CSP object. Filters out
+ * the 'none' source if any other sources are present, and returns the result in
+ * sorted form.
+ */
 export function entriesToCsp(x: CspEntry[]): Csp {
   const acc: Csp = {}
   return x
@@ -30,10 +38,17 @@ export function entriesToCsp(x: CspEntry[]): Csp {
     }, acc)
 }
 
+/**
+ * Produces a CSP that allows the union of the set of things allowed by the source
+ * CSPs. (Applying multiple CSPs, on the other hand, will enforce their intersection.)
+ */
 export function cspMerge(...args: Csp[]): Csp {
   return entriesToCsp(args.flatMap(x => cspToEntries(x)))
 }
 
+/**
+ * Serializes a CSP object to the format which the browser will process.
+ */
 export function serializeCsp(x: Csp): string {
   return Object.entries(x)
     .map(([k, v]) => [k, v.filter(x => !!x)])
@@ -42,7 +57,7 @@ export function serializeCsp(x: Csp): string {
 }
 
 /**
- * Recursively collects partial CSPs exported by scripts in a certain directory.
+ * Recursively collects all the CSPs exported by scripts in a certain directory.
  * @param dir Path to the directory to search.
  */
 export function collectCsps(dir: string): Csp[] {

@@ -21,7 +21,6 @@ export const FoxTab: React.FC<FoxTabProps> = ({
   ...props
 }) => {
   const bgHover = useColorModeValue('gray.100', 'gray.750')
-  const { isSelected, ...otherProps } = props
 
   return (
     <Tab
@@ -39,7 +38,7 @@ export const FoxTab: React.FC<FoxTabProps> = ({
       textAlign='left'
       p={0}
       onClick={onClick}
-      {...otherProps}
+      {...props}
     >
       <Card display='block' bg='none' border='none' boxShadow='none' p={0} width='full'>
         <Card.Body

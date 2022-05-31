@@ -81,12 +81,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       // This means the trade is just about finished
       const txs = await poll({
         fn: () => getTradeTxs(result),
-        validate: (txs: TradeTxs) => txs.buyTxid,
+        validate: (txs: TradeTxs) => !!txs.buyTxid,
         interval: 10000, // 10 seconds
         maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
-      if (!txs) throw new Error('No txs from getTradeTxs')
-      setTxid(txs?.buyTxid)
+      if (!txs.buyTxid) throw new Error('No buyTxid from getTradeTxs')
+      setTxid(txs.buyTxid)
     } catch (e) {
       showErrorToast(e)
     }

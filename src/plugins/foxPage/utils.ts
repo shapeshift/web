@@ -1,5 +1,4 @@
-import { Contract, ContractInterface } from '@ethersproject/contracts'
-import { Web3Provider } from '@ethersproject/providers'
+import { Contract } from '@ethersproject/contracts'
 import { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import { BN, bnOrZero } from 'lib/bignumber/bignumber'

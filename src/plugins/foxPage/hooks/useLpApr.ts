@@ -1,6 +1,7 @@
+import { Contract } from '@ethersproject/contracts'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import {
@@ -9,7 +10,6 @@ import {
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from '../const'
 import { calculateAPRFromToken0, getEthersProvider } from '../utils'
-import { useContract } from './useContract'
 import { useCurrentBlockNumber } from './useCurrentBlockNumber'
 
 export const useLpApr = () => {
@@ -19,10 +19,9 @@ export const useLpApr = () => {
   const blockNumber = useCurrentBlockNumber()
 
   const liquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
-  const uniswapLPContract = useContract(
-    ethersProvider,
-    liquidityContractAddress,
-    IUniswapV2Pair.abi,
+  const uniswapLPContract = useMemo(
+    () => new Contract(liquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
+    [liquidityContractAddress, ethersProvider],
   )
 
   useEffect(() => {

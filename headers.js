@@ -63,6 +63,8 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_WALLET_MIGRATION_URL,
     process.env.REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
+    process.env.REACT_APP_OSMO_NODE,
+    process.env.REACT_APP_ATOM_NODE
   ],
   'frame-src': ['https://fwd.metamask.io/', 'https://widget.portis.io'],
   'img-src': [

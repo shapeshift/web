@@ -1,10 +1,11 @@
 import { AssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
@@ -35,10 +36,10 @@ export type EarnOpportunityType = {
 const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[] => {
   const assetIds = useSelector(selectAssetIds)
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
   const { vaults: vaultsWithBalances } = useVaultBalances()
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
+    const chainId = chainTypeToMainnetChainId(vault.chain)
     let fiatAmount = '0'
     let cryptoAmount = '0'
     if (vaultsWithBalances[vault.vaultAddress]) {
@@ -47,8 +48,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       fiatAmount = balances.fiatAmount
     }
     const assetId = toAssetId({
-      chain: vault.chain,
-      network,
+      chainId,
       assetNamespace,
       assetReference: vault.tokenAddress,
     })

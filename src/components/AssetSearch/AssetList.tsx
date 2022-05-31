@@ -2,7 +2,6 @@ import { ListProps } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import sortBy from 'lodash/sortBy'
 import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
 import { useRouteMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -27,7 +26,7 @@ type ItemData<T> = {
 type EnrichAsset = Asset & { fiatAmount: string; cryptoAmount: string; marketCap: string }
 
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
-  const portfolioAcountRows = useSelector(selectPortfolioAccountRows)
+  const portfolioAcountRows = useAppSelector(state => selectPortfolioAccountRows(state))
   const marketData = useAppSelector(state => selectMarketData(state))
 
   type HandleClick = ReturnType<typeof handleClick>

@@ -13,8 +13,10 @@ const webpack = require('webpack')
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 
-const headers = require('./headers')
-process.env.REACT_APP_CSP_META = headers.cspMeta ?? ''
+const { headers, cspMeta, serializeCsp } = require('./headers')
+process.env.REACT_APP_CSP_META = serializeCsp(cspMeta)
+console.info('Headers:', headers)
+console.info('Meta CSP:', cspMeta)
 
 // The HTML template can pull in static assets from outside of the Webpack
 // pipeline; these need SRI too. This generates SRI attributes for each static
@@ -31,7 +33,7 @@ for (const dirent of fs.readdirSync('./public', { withFileTypes: true })) {
 
   const integrity = ssri.fromData(data, {
     strict: true,
-    algorithms: ['sha256']
+    algorithms: ['sha256'],
   })
   process.env[`REACT_APP_SRI_${mungedName}`] = integrity.toString()
 
@@ -48,7 +50,7 @@ module.exports = {
     // Initialize top-level arrays just in case they're missing for some reason.
     _.merge(config, {
       plugins: [],
-      ignoreWarnings: []
+      ignoreWarnings: [],
     })
 
     // Webpack 5 no longer bundles polyfills for default Node modules, but we depend on some
@@ -64,17 +66,17 @@ module.exports = {
           https: require.resolve('https-browserify'),
           path: require.resolve('path-browserify'),
           stream: require.resolve('stream-browserify'),
-          zlib: require.resolve('browserify-zlib')
-        }
+          zlib: require.resolve('browserify-zlib'),
+        },
       },
       // Also provide polyfills for some Node globals.
       plugins: [
         ...config.plugins,
         new webpack.ProvidePlugin({
           Buffer: ['buffer/', 'Buffer'],
-          process: ['process/browser.js']
-        })
-      ]
+          process: ['process/browser.js'],
+        }),
+      ],
     })
 
     // Cloudflare Pages has a max asset size of 25 MiB. Without limiting the chunk size,
@@ -89,22 +91,22 @@ module.exports = {
               splitChunks: {
                 chunks: 'all',
                 name: isDevelopment ? undefined : false, // _.merge() ignores undefined
-                maxSize: 6 * 1024 * 1024
+                maxSize: 6 * 1024 * 1024,
               },
               // This uses numerically-ascending chunk IDs with no gaps, a la Webpack 4. Webpack 5
               // numbers chunks differently, and it's not obvious that they're deterministic. If
               // we can determine that chunk ids are deterministic without this option, it can go.
-              chunkIds: 'natural'
-            }
+              chunkIds: 'natural',
+            },
           }
-        : undefined
+        : undefined,
     )
 
     // Webpack uses MD4 by default, but SHA-256 can be verified with standard tooling.
     _.merge(config, {
       output: {
-        hashFunction: 'sha256'
-      }
+        hashFunction: 'sha256',
+      },
     })
 
     // Ignore warnings raised by source-map-loader. Some third party packages ship misconfigured
@@ -119,8 +121,8 @@ module.exports = {
             warning.module?.resource?.includes?.('node_modules') &&
             warning.details?.includes?.('source-map-loader')
           )
-        }
-      ]
+        },
+      ],
     })
 
     // Remove synthetic CSP/SRI/CID environment variables from DefinePlugin.
@@ -136,7 +138,7 @@ module.exports = {
         }
 
         return new webpack.DefinePlugin(definitions)
-      })
+      }),
     })
 
     // Generate and embed Subresource Integrity (SRI) attributes for all files.
@@ -145,15 +147,15 @@ module.exports = {
     _.merge(config, {
       output: {
         // This is the default, but the SRI spec requires it to be set explicitly.
-        crossOriginLoading: 'anonymous'
+        crossOriginLoading: 'anonymous',
       },
       // SubresourceIntegrityPlugin automatically disables itself in development.
       plugins: [
         ...config.plugins,
         new SubresourceIntegrityPlugin({
-          hashFuncNames: ['sha256']
-        })
-      ]
+          hashFuncNames: ['sha256'],
+        }),
+      ],
     })
 
     _.merge(config, {
@@ -168,9 +170,9 @@ module.exports = {
           // e.g. via import(/* webpackMode: "weak" */ './file.js')
           allowAsyncCycles: false,
           // set the current working directory for displaying module paths
-          cwd: process.cwd()
-        })
-      ]
+          cwd: process.cwd(),
+        }),
+      ],
     })
 
     // Collect env vars that would have been injected via DefinePlugin. We will emit them
@@ -181,10 +183,10 @@ module.exports = {
       Object.entries(
         config.plugins
           .filter(plugin => plugin.constructor.name === 'DefinePlugin')
-          .reduceRight(x => x).definitions?.['process.env'] || {}
+          .reduceRight(x => x).definitions?.['process.env'] || {},
       )
         .filter(([, v]) => v)
-        .map(([k, v]) => [k, JSON.parse(v)])
+        .map(([k, v]) => [k, JSON.parse(v)]),
     )
     // Update the Webpack config to emit the collected env vars as `env.json` and load them
     // dynamically instead of baking them into each chunk that might reference them.
@@ -210,22 +212,22 @@ module.exports = {
                           if (a[0] < b[0]) return -1
                           if (a[0] > b[0]) return 1
                           return 0
-                        })
+                        }),
                     )
                     console.info('Embedded environment vars:', definitions)
                     return new webpack.DefinePlugin(
                       Object.fromEntries(
                         Object.entries(definitions).map(([k, v]) => [
                           `process.env.${k}`,
-                          JSON.stringify(v)
-                        ])
-                      )
+                          JSON.stringify(v),
+                        ]),
+                      ),
                     )
                   }
                   default:
                     return plugin
                 }
-              })
+              }),
             ],
             module: {
               rules: [
@@ -258,12 +260,12 @@ module.exports = {
                         code() {
                           return stableStringify(
                             Object.fromEntries(
-                              Object.entries(env).filter(([k]) => k.startsWith('REACT_APP_'))
-                            )
+                              Object.entries(env).filter(([k]) => k.startsWith('REACT_APP_')),
+                            ),
                           )
-                        }
-                      }
-                    }
+                        },
+                      },
+                    },
                   ],
                   // The type ['asset/resource'](https://webpack.js.org/guides/asset-modules/#resource-assets)
                   // tells Webpack to a special generator that will emit the module as a separate file instead
@@ -273,10 +275,10 @@ module.exports = {
                   // instead of the default `build/static/media/env.[hash].json`.
                   type: 'asset/resource',
                   generator: {
-                    filename: '[base]'
-                  }
-                }
-              ]
+                    filename: '[base]',
+                  },
+                },
+              ],
             },
             // We can't use `fetch()` to load `env.json` when running tests because Jest doesn't do top-level await.
             // We can't manually mock out the fetch because we'd either have to turn on automock, which mocks *everything*
@@ -291,15 +293,15 @@ module.exports = {
               alias: {
                 [path.join(__dirname, 'src/env/index.ts')]: path.join(
                   __dirname,
-                  'src/env/webpack.ts'
-                )
-              }
+                  'src/env/webpack.ts',
+                ),
+              },
             },
             experiments: {
-              topLevelAwait: true
-            }
+              topLevelAwait: true,
+            },
           }
-        : {}
+        : {},
     )
 
     return config
@@ -307,8 +309,8 @@ module.exports = {
   devServer: configFunction => {
     return (proxy, allowedHost) => {
       const config = configFunction(proxy, allowedHost)
-      config.headers = headers.headers
+      config.headers = headers
       return config
     }
-  }
+  },
 }

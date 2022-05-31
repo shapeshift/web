@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v4.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.3.0...@shapeshiftoss/asset-service-v4.4.0) (2022-05-31)
+
+
+### Features
+
+* add FOXy description ([#710](https://github.com/shapeshift/lib/issues/710)) ([dfccd73](https://github.com/shapeshift/lib/commit/dfccd73775e98a59603419373f78bb75f6b1e9b1))
+
 # [@shapeshiftoss/asset-service-v4.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.2.4...@shapeshiftoss/asset-service-v4.3.0) (2022-05-26)
 
 

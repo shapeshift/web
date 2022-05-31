@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.2.2...@shapeshiftoss/swapper-v5.2.3) (2022-05-31)
+
+
+### Bug Fixes
+
+* use mainnet btc for test swapper ([#701](https://github.com/shapeshift/lib/issues/701)) ([471621f](https://github.com/shapeshift/lib/commit/471621f8adcac707dc2c5606c036945539dec1ff))
+
 # [@shapeshiftoss/swapper-v5.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.2.1...@shapeshiftoss/swapper-v5.2.2) (2022-05-31)
 
 # [@shapeshiftoss/swapper-v5.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.2.0...@shapeshiftoss/swapper-v5.2.1) (2022-05-26)

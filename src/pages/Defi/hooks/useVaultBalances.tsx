@@ -28,7 +28,7 @@ export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInvestor | null) {
   const acc: Record<string, EarnVault> = {}
   const vaults = await getSupportedVaults()
-  if (!yearn) return
+  if (!yearn) return acc
   const opportunities = await yearn.findAll()
   for (let index = 0; index < vaults.length; index++) {
     // TODO: assetIds in vaults

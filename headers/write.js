@@ -1,6 +1,5 @@
-import * as fs from 'fs'
-
-import { headers } from './'
+const fs = require('fs')
+const { headers } = require('./')
 
 fs.writeFileSync(
   './build/_headers',

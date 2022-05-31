@@ -4,4 +4,5 @@ tsNode.register({
     module: 'CommonJS',
   },
 })
+
 module.exports = require('./index.ts')

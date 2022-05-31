@@ -31,7 +31,7 @@ export class TestSwapper implements Swapper {
 
   constructor() {
     this.supportAssets = [
-      'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
+      'bip122:000000000019d6689c085ae165831e93/slip44:0',
       'cosmos:cosmoshub-4/slip44:118',
       'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     ]

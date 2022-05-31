@@ -6,7 +6,7 @@ import {
   Trade,
   TradeQuote,
   TradeResult,
-  TradeStatus,
+  TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
 import { Asset, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
@@ -155,7 +155,7 @@ export const useSwapper = () => {
     return result
   }
 
-  const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeStatus> => {
+  const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,

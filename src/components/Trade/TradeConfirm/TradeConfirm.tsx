@@ -1,4 +1,5 @@
 import { Box, Button, Divider, Link, Stack } from '@chakra-ui/react'
+import { TradeTxs } from '@shapeshiftoss/swapper'
 import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -16,6 +17,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { poll } from 'lib/poll/poll'
 import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { makeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -58,9 +60,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   )
   const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
 
-  console.log('parsedTxId', parsedTxId)
-  console.log('status', status)
-
   const { showErrorToast } = useErrorHandler()
 
   const onSubmit = async () => {
@@ -77,28 +76,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await executeQuote({ wallet })
-      console.log('executeQuote result', result)
-      const initialStatus = await getTradeTxs(result)
-      if (initialStatus.buyTxid) {
-        console.log('have txid immedietly')
-        setTxid(initialStatus.buyTxid)
-      } else {
-        const interval = setInterval(async () => {
-          console.log('checking trade txs on interval')
-          const txs = await getTradeTxs(result)
-          console.log('txs is', txs)
-          if (txs.buyTxid) {
-            console.log('setting the txid and clearing interval')
-            setTxid(txs.buyTxid)
-            clearInterval(interval)
-          }
-        }, 1000 * 5 * 1) // refetch every 5 seconds
-      }
 
-      // const transactionId = result?.txid
-      // if (transactionId) {
-      //   setTxid(transactionId)
-      // }
+      // Poll until we have a "buy" txid
+      // This means the trade is just about finished
+      const txs = await poll({
+        fn: () => getTradeTxs(result),
+        validate: (txs: TradeTxs) => txs.buyTxid,
+        interval: 10000, // 10 seconds
+        maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
+      })
+      if (!txs) throw new Error('No txs from getTradeTxs')
+      setTxid(txs?.buyTxid)
     } catch (e) {
       showErrorToast(e)
     }

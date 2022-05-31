@@ -21,7 +21,6 @@ export const useLpApr = () => {
   const liquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
   const uniswapLPContract = useContract(
     ethersProvider,
-    null,
     liquidityContractAddress,
     IUniswapV2Pair.abi,
   )

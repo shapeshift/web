@@ -1,15 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { getEthersProvider } from '../utils'
 
 export const useCurrentBlockNumber = () => {
   const [block, setBlock] = useState<number | null>(null)
-  const blockNumberCallback = useCallback(
-    (blockNumber: number) => {
-      setBlock(blockNumber)
-    },
-    [setBlock],
-  )
 
   // attach/detach listeners
   useEffect(() => {
@@ -20,14 +14,14 @@ export const useCurrentBlockNumber = () => {
 
     web3Provider
       .getBlockNumber()
-      .then(blockNumberCallback)
+      .then(setBlock)
       .catch(error => console.error(`Failed to get block number for chainId:`, error))
 
-    web3Provider.on('block', blockNumberCallback)
+    web3Provider.on('block', setBlock)
     return () => {
-      web3Provider.off('block', blockNumberCallback)
+      web3Provider.off('block', setBlock)
     }
-  }, [blockNumberCallback])
+  }, [])
 
   return block
 }

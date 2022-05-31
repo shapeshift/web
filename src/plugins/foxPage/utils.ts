@@ -1,22 +1,11 @@
 import { Contract, ContractInterface } from '@ethersproject/contracts'
 import { Web3Provider } from '@ethersproject/providers'
-import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers'
 import { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import { BN, bnOrZero } from 'lib/bignumber/bignumber'
 import { getWeb3Instance } from 'lib/web3-instance'
 
 import { TRADING_FEE_RATE } from './const'
-
-export function getSigner(library: JsonRpcProvider, account: string): JsonRpcSigner {
-  return library.getSigner(account).connectUnchecked()
-}
-export function getProviderOrSigner(
-  library: Web3Provider,
-  account?: string,
-): JsonRpcProvider | JsonRpcSigner {
-  return account ? getSigner(library, account) : library
-}
 
 export const getToken0Volume24Hr = async ({
   blockNumber,
@@ -48,15 +37,6 @@ export const getToken0Volume24Hr = async ({
 
   const token0Volume24hr = token0SwapAmounts.reduce((a: BN, b: BN) => bnOrZero(a).plus(b))
   return token0Volume24hr.decimalPlaces(0).valueOf()
-}
-
-export function getContract(
-  address: string,
-  ABI: ContractInterface,
-  library: Web3Provider,
-  account?: string,
-): Contract {
-  return new Contract(address, ABI, getProviderOrSigner(library, account))
 }
 
 // The provider we get from getWeb3Instance is a web3.js Provider

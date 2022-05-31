@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v5.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.1.0...@shapeshiftoss/caip-v5.2.0) (2022-05-31)
+
+
+### Features
+
+* thorchain caip adapter ([#705](https://github.com/shapeshift/lib/issues/705)) ([052306e](https://github.com/shapeshift/lib/commit/052306ec8eff065dfcf6d42fa31be6d3a5bba846))
+
 # [@shapeshiftoss/caip-v5.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.0.1...@shapeshiftoss/caip-v5.1.0) (2022-05-26)
 
 

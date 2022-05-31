@@ -57,7 +57,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
                   <Text translation={fiatRampConfig.info ?? ''} />
                 </Box>
               </Flex>
-              <Box>
+              <Box display={['none', 'block']}>
                 <Tag colorScheme='green' mr={2}>
                   <Text translation='fiatRamps.buy' style={{ textTransform: 'uppercase' }} />
                 </Tag>

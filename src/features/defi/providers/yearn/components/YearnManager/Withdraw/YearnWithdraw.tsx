@@ -87,7 +87,7 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
         console.error('YearnWithdraw error:', error)
       }
     })()
-  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast])
+  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     switch (route.path) {

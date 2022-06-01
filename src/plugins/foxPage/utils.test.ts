@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js'
 import { TRADING_FEE_RATE } from './const'
 import { calculateAPRFromToken0, getToken0Volume24Hr } from './utils'
 
-jest.mock('web3') // mock found at projects/graphql-api/src/__mocks__/web3.js
 jest.mock('@ethersproject/contracts', () => ({
   Contract: jest.fn().mockImplementation(() => ({
     filters: {

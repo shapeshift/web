@@ -20,15 +20,6 @@ describe('thortrading', () => {
       expect(result).toEqual(usdcAssetId)
     })
 
-    it('returns correct assetId when chain and ticker are lowercased', () => {
-      const chain = 'Eth'
-      const ticker = 'usdc'
-      const result = poolAssetIdToAssetId(
-        `${chain}.${ticker}-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48`
-      )
-      expect(result).toEqual(usdcAssetId)
-    })
-
     it('returns undefined for an asset we dont support', () => {
       const result = poolAssetIdToAssetId('BNB.AVA-645')
       expect(result).toEqual(undefined)
@@ -60,8 +51,7 @@ describe('thortrading', () => {
 
     it('returns USDC pool when assetId is usdc', () => {
       const assetId = usdcAssetId
-      const symbol = 'USDC'
-      const result = assetIdToPoolAssetId({ assetId, symbol })
+      const result = assetIdToPoolAssetId({ assetId })
       const poolAssetId = 'ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
       expect(result).toEqual(poolAssetId)
     })

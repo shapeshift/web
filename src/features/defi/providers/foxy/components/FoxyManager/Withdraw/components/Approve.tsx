@@ -1,7 +1,6 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -13,6 +12,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,19 +33,17 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
   const { chain, contractAddress, rewardId } = query
   const toast = useToast()
 
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })

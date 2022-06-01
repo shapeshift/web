@@ -1,7 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext, useMemo } from 'react'
@@ -12,6 +12,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -23,26 +24,23 @@ export const Status = () => {
   const { chain, tokenId, rewardId } = query
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
 
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: tokenId,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })

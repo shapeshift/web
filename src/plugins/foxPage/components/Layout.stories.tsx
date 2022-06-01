@@ -28,6 +28,7 @@ import { AssetActions } from './AssetActions'
 import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
+import { OtherOpportunities } from './OtherOpportunities/OtherOpportunities'
 import { Total } from './Total'
 import { TradeOpportunities } from './TradeOpportunities'
 
@@ -168,6 +169,7 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
+                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -200,6 +202,7 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
+                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions
@@ -232,6 +235,7 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
+                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 <AssetActions

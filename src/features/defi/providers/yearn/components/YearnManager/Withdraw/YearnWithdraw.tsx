@@ -1,7 +1,7 @@
 import { Center, Flex } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useReducer } from 'react'
@@ -12,6 +12,7 @@ import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -36,18 +37,16 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
-  const network = NetworkTypes.MAINNET
+  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: tokenId,
   })
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: vaultAddress,
   })

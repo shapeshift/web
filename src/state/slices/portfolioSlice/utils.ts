@@ -9,7 +9,6 @@ import {
   fromAssetId,
   osmosisChainId,
   toAccountId,
-  toChainId,
 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -84,6 +83,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     }
     case cosmosChainId: {
       return 'Cosmos'
+    }
+    case osmosisChainId: {
+      return 'Osmosis'
     }
     default: {
       return ''
@@ -161,7 +163,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
     const { chain } = account
 
     switch (chain) {
-      // TODO: Handle Cosmos ChainType here
       case ChainTypes.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { chainId, assetId, pubkey } = account
@@ -398,8 +399,7 @@ export const makeBalancesByChainBucketsFlattened = (
 
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
   if (!assetId) return false
-  const { chain, network } = fromAssetId(assetId)
-  const chainId = toChainId({ chain, network })
+  const { chainId } = fromAssetId(assetId)
   switch (chainId) {
     case ethChainId:
       return supportsETH(wallet)

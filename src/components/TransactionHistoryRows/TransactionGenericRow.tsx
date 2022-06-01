@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
+import Polyglot from 'node-polyglot'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -62,7 +63,7 @@ type TransactionRowAsset = {
 type TransactionGenericRowProps = {
   type: string
   symbol: string
-  title?: string
+  title?: string | null | [string, number | Polyglot.InterpolationOptions]
   showDateAndGuide?: boolean
   compactMode?: boolean
   assets: TransactionRowAsset[]

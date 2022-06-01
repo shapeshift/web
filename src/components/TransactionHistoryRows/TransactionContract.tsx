@@ -31,17 +31,27 @@ export const TransactionContract = ({
     isReceive && !txDetails.tx.data?.method ? txDetails.tradeTx?.type : txDetails.tx.data?.method
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
+  const title: string | [string, any] = (() => {
+    switch (txDetails.tx.data?.method) {
+      case 'approve':
+        return [
+          `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`,
+          { symbol: txDetails.approveAsset?.symbol },
+        ] as [string, any]
+      default:
+        return txDetails.tx.data
+          ? `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`
+          : 'transactionRow.unknown'
+    }
+  })()
+
   return (
     <>
       <TransactionGenericRow
         type={txDetails.direction || ''}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
-        title={
-          txDetails.tx.data
-            ? `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`
-            : 'transactionRow.unknown'
-        }
+        title={title}
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
         assets={assets}

@@ -341,6 +341,9 @@
         "unstake": "Unstake",
         "instantUnstake": "Instant Unstake",
         "claimWithdraw": "Claim Withdraw"
+      },
+      "erc20Approve": {
+        "approve": "Approve %{symbol}"
       }
     },
     "unknown": "Transaction"

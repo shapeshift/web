@@ -1,4 +1,5 @@
-import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
+import { Asset, chainAdapters, ChainTypes, MarketData } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
@@ -40,6 +41,7 @@ export interface TxDetails {
   feeAsset?: Asset
   buyAsset?: Asset
   sellAsset?: Asset
+  approveAsset?: Asset
   value?: string
   to: string
   ensTo?: string
@@ -84,9 +86,31 @@ export const isTradeContract = (
   return sellTransfer.from === buyTransfer.to && sellTransfer.to !== buyTransfer.from
 }
 
+const castTxMetadata = (tx: Tx) => {
+  switch (tx.chain) {
+    case ChainTypes.Ethereum:
+      return tx.data as unchained.ethereum.TxMetadata
+    case ChainTypes.Cosmos:
+      return tx.data as unchained.cosmos.TxMetadata
+    default:
+      return tx.data as unchained.StandardTxMetadata
+  }
+}
+
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const method = tx.data?.method
+
+  const txData = castTxMetadata(tx)
+
+  const approveAsset = useAppSelector((state: ReduxState) =>
+    selectAssetById(
+      state,
+      txData?.parser === unchained.ethereum.EthereumTxParser.ERC20Approve
+        ? txData?.assetId ?? ''
+        : '',
+    ),
+  )
 
   const standardTx = getStandardTx(tx)
   const buyTransfer = getTransferByType(tx, chainAdapters.TxType.Receive)
@@ -177,6 +201,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     feeAsset,
     buyAsset,
     sellAsset,
+    approveAsset,
     value,
     to,
     ensTo,

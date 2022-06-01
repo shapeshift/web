@@ -1,3 +1,11 @@
+# [@shapeshiftoss/swapper-v5.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.3.0...@shapeshiftoss/swapper-v5.4.0) (2022-06-01)
+
+
+### Features
+
+* implement initialize, filterBuyAssetsBySellAssetId, and filterAssetIdsBySellable method for ThorchainSwapper ([#708](https://github.com/shapeshift/lib/issues/708)) ([19eae25](https://github.com/shapeshift/lib/commit/19eae258ce6363abb79337b699a84951dc548ba6))
+* thor trade types for eth or btc tx data ([#730](https://github.com/shapeshift/lib/issues/730)) ([2591230](https://github.com/shapeshift/lib/commit/259123080c9acbea93e9fbc673bf3aac5763a9c7))
+
 # [@shapeshiftoss/swapper-v5.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.2.3...@shapeshiftoss/swapper-v5.3.0) (2022-06-01)
 
 

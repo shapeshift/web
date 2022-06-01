@@ -24,13 +24,12 @@ type ItemData<T> = {
   handleClick: T
 }
 
-const sortAssetsByAccountAndMarketCap = (
-  assets: Asset[],
-  enrichedData: Record<string, { fiatAmount: string; cryptoAmount: string; marketCap: string }>,
-): Asset[] =>
+type EnrichData = Record<string, { fiatAmount: string; cryptoAmount: string; marketCap: string }>
+
+const sortAssetsByAccountAndMarketCap = (assets: Asset[], enrichData: EnrichData): Asset[] =>
   sortBy(assets, [
-    asset => bnOrZero(enrichedData[asset.assetId].fiatAmount).toNumber(),
-    asset => bnOrZero(enrichedData[asset.assetId].marketCap).toNumber(),
+    asset => bnOrZero(enrichData[asset.assetId].fiatAmount).toNumber(),
+    asset => bnOrZero(enrichData[asset.assetId].marketCap).toNumber(),
   ]).reverse()
 
 /**
@@ -38,7 +37,7 @@ const sortAssetsByAccountAndMarketCap = (
  * @param assets
  * @param portfolioAcountRows
  * @param marketData
- * @returns Record<string, { fiatAmount: string; cryptoAmount: string; marketCap: string }>
+ * @returns EnrichData
  */
 export const createEnrichData = (
   assets: Asset[],
@@ -46,11 +45,8 @@ export const createEnrichData = (
   marketData: {
     [x: string]: MarketData | undefined
   },
-): Record<string, { fiatAmount: string; cryptoAmount: string; marketCap: string }> => {
-  const result = {} as Record<
-    string,
-    { fiatAmount: string; cryptoAmount: string; marketCap: string }
-  >
+): EnrichData => {
+  const result: EnrichData = {}
   assets.forEach(asset => {
     const fiatAmount = portfolioAcountRows.find(
       portfolioAccountRow => portfolioAccountRow.assetId === asset.assetId,
@@ -74,14 +70,14 @@ export const createEnrichData = (
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   const portfolioAcountRows = useAppSelector(state => selectPortfolioAccountRows(state))
   const marketData = useAppSelector(state => selectMarketData(state))
-  const enrichedData = useMemo(
+  const enrichData = useMemo(
     () => createEnrichData(assets, portfolioAcountRows, marketData),
     [assets, marketData, portfolioAcountRows],
   )
 
   const sortedAssets = useMemo(
-    () => sortAssetsByAccountAndMarketCap(assets, enrichedData),
-    [assets, enrichedData],
+    () => sortAssetsByAccountAndMarketCap(assets, enrichData),
+    [assets, enrichData],
   )
 
   type HandleClick = ReturnType<typeof handleClick>

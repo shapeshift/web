@@ -1,7 +1,6 @@
 {
   "baseUrl": "http://localhost:3000/#/",
   "projectId": "vpyrho",
-  "chromeWebSecurity": false,
   "viewportWidth": 1920,
   "viewportHeight": 1920,
   "defaultCommandTimeout": 60000,

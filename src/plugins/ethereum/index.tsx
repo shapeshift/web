@@ -27,7 +27,7 @@ export function register(): Plugins {
 
                 return new ethereum.ChainAdapter({
                   providers: { http, ws },
-                  rpcUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+                  rpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
                 })
               },
             ],

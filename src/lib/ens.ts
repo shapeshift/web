@@ -13,11 +13,12 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
     ethereum: {
       httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
       wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
+      rpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
     },
   }
 
   const ethereumChainAdapter = new ChainAdapterManager(unchainedUrls).byChain(ChainTypes.Ethereum)
-  const chainId = await ethereumChainAdapter.getChainId()
+  const chainId = ethereumChainAdapter.getChainId()
   const chainIdReference = chainId.match(
     /^(?<chainIdNamespace>[-a-z0-9]{3,8}):(?<chainIdReference>[-a-zA-Z0-9]{1,32})$/,
   )?.groups?.chainIdReference

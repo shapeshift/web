@@ -1,6 +1,5 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
 import { useEffect, useState } from 'react'
@@ -19,7 +18,6 @@ import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -31,7 +29,7 @@ interface ClaimStatusState {
   estimatedGas: string
   usedGasFee?: string
   status: string
-  chain: ChainTypes
+  chainId: ChainId
 }
 
 enum TxStatus {
@@ -67,14 +65,13 @@ export const ClaimStatus = () => {
   const { foxy } = useFoxy()
   const translate = useTranslate()
   const {
-    state: { txid, amount, assetId, userAddress, estimatedGas, chain },
+    state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
     txStatus: TxStatus.PENDING,
   })
 
   // Asset Info
-  const chainId = chainTypeToMainnetChainId(chain)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,

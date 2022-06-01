@@ -4,7 +4,7 @@ exports[`useCosmosStakingBalances returns active and non active staking opportun
 Array [
   Object {
     "assetId": "cosmos:cosmoshub-4/slip44:118",
-    "chain": "cosmos",
+    "chainId": "cosmos:cosmoshub-4",
     "cryptoAmount": "0.000004",
     "fiatAmount": "0.00",
     "isLoaded": false,
@@ -17,7 +17,7 @@ Array [
     "address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
     "apr": "0.24",
     "assetId": "cosmos:cosmoshub-4/slip44:118",
-    "chain": "cosmos",
+    "chainId": "cosmos:cosmoshub-4",
     "commission": "0.100000000000000000",
     "cryptoAmount": "0.010115",
     "fiatAmount": "0.78",
@@ -31,7 +31,7 @@ Array [
   },
   Object {
     "assetId": "cosmos:cosmoshub-4/slip44:118",
-    "chain": "cosmos",
+    "chainId": "cosmos:cosmoshub-4",
     "cryptoAmount": "0.005",
     "fiatAmount": "0.39",
     "isLoaded": false,

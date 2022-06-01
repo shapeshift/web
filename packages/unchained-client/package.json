@@ -30,13 +30,13 @@
     "ws": "^8.3.0"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^5.0.0",
+    "@shapeshiftoss/caip": "^5.2.1",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/types": "^4.3.1"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.5.1",
-    "@shapeshiftoss/caip": "^5.0.0",
+    "@shapeshiftoss/caip": "^5.2.1",
     "@shapeshiftoss/common-api": "^6.11.0",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/types": "^4.3.1",

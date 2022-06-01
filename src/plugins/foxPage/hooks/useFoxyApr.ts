@@ -22,7 +22,7 @@ export const useFoxyApr = () => {
   const [loaded, setLoaded] = useState<boolean>(false)
 
   useEffect(() => {
-    const loadGovernanceData = async () => {
+    const loadFoxyAprData = async () => {
       try {
         const response = await axios.get<{ chains: TokemakChainData[] }>(TOKEMAK_STATS_URL)
         const tokemakData = response?.data
@@ -44,7 +44,7 @@ export const useFoxyApr = () => {
       }
     }
 
-    loadGovernanceData()
+    loadFoxyAprData()
   }, [])
 
   return { data, error, loaded }

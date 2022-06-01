@@ -1,7 +1,6 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -29,15 +28,13 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, tokenId } = query
+  const { chainId, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })

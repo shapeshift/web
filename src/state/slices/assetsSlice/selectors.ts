@@ -3,12 +3,16 @@ import {
   ASSET_REFERENCE,
   AssetId,
   AssetReference,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
   ChainId,
+  ChainNamespace,
+  ChainReference,
   fromAssetId,
   fromChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import createCachedSelector from 're-reselect'
@@ -54,28 +58,35 @@ export const selectAssetsByMarketCap = createSelector(
 )
 
 // @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById
-// work with the update to the toAssetId function where assetNamespace and assetReference are now required.
-const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): AssetReference => {
-  if (chain === ChainTypes.Bitcoin) return ASSET_REFERENCE.Bitcoin
-  if (chain === ChainTypes.Ethereum) return ASSET_REFERENCE.Ethereum
-  if (chain === ChainTypes.Cosmos) {
-    if (network === NetworkTypes.COSMOSHUB_MAINNET) return ASSET_REFERENCE.Cosmos
-    if (network === NetworkTypes.OSMOSIS_MAINNET) return ASSET_REFERENCE.Osmosis
-    throw new Error(`Network ${network} on ${chain} not supported.`)
-  }
-  throw new Error(`Chain ${chain} not supported.`)
+const chainIdFeeAssetReferenceMap = (
+  chainNamespace: ChainNamespace,
+  chainReference: ChainReference,
+): AssetReference => {
+  return (() => {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Bitcoin:
+        return ASSET_REFERENCE.Bitcoin
+      case CHAIN_NAMESPACE.Ethereum:
+        return ASSET_REFERENCE.Ethereum
+      case CHAIN_NAMESPACE.Cosmos:
+        return chainReference === CHAIN_REFERENCE.CosmosHubMainnet
+          ? ASSET_REFERENCE.Cosmos
+          : ASSET_REFERENCE.Osmosis
+      default:
+        throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+    }
+  })()
 }
 
 export const selectFeeAssetByChainId = createSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
   (assetsById, chainId): Asset => {
-    const { chain, network } = fromChainId(chainId)
+    const { chainNamespace, chainReference } = fromChainId(chainId)
     const feeAssetId = toAssetId({
-      chain,
-      network,
+      chainId,
       assetNamespace: 'slip44',
-      assetReference: chainIdFeeAssetReferenceMap(chain, network),
+      assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
     })
     return assetsById[feeAssetId]
   },
@@ -85,12 +96,12 @@ export const selectFeeAssetById = createSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset => {
-    const { chain, network } = fromAssetId(assetId)
+    const { chainNamespace, chainReference } = fromAssetId(assetId)
     const feeAssetId = toAssetId({
-      chain,
-      network,
+      chainNamespace,
+      chainReference,
       assetNamespace: 'slip44',
-      assetReference: chainIdFeeAssetReferenceMap(chain, network),
+      assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
     })
     return assetsById[feeAssetId]
   },

@@ -36,18 +36,32 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
 
       const { name, icon } = KeplrConfig
       try {
+        const provider = window.keplr
+        if (!provider) {
+          throw new Error('walletProvider.keplr.errors.noProvider')
+        }
+
         await wallet.initialize()
+        const deviceId = await wallet.getDeviceID()
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId: 'test' },
+          payload: { wallet, name, icon, deviceId },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        setLocalWalletTypeAndDeviceId(KeyManager.Keplr, 'test')
+        setLocalWalletTypeAndDeviceId(KeyManager.Keplr, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-      } catch (e) {
+
+        /** Reinitialize wallet when user changes accounts */
+        /** TODO: See if we can handle this more gracefully.
+         * Currently, this requires the user to re-pair Keplr Wallet on chain change.
+         * Maybe this can be done without having to show the connect modal.
+         */
+        const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
+        window.addEventListener('keplr_keystorechange', resetState)
+      } catch (e: any) {
         console.error('Keplr: There was an error initializing the wallet', e)
-        setErrorLoading('walletProvider.keplr.errors.unknown')
+        setErrorLoading(e?.message || 'walletProvider.keplr.errors.unknown')
         history.push('/keplr/failure')
       }
     }

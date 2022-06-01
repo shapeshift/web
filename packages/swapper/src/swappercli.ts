@@ -9,6 +9,7 @@ import Web3 from 'web3'
 
 import { SwapperType } from './api'
 import { SwapperManager } from './manager/SwapperManager'
+import { ThorchainSwapper } from './swappers/thorchain/ThorchainSwapper'
 import { ZrxSwapper } from './swappers/zrx/ZrxSwapper'
 dotenv.config()
 
@@ -99,10 +100,16 @@ const main = async (): Promise<void> => {
   const web3 = new Web3(web3Provider)
 
   const zrxSwapperDeps = { wallet, adapterManager, web3 }
+  const thorchainSwapperDeps = {
+    midgardUrl: 'https://midgard.thorchain.info/v2/pools'
+  }
 
   const manager = new SwapperManager()
   const zrxSwapper = new ZrxSwapper(zrxSwapperDeps)
+  const thorchainSwapper = new ThorchainSwapper(thorchainSwapperDeps)
+  await thorchainSwapper.initialize()
   manager.addSwapper(SwapperType.Zrx, zrxSwapper)
+  manager.addSwapper(SwapperType.Thorchain, thorchainSwapper)
   const swapper = await manager.getBestSwapper({
     sellAssetId: 'eip155:1/slip44:60',
     buyAssetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'

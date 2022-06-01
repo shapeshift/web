@@ -1,4 +1,5 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
@@ -17,7 +18,7 @@ type TokemakChainData = {
 }
 export const useFoxyApr = () => {
   const [data, setData] = useState<string | null>(null)
-  const [error, setError] = useState<any>()
+  const [error, setError] = useState<AxiosError>()
   const [loaded, setLoaded] = useState<boolean>(false)
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export const useFoxyApr = () => {
         if (!tFoxPool) return
         setData(tFoxPool.liquidityProviderApr)
       } catch (e) {
-        setError(e)
+        setError(e as AxiosError)
       } finally {
         setLoaded(true)
       }

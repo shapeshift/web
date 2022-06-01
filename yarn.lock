@@ -5353,6 +5353,14 @@
   dependencies:
     "@types/node" "*"
 
+"@types/circular-dependency-plugin@^5.0.5":
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/@types/circular-dependency-plugin/-/circular-dependency-plugin-5.0.5.tgz#431979052a11bdb192c2961cc4ae8b47ca24a38c"
+  integrity sha512-JU1sYQWNbUluWHseLUfokakx18+BXRA9Bxji56hdY5NW0nvrJSJd4SNAl0Btpm5ima9BnUkoGEcW/2PH1QuWQA==
+  dependencies:
+    "@types/node" "*"
+    webpack "^5.1.0"
+
 "@types/color-convert@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/color-convert/-/color-convert-2.0.0.tgz#8f5ee6b9e863dcbee5703f5a517ffb13d3ea4e22"
@@ -5951,6 +5959,13 @@
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@types/source-list-map/-/source-list-map-0.1.2.tgz#0078836063ffaf17412349bba364087e0ac02ec9"
   integrity sha512-K5K+yml8LTo9bWJI/rECfIPrGgxdpeNbj+d53lwN4QjW1MCwlkhUms+gtdzigTeUyBr09+u8BwOIY3MXvHdcsA==
+
+"@types/ssri@^7.1.1":
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/@types/ssri/-/ssri-7.1.1.tgz#2a2c94abf0d3a8c3b07bb4ff08142dd571407bb5"
+  integrity sha512-DPP/jkDaqGiyU75MyMURxLWyYLwKSjnAuGe9ZCsLp9QZOpXmDfuevk769F0BS86TmRuD5krnp06qw9nSoNO+0g==
+  dependencies:
+    "@types/node" "*"
 
 "@types/stack-utils@^2.0.0":
   version "2.0.1"
@@ -21884,7 +21899,7 @@ webpack@4:
     watchpack "^1.7.4"
     webpack-sources "^1.4.1"
 
-webpack@5.72.1, webpack@^5.64.4, webpack@^5.9.0:
+webpack@5.72.1, webpack@^5.1.0, webpack@^5.64.4, webpack@^5.9.0:
   version "5.72.1"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.72.1.tgz#3500fc834b4e9ba573b9f430b2c0a61e1bb57d13"
   integrity sha512-dXG5zXCLspQR4krZVR6QgajnZOjW2K/djHvdcRaDQvsjV9z9vaW6+ja5dZOYbqBBjF6kGXka/2ZyxNdc+8Jung==

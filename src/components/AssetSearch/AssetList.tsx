@@ -26,6 +26,12 @@ type ItemData<T> = {
 
 type EnrichData = Record<string, { fiatAmount: string; cryptoAmount: string; marketCap: string }>
 
+/**
+ * This function allow to sort the asset by the fiatAmount firstly and the marketcap secondly.
+ * @param assets
+ * @param enrichData
+ * @returns
+ */
 const sortAssetsByAccountAndMarketCap = (assets: Asset[], enrichData: EnrichData): Asset[] =>
   sortBy(assets, [
     asset => bnOrZero(enrichData[asset.assetId].fiatAmount).toNumber(),

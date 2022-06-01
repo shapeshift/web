@@ -753,8 +753,9 @@
     },
     "keplr": {
       "errors": {
+        "connectFailure": "Unable to connect Keplr wallet",
         "unknown": "An unexpected error occurred communicating with Keplr",
-        "connectFailure": "Unable to connect Keplr wallet"
+        "noProvider": "Keplr wallet extension not found"
       },
       "connect": {
         "header": "Pair Keplr",

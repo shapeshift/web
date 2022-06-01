@@ -406,6 +406,31 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
+            case KeyManager.Keplr:
+              const localKeplrWallet = await state.adapters.get(KeyManager.Keplr)?.pairDevice()
+              if (localKeplrWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Keplr]
+                try {
+                  await localKeplrWallet.initialize()
+                  const deviceId = await localKeplrWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localKeplrWallet,
+                      name,
+                      icon,
+                      deviceId,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
             default:
               /**
                * The fall-through case also handles clearing

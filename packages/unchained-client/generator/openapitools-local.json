@@ -36,7 +36,7 @@
         }
       },
       "osmosis": {
-        "inputSpec": "http://api.osmosis.localhost/swagger",
+        "inputSpec": "https://api.osmosis.localhost/swagger",
         "generatorName": "typescript-axios",
         "output": "#{cwd}/src/generated/osmosis",
         "reservedWordsMappings": { "in": "in" },

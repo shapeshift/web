@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "yarn build:dev",
+    "build": "yarn build:prod",
     "build:dev": "yarn clean && yarn generate:dev && tsc -p tsconfig.build.json",
     "build:prod": "yarn clean && yarn generate:prod && tsc -p tsconfig.build.json",
     "build:local": "yarn clean && yarn generate:local && tsc -p tsconfig.build.json",

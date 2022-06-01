@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v8.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.4.1...@shapeshiftoss/unchained-client-v8.5.0) (2022-06-01)
+
+
+### Features
+
+* thorchain memo support ([#716](https://github.com/shapeshift/lib/issues/716)) ([fe9762f](https://github.com/shapeshift/lib/commit/fe9762fd7656ef17d93885ff154a991978c3e93b))
+
 # [@shapeshiftoss/unchained-client-v8.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.4.0...@shapeshiftoss/unchained-client-v8.4.1) (2022-06-01)
 
 # [@shapeshiftoss/unchained-client-v8.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.3.4...@shapeshiftoss/unchained-client-v8.4.0) (2022-05-26)

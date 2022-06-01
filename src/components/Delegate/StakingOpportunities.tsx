@@ -79,8 +79,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })
   }
 
-  const osmosisFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'Osmosis'))
-
   const columns = useMemo(
     () => [
       {
@@ -198,8 +196,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     [accountSpecifier],
   )
 
-  // Special case for osmosis because we do yet support staking
-  return osmosisFeatureFlag && assetId === 'cosmos:osmosis-1/slip44:118' ? null : (
+  return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
         <HStack justify='space-between' flex={1}>

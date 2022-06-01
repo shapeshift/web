@@ -1,4 +1,10 @@
-import { ChainId, chainIdToFeeAssetId, cosmosChainId } from '@shapeshiftoss/caip'
+import {
+  ChainId,
+  chainIdToFeeAssetId,
+  CHAIN_NAMESPACE,
+  cosmosChainId,
+  fromChainId,
+} from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import size from 'lodash/size'
@@ -130,25 +136,31 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             } catch (e: unknown) {
               moduleLogger.error(e, { chain }, 'Error subscribing to transaction history for chain')
             }
+
             // RESTfully fetch all tx and rebase history for this chain.
             getAccountSpecifiersByChainId(chainId).forEach(accountSpecifierMap => {
-              if (accountSpecifierMap[cosmosChainId]) {
-                const cosmosAccountSpecifier = accountSpecifierMap[cosmosChainId]
-                const cosmosPortfolioAccount =
-                  portfolioAccounts[`${cosmosChainId}:${cosmosAccountSpecifier}`]
-                if (cosmosPortfolioAccount) {
-                  const validatorIds = size(cosmosPortfolioAccount.validatorIds)
-                    ? cosmosPortfolioAccount.validatorIds
+              const cosmosNamespaceChainIds = Object.keys(accountSpecifierMap).filter(chainId => {
+                const { chainNamespace } = fromChainId(chainId)
+                return chainNamespace === CHAIN_NAMESPACE.Cosmos
+              })
+
+              cosmosNamespaceChainIds.forEach(chainId => {
+                const accountSpecifier = accountSpecifierMap[chainId]
+                const portfolioAccount = portfolioAccounts[`${chainId}:${accountSpecifier}`]
+                if (portfolioAccount) {
+                  const validatorIds = size(portfolioAccount.validatorIds)
+                    ? portfolioAccount.validatorIds
                     : [SHAPESHIFT_VALIDATOR_ADDRESS]
                   validatorIds?.forEach(validatorAddress => {
                     dispatch(
                       validatorDataApi.endpoints.getValidatorData.initiate({
                         validatorAddress,
+                        chainId,
                       }),
                     )
                   })
                 }
-              }
+              })
               const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
               const options = { forceRefetch: true }
               dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))

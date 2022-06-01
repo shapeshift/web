@@ -1,6 +1,7 @@
 import {
   ASSET_REFERENCE,
   btcChainId,
+  CHAIN_NAMESPACE,
   cosmosChainId,
   ethChainId,
   osmosisChainId,
@@ -257,13 +258,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // always wear protection, or don't it's your choice really
     if (!tx) return
 
-    if (tx.chainId === cosmosChainId) {
+    if (tx.chainId.startsWith(CHAIN_NAMESPACE.Cosmos)) {
       // This block refetches validator data on subsequent Txs in case TVL or APR changed.
-      const validators = portfolioAccounts[`${cosmosChainId}:${tx.address}`]?.validatorIds
+      const validators = portfolioAccounts[`${tx.chainId}:${tx.address}`]?.validatorIds
       validators?.forEach(validatorAddress => {
         dispatch(
           validatorDataApi.endpoints.getValidatorData.initiate({
             validatorAddress,
+            chainId: tx.chainId,
           }),
         )
       })

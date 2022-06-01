@@ -19,6 +19,7 @@ type GetStartedProps = {
 // TODO: Abstract me in a service when I start to get too big
 const ASSET_ID_TO_MAX_APR: Record<AssetId, string> = {
   'cosmos:cosmoshub-4/slip44:118': '12',
+  'cosmos:osmosis-1/slip44:118': '60',
 }
 
 export const GetStarted = ({ assetId, stakingRouterHistory }: GetStartedProps) => {

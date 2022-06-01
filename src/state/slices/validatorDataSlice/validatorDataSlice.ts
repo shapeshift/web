@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { cosmosChainId } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { chainAdapters } from '@shapeshiftoss/types'
@@ -8,7 +8,7 @@ import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 export type PubKey = string
 
-type SingleValidatorDataArgs = { validatorAddress: PubKey }
+type SingleValidatorDataArgs = { validatorAddress: PubKey; chainId: ChainId }
 
 export type Validators = {
   validators: chainAdapters.cosmos.Validator[]
@@ -63,11 +63,10 @@ export const validatorDataApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
-      queryFn: async ({ validatorAddress }, { dispatch }) => {
+      queryFn: async ({ validatorAddress, chainId }, { dispatch }) => {
         const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(
-          cosmosChainId,
-        )) as cosmossdk.cosmos.ChainAdapter
+        const adapter = (await chainAdapters.byChainId(chainId)) as cosmossdk.cosmos.ChainAdapter &
+          cosmossdk.osmosis.ChainAdapter
         try {
           const data = await adapter.getValidator(validatorAddress)
           dispatch(

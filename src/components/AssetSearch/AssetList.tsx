@@ -27,16 +27,11 @@ type ItemData<T> = {
 const sortAssetsByAccountAndMarketCap = (
   assets: Asset[],
   enrichedData: Record<string, { fiatAmount: string; cryptoAmount: string; marketCap: string }>,
-): Asset[] => {
-  return sortBy(assets, [
-    asset => {
-      return Number(enrichedData[asset.assetId].fiatAmount)
-    },
-    asset => {
-      return Number(enrichedData[asset.assetId].marketCap)
-    },
+): Asset[] =>
+  sortBy(assets, [
+    asset => bnOrZero(enrichedData[asset.assetId].fiatAmount).toNumber(),
+    asset => bnOrZero(enrichedData[asset.assetId].marketCap).toNumber(),
   ]).reverse()
-}
 
 /**
  * This function create a data object(cryptoAmount, fiatAmount, marketCap) from the Asset, portfolioAcountRows and marketData for each asset for facilitate sorting.

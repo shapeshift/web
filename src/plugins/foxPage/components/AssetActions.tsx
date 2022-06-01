@@ -64,7 +64,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
     history.push({
       pathname: FoxyPath.Overview,
       search: qs.stringify({
-        chain: asset.chain,
+        chainId: asset.chainId,
         contractAddress: foxyAddresses[0].staking,
         tokenId: foxyAddresses[0].fox,
         rewardId: foxyAddresses[0].foxy,

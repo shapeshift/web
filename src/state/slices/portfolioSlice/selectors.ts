@@ -28,7 +28,10 @@ import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { SHAPESHIFT_OSMO_VALIDATOR_ADDRESS, SHAPESHIFT_VALIDATOR_ADDRESS } from '../validatorDataSlice/const'
+import {
+  SHAPESHIFT_OSMO_VALIDATOR_ADDRESS,
+  SHAPESHIFT_VALIDATOR_ADDRESS,
+} from '../validatorDataSlice/const'
 import { selectValidators } from '../validatorDataSlice/selectors'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'

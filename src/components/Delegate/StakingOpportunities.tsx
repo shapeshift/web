@@ -14,7 +14,6 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   OpportunitiesDataFull,
-  selectFeatureFlag,
   selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
   selectStakingOpportunitiesDataFull,

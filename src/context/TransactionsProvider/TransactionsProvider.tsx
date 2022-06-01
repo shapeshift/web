@@ -1,10 +1,4 @@
-import {
-  ChainId,
-  chainIdToFeeAssetId,
-  CHAIN_NAMESPACE,
-  cosmosChainId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, chainIdToFeeAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import size from 'lodash/size'

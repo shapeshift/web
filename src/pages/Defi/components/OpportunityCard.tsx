@@ -13,7 +13,9 @@ import {
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { FoxAssetId, FoxyIconUrl } from 'plugins/foxPage/foxPage'
 import qs from 'qs'
+import { useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -50,6 +52,9 @@ export const OpportunityCard = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
   const isCosmosStaking = chainId === cosmosChainId
+  const icon = useMemo(() => {
+    return asset.assetId === FoxAssetId ? FoxyIconUrl : asset.icon
+  }, [asset])
 
   const {
     state: { isConnected },
@@ -97,7 +102,7 @@ export const OpportunityCard = ({
         <Flex alignItems='center'>
           <Flex>
             <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon src={asset.icon} boxSize='10' zIndex={2} />
+              <AssetIcon src={icon} boxSize='10' zIndex={2} />
             </SkeletonCircle>
           </Flex>
           <Box ml={4}>

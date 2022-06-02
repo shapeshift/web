@@ -9,7 +9,6 @@ type FoxTabProps = {
   assetSymbol: string
   fiatAmount: string
   cryptoAmount: string
-  isSelected?: boolean
   onClick?: () => void
 } & TabProps
 
@@ -18,7 +17,6 @@ export const FoxTab: React.FC<FoxTabProps> = ({
   assetSymbol,
   fiatAmount,
   cryptoAmount,
-  isSelected,
   onClick,
   ...props
 }) => {
@@ -39,7 +37,6 @@ export const FoxTab: React.FC<FoxTabProps> = ({
       _hover={{ textDecoration: 'none', bg: { base: 'none', md: bgHover } }}
       textAlign='left'
       p={0}
-      isSelected={isSelected}
       onClick={onClick}
       {...props}
     >

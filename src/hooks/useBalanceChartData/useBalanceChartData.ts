@@ -394,7 +394,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       delegationTotal,
     })
 
-    debugCharts({ assets, calculatedBuckets, txs })
+    debugCharts({ assets, calculatedBuckets, timeframe, txs })
 
     const chartData = bucketsToChartData(calculatedBuckets)
 
@@ -421,13 +421,15 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
 type DebugChartsArgs = {
   assets: AssetsById
+  timeframe: HistoryTimeframe
   calculatedBuckets: Bucket[]
   txs: Tx[]
 }
 
 type DebugCharts = (args: DebugChartsArgs) => void
 
-const debugCharts: DebugCharts = ({ assets, calculatedBuckets, txs }) => {
+const debugCharts: DebugCharts = ({ assets, calculatedBuckets, timeframe, txs }) => {
+  if (timeframe !== HistoryTimeframe.ALL) return
   /**
    * there is a long tail of potentially obscure bugs in the charts
    * the best way to address this is log when it happens, and fix the edge cases

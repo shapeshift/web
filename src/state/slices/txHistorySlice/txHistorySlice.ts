@@ -316,10 +316,8 @@ export const txHistoryApi = createApi({
 
         const txHistories = await Promise.allSettled(
           Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
-            const chain = chainIdToChainType(chainId)
             const accountSpecifier = toAccountId({ chainId, account: pubkey })
-
-            const adapter = getChainAdapters().byChain(chain)
+            const adapter = getChainAdapters().byChainId(chainId)
 
             let currentCursor: string = ''
             const txs: Array<chainAdapters.Transaction<ChainTypes>> = []

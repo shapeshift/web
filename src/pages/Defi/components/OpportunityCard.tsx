@@ -14,7 +14,6 @@ import { cosmosChainId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
-import { useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -28,11 +27,8 @@ import { useAppSelector } from 'state/store'
 
 type OpportunityCardProps = {
   isLoaded?: boolean
+  setProperIconAsset: (assetId: string, symbol: string) => string
 } & EarnOpportunityType
-
-export const FoxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-export const FoxyIconUrl =
-  'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png'
 
 export const OpportunityCard = ({
   type,
@@ -48,6 +44,7 @@ export const OpportunityCard = ({
   expired,
   moniker,
   assetId,
+  setProperIconAsset,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
@@ -55,9 +52,6 @@ export const OpportunityCard = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
   const isCosmosStaking = chainId === cosmosChainId
-  const icon = useMemo(() => {
-    return asset.assetId === FoxAssetId ? FoxyIconUrl : asset.icon
-  }, [asset])
 
   const {
     state: { isConnected },
@@ -105,7 +99,11 @@ export const OpportunityCard = ({
         <Flex alignItems='center'>
           <Flex>
             <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon src={icon} boxSize='10' zIndex={2} />
+              <AssetIcon
+                src={setProperIconAsset(asset.assetId, asset.symbol)}
+                boxSize='10'
+                zIndex={2}
+              />
             </SkeletonCircle>
           </Flex>
           <Box ml={4}>

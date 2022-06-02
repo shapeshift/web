@@ -635,4 +635,88 @@ describe('EthereumChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
     })
   })
+
+  describe('buildCustomTx', () => {
+    it('should build an unsigned custom tx using gasPrice', async () => {
+      const httpProvider = {
+        getAccount: jest
+          .fn<any, any>()
+          .mockResolvedValue(
+            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined })
+          )
+      } as unknown as unchained.ethereum.V1Api
+
+      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const txArgs = {
+        wallet: await getWallet(),
+        bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+        to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
+        data: '0x420',
+        value: '123',
+        gasPrice: '123',
+        gasLimit: '456'
+      }
+
+      const output = await adapter.buildCustomTx(txArgs)
+
+      const expectedOutput = {
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          value: '123',
+          to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
+          chainId: 1,
+          data: '0x420',
+          nonce: '0x2',
+          gasLimit: '0x1c8',
+          gasPrice: '0x7b'
+        }
+      }
+
+      await expect(expectedOutput).toEqual(output)
+    })
+
+    it('should build an unsigned custom tx using maxFeePerGas & maxPriorityFeePerGas (eip1559)', async () => {
+      const httpProvider = {
+        getAccount: jest
+          .fn<any, any>()
+          .mockResolvedValue(
+            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined })
+          )
+      } as unknown as unchained.ethereum.V1Api
+
+      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const txArgs = {
+        wallet: await getWallet(),
+        bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+        to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
+        data: '0x420',
+        value: '123',
+        gasLimit: '456',
+        maxFeePerGas: '421',
+        maxPriorityFeePerGas: '422'
+      }
+
+      const output = await adapter.buildCustomTx(txArgs)
+
+      const expectedOutput = {
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          value: '123',
+          to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
+          chainId: 1,
+          data: '0x420',
+          nonce: '0x2',
+          gasLimit: '0x1c8',
+          maxFeePerGas: '0x1a5',
+          maxPriorityFeePerGas: '0x1a6'
+        }
+      }
+
+      await expect(expectedOutput).toEqual(output)
+    })
+  })
 })

@@ -8,7 +8,7 @@ import {
   fromChainId,
   toAssetId
 } from '@shapeshiftoss/caip'
-import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import { bip32ToAddressNList, ETHSignTx, ETHWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
@@ -195,6 +195,77 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas!)
             })
+      }
+      return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
+  async buildCustomTx(
+    tx: {
+      wallet: HDWallet
+      bip44Params: BIP44Params
+      to: string
+      data: string
+      value: string
+      gasLimit: string
+    } & (
+      | {
+          /** types from ethSignTx in hdwallet */
+          gasPrice: string
+          maxFeePerGas?: never
+          maxPriorityFeePerGas?: never
+        }
+      | {
+          gasPrice?: never
+          maxFeePerGas: string
+          maxPriorityFeePerGas: string
+        }
+    )
+  ): Promise<{
+    txToSign: ETHSignTx
+  }> {
+    try {
+      const {
+        wallet,
+        bip44Params = ChainAdapter.defaultBIP44Params,
+        to,
+        data,
+        value,
+        gasPrice,
+        gasLimit,
+        maxFeePerGas,
+        maxPriorityFeePerGas
+      } = tx
+
+      const path = toPath(bip44Params)
+      const addressNList = bip32ToAddressNList(path)
+
+      const from = await this.getAddress({ bip44Params, wallet })
+      const { chainSpecific } = await this.getAccount(from)
+
+      const gasInfo = gasPrice
+        ? {
+            gasPrice: numberToHex(gasPrice)
+          }
+        : {
+            // (The type system guarantees that on this branch both of these will be set)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            maxFeePerGas: numberToHex(maxFeePerGas!),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas!)
+          }
+
+      const txToSign: ETHSignTx = {
+        addressNList,
+        value,
+        to,
+        chainId: 1, // TODO: implement for multiple chains
+        data,
+        nonce: numberToHex(chainSpecific.nonce),
+        gasLimit: numberToHex(gasLimit),
+        ...gasInfo
       }
       return { txToSign }
     } catch (err) {

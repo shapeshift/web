@@ -44,7 +44,7 @@ import {
   selectPortfolioAssetIds,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -166,6 +166,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (switched || disconnected) {
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())
+      dispatch(txHistory.actions.clear())
     }
     // this effect changes accountSpecifiersList, don't create infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps

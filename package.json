@@ -32,7 +32,7 @@
     "@shapeshiftoss/market-service": "^4.2.2",
     "@shapeshiftoss/swapper": "^5.2.3",
     "@shapeshiftoss/types": "^4.3.2",
-    "@shapeshiftoss/unchained-client": "9.0.0-alpha.0",
+    "@shapeshiftoss/unchained-client": "9.0.0-alpha.1",
     "@visx/axis": "^2.6.0",
     "@visx/brush": "^2.6.0",
     "@visx/gradient": "^2.1.0",

@@ -4091,10 +4091,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.3.2.tgz#f8ff003e3cd0db2ee1baebad8e6d52ffa3b326b3"
   integrity sha512-TQtGSi/kaK/ciNc9CVLRQHZgj7zYszNIDTSpsdmyt7K3MaYoidqk1x/m+QOsJk3hWNELvXtVy0iVbIIPN/viCQ==
 
-"@shapeshiftoss/unchained-client@9.0.0-alpha.0":
-  version "9.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.0.0-alpha.0.tgz#943752889da17e2c4ce58f152d0abbac93f24aa8"
-  integrity sha512-dHkQCwxoODqlT0UKyhnC4xY155/oYJUL/jnTMVKzlJbBdX7I1Pvzp25PA4BS7FVcQ94HN/iTFhHcQqYmfrhFBA==
+"@shapeshiftoss/unchained-client@9.0.0-alpha.1":
+  version "9.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.0.0-alpha.1.tgz#e7d4b01794834fa5dd8329220e130a3b03474220"
+  integrity sha512-mHXQsz1thCGUBQgWmJJSTc+vQn9fQDFBQMmPezSQydQ8suCiOjcG/NlRBNRedT1KEfdzBNFBO0ISbTroucLMVw==
   dependencies:
     "@shapeshiftoss/blockbook" "^6.11.0"
     "@yfi/sdk" "^1.0.30"

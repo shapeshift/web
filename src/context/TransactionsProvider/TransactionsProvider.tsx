@@ -48,7 +48,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (!isSubscribed) return
     moduleLogger.info('unsubscribing txs')
     supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
-    dispatch(txHistory.actions.clear())
     setIsSubscribed(false)
     // setting isSubscribed to false will trigger this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps

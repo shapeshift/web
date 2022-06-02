@@ -27,7 +27,7 @@ import { useAppSelector } from 'state/store'
 
 type OpportunityCardProps = {
   isLoaded?: boolean
-  setProperIconAsset: (assetId: string, symbol: string) => string
+  selectProperIcon: (assetId: string) => string
 } & EarnOpportunityType
 
 export const OpportunityCard = ({
@@ -44,7 +44,7 @@ export const OpportunityCard = ({
   expired,
   moniker,
   assetId,
-  setProperIconAsset,
+  selectProperIcon,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
@@ -99,11 +99,7 @@ export const OpportunityCard = ({
         <Flex alignItems='center'>
           <Flex>
             <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon
-                src={setProperIconAsset(asset.assetId, asset.symbol)}
-                boxSize='10'
-                zIndex={2}
-              />
+              <AssetIcon src={selectProperIcon(asset.assetId)} boxSize='10' zIndex={2} />
             </SkeletonCircle>
           </Flex>
           <Box ml={4}>

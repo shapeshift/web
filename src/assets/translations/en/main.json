@@ -1053,7 +1053,10 @@
       "borrowingAndLending": "Borrowing & Lending",
       "currentPrice": "Current Price",
       "governanceTitle": "Governance",
-      "seeAllProposals": "See All Proposals"
+      "seeAllProposals": "See All Proposals",
+      "availableToTradeOn": "Available to Trade On",
+      "dex": "DEX",
+      "centralized": "Centralized"
     }
   }
 }

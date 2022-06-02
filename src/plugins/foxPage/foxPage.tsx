@@ -35,7 +35,9 @@ import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
+import { TradeOpportunities, TradeOpportunitiesBucket } from './components/TradeOpportunities'
 import { FoxAssetId, FoxyAssetId } from './constants'
+import { foxTradeOpportunitiesBuckets, foxyTradeOpportunitiesBuckets } from './FoxCommon'
 
 export enum FoxPageRoutes {
   Fox = '/fox/fox',
@@ -45,6 +47,11 @@ export enum FoxPageRoutes {
 const assetsRoutes: Record<AssetId, FoxPageRoutes> = {
   [FoxAssetId]: FoxPageRoutes.Fox,
   [FoxyAssetId]: FoxPageRoutes.Foxy,
+}
+
+const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[]> = {
+  [FoxAssetId]: foxTradeOpportunitiesBuckets,
+  [FoxyAssetId]: foxyTradeOpportunitiesBuckets,
 }
 
 export type FoxPageProps = {
@@ -188,6 +195,7 @@ export const FoxPage = (props: FoxPageProps) => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <FoxChart assetId={FoxAssetId} />
+                <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FoxAssetId]} />
               </Stack>
             </Stack>
           </TabPanel>
@@ -199,6 +207,7 @@ export const FoxPage = (props: FoxPageProps) => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <FoxChart assetId={FoxyAssetId} />
+                <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FoxyAssetId]} />
               </Stack>
             </Stack>
           </TabPanel>

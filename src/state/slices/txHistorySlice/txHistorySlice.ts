@@ -9,7 +9,6 @@ import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
-import { chainIdToChainType } from 'lib/utils'
 import {
   AccountSpecifier,
   AccountSpecifierMap,

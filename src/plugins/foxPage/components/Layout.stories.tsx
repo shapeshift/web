@@ -24,7 +24,6 @@ import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
 import { breakpoints } from 'theme/theme'
 
-import { AssetActions } from './AssetActions'
 import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
 import { Layout } from './Layout'
@@ -171,17 +170,7 @@ export const FoxLayout: Story = () => {
                 <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <AssetActions
-                  assetIcon={mockAsset.icon}
-                  assetSymbol={mockAsset.symbol}
-                  description={mockAsset.description}
-                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
-                    assetSymbol: mockAsset.symbol,
-                  })}
-                  sellCTA='plugins.foxPage.receive'
-                  onReceiveClick={() => null}
-                  onBuyClick={() => null}
-                />
+                {/* <AssetActions assetId={mockAsset.assetId} /> */}
               </Stack>
             </Stack>
           </TabPanel>
@@ -203,17 +192,7 @@ export const FoxLayout: Story = () => {
                 <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <AssetActions
-                  assetIcon={mockAsset.icon}
-                  assetSymbol={mockAsset.symbol}
-                  description={mockAsset.description}
-                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
-                    assetSymbol: mockAsset.symbol,
-                  })}
-                  sellCTA='plugins.foxPage.receive'
-                  onReceiveClick={() => null}
-                  onBuyClick={() => null}
-                />
+                {/* <AssetActions assetId={mockAsset.assetId} /> */}
               </Stack>
             </Stack>
           </TabPanel>
@@ -235,17 +214,7 @@ export const FoxLayout: Story = () => {
                 <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-                <AssetActions
-                  assetIcon={mockAsset.icon}
-                  assetSymbol={mockAsset.symbol}
-                  description={mockAsset.description}
-                  buyCTA={translate('plugins.foxPage.buyAssetOnCoinbase', {
-                    assetSymbol: mockAsset.symbol,
-                  })}
-                  sellCTA='plugins.foxPage.receive'
-                  onReceiveClick={() => null}
-                  onBuyClick={() => null}
-                />
+                {/* <AssetActions assetId={mockAsset.assetId} /> */}
               </Stack>
             </Stack>
           </TabPanel>

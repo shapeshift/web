@@ -30,20 +30,19 @@ import { selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
+import { AssetActions } from './components/AssetActions'
 import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
 import { TradeOpportunities, TradeOpportunitiesBucket } from './components/TradeOpportunities'
+import { FoxAssetId, FoxyAssetId } from './constants'
 import { foxTradeOpportunitiesBuckets, foxyTradeOpportunitiesBuckets } from './FoxCommon'
 
 export enum FoxPageRoutes {
   Fox = '/fox/fox',
   Foxy = '/fox/foxy',
 }
-
-export const FoxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-export const FoxyAssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
 
 const assetsRoutes: Record<AssetId, FoxPageRoutes> = {
   [FoxAssetId]: FoxPageRoutes.Fox,
@@ -190,28 +189,24 @@ export const FoxPage = (props: FoxPageProps) => {
         </TabList>
         <TabPanels>
           <TabPanel p={0}>
-            <Stack
-              alignItems='flex-start'
-              spacing={4}
-              mx='auto'
-              direction={{ base: 'column', xl: 'row' }}
-            >
+            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
               <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+                <AssetActions assetId={FoxAssetId} />
+              </Stack>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <FoxChart assetId={FoxAssetId} />
                 <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FoxAssetId]} />
               </Stack>
             </Stack>
           </TabPanel>
           <TabPanel p={0}>
-            <Stack
-              alignItems='flex-start'
-              spacing={4}
-              mx='auto'
-              direction={{ base: 'column', xl: 'row' }}
-            >
+            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
               <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
+                <AssetActions assetId={FoxyAssetId} />
+              </Stack>
+              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <FoxChart assetId={FoxyAssetId} />
                 <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FoxyAssetId]} />
               </Stack>

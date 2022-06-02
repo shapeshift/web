@@ -16,7 +16,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,9 +31,8 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
   const translate = useTranslate()
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, tokenId } = query
 
-  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({

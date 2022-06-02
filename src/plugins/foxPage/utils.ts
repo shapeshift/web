@@ -79,3 +79,30 @@ export const calculateAPRFromToken0 = async ({
     .valueOf()
   return estimatedAPR
 }
+
+export const totalLpSupply = async (farmingRewardsContract: Contract) => {
+  try {
+    const totalSupply = await farmingRewardsContract.totalSupply()
+    return bnOrZero(totalSupply.toString())
+  } catch (error) {
+    const errorMsg = 'totalLpSupply error'
+    console.error(error, errorMsg)
+    throw new Error(errorMsg)
+  }
+}
+
+export const rewardRatePerToken = async (farmingRewardsContract: Contract) => {
+  try {
+    const rewardRate = await farmingRewardsContract.rewardRate() // Rate of FOX given per second for all staked addresses
+    const totalSupply = await totalLpSupply(farmingRewardsContract)
+    return bnOrZero(rewardRate.toString())
+      .div(totalSupply)
+      .times('1e+18')
+      .decimalPlaces(0)
+      .toString()
+  } catch (error) {
+    const errorMsg = 'rewardRatePerToken error'
+    console.error(error, errorMsg)
+    throw new Error(errorMsg)
+  }
+}

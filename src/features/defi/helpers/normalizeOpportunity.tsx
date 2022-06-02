@@ -1,6 +1,5 @@
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -12,7 +11,7 @@ import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
-import { chainTypeToLabel } from './utils'
+import { chainIdToLabel } from './utils'
 
 export type EarnOpportunityType = {
   type?: string
@@ -27,7 +26,7 @@ export type EarnOpportunityType = {
   fiatAmount: string
   cryptoAmount: string
   expired?: boolean
-  chain: ChainTypes
+  chainId: ChainId
   moniker?: string
   showAssetSymbol?: boolean
   isLoaded: boolean
@@ -62,7 +61,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       tvl: bnOrZero(vault.underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString(),
       apy: vault.metadata.apy?.net_apy,
       expired: vault.expired,
-      chain: vault.chain,
+      chainId,
       assetId,
       fiatAmount,
       cryptoAmount,
@@ -101,7 +100,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       tvl,
       apy,
       expired,
-      chain,
+      chainId,
       tokenAssetId: assetId,
       fiatAmount,
       cryptoAmount,
@@ -115,7 +114,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       tvl: bnOrZero(tvl).toString(),
       apy,
       expired,
-      chain,
+      chainId,
       assetId,
       fiatAmount,
       cryptoAmount,
@@ -133,13 +132,13 @@ const useTransformCosmosStaking = (
     .map(staking => {
       return {
         type: DefiType.TokenStaking,
-        provider: chainTypeToLabel(staking.chain),
+        provider: chainIdToLabel(staking.chainId),
         contractAddress: staking.address,
         tokenAddress: staking.tokenAddress,
         rewardAddress: '',
         tvl: staking.tvl,
         apy: staking.apr,
-        chain: staking.chain,
+        chainId: staking.chainId,
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
         cryptoAmount: staking.cryptoAmount ?? '',

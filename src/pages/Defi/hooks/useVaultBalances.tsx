@@ -44,6 +44,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
       const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
       acc[vault.vaultAddress] = {
         ...vault,
+        chainId: chainTypeToMainnetChainId(vault.chain),
         balance,
         vaultAssetId,
         tokenAssetId,

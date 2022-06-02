@@ -13,7 +13,6 @@ import {
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { FoxAssetId, FoxyIconUrl } from 'plugins/foxPage/foxPage'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -30,6 +29,10 @@ import { useAppSelector } from 'state/store'
 type OpportunityCardProps = {
   isLoaded?: boolean
 } & EarnOpportunityType
+
+export const FoxyAssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
+export const FoxyIconUrl =
+  'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png'
 
 export const OpportunityCard = ({
   type,

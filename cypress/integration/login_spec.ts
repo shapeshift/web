@@ -49,6 +49,7 @@ describe('The Dashboard', () => {
     cy.getBySel('wallet-native-seed-submit-button').click()
     cy.getBySel('wallet-native-set-name-input').type('cypress-test')
     cy.getBySel('wallet-native-password-input').type(password)
+    cy.getBySel('wallet-native-confirmPassword-input').type(password)
     cy.getBySel('wallet-native-password-submit-button').click()
 
     cy.url().should('equal', `${baseUrl}dashboard`)

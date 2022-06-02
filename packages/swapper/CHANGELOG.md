@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.5.0...@shapeshiftoss/swapper-v5.6.0) (2022-06-02)
+
+
+### Features
+
+* get call data for router deposit call ([#739](https://github.com/shapeshift/lib/issues/739)) ([807e547](https://github.com/shapeshift/lib/commit/807e547a02928f6d4aac03599ba386ab6efc9ced))
+
 # [@shapeshiftoss/swapper-v5.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.4.0...@shapeshiftoss/swapper-v5.5.0) (2022-06-02)
 
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.6.0...@shapeshiftoss/swapper-v5.7.0) (2022-06-02)
+
+
+### Features
+
+* add getUsdRate for thorchainSwapper ([#737](https://github.com/shapeshift/lib/issues/737)) ([f629780](https://github.com/shapeshift/lib/commit/f62978047f95670672cc8d948b3e2981cc3362c7))
+
 # [@shapeshiftoss/swapper-v5.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.5.0...@shapeshiftoss/swapper-v5.6.0) (2022-06-02)
 
 

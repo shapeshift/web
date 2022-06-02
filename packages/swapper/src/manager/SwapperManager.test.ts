@@ -4,6 +4,7 @@ import Web3 from 'web3'
 
 import { SwapperType } from '../api'
 import { ThorchainSwapper, ThorchainSwapperDeps, ZrxSwapper, ZrxSwapperDeps } from '../swappers'
+import { CowSwapper } from '../swappers/cow/CowSwapper'
 import { SwapperManager } from './SwapperManager'
 
 describe('SwapperManager', () => {
@@ -60,9 +61,11 @@ describe('SwapperManager', () => {
       swapper
         .addSwapper(SwapperType.Thorchain, new ThorchainSwapper(thorchainSwapperDeps))
         .addSwapper(SwapperType.Zrx, new ZrxSwapper(zrxSwapperDeps))
+        .addSwapper(SwapperType.CowSwap, new CowSwapper())
 
       expect(swapper.getSwapper(SwapperType.Thorchain)).toBeInstanceOf(ThorchainSwapper)
       expect(swapper.getSwapper(SwapperType.Zrx)).toBeInstanceOf(ZrxSwapper)
+      expect(swapper.getSwapper(SwapperType.CowSwap)).toBeInstanceOf(CowSwapper)
     })
 
     it('should throw an error if swapper is not set', () => {

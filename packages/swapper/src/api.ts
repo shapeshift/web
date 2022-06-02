@@ -137,6 +137,7 @@ export type ApprovalNeededOutput = {
 export enum SwapperType {
   Zrx = '0x',
   Thorchain = 'Thorchain',
+  CowSwap = 'CowSwap',
   Test = 'Test'
 }
 

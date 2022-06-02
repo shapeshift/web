@@ -483,7 +483,7 @@
         "show": "Show password",
         "hide": "Hide password",
         "error": {
-          "invalid": "Your passwords don't match",
+          "invalid": "Password must match",
           "required": "Password confirmation is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"

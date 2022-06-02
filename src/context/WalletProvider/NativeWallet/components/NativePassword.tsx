@@ -20,8 +20,10 @@ import { NativeSetupProps } from '../types'
 export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
+  const [showConfirmPw, setShowConfirmPw] = useState<boolean>(false)
 
-  const handleShowClick = () => setShowPw(!showPw)
+  const handleShowPwClick = () => setShowPw(!showPw)
+  const handleShowConfirmPwClick = () => setShowConfirmPw(state => !state)
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = location.state.vault
@@ -94,7 +96,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                   h='1.75rem'
                   size='sm'
-                  onClick={handleShowClick}
+                  onClick={handleShowPwClick}
                   icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                 />
               </InputRightElement>
@@ -111,7 +113,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                     translate('modals.shapeShift.confirmPassword.error.invalid'),
                 })}
                 pr='4.5rem'
-                type={showPw ? 'text' : 'confirmPassword'}
+                type={showConfirmPw ? 'text' : 'password'}
                 placeholder={translate('modals.shapeShift.confirmPassword.placeholder')}
                 autoComplete={'confirmPassword'}
                 id='confirmPassword'
@@ -120,12 +122,12 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
               <InputRightElement>
                 <IconButton
                   aria-label={translate(
-                    `modals.shapeShift.confirmPassword.${showPw ? 'hide' : 'show'}`,
+                    `modals.shapeShift.confirmPassword.${showConfirmPw ? 'hide' : 'show'}`,
                   )}
                   h='1.75rem'
                   size='sm'
-                  onClick={handleShowClick}
-                  icon={!showPw ? <FaEye /> : <FaEyeSlash />}
+                  onClick={handleShowConfirmPwClick}
+                  icon={!showConfirmPw ? <FaEye /> : <FaEyeSlash />}
                 />
               </InputRightElement>
             </InputGroup>

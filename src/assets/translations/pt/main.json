@@ -304,6 +304,12 @@
     "amount": "Montante",
     "for": "Por",
     "parser": {
+      "weth": {
+        "deposit": "Depósito",
+        "approve": "Aprovar",
+        "withdraw": "Retirar",
+        "receive": "Receber"
+      },
       "yearn": {
         "deposit": "Depósito",
         "approve": "Aprovar",

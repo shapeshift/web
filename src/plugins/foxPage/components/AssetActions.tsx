@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
+import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
 import qs from 'qs'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
@@ -35,11 +36,10 @@ type FoxTabProps = {
   assetId: AssetId
 }
 
-const GetFoxyModalRoute = `/defi/token_staking/ShapeShift/overview`
-const GetFoxCoinbaseExternalUrl = `https://www.coinbase.com/price/fox-token`
 const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
+const COINBASE_FOX_EXTERNAL_URL = `https://www.coinbase.com/price/fox-token`
 
-export const AssetActions = ({ assetId }: FoxTabProps) => {
+export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
@@ -51,7 +51,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
   const isFoxAsset = assetId === FoxAssetId
 
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
-  const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
+  const accountId = accountIds?.[0]
   const {
     state: { isConnected },
     dispatch,
@@ -60,13 +60,13 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset, accountId: singleAccount }) : handleWalletModalOpen()
+    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
 
   const onGetAssetClick = () => {
     history.push({
-      pathname: GetFoxyModalRoute,
+      pathname: FoxyPath.Overview,
       search: qs.stringify({
-        chain: asset.chain,
+        chainId: asset.chainId,
         contractAddress: foxyAddresses[0].staking,
         tokenId: foxyAddresses[0].fox,
         rewardId: foxyAddresses[0].foxy,
@@ -117,7 +117,7 @@ export const AssetActions = ({ assetId }: FoxTabProps) => {
                     size='lg'
                     as={Link}
                     leftIcon={<ExternalLinkIcon />}
-                    href={GetFoxCoinbaseExternalUrl}
+                    href={COINBASE_FOX_EXTERNAL_URL}
                     isExternal
                   >
                     <CText>

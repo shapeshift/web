@@ -14,6 +14,8 @@ env:
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: https://dev-api.cosmos.shapeshift.com
   REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
+  REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: https://dev-api.osmosis.shapeshift.com
+  REACT_APP_UNCHAINED_OSMOSIS_WS_URL: wss://dev-api.osmosis.shapeshift.com  
   REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
   REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
@@ -95,7 +97,7 @@ jobs:
         uses: cypress-io/github-action@v3
         with:
           record: true
-          start: yarn dev
+          start: yarn dev:cypress
           parallel: true
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300 # seconds

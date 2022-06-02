@@ -54,6 +54,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
       const pricePerShare = opportunity?.positionAsset.price
       acc[vault.vaultAddress] = {
         ...vault,
+        chainId: chainTypeToMainnetChainId(vault.chain),
         balance,
         vaultAssetId,
         tokenAssetId,

@@ -11,7 +11,6 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -21,12 +20,11 @@ import { DepositContext } from '../DepositContext'
 export const Status = () => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain } = query
+  const { chainId } = query
 
   const assetId = state?.opportunity?.underlyingAsset.assetId || 'undefined'
 
   // TODO: We need to get the fee asset from the Opportunity
-  const chainId = chainTypeToMainnetChainId(chain)
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',

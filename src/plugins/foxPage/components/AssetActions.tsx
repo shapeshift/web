@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyManager'
+import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
 import qs from 'qs'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'

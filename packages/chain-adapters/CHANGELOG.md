@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v4.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.5.0...@shapeshiftoss/chain-adapters-v4.6.0) (2022-06-02)
+
+
+### Features
+
+* custom eth transactions ([#736](https://github.com/shapeshift/lib/issues/736)) ([609e745](https://github.com/shapeshift/lib/commit/609e74596784cd798ccc71ca2bce03d82903613c))
+
 # [@shapeshiftoss/chain-adapters-v4.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.4.0...@shapeshiftoss/chain-adapters-v4.5.0) (2022-06-01)
 
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.4.0...@shapeshiftoss/swapper-v5.5.0) (2022-06-02)
+
+
+### Features
+
+* implements cowswapper skeleton ([#732](https://github.com/shapeshift/lib/issues/732)) ([dd6e935](https://github.com/shapeshift/lib/commit/dd6e9357a0f97e23a50c0b51a9dd2d9ec07b2d1b))
+
 # [@shapeshiftoss/swapper-v5.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.3.0...@shapeshiftoss/swapper-v5.4.0) (2022-06-01)
 
 

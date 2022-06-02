@@ -21,7 +21,7 @@ import {
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
+import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -144,7 +144,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 if (portfolioAccount) {
                   const validatorIds = size(portfolioAccount.validatorIds)
                     ? portfolioAccount.validatorIds
-                    : [SHAPESHIFT_VALIDATOR_ADDRESS]
+                    : [SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS]
                   validatorIds?.forEach(validatorAddress => {
                     dispatch(
                       validatorDataApi.endpoints.getValidatorData.initiate({

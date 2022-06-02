@@ -29,8 +29,8 @@ import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
-  SHAPESHIFT_OSMO_VALIDATOR_ADDRESS,
-  SHAPESHIFT_VALIDATOR_ADDRESS,
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from '../validatorDataSlice/const'
 import { selectValidators } from '../validatorDataSlice/selectors'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
@@ -98,8 +98,8 @@ export type OpportunitiesDataFull = {
 export const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.byId
 
 export const validatorFromAccountSpecifier = (accountSpecifier: AccountSpecifier) => {
-  if (accountSpecifier.includes('osmosis')) return SHAPESHIFT_OSMO_VALIDATOR_ADDRESS
-  else return SHAPESHIFT_VALIDATOR_ADDRESS
+  if (accountSpecifier.includes('osmosis')) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+  else return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
 }
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
@@ -881,8 +881,8 @@ export const selectHasActiveStakingOpportunity = createSelector(
     // More than one opportunity data means we have more than the default opportunity
     size(stakingOpportunitiesData) > 1 ||
     // If there's only one staking but it isn't the default opportunity, then it's an active staking
-    (stakingOpportunitiesData[0]?.address !== SHAPESHIFT_VALIDATOR_ADDRESS &&
-      stakingOpportunitiesData[0]?.address !== SHAPESHIFT_OSMO_VALIDATOR_ADDRESS) ||
+    (stakingOpportunitiesData[0]?.address !== SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS &&
+      stakingOpportunitiesData[0]?.address !== SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS) ||
     bnOrZero(stakingOpportunitiesData[0]?.rewards).gt(0) ||
     bnOrZero(stakingOpportunitiesData[0]?.totalDelegations).gt(0),
 )

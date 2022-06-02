@@ -3,7 +3,7 @@ import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
+import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 
 type StakingInput =
   | {
@@ -35,35 +35,29 @@ export const useStakingAction = () => {
         let result
 
         const { chainSpecific, validator, action, value } = data
-        const memo = validator === SHAPESHIFT_VALIDATOR_ADDRESS ? 'Delegated with ShapeShift' : ''
+        const memo =
+          validator === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS ? 'Delegated with ShapeShift' : ''
 
+        const cosmosSdkAdapter = adapter as cosmossdk.cosmos.ChainAdapter
+        const commonArgs = { wallet, validator, chainSpecific, memo }
         switch (action) {
           case StakingAction.Claim: {
-            result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildClaimRewardsTransaction({
-              wallet,
-              validator,
-              chainSpecific,
-              memo,
+            result = await cosmosSdkAdapter.buildClaimRewardsTransaction({
+              ...commonArgs,
             })
             break
           }
           case StakingAction.Stake: {
-            result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildDelegateTransaction({
-              wallet,
-              validator,
+            result = await cosmosSdkAdapter.buildDelegateTransaction({
+              ...commonArgs,
               value,
-              chainSpecific,
-              memo,
             })
             break
           }
           case StakingAction.Unstake: {
-            result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildUndelegateTransaction({
-              wallet,
-              validator,
+            result = await cosmosSdkAdapter.buildUndelegateTransaction({
+              ...commonArgs,
               value,
-              chainSpecific,
-              memo,
             })
             break
           }

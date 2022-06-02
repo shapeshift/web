@@ -1,7 +1,7 @@
 import { MOCK_VALIDATORS, SHAPESHIFT_OPPORTUNITY } from 'test/mocks/validators'
 import { clearState, store } from 'state/store'
 
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from './const'
+import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './const'
 import { selectValidatorByAddress } from './selectors'
 import { validatorData } from './validatorDataSlice'
 
@@ -38,7 +38,7 @@ describe('validatorDataSlice', () => {
         )
 
         expect(
-          store.getState().validatorData.byValidator[SHAPESHIFT_VALIDATOR_ADDRESS],
+          store.getState().validatorData.byValidator[SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS],
         ).toMatchSnapshot()
         expect(store.getState().validatorData.byValidator).toMatchSnapshot()
         store.dispatch(validatorData.actions.clear())
@@ -54,7 +54,10 @@ describe('validatorDataSlice', () => {
   describe('selectors', () => {
     describe('selectValidatorByAddress', () => {
       it('returns null on initial state', async () => {
-        const selected = selectValidatorByAddress(store.getState(), SHAPESHIFT_VALIDATOR_ADDRESS)
+        const selected = selectValidatorByAddress(
+          store.getState(),
+          SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+        )
         expect(selected).toBeNull()
       })
 
@@ -88,7 +91,10 @@ describe('validatorDataSlice', () => {
             }),
           )
 
-          const selected = selectValidatorByAddress(store.getState(), SHAPESHIFT_VALIDATOR_ADDRESS)
+          const selected = selectValidatorByAddress(
+            store.getState(),
+            SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+          )
           expect(selected).toEqual(SHAPESHIFT_OPPORTUNITY)
         })
       })

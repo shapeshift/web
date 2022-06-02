@@ -38,10 +38,19 @@ type CoinGeckoAssetData = {
 }
 
 export class CoinGeckoMarketService implements MarketService {
-  baseUrl = 'https://api.coingecko.com/api/v3'
+  // if we have a key - use the pro- api
+  baseUrl = `https://${
+    process.env.REACT_APP_COINGECKO_API_KEY ? 'pro-' : ''
+  }api.coingecko.com/api/v3`
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 2500
+  }
+
+  private maybeAddAPIKey = (): string => {
+    return process.env.REACT_APP_COINGECKO_API_KEY
+      ? `&x_cg_pro_api_key=${process.env.REACT_APP_COINGECKO_API_KEY}`
+      : ''
   }
 
   findAll = async (args?: FindAllMarketArgs) => {
@@ -51,7 +60,9 @@ export class CoinGeckoMarketService implements MarketService {
     const pages = Math.ceil(bnOrZero(count).div(perPage).toNumber())
 
     const urlAtPage = (page: number) =>
-      `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false`
+      `${
+        this.baseUrl
+      }/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false${this.maybeAddAPIKey()}`
     const pageCount = Array(pages)
       .fill(0)
       .map((_v, i) => i + 1)
@@ -100,7 +111,7 @@ export class CoinGeckoMarketService implements MarketService {
       const contractUrl = isToken ? `/contract/${assetReference}` : ''
 
       const { data }: { data: CoinGeckoAssetData } = await axios.get(
-        `${this.baseUrl}/coins/${id}${contractUrl}`
+        `${this.baseUrl}/coins/${id}${contractUrl}?${this.maybeAddAPIKey()}`
       )
 
       const currency = 'usd'
@@ -170,7 +181,7 @@ export class CoinGeckoMarketService implements MarketService {
 
       const currency = 'usd'
       const { data: historyData } = await axios.get<CoinGeckoHistoryData>(
-        `${url}/market_chart/range?id=${id}&vs_currency=${currency}&from=${from}&to=${to}`
+        `${url}/market_chart/range?id=${id}&vs_currency=${currency}&from=${from}&to=${to}${this.maybeAddAPIKey()}`
       )
       return historyData?.prices?.reduce<HistoryData[]>((acc, data) => {
         const date = data[0]

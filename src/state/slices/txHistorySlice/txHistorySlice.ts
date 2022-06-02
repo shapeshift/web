@@ -325,7 +325,7 @@ export const txHistoryApi = createApi({
                 const { cursor, transactions } = await adapter.getTxHistory({
                   cursor: currentCursor,
                   pubkey,
-                  pageSize: 100,
+                  pageSize: 50,
                 })
 
                 txs.push(...transactions)

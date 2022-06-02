@@ -1,0 +1,33 @@
+{
+  "name": "@shapeshiftoss/investor",
+  "version": "1.0.0",
+  "description": "A core abstraction for single-sided staking plugins",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist",
+    "src": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=14.18.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json",
+    "dev": "tsc --watch",
+    "prepare": "yarn build",
+    "test": "jest --coverage"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@shapeshiftoss/hdwallet-core": "^1.22.0",
+    "bignumber.js": "^9.0.2"
+  }
+}

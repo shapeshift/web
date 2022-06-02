@@ -8,7 +8,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -27,11 +26,10 @@ export const FoxyDetails = () => {
     path: '/defi/:earnType/:provider/:action',
     exact: true,
   })
-  const { chain, contractAddress, tokenId, rewardId } = query
+  const { chainId, contractAddress, tokenId, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
-  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,

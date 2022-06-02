@@ -42,7 +42,14 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
             }}
             rightIcon={<ChevronRightIcon boxSize={6} />}
           >
-            <Flex flex={1} flexDirection='row' justifyContent='space-between' alignItems='center'>
+            <Flex
+              flex={1}
+              flexDirection={['column', 'row']}
+              justifyContent='space-between'
+              alignItems={['baseline', 'center']}
+              gap={['1em', 0]}
+              width='100%'
+            >
               <Flex flexDirection='row' justifyContent='center' alignItems='center'>
                 <AssetIcon src={fiatRampConfig.logo} />
                 <Box textAlign='left' ml={2}>
@@ -50,7 +57,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
                   <Text translation={fiatRampConfig.info ?? ''} />
                 </Box>
               </Flex>
-              <Box>
+              <Box display={['none', 'block']}>
                 <Tag colorScheme='green' mr={2}>
                   <Text translation='fiatRamps.buy' style={{ textTransform: 'uppercase' }} />
                 </Tag>
@@ -72,7 +79,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
             fontWeight='normal'
             py={2}
           >
-            <Flex flexDirection='row' justifyContent='center' alignItems='center'>
+            <Flex flexDirection='row' justifyContent='flex-start' alignItems='center' width='100%'>
               <AssetIcon src={fiatRampConfig.logo} />
               <Box textAlign='left' ml={2}>
                 <Text fontWeight='bold' translation={fiatRampConfig.label} />
@@ -88,7 +95,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
   }, [banxaFiatRampFeatureFlag, history, setFiatRampProvider])
 
   return (
-    <Flex justifyContent='center' alignItems='center' width={'32rem'}>
+    <Flex justifyContent='center' alignItems='center' width={['100%', '32rem']}>
       <Card boxShadow='none' borderWidth={0}>
         <Card.Header>
           <Card.Heading>

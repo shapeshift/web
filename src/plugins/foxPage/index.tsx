@@ -1,7 +1,8 @@
 import { Plugins } from 'plugins'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
-import { FoxAssetId, FoxPage, FoxyAssetId } from './foxPage'
+import { FoxAssetId, FoxyAssetId } from './constants'
+import { FoxPage } from './foxPage'
 
 export function register(): Plugins {
   return [

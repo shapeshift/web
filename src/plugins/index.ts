@@ -1,10 +1,13 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { logger } from 'lib/logger'
 import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { Route } from '../Routes/helpers'
 
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'osmosis']
+const moduleLogger = logger.child({ namespace: ['PluginManager'] })
+
+const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis']
 
 export type Plugins = [chainId: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }
@@ -35,6 +38,10 @@ export class PluginManager {
     }
   }
 
+  keys(): string[] {
+    return [...this.#pluginManager.keys()]
+  }
+
   entries(): [string, Plugin][] {
     return [...this.#pluginManager.entries()]
   }
@@ -44,10 +51,20 @@ export class PluginManager {
 // if we need to support features that require re-rendering. Currently we do not.
 export const pluginManager = new PluginManager()
 
-export const registerPlugins = async () => {
+export async function registerPlugins() {
   pluginManager.clear()
 
   for (const plugin of activePlugins) {
-    pluginManager.register(await import(`./${plugin}/index.tsx`))
+    try {
+      pluginManager.register(await import(`./${plugin}/index.tsx`))
+      moduleLogger.trace({ fn: 'registerPlugins', pluginManager, plugin }, 'Registered Plugin')
+    } catch (e) {
+      moduleLogger.error(e, { fn: 'registerPlugins', pluginManager }, 'Register Plugins')
+    }
   }
+
+  moduleLogger.debug(
+    { pluginManager, plugins: pluginManager.keys() },
+    'Plugins Registration Completed',
+  )
 }

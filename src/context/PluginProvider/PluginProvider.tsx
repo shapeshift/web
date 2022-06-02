@@ -1,7 +1,7 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { Plugin, PluginManager } from 'plugins'
+import { PluginManager, registerPlugins } from 'plugins'
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
@@ -15,13 +15,10 @@ type PluginProviderProps = {
 
 type PluginProviderContextProps = {
   pluginManager: PluginManager
-  plugins: [string, Plugin][]
   chainAdapterManager: ChainAdapterManager
   supportedChains: ChainId[]
   routes: Route[]
 }
-
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis']
 
 // don't export me, access me through the getter
 let _chainAdapterManager: ChainAdapterManager | undefined
@@ -34,7 +31,6 @@ export const getChainAdapters = (): ChainAdapterManager => {
 
 const PluginContext = createContext<PluginProviderContextProps>({
   pluginManager: {} as PluginManager,
-  plugins: [],
   chainAdapterManager: getChainAdapters(),
   supportedChains: [],
   routes: [],
@@ -44,7 +40,7 @@ const moduleLogger = logger.child({ namespace: ['PluginProvider'] })
 
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
   const [pluginManager] = useState(new PluginManager())
-  const [plugins, setPlugins] = useState<[string, Plugin][] | null>(null)
+  const [pluginsReady, setPluginsReady] = useState<boolean>(false)
   const [supportedChains, setSupportedChains] = useState<ChainId[]>([])
   const [routes, setRoutes] = useState<Route[]>([])
   const featureFlags = useSelector(selectFeatureFlags)
@@ -60,24 +56,13 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
   useEffect(() => {
     ;(async () => {
-      pluginManager.clear()
-
-      for (const plugin of activePlugins) {
-        try {
-          pluginManager.register(await import(`../../plugins/${plugin}/index.tsx`))
-        } catch (e) {
-          moduleLogger.error(e, { fn: 'register' }, 'Register Plugins')
-        }
-      }
-
-      const plugins = pluginManager.entries()
-      setPlugins(plugins)
-      moduleLogger.debug({ plugins }, 'Plugins Registration Completed')
+      await registerPlugins()
+      setPluginsReady(true)
     })()
-  }, [pluginManager])
+  }, [pluginManager, setPluginsReady])
 
   useEffect(() => {
-    if (!plugins) return
+    if (!pluginsReady) return
 
     const fnLogger = moduleLogger.child({ namespace: ['onFeatureFlags'] })
     let pluginRoutes: Route[] = []
@@ -135,12 +120,11 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const _supportedChains = Object.values(knownChainIds) as ChainId[]
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
     setSupportedChains(_supportedChains)
-  }, [chainAdapterManager, featureFlags, plugins, pluginManager])
+  }, [chainAdapterManager, featureFlags, pluginsReady, pluginManager])
 
-  if (!plugins) return <></>
+  if (!pluginsReady) return <></>
 
   const values = {
-    plugins,
     pluginManager,
     chainAdapterManager,
     supportedChains,

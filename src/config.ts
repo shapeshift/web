@@ -40,6 +40,7 @@ const validators = {
   REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
   REACT_APP_FEATURE_BANXA_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE: bool({ default: false }),
+  REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

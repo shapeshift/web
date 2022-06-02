@@ -11,7 +11,6 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -20,9 +19,8 @@ import { DepositContext } from '../DepositContext'
 export const Status = () => {
   const { state } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, tokenId } = query
 
-  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
   const feeAssetId = toAssetId({

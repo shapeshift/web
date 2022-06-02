@@ -9,7 +9,6 @@ import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -28,9 +27,8 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, tokenId } = query
 
-  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({

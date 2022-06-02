@@ -34,7 +34,6 @@ export const FoxPageTabs: Story = () => (
         <FoxTab
           assetIcon={fox.icon}
           assetSymbol={fox.symbol}
-          isSelected={true}
           cryptoAmount={'3000'}
           fiatAmount={'1000'}
           onClick={() => {}}

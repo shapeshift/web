@@ -46,7 +46,7 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chain, tokenAddress, rewardAddress } = opportunity
+    const { type, provider, contractAddress, chainId, tokenAddress, rewardAddress } = opportunity
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
@@ -62,7 +62,7 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
     history.push({
       pathname,
       search: qs.stringify({
-        chain,
+        chainId,
         contractAddress,
         tokenId: tokenAddress,
         rewardId: rewardAddress,

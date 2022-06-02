@@ -10,7 +10,7 @@ import * as ssri from 'ssri'
 import * as webpack from 'webpack'
 import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity'
 
-import { cspMeta, headers, serializeCsp } from '../headers'
+import { cspMeta, headers, serializeCsp } from './headers'
 
 type DevServerConfigFunction = (
   proxy: unknown,

@@ -1,9 +1,10 @@
 import axios from 'axios'
 
 import { ThorchainSwapper } from './ThorchainSwapper'
-jest.mock('axios')
+import { thorService } from './utils/thorService'
+jest.mock('./utils/thorService')
 
-const mockedAxios = axios as jest.Mocked<typeof axios>
+const mockedAxios = thorService as jest.Mocked<typeof axios>
 
 describe('ThorchainSwapper', () => {
   describe('initialize', () => {

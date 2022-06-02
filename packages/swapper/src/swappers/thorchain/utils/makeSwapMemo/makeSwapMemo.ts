@@ -1,6 +1,6 @@
 import { adapters } from '@shapeshiftoss/caip'
 
-import { SwapError, SwapErrorTypes } from '../../../api'
+import { SwapError, SwapErrorTypes } from '../../../../api'
 
 // BTC (and likely other utxo coins) can only support up to 80 character memos
 const MAX_LENGTH = 80

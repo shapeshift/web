@@ -1,6 +1,5 @@
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
-import axios from 'axios'
 
 import {
   ApprovalNeededOutput,
@@ -16,11 +15,9 @@ import {
   TradeResult,
   TradeTxs
 } from '../../api'
-import { MidgardResponse } from './types'
-
-export type ThorchainSwapperDeps = {
-  midgardUrl: string
-}
+import { MidgardResponse, ThorchainSwapperDeps } from './types'
+import { getUsdRate } from './utils/getUsdRate/getUsdRate'
+import { thorService } from './utils/thorService'
 
 export class ThorchainSwapper implements Swapper {
   private supportedAssetIds: AssetId[] = []
@@ -32,7 +29,9 @@ export class ThorchainSwapper implements Swapper {
 
   async initialize() {
     try {
-      const { data: responseData } = await axios.get<MidgardResponse[]>(this.deps.midgardUrl)
+      const { data: responseData } = await thorService.get<MidgardResponse[]>(
+        `${this.deps.midgardUrl}/pools`
+      )
 
       const supportedAssetIds = responseData.reduce<AssetId[]>((acc, midgardPool) => {
         const assetId = adapters.poolAssetIdToAssetId(midgardPool.asset)
@@ -55,8 +54,7 @@ export class ThorchainSwapper implements Swapper {
   }
 
   getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
-    console.info(input)
-    throw new Error('ThorchainSwapper: getUsdRate unimplemented')
+    return getUsdRate({ deps: this.deps, input })
   }
 
   getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput> {

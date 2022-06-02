@@ -12,3 +12,7 @@ export type MidgardResponse = {
   units: string
   volume24h: string
 }
+
+export type ThorchainSwapperDeps = {
+  midgardUrl: string
+}

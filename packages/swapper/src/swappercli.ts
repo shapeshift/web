@@ -101,7 +101,7 @@ const main = async (): Promise<void> => {
 
   const zrxSwapperDeps = { wallet, adapterManager, web3 }
   const thorchainSwapperDeps = {
-    midgardUrl: 'https://midgard.thorchain.info/v2/pools'
+    midgardUrl: 'https://midgard.thorchain.info/v2'
   }
 
   const manager = new SwapperManager()

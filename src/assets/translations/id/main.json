@@ -107,7 +107,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Jelajahi",
     "defiUniverse": "Alam Semesta DeFi",
     "body": "100% Gratis. Sumber Terbuka. Milik Komunitas. Non-Penahanan. Pribadi.",
@@ -314,6 +313,12 @@
     "amount": "Jumlah",
     "for": "Untuk",
     "parser": {
+      "weth": {
+        "deposit": "Deposit",
+        "approve": "Menyetujui",
+        "withdraw": "Penarikan ",
+        "receive": "Menerima"
+      },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Menyetujui",

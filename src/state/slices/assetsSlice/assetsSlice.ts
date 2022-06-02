@@ -20,10 +20,12 @@ const getAssetService = async () => {
   return service
 }
 
+export type AssetsById = {
+  [key: AssetId]: Asset
+}
+
 export type AssetsState = {
-  byId: {
-    [key: AssetId]: Asset
-  }
+  byId: AssetsById
   ids: AssetId[]
 }
 

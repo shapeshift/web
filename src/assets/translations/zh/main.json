@@ -107,7 +107,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift 平台",
-    "alpha": "α版",
     "exploreThe": "探索",
     "defiUniverse": "去中心化金融的宇宙",
     "body": "100%免费。 完全开源。 社区拥有。 非托管。 高度私密。",
@@ -305,6 +304,12 @@
     "amount": "金额",
     "for": "为了",
     "parser": {
+      "weth": {
+        "deposit": "存款",
+        "approve": "批准",
+        "withdraw": "取款",
+        "receive": "收到"
+      },
       "yearn": {
         "deposit": "存款",
         "approve": "批准",

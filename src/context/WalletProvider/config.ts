@@ -37,6 +37,9 @@ import { PortisConfig } from './Portis/config'
 import { TallyHoConnect } from './TallyHo/components/Connect'
 import { TallyHoFailure } from './TallyHo/components/Failure'
 import { TallyHoConfig } from './TallyHo/config'
+import { XDEFIConnect } from './XDEFI/components/Connect'
+import { XDEFIFailure } from './XDEFI/components/Failure'
+import { XDEFIConfig } from './XDEFI/config'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -98,6 +101,13 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/tallyho/connect', component: TallyHoConnect },
       { path: '/tallyho/failure', component: TallyHoFailure },
+    ],
+  },
+  [KeyManager.XDefi]: {
+    ...XDEFIConfig,
+    routes: [
+      { path: '/xdefi/connect', component: XDEFIConnect },
+      { path: '/xdefi/failure', component: XDEFIFailure },
     ],
   },
   [KeyManager.Demo]: {

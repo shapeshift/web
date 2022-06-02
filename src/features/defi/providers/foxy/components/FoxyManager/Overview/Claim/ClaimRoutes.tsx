@@ -1,5 +1,4 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
@@ -21,18 +20,17 @@ export const routes = [
   { step: 1, path: OverviewPath.ClaimStatus, label: 'Status' },
 ]
 
-type CliamRouteProps = {
+type ClaimRouteProps = {
   onBack: () => void
 }
 
-export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
+export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, tokenId, chain } = query
-  const network = NetworkTypes.MAINNET
+  const { contractAddress, tokenId, chainId } = query
+
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: tokenId,
   })
@@ -48,7 +46,7 @@ export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
           <Route exact path='/'>
             <ClaimConfirm
               assetId={stakingAssetId}
-              chain={chain}
+              chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
               amount={opportunity?.withdrawInfo.amount}

@@ -107,7 +107,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explora El",
     "defiUniverse": "Universo DeFi",
     "body": "100% gratis. Código abierto. Propiedad de la comunidad. Sin custodia. Privado.",
@@ -305,6 +304,12 @@
     "amount": "Cantidad",
     "for": "para",
     "parser": {
+      "weth": {
+        "deposit": "Depositar",
+        "approve": "Aprobar",
+        "withdraw": "Retirar",
+        "receive": "Recibir"
+      },
       "yearn": {
         "deposit": "Depositar",
         "approve": "Aprobar",

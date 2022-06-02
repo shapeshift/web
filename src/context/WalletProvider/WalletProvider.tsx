@@ -406,6 +406,31 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
+            case KeyManager.XDefi:
+              const localXDEFIWallet = await state.adapters.get(KeyManager.XDefi)?.pairDevice()
+              if (localXDEFIWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
+                try {
+                  await localXDEFIWallet.initialize()
+                  const deviceId = await localXDEFIWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localXDEFIWallet,
+                      name,
+                      icon,
+                      deviceId,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
             default:
               /**
                * The fall-through case also handles clearing

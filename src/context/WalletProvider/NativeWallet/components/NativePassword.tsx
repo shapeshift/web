@@ -42,8 +42,11 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
     setError,
     handleSubmit,
     register,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({ mode: 'onChange', shouldUnregister: true })
+
+  const watchPassword = watch('password')
 
   return (
     <>
@@ -98,13 +101,43 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
             </InputGroup>
             <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
           </FormControl>
+          <FormControl mb={6} isInvalid={errors.confirmPassword}>
+            <InputGroup size='lg' variant='filled'>
+              <Input
+                {...register('confirmPassword', {
+                  required: translate('modals.shapeShift.confirmPassword.error.required'),
+                  validate: value =>
+                    value === watchPassword ||
+                    translate('modals.shapeShift.confirmPassword.error.invalid'),
+                })}
+                pr='4.5rem'
+                type={showPw ? 'text' : 'confirmPassword'}
+                placeholder={translate('modals.shapeShift.confirmPassword.placeholder')}
+                autoComplete={'confirmPassword'}
+                id='confirmPassword'
+                data-test='wallet-native-confirmPassword-input'
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label={translate(
+                    `modals.shapeShift.confirmPassword.${showPw ? 'hide' : 'show'}`,
+                  )}
+                  h='1.75rem'
+                  size='sm'
+                  onClick={handleShowClick}
+                  icon={!showPw ? <FaEye /> : <FaEyeSlash />}
+                />
+              </InputRightElement>
+            </InputGroup>
+            <FormErrorMessage>{errors?.confirmPassword?.message}</FormErrorMessage>
+          </FormControl>
           <Button
             colorScheme='blue'
             size='lg'
             isFullWidth
             type='submit'
             isLoading={isSubmitting}
-            isDisabled={errors.name}
+            isDisabled={errors.name || errors.password || errors.confirmPassword}
             data-test='wallet-native-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />

@@ -6,6 +6,7 @@ import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+
 import { ConnectModal } from '../../components/ConnectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { WalletConnectConfig } from '../config'

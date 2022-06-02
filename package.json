@@ -25,7 +25,7 @@
     "@shapeshiftoss/hdwallet-native": "^1.21.2",
     "@shapeshiftoss/hdwallet-native-vault": "^1.21.2",
     "@shapeshiftoss/hdwallet-portis": "^1.21.2",
-    "@shapeshiftoss/hdwallet-walletconnect": "^1.21.1",
+    "@shapeshiftoss/hdwallet-walletconnect": "^1.23.1-alpha.0",
     "@shapeshiftoss/hdwallet-xdefi": "^1.21.2",
     "@shapeshiftoss/investor-foxy": "^3.0.0",
     "@shapeshiftoss/investor-yearn": "^2.0.0",

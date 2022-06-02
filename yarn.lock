@@ -4004,6 +4004,16 @@
     p-lazy "^3.1.0"
     web3 "^1.5.1"
 
+"@shapeshiftoss/hdwallet-walletconnect@^1.23.1-alpha.0":
+  version "1.23.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-walletconnect/-/hdwallet-walletconnect-1.23.1-alpha.0.tgz#7f579440491a22de7b01c8a06cec5ce814684528"
+  integrity sha512-7tb8xZYmFsvujC2BPE+BfSlxSQIH6jPeZMBkJ3CMUPOj7ptaZCE6Rvlo+GLg6/lWGTtvKvcL2OptEeXux+cWrA==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "1.22.0"
+    "@walletconnect/qrcode-modal" "^1.7.8"
+    "@walletconnect/web3-provider" "^1.7.8"
+    ethers "^5.6.5"
+
 "@shapeshiftoss/hdwallet-xdefi@^1.21.2":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-xdefi/-/hdwallet-xdefi-1.22.0.tgz#74b39347bb39d165cdc4cc0a90b786b2bef7a6d2"

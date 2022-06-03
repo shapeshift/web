@@ -10,14 +10,9 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { SlideTransition } from 'components/SlideTransition'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
+import { FoxyPath } from './FoxyCommon'
 import { FoxyOverview } from './Overview/FoxyOverview'
 import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
-
-enum FoxyPath {
-  Deposit = '/defi/token_staking/ShapeShift/deposit',
-  Withdraw = '/defi/token_staking/ShapeShift/withdraw',
-  Overview = `/defi/token_staking/ShapeShift/overview`,
-}
 
 type FoxyRouteProps = {
   parentLocation: Location

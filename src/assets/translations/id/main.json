@@ -313,6 +313,12 @@
     "amount": "Jumlah",
     "for": "Untuk",
     "parser": {
+      "weth": {
+        "deposit": "Deposit",
+        "approve": "Menyetujui",
+        "withdraw": "Penarikan ",
+        "receive": "Menerima"
+      },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Menyetujui",

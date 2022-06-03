@@ -304,6 +304,12 @@
     "amount": "金额",
     "for": "为了",
     "parser": {
+      "weth": {
+        "deposit": "存款",
+        "approve": "批准",
+        "withdraw": "取款",
+        "receive": "收到"
+      },
       "yearn": {
         "deposit": "存款",
         "approve": "批准",

@@ -9,6 +9,7 @@ import {
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
+  trimWithEndEllipsis,
 } from './utils'
 
 describe('accountIdToChainId', () => {
@@ -199,5 +200,24 @@ describe('makeBalancesByChainBucketsFlattened', () => {
       'bip122:000000000019d6689c085ae165831e93:someZpub',
       'bip122:000000000019d6689c085ae165831e93:someYpub',
     ])
+  })
+})
+
+describe('trimWithEndEllipsis', () => {
+  it('should trim the description according to the max number of characters', () => {
+    const LongFoxDescription =
+      'FOX is an ERC-20 token created by ShapeShift which serves as the governance token for the ShapeShift DAO, token holders can vote on proposals relating to the operation and treasury of the DAO. The token supports'
+    const ExpectedTrimmedFoxDescription =
+      'FOX is an ERC-20 token created by ShapeShift which serves as the governance token for the ShapeShift DAO, token holders can vote on proposals relating to the operation and treasury of the DAO...'
+
+    expect(trimWithEndEllipsis(undefined)).toEqual('')
+    expect(trimWithEndEllipsis('')).toEqual('')
+    expect(trimWithEndEllipsis('abcdef')).toEqual('abcdef')
+    expect(trimWithEndEllipsis(LongFoxDescription)).toEqual(LongFoxDescription)
+
+    expect(trimWithEndEllipsis(undefined, 191)).toEqual('')
+    expect(trimWithEndEllipsis('', 191)).toEqual('')
+    expect(trimWithEndEllipsis('abcdef', 191)).toEqual('abcdef')
+    expect(trimWithEndEllipsis(LongFoxDescription, 191)).toEqual(ExpectedTrimmedFoxDescription)
   })
 })

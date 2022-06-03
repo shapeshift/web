@@ -694,6 +694,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec Keplr",
+        "connectFailure": "Impossible de connecter le porte-monnaie Keplr."
+      },
+      "connect": {
+        "header": "Appairer Keplr",
+        "body": "Cliquez sur Appairer et connectez-vous à Keplr à partir de la fenêtre popup",
+        "button": "Appairer"
+      },
+      "failure": {
+        "header": "Erreur",
+        "body": "Impossible de se connecter au porte-monnaie Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec MetaMask",

@@ -37,11 +37,11 @@
   "peerDependencies": {
     "@shapeshiftoss/chain-adapters": "^4.3.3",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "^4.3.1"
+    "@shapeshiftoss/types": "4.3.1"
   },
   "devDependencies": {
     "@shapeshiftoss/chain-adapters": "^4.3.3",
     "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "^4.3.1"
+    "@shapeshiftoss/types": "4.3.1"
   }
 }

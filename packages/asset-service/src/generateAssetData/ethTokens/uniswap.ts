@@ -1,9 +1,9 @@
-import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
-import { AssetDataSource, TokenAsset } from '@shapeshiftoss/types'
+import { ethChainId as chainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
 
-import { tokensToOverride } from './overrides'
+import { overrideTokens } from './overrides'
 
 type UniswapToken = {
   chainId: number
@@ -22,17 +22,15 @@ type UniswapTokenData = {
   tokens: UniswapToken[]
 }
 
-export async function getUniswapTokens(): Promise<TokenAsset[]> {
+export async function getUniswapTokens(): Promise<Asset[]> {
   const { data: uniswapTokenData } = await axios.get<UniswapTokenData>(
     'https://tokens.coingecko.com/uniswap/all.json'
   )
 
-  const assetNamespace = 'erc20'
-
-  return uniswapTokenData.tokens.reduce<TokenAsset[]>((acc, token) => {
-    const overrideToken: TokenAsset | undefined = lodash.find(
-      tokensToOverride,
-      (override: TokenAsset) => override.tokenId === token.address
+  return uniswapTokenData.tokens.reduce<Asset[]>((acc, token) => {
+    const overrideToken: Asset | undefined = lodash.find(
+      overrideTokens,
+      (override: Asset) => fromAssetId(override.assetId).assetReference === token.address
     )
 
     if (overrideToken) {
@@ -42,24 +40,23 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
 
     const assetReference = token.address.toLowerCase()
 
-    if (!assetReference) {
-      // if no token address, we can't deal with this asset.
-      return acc
-    }
-    const result: TokenAsset = {
+    // if no token address, we can't deal with this asset.
+    if (!assetReference) return acc
+
+    const assetNamespace = 'erc20'
+    const result: Asset = {
       assetId: toAssetId({ chainId, assetNamespace, assetReference }),
       chainId,
-      dataSource: AssetDataSource.CoinGecko,
       name: token.name,
       precision: token.decimals,
-      tokenId: assetReference,
-      contractType: assetNamespace,
       color: '#FFFFFF', // TODO
-      secondaryColor: '#FFFFFF', // TODO
       icon: token.logoURI,
-      sendSupport: true,
-      receiveSupport: true,
-      symbol: token.symbol
+      symbol: token.symbol,
+      chain: ChainTypes.Ethereum,
+      network: NetworkTypes.MAINNET,
+      explorer: 'https://etherscan.io',
+      explorerAddressLink: 'https://etherscan.io/address/',
+      explorerTxLink: 'https://etherscan.io/tx/'
     }
     acc.push(result)
     return acc

@@ -1,24 +1,37 @@
 import 'dotenv/config'
 
+import { AssetId } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import fs from 'fs'
+import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
 
-import { atom, bitcoin, tBitcoin, tEthereum } from './baseAssets'
+import { AssetsById } from '../service/AssetService'
+import { atom, bitcoin, tBitcoin } from './baseAssets'
 import blacklist from './blacklist.json'
 import { getOsmosisAssets } from './cosmos/getOsmosisAssets'
 import { addTokensToEth } from './ethTokens'
-import { filterBlacklistedAssets } from './utils'
 
 const generateAssetData = async () => {
-  const ethereum = await addTokensToEth()
+  const ethAssets = await addTokensToEth()
   const osmosisAssets = await getOsmosisAssets()
 
   // all assets, included assets to be blacklisted
-  const unfilteredAssetData = [bitcoin, tBitcoin, ethereum, tEthereum, atom, ...osmosisAssets]
+  const unfilteredAssetData: Asset[] = [bitcoin, tBitcoin, ...ethAssets, atom, ...osmosisAssets]
   // remove blacklisted assets
-  const filteredAssetData = filterBlacklistedAssets(blacklist, unfilteredAssetData)
+  const filteredAssetData = filter(
+    unfilteredAssetData,
+    ({ assetId }) => !blacklist.includes(assetId)
+  )
+
   // deterministic order so diffs are readable
-  const generatedAssetData = orderBy(filteredAssetData, 'assetId')
+  const orderedAssetList = orderBy(filteredAssetData, 'assetId')
+  const initial: Record<AssetId, Asset> = {}
+  const generatedAssetData: AssetsById = orderedAssetList.reduce((acc, asset) => {
+    const { assetId } = asset
+    acc[assetId] = asset
+    return acc
+  }, initial)
 
   await fs.promises.writeFile(
     `./src/service/generatedAssetData.json`,

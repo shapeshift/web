@@ -1,5 +1,4 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { BaseAsset, TokenAsset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
@@ -18,8 +17,7 @@ import {
   getZapperTokens
 } from './yearnVaults'
 
-export const addTokensToEth = async (): Promise<BaseAsset> => {
-  const baseAsset = ethereum
+export const addTokensToEth = async (): Promise<Asset[]> => {
   const [
     ethTokens,
     yearnVaults,
@@ -37,7 +35,7 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
     getFoxyToken(),
     getUniswapV2Pools()
   ])
-  const tokens = [
+  const ethAssets = [
     ...ethTokens,
     ...yearnVaults,
     ...ironBankTokens,
@@ -46,22 +44,21 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
     ...foxyToken,
     ...uniV2Token
   ]
-  const uniqueTokens = orderBy(uniqBy(tokens, 'assetId'), 'assetId') // Remove dups and order for PR readability
+  const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy
-  const tokenBatches = chunk(uniqueTokens, batchSize)
-  let modifiedTokens: TokenAsset[] = []
-  for (const [i, batch] of tokenBatches.entries()) {
-    console.info(`processing batch ${i + 1} of ${tokenBatches.length}`)
-    const promises = batch.map(async (token) => {
-      const { chainNamespace } = fromAssetId(token.assetId)
-      const { info } = generateTrustWalletUrl({ chainNamespace, tokenId: token.tokenId })
+  const assetBatches = chunk(uniqueAssets, batchSize)
+  let modifiedAssets: Asset[] = []
+  for (const [i, batch] of assetBatches.entries()) {
+    console.info(`processing batch ${i + 1} of ${assetBatches.length}`)
+    const promises = batch.map(async ({ assetId }) => {
+      const { info } = generateTrustWalletUrl(assetId)
       return axios.head(info) // return promise
     })
     const result = await Promise.allSettled(promises)
     const newModifiedTokens = result.map((res, idx) => {
       const key = i * batchSize + idx
       if (res.status === 'rejected') {
-        if (!uniqueTokens[key].icon) {
+        if (!uniqueAssets[key].icon) {
           const options: IdenticonOptions = {
             identiconImage: {
               size: 128,
@@ -72,28 +69,20 @@ export const addTokensToEth = async (): Promise<BaseAsset> => {
               enableShadow: true
             }
           }
-          uniqueTokens[key].icon = getRenderedIdenticonBase64(
-            uniqueTokens[key].assetId,
-            uniqueTokens[key].symbol.substring(0, 3),
+          uniqueAssets[key].icon = getRenderedIdenticonBase64(
+            uniqueAssets[key].assetId,
+            uniqueAssets[key].symbol.substring(0, 3),
             options
           )
         }
-        return uniqueTokens[key] // token without modified icon
+        return uniqueAssets[key] // token without modified icon
       } else {
-        const { chainNamespace } = fromAssetId(uniqueTokens[key].assetId)
-        const { icon } = generateTrustWalletUrl({
-          chainNamespace,
-          tokenId: uniqueTokens[key].tokenId
-        })
-        return { ...uniqueTokens[key], icon }
+        const { icon } = generateTrustWalletUrl(uniqueAssets[key].assetId)
+        return { ...uniqueAssets[key], icon }
       }
     })
-    modifiedTokens = modifiedTokens.concat(newModifiedTokens)
+    modifiedAssets = modifiedAssets.concat(newModifiedTokens)
   }
-  const baseAssetWithTokens: BaseAsset = {
-    ...baseAsset,
-    // tokens: uniqueTokens
-    tokens: modifiedTokens
-  }
-  return baseAssetWithTokens
+
+  return [ethereum, ...modifiedAssets]
 }

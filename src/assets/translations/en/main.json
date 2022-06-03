@@ -351,6 +351,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "shapeshiftFee": "ShapeShift Fee",
+    "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
     "complete": "Trade Complete",

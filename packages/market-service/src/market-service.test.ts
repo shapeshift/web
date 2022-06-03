@@ -121,7 +121,11 @@ describe('market service', () => {
   const marketServiceManagerArgs = {
     coinGeckoAPIKey: 'dummyCoingeckoApiKey',
     yearnChainReference: 1 as const,
-    jsonRpcProviderUrl: ''
+    providerUrls: {
+      jsonRpcProviderUrl: '',
+      unchainedEthereumWsUrl: '',
+      unchainedEthereumHttpUrl: ''
+    }
   }
   describe('findAll', () => {
     beforeAll(() => {

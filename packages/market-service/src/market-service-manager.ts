@@ -17,17 +17,25 @@ import { OsmosisMarketService } from './osmosis/osmosis'
 import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 
+export type ProviderUrls = {
+  jsonRpcProviderUrl: string
+  unchainedEthereumHttpUrl: string
+  unchainedEthereumWsUrl: string
+}
+
 export type MarketServiceManagerArgs = {
   coinGeckoAPIKey: string
   yearnChainReference: 1 | 250 | 1337 | 42161 // from @yfi/sdk
-  jsonRpcProviderUrl: string
+  providerUrls: ProviderUrls
 }
 
 export class MarketServiceManager {
   marketProviders: MarketService[]
 
   constructor(args: MarketServiceManagerArgs) {
-    const { coinGeckoAPIKey = '', jsonRpcProviderUrl, yearnChainReference } = args
+    const { coinGeckoAPIKey = '', providerUrls, yearnChainReference } = args
+
+    const { jsonRpcProviderUrl } = providerUrls
 
     // TODO(0xdef1cafe): after chain agnosticism, we need to dependency inject a chainReference here
     // YearnVaultMarketCapService deps
@@ -43,7 +51,7 @@ export class MarketServiceManager {
       new YearnVaultMarketCapService({ yearnSdk }),
       new YearnTokenMarketCapService({ yearnSdk }),
       new OsmosisMarketService(),
-      new FoxyMarketService()
+      new FoxyMarketService(providerUrls)
     ]
   }
 

@@ -1,12 +1,27 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 
+import { bn } from '../utils/bignumber'
 import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
 
-const foxyMarketService = new FoxyMarketService()
+const foxyMarketService = new FoxyMarketService({
+  jsonRpcProviderUrl: '',
+  unchainedEthereumHttpUrl: '',
+  unchainedEthereumWsUrl: ''
+})
 
 jest.mock('axios')
+
+const mockTotalSupply = jest.fn().mockReturnValue(bn('502526240759422886301171305'))
+const mockTvl = jest.fn().mockReturnValue(bn('52018758965754575223841191'))
+jest.mock('@shapeshiftoss/investor-foxy', () => ({
+  FoxyApi: jest.fn().mockImplementation(() => ({
+    totalSupply: mockTotalSupply,
+    tvl: mockTvl
+  })),
+  foxyAddresses: [{ foxy: '0xAddress' }]
+}))
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
 

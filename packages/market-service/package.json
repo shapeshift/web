@@ -33,7 +33,9 @@
     "axios-rate-limit": "^1.3.0",
     "bignumber.js": "^9.0.1",
     "dayjs": "^1.10.6",
-    "p-ratelimit": "^1.0.1"
+    "p-ratelimit": "^1.0.1",
+    "@shapeshiftoss/chain-adapters": "^4.6.0",
+    "@shapeshiftoss/investor-foxy": "^3.3.0"
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^5.2.1",

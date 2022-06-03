@@ -75,6 +75,8 @@ All prices, marketCaps and volumes are represented in US Dollars.
         marketCap: string
         volume: string
         changePercent24Hr: number
+        supply?: string
+        maxSupply?: string
       }
     ```
 
@@ -86,6 +88,8 @@ All prices, marketCaps and volumes are represented in US Dollars.
         "marketCap": "1064743990968",
         "volume": "40098748439",
         "changePercent24Hr": -2.20386
+        "supply": "51395303.354399648976961361",
+        "maxSupply": "502526240.759422886301171305"
       }
     ```
 

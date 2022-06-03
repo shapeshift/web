@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v4.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.5.0...@shapeshiftoss/asset-service-v4.6.0) (2022-06-03)
+
+
+### Features
+
+* **assetService:** consume normalization of Asset properties & use static data ([#746](https://github.com/shapeshift/lib/issues/746)) ([ca87bee](https://github.com/shapeshift/lib/commit/ca87bee46419a03d490a826b2b42c90b49cc3079))
+
 # [@shapeshiftoss/asset-service-v4.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.4.0...@shapeshiftoss/asset-service-v4.5.0) (2022-06-01)
 
 

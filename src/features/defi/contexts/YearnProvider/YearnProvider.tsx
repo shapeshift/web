@@ -34,7 +34,6 @@ export const YearnProvider: React.FC = ({ children }) => {
         const yearnInvestor = new YearnInvestor({
           chainAdapter,
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-          dryRun: true,
         })
         await yearnInvestor.initialize()
         setYearn(yearnInvestor)

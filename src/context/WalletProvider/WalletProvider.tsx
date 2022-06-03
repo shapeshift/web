@@ -240,6 +240,12 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const getInitialState = () => {
   const localWalletType = getLocalWalletType()
   const localWalletDeviceId = getLocalWalletDeviceId()
+  //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
+  if (
+    (localWalletType === 'metamask' && (window as any)?.ethereum?.isTally) ||
+    (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
+  )
+    return initialState
   if (localWalletType && localWalletDeviceId) {
     /**
      * set isLoadingLocalWallet->true to bypass splash screen
@@ -354,6 +360,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.MetaMask:
+              //Handle refresh bug - when a user changes TallyHo to default, is connected to MM and refreshs the page
+              if (localWalletType === 'metamask' && (window as any)?.ethereum?.isTally) disconnect()
               const localMetaMaskWallet = await state.adapters
                 .get(KeyManager.MetaMask)
                 ?.pairDevice()
@@ -372,6 +380,33 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            case KeyManager.TallyHo:
+              //Handle refresh bug - when a user changes TallyHo from default, is connected to TallyHo and refreshs the page
+              if (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask) disconnect()
+              const localTallyHoWallet = await state.adapters.get(KeyManager.TallyHo)?.pairDevice()
+              if (localTallyHoWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.TallyHo]
+                try {
+                  await localTallyHoWallet.initialize()
+                  const deviceId = await localTallyHoWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localTallyHoWallet,
+                      name,
+                      icon,
+                      deviceId,
+                    },
+                  })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
                   disconnect()
@@ -432,6 +467,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
                 : undefined
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
+            adapters.set(wallet, adapter)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
             await adapter.initialize?.()
             adapters.set(wallet, adapter)

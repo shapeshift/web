@@ -3823,6 +3823,15 @@
     p-lazy "^3.1.0"
     web3 "^1.5.1"
 
+"@shapeshiftoss/hdwallet-tallyho@^1.22.0":
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-tallyho/-/hdwallet-tallyho-1.23.0.tgz#3a40a112d8855c613b3a30af8f11003c3d5f0b57"
+  integrity sha512-Y4yZfaRzdLmGVGYCwLLNvR9w/j7b775qMNPW4iSN56QxlXPhPX+7H8lZ+5nIY3lyX7PFU+T6Ch1cvbUuIayIDQ==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "1.23.0"
+    lodash "^4.17.21"
+    tallyho-onboarding "^1.0.2"
+
 "@shapeshiftoss/hdwallet-xdefi@^1.23.0":
   version "1.23.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-xdefi/-/hdwallet-xdefi-1.23.0.tgz#337a951e44b675c3f3e92a0d13c3fd54331eea71"
@@ -3862,10 +3871,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^4.2.2":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.2.2.tgz#bc5051f3dd7fd08e635b32ef6a29d281207795ab"
-  integrity sha512-VE7yGdc4cslSOsvPnUA7Uxm/NMh/0KTL9WsQJ73z2dXl7XdMWAOKAEygtzkZ8uycUlhxuurGrp+G7DDD6P7GZQ==
+"@shapeshiftoss/market-service@^4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.5.1.tgz#c2ad02183896bd90269a015448d704438f42333f"
+  integrity sha512-sbOAIoz8fz+AX+S5ILJEejaTHFjaQ4oB2OwlVx148oj458GgIWoVM1OE/iYV6q9sv8tZEjHjzwkKRCmcXtAzew==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.30"
@@ -20136,6 +20145,13 @@ tailwindcss@^3.0.2:
     postcss-value-parser "^4.2.0"
     quick-lru "^5.1.1"
     resolve "^1.22.0"
+
+tallyho-onboarding@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/tallyho-onboarding/-/tallyho-onboarding-1.0.2.tgz#afc7dc4eb05b3a7861ead215e798585e1cbe2e91"
+  integrity sha512-bdFT/fNrFrq1BYVgjl/JKtwDmeS+z2u0415PoxmGmmYYRfdcKqXtEPImMoEbVwGtOeN0iFVohuS8ESrrAe+w7w==
+  dependencies:
+    bowser "^2.9.0"
 
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"

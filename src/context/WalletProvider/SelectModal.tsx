@@ -1,4 +1,5 @@
 import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -17,6 +18,8 @@ export const SelectModal = () => {
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
   const keplrFeatureFlag = useFeatureFlag('KeplrWallet')
 
+  const tallyHoFeatureFlag = useFeatureFlag('TallyHoWallet')
+
   return (
     <>
       <ModalHeader>
@@ -34,6 +37,12 @@ export const SelectModal = () => {
               if (!keplrFeatureFlag && key === KeyManager.Keplr) {
                 return false
               }
+
+              // some wallets (e.g. tally ho) do not exist on mobile
+              if (isMobile && !option.mobileEnabled) return false
+
+              if (!tallyHoFeatureFlag && key === KeyManager.TallyHo) return false
+
               return (
                 <Button
                   key={key}

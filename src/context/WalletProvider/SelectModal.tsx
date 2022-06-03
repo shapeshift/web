@@ -1,6 +1,7 @@
 import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
@@ -14,6 +15,7 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
+  const keplrFeatureFlag = useFeatureFlag('KeplrWallet')
 
   return (
     <>
@@ -29,6 +31,9 @@ export const SelectModal = () => {
             wallets.map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
+              if (!keplrFeatureFlag && key === KeyManager.Keplr) {
+                return false
+              }
               return (
                 <Button
                   key={key}

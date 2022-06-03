@@ -61,13 +61,23 @@ const initialState: MarketDataState = {
   },
 }
 
-const config = getConfig()
-const marketServiceManager = new MarketServiceManager({
-  coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
-  // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
-  yearnChainReference: 1,
-  jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
-})
+// do not directly use or export, singleton
+let _marketServiceManager: MarketServiceManager | undefined
+
+type GetMarketServiceManager = () => MarketServiceManager
+
+const getMarketServiceManager: GetMarketServiceManager = () => {
+  const config = getConfig()
+  if (!_marketServiceManager) {
+    _marketServiceManager = new MarketServiceManager({
+      coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
+      // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
+      yearnChainReference: 1,
+      jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
+    })
+  }
+  return _marketServiceManager
+}
 
 export const marketData = createSlice({
   name: 'marketData',
@@ -121,7 +131,7 @@ export const marketApi = createApi({
       // top 1000 assets
       queryFn: async (_, { dispatch }) => {
         try {
-          const data = await marketServiceManager.findAll({ count: 1000 })
+          const data = await getMarketServiceManager().findAll({ count: 1000 })
           dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }
         } catch (e) {
@@ -133,7 +143,7 @@ export const marketApi = createApi({
     findByAssetId: build.query<MarketCapResult, AssetId>({
       queryFn: async (assetId: AssetId, { dispatch }) => {
         try {
-          const currentMarketData = await marketServiceManager.findByAssetId({ assetId })
+          const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
           const data = { [assetId]: currentMarketData }
           dispatch(marketData.actions.setCryptoMarketData(data))
@@ -148,7 +158,10 @@ export const marketApi = createApi({
       queryFn: async (args, { dispatch }) => {
         const { assetId, timeframe } = args
         try {
-          const data = await marketServiceManager.findPriceHistoryByAssetId({ timeframe, assetId })
+          const data = await getMarketServiceManager().findPriceHistoryByAssetId({
+            timeframe,
+            assetId,
+          })
           const payload = { args, data }
           dispatch(marketData.actions.setCryptoPriceHistory(payload))
           return { data }

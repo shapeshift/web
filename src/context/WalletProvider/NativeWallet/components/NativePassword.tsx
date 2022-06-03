@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   FormControl,
   FormErrorMessage,
@@ -8,6 +10,7 @@ import {
   InputRightElement,
   ModalBody,
   ModalHeader,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
@@ -50,13 +53,19 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
 
   const watchPassword = watch('password')
 
+  const warningColor = useColorModeValue('yellow.500', 'yellow.200')
+
   return (
     <>
       <ModalHeader>
         <Text translation={'walletProvider.shapeShift.password.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+        <Alert mb={4} status='warning' color={warningColor} fontSize='md' fontWeight='normal'>
+          <AlertIcon color={warningColor} />
+          <Text fontWeight='bold' translation={'walletProvider.shapeShift.password.warning'} />
+        </Alert>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl mb={6} isInvalid={errors.name}>
             <Input

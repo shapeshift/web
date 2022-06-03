@@ -1,5 +1,4 @@
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { Asset } from '@shapeshiftoss/types'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
 
@@ -31,7 +30,6 @@ export const toBtcOutputScriptType = (x: BTCInputScriptType) => {
  * @returns object with BIP44Params and scriptType or undefined
  */
 export const utxoAccountParams = (
-  asset: Asset,
   accountType: UtxoAccountType,
   accountNumber: number
 ): { bip44Params: BIP44Params; scriptType: BTCInputScriptType } => {
@@ -41,7 +39,7 @@ export const utxoAccountParams = (
         scriptType: BTCInputScriptType.SpendWitness,
         bip44Params: {
           purpose: 84,
-          coinType: asset.slip44,
+          coinType: 0,
           accountNumber
         }
       }
@@ -50,7 +48,7 @@ export const utxoAccountParams = (
         scriptType: BTCInputScriptType.SpendP2SHWitness,
         bip44Params: {
           purpose: 49,
-          coinType: asset.slip44,
+          coinType: 0,
           accountNumber
         }
       }
@@ -59,7 +57,7 @@ export const utxoAccountParams = (
         scriptType: BTCInputScriptType.SpendAddress,
         bip44Params: {
           purpose: 44,
-          coinType: asset.slip44,
+          coinType: 0,
           accountNumber
         }
       }

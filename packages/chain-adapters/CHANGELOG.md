@@ -1,3 +1,11 @@
+# [@shapeshiftoss/chain-adapters-v4.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.6.0...@shapeshiftoss/chain-adapters-v4.7.0) (2022-06-03)
+
+
+### Features
+
+* **assetService:** consume normalization of Asset properties & use static data ([#746](https://github.com/shapeshift/lib/issues/746)) ([ca87bee](https://github.com/shapeshift/lib/commit/ca87bee46419a03d490a826b2b42c90b49cc3079))
+* consume normalization of Asset properties ([#745](https://github.com/shapeshift/lib/issues/745)) ([e4fb585](https://github.com/shapeshift/lib/commit/e4fb5855d897a61bdd275d02302df0315f7a9119))
+
 # [@shapeshiftoss/chain-adapters-v4.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v4.5.0...@shapeshiftoss/chain-adapters-v4.6.0) (2022-06-02)
 
 

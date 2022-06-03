@@ -30,7 +30,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxAssetId, TrimmedDescriptionLength } from '../constants'
+import { FoxAssetId, TrimmedDescriptionLength } from '../FoxCommon'
 
 type FoxTabProps = {
   assetId: AssetId

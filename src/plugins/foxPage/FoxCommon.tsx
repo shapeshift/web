@@ -1,5 +1,9 @@
 import { TradeOpportunitiesBucket } from './components/TradeOpportunities'
 
+export const FoxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+export const FoxyAssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
+export const TrimmedDescriptionLength = 191
+
 export enum OpportunityTypes {
   LiquidityPool = 'liquidityPools',
   Farming = 'farming',
@@ -8,7 +12,7 @@ export enum OpportunityTypes {
 
 export type ExternalOpportunity = {
   title: string
-  apy: string
+  apy?: string | null
   link: string
   icons: string[]
 }
@@ -18,67 +22,6 @@ export type OpportunitiesBucket = {
   title: string
   opportunities: ExternalOpportunity[]
 }
-
-// @TODO: When wiring this up, move this to foxPage.ts as icons and APY should be fetched from dynamic datas
-export const otherOpportunitiesBuckets: OpportunitiesBucket[] = [
-  {
-    type: OpportunityTypes.LiquidityPool,
-    title: 'plugins.foxPage.liquidityPools',
-    opportunities: [
-      {
-        title: 'Uniswap',
-        apy: '0.1161',
-        link: '#',
-        icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
-      },
-      {
-        title: 'SushiSwap',
-        apy: '0.1161',
-        link: '#',
-        icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
-      },
-    ],
-  },
-  {
-    type: OpportunityTypes.Farming,
-    title: 'plugins.foxPage.farming',
-    opportunities: [
-      {
-        title: 'Fox Farm',
-        apy: '0.1161',
-        link: '#',
-        icons: [
-          'https://assets.coincap.io/assets/icons/fox@2x.png',
-          'https://assets.coincap.io/assets/icons/fox@2x.png',
-        ],
-      },
-    ],
-  },
-  {
-    type: OpportunityTypes.BorrowingAndLending,
-    title: 'plugins.foxPage.borrowingAndLending',
-    opportunities: [
-      {
-        title: 'ETH-FOX',
-        apy: '0.1161',
-        link: '#',
-        icons: [
-          'https://assets.coincap.io/assets/icons/fox@2x.png',
-          'https://assets.coincap.io/assets/icons/fox@2x.png',
-        ],
-      },
-      {
-        title: 'Rari Pool 79',
-        apy: '0.1161',
-        link: '#',
-        icons: [
-          'https://assets.coincap.io/assets/icons/fox@2x.png',
-          'https://assets.coincap.io/assets/icons/fox@2x.png',
-        ],
-      },
-    ],
-  },
-]
 
 export const foxTradeOpportunitiesBuckets: TradeOpportunitiesBucket[] = [
   {

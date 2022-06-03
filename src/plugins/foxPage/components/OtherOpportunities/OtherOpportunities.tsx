@@ -1,17 +1,21 @@
 import { Flex } from '@chakra-ui/layout'
 import { Accordion, Text as CText } from '@chakra-ui/react'
+import { OpportunitiesBucket } from 'plugins/foxPage/FoxCommon'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 
-import { otherOpportunitiesBuckets } from '../../FoxCommon'
 import { FoxOtherOpportunityPanel } from './FoxOtherOpportunityPanel'
 
 type OtherOpportunitiesProps = {
   description: string
+  opportunities: OpportunitiesBucket[]
 }
 
-export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({ description }) => {
+export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
+  description,
+  opportunities,
+}) => {
   const translate = useTranslate()
 
   return (
@@ -26,7 +30,7 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({ descript
       </Card.Header>
       <Card.Body pb={0}>
         <Accordion mx={-6} defaultIndex={[0]} allowToggle allowMultiple>
-          {otherOpportunitiesBuckets.map(opportunitiesBucket => {
+          {opportunities.map(opportunitiesBucket => {
             const { opportunities } = opportunitiesBucket
             if (!opportunities.length) return null
 
@@ -34,6 +38,7 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({ descript
               <FoxOtherOpportunityPanel
                 opportunities={opportunities}
                 title={opportunitiesBucket.title}
+                type={opportunitiesBucket.type}
               />
             )
           })}

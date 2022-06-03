@@ -92,10 +92,6 @@ export const totalLpSupply = async (farmingRewardsContract: Contract) => {
   } catch (error) {
     const errorMsg = 'totalLpSupply error'
     moduleLogger.error(error, { fn: 'totalLpSupply' }, errorMsg)
-<<<<<<< HEAD
-=======
-    console.error(error, errorMsg)
->>>>>>> 1e431401 (chore: use moduleLogger.error)
     throw new Error(errorMsg)
   }
 }

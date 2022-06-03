@@ -103,10 +103,9 @@ export const getAllowanceRequired = async ({
   }
 }
 
-export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> => {
-  const { symbol, assetId } = input
-
-  const { assetReference: erc20Address, assetNamespace } = fromAssetId(assetId)
+export const getUsdRate = async (asset: Asset): Promise<string> => {
+  const { assetReference: erc20Address, assetNamespace } = fromAssetId(asset.assetId)
+  const { symbol } = asset
 
   try {
     const USDC_CONTRACT_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'

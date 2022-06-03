@@ -186,7 +186,7 @@ export interface Swapper {
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
-  getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>
+  getUsdRate(input: Asset): Promise<string>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

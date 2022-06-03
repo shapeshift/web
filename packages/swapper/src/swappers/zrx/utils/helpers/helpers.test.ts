@@ -10,6 +10,7 @@ import {
   grantAllowance,
   normalizeAmount
 } from '../helpers/helpers'
+import { FOX, WETH } from '../test-data/assets'
 import { setupQuote } from '../test-data/setupSwapQuote'
 import { setupZrxDeps } from '../test-data/setupZrxDeps'
 import { zrxService } from '../zrxService'
@@ -43,10 +44,7 @@ describe('utils', () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
         Promise.resolve({ data: { price: '2' } })
       )
-      const rate = await getUsdRate({
-        symbol: 'FOX',
-        assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      })
+      const rate = await getUsdRate(FOX)
       expect(rate).toBe('0.5')
       expect(zrxService.get).toHaveBeenCalledWith('/swap/v1/price', {
         params: {
@@ -58,12 +56,7 @@ describe('utils', () => {
     })
     it('getUsdRate fails', async () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
-      await expect(
-        getUsdRate({
-          symbol: 'WETH',
-          assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-        })
-      ).rejects.toThrow('[getUsdRate]')
+      await expect(getUsdRate(WETH)).rejects.toThrow('[getUsdRate]')
     })
   })
 

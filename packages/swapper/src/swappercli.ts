@@ -1,7 +1,7 @@
 import { AssetService } from '@shapeshiftoss/asset-service'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import dotenv from 'dotenv'
 import readline from 'readline-sync'
@@ -59,24 +59,11 @@ const main = async (): Promise<void> => {
     return
   }
 
-  const assetService = new AssetService('')
-  await assetService.initialize()
-  const assets = assetService.byNetwork(NetworkTypes.MAINNET)
+  const assetService = new AssetService()
+  const assetMap = assetService.getAll()
 
-  if (!assets) {
-    console.error('No assets found in asset service')
-    return
-  }
-
-  const assetMap = assets.reduce((acc, val) => {
-    if (val) {
-      acc[val.symbol] = val
-    }
-    return acc
-  }, {} as Record<string, Asset>)
-
-  const sellAsset = assetMap[sellSymbol] as Asset
-  const buyAsset = assetMap[buySymbol] as Asset
+  const sellAsset = assetMap[sellSymbol]
+  const buyAsset = assetMap[buySymbol]
 
   if (!sellAsset) {
     console.error(`No asset ${sellSymbol} found in asset service`)

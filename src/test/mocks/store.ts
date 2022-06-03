@@ -53,6 +53,7 @@ export const mockStore: ReduxState = {
       WalletConnectWallet: false,
       BanxaRamp: false,
       FoxPage: false,
+      TallyHoWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

@@ -1,3 +1,5 @@
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+
 export type MidgardResponse = {
   asset: string
   assetDepth: string
@@ -13,6 +15,16 @@ export type MidgardResponse = {
   volume24h: string
 }
 
+export type InboundResponse = {
+  chain: string
+  pub_key: string
+  address: string
+  halted: boolean
+  gas_rate: string
+  router?: string
+}
+
 export type ThorchainSwapperDeps = {
   midgardUrl: string
+  adapterManager: ChainAdapterManager
 }

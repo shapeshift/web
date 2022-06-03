@@ -1,3 +1,4 @@
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 
 import { ThorchainSwapper } from './ThorchainSwapper'
@@ -10,7 +11,8 @@ describe('ThorchainSwapper', () => {
   describe('initialize', () => {
     it('throws when api response', async () => {
       const swapper = new ThorchainSwapper({
-        midgardUrl: 'localhost:3000'
+        midgardUrl: 'localhost:3000',
+        adapterManager: <ChainAdapterManager>{}
       })
 
       mockedAxios.get.mockImplementation(() => {

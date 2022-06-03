@@ -4,8 +4,6 @@ import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -17,14 +15,12 @@ export const SelectModal = () => {
     create,
   } = useWallet()
   const translate = useTranslate()
-  const walletConnectFeatureFlag = useAppSelector(state =>
-    selectFeatureFlag(state, 'WalletConnectWallet'),
-  )
+
   const wallets = Object.values(KeyManager)
     .filter(key => key !== KeyManager.Demo)
-    .filter(key => walletConnectFeatureFlag || key !== KeyManager.WalletConnect)
 
   const tallyHoFeatureFlag = useFeatureFlag('TallyHoWallet')
+  const walletConnectFeatureFlag = useFeatureFlag('WalletConnectWallet')
 
   return (
     <>
@@ -45,6 +41,8 @@ export const SelectModal = () => {
               if (isMobile && !option.mobileEnabled) return false
 
               if (!tallyHoFeatureFlag && key === KeyManager.TallyHo) return false
+
+              if (!walletConnectFeatureFlag && key === KeyManager.WalletConnect) return false
 
               return (
                 <Button

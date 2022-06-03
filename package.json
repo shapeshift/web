@@ -29,7 +29,7 @@
     "@shapeshiftoss/investor-foxy": "^3.1.1",
     "@shapeshiftoss/investor-yearn": "^2.0.2",
     "@shapeshiftoss/logger": "^1.1.2",
-    "@shapeshiftoss/market-service": "^4.2.2",
+    "@shapeshiftoss/market-service": "^4.5.1",
     "@shapeshiftoss/swapper": "^5.2.3",
     "@shapeshiftoss/types": "^4.3.1",
     "@shapeshiftoss/unchained-client": "^8.3.4",

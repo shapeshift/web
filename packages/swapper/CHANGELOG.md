@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.8.1...@shapeshiftoss/swapper-v5.9.0) (2022-06-03)
+
+
+### Features
+
+* **assetService:** consume normalization of Asset properties & use static data ([#746](https://github.com/shapeshift/lib/issues/746)) ([ca87bee](https://github.com/shapeshift/lib/commit/ca87bee46419a03d490a826b2b42c90b49cc3079))
+
 # [@shapeshiftoss/swapper-v5.8.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.8.0...@shapeshiftoss/swapper-v5.8.1) (2022-06-03)
 
 # [@shapeshiftoss/swapper-v5.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.7.0...@shapeshiftoss/swapper-v5.8.0) (2022-06-03)

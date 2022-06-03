@@ -9,7 +9,8 @@ jest.mock('axios')
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
-const coinGeckoMarketService = new CoinGeckoMarketService()
+const coinGeckoMarketServiceArgs = { coinGeckoAPIKey: '' }
+const coinGeckoMarketService = new CoinGeckoMarketService(coinGeckoMarketServiceArgs)
 
 describe('coingecko market service', () => {
   describe('findAll', () => {
@@ -107,6 +108,24 @@ describe('coingecko market service', () => {
       },
       last_updated: '2021-10-10T22:16:22.950Z'
     }
+
+    it('can use free tier with no api key', async () => {
+      const freeCoinGeckoMarketService = new CoinGeckoMarketService({ coinGeckoAPIKey: '' })
+      await freeCoinGeckoMarketService.findAll({ count: 10 })
+      // note - url starts with api, not pro-api
+      const url =
+        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false'
+      expect(mockedAxios.get).toBeCalledWith(url)
+    })
+
+    it('can use pro tier with api key', async () => {
+      const proCoinGeckoMarketService = new CoinGeckoMarketService({ coinGeckoAPIKey: 'dummyKey' })
+      await proCoinGeckoMarketService.findAll({ count: 10 })
+      // note - url starts with pro-api, not api
+      const url =
+        'https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&x_cg_pro_api_key=dummyKey'
+      expect(mockedAxios.get).toBeCalledWith(url)
+    })
 
     it('can flatten multiple responses', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: [eth] }).mockResolvedValue({ data: [btc] })

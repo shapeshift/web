@@ -23,7 +23,7 @@ const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINCAP)
 export class FoxyMarketService implements MarketService {
   baseUrl = 'https://api.coincap.io/v2'
 
-  findAll = async () => {
+  async findAll() {
     try {
       const assetId = FOXY_ASSET_ID
       const marketData = await this.findByAssetId({ assetId })
@@ -35,7 +35,7 @@ export class FoxyMarketService implements MarketService {
     }
   }
 
-  findByAssetId = async ({ assetId }: MarketDataArgs): Promise<MarketData | null> => {
+  async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     try {
       if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
         console.warn('FoxyMarketService(findByAssetId): Failed to find by AssetId')
@@ -57,10 +57,10 @@ export class FoxyMarketService implements MarketService {
     }
   }
 
-  findPriceHistoryByAssetId = async ({
+  async findPriceHistoryByAssetId({
     assetId,
     timeframe
-  }: PriceHistoryArgs): Promise<HistoryData[]> => {
+  }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
       console.warn(
         'FoxyMarketService(findPriceHistoryByAssetId): Failed to find price history by AssetId'

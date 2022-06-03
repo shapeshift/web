@@ -27,7 +27,7 @@ export class CoinCapMarketService implements MarketService {
     count: 2500
   }
 
-  findAll = async (args?: FindAllMarketArgs) => {
+  async findAll(args?: FindAllMarketArgs) {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { count } = argsToUse
     const perPage = count > 250 ? 250 : count
@@ -73,7 +73,7 @@ export class CoinCapMarketService implements MarketService {
     }
   }
 
-  findByAssetId = async ({ assetId }: MarketDataArgs): Promise<MarketData | null> => {
+  async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     if (!adapters.assetIdToCoinCap(assetId)) return null
     try {
       const id = adapters.assetIdToCoinCap(assetId)
@@ -95,10 +95,10 @@ export class CoinCapMarketService implements MarketService {
     }
   }
 
-  findPriceHistoryByAssetId = async ({
+  async findPriceHistoryByAssetId({
     assetId,
     timeframe
-  }: PriceHistoryArgs): Promise<HistoryData[]> => {
+  }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (!adapters.assetIdToCoinCap(assetId)) return []
     const id = adapters.assetIdToCoinCap(assetId)
 

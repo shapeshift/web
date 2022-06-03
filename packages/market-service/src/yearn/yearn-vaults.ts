@@ -39,7 +39,7 @@ export class YearnVaultMarketCapService implements MarketService {
     this.yearnSdk = args.yearnSdk
   }
 
-  findAll = async (args?: FindAllMarketArgs) => {
+  async findAll(args?: FindAllMarketArgs) {
     try {
       const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
       const response = await rateLimiter(() => this.yearnSdk.vaults.get())
@@ -121,7 +121,7 @@ export class YearnVaultMarketCapService implements MarketService {
     }
   }
 
-  findByAssetId = async ({ assetId }: MarketDataArgs): Promise<MarketData | null> => {
+  async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     const id = adapters.assetIdToYearn(assetId)
     if (!id) return null
     try {
@@ -192,10 +192,10 @@ export class YearnVaultMarketCapService implements MarketService {
     return date
   }
 
-  findPriceHistoryByAssetId = async ({
+  async findPriceHistoryByAssetId({
     assetId,
     timeframe
-  }: PriceHistoryArgs): Promise<HistoryData[]> => {
+  }: PriceHistoryArgs): Promise<HistoryData[]> {
     const id = adapters.assetIdToYearn(assetId)
     if (!id) return []
     try {

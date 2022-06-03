@@ -4,7 +4,7 @@ Market Service acts as an abstraction layer over multiple cloud market providers
 of this service is to find all market data, find market data for a single asset, find price history data
 for all assets, and manage multiple cloud market data providers for asset market data. The design is meant to
 be redundant and extensible so that assets not found on one provider can be found on another supported provider.
-If one provider is unavailable, the manager should be able to fill in missing assets with the next redundant provder.
+If one provider is unavailable, the manager should be able to fill in missing assets with the next redundant provider.
 
 ## Manager
 

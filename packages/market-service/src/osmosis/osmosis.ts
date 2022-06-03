@@ -17,7 +17,7 @@ import { OsmosisHistoryData, OsmosisMarketCap } from './osmosis-types'
 export class OsmosisMarketService implements MarketService {
   baseUrl = 'https://api-osmosis.imperator.co'
 
-  findAll = async () => {
+  async findAll() {
     const osmosisApiUrl = `${this.baseUrl}/tokens/v2/all`
     try {
       const { data: osmosisData }: { data: OsmosisMarketCap[] } = await axios.get(osmosisApiUrl)
@@ -45,7 +45,7 @@ export class OsmosisMarketService implements MarketService {
     }
   }
 
-  findByAssetId = async ({ assetId }: MarketDataArgs): Promise<MarketData | null> => {
+  async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     if (!adapters.assetIdToOsmosis(assetId)) return null
 
     try {
@@ -70,10 +70,10 @@ export class OsmosisMarketService implements MarketService {
     }
   }
 
-  findPriceHistoryByAssetId = async ({
+  async findPriceHistoryByAssetId({
     assetId,
     timeframe
-  }: PriceHistoryArgs): Promise<HistoryData[]> => {
+  }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (!adapters.assetIdToOsmosis(assetId)) return []
     const symbol = adapters.assetIdToOsmosis(assetId)
 

@@ -34,7 +34,7 @@ export class YearnTokenMarketCapService implements MarketService {
     this.yearnSdk = args.yearnSdk
   }
 
-  findAll = async (args?: FindAllMarketArgs) => {
+  async findAll(args?: FindAllMarketArgs) {
     try {
       const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
       const response = await Promise.allSettled([
@@ -76,7 +76,7 @@ export class YearnTokenMarketCapService implements MarketService {
     }
   }
 
-  findByAssetId = async ({ assetId: _assetId }: MarketDataArgs): Promise<MarketData | null> => {
+  async findByAssetId({ assetId: _assetId }: MarketDataArgs): Promise<MarketData | null> {
     const address = adapters.assetIdToYearn(_assetId)
     if (!address) return null
     try {
@@ -113,7 +113,7 @@ export class YearnTokenMarketCapService implements MarketService {
     }
   }
 
-  findPriceHistoryByAssetId = async (): Promise<HistoryData[]> => {
+  async findPriceHistoryByAssetId(): Promise<HistoryData[]> {
     // TODO: figure out a way to get zapper, ironbank and underlying token historical data.
     return []
   }

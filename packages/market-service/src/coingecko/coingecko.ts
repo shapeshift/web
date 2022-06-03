@@ -38,22 +38,25 @@ type CoinGeckoAssetData = {
 }
 
 export class CoinGeckoMarketService implements MarketService {
-  // if we have a key - use the pro- api
-  baseUrl = `https://${
-    process.env.REACT_APP_COINGECKO_API_KEY ? 'pro-' : ''
-  }api.coingecko.com/api/v3`
+  baseUrl: string
+  APIKey: string
+
+  constructor(args: { coinGeckoAPIKey: string }) {
+    const { coinGeckoAPIKey } = args
+    this.APIKey = coinGeckoAPIKey
+    // if we have a key - use the pro- api
+    this.baseUrl = `https://${this.APIKey ? 'pro-' : ''}api.coingecko.com/api/v3`
+  }
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 2500
   }
 
   private maybeAddAPIKey = (): string => {
-    return process.env.REACT_APP_COINGECKO_API_KEY
-      ? `&x_cg_pro_api_key=${process.env.REACT_APP_COINGECKO_API_KEY}`
-      : ''
+    return this.APIKey ? `&x_cg_pro_api_key=${this.APIKey}` : ''
   }
 
-  findAll = async (args?: FindAllMarketArgs) => {
+  async findAll(args?: FindAllMarketArgs) {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { count } = argsToUse
     const perPage = count > 250 ? 250 : count
@@ -102,7 +105,7 @@ export class CoinGeckoMarketService implements MarketService {
     }
   }
 
-  findByAssetId = async ({ assetId }: MarketDataArgs): Promise<MarketData | null> => {
+  async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     try {
       if (!adapters.assetIdToCoingecko(assetId)) return null
       const { chainNamespace, assetReference } = fromAssetId(assetId)
@@ -136,10 +139,10 @@ export class CoinGeckoMarketService implements MarketService {
     }
   }
 
-  findPriceHistoryByAssetId = async ({
+  async findPriceHistoryByAssetId({
     assetId,
     timeframe
-  }: PriceHistoryArgs): Promise<HistoryData[]> => {
+  }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (!adapters.assetIdToCoingecko(assetId)) return []
     try {
       const { chainNamespace, assetReference } = fromAssetId(assetId)

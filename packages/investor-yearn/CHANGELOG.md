@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.1.0...@shapeshiftoss/investor-yearn-v2.2.0) (2022-06-03)
+
+
+### Features
+
+* **assetService:** consume normalization of Asset properties & use static data ([#746](https://github.com/shapeshift/lib/issues/746)) ([ca87bee](https://github.com/shapeshift/lib/commit/ca87bee46419a03d490a826b2b42c90b49cc3079))
+
 # [@shapeshiftoss/investor-yearn-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.0.2...@shapeshiftoss/investor-yearn-v2.1.0) (2022-05-26)
 
 

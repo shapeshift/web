@@ -1,4 +1,3 @@
-import { Window as KeplrWindow } from '@keplr-wallet/types'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
@@ -8,11 +7,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { KeplrConfig } from '../config'
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface Window extends KeplrWindow {}
-}
 
 export interface KeplrSetupProps
   extends RouteComponentProps<
@@ -44,6 +38,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       try {
         const provider = window.keplr
         if (!provider) {
+          setErrorLoading('walletProvider.keplr.errors.noProvider')
           throw new Error('walletProvider.keplr.errors.noProvider')
         }
 

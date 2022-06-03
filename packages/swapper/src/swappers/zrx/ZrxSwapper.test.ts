@@ -5,7 +5,6 @@ import Web3 from 'web3'
 
 import { ZrxSwapper } from '..'
 import { zrxBuildTrade } from '../zrx/zrxBuildTrade/zrxBuildTrade'
-import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { FOX } from './utils/test-data/assets'
@@ -74,12 +73,6 @@ describe('ZrxSwapper', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     await swapper.getUsdRate(FOX)
     expect(getUsdRate).toHaveBeenCalled()
-  })
-  it('calls getZrxMinMax on swapper.getMinMax', async () => {
-    const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const { quoteInput } = setupQuote()
-    await swapper.getMinMax(quoteInput)
-    expect(getZrxMinMax).toHaveBeenCalled()
   })
 
   it('calls ZrxApprovalNeeded on swapper.approvalNeeded', async () => {

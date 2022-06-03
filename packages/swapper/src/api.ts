@@ -130,8 +130,6 @@ export type GetMinMaxInput = {
 
 export type ApprovalNeededOutput = {
   approvalNeeded: boolean
-  gas?: string
-  gasPrice?: string
 }
 
 export enum SwapperType {
@@ -189,11 +187,6 @@ export interface Swapper {
    * Get the usd rate from either the assets symbol or tokenId
    */
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>
-
-  /**
-   * Get the minimum and maximum trade value of the sellAsset and buyAsset
-   */
-  getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

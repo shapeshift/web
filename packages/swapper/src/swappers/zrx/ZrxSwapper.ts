@@ -10,9 +10,7 @@ import {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
-  GetMinMaxInput,
   GetTradeQuoteInput,
-  MinMaxOutput,
   Swapper,
   SwapperType,
   TradeQuote,
@@ -20,7 +18,6 @@ import {
   TradeTxs,
   ZrxTrade
 } from '../../api'
-import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
@@ -60,10 +57,6 @@ export class ZrxSwapper implements Swapper {
 
   async getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
     return getUsdRate(input)
-  }
-
-  async getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput> {
-    return getZrxMinMax(input.sellAsset, input.buyAsset)
   }
 
   async executeTrade(args: ExecuteTradeInput<SupportedChainIds>): Promise<TradeResult> {

@@ -1,7 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
 
-import { APPROVAL_GAS_LIMIT } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { setupZrxDeps } from '../utils/test-data/setupZrxDeps'
 import { zrxService } from '../utils/zrxService'
@@ -76,9 +75,7 @@ describe('ZrxApprovalNeeded', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     expect(await ZrxApprovalNeeded(args, input)).toEqual({
-      approvalNeeded: false,
-      gas: APPROVAL_GAS_LIMIT,
-      gasPrice: input.quote.feeData.chainSpecific.gasPrice
+      approvalNeeded: false
     })
   })
 
@@ -103,9 +100,7 @@ describe('ZrxApprovalNeeded', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     expect(await ZrxApprovalNeeded(args, input)).toEqual({
-      approvalNeeded: true,
-      gas: APPROVAL_GAS_LIMIT,
-      gasPrice: input.quote.feeData.chainSpecific.gasPrice
+      approvalNeeded: true
     })
   })
 })

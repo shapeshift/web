@@ -8,9 +8,7 @@ import {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
-  GetMinMaxInput,
   GetTradeQuoteInput,
-  MinMaxOutput,
   Swapper,
   SwapperType,
   Trade,
@@ -42,11 +40,6 @@ export class CowSwapper implements Swapper {
   getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
     console.info(input)
     throw new Error('CowSwapper: getUsdRate unimplemented')
-  }
-
-  getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput> {
-    console.info(input)
-    throw new Error('CowSwapper: getMinMax unimplemented')
   }
 
   async executeTrade(args: ExecuteTradeInput<SupportedChainIds>): Promise<TradeResult> {

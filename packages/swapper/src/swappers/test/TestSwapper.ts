@@ -4,8 +4,6 @@ import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
-  GetMinMaxInput,
-  MinMaxOutput,
   Swapper,
   SwapperType,
   Trade,
@@ -40,11 +38,6 @@ export class TestSwapper implements Swapper {
   getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
     console.info(input)
     throw new Error('TestSwapper: getUsdRate unimplemented')
-  }
-
-  getMinMax(input: GetMinMaxInput): Promise<MinMaxOutput> {
-    console.info(input)
-    throw new Error('TestSwapper: getMinMax unimplemented')
   }
 
   async approvalNeeded(): Promise<ApprovalNeededOutput> {

@@ -1,3 +1,4 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { YearnInvestor, YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
@@ -34,18 +35,18 @@ export const transfromYearnOpportunities = async (
 
 const transformOpportunity = (opportunity: YearnOpportunity): SupportedYearnVault => {
   return {
-    tvl: opportunity.tvl,
-    isNew: opportunity.isNew,
     apy: opportunity.apy.toNumber(),
-    version: opportunity.version,
-    vaultAddress: toLower(opportunity.id),
-    name: opportunity.name,
-    symbol: opportunity.symbol,
-    tokenAddress: toLower(opportunity.underlyingAsset.address),
     chain: ChainTypes.Ethereum,
-    provider: DefiProvider.Yearn,
-    type: DefiType.Vault,
     expired:
       opportunity.metadata.depositsDisabled || bnOrZero(opportunity.metadata.depositLimit).lte(0),
+    isNew: opportunity.isNew,
+    name: opportunity.name,
+    provider: DefiProvider.Yearn,
+    symbol: opportunity.symbol,
+    tokenAddress: fromAssetId(opportunity.underlyingAsset.assetId).assetReference,
+    tvl: opportunity.tvl,
+    type: DefiType.Vault,
+    version: opportunity.version,
+    vaultAddress: toLower(opportunity.id),
   }
 }

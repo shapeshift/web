@@ -1,8 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, Tag, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
@@ -13,7 +11,6 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -28,7 +25,6 @@ export const Confirm = () => {
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const chainAdapterManager = useChainAdapters()
   const { yearn: yearnInvestor } = useYearn()
   // TODO: Allow user to set fee priority
   const opportunity = state?.opportunity
@@ -79,17 +75,16 @@ export const Confirm = () => {
         state.opportunity?.positionAsset.assetId ?? '',
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedTransaction = await yearnOpportunity.prepareDeposit({
+      const tx = await yearnOpportunity.prepareDeposit({
         address: state.userAddress,
         amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
-      const chainAdapter = chainAdapterManager.byChainId(
-        chainId,
-      ) as ChainAdapter<ChainTypes.Ethereum>
-      const txid = await yearnOpportunity.signAndBroadcast(
-        { wallet: walletState.wallet, chainAdapter },
-        preparedTransaction,
-      )
+      const txid = await yearnOpportunity.signAndBroadcast({
+        wallet: walletState.wallet,
+        tx,
+        // TODO: allow user to choose fee priority
+        feePriority: undefined,
+      })
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       history.push(DepositPath.Status)
     } catch (error) {
@@ -131,7 +126,8 @@ export const Confirm = () => {
           ...vaultAsset,
           color: '#FFFFFF',
           cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-            .div(bnOrZero(state.opportunity?.positionAsset.price).div(`1e+${asset.precision}`))
+            .times(`1e+${asset.precision}`)
+            .div(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
             .toString(),
           fiatAmount: state.deposit.fiatAmount,
         },

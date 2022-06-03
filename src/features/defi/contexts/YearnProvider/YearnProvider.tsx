@@ -1,3 +1,4 @@
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -20,15 +21,20 @@ export const useYearn = () => {
 export const YearnProvider: React.FC = ({ children }) => {
   const [yearn, setYearn] = useState<YearnInvestor | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const { chainAdapterManager, supportedChains } = usePlugins()
+  const { chainAdapterManager } = usePlugins()
 
   useEffect(() => {
     ;(async () => {
       try {
         if (!chainAdapterManager.getSupportedChains().includes(ChainTypes.Ethereum)) return
         setLoading(true)
+        const chainAdapter = chainAdapterManager.byChainId(
+          'eip155:1',
+        ) as ChainAdapter<ChainTypes.Ethereum>
         const yearnInvestor = new YearnInvestor({
+          chainAdapter,
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+          dryRun: true,
         })
         await yearnInvestor.initialize()
         setYearn(yearnInvestor)
@@ -38,7 +44,7 @@ export const YearnProvider: React.FC = ({ children }) => {
         setLoading(false)
       }
     })()
-  }, [chainAdapterManager, supportedChains])
+  }, [chainAdapterManager])
 
   return <YearnContext.Provider value={{ yearn, loading }}>{children}</YearnContext.Provider>
 }

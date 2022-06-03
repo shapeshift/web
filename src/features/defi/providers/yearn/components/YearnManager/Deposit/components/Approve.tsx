@@ -1,8 +1,6 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -11,7 +9,6 @@ import { useContext } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -33,7 +30,6 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
-  const chainAdapterManager = useChainAdapters()
   const { yearn: yearnInvestor } = useYearn()
   const opportunity = state?.opportunity
 
@@ -74,14 +70,13 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
         state.opportunity?.positionAsset.assetId ?? '',
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedTransaction = await yearnOpportunity.prepareApprove(state.userAddress)
-      const chainAdapter = chainAdapterManager.byChainId(
-        chainId,
-      ) as ChainAdapter<ChainTypes.Ethereum>
-      await yearnOpportunity.signAndBroadcast(
-        { wallet: walletState.wallet, chainAdapter },
-        preparedTransaction,
-      )
+      const tx = await yearnOpportunity.prepareApprove(state.userAddress)
+      await yearnOpportunity.signAndBroadcast({
+        wallet: walletState.wallet,
+        tx,
+        // TODO: allow user to choose fee priority
+        feePriority: undefined,
+      })
       const address = state.userAddress
       await poll({
         fn: () => yearnOpportunity.allowance(address),

@@ -96,7 +96,8 @@ export const Status = () => {
         {
           ...vaultAsset,
           cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-            .div(bnOrZero(state.opportunity?.positionAsset.price).div(`1e+${asset.precision}`))
+            .div(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
+            .times(`1e+${asset.precision}`)
             .toString(),
           fiatAmount: state.deposit.fiatAmount,
         },

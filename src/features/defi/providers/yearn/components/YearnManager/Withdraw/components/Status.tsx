@@ -97,7 +97,8 @@ export const Status = () => {
         {
           ...underlyingAsset,
           cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-            .times(bnOrZero(state.opportunity?.positionAsset.price).div(`1e+${asset.precision}`))
+            .div(`1e+${asset.precision}`)
+            .times(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
             .toString(),
           fiatAmount: state.withdraw.fiatAmount,
         },

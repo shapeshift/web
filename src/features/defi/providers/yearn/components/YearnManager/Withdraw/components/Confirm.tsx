@@ -1,8 +1,6 @@
 import { Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
@@ -13,7 +11,6 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -28,7 +25,6 @@ export const Confirm = () => {
   const translate = useTranslate()
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const chainAdapterManager = useChainAdapters()
   const { yearn: yearnInvestor } = useYearn()
   const { chainId, contractAddress: vaultAddress, tokenId } = query
   const opportunity = state?.opportunity
@@ -77,17 +73,16 @@ export const Confirm = () => {
         state.opportunity?.positionAsset.assetId ?? '',
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedTransaction = await yearnOpportunity.prepareWithdrawal({
+      const tx = await yearnOpportunity.prepareWithdrawal({
         address: state.userAddress,
         amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
-      const chainAdapter = chainAdapterManager.byChainId(
-        chainId,
-      ) as ChainAdapter<ChainTypes.Ethereum>
-      const txid = await yearnOpportunity.signAndBroadcast(
-        { wallet: walletState.wallet, chainAdapter },
-        preparedTransaction,
-      )
+      const txid = await yearnOpportunity.signAndBroadcast({
+        wallet: walletState.wallet,
+        tx,
+        // TODO: allow user to choose fee priority
+        feePriority: undefined,
+      })
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
       history.push(WithdrawPath.Status)
     } catch (error) {
@@ -119,7 +114,8 @@ export const Confirm = () => {
           ...underlyingAsset,
           color: '#FF0000',
           cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-            .times(bnOrZero(state.opportunity?.positionAsset.price).div(`1e+${asset.precision}`))
+            .div(`1e+${asset.precision}`)
+            .times(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
             .toString(),
           fiatAmount: state.withdraw.fiatAmount,
         },

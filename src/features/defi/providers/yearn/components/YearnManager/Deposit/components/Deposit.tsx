@@ -53,7 +53,7 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
       if (!yearnOpportunity) throw new Error('No opportunity')
       const preparedApproval = await yearnOpportunity.prepareApprove(state.userAddress)
       return bnOrZero(preparedApproval.gasPrice)
-        .times(preparedApproval.gasLimit)
+        .times(preparedApproval.estimatedGas)
         .integerValue()
         .toString()
     } catch (error) {

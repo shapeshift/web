@@ -51,7 +51,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
         (opp: YearnOpportunity) => toLower(opp.id) === toLower(vault.vaultAddress),
       )
       if (!opportunity) continue
-      const pricePerShare = opportunity?.positionAsset.price
+      const pricePerShare = opportunity?.positionAsset.underlyingPerPosition
       acc[vault.vaultAddress] = {
         ...vault,
         chainId: chainTypeToMainnetChainId(vault.chain),

@@ -59,7 +59,7 @@ export const Withdraw = () => {
         address: state.userAddress,
       })
       // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.gasLimit).integerValue().toString()
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error('YearnWithdraw:getWithdrawGasEstimate error:', error)
@@ -102,7 +102,7 @@ export const Withdraw = () => {
   }
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-  const pricePerShare = bnOrZero(state.opportunity?.positionAsset.price).div(
+  const pricePerShare = bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
     `1e+${asset?.precision}`,
   )
   const vaultTokenPrice = pricePerShare.times(marketData.price)

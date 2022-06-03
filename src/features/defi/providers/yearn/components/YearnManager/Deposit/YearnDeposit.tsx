@@ -92,7 +92,7 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
         address: state.userAddress,
       })
       // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.gasLimit).integerValue().toString()
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
     } catch (error) {
       console.error('YearnDeposit:getDepositGasEstimate error:', error)
       toast({

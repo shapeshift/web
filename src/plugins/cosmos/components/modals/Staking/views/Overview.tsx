@@ -72,7 +72,7 @@ export const Overview: React.FC<StakedProps> = ({
   const shouldDisplayUndelegationEntries = undelegationEntries?.length || !isLoaded
 
   const shouldDisplayGetStarted =
-    !hasActiveStaking || !undelegationEntries?.length || bnOrZero(rewardsAmount).lte(0)
+    !hasActiveStaking && !undelegationEntries?.length && bnOrZero(rewardsAmount).lte(0)
 
   if (!isLoaded) {
     return (

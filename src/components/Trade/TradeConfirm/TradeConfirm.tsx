@@ -1,4 +1,5 @@
 import { Box, Button, Divider, Link, Stack } from '@chakra-ui/react'
+import { TradeTxs } from '@shapeshiftoss/swapper'
 import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -16,6 +17,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { poll } from 'lib/poll/poll'
 import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { makeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -37,7 +39,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<SupportedChainIds>>()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
-  const { executeQuote, reset } = useSwapper()
+  const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
   const {
@@ -74,10 +76,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await executeQuote({ wallet })
-      const transactionId = result?.txid
-      if (transactionId) {
-        setTxid(transactionId)
-      }
+
+      // Poll until we have a "buy" txid
+      // This means the trade is just about finished
+      const txs = await poll({
+        fn: () => getTradeTxs(result),
+        validate: (txs: TradeTxs) => !!txs.buyTxid,
+        interval: 10000, // 10 seconds
+        maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
+      })
+      if (!txs.buyTxid) throw new Error('No buyTxid from getTradeTxs')
+      setTxid(txs.buyTxid)
     } catch (e) {
       showErrorToast(e)
     }

@@ -1,6 +1,5 @@
 import { toAssetId } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import {
   Withdraw as ReusableWithdraw,
   WithdrawValues,
@@ -28,20 +27,17 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, tokenId } = query
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: tokenId,
   })
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: vaultAddress,
   })

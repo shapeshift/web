@@ -85,7 +85,9 @@ export const TradeInput = ({ history }: RouterProps) => {
 
     if (bnOrZero(quote.sellAmount).lt(minSellAmount)) {
       toast({
-        description: translate('trade.errors.amountToSmall'),
+        description: translate('trade.errors.amountToSmall', {
+          minLimit: `${quote.minimum} ${quote.sellAsset.symbol}`,
+        }),
         status: 'error',
         duration: 9000,
         isClosable: true,

@@ -1,7 +1,7 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
@@ -39,23 +39,20 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const location = useLocation()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, rewardId } = query
+  const { chainId, contractAddress, rewardId } = query
   const toast = useToast()
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })

@@ -9,7 +9,6 @@ import {
   fromAssetId,
   osmosisChainId,
   toAccountId,
-  toChainId,
 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -48,6 +47,16 @@ export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
 
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
+
+export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
+  if (!content) return ''
+
+  if (!trimmedContentLength) return content
+
+  if (content.length < trimmedContentLength) return content
+
+  return content.slice(0, trimmedContentLength).concat('...')
+}
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountSpecifier): string => {
@@ -164,7 +173,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
     const { chain } = account
 
     switch (chain) {
-      // TODO: Handle Cosmos ChainType here
       case ChainTypes.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { chainId, assetId, pubkey } = account
@@ -401,8 +409,7 @@ export const makeBalancesByChainBucketsFlattened = (
 
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
   if (!assetId) return false
-  const { chain, network } = fromAssetId(assetId)
-  const chainId = toChainId({ chain, network })
+  const { chainId } = fromAssetId(assetId)
   switch (chainId) {
     case ethChainId:
       return supportsETH(wallet)

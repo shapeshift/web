@@ -11,6 +11,7 @@ export type FeatureFlags = {
   BanxaRamp: boolean
   FoxPage: boolean
   MultiCurrency: boolean
+  TallyHoWallet: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -30,6 +31,7 @@ const initialState: Preferences = {
     BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
     MultiCurrency: getConfig().REACT_APP_FEATURE_MULTI_CURRENCY,
+    TallyHoWallet: getConfig().REACT_APP_FEATURE_TALLYHO_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -59,7 +59,7 @@
     "verify": "Verify",
     "notRobot": "I am not a Robot",
     "skip": "Skip",
-    "generalError": "An error has occured"
+    "generalError": "An error has occurred"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -315,6 +315,12 @@
     "amount": "Amount",
     "for": "for",
     "parser": {
+      "weth": {
+        "deposit": "Deposit",
+        "approve": "Approve",
+        "withdraw": "Withdraw",
+        "receive": "Receive"
+      },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
@@ -386,15 +392,15 @@
       "approveInfiniteFailed": "An error occurred approving your trade.",
       "buildTradeFailed": "An error occurred building your trade.",
       "grantAllowanceFailed": "An error occurred granting allowance.",
-      "minMaxError": "An error occured getting min / max trade amount",
+      "minMaxError": "An error occurred getting min / max trade amount",
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
-      "rateError": "An error occured getting trade rates",
+      "rateError": "An error occurred getting trade rates",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
       },
-      "generalError": "A trade error has occured"
+      "generalError": "A trade error has occurred"
     }
   },
   "modals": {
@@ -487,7 +493,7 @@
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
-        "generic": "An error occured.",
+        "generic": "An error occurred.",
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
         "transactionRejected": "User has rejected the transaction",
         "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings."
@@ -750,7 +756,8 @@
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
         "network": "MetaMask isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
+        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
+        "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
       },
       "connect": {
         "header": "Pair MetaMask",
@@ -764,6 +771,29 @@
       "redirect": {
         "header": "Open in MetaMask App",
         "body": "Click to open ShapeShift dashboard in MetaMask",
+        "button": "Open"
+      }
+    },
+    "tallyHo": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Tally Ho",
+        "connectFailure": "Unable to connect Tally Ho wallet",
+        "network": "Tally Ho isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not Tally Ho. Do you have multiple wallets installed?",
+        "tallyNotInstalledOrSetToDefault":"We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
+      },
+      "connect": {
+        "header": "Pair Tally",
+        "body": "Click Pair and login to Tally Ho from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Tally Ho wallet"
+      },
+      "redirect": {
+        "header": "Open in Tally Ho App",
+        "body": "Click to open ShapeShift dashboard in Tally Ho",
         "button": "Open"
       }
     },
@@ -1040,7 +1070,17 @@
       "currentApy": "Current APY",
       "balance": "Balance",
       "getStarted": "Get Started",
-      "currentPrice": "Current Price"
+      "otherOpportunitiesTitle": "Other opportunities",
+      "otherOpportunitiesDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget elit faucibus, vestibulum mauris sed, cursus nulla. Nunc tempor leo sit amet velit gravida lacinia. In sit amet luctus lectus. Pellentesque dapibus, justo vel iaculis ullamcorper, mi purus tristique libero, et laoreet nisi neque ut justo.",
+      "liquidityPools": "Liquidity Pools",
+      "farming": "Farming",
+      "borrowingAndLending": "Borrowing & Lending",
+      "currentPrice": "Current Price",
+      "governanceTitle": "Governance",
+      "seeAllProposals": "See All Proposals",
+      "availableToTradeOn": "Available to Trade On",
+      "dex": "DEX",
+      "centralized": "Centralized"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { ChainTypes } from '@shapeshiftoss/types'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import { renderHook } from '@testing-library/react-hooks'
 import { TestProviders } from 'test/TestProviders'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
@@ -23,7 +23,7 @@ const mockCosmosStakingOpportunities = [
     cryptoAmount: '0.407785',
     tvl: '21040543.6367982',
     fiatAmount: '4.2',
-    chain: ChainTypes.Cosmos,
+    chainId: cosmosChainId,
     assetId: 'cosmos:cosmoshub-4/slip44:118',
     tokenAddress: '118',
   },
@@ -39,7 +39,7 @@ const mockCosmosStakingOpportunities = [
     cryptoAmount: '0.013967',
     tvl: '63799889.014332',
     fiatAmount: '0.24',
-    chain: ChainTypes.Cosmos,
+    chainId: cosmosChainId,
     assetId: 'cosmos:cosmoshub-4/slip44:118',
     tokenAddress: '118',
   },

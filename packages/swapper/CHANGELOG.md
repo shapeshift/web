@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.7.0...@shapeshiftoss/swapper-v5.8.0) (2022-06-03)
+
+
+### Features
+
+* eth make trade tx utility ([#742](https://github.com/shapeshift/lib/issues/742)) ([180ed39](https://github.com/shapeshift/lib/commit/180ed398e8cf8700825071893116a8b5f9f38ef9))
+
 # [@shapeshiftoss/swapper-v5.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.6.0...@shapeshiftoss/swapper-v5.7.0) (2022-06-02)
 
 

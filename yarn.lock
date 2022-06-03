@@ -3894,10 +3894,20 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.22.0", "@shapeshiftoss/hdwallet-core@^1.21.2":
+"@shapeshiftoss/hdwallet-core@1.22.0":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.22.0.tgz#f16d3d2842c5e704ec8e829573b1152dd2070001"
   integrity sha512-xCfmWN0FyJH8lVRhAKPQ7UHfWY1aMGbnGyalS+X4saz9P8o4qaHQ/vBpARrKhL+dDsDSKt8Ol2Wo90nv6C/7Ag==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-core@1.23.0", "@shapeshiftoss/hdwallet-core@^1.21.2":
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.23.0.tgz#8e7552b684d9c4600381cf3131c9d304df4b169a"
+  integrity sha512-CP0ysBeyRMtjx1OTSj+EmuhYWeh3YGxrbobj7HZDYYl8kHyUseJTTQ3s42ezS1AfXkDf/YidKDxa7p6+v7/0sw==
   dependencies:
     eventemitter2 "^5.0.1"
     lodash "^4.17.21"
@@ -4012,11 +4022,11 @@
     web3 "^1.5.1"
 
 "@shapeshiftoss/hdwallet-tallyho@^1.22.0":
-  version "1.22.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-tallyho/-/hdwallet-tallyho-1.22.0.tgz#8ff4eb79ae5c2be9de78a81c8cb3c565d22d75b1"
-  integrity sha512-ZqdCuiW7O1FBFFa51FFaoVl0bz5uutwP5P7BwKmKHJ4HNvNCSAdOWzZ4XtEPllYX/a8h+1BkhPbNMzHO5l+olQ==
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-tallyho/-/hdwallet-tallyho-1.23.0.tgz#3a40a112d8855c613b3a30af8f11003c3d5f0b57"
+  integrity sha512-Y4yZfaRzdLmGVGYCwLLNvR9w/j7b775qMNPW4iSN56QxlXPhPX+7H8lZ+5nIY3lyX7PFU+T6Ch1cvbUuIayIDQ==
   dependencies:
-    "@shapeshiftoss/hdwallet-core" "1.22.0"
+    "@shapeshiftoss/hdwallet-core" "1.23.0"
     lodash "^4.17.21"
     tallyho-onboarding "^1.0.2"
 
@@ -21464,10 +21474,8 @@ watchpack@^1.7.4:
   resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.7.5.tgz#1267e6c55e0b9b5be44c2023aed5437a2c26c453"
   integrity sha512-9P3MWk6SrKjHsGkLT2KHXdQ/9SNkyoJbabxnKOoJepsvJjJG8uYTR3yTPxPQvNDI3w4Nz1xnE0TLHK4RIVe/MQ==
   dependencies:
-    chokidar "^3.4.1"
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
-    watchpack-chokidar2 "^2.0.1"
   optionalDependencies:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"

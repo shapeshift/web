@@ -5,7 +5,6 @@ import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
@@ -30,8 +29,6 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [provider, setProvider] = useState<any>()
-
-  const tallyHoFeatureFlag = useFeatureFlag('TallyHoWallet')
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
@@ -116,8 +113,6 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
   const tallyHoDeeplinkTarget = [window.location.hostname, window.location.port]
     .filter(x => !!x)
     .join(':')
-
-  if (!tallyHoFeatureFlag) return null
 
   // The MM mobile app itself injects a provider, so we'll use pairDevice once
   // we've reopened ourselves in that environment.

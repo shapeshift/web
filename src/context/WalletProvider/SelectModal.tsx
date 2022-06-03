@@ -16,8 +16,7 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
 
-  const wallets = Object.values(KeyManager)
-    .filter(key => key !== KeyManager.Demo)
+  const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
 
   const tallyHoFeatureFlag = useFeatureFlag('TallyHoWallet')
   const walletConnectFeatureFlag = useFeatureFlag('WalletConnectWallet')

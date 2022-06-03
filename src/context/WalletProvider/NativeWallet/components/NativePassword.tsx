@@ -54,6 +54,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const watchPassword = watch('password')
 
   const warningColor = useColorModeValue('yellow.500', 'yellow.200')
+  const warningBackgroundColor = '#FAF08933'
 
   return (
     <>
@@ -62,7 +63,14 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
-        <Alert mb={4} status='warning' color={warningColor} fontSize='md' fontWeight='normal'>
+        <Alert
+          mb={4}
+          status='warning'
+          color={warningColor}
+          backgroundColor={warningBackgroundColor}
+          fontSize='md'
+          fontWeight='normal'
+        >
           <AlertIcon color={warningColor} />
           <Text fontWeight='bold' translation={'walletProvider.shapeShift.password.warning'} />
         </Alert>

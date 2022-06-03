@@ -1,9 +1,9 @@
 import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { SupportedYearnVault } from 'lib/transformYearnOpportunities'
 import { chainTypeToMainnetChainId } from 'lib/utils'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
@@ -58,8 +58,8 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       contractAddress: vault.vaultAddress,
       tokenAddress: vault.tokenAddress,
       rewardAddress: vault.vaultAddress,
-      tvl: bnOrZero(vault.underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString(),
-      apy: vault.metadata.apy?.net_apy,
+      tvl: bnOrZero(vault.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
+      apy: vault.apy,
       expired: vault.expired,
       chainId,
       assetId,
@@ -75,9 +75,9 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
     if (assetIds.includes(assetId)) {
       if (
         vault.expired ||
-        bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) ||
-        bnOrZero(vault.underlyingTokenBalance.amountUsdc).isEqualTo(0) ||
-        (bnOrZero(vault?.metadata?.apy?.net_apy).gt(200) && vault?.metadata?.apy?.type === 'new')
+        bnOrZero(vault?.apy).isEqualTo(0) ||
+        bnOrZero(vault.tvl.balanceUsdc).isEqualTo(0) ||
+        (bnOrZero(vault?.apy).gt(200) && vault.isNew)
       ) {
         if (bnOrZero(cryptoAmount).gt(0)) {
           acc.push(data)

@@ -1,10 +1,5 @@
 import { AssetId, toAssetId } from '@shapeshiftoss/caip'
-import {
-  getSupportedVaults,
-  SupportedYearnVault,
-  YearnInvestor,
-  YearnOpportunity,
-} from '@shapeshiftoss/investor-yearn'
+import { YearnInvestor, YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import find from 'lodash/find'
@@ -13,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { SupportedYearnVault, transfromYearnOpportunities } from 'lib/transformYearnOpportunities'
 import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
@@ -27,8 +23,8 @@ export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
 
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInvestor | null) {
   const acc: Record<string, EarnVault> = {}
-  const vaults = await getSupportedVaults()
   if (!yearn) return acc
+  const vaults = await transfromYearnOpportunities(yearn)
   const opportunities = await yearn.findAll()
   for (let index = 0; index < vaults.length; index++) {
     // TODO: assetIds in vaults
@@ -140,8 +136,8 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           ...vault,
           cryptoAmount: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
-          apy: vault.metadata?.apy?.net_apy,
-          underlyingTokenBalanceUsdc: bnOrZero(vault.underlyingTokenBalance.amountUsdc)
+          apy: vault.apy,
+          underlyingTokenBalanceUsdc: bnOrZero(vault.tvl.balanceUsdc)
             .div(`1e+${USDC_PRECISION}`)
             .toString(),
         }

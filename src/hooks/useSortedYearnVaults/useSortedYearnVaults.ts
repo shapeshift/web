@@ -1,7 +1,7 @@
-import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { useMemo } from 'react'
 import { useVaultWithoutBalance } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { SupportedYearnVault } from 'lib/transformYearnOpportunities'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
 export type YearnVaultWithApyAndTvl = SupportedYearnVault & {

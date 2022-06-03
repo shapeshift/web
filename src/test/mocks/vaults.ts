@@ -1,6 +1,7 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import BigNumber from 'bignumber.js'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { YearnVaultWithApyAndTvl } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
-import { bn } from 'lib/bignumber/bignumber'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
 
 export const mockVault = (obj?: {
@@ -9,40 +10,22 @@ export const mockVault = (obj?: {
   apy?: number
 }): YearnVaultWithApyAndTvl => ({
   vaultAddress: '',
-  address: '',
-  typeId: 'VAULT_V2',
-  token: '',
   version: '',
-  decimals: '',
-  tokenId: '',
   expired: false,
-  underlyingTokenBalance: {
-    amount: '0',
-    amountUsdc: '0',
+  isNew: false,
+  tvl: {
+    assetId: '',
+    balance: new BigNumber('0'),
+    balanceUsdc: new BigNumber('0'),
   },
-  metadata: {
-    symbol: '',
-    pricePerShare: '',
-    migrationAvailable: false,
-    latestVaultAddress: '',
-    depositLimit: '',
-    emergencyShutdown: false,
-    controller: '',
-    totalAssets: '',
-    totalSupply: '',
-    displayName: '',
-    displayIcon: '',
-    defaultDisplayToken: '',
-    hideIfNoDeposits: false,
-  },
-  underlyingTokenBalanceUsdc: '',
+  tokenAddress: '',
   apy: 0,
   chain: ChainTypes.Ethereum,
   name: '',
   symbol: '',
-  tokenAddress: '',
-  provider: '',
-  type: '',
+  provider: DefiProvider.Yearn,
+  type: DefiType.Vault,
+  underlyingTokenBalanceUsdc: '0',
   ...obj,
 })
 
@@ -50,45 +33,27 @@ export const mockVaultWithBalance = (obj?: {
   vaultAddress?: string
   fiatAmount?: string
 }): MergedEarnVault => ({
-  fiatAmount: '',
-  vaultAddress: '',
-  underlyingTokenBalanceUsdc: '',
-  apy: 0,
-  chain: ChainTypes.Ethereum,
-  cryptoAmount: '',
-  address: '',
-  typeId: 'VAULT_V2',
-  token: '',
-  version: '',
-  decimals: '',
-  tokenId: '',
-  expired: false,
-  underlyingTokenBalance: {
-    amount: '0',
-    amountUsdc: '0',
-  },
-  metadata: {
-    symbol: '',
-    pricePerShare: '',
-    migrationAvailable: false,
-    latestVaultAddress: '',
-    depositLimit: '',
-    emergencyShutdown: false,
-    controller: '',
-    totalAssets: '',
-    totalSupply: '',
-    displayName: '',
-    displayIcon: '',
-    defaultDisplayToken: '',
-    hideIfNoDeposits: false,
-  },
-  name: '',
-  symbol: '',
-  tokenAddress: '',
-  provider: '',
-  type: '',
   vaultAssetId: '',
   tokenAssetId: '',
-  pricePerShare: bn(0),
+  pricePerShare: new BigNumber(0),
+  cryptoAmount: '0',
+  fiatAmount: '',
+  vaultAddress: '',
+  version: '',
+  expired: false,
+  isNew: false,
+  tvl: {
+    assetId: '',
+    balance: new BigNumber('0'),
+    balanceUsdc: new BigNumber('0'),
+  },
+  tokenAddress: '',
+  apy: 0,
+  chain: ChainTypes.Ethereum,
+  name: '',
+  symbol: '',
+  provider: DefiProvider.Yearn,
+  type: DefiType.Vault,
+  underlyingTokenBalanceUsdc: '0',
   ...obj,
 })

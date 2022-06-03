@@ -1,10 +1,10 @@
-import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { SupportedYearnVault } from 'lib/transformYearnOpportunities'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
 
 import { useFoxyBalances } from './useFoxyBalances'

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v4.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.5.1...@shapeshiftoss/market-service-v4.6.0) (2022-06-03)
+
+
+### Features
+
+* **market-service:** foxy supply and maxSupply fields ([#729](https://github.com/shapeshift/lib/issues/729)) ([84b3872](https://github.com/shapeshift/lib/commit/84b387294636304a022e7a2e80b91aed9b68a931))
+
 # [@shapeshiftoss/market-service-v4.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.5.0...@shapeshiftoss/market-service-v4.5.1) (2022-06-03)
 
 

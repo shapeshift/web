@@ -2,9 +2,14 @@ import { Contract } from '@ethersproject/contracts'
 import { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import { BN, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { getWeb3Instance } from 'lib/web3-instance'
 
 import { TRADING_FEE_RATE } from './const'
+
+const moduleLogger = logger.child({
+  namespace: ['Plugins', 'FoxPage', 'Utils'],
+})
 
 // The provider we get from getWeb3Instance is a web3.js Provider
 // But uniswap SDK needs a Web3Provider from ethers.js
@@ -78,4 +83,32 @@ export const calculateAPRFromToken0 = async ({
     .decimalPlaces(4)
     .valueOf()
   return estimatedAPR
+}
+
+export const totalLpSupply = async (farmingRewardsContract: Contract) => {
+  try {
+    const totalSupply = await farmingRewardsContract.totalSupply()
+    return bnOrZero(totalSupply.toString())
+  } catch (error) {
+    const errorMsg = 'totalLpSupply error'
+    moduleLogger.error(error, { fn: 'totalLpSupply' }, errorMsg)
+    console.error(error, errorMsg)
+    throw new Error(errorMsg)
+  }
+}
+
+export const rewardRatePerToken = async (farmingRewardsContract: Contract) => {
+  try {
+    const rewardRate = await farmingRewardsContract.rewardRate() // Rate of FOX given per second for all staked addresses
+    const totalSupply = await totalLpSupply(farmingRewardsContract)
+    return bnOrZero(rewardRate.toString())
+      .div(totalSupply)
+      .times('1e+18')
+      .decimalPlaces(0)
+      .toString()
+  } catch (error) {
+    const errorMsg = 'rewardRatePerToken error'
+    console.error(error, errorMsg)
+    throw new Error(errorMsg)
+  }
 }

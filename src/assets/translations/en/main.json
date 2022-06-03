@@ -475,6 +475,20 @@
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
+      },
+      "confirmPassword": {
+        "header": "Confirm Your Password",
+        "walletName": "Wallet nickname (optional)",
+        "body": "Confirm your password to decrypt your wallet",
+        "placeholder": "Confirm Password",
+        "show": "Show password",
+        "hide": "Hide password",
+        "error": {
+          "invalid": "Password must match",
+          "required": "Password confirmation is required",
+          "length": "Your password must be at least %{length} characters",
+          "maxLength": "Nickname must be %{length} characters maximum"
+        }
       }
     },
     "stake": {

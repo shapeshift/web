@@ -704,6 +704,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con Keplr",
+        "connectFailure": "No se puede conectar la billetera Keplr"
+      },
+      "connect": {
+        "header": "Emparejar Keplr",
+        "body": "Haga clic en Emparejar y luego seleccione Keplr en la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",

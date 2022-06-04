@@ -700,6 +700,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com a Keplr",
+        "connectFailure": "Não foi possível conectar sua carteira Keplr"
+      },
+      "connect": {
+        "header": "Emparelhar Keplr",
+        "body": "Clique em Emparelhar e conecte sua carteira Keplr na janela pop-up",
+        "button": "Emparelhar"
+      },
+      "failure": {
+        "header": "Erro",
+        "body": "Não foi possível conectar sua carteira Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",

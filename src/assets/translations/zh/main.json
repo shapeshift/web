@@ -700,6 +700,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "与您的 Keplr 通讯出现未知错误",
+        "connectFailure": "无法连接 Keplr"
+      },
+      "connect": {
+        "header": "与 Keplr 配对",
+        "body": "点击配对并在弹窗中选择 Keplr",
+        "button": "配对"
+      },
+      "failure": {
+        "header": "错误",
+        "body": "无法连接 Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "与您的 MetaMask 通讯出现未知错误",

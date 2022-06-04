@@ -2,9 +2,6 @@ import { Box, Text, useColorModeValue } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 import foxPageBg from 'assets/foxpage-bg.png'
 import { AssetIcon } from 'components/AssetIcon'
-import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
-
-import { TrimmedDescriptionLength } from '../constants'
 
 type FoxLayoutProps = {
   children: ReactNode
@@ -15,7 +12,6 @@ type FoxLayoutProps = {
 
 export const Layout = ({ children, icon, title, description }: FoxLayoutProps) => {
   const descriptionColor = useColorModeValue('gray.750', 'gray.500')
-  const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
 
   return (
     <>
@@ -44,7 +40,7 @@ export const Layout = ({ children, icon, title, description }: FoxLayoutProps) =
           <Text color='inherit' fontSize='1.125rem' fontWeight='bold' mb={2}>
             {title}
           </Text>
-          <Text color={descriptionColor}>{trimmedDescription}</Text>
+          <Text color={descriptionColor}>{description}</Text>
         </Box>
       </Box>
 

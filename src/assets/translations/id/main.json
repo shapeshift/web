@@ -709,6 +709,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan Keplr",
+        "connectFailure": "Tidak dapat menghubungkan dompet Keplr"
+      },
+      "connect": {
+        "header": "Pasangkan Keplr",
+        "body": "Klik Pasangkan lalu pilih Keplr dari jendela popup",
+        "button": "Pasangkan"
+      },
+      "failure": {
+        "header": "Kesalahan",
+        "body": "Tidak dapat menghubungkan dompet Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan MetaMask",

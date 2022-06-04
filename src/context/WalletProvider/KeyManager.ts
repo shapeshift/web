@@ -7,4 +7,5 @@ export enum KeyManager {
   Demo = 'demo',
   WalletConnect = 'walletconnect',
   XDefi = 'xdefi',
+  Keplr = 'keplr',
 }

@@ -125,7 +125,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/walletconnect/connect', component: WalletConnectConnect },
       { path: '/walletconnect/failure', component: WalletConnectFailure },
-    ]
+    ],
   },
   [KeyManager.Keplr]: {
     ...KeplrConfig,

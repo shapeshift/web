@@ -21,16 +21,17 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
-import { ensLookup, ensReverseLookup } from 'lib/ens'
+import { resolveVanityDomain, validateVanityDomain } from 'lib/address/address'
+import { ensReverseLookup } from 'lib/address/ens'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 export const Address = () => {
-  const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
+  const [isValidatingVanityDomain, setIsValidatingVanityDomain] = useState(false)
   const [isValidatingCosmosAddress, setIsValidatingCosmosAddress] = useState(false)
-  const isValidating = isValidatingEnsName || isValidatingCosmosAddress
+  const isValidating = isValidatingVanityDomain || isValidatingCosmosAddress
   const history = useHistory()
   const translate = useTranslate()
   const {
@@ -92,27 +93,28 @@ export const Address = () => {
                   }
                   const validAddress = await adapter.validateAddress(value)
                   if (adapter instanceof ethereum.ChainAdapter) {
-                    const validEnsAddress = await adapter.validateEnsAddress(value)
-                    if (validEnsAddress.valid) {
-                      // Verify that the ENS name resolves to an address
-                      setisValidatingEnsName(true)
-                      const { error: isUnresolvableEnsName } = await ensLookup(value)
-                      if (isUnresolvableEnsName) {
-                        setisValidatingEnsName(false)
-                        return 'common.unresolvableEnsDomain'
-                      }
+                    const validVanityDomain = validateVanityDomain(value)
+                    // if (validEnsAddress.valid) {
+                    // Verify that the ENS name resolves to an address
+                    // setIsValidatingVanityDomain(true)
+                    const { error: isUnresolvableVanityDomain } = await resolveVanityDomain({
+                      domain: value,
+                    })
+                    if (isUnresolvableVanityDomain) {
+                      setIsValidatingVanityDomain(false)
+                      setValue(SendFormFields.VanityDomain, value)
+                      return 'common.unresolvableEnsDomain'
                       // and add it to form state as a side effect
-                      setisValidatingEnsName(false)
-                      setValue(SendFormFields.EnsName, value)
-                      return true
+                      // return true
                     }
-                    if (!validEnsAddress.valid && !validAddress.valid) {
+                    // }
+                    if (!validVanityDomain && !validAddress.valid) {
                       return 'common.invalidAddress'
                     }
                     // If a lookup exists for a 0x address, display ENS name instead
                     const reverseValueLookup = await ensReverseLookup(value)
                     !reverseValueLookup.error &&
-                      setValue(SendFormFields.EnsName, reverseValueLookup.name)
+                      setValue(SendFormFields.VanityDomain, reverseValueLookup.name)
                   }
                   return validAddress.valid || 'common.invalidAddress'
                 },

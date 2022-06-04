@@ -7,9 +7,8 @@ import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { resolveVanityDomain } from 'lib/address/address'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { ensLookup } from 'lib/ens'
-import { isEthAddress } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
@@ -42,7 +41,8 @@ export const useFormSend = () => {
           const {
             chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
           } = fees
-          const address = isEthAddress(to) ? to : ((await ensLookup(to)).address as string)
+          // const address = isEthAddress(to) ? to : ((await ensLookup(to)).address as string)
+          const address = (await resolveVanityDomain({ domain: to })).address ?? to
           const shouldUseEIP1559Fees =
             (await wallet.ethSupportsEIP1559()) &&
             maxFeePerGas !== undefined &&

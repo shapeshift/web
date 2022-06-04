@@ -6,6 +6,9 @@ import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getWeb3Provider } from 'lib/web3-provider'
 
+import { ResolveVanityDomain, ResolveVanityDomainReturn } from './address'
+import { isEthAddress } from './utils'
+
 let makeEns: () => void
 // getEnsAddress takes a magic number as string, networkId. 1 stands for mainnet
 const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
@@ -24,19 +27,21 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
   return new ENS({ provider: await getWeb3Provider(), ensAddress: getEnsAddress(chainIdReference) })
 })
 
-export const ensLookup = memoize(
-  async (
-    ensName: string,
-  ): Promise<{ address: string; error: false } | { address: null; error: true }> => {
-    makeEns()
-    const ensInstance = await ens
-    const lookupAddress = await ensInstance.name(ensName).getAddress()
-    if (lookupAddress === '0x0000000000000000000000000000000000000000') {
-      return { address: null, error: true }
-    }
-    return { address: lookupAddress as string, error: false }
-  },
-)
+export const resolveEnsDomain: ResolveVanityDomain = async ({ domain }) =>
+  isEthAddress(domain) ? { address: domain, error: false } : ensLookup(domain)
+
+export const validateEnsDomain = (address: string): boolean =>
+  /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(address)
+
+export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityDomainReturn> => {
+  makeEns()
+  const ensInstance = await ens
+  const lookupAddress = await ensInstance.name(domain).getAddress()
+  if (lookupAddress === '0x0000000000000000000000000000000000000000') {
+    return { address: null, error: true }
+  }
+  return { address: lookupAddress as string, error: false }
+})
 
 export const ensReverseLookup = memoize(
   async (

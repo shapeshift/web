@@ -7,10 +7,9 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { resolveVanityDomain } from 'lib/address/address'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { ensLookup } from 'lib/ens'
 import { logger } from 'lib/logger'
-import { isEthAddress } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetById,
@@ -110,21 +109,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     switch (values.asset.chain) {
       case ChainTypes.Cosmos: {
-        const cosmosChainAdapter = await chainAdapterManager.byChainId('cosmos:cosmoshub-4')
+        const cosmosChainAdapter = chainAdapterManager.byChainId('cosmos:cosmoshub-4')
         return cosmosChainAdapter.getFeeData({})
       }
       case ChainTypes.Osmosis: {
-        const osmosisChainAdapter = await chainAdapterManager.byChainId('cosmos:osmosis-1')
+        const osmosisChainAdapter = chainAdapterManager.byChainId('cosmos:osmosis-1')
         return osmosisChainAdapter.getFeeData({})
       }
       case ChainTypes.Ethereum: {
         const from = await adapter.getAddress({
           wallet,
         })
-        const ethereumChainAdapter = await chainAdapterManager.byChainId('eip155:1')
-        const to = isEthAddress(values.address)
-          ? values.address
-          : ((await ensLookup(values.address)).address as string)
+        const ethereumChainAdapter = chainAdapterManager.byChainId('eip155:1')
+        // const to = isEthAddress(values.address)
+        //   ? values.address
+        //   : ((await ensLookup(values.address)).address as string)
+        const to = (await resolveVanityDomain({ domain: values.address })).address ?? values.address
         return ethereumChainAdapter.getFeeData({
           to,
           value,

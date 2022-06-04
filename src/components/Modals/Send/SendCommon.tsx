@@ -8,7 +8,7 @@ export enum SendRoutes {
 
 export enum SendFormFields {
   Address = 'address',
-  EnsName = 'ensName',
+  VanityDomain = 'vanityDomain',
   AccountId = 'accountId',
   Asset = 'asset',
   FeeType = 'feeType',

@@ -44,6 +44,7 @@ const validators = {
   REACT_APP_FEATURE_KEPLR_WALLET: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
+  REACT_APP_ALCHEMY_API_KEY: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

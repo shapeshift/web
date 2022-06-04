@@ -1,3 +1,4 @@
+import { getConfig } from 'config'
 import {
   FaFlag,
   FaHistory,
@@ -152,7 +153,7 @@ export const routes: Array<NestedRoute> = [
     icon: <FaFlag />,
     hide:
       window.location.hostname !== 'localhost' &&
-      window.location.hostname !== process.env.REACT_APP_LOCAL_IP,
+      window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
   },
 ]

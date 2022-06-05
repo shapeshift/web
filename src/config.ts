@@ -34,7 +34,6 @@ const validators = {
   REACT_APP_FOXY_APY: num({ default: 0.15 }),
   REACT_APP_ETH_FOX_APR: num({ default: 0.6 }),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
-  REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),

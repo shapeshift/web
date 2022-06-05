@@ -30,8 +30,9 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
 export const resolveEnsDomain: ResolveVanityDomain = async ({ domain }) =>
   isEthAddress(domain) ? { address: domain, error: false } : ensLookup(domain)
 
-export const validateEnsDomain = async (address: string): Promise<boolean> =>
-  /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(address)
+// leave async such that this works with other async validators
+export const validateEnsDomain = async (value: string): Promise<boolean> =>
+  /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(value)
 
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityDomainReturn> => {
   makeEns()
@@ -40,7 +41,7 @@ export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityDo
   if (lookupAddress === '0x0000000000000000000000000000000000000000') {
     return { address: null, error: true }
   }
-  return { address: lookupAddress as string, error: false }
+  return { address: lookupAddress, error: false }
 })
 
 export const ensReverseLookup = memoize(

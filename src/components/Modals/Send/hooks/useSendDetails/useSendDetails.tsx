@@ -1,3 +1,4 @@
+import { ethChainId } from '@shapeshiftoss/caip'
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -121,10 +122,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           wallet,
         })
         const ethereumChainAdapter = chainAdapterManager.byChainId('eip155:1')
-        // const to = isEthAddress(values.address)
-        //   ? values.address
-        //   : ((await ensLookup(values.address)).address as string)
-        const to = (await resolveVanityDomain({ domain: values.address })).address ?? values.address
+        const chainId = ethChainId
+        const domain = values.address
+        const to = (await resolveVanityDomain({ chainId, domain })).address ?? values.address
         return ethereumChainAdapter.getFeeData({
           to,
           value,

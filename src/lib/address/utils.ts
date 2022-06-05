@@ -1,3 +1,1 @@
-export const isEthAddress = (address: string) => {
-  return /^0x[0-9A-Fa-f]{40}$/.test(address)
-}
+export const isEthAddress = (address: string): boolean => /^0x[0-9A-Fa-f]{40}$/.test(address)

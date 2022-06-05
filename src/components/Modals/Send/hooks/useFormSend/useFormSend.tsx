@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -41,8 +42,9 @@ export const useFormSend = () => {
           const {
             chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
           } = fees
-          // const address = isEthAddress(to) ? to : ((await ensLookup(to)).address as string)
-          const address = (await resolveVanityDomain({ domain: to })).address ?? to
+          const chainId = ethChainId
+          const domain = to
+          const address = (await resolveVanityDomain({ chainId, domain })).address ?? to
           const shouldUseEIP1559Fees =
             (await wallet.ethSupportsEIP1559()) &&
             maxFeePerGas !== undefined &&

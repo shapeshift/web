@@ -11,7 +11,7 @@ import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/fil
 
 type AssetSearchProps = {
   onClick: (asset: any) => void
-  filterBy?: (asset: Asset[]) => Asset[]
+  filterBy?: (asset: Asset[]) => Asset[] | undefined
 }
 
 export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
@@ -29,11 +29,15 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
   useEffect(() => {
-    setFilteredAssets(
-      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets,
-    )
+    if (currentAssets) {
+      setFilteredAssets(
+        searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets,
+      )
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])
+
+  const listAssets = searching ? filteredAssets : currentAssets
 
   return (
     <>
@@ -57,13 +61,11 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
           />
         </InputGroup>
       </Box>
-      <Box flex={1}>
-        <AssetList
-          mb='10'
-          assets={searching ? filteredAssets : currentAssets}
-          handleClick={onClick}
-        />
-      </Box>
+      {listAssets && (
+        <Box flex={1}>
+          <AssetList mb='10' assets={listAssets} handleClick={onClick} />
+        </Box>
+      )}
     </>
   )
 }

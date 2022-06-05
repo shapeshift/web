@@ -44,13 +44,11 @@ export const AssetClaimCard = ({
                 symbol={assetSymbol}
                 value={cryptoRewardsAmount.toPrecision()}
               />
-              (
               <Amount.Fiat
                 color='gray.500'
                 lineHeight='1'
                 value={cryptoRewardsAmount.times(fiatRate).toPrecision()}
               />
-              )
             </CText>
           </Box>
         </Flex>

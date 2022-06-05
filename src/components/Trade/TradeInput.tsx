@@ -41,9 +41,9 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, feeAssetFiatRate, buyTradeAsset, sellTradeAsset] = useWatch({
-    name: ['quote', 'feeAssetFiatRate', 'buyAsset', 'sellAsset'],
-  }) as [TS['quote'], TS['feeAssetFiatRate'], TS['buyAsset'], TS['sellAsset']]
+  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
+    name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
+  }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
   const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
@@ -130,8 +130,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       fnLogger.trace(
         {
           fn: 'getSendMaxAmount',
-          sellAsset: sellTradeAsset?.asset,
-          buyAsset: buyTradeAsset?.asset,
+          sellAsset: sellTradeAsset.asset,
+          buyAsset: buyTradeAsset.asset,
           feeAsset,
         },
         'Getting Send Max Amount...',
@@ -211,6 +211,18 @@ export const TradeInput = ({ history }: RouterProps) => {
   // TODO:(ryankk) fix error handling
   const error = null
 
+  const onTokenRowInputChange = (action: TradeAmountInputField) => (amount: string) => {
+    if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+      updateQuote({
+        amount,
+        sellAsset: sellTradeAsset.asset,
+        buyAsset: buyTradeAsset.asset,
+        feeAsset,
+        action,
+      })
+    }
+  }
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
@@ -270,17 +282,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fieldName='sellAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
-                onInputChange={(amount: string) => {
-                  if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-                    updateQuote({
-                      amount,
-                      sellAsset: sellTradeAsset.asset,
-                      buyAsset: buyTradeAsset.asset,
-                      feeAsset,
-                      action: TradeAmountInputField.SELL,
-                    })
-                  }
-                }}
+                onInputChange={onTokenRowInputChange(TradeAmountInputField.SELL)}
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.SellSelect)}
@@ -319,7 +321,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
-                isLoading={!quote || error ? true : false}
+                isLoading={!!(!quote || error)}
                 _loading={{ color: 'blue.500' }}
                 data-test='swap-assets-button'
               />
@@ -352,17 +354,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fieldName='buyAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
-                onInputChange={(amount: string) => {
-                  if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-                    updateQuote({
-                      amount,
-                      sellAsset: sellTradeAsset.asset,
-                      buyAsset: buyTradeAsset.asset,
-                      feeAsset,
-                      action: TradeAmountInputField.BUY,
-                    })
-                  }
-                }}
+                onInputChange={onTokenRowInputChange(TradeAmountInputField.BUY)}
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.BuySelect)}

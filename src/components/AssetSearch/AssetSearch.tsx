@@ -4,10 +4,15 @@ import { Asset } from '@shapeshiftoss/types'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import { logger } from 'lib/logger'
 import { selectAssetsByMarketCap } from 'state/slices/selectors'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+
+const moduleLogger = logger.child({
+  namespace: ['AssetSearch'],
+})
 
 type AssetSearchProps = {
   onClick: (asset: any) => void
@@ -33,6 +38,8 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
       setFilteredAssets(
         searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets,
       )
+    } else {
+      moduleLogger.error('currentAssets not defined')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])

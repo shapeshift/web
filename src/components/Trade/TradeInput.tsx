@@ -286,8 +286,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.SellSelect)}
-                    logo={sellTradeAsset?.asset?.icon ?? ''} // FIXME
-                    symbol={sellTradeAsset?.asset?.symbol ?? ''} // FIXME
+                    logo={sellTradeAsset?.asset?.icon ?? ''}
+                    symbol={sellTradeAsset?.asset?.symbol ?? ''}
                     data-test='token-row-sell-token-button'
                   />
                 }
@@ -358,8 +358,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.BuySelect)}
-                    logo={buyTradeAsset?.asset?.icon || ''} // FIXME
-                    symbol={buyTradeAsset?.asset?.symbol || ''} // FIXME
+                    logo={buyTradeAsset?.asset?.icon || ''}
+                    symbol={buyTradeAsset?.asset?.symbol || ''}
                     data-test='token-row-buy-token-button'
                   />
                 }

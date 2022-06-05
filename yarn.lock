@@ -3643,7 +3643,7 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-5.2.2.tgz#2aab21c0ff462ccfbb59b45835b6d73aa1197239"
   integrity sha512-RpvYhjynOc//AiH9FGHTbDcO5dUyOLAg8PUWELWR8Mg8uonW3aQgVdV0RjLXzmFs24Lz6CnMCn7ygArPNbMJ8A==
 
-"@shapeshiftoss/chain-adapters@^4.7.0":
+"@shapeshiftoss/chain-adapters@^4.6.0", "@shapeshiftoss/chain-adapters@^4.7.0":
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-4.7.0.tgz#693acd2a213713f034074044947a76dab373f4ef"
   integrity sha512-YWt8IhmjllBo+3h2GTSUErROcjHYQYIchGQhrhkmk0VKng0WYVqv+a3dAEcxbJqT1d0N+erhWpbKbpsH6zP/ng==
@@ -3840,7 +3840,7 @@
     "@shapeshiftoss/hdwallet-core" "1.23.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/investor-foxy@^3.4.0":
+"@shapeshiftoss/investor-foxy@^3.3.0", "@shapeshiftoss/investor-foxy@^3.4.0":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.4.0.tgz#5d47090a619054d4036290eb6c1559bc01e351d9"
   integrity sha512-6knqawziUkkXOszcGp09P/a+Km2mfNuYdD4dvOOYymOeMuAaVmbcQNc1CewBaHgQiPsNVq85wxTVoUzeceZBUA==
@@ -3871,12 +3871,14 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.5.1.tgz#c2ad02183896bd90269a015448d704438f42333f"
-  integrity sha512-sbOAIoz8fz+AX+S5ILJEejaTHFjaQ4oB2OwlVx148oj458GgIWoVM1OE/iYV6q9sv8tZEjHjzwkKRCmcXtAzew==
+"@shapeshiftoss/market-service@^4.6.0":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.6.0.tgz#dfd8b2984c22db3c0b8065515b3553a17df43802"
+  integrity sha512-PdMGrSVhJkKPIciXqehWdN/rPDqlfpq1HGG3BgWVM27JaE+N2w2QD7uKqgrLUQtTNDVN6W/aJZ+WUBYW+KmqXQ==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
+    "@shapeshiftoss/chain-adapters" "^4.6.0"
+    "@shapeshiftoss/investor-foxy" "^3.3.0"
     "@yfi/sdk" "^1.0.30"
     axios "^0.26.0"
     axios-rate-limit "^1.3.0"

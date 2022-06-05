@@ -16,7 +16,7 @@
     "estimatedGas": "Tarifa Estimada de Gas",
     "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
-    "unresolvableEnsDomain": "No se puede resolver el dominio ENS",
+    "unresolvableVanityDomain": "No se puede resolver el dominio ENS",
     "deposit": "Depositar",
     "withdraw": "Retirar",
     "withdrawal": "Retiro",

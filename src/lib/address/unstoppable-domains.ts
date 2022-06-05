@@ -1,42 +1,69 @@
-import Resolution, { SourceConfig } from '@unstoppabledomains/resolution'
+import { btcChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import { Resolution } from '@unstoppabledomains/resolution'
 import { getConfig } from 'config'
-
-import { logger } from '../logger'
-import { ResolveVanityDomain, ValidateVanityDomain } from './address'
+import last from 'lodash/last'
+import { ResolveVanityDomain, ValidateVanityDomain } from 'lib/address/address'
+import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['unstoppable-domains'] })
 
-// singleton, do not use directly or export
 let _resolution: Resolution | undefined
 
-export const getResolution = () => {
-  if (!_resolution) {
-    const sourceConfig: SourceConfig = {
-      uns: {
-        api: true,
-        url: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-        network: 1,
-      },
-    }
-    _resolution = new Resolution({ sourceConfig })
-  }
+const getResolution = (): Resolution => {
+  const apiKey = last(getConfig().REACT_APP_ETHEREUM_NODE_URL.split('/')) ?? ''
+  if (!_resolution) _resolution = Resolution.infura(apiKey)
   return _resolution
+}
+
+const parseableKeys = ['crypto.BTC.address', 'crypto.ETH.address'] as const
+
+type ParseableKey = typeof parseableKeys[number]
+export type UnstoppableDomainsData = {
+  records: Record<ParseableKey | string, string>
+  meta: Record<string, string | number>
+}
+
+type AddressesByChainId = {
+  [chainId: ChainId]: string
+}
+type ParseUnstoppableDomainsData = (data: UnstoppableDomainsData) => AddressesByChainId
+
+export const parseUnstoppableDomainsResult: ParseUnstoppableDomainsData = data => {
+  const initial: AddressesByChainId = {}
+  return Object.entries(data.records).reduce((acc, [k, v]) => {
+    if (!parseableKeys.includes(k as ParseableKey)) return acc
+    switch (k) {
+      case 'crypto.BTC.address':
+        acc[btcChainId] = v // don't lowercase btc addresses
+        break
+      case 'crypto.ETH.address':
+        acc[ethChainId] = v.toLowerCase()
+        break
+      default: {
+        break
+      }
+    }
+    return acc
+  }, initial)
 }
 
 export const resolveUnstoppableDomain: ResolveVanityDomain = async args => {
   const { domain } = args
-  const resolution = getResolution()
   try {
-    const address = await resolution.addr(domain, 'eth')
+    const address = await getResolution().addr(domain, 'ETH')
     return { address, error: false }
   } catch (e) {
-    moduleLogger.error(e, 'error resolving unstoppable domain')
+    moduleLogger.trace(e, 'error resolving unstoppable domain')
     return { address: null, error: true }
   }
 }
 
-export const validateUnstoppableDomain: ValidateVanityDomain = domain => {
-  console.info('not validating unstoppable domain', domain)
-  // TODO(0xdef1cafe): regex
-  return true
+export const validateUnstoppableDomain: ValidateVanityDomain = async hostname => {
+  try {
+    const result = await getResolution().isSupportedDomain(hostname)
+    return result
+  } catch (e) {
+    console.info(e)
+    return false
+  }
 }

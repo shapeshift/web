@@ -16,7 +16,7 @@
     "estimatedGas": "Perkiraan Biaya Gas",
     "insufficientAmountForGas": "Tidak cukup ETH untuk menutupi gas",
     "invalidAddress": "Alamat Tidak Valid",
-    "unresolvableEnsDomain": "Tidak dapat menyelesaikan domain ENS",
+    "unresolvableVanityDomain": "Tidak dapat menyelesaikan domain ENS",
     "deposit": "Setoran",
     "withdraw": "Penarikan",
     "withdrawal": "Penarikan",

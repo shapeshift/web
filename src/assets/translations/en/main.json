@@ -16,7 +16,7 @@
     "estimatedGas": "Estimated Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
-    "unresolvableEnsDomain": "Cannot resolve ENS domain",
+    "unresolvableVanityDomain": "Cannot resolve vanity domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
@@ -811,7 +811,7 @@
         "connectFailure": "Unable to connect Tally Ho wallet",
         "network": "Tally Ho isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not Tally Ho. Do you have multiple wallets installed?",
-        "tallyNotInstalledOrSetToDefault":"We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
+        "tallyNotInstalledOrSetToDefault": "We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
       },
       "connect": {
         "header": "Pair Tally",

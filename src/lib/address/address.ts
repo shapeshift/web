@@ -32,13 +32,8 @@ type ValidateVanityDomainArgs = string
 
 type ValidateVanityDomainReturn = boolean
 
-export type ValidateVanityDomain = (args: ValidateVanityDomainArgs) => ValidateVanityDomainReturn
-export const validateVanityDomain: ValidateVanityDomain = domain => {
-  for (const validator of validators) {
-    const isValid = validator(domain)
-    if (!isValid) continue
-    console.info('is valid vanity domain', domain)
-    return true
-  }
-  return false
-}
+export type ValidateVanityDomain = (
+  args: ValidateVanityDomainArgs,
+) => Promise<ValidateVanityDomainReturn>
+export const validateVanityDomain: ValidateVanityDomain = async hostname =>
+  (await Promise.all(validators.map(async v => v(hostname)))).some(Boolean)

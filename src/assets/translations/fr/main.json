@@ -16,7 +16,7 @@
     "estimatedGas": "Estimation des frais de carburant",
     "insufficientAmountForGas": "Pas assez d'ETH pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
-    "unresolvableEnsDomain": "Impossible de résoudre le domaine ENS",
+    "unresolvableVanityDomain": "Impossible de résoudre le domaine ENS",
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",

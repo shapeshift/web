@@ -93,21 +93,19 @@ export const Address = () => {
                   }
                   const validAddress = await adapter.validateAddress(value)
                   if (adapter instanceof ethereum.ChainAdapter) {
-                    const validVanityDomain = validateVanityDomain(value)
-                    // if (validEnsAddress.valid) {
-                    // Verify that the ENS name resolves to an address
-                    // setIsValidatingVanityDomain(true)
-                    const { error: isUnresolvableVanityDomain } = await resolveVanityDomain({
-                      domain: value,
-                    })
+                    setIsValidatingVanityDomain(true)
+                    const validVanityDomain = await validateVanityDomain(value)
+                    const { error: isUnresolvableVanityDomain, address } =
+                      await resolveVanityDomain({
+                        domain: value,
+                      })
+                    setIsValidatingVanityDomain(false)
+                    console.info('validVanityDomain', validVanityDomain)
+                    console.info('address', address)
                     if (isUnresolvableVanityDomain) {
-                      setIsValidatingVanityDomain(false)
                       setValue(SendFormFields.VanityDomain, value)
-                      return 'common.unresolvableEnsDomain'
-                      // and add it to form state as a side effect
-                      // return true
+                      return 'common.unresolvableVanityDomain'
                     }
-                    // }
                     if (!validVanityDomain && !validAddress.valid) {
                       return 'common.invalidAddress'
                     }
@@ -115,6 +113,7 @@ export const Address = () => {
                     const reverseValueLookup = await ensReverseLookup(value)
                     !reverseValueLookup.error &&
                       setValue(SendFormFields.VanityDomain, reverseValueLookup.name)
+                    return true
                   }
                   return validAddress.valid || 'common.invalidAddress'
                 },

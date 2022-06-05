@@ -29,9 +29,7 @@ import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 export const Address = () => {
-  const [isValidatingVanityDomain, setIsValidatingVanityDomain] = useState(false)
-  const [isValidatingCosmosAddress, setIsValidatingCosmosAddress] = useState(false)
-  const isValidating = isValidatingVanityDomain || isValidatingCosmosAddress
+  const [isValidatingInput, setIsValidatingInput] = useState(false)
   const history = useHistory()
   const translate = useTranslate()
   const {
@@ -46,7 +44,8 @@ export const Address = () => {
 
   if (!(asset?.chain && asset?.name)) return null
 
-  const adapter = chainAdapters.byChain(asset.chain)
+  const { chainId } = asset
+  const adapter = chainAdapters.byChainId(chainId)
 
   const handleNext = () => history.push(SendRoutes.Details)
 
@@ -86,20 +85,18 @@ export const Address = () => {
               validate: {
                 validateAddress: async (value: string) => {
                   if (adapter instanceof cosmossdk.cosmos.ChainAdapter) {
-                    setIsValidatingCosmosAddress(true)
+                    setIsValidatingInput(true)
                     const validAddress = await adapter.validateAddress(value)
-                    setIsValidatingCosmosAddress(false)
+                    setIsValidatingInput(false)
                     return validAddress.valid || 'common.invalidAddress'
                   }
                   const validAddress = await adapter.validateAddress(value)
                   if (adapter instanceof ethereum.ChainAdapter) {
-                    const chainId = adapter.getChainId()
-                    const domain = value
-                    setIsValidatingVanityDomain(true)
-                    const validVanityDomain = await validateVanityDomain(value)
+                    setIsValidatingInput(true)
+                    const validVanityDomain = await validateVanityDomain({ chainId, value })
                     const { error: isUnresolvableVanityDomain, address } =
-                      await resolveVanityDomain({ chainId, domain })
-                    setIsValidatingVanityDomain(false)
+                      await resolveVanityDomain({ chainId, value })
+                    setIsValidatingInput(false)
                     console.info('validVanityDomain', validVanityDomain)
                     console.info('address', address)
                     if (isUnresolvableVanityDomain || !address) {
@@ -117,13 +114,11 @@ export const Address = () => {
                     return true
                   }
                   if (adapter instanceof bitcoin.ChainAdapter) {
-                    const chainId = adapter.getChainId()
-                    const domain = value
-                    setIsValidatingVanityDomain(true)
-                    const validVanityDomain = await validateVanityDomain(value)
+                    setIsValidatingInput(true)
+                    const validVanityDomain = await validateVanityDomain({ chainId, value })
                     const { error: isUnresolvableVanityDomain, address } =
-                      await resolveVanityDomain({ chainId, domain })
-                    setIsValidatingVanityDomain(false)
+                      await resolveVanityDomain({ chainId, value })
+                    setIsValidatingInput(false)
                     console.info('validVanityDomain', validVanityDomain)
                     console.info('address', address)
                     if (isUnresolvableVanityDomain) return 'common.unresolvableVanityDomain'
@@ -143,8 +138,8 @@ export const Address = () => {
           <Button
             isFullWidth
             isDisabled={!address || addressError}
-            isLoading={isValidating}
-            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
+            isLoading={isValidatingInput}
+            colorScheme={addressError && !isValidatingInput ? 'red' : 'blue'}
             size='lg'
             onClick={handleNext}
             data-test='send-address-next-button'

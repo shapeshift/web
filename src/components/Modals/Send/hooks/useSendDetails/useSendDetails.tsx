@@ -124,7 +124,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const ethereumChainAdapter = chainAdapterManager.byChainId('eip155:1')
         const chainId = ethChainId
         const domain = values.address
-        const to = (await resolveVanityDomain({ chainId, domain })).address ?? values.address
+        const to = (await resolveVanityDomain({ chainId, value: domain })).address ?? values.address
         return ethereumChainAdapter.getFeeData({
           to,
           value,

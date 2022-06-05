@@ -16,7 +16,7 @@ const getResolution = (): Resolution => {
   return _resolution
 }
 
-export const resolveUnstoppableDomain: ResolveVanityDomain = async ({ chainId, domain }) => {
+export const resolveUnstoppableDomain: ResolveVanityDomain = async ({ chainId, value: domain }) => {
   const chainIdToUDTicker: Record<string, string> = {
     [ethChainId]: 'ETH',
     [btcChainId]: 'BTC',
@@ -32,10 +32,9 @@ export const resolveUnstoppableDomain: ResolveVanityDomain = async ({ chainId, d
   }
 }
 
-export const validateUnstoppableDomain: ValidateVanityDomain = async hostname => {
+export const validateUnstoppableDomain: ValidateVanityDomain = async ({ value }) => {
   try {
-    const result = await getResolution().isSupportedDomain(hostname)
-    return result
+    return getResolution().isSupportedDomain(value)
   } catch (e) {
     moduleLogger.trace(e, 'cannot validate unstoppable domain')
     return false

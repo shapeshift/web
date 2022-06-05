@@ -1,31 +1,42 @@
-import { btcChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
   resolveUnstoppableDomain,
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
 
-// validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
-const validators = [validateEnsDomain, validateUnstoppableDomain]
+type ValidatorsByChainId = {
+  [k: ChainId]: ValidateVanityDomain[]
+}
 
-type ValidateVanityDomainArgs = string
+// validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
+const vanityValidatorsByChain: ValidatorsByChainId = {
+  [btcChainId]: [validateUnstoppableDomain],
+  [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
+}
+
+type ValidateVanityDomainArgs = {
+  value: string
+  chainId: ChainId
+}
 type ValidateVanityDomainReturn = boolean
 export type ValidateVanityDomain = (
   args: ValidateVanityDomainArgs,
 ) => Promise<ValidateVanityDomainReturn>
 
-export const validateVanityDomain: ValidateVanityDomain = async domain => {
-  try {
-    const results = await Promise.allSettled(validators.map(async v => v(domain)))
-    return results.some(r => r.status === 'fulfilled' && r.value)
-  } catch (e) {} // expected to fail validation often
+export const validateVanityDomain: ValidateVanityDomain = async args => {
+  for (const validator of vanityValidatorsByChain[args.chainId]) {
+    try {
+      return validator(args)
+    } catch (e) {} // expected
+  }
   return false
 }
 
 // resolvers - given a vanity address and a chainId, resolve it to an on chain address
 export type ResolveVanityDomainArgs = {
   chainId: ChainId
-  domain: string
+  value: string // may be any type of vanity address, e.g. a .eth or a .crypto, or a regular address on any chain
 }
 
 export type ResolveVanityDomainReturn =
@@ -40,13 +51,15 @@ type ResolversByChainId = {
   [k: ChainId]: ResolveVanityDomain[]
 }
 
-const resolversByChainId: ResolversByChainId = {
+const vanityResolversByChainId: ResolversByChainId = {
   [btcChainId]: [resolveUnstoppableDomain],
   [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
+  [cosmosChainId]: [],
+  [osmosisChainId]: [],
 }
 
 export const resolveVanityDomain: ResolveVanityDomain = async args => {
-  for (const resolver of resolversByChainId[args.chainId]) {
+  for (const resolver of vanityResolversByChainId[args.chainId]) {
     try {
       const result = await resolver(args)
       if (result.error) continue

@@ -44,7 +44,7 @@ export const useFormSend = () => {
           } = fees
           const chainId = ethChainId
           const domain = to
-          const address = (await resolveVanityDomain({ chainId, domain })).address ?? to
+          const address = (await resolveVanityDomain({ chainId, value: domain })).address ?? to
           const shouldUseEIP1559Fees =
             (await wallet.ethSupportsEIP1559()) &&
             maxFeePerGas !== undefined &&

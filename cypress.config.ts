@@ -36,8 +36,6 @@ export default defineConfig({
     linkContract: 'eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca',
   },
   e2e: {
-    // We've imported your old cypress plugins here.
-    // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
       return require('./cypress/plugins/index.ts')(on, config)
     },

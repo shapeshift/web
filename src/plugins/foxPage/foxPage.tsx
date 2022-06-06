@@ -19,6 +19,8 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -61,26 +63,23 @@ const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[
   [FOXY_ASSET_ID]: foxyTradeOpportunitiesBuckets,
 }
 
-export type FoxPageProps = {
-  activeAssetId: AssetId
-}
-
 const FOX_DESCRIPTION =
   'Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.'
-export const FoxPage = (props: FoxPageProps) => {
+export const FoxPage = () => {
   const translate = useTranslate()
   const history = useHistory()
 
+  const activeAssetId = useRouteAssetId()
   // TODO(gomes): Use useRouteAssetId and selectAssetById programatically
   const assetFox = useAppSelector(state => selectAssetById(state, FOX_ASSET_ID))
   const assetFoxy = useAppSelector(state => selectAssetById(state, FOXY_ASSET_ID))
-  const otherOpportunities = useOtherOpportunities(props.activeAssetId)
+  const otherOpportunities = useOtherOpportunities(activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
 
   const selectedAssetIndex = useMemo(
-    () => assets.findIndex(asset => asset.assetId === props.activeAssetId),
-    [props.activeAssetId, assets],
+    () => assets.findIndex(asset => asset.assetId === activeAssetId),
+    [activeAssetId, assets],
   )
 
   const selectedAsset = assets[selectedAssetIndex]
@@ -125,14 +124,14 @@ export const FoxPage = (props: FoxPageProps) => {
   const isLoaded = !query.isLoading
 
   const handleTabClick = (assetId: AssetId) => {
-    if (assetId === props.activeAssetId) {
+    if (assetId === activeAssetId) {
       return
     }
 
     history.push(assetsRoutes[assetId])
   }
 
-  if (!isLoaded) return null
+  if (!isLoaded || !activeAssetId) return null
 
   return (
     <Layout
@@ -218,6 +217,7 @@ export const FoxPage = (props: FoxPageProps) => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={FOX_ASSET_ID} />
+                <AssetMarketData assetId={selectedAsset.assetId} />
                 <FoxChart assetId={FOX_ASSET_ID} />
                 <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FOX_ASSET_ID]} />
               </Stack>
@@ -238,6 +238,7 @@ export const FoxPage = (props: FoxPageProps) => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={FOXY_ASSET_ID} />
+                <AssetMarketData assetId={selectedAsset.assetId} />
                 <FoxChart assetId={FOXY_ASSET_ID} />
                 <TradeOpportunities
                   opportunities={assetsTradeOpportunitiesBuckets[FOXY_ASSET_ID]}

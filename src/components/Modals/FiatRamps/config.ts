@@ -2,7 +2,6 @@ import { btcAssetId } from '@shapeshiftoss/caip'
 import concat from 'lodash/concat'
 import banxalogo from 'assets/banxa.png'
 import gemlogo from 'assets/gem-mark.png'
-import onjunologo from 'assets/onjuno.png'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import {
@@ -28,7 +27,6 @@ export interface SupportedFiatRampConfig {
 
 export enum FiatRamp {
   Gem = 'Gem',
-  OnJuno = 'OnJuno',
   Banxa = 'Banxa',
 }
 
@@ -72,12 +70,5 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const banxaCheckoutUrl = createBanxaUrl(action, asset, address)
       window.open(banxaCheckoutUrl, '_blank')?.focus()
     },
-  },
-  [FiatRamp.OnJuno]: {
-    label: 'fiatRamps.onJuno',
-    logo: onjunologo,
-    isImplemented: false,
-    getBuyAndSellList: async () => [[], []],
-    onSubmit: () => {},
   },
 }

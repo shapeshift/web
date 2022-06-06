@@ -47,11 +47,8 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
-      ReduxLogging: false,
       Osmosis: false,
-      WalletMigration: false,
       WalletConnectWallet: false,
-      BanxaRamp: false,
       FoxPage: false,
       KeplrWallet: false,
       TallyHoWallet: false,

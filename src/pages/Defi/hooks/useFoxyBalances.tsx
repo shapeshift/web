@@ -1,4 +1,4 @@
-import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { getConfig } from 'config'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { chainTypeToMainnetChainId } from 'lib/utils'
@@ -116,8 +117,10 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
 
+  const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
+
   useEffect(() => {
-    if (!wallet || !foxy) return
+    if (!wallet || !supportsEthereumChain || !foxy) return
     ;(async () => {
       setLoading(true)
       try {
@@ -138,7 +141,15 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [wallet, foxyLoading, foxy, balances, balancesLoading, chainAdapterManager])
+  }, [
+    wallet,
+    foxyLoading,
+    foxy,
+    balances,
+    balancesLoading,
+    chainAdapterManager,
+    supportsEthereumChain,
+  ])
 
   const makeFiatAmount = useCallback(
     (opportunity: FoxyOpportunity) => {

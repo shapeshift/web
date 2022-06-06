@@ -91,6 +91,21 @@ export const fox: Asset = {
   symbol: 'FOX',
 }
 
+export const foxy: Asset = {
+  chainId: 'eip155:1',
+  assetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+  chain: ChainTypes.Ethereum,
+  color: '#CE3885',
+  explorer: 'https://etherscan.io',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+  name: 'FOX Yieldy',
+  network: NetworkTypes.MAINNET,
+  precision: 18,
+  symbol: 'FOXy',
+}
+
 export const cosmos: Asset = {
   chainId: 'cosmos:cosmoshub-4',
   assetId: 'cosmos:cosmoshub-4/slip44:118',

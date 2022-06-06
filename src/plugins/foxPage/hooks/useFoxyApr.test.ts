@@ -30,10 +30,10 @@ describe('useFoxyApr', () => {
     })
 
     const { result, waitForNextUpdate } = renderUseFoxyApr()
-    expect(result.current.data).toBeNull()
+    expect(result.current.foxyApr).toBeNull()
     expect(result.current.loaded).toBe(false)
     await act(async () => waitForNextUpdate())
-    expect(result.current.data).toBe(MOCK_APR_RESPONSE)
+    expect(result.current.foxyApr).toBe(MOCK_APR_RESPONSE)
     expect(result.current.loaded).toBe(true)
   })
 })

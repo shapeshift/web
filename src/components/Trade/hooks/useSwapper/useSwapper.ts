@@ -14,7 +14,7 @@ import debounce from 'lodash/debounce'
 import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { BuildQuoteTxOutput, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -46,7 +46,7 @@ export const useSwapper = () => {
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
     TradeQuote<SupportedChainIds> & Trade<SupportedChainIds>,
-    TradeAsset,
+    TradeAsset | undefined,
     Trade<SupportedChainIds>,
   ]
   const adapterManager = useChainAdapters()
@@ -72,13 +72,16 @@ export const useSwapper = () => {
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
-    (assets: Asset[]): Asset[] => {
+    (assets: Asset[]): Asset[] | undefined => {
+      const sellAssetId = sellTradeAsset?.asset?.assetId
       const assetIds = assets.map(asset => asset.assetId)
-      const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
-        assetIds,
-        sellAssetId: sellTradeAsset?.asset.assetId,
-      })
-      return filterAssetsByIds(assets, supportedBuyAssetIds)
+      const supportedBuyAssetIds = sellAssetId
+        ? swapperManager.getSupportedBuyAssetIdsFromSellId({
+            assetIds,
+            sellAssetId,
+          })
+        : undefined
+      return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
     [swapperManager, sellTradeAsset],
   )
@@ -89,11 +92,11 @@ export const useSwapper = () => {
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellTradeAsset?.asset.assetId }),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
   )
 
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset.assetId ?? 'eip155:1/slip44:60'),
+    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? 'eip155:1/slip44:60'),
   )
 
   const { showErrorToast } = useErrorHandler()
@@ -133,7 +136,7 @@ export const useSwapper = () => {
     sellAsset: Asset
     buyAsset: Asset
     amount: string
-  }): Promise<BuildQuoteTxOutput> => {
+  }): Promise<void> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: buyAsset.assetId,
       sellAssetId: sellAsset.assetId,
@@ -152,7 +155,6 @@ export const useSwapper = () => {
     })
     setFees(result, sellAsset)
     setValue('trade', result)
-    return result
   }
 
   const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {
@@ -255,14 +257,16 @@ export const useSwapper = () => {
     switch (sellAsset.chainId) {
       case 'eip155:1':
         {
-          const approvalFee = bnOrZero(trade?.feeData?.chainSpecific?.approvalFee)
+          const zrxTrade = trade as Trade<'eip155:1'>
+          const approvalFee = bnOrZero(zrxTrade?.feeData?.chainSpecific?.approvalFee)
             .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
           const totalFee = feeBN.plus(approvalFee).toString()
-          const gasPrice = bnOrZero(trade?.feeData?.chainSpecific?.gasPrice).toString()
-          const estimatedGas = bnOrZero(trade?.feeData?.chainSpecific?.estimatedGas).toString()
+          const gasPrice = bnOrZero(zrxTrade?.feeData?.chainSpecific?.gasPrice).toString()
+          const estimatedGas = bnOrZero(zrxTrade?.feeData?.chainSpecific?.estimatedGas).toString()
 
-          const fees: QuoteFeeData<'eip155:1'> = {
+          // get rid of this type hack in followup PR once corresponding lib pr is merged
+          const fees: QuoteFeeData<'eip155:1'> & { tradeFee?: string } = {
             fee,
             chainSpecific: {
               approvalFee,
@@ -270,6 +274,7 @@ export const useSwapper = () => {
               estimatedGas,
               totalFee,
             },
+            tradeFee: '0', // TODO populate this from trade once corresponding lib pr is merged
           }
           setValue('fees', fees)
         }

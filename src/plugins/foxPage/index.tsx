@@ -1,7 +1,6 @@
 import { Plugins } from 'plugins'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
-import { FoxAssetId, FoxyAssetId } from './constants'
 import { FoxPage } from './foxPage'
 
 export function register(): Plugins {
@@ -16,18 +15,18 @@ export function register(): Plugins {
           {
             path: '/fox',
             label: 'navBar.foxToken',
-            main: () => <FoxPage activeAssetId={FoxAssetId}></FoxPage>,
+            main: () => <FoxPage />,
             icon: <FoxIcon />,
             routes: [
               {
                 path: '/fox',
                 label: 'navBar.foxToken',
-                main: () => <FoxPage activeAssetId={FoxAssetId}></FoxPage>,
+                main: () => <FoxPage />,
               },
               {
                 path: '/foxy',
                 label: 'navBar.foxToken',
-                main: () => <FoxPage activeAssetId={FoxyAssetId}></FoxPage>,
+                main: () => <FoxPage />,
               },
             ],
           },

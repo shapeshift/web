@@ -18,8 +18,8 @@ export const KeplrIcon = createIcon({
           gradientTransform='translate(0.908673,0.109586),rotate(140.172042),scale(1.000000,1.206725),translate(-0.908673,-0.109586)'
           id='radialGradient-1'
         >
-          <stop stop-color='#2F80F2' offset='0%'></stop>
-          <stop stop-color='#A942B5' offset='99.9656883%'></stop>
+          <stop stopColor='#2F80F2' offset='0%'></stop>
+          <stop stopColor='#A942B5' offset='99.9656883%'></stop>
         </radialGradient>
         <radialGradient
           cx='0%'
@@ -30,8 +30,8 @@ export const KeplrIcon = createIcon({
           gradientTransform='translate(0.000000,0.021481),rotate(46.320810),scale(1.000000,1.047856),translate(-0.000000,-0.021481)'
           id='radialGradient-2'
         >
-          <stop stop-color='#45F9DE' offset='0%'></stop>
-          <stop stop-color='#A942B5' stop-opacity='0' offset='100%'></stop>
+          <stop stopColor='#45F9DE' offset='0%'></stop>
+          <stop stopColor='#A942B5' stopOpacity='0' offset='100%'></stop>
         </radialGradient>
         <radialGradient
           cx='100%'
@@ -42,9 +42,9 @@ export const KeplrIcon = createIcon({
           gradientTransform='translate(1.000000,1.000000),rotate(180.000000),scale(1.000000,0.514961),translate(-1.000000,-1.000000)'
           id='radialGradient-3'
         >
-          <stop stop-color='#E957C5' offset='0%'></stop>
-          <stop stop-color='#AC43B6' stop-opacity='0.0437004098' offset='100%'></stop>
-          <stop stop-color='#A942B5' stop-opacity='0' offset='100%'></stop>
+          <stop stopColor='#E957C5' offset='0%'></stop>
+          <stop stopColor='#AC43B6' stopOpacity='0.0437004098' offset='100%'></stop>
+          <stop stopColor='#A942B5' stopOpacity='0' offset='100%'></stop>
         </radialGradient>
         <radialGradient
           cx='50%'
@@ -55,15 +55,15 @@ export const KeplrIcon = createIcon({
           gradientTransform='translate(0.500000,0.500000),rotate(119.937813),scale(1.000000,1.499193),translate(-0.500000,-0.500000)'
           id='radialGradient-4'
         >
-          <stop stop-color='#000000' stop-opacity='0.184877622' offset='0%'></stop>
-          <stop stop-color='#101010' offset='100%'></stop>
+          <stop stopColor='#000000' stopOpacity='0.184877622' offset='0%'></stop>
+          <stop stopColor='#101010' offset='100%'></stop>
         </radialGradient>
         <linearGradient x1='94.2375438%' y1='58.966132%' x2='0%' y2='0%' id='linearGradient-5'>
-          <stop stop-color='#FFFFFF' stop-opacity='0.184877622' offset='0%'></stop>
-          <stop stop-color='#FFFFFF' offset='100%'></stop>
+          <stop stopColor='#FFFFFF' stopOpacity='0.184877622' offset='0%'></stop>
+          <stop stopColor='#FFFFFF' offset='100%'></stop>
         </linearGradient>
       </defs>
-      <g id='Artboard-Copy-6' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'>
+      <g id='Artboard-Copy-6' stroke='none' strokeWidth='1' fill='none' fillRule='evenodd'>
         <g id='Group'>
           <rect
             id='Rectangle'
@@ -76,7 +76,7 @@ export const KeplrIcon = createIcon({
           ></rect>
           <rect
             id='Rectangle-Copy-2'
-            fill-opacity='0.57'
+            fillOpacity='0.57'
             fill='url(#radialGradient-2)'
             x='0'
             y='0'
@@ -86,7 +86,7 @@ export const KeplrIcon = createIcon({
           ></rect>
           <rect
             id='Rectangle-Copy-3'
-            fill-opacity='0.68'
+            fillOpacity='0.68'
             fill='url(#radialGradient-3)'
             x='0'
             y='0'
@@ -96,7 +96,7 @@ export const KeplrIcon = createIcon({
           ></rect>
           <rect
             id='Rectangle-Copy'
-            fill-opacity='0.08'
+            fillOpacity='0.08'
             fill='url(#radialGradient-4)'
             x='0'
             y='0'
@@ -106,7 +106,7 @@ export const KeplrIcon = createIcon({
           ></rect>
           <rect
             id='Rectangle-Copy-4'
-            fill-opacity='0.03'
+            fillOpacity='0.03'
             fill='url(#linearGradient-5)'
             x='0'
             y='0'
@@ -118,7 +118,7 @@ export const KeplrIcon = createIcon({
         <polygon
           id='K'
           fill='#FFFFFF'
-          fill-rule='nonzero'
+          fillRule='nonzero'
           points='70.4 170 70.4 108 129 170 161.6 170 161.6 168.4 94.2 97.8 156.4 30.8 156.4 30 123.6 30 70.4 89.2 70.4 30 44 30 44 170'
         ></polygon>
       </g>

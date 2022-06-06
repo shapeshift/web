@@ -46,7 +46,7 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
   </Skeleton>
 )
 
-export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
+export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
@@ -63,7 +63,7 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
               <Text translation='assets.assetDetails.assetHeader.price' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.price || 0} />
+              <Amount.Fiat value={marketData?.price ?? 0} />
             </StatValue>
           </Stat>
           <Stat>
@@ -71,7 +71,7 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
               <Text translation='assets.assetDetails.assetHeader.marketCap' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.marketCap || 0} />
+              <Amount.Fiat value={marketData?.marketCap ?? 0} />
             </StatValue>
           </Stat>
           <Stat>
@@ -79,7 +79,7 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
               <Text translation='assets.assetDetails.assetHeader.24HrVolume' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.volume || 0} />
+              <Amount.Fiat value={marketData?.volume ?? 0} />
             </StatValue>
           </Stat>
           <Stat>
@@ -95,6 +95,27 @@ export const AssetMarketData = ({ assetId }: AssetMarketDataProps) => {
               <Amount.Percent value={percentChange.div(100).toNumber() ?? 0} />
             </StatValue>
           </Stat>
+
+          {marketData?.maxSupply && (
+            <Stat>
+              <StatLabel isLoaded={isLoaded}>
+                <Text translation='assets.assetDetails.assetHeader.maxTotalSupply' />
+              </StatLabel>
+              <StatValue isLoaded={isLoaded}>
+                <Amount.Supply value={marketData?.maxSupply ?? 0} />
+              </StatValue>
+            </Stat>
+          )}
+          {marketData?.supply && (
+            <Stat>
+              <StatLabel isLoaded={isLoaded}>
+                <Text translation='assets.assetDetails.assetHeader.availableSupply' />
+              </StatLabel>
+              <StatValue isLoaded={isLoaded}>
+                <Amount.Supply value={marketData?.supply} />
+              </StatValue>
+            </Stat>
+          )}
         </SimpleGrid>
       </Card.Body>
     </Card>

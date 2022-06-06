@@ -2854,54 +2854,54 @@
     randombytes "^2.1.0"
     text-encoding "0.7.0"
 
-"@formatjs/ecma402-abstract@1.11.3":
-  version "1.11.3"
-  resolved "https://registry.yarnpkg.com/@formatjs/ecma402-abstract/-/ecma402-abstract-1.11.3.tgz#f25276dfd4ef3dac90da667c3961d8aa9732e384"
-  integrity sha512-kP/Buv5vVFMAYLHNvvUzr0lwRTU0u2WTy44Tqwku1X3C3lJ5dKqDCYVqA8wL+Y19Bq+MwHgxqd5FZJRCIsLRyQ==
+"@formatjs/ecma402-abstract@1.11.7":
+  version "1.11.7"
+  resolved "https://registry.yarnpkg.com/@formatjs/ecma402-abstract/-/ecma402-abstract-1.11.7.tgz#47f1a854f679f813d9baa1ee55adae94880ec706"
+  integrity sha512-uNaok4XWMJBtPZk/veTDamFCm5HeWJUk2jwoVfH5/+wenQ60QHjH6T3UQ0GOOCz9jpKmed7vqOri7xSf//Dt7g==
   dependencies:
-    "@formatjs/intl-localematcher" "0.2.24"
-    tslib "^2.1.0"
+    "@formatjs/intl-localematcher" "0.2.28"
+    tslib "2.4.0"
 
-"@formatjs/intl-getcanonicallocales@1.9.1", "@formatjs/intl-getcanonicallocales@^1.9.1":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@formatjs/intl-getcanonicallocales/-/intl-getcanonicallocales-1.9.1.tgz#f61dd8f05368a639f949187eb2a281897256d5fb"
-  integrity sha512-cqxVpDzfBYJRA/8bBPvlxHRlLE0ngi0eP8Evek7YXcC3AvKHJoeaZZeFYOvWxOKIOZVdWH87Btvc5h0TvDTofA==
+"@formatjs/intl-getcanonicallocales@2.0.2", "@formatjs/intl-getcanonicallocales@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-getcanonicallocales/-/intl-getcanonicallocales-2.0.2.tgz#e9fd5d2215ce0dba4d8611b37ac87c5fae60a1a7"
+  integrity sha512-nMkPblAjgK49ORueVhyuKJDXOCq8at2h9Xf0lqabBZylaX3xLEeuAW2eMXuwJ/ascYYQnwuxeukd/qlzDkuJzQ==
   dependencies:
-    tslib "^2.1.0"
+    tslib "2.4.0"
 
-"@formatjs/intl-locale@^2.4.46":
-  version "2.4.46"
-  resolved "https://registry.yarnpkg.com/@formatjs/intl-locale/-/intl-locale-2.4.46.tgz#40c4d3aa1dd89b6a0c33df06a09555542ff15ce1"
-  integrity sha512-6UAGbAf2TxC4lzznEd0tDs3R1h8llUJfWsEs4n5Uf3NRhq1auaQFCgE48SqpDkkTFnX2o8gC3r8uOkOxp/cu+g==
+"@formatjs/intl-locale@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-locale/-/intl-locale-3.0.2.tgz#d0055c8672e6f27fc09dff15f0f7def32ce1bcf1"
+  integrity sha512-ZnBrrm0nDup6AzRGGBp7Gt5Ow4lLwtKdb3i4kCdjUr8drZin1WJUP63sxtotEGHene9c34mA5kifBeq7hHWS9g==
   dependencies:
-    "@formatjs/ecma402-abstract" "1.11.3"
-    "@formatjs/intl-getcanonicallocales" "1.9.1"
-    tslib "^2.1.0"
+    "@formatjs/ecma402-abstract" "1.11.7"
+    "@formatjs/intl-getcanonicallocales" "2.0.2"
+    tslib "2.4.0"
 
-"@formatjs/intl-localematcher@0.2.24":
-  version "0.2.24"
-  resolved "https://registry.yarnpkg.com/@formatjs/intl-localematcher/-/intl-localematcher-0.2.24.tgz#b49fd753c0f54421f26a3c1d0e9cf98a3966e78f"
-  integrity sha512-K/HRGo6EMnCbhpth/y3u4rW4aXkmQNqRe1L2G+Y5jNr3v0gYhvaucV8WixNju/INAMbPBlbsRBRo/nfjnoOnxQ==
+"@formatjs/intl-localematcher@0.2.28":
+  version "0.2.28"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-localematcher/-/intl-localematcher-0.2.28.tgz#412ea7fefbfc7ed33cd6b43aa304fc14d816e564"
+  integrity sha512-FLsc6Gifs1np/8HnCn/7Q+lHMmenrD5fuDhRT82yj0gi9O19kfaFwjQUw1gZsyILuRyT93GuzdifHj7TKRhBcw==
   dependencies:
-    tslib "^2.1.0"
+    tslib "2.4.0"
 
-"@formatjs/intl-numberformat@^7.4.2":
-  version "7.4.2"
-  resolved "https://registry.yarnpkg.com/@formatjs/intl-numberformat/-/intl-numberformat-7.4.2.tgz#8033ad9d32a90393e59314f2aee5738de21aa7b3"
-  integrity sha512-k0eN5cRf3pvnY/Y6GBYB2RFyZ4X5GQEw5IsUN17kg278a/0ewpVgtK8IKX97zsuz2gCSLNZ1x5vzxGFVm/e+jA==
+"@formatjs/intl-numberformat@^8.0.2":
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-numberformat/-/intl-numberformat-8.0.2.tgz#35bacb5d55441b1d3f541c796057f87c165b63ef"
+  integrity sha512-Fw7Y8Iqm/d5aF+3HkTCbtOxTHIh1DonohPGUEJYHqKVftx12ybtxMLpEGbArRnWdDC6+lVTmPTlHIHcf/vyLTA==
   dependencies:
-    "@formatjs/ecma402-abstract" "1.11.3"
-    "@formatjs/intl-localematcher" "0.2.24"
-    tslib "^2.1.0"
+    "@formatjs/ecma402-abstract" "1.11.7"
+    "@formatjs/intl-localematcher" "0.2.28"
+    tslib "2.4.0"
 
-"@formatjs/intl-pluralrules@^4.3.2":
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/@formatjs/intl-pluralrules/-/intl-pluralrules-4.3.2.tgz#8ac4b8592bc231fd2adcccc6e3012d17d007c638"
-  integrity sha512-ptV6vYF9asaDWbU3WvfXCgLYRZLGbl3LuiY1hFRr/BJtVXSLP+ocgLs2k6oEME401p3ucW+ZVMeqxftRTH8BFA==
+"@formatjs/intl-pluralrules@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-pluralrules/-/intl-pluralrules-5.0.2.tgz#406a60d8b8296fc0a1c2d59801e6decc236eed89"
+  integrity sha512-wXIW26RMLOSKpK5jqX0fZYHqPb1mhR41+FSL9x/6B/qe3zb+xkq5FuAoKLb4j/+rNehy7uVOl963JXsbSexy0A==
   dependencies:
-    "@formatjs/ecma402-abstract" "1.11.3"
-    "@formatjs/intl-localematcher" "0.2.24"
-    tslib "^2.1.0"
+    "@formatjs/ecma402-abstract" "1.11.7"
+    "@formatjs/intl-localematcher" "0.2.28"
+    tslib "2.4.0"
 
 "@gar/promisify@^1.0.1":
   version "1.1.2"
@@ -20648,15 +20648,15 @@ tslib@2.3.1:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
+tslib@2.4.0, tslib@^2, tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
+  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
+
 tslib@^1.0.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
-
-tslib@^2, tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
-  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
 tsoa@^3.4.0:
   version "3.14.1"

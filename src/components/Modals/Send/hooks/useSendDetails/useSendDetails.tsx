@@ -337,7 +337,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   /**
    * inputHandler
-   * 
+   *
    * Determines the form's state from input by onChange event.
    * Valid inputs:
    * - Non-empty numeric values including zero

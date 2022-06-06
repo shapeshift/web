@@ -6,8 +6,5 @@ export const csp: Csp = {
     process.env.REACT_APP_TOKEMAK_STATS_URL!,
     // https://github.com/shapeshift/web/blob/965e5f3365e62f02f4cff3d0f78a020e0bf6b376/src/plugins/foxPage/hooks/getGovernanceData.ts#L47
     process.env.REACT_APP_BOARDROOM_API_BASE_URL!,
-    // https://github.com/shapeshift/web/blob/965e5f3365e62f02f4cff3d0f78a020e0bf6b376/src/plugins/foxPage/components/Governance.tsx#L23
-    // https://github.com/shapeshift/web/blob/965e5f3365e62f02f4cff3d0f78a020e0bf6b376/src/plugins/foxPage/components/Governance.tsx#L41
-    process.env.REACT_APP_BOARDROOM_APP_BASE_URL!,
   ],
 }

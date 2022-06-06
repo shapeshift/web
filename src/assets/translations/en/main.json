@@ -985,7 +985,9 @@
         "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
         "btcFormat": "BTC format",
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
-        "loading": "Fetching price history, hang tight..."
+        "loading": "Fetching price history, hang tight...",
+        "maxTotalSupply": "Max Total Supply",
+        "availableSupply": "Available Supply"
       },
       "assetDescription": {
         "showMore": "Show More",
@@ -1106,11 +1108,15 @@
       "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
       "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
       "otherOpportunitiesTitle": "Other opportunities",
-      "otherOpportunitiesDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget elit faucibus, vestibulum mauris sed, cursus nulla. Nunc tempor leo sit amet velit gravida lacinia. In sit amet luctus lectus. Pellentesque dapibus, justo vel iaculis ullamcorper, mi purus tristique libero, et laoreet nisi neque ut justo.",
+      "otherOpportunitiesDescription": {
+        "FOX": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
+        "FOXy": "Quickly and easily purchase FOXy, the industry’s first DAO rebasing token that offers both yield and profit rewards."
+      },
       "liquidityPools": "Liquidity Pools",
       "farming": "Farming",
       "borrowingAndLending": "Borrowing & Lending",
       "governanceTitle": "Governance",
+      "governanceDescription": "As a FOX holder, you can have a voice in the future of ShapeShift. Below are currently active DAO proposals open for voting by token holders.",
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",

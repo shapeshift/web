@@ -10,7 +10,7 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
   const messages = translations[locale]
   const onMissingKey = (key: string, substitutions?: InterpolationOptions) => {
     const translation = get(translations['en'], key)
-    return translation ? transformPhrase(translation, substitutions) : key
+    return typeof translation === 'string' ? transformPhrase(translation, substitutions) : key
   }
   return (
     <I18n locale={locale} messages={messages} allowMissing={true} onMissingKey={onMissingKey}>

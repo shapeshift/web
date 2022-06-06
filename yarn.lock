@@ -3590,7 +3590,7 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@4.6.0":
+"@shapeshiftoss/asset-service@^4.6.0":
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.6.0.tgz#276e3a1876a43fa433d736848982c88f56686c8f"
   integrity sha512-PN+31J3L9zRrcweN4uOZV1OqpBxNfYNXvt3nlwZq7EYwXcniG7R8KyeXJkShYmDksQa8o8GYR9ADPN3dWTadMw==
@@ -3899,9 +3899,9 @@
     long "^4.0.0"
 
 "@shapeshiftoss/swapper@^5.10.0":
-  version "5.10.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-5.10.0.tgz#8bf9c2a2c72bf4d5c4b279027c0cd1f14c667400"
-  integrity sha512-an9oDO8jF81ZzoUjRaaZP537q8buMVrNAxKYl4FSGVuVWVAZGr/dDRT5xulOdiaOypk1jj6b/3OrWrBQAGY0/w==
+  version "5.10.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-5.10.1.tgz#d6b17571a3626843ebbc8e647b8c246597328b1b"
+  integrity sha512-GyEgJLo3JBWpX/3CNxM3xFXCw04W1Fxt685vYRxC4nL6H/wlT/DYWurk8+TIj5hmUTKrQ+7hFU8VszthQKBOZQ==
   dependencies:
     axios "^0.26.0"
     bignumber.js "^9.0.1"
@@ -9391,10 +9391,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress@9.7.0:
-  version "9.7.0"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-9.7.0.tgz#bf55b2afd481f7a113ef5604aa8b693564b5e744"
-  integrity sha512-+1EE1nuuuwIt/N1KXRR2iWHU+OiIt7H28jJDyyI4tiUftId/DrXYEwoDa5+kH2pki1zxnA0r6HrUGHV5eLbF5Q==
+cypress@10.0.2:
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-10.0.2.tgz#6aeac1923d534f9850d57dad9496f9ea74034a23"
+  integrity sha512-7+C4KHYBcfZrawss+Gt5PlS35rfc6ySc59JcHDVsIMm1E/J35dqE41UEXpdtwIq3549umCerNWnFADzqib4kcA==
   dependencies:
     "@cypress/request" "^2.88.10"
     "@cypress/xvfb" "^1.2.4"

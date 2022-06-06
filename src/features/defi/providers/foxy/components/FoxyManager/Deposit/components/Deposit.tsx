@@ -8,7 +8,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -30,8 +29,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId } = query
-  const chainId = chainTypeToMainnetChainId(chain)
+  const { chainId, contractAddress, tokenId } = query
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
 

@@ -34,12 +34,15 @@ const validators = {
   REACT_APP_FOXY_APY: num({ default: 0.15 }),
   REACT_APP_ETH_FOX_APR: num({ default: 0.6 }),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
-  REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
   REACT_APP_REDUX_LOGGING: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_MIGRATION: bool({ default: false }),
+  REACT_APP_FEATURE_TALLYHO_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_BANXA_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE: bool({ default: false }),
+  REACT_APP_FEATURE_KEPLR_WALLET: bool({ default: false }),
+  REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
+  REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -48,6 +48,16 @@ export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
 
+export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
+  if (!content) return ''
+
+  if (!trimmedContentLength) return content
+
+  if (content.length < trimmedContentLength) return content
+
+  return content.slice(0, trimmedContentLength).concat('...')
+}
+
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   /*

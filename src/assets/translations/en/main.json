@@ -351,6 +351,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "shapeshiftFee": "ShapeShift Fee",
+    "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
     "complete": "Trade Complete",
@@ -471,6 +472,20 @@
         "error": {
           "invalid": "Invalid Password",
           "required": "Password is required",
+          "length": "Your password must be at least %{length} characters",
+          "maxLength": "Nickname must be %{length} characters maximum"
+        }
+      },
+      "confirmPassword": {
+        "header": "Confirm Your Password",
+        "walletName": "Wallet nickname (optional)",
+        "body": "Confirm your password to decrypt your wallet",
+        "placeholder": "Confirm Password",
+        "show": "Show password",
+        "hide": "Hide password",
+        "error": {
+          "invalid": "Password must match",
+          "required": "Password confirmation is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
@@ -751,12 +766,29 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "connectFailure": "Unable to connect Keplr wallet",
+        "unknown": "An unexpected error occurred communicating with Keplr",
+        "noProvider": "Keplr wallet extension not found"
+      },
+      "connect": {
+        "header": "Pair Keplr",
+        "body": "Click Pair then select Keplr from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Keplr wallet"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
         "network": "MetaMask isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
+        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
+        "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
       },
       "connect": {
         "header": "Pair MetaMask",
@@ -770,6 +802,29 @@
       "redirect": {
         "header": "Open in MetaMask App",
         "body": "Click to open ShapeShift dashboard in MetaMask",
+        "button": "Open"
+      }
+    },
+    "tallyHo": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Tally Ho",
+        "connectFailure": "Unable to connect Tally Ho wallet",
+        "network": "Tally Ho isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not Tally Ho. Do you have multiple wallets installed?",
+        "tallyNotInstalledOrSetToDefault":"We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
+      },
+      "connect": {
+        "header": "Pair Tally",
+        "body": "Click Pair and login to Tally Ho from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Tally Ho wallet"
+      },
+      "redirect": {
+        "header": "Open in Tally Ho App",
+        "body": "Click to open ShapeShift dashboard in Tally Ho",
         "button": "Open"
       }
     },
@@ -831,8 +886,9 @@
         "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
       },
       "password": {
-        "header": "Enter Your Password",
-        "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
+        "header": "Create a New Password",
+        "body": "Enter a strong password to encrypt your imported wallet. This is how you will access your wallet.",
+        "warning": "Note: If you forget your password, ShapeShift can’t help you recover it.",
         "button": "Next",
         "connect": "Connect to another wallet"
       },
@@ -1048,14 +1104,19 @@
       "currentApy": "Current APY",
       "balance": "Balance",
       "getStarted": "Get Started",
+      "currentPrice": "Current Price",
+      "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
+      "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
       "otherOpportunitiesTitle": "Other opportunities",
       "otherOpportunitiesDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget elit faucibus, vestibulum mauris sed, cursus nulla. Nunc tempor leo sit amet velit gravida lacinia. In sit amet luctus lectus. Pellentesque dapibus, justo vel iaculis ullamcorper, mi purus tristique libero, et laoreet nisi neque ut justo.",
       "liquidityPools": "Liquidity Pools",
       "farming": "Farming",
       "borrowingAndLending": "Borrowing & Lending",
-      "currentPrice": "Current Price",
       "governanceTitle": "Governance",
-      "seeAllProposals": "See All Proposals"
+      "seeAllProposals": "See All Proposals",
+      "availableToTradeOn": "Available to Trade On",
+      "dex": "DEX",
+      "centralized": "Centralized"
     }
   }
 }

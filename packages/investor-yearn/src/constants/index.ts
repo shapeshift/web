@@ -1,5 +1,4 @@
 export * from './allowance'
-export * from './enums'
 export * from './erc20-abi'
 export * from './router-contract'
 export * from './ss-router-abi'

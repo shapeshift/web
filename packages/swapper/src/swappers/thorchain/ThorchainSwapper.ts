@@ -1,4 +1,4 @@
-import { adapters, AssetId } from '@shapeshiftoss/caip'
+import { adapters, AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 
 import {
@@ -18,6 +18,10 @@ import { getUsdRate } from './utils/getUsdRate/getUsdRate'
 import { thorService } from './utils/thorService'
 
 export class ThorchainSwapper implements Swapper {
+  private swapSupportedChainIds: Record<ChainId, boolean> = {
+    'eip155:1': true,
+    'bip122:000000000019d6689c085ae165831e93': true
+  }
   private supportedAssetIds: AssetId[] = []
   deps: ThorchainSwapperDeps
 
@@ -33,7 +37,7 @@ export class ThorchainSwapper implements Swapper {
 
       const supportedAssetIds = responseData.reduce<AssetId[]>((acc, midgardPool) => {
         const assetId = adapters.poolAssetIdToAssetId(midgardPool.asset)
-        if (!assetId) return acc
+        if (!assetId || !this.swapSupportedChainIds[fromAssetId(assetId).chainId]) return acc
         acc.push(assetId)
         return acc
       }, [])

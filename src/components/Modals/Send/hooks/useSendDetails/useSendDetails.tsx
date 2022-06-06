@@ -1,3 +1,4 @@
+import { btcChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -108,20 +109,20 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
-    switch (values.asset.chain) {
-      case ChainTypes.Cosmos: {
-        const cosmosChainAdapter = await chainAdapterManager.byChainId('cosmos:cosmoshub-4')
+    switch (values.asset.chainId) {
+      case cosmosChainId: {
+        const cosmosChainAdapter = await chainAdapterManager.byChainId(cosmosChainId)
         return cosmosChainAdapter.getFeeData({})
       }
-      case ChainTypes.Osmosis: {
-        const osmosisChainAdapter = await chainAdapterManager.byChainId('cosmos:osmosis-1')
+      case osmosisChainId: {
+        const osmosisChainAdapter = await chainAdapterManager.byChainId(osmosisChainId)
         return osmosisChainAdapter.getFeeData({})
       }
-      case ChainTypes.Ethereum: {
+      case ethChainId: {
         const from = await adapter.getAddress({
           wallet,
         })
-        const ethereumChainAdapter = await chainAdapterManager.byChainId('eip155:1')
+        const ethereumChainAdapter = await chainAdapterManager.byChainId(ethChainId)
         const to = isEthAddress(values.address)
           ? values.address
           : ((await ensLookup(values.address)).address as string)
@@ -135,7 +136,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           sendMax: values.sendMax,
         })
       }
-      case ChainTypes.Bitcoin: {
+      case btcChainId: {
         const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
         if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
         if (!accountType) {
@@ -153,9 +154,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-        const bitcoinChainAdapter = await chainAdapterManager.byChainId(
-          'bip122:000000000019d6689c085ae165831e93',
-        )
+        const bitcoinChainAdapter = await chainAdapterManager.byChainId(btcChainId)
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,

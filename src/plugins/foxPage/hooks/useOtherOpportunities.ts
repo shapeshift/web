@@ -7,9 +7,9 @@ import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } fr
 import { useFoxyApr } from './useFoxyApr'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const { farmingApr } = useFarmingApr()
-  const { lpApr } = useLpApr()
-  const { foxyApr } = useFoxyApr()
+  const { farmingApr, loaded: isFarmingAprLoaded } = useFarmingApr()
+  const { lpApr, loaded: isLpAprLoaded } = useLpApr()
+  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
 
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
@@ -20,7 +20,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           opportunities: [
             {
               title: 'ETH-FOX V2',
-              apy: lpApr,
+              isLoaded: isLpAprLoaded,
+              apy: isLpAprLoaded ? lpApr : null,
               link: 'https://app.uniswap.org/#/add/v2/ETH/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d?chain=mainnet',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
@@ -35,7 +36,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           opportunities: [
             {
               title: 'ETH-FOX V3',
-              apy: farmingApr,
+              isLoaded: isFarmingAprLoaded,
+              apy: isFarmingAprLoaded ? farmingApr : null,
               link: 'https://app.uniswap.org/#/add/ETH/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/3000?chain=mainnet',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
@@ -50,7 +52,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           opportunities: [
             {
               title: 'FOX',
-              apy: foxyApr,
+              isLoaded: isFoxyAprLoaded,
+              apy: isFoxyAprLoaded ? foxyApr : foxyApr,
               link: 'https://www.tokemak.xyz/',
               icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
             },
@@ -64,7 +67,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           opportunities: [
             {
               title: 'ElasticSwap',
-              apy: '--',
+              isLoaded: true, // No network request here
+              apy: null,
               link: 'https://elasticswap.org/#/liquidity',
               icons: [
                 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
@@ -76,7 +80,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }
 
     return opportunities[assetId]
-  }, [lpApr, foxyApr, farmingApr, assetId])
+  }, [lpApr, foxyApr, farmingApr, assetId, isLpAprLoaded, isFoxyAprLoaded, isFarmingAprLoaded])
 
   return otherOpportunities
 }

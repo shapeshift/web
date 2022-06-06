@@ -15,6 +15,7 @@ export type ExternalOpportunity = {
   apy?: string | null
   link: string
   icons: string[]
+  isLoaded?: boolean
 }
 
 export type OpportunitiesBucket = {

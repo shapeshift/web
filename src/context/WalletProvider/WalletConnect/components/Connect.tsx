@@ -1,6 +1,7 @@
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import { getConfig } from 'config'
 import React, { useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -29,6 +30,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const translate = useTranslate()
 
   const setErrorLoading = (e: string | null) => {
     setError(e)
@@ -40,9 +42,6 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     setLoading(true)
 
     const rpcUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
-    if (!rpcUrl) {
-      throw new Error('walletProvider.walletConnect.errors.rpcUrlNotFound')
-    }
     const config = {
       rpc: {
         1: rpcUrl,
@@ -54,7 +53,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
         .get(KeyManager.WalletConnect)
         ?.pairDevice(config)) as WalletConnectHDWallet
       if (!wallet) {
-        setErrorLoading('walletProvider.errors.walletNotFound')
+        setErrorLoading(translate('walletProvider.errors.walletNotFound'))
         throw new Error('Call to hdwallet-walletconnect::pairDevice returned null or undefined')
       }
 
@@ -69,13 +68,15 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.WalletConnect, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-      } catch (e: any) {
-        if (e?.message?.startsWith('walletProvider.')) {
-          console.error('WalletConnect Connect: There was an error initializing the wallet', e)
-          setErrorLoading(e?.message)
-        } else {
-          setErrorLoading('walletProvider.walletConnect.errors.unknown')
-          history.push('/walletconnect/failure')
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          if (e?.message?.startsWith('walletProvider.')) {
+            console.error('WalletConnect Connect: There was an error initializing the wallet', e)
+            setErrorLoading(e?.message)
+          } else {
+            setErrorLoading(translate('walletProvider.walletConnect.errors.unknown'))
+            history.push('/walletconnect/failure')
+          }
         }
       }
     }

@@ -843,6 +843,22 @@
         "body": "Unable to connect Portis wallet"
       }
     },
+    "walletConnect": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with WalletConnect",
+        "connectFailure": "Unable to connect WalletConnect wallet",
+        "rpcUrlNotFound": "Please configure REACT_APP_ETHEREUM_NODE_URL in your .env file to point to your Ethereum node"
+      },
+      "connect": {
+        "header": "Pair WalletConnect",
+        "body": "Click Pair then select WalletConnect from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect WalletConnect wallet"
+      }
+    },
     "xdefi": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with XDEFI",
@@ -958,21 +974,6 @@
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
       "footer": "Don't have a wallet?",
       "create": "Create one"
-    },
-    "walletConnect": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with WalletConnect",
-        "connectFailure": "Unable to connect WalletConnect wallet"
-      },
-      "connect": {
-        "header": "Pair WalletConnect",
-        "body": "Click Pair then select WalletConnect from the popup window",
-        "button": "Pair"
-      },
-      "failure": {
-        "header": "Error",
-        "body": "Unable to connect WalletConnect wallet"
-      }
     }
   },
   "graph": {

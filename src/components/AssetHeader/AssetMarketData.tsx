@@ -63,7 +63,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
               <Text translation='assets.assetDetails.assetHeader.price' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.price || 0} />
+              <Amount.Fiat value={marketData?.price ?? 0} />
             </StatValue>
           </Stat>
           <Stat>
@@ -71,7 +71,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
               <Text translation='assets.assetDetails.assetHeader.marketCap' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.marketCap || 0} />
+              <Amount.Fiat value={marketData?.marketCap ?? 0} />
             </StatValue>
           </Stat>
           <Stat>
@@ -79,7 +79,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
               <Text translation='assets.assetDetails.assetHeader.24HrVolume' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.volume || 0} />
+              <Amount.Fiat value={marketData?.volume ?? 0} />
             </StatValue>
           </Stat>
           <Stat>
@@ -102,7 +102,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
                 <Text translation='assets.assetDetails.assetHeader.maxTotalSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount.Supply value={marketData?.maxSupply || 0} />
+                <Amount.Supply value={marketData?.maxSupply ?? 0} />
               </StatValue>
             </Stat>
           )}

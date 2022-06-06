@@ -58,7 +58,7 @@ const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[
 
 const FOX_DESCRIPTION =
   'Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.'
-export const FoxPage: React.FC<{}> = () => {
+export const FoxPage = () => {
   const translate = useTranslate()
   const history = useHistory()
 
@@ -194,7 +194,7 @@ export const FoxPage: React.FC<{}> = () => {
         </TabList>
         <TabPanels>
           {assets.map(asset => (
-            <TabPanel p={0}>
+            <TabPanel key={asset.assetId} p={0}>
               <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
                 <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
                 <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>

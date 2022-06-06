@@ -15,6 +15,9 @@ import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPin } from './KeepKey/components/Pin'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
+import { KeplrConnect } from './Keplr/components/Connect'
+import { KeplrFailure } from './Keplr/components/Failure'
+import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
@@ -113,5 +116,12 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
+  },
+  [KeyManager.Keplr]: {
+    ...KeplrConfig,
+    routes: [
+      { path: '/keplr/connect', component: KeplrConnect },
+      { path: '/keplr/failure', component: KeplrFailure },
+    ],
   },
 }

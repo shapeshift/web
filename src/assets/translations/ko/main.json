@@ -704,6 +704,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Keplr와 연동하는 도중에 예기치 못한 오류가 발생했습니다.",
+        "connectFailure": "Keplr 지갑을 연결할 수 없습니다."
+      },
+      "connect": {
+        "header": "Keplr 지갑 연동하기",
+        "body": "연결하기 버튼을 누른 후 팝업창에서 Keplr를 선택하세요.",
+        "button": "연결하기"
+      },
+      "failure": {
+        "header": "오류 발생",
+        "body": "Keplr 지갑을 연결할 수 없습니다."
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Metamask 연동 중 예기치 못한 오류가 발생했습니다.",

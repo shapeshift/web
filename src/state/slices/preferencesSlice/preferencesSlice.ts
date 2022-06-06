@@ -10,6 +10,7 @@ export type FeatureFlags = {
   WalletMigration: boolean
   BanxaRamp: boolean
   FoxPage: boolean
+  KeplrWallet: boolean
   TallyHoWallet: boolean
 }
 
@@ -29,6 +30,7 @@ const initialState: Preferences = {
     WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
     BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
+    KeplrWallet: getConfig().REACT_APP_FEATURE_KEPLR_WALLET,
     TallyHoWallet: getConfig().REACT_APP_FEATURE_TALLYHO_WALLET,
   },
   selectedLocale: simpleLocale(),

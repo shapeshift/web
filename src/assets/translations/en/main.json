@@ -766,6 +766,22 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "connectFailure": "Unable to connect Keplr wallet",
+        "unknown": "An unexpected error occurred communicating with Keplr",
+        "noProvider": "Keplr wallet extension not found"
+      },
+      "connect": {
+        "header": "Pair Keplr",
+        "body": "Click Pair then select Keplr from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Keplr wallet"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
@@ -870,8 +886,9 @@
         "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
       },
       "password": {
-        "header": "Enter Your Password",
-        "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
+        "header": "Create a New Password",
+        "body": "Enter a strong password to encrypt your imported wallet. This is how you will access your wallet.",
+        "warning": "Note: If you forget your password, ShapeShift can’t help you recover it.",
         "button": "Next",
         "connect": "Connect to another wallet"
       },

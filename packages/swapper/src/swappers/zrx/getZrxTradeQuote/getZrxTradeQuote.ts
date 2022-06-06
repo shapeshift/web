@@ -66,8 +66,6 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
     const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
 
     return {
-      success: true,
-      statusReason: '',
       rate,
       minimum,
       maximum,
@@ -79,7 +77,8 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
           approvalFee:
             sellAssetErc20Address &&
             bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(data.gasPrice)).toString()
-        }
+        },
+        tradeFee: '0'
       },
       sellAmount: data.sellAmount,
       buyAmount: data.buyAmount,

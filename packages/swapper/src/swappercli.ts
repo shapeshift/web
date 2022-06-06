@@ -125,11 +125,6 @@ const main = async (): Promise<void> => {
 
   console.info('quote = ', JSON.stringify(quote))
 
-  if (!quote.success) {
-    console.error('Obtaining the quote failed: ', quote.statusReason)
-    return
-  }
-
   const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.precision)
 
   const answer = readline.question(

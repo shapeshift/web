@@ -164,8 +164,12 @@ export const grantAllowance = async ({
       value: '0',
       chainSpecific: {
         erc20ContractAddress: sellAssetErc20Address,
-        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
-        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0)
+        gasPrice: numberToHex(
+          (quote as TradeQuote<'eip155:1'>).feeData?.chainSpecific?.gasPrice || 0
+        ),
+        gasLimit: numberToHex(
+          (quote as TradeQuote<'eip155:1'>).feeData?.chainSpecific?.estimatedGas || 0
+        )
       }
     })
 

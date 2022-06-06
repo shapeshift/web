@@ -18,11 +18,16 @@ type ChainSpecificQuoteFeeData<T1> = ChainSpecific<
       approvalFee?: string
       totalFee?: string
     }
+    'bip122:000000000019d6689c085ae165831e93': {
+      byteCount: string
+      satsPerByte: string
+    }
   }
 >
 
 export type QuoteFeeData<T1 extends SupportedChainIds> = {
   fee: string
+  tradeFee: string // fee taken out of the trade from the buyAsset
 } & ChainSpecificQuoteFeeData<T1>
 
 export type ByPairInput = {
@@ -55,8 +60,6 @@ export type BuildTradeInput = CommonTradeInput & {
 }
 
 interface TradeBase<C extends SupportedChainIds> {
-  success: boolean // This will go away when we correctly handle errors
-  statusReason: string // This will go away when we correctly handle errors
   buyAmount: string
   sellAmount: string
   feeData: QuoteFeeData<C>

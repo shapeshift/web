@@ -25,18 +25,18 @@ describe('getZrxTradeQuote', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({
-        data: { success: true, price: '100', gasPrice: '1000', estimatedGas: '1000000' }
+        data: { price: '100', gasPrice: '1000', estimatedGas: '1000000' }
       })
     )
     const quote = await swapper.getTradeQuote(quoteInput)
-    expect(quote.success).toBeTruthy()
     expect(quote.feeData).toStrictEqual({
       fee: '1500000000',
       chainSpecific: {
         estimatedGas: '1500000',
         gasPrice: '1000',
         approvalFee: '100000000'
-      }
+      },
+      tradeFee: '0'
     })
     expect(quote.rate).toBe('100')
   })
@@ -68,26 +68,24 @@ describe('getZrxTradeQuote', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({
-        data: { success: true, price: '100' }
+        data: { price: '100' }
       })
     )
     const quote = await swapper.getTradeQuote(quoteInput)
-    expect(quote?.success).toBeTruthy()
     expect(quote?.feeData).toStrictEqual({
       fee: '0',
       chainSpecific: {
         estimatedGas: '0',
         approvalFee: '0',
         gasPrice: undefined
-      }
+      },
+      tradeFee: '0'
     })
   })
   it('fails on non ethereum chain for buyAsset', async () => {
     const { quoteInput, buyAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: { success: false } })
-    )
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve())
     await expect(
       swapper.getTradeQuote({
         ...quoteInput,
@@ -98,9 +96,7 @@ describe('getZrxTradeQuote', () => {
   it('fails on non ethereum chain for sellAsset', async () => {
     const { quoteInput, sellAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: { success: false } })
-    )
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve())
     await expect(
       swapper.getTradeQuote({
         ...quoteInput,

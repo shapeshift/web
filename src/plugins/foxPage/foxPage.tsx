@@ -33,6 +33,7 @@ import { breakpoints } from 'theme/theme'
 import { AssetActions } from './components/AssetActions'
 import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
+import { Governance } from './components/Governance'
 import { Layout } from './components/Layout'
 import { Total } from './components/Total'
 import { TradeOpportunities, TradeOpportunitiesBucket } from './components/TradeOpportunities'
@@ -196,7 +197,9 @@ export const FoxPage = (props: FoxPageProps) => {
         <TabPanels>
           <TabPanel p={0}>
             <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
-              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
+              <Stack spacing={4} flex='1 1 0%' width='full'>
+                <Governance />
+              </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={FoxAssetId} />
               </Stack>

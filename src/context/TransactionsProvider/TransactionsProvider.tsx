@@ -1,4 +1,4 @@
-import { chainIdToFeeAssetId, cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/types/dist/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
@@ -16,10 +16,12 @@ import {
   selectAssets,
   selectIsPortfolioLoaded,
   selectPortfolioAssetIds,
+  selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
@@ -38,6 +40,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
+  const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
   /**
    * unsubscribe and cleanup logic
@@ -61,6 +64,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (isEmpty(assets)) return
     if (!isPortfolioLoaded) return // wait for all chain portfolios to be loaded before subscribing
     if (isSubscribed) return // don't resubscribe
+    if (txHistoryStatus !== 'loaded') return
+
     ;(async () =>
       Promise.all(
         supportedChains
@@ -72,9 +77,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             const adapter = chainAdapterManager.byChain(chain)
             const chainId = adapter.getChainId()
 
-            // assets are known to be defined at this point - if we don't have the fee asset we have bigger problems
-            const asset = assets[chainIdToFeeAssetId(chainId)]
-
             // subscribe to new transactions for all supported accounts
             try {
               // account types are only supported for utxo chains, default to undefined if no accountTypes are supported
@@ -84,7 +86,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 supportedAccountTypes.map(async accountType => {
                   moduleLogger.info({ chainId, accountType }, 'subscribing txs')
 
-                  const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+                  const accountParams = accountType ? utxoAccountParams(accountType, 0) : {}
 
                   return adapter.subscribeTxs(
                     { wallet, accountType, ...accountParams },
@@ -130,7 +132,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               // and need this to prevent resubscribing when switching wallets
               setIsSubscribed(true)
             } catch (e: unknown) {
-              moduleLogger.error(e, { chain }, 'Error subscribing to transaction history for chain')
+              moduleLogger.error(e, { chain }, 'error subscribing to transactions')
             }
           }),
       ))()
@@ -146,6 +148,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     supportedChains,
     accountSpecifiers,
     portfolioAssetIds,
+    txHistoryStatus,
   ])
 
   return <>{children}</>

@@ -103,9 +103,14 @@ export const portfolioApi = createApi({
         // TODO(0xdef1cafe): chainAdapters.ChainId()
         const chain = chainIdToChainType(chainId)
         try {
+          const now = Date.now()
+
+          console.time(`portfolio getAccount: ${accountSpecifier} ${now}`)
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)
             .getAccount(accountSpecifier)
+          console.timeEnd(`portfolio getAccount: ${accountSpecifier} ${now}`)
+
           const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
           // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded

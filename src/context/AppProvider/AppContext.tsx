@@ -43,6 +43,7 @@ import {
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectSelectedCurrency,
+  selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
@@ -79,6 +80,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
+  const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -88,69 +90,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
-
-  // once the wallet is connected, reach out to unchained to fetch
-  // accounts for each chain/account specifier combination
-  useEffect(() => {
-    const { getAccount } = portfolioApi.endpoints
-    const { getAllTxHistory } = txHistoryApi.endpoints
-
-    // forceRefetch is enabled here to make sure that we always have the latest state from chain
-    // and ensure the queryFn runs resulting in dispatches occuring to update client state
-    const options = { forceRefetch: true }
-
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      // fetch account data
-      dispatch(getAccount.initiate({ accountSpecifierMap }, options))
-
-      // fetch tx history
-      dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
-    })
-  }, [dispatch, accountSpecifiersList])
-
-  useEffect(() => {
-    if (!isPortfolioLoaded) return
-
-    const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-    const { getValidatorData } = validatorDataApi.endpoints
-
-    // forceRefetch is enabled here to make sure that we always have the latest state from chain
-    // and ensure the queryFn runs resulting in dispatches occuring to update client state
-    const options = { forceRefetch: true }
-
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
-        switch (chainId) {
-          case cosmosChainId:
-            const accountSpecifier = `${chainId}:${account}`
-            dispatch(getValidatorData.initiate({ accountSpecifier }, options))
-            break
-          case ethChainId:
-            /**
-             * fetch all rebase history for foxy
-             *
-             * foxy rebase history is most closely linked to transactions.
-             * unfortunately, we have to call this for a specific asset here
-             * because we need it for the dashboard balance chart
-             *
-             * if you're reading this and are about to add another rebase token here,
-             * stop, and make a getRebaseHistoryByAccountId that takes
-             * an accountId and assetId[] in the txHistoryApi
-             */
-            dispatch(
-              getFoxyRebaseHistoryByAccountId.initiate(
-                { accountSpecifierMap, portfolioAssetIds },
-                options,
-              ),
-            )
-            break
-          default:
-        }
-      })
-    })
-    // this effect cares specifically about changes to portfolio accounts or assets
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds])
 
   /**
    * handle wallet disconnect/switch logic
@@ -216,7 +155,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 adapter as bitcoin.ChainAdapter
               ).getSupportedAccountTypes()
               for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(bitcoin, accountType, 0)
+                const accountParams = utxoAccountParams(accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 const pubkeys = await wallet.getPublicKeys([
                   {
@@ -262,11 +201,76 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
 
-  // market data pre and refetch management
-  // we only prefetch market data for the top 1000 assets
-  // once the portfolio has loaded, check we have market data
-  // for more obscure assets, if we don't have it, fetch it
+  // once account specifiers are set after wallet connect, fetch all account data to build out portfolio
   useEffect(() => {
+    const { getAccount } = portfolioApi.endpoints
+
+    accountSpecifiersList.forEach(accountSpecifierMap => {
+      dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
+    })
+  }, [dispatch, accountSpecifiersList])
+
+  // once portfolio is done loading, fetch all transaction history
+  useEffect(() => {
+    if (!isPortfolioLoaded) return
+
+    const { getAllTxHistory } = txHistoryApi.endpoints
+
+    dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
+  }, [dispatch, accountSpecifiersList, isPortfolioLoaded])
+
+  // once portfolio and transaction history are done loading, fetch remaining chain specific data
+  useEffect(() => {
+    if (!isPortfolioLoaded) return
+    if (txHistoryStatus !== 'loaded') return
+
+    const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+    const { getValidatorData } = validatorDataApi.endpoints
+
+    // forceRefetch is enabled here to make sure that we always have the latest state from chain
+    // and ensure the queryFn runs resulting in dispatches occuring to update client state
+    const options = { forceRefetch: true }
+
+    accountSpecifiersList.forEach(accountSpecifierMap => {
+      Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
+        switch (chainId) {
+          case cosmosChainId:
+            const accountSpecifier = `${chainId}:${account}`
+            dispatch(getValidatorData.initiate({ accountSpecifier }, options))
+            break
+          case ethChainId:
+            /**
+             * fetch all rebase history for foxy
+             *
+             * foxy rebase history is most closely linked to transactions.
+             * unfortunately, we have to call this for a specific asset here
+             * because we need it for the dashboard balance chart
+             *
+             * if you're reading this and are about to add another rebase token here,
+             * stop, and make a getRebaseHistoryByAccountId that takes
+             * an accountId and assetId[] in the txHistoryApi
+             */
+            dispatch(
+              getFoxyRebaseHistoryByAccountId.initiate(
+                { accountSpecifierMap, portfolioAssetIds },
+                options,
+              ),
+            )
+            break
+          default:
+        }
+      })
+    })
+    // this effect cares specifically about changes to portfolio accounts or assets
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds, txHistoryStatus])
+
+  // once the portfolio and transaction history are done loading, fetch market data for all portfolio assets
+  // start refetch timer to keep market data up to date
+  useEffect(() => {
+    if (!isPortfolioLoaded) return
+    if (txHistoryStatus !== 'loaded') return
+
     const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
         dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
@@ -278,7 +282,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [portfolioAssetIds, dispatch])
+  }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
 
   /**
    * fetch forex spot and history for user's selected currency

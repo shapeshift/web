@@ -235,7 +235,7 @@ export const txHistory = createSlice({
   },
 })
 
-type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
+type AllTxHistoryArgs = { accountSpecifiersList: Array<AccountSpecifierMap> }
 
 type RebaseTxHistoryArgs = {
   accountSpecifierMap: AccountSpecifierMap
@@ -308,42 +308,56 @@ export const txHistoryApi = createApi({
       },
     }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
-      queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
-        if (isEmpty(accountSpecifierMap)) {
-          return { error: { data: 'getAllTxHistory: account specifier required', status: 400 } }
+      queryFn: async ({ accountSpecifiersList }, { dispatch }) => {
+        if (!accountSpecifiersList.length) {
+          return { error: { data: 'getAllTxHistory: no account specifiers provided', status: 400 } }
         }
 
-        const txHistories = await Promise.allSettled(
-          Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
-            const accountSpecifier = toAccountId({ chainId, account: pubkey })
-            const adapter = getChainAdapters().byChainId(chainId)
-
-            let currentCursor: string = ''
-            const txs: Array<chainAdapters.Transaction<ChainTypes>> = []
-            try {
-              do {
-                const { cursor, transactions } = await adapter.getTxHistory({
-                  cursor: currentCursor,
-                  pubkey,
-                  pageSize: 50,
-                })
-
-                txs.push(...transactions)
-                currentCursor = cursor
-              } while (currentCursor)
-            } catch (err) {
-              throw new Error(`failed to fetch tx history for account: ${accountSpecifier}: ${err}`)
-            }
-
-            dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier }))
-          }),
-        )
-
-        txHistories.forEach(promise => {
-          if (promise.status === 'rejected') {
-            moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
+        for (const accountSpecifierMap of accountSpecifiersList) {
+          if (isEmpty(accountSpecifierMap)) {
+            moduleLogger.warn(
+              { fn: 'getAllTxHistory', accountSpecifierMap },
+              'no account specifiers provided',
+            )
+            continue
           }
-        })
+
+          const txHistories = await Promise.allSettled(
+            Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
+              const accountSpecifier = toAccountId({ chainId, account: pubkey })
+              const adapter = getChainAdapters().byChainId(chainId)
+
+              let currentCursor: string = ''
+              try {
+                do {
+                  const now = Date.now()
+
+                  console.time(`txHistory getAllTxHistory: ${pubkey}, ${currentCursor} ${now}`)
+                  const { cursor, transactions } = await adapter.getTxHistory({
+                    cursor: currentCursor,
+                    pubkey,
+                    pageSize: 100,
+                  })
+                  console.timeEnd(`txHistory getAllTxHistory: ${pubkey}, ${currentCursor} ${now}`)
+
+                  currentCursor = cursor
+
+                  dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountSpecifier }))
+                } while (currentCursor)
+              } catch (err) {
+                throw new Error(
+                  `failed to fetch tx history for account: ${accountSpecifier}: ${err}`,
+                )
+              }
+            }),
+          )
+
+          txHistories.forEach(promise => {
+            if (promise.status === 'rejected') {
+              moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
+            }
+          })
+        }
 
         dispatch(txHistory.actions.setStatus('loaded'))
 

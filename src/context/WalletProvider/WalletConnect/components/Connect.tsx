@@ -23,7 +23,7 @@ export interface WalletConnectSetupProps
 }
 
 const moduleLogger = logger.child({
-  namespace: ['WalletConnect'],
+  namespace: ['WalletConnect', 'Components', 'Connect'],
 })
 
 /**
@@ -77,7 +77,8 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
         if (e instanceof Error) {
           if (e?.message?.startsWith('walletProvider.')) {
             moduleLogger.error(
-              { e },
+              e,
+              { fn: 'pairDevice' },
               'WalletConnect Connect: There was an error initializing the wallet',
             )
             setErrorLoading(e?.message)
@@ -100,6 +101,6 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       pairDevice={pairDevice}
       loading={loading}
       error={error}
-    ></ConnectModal>
+    />
   )
 }

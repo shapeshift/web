@@ -5,6 +5,6 @@ export const WalletConnectFailure = () => {
     <FailureModal
       headerText={'walletProvider.walletConnect.failure.header'}
       bodyText={'walletProvider.walletConnect.failure.body'}
-    ></FailureModal>
+    />
   )
 }

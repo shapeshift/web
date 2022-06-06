@@ -846,8 +846,7 @@
     "walletConnect": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with WalletConnect",
-        "connectFailure": "Unable to connect WalletConnect wallet",
-        "rpcUrlNotFound": "Please configure REACT_APP_ETHEREUM_NODE_URL in your .env file to point to your Ethereum node"
+        "connectFailure": "Unable to connect WalletConnect wallet"
       },
       "connect": {
         "header": "Pair WalletConnect",

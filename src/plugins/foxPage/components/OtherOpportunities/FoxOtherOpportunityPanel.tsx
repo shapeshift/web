@@ -7,6 +7,7 @@ import {
   AccordionPanel,
   Button,
   Link,
+  Skeleton,
   Text as CText,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -15,11 +16,12 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text/Text'
 
-import { ExternalOpportunity } from '../../FoxCommon'
+import { ExternalOpportunity, OpportunityTypes } from '../../FoxCommon'
 
 type FoxOtherOpportunityPanelProps = {
   opportunities: ExternalOpportunity[]
   title: string
+  type: OpportunityTypes
 }
 
 export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> = ({
@@ -54,6 +56,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
       <AccordionPanel pb={8} pt={5} px={2} my={-4}>
         {opportunities?.map(opportunity => (
           <Flex
+            key={opportunity.link}
             as={Link}
             justifyContent='space-between'
             flexDirection={'row'}
@@ -65,24 +68,32 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
             borderRadius={8}
           >
             <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
-              {opportunity.icons.map((image, index) => (
+              {opportunity.icons.map((iconSrc, i) => (
                 <AssetIcon
-                  src={image}
+                  key={iconSrc}
+                  src={iconSrc}
                   boxSize='8'
-                  mr={index === opportunity.icons.length - 1 ? 2 : 0}
-                  ml={index === 0 ? 0 : '-3.5'}
+                  mr={i === opportunity.icons.length - 1 ? 2 : 0}
+                  ml={i === 0 ? 0 : '-3.5'}
                 />
               ))}
               <CText color='inherit' fontWeight='semibold'>
                 {opportunity.title}
               </CText>
             </Flex>
-            <Box>
-              <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
-              <CText color='green.400' fontSize={'xl'} fontWeight='semibold' lineHeight='1'>
-                <Amount.Percent value={opportunity.apy} />
-              </CText>
-            </Box>
+            <Skeleton isLoaded={opportunity.isLoaded ? true : false} textAlign='center'>
+              <Box>
+                <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
+                <CText
+                  color={opportunity.apy ? 'green.400' : undefined}
+                  fontSize={'xl'}
+                  fontWeight='semibold'
+                  lineHeight='1'
+                >
+                  {opportunity.apy ? <Amount.Percent value={opportunity.apy} /> : '--'}
+                </CText>
+              </Box>
+            </Skeleton>
             <Box alignSelf='center' display={{ base: 'none', sm: 'block' }}>
               <Button variant='link' colorScheme='blue'>
                 <CText mr={2}>{translate('plugins.foxPage.getStarted')}</CText>

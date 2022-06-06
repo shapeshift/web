@@ -12,12 +12,18 @@ type AssetIconProps = {
 
 // Either src or symbol can be passed, if both are passed src takes precedence
 export const AssetIcon = ({ symbol, src, ...rest }: AssetIconProps) => {
+  const assetIconBg = useColorModeValue('gray.200', 'gray.700')
+  const assetIconColor = useColorModeValue('gray.500', 'gray.500')
+
+  if (!src && !symbol) {
+    return null
+  }
   const imgSrc = src ? src : `https://static.coincap.io/assets/icons/256/${symbol}.png`
   return (
     <Avatar
       src={imgSrc}
-      bg={useColorModeValue('gray.200', 'gray.700')}
-      icon={<FoxIcon boxSize='16px' color={useColorModeValue('gray.500', 'gray.500')} />}
+      bg={assetIconBg}
+      icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
       {...rest}
     />
   )

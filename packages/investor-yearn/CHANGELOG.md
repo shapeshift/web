@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v3.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v3.0.0...@shapeshiftoss/investor-yearn-v3.0.1) (2022-06-06)
+
+
+### Bug Fixes
+
+* fixed bug where we were depositing to wrong contract ([#755](https://github.com/shapeshift/lib/issues/755)) ([2bf8964](https://github.com/shapeshift/lib/commit/2bf8964a8d3eaf2df2662b6e5788491e112aa160))
+
 # [@shapeshiftoss/investor-yearn-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.2.0...@shapeshiftoss/investor-yearn-v3.0.0) (2022-06-06)
 
 

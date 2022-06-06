@@ -218,20 +218,19 @@ export class YearnOpportunity
       this.#internals.vault.tokenId
     )
     const userChecksum = this.#internals.web3.utils.toChecksumAddress(address)
-    // TODO(theobold): implment getVaultId function
     const vaultIndex = await this.getVaultId({
       underlyingAssetAddress: this.#internals.vault.tokenId,
       vaultAddress: this.#internals.vault.address
     })
 
-    const preWithdraw = await this.#internals.routerContract.methods.deposit(
+    const preDeposit = await this.#internals.routerContract.methods.deposit(
       tokenChecksum,
       userChecksum,
       amount.toString(),
       vaultIndex
     )
-    const data = await preWithdraw.encodeABI({ from: address })
-    const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
+    const data = await preDeposit.encodeABI({ from: address })
+    const estimatedGas = bnOrZero(await preDeposit.estimateGas({ from: address }))
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
     const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
@@ -242,7 +241,7 @@ export class YearnOpportunity
       estimatedGas,
       gasPrice,
       nonce: String(nonce),
-      to: this.id,
+      to: ssRouterContractAddress,
       value: '0'
     }
   }

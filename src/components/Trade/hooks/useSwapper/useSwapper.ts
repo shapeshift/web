@@ -257,18 +257,13 @@ export const useSwapper = () => {
     switch (sellAsset.chainId) {
       case 'eip155:1':
         {
-          const approvalFee = bnOrZero(
-            (trade as Trade<'eip155:1'>)?.feeData?.chainSpecific?.approvalFee,
-          )
+          const zrxTrade = trade as Trade<'eip155:1'>
+          const approvalFee = bnOrZero(zrxTrade?.feeData?.chainSpecific?.approvalFee)
             .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
           const totalFee = feeBN.plus(approvalFee).toString()
-          const gasPrice = bnOrZero(
-            (trade as Trade<'eip155:1'>)?.feeData?.chainSpecific?.gasPrice,
-          ).toString()
-          const estimatedGas = bnOrZero(
-            (trade as Trade<'eip155:1'>)?.feeData?.chainSpecific?.estimatedGas,
-          ).toString()
+          const gasPrice = bnOrZero(zrxTrade?.feeData?.chainSpecific?.gasPrice).toString()
+          const estimatedGas = bnOrZero(zrxTrade?.feeData?.chainSpecific?.estimatedGas).toString()
 
           // get rid of this type hack in followup PR once corresponding lib pr is merged
           const fees: QuoteFeeData<'eip155:1'> & { tradeFee?: string } = {

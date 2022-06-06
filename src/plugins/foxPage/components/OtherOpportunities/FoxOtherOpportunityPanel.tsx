@@ -56,6 +56,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
       <AccordionPanel pb={8} pt={5} px={2} my={-4}>
         {opportunities?.map(opportunity => (
           <Flex
+            key={opportunity.link}
             as={Link}
             justifyContent='space-between'
             flexDirection={'row'}
@@ -67,30 +68,30 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
             borderRadius={8}
           >
             <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
-              {opportunity.icons.map((image, index) => (
+              {opportunity.icons.map((iconSrc, i) => (
                 <AssetIcon
-                  src={image}
+                  key={iconSrc}
+                  src={iconSrc}
                   boxSize='8'
-                  mr={index === opportunity.icons.length - 1 ? 2 : 0}
-                  ml={index === 0 ? 0 : '-3.5'}
+                  mr={i === opportunity.icons.length - 1 ? 2 : 0}
+                  ml={i === 0 ? 0 : '-3.5'}
                 />
               ))}
               <CText color='inherit' fontWeight='semibold'>
                 {opportunity.title}
               </CText>
             </Flex>
-            <Skeleton isLoaded={opportunity.apy ? true : false} textAlign='center'>
+            <Skeleton isLoaded={opportunity.isLoaded ? true : false} textAlign='center'>
               <Box>
                 <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
-                {opportunity.apy === '--' ? (
-                  <CText fontSize={'xl'} fontWeight='semibold' lineHeight='1'>
-                    {opportunity.apy}
-                  </CText>
-                ) : (
-                  <CText color='green.400' fontSize={'xl'} fontWeight='semibold' lineHeight='1'>
-                    <Amount.Percent value={opportunity.apy ?? ''} />
-                  </CText>
-                )}
+                <CText
+                  color={opportunity.apy ? 'green.400' : undefined}
+                  fontSize={'xl'}
+                  fontWeight='semibold'
+                  lineHeight='1'
+                >
+                  {opportunity.apy ? <Amount.Percent value={opportunity.apy} /> : '--'}
+                </CText>
               </Box>
             </Skeleton>
             <Box alignSelf='center' display={{ base: 'none', sm: 'block' }}>

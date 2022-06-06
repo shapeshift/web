@@ -17,7 +17,7 @@ type TokemakChainData = {
   pools: TokemakPool[]
 }
 export const useFoxyApr = () => {
-  const [data, setData] = useState<string | null>(null)
+  const [foxyApr, setFoxyApr] = useState<string | null>(null)
   const [error, setError] = useState<AxiosError>()
   const [loaded, setLoaded] = useState<boolean>(false)
 
@@ -36,7 +36,7 @@ export const useFoxyApr = () => {
         const { pools } = tokemakChainData
         const tFoxPool = pools.find(({ address }) => address === TOKEMAK_TFOX_POOL_ADDRESS)
         if (!tFoxPool) return
-        setData(tFoxPool.liquidityProviderApr)
+        setFoxyApr(tFoxPool.liquidityProviderApr)
       } catch (e) {
         setError(e as AxiosError)
       } finally {
@@ -47,5 +47,5 @@ export const useFoxyApr = () => {
     loadFoxyAprData()
   }, [])
 
-  return { data, error, loaded }
+  return { foxyApr, error, loaded }
 }

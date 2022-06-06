@@ -56,6 +56,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
       <AccordionPanel pb={8} pt={5} px={2} my={-4}>
         {opportunities?.map(opportunity => (
           <Flex
+            key={opportunity.link}
             as={Link}
             justifyContent='space-between'
             flexDirection={'row'}
@@ -67,12 +68,13 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
             borderRadius={8}
           >
             <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
-              {opportunity.icons.map((image, index) => (
+              {opportunity.icons.map((iconSrc, i) => (
                 <AssetIcon
-                  src={image}
+                  key={iconSrc}
+                  src={iconSrc}
                   boxSize='8'
-                  mr={index === opportunity.icons.length - 1 ? 2 : 0}
-                  ml={index === 0 ? 0 : '-3.5'}
+                  mr={i === opportunity.icons.length - 1 ? 2 : 0}
+                  ml={i === 0 ? 0 : '-3.5'}
                 />
               ))}
               <CText color='inherit' fontWeight='semibold'>

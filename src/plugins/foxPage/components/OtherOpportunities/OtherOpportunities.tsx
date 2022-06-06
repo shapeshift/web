@@ -36,6 +36,7 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
 
             return (
               <FoxOtherOpportunityPanel
+                key={opportunitiesBucket.type}
                 opportunities={opportunities}
                 title={opportunitiesBucket.title}
                 type={opportunitiesBucket.type}

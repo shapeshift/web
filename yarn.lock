@@ -3840,10 +3840,10 @@
     "@shapeshiftoss/hdwallet-core" "1.23.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/investor-foxy@^3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.1.1.tgz#bd2bbf1adb5dd65956268b22d13ba73ae18eff37"
-  integrity sha512-6Kbxbf2/7rpm63xbveoIBiiSyV6KKH5w0FzoOASdH2gcgx79isdUnHWq/wyFLekqsLMn/lItelkyeqKBu7uvuw==
+"@shapeshiftoss/investor-foxy@^3.1.1", "@shapeshiftoss/investor-foxy@^3.3.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.4.0.tgz#5d47090a619054d4036290eb6c1559bc01e351d9"
+  integrity sha512-6knqawziUkkXOszcGp09P/a+Km2mfNuYdD4dvOOYymOeMuAaVmbcQNc1CewBaHgQiPsNVq85wxTVoUzeceZBUA==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"
@@ -3871,12 +3871,14 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.5.1.tgz#c2ad02183896bd90269a015448d704438f42333f"
-  integrity sha512-sbOAIoz8fz+AX+S5ILJEejaTHFjaQ4oB2OwlVx148oj458GgIWoVM1OE/iYV6q9sv8tZEjHjzwkKRCmcXtAzew==
+"@shapeshiftoss/market-service@^4.6.0":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.6.0.tgz#dfd8b2984c22db3c0b8065515b3553a17df43802"
+  integrity sha512-PdMGrSVhJkKPIciXqehWdN/rPDqlfpq1HGG3BgWVM27JaE+N2w2QD7uKqgrLUQtTNDVN6W/aJZ+WUBYW+KmqXQ==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
+    "@shapeshiftoss/chain-adapters" "^4.6.0"
+    "@shapeshiftoss/investor-foxy" "^3.3.0"
     "@yfi/sdk" "^1.0.30"
     axios "^0.26.0"
     axios-rate-limit "^1.3.0"

@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
@@ -10,22 +9,11 @@ import {
   MarketServiceManager,
   SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
-import {
-  ChainTypes,
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData,
-} from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
-
-// TODO use constant from constants file when get FOX wire up is merged
-const FOXY_ASSET_ID = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
-const FOXY_ASSET_PRECISION = '18'
 
 export type PriceHistoryData = {
   [k: AssetId]: HistoryData[] | undefined
@@ -85,7 +73,11 @@ const getMarketServiceManager: GetMarketServiceManager = () => {
       coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
       // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
       yearnChainReference: 1,
-      jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
+      providerUrls: {
+        jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
+        unchainedEthereumHttpUrl: config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+        unchainedEthereumWsUrl: config.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
+      },
     })
   }
   return _marketServiceManager
@@ -157,22 +149,6 @@ export const marketApi = createApi({
         try {
           const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
           if (!currentMarketData) throw new Error()
-
-          //FOXy specific api call to retrieve max supply
-          if (assetId === FOXY_ASSET_ID) {
-            const chainAdapters = getChainAdapters()
-            const api = new FoxyApi({
-              adapter: chainAdapters.byChain(ChainTypes.Ethereum),
-              providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-              foxyAddresses,
-            })
-            const tokenContractAddress = foxyAddresses[0].foxy
-            const foxyTotalSupply = await api.totalSupply({ tokenContractAddress })
-            currentMarketData.maxSupply = foxyTotalSupply
-              ?.div(`1e+${FOXY_ASSET_PRECISION}`)
-              .toString()
-          }
-
           const data = { [assetId]: currentMarketData }
           dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }

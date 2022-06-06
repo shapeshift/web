@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.10.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.10.1...@shapeshiftoss/swapper-v5.10.2) (2022-06-06)
+
+
+### Bug Fixes
+
+* filter out thorchain assets for chains that the swapper does not yet support ([#754](https://github.com/shapeshift/lib/issues/754)) ([972a9f7](https://github.com/shapeshift/lib/commit/972a9f714a27eab262b09e2ee2b6daa56494aa28))
+
 # [@shapeshiftoss/swapper-v5.10.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.10.0...@shapeshiftoss/swapper-v5.10.1) (2022-06-06)
 
 # [@shapeshiftoss/swapper-v5.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.9.0...@shapeshiftoss/swapper-v5.10.0) (2022-06-03)

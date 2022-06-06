@@ -33,6 +33,7 @@ import { breakpoints } from 'theme/theme'
 import { AssetActions } from './components/AssetActions'
 import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
+import { Governance } from './components/Governance'
 import { Layout } from './components/Layout'
 import { OtherOpportunities } from './components/OtherOpportunities/OtherOpportunities'
 import { Total } from './components/Total'
@@ -213,6 +214,7 @@ export const FoxPage = (props: FoxPageProps) => {
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}
                 />
+                <Governance />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={FOX_ASSET_ID} />

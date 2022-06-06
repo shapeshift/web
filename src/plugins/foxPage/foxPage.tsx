@@ -238,6 +238,7 @@ export const FoxPage = () => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={FOXY_ASSET_ID} />
+                <AssetMarketData assetId={selectedAsset.assetId} />
                 <FoxChart assetId={FOXY_ASSET_ID} />
                 <TradeOpportunities
                   opportunities={assetsTradeOpportunitiesBuckets[FOXY_ASSET_ID]}

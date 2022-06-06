@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   FormControl,
   FormErrorMessage,
@@ -8,6 +10,7 @@ import {
   InputRightElement,
   ModalBody,
   ModalHeader,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
@@ -20,8 +23,10 @@ import { NativeSetupProps } from '../types'
 export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
+  const [showConfirmPw, setShowConfirmPw] = useState<boolean>(false)
 
-  const handleShowClick = () => setShowPw(!showPw)
+  const handleShowPwClick = () => setShowPw(!showPw)
+  const handleShowConfirmPwClick = () => setShowConfirmPw(state => !state)
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = location.state.vault
@@ -42,8 +47,14 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
     setError,
     handleSubmit,
     register,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({ mode: 'onChange', shouldUnregister: true })
+
+  const watchPassword = watch('password')
+
+  const warningColor = useColorModeValue('yellow.500', 'yellow.200')
+  const warningBackgroundColor = '#FAF08933'
 
   return (
     <>
@@ -51,7 +62,18 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
         <Text translation={'walletProvider.shapeShift.password.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+        <Alert
+          mb={4}
+          status='warning'
+          color={warningColor}
+          backgroundColor={warningBackgroundColor}
+          fontSize='md'
+          fontWeight='normal'
+        >
+          <AlertIcon color={warningColor} />
+          <Text fontWeight='bold' translation={'walletProvider.shapeShift.password.warning'} />
+        </Alert>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl mb={6} isInvalid={errors.name}>
             <Input
@@ -91,12 +113,42 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                   h='1.75rem'
                   size='sm'
-                  onClick={handleShowClick}
+                  onClick={handleShowPwClick}
                   icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                 />
               </InputRightElement>
             </InputGroup>
             <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
+          </FormControl>
+          <FormControl mb={6} isInvalid={errors.confirmPassword}>
+            <InputGroup size='lg' variant='filled'>
+              <Input
+                {...register('confirmPassword', {
+                  required: translate('modals.shapeShift.confirmPassword.error.required'),
+                  validate: value =>
+                    value === watchPassword ||
+                    translate('modals.shapeShift.confirmPassword.error.invalid'),
+                })}
+                pr='4.5rem'
+                type={showConfirmPw ? 'text' : 'password'}
+                placeholder={translate('modals.shapeShift.confirmPassword.placeholder')}
+                autoComplete={'confirmPassword'}
+                id='confirmPassword'
+                data-test='wallet-native-confirmPassword-input'
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label={translate(
+                    `modals.shapeShift.confirmPassword.${showConfirmPw ? 'hide' : 'show'}`,
+                  )}
+                  h='1.75rem'
+                  size='sm'
+                  onClick={handleShowConfirmPwClick}
+                  icon={!showConfirmPw ? <FaEye /> : <FaEyeSlash />}
+                />
+              </InputRightElement>
+            </InputGroup>
+            <FormErrorMessage>{errors?.confirmPassword?.message}</FormErrorMessage>
           </FormControl>
           <Button
             colorScheme='blue'
@@ -104,7 +156,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
             isFullWidth
             type='submit'
             isLoading={isSubmitting}
-            isDisabled={errors.name}
+            isDisabled={errors.name || errors.password || errors.confirmPassword}
             data-test='wallet-native-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />

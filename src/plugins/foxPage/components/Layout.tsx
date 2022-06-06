@@ -10,11 +10,8 @@ type FoxLayoutProps = {
   description: string
 }
 
-const TrimmedDescriptionLength = 191
-
 export const Layout = ({ children, icon, title, description }: FoxLayoutProps) => {
   const descriptionColor = useColorModeValue('gray.750', 'gray.500')
-  const trimmedDescription = description.slice(0, TrimmedDescriptionLength).concat('...')
 
   return (
     <>
@@ -43,7 +40,7 @@ export const Layout = ({ children, icon, title, description }: FoxLayoutProps) =
           <Text color='inherit' fontSize='1.125rem' fontWeight='bold' mb={2}>
             {title}
           </Text>
-          <Text color={descriptionColor}>{trimmedDescription}</Text>
+          <Text color={descriptionColor}>{description}</Text>
         </Box>
       </Box>
 

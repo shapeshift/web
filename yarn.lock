@@ -4033,9 +4033,9 @@
     web3-utils "^1.7.1"
 
 "@shapeshiftoss/investor-yearn@^3.0.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-2.2.0.tgz#544b85101248b8f82dee684e88639ea10205dc09"
-  integrity sha512-+rQYzDfpcounLOYn8hT62VAtsWYzFdPb0K8oc2UL2Jp0AFGXcnVBi/N5SRUhUgeZkL3LckFuliToIYrtNCH4Fw==
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-3.0.0.tgz#7e3d3cd092f170a4caccf01ea2e51d08f96689b2"
+  integrity sha512-eWAjzkOvFipS2NaCpnphHloOzeFQLyWkW1qlGZ915nDnKlYmzObN90tcvAEAMU1Sys+Vl3h6ixs+PbkzTvBHdA==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"

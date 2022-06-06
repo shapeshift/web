@@ -19,9 +19,6 @@ const validators = {
   REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
-  // TODO:
-  //  Version control data and use a persistent URL
-  //  so we don't need to update whenever new KeepKey firmware/bootloader is released.
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_WALLET_MIGRATION_URL: url(),
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),

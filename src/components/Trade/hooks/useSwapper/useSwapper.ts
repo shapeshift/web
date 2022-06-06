@@ -148,8 +148,8 @@ export const useSwapper = () => {
       sellAmount: amount,
       sellAsset,
       buyAsset,
-      sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-      buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+      sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
+      buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
       wallet,
       sendMax: true,
     })
@@ -207,7 +207,7 @@ export const useSwapper = () => {
           buyAsset,
           sellAmount,
           sendMax: false,
-          sellAssetAccountId: '0',
+          sellAssetAccountNumber: 0,
         })
 
         setFees(tradeQuote, sellAsset)

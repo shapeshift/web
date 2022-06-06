@@ -58,7 +58,6 @@ export const Withdraw = () => {
         amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
         address: state.userAddress,
       })
-      // TODO(theobold): Figure out a better way for the safety factor
       return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?

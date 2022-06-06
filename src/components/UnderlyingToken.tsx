@@ -2,7 +2,6 @@ import { Box, Grid, Stack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
-import toLower from 'lodash/toLower'
 import { useEffect, useMemo, useState } from 'react'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { Card } from 'components/Card/Card'
@@ -35,20 +34,20 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   } = useWallet()
 
   const vault = useMemo(() => {
-    return vaults.find(_vault => toLower(_vault.id) === asset.tokenId)
-  }, [vaults, asset.tokenId])
+    return vaults.find(_vault => _vault.positionAsset.assetId === asset.assetId)
+  }, [vaults, asset.assetId])
 
-  const shouldHide = !asset?.tokenId || !yearnInvestor || !vault
+  const shouldHide = !asset?.assetId || !yearnInvestor || !vault
 
   useEffect(() => {
     ;(async () => {
       try {
         if (shouldHide || !wallet) return
         moduleLogger.trace(
-          { tokenId: asset.tokenId, chain: asset.chainId, fn: 'yearn.token' },
+          { assetId: asset.assetId, chain: asset.chainId, fn: 'yearn.token' },
           'Get Yearn Token',
         )
-        const opportunity = await yearnInvestor.findByOpportunityId(asset.tokenId!)
+        const opportunity = await yearnInvestor.findByOpportunityId(asset.assetId!)
         if (!opportunity) return
         const assetId = opportunity.underlyingAsset.assetId
         moduleLogger.trace({ assetId, fn: 'yearn.token' }, 'Yearn Asset')
@@ -57,7 +56,7 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
         moduleLogger.error(error, 'yearn.token() failed')
       }
     })()
-  }, [shouldHide, asset.tokenId, asset.chainId, vault, wallet, yearnInvestor])
+  }, [shouldHide, asset.chainId, asset.assetId, vault, wallet, yearnInvestor])
 
   if (shouldHide || loading || !underlyingAssetId) return null
 

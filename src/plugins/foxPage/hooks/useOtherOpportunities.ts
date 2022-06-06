@@ -3,7 +3,7 @@ import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
 
-import { FoxAssetId, FoxyAssetId, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
+import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
 import { useFoxyApr } from './useFoxyApr'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
@@ -13,7 +13,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
 
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
-      [FoxAssetId]: [
+      [FOX_ASSET_ID]: [
         {
           type: OpportunityTypes.LiquidityPool,
           title: 'plugins.foxPage.liquidityPools',
@@ -57,7 +57,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           ],
         },
       ],
-      [FoxyAssetId]: [
+      [FOXY_ASSET_ID]: [
         {
           type: OpportunityTypes.LiquidityPool,
           title: 'plugins.foxPage.liquidityPools',

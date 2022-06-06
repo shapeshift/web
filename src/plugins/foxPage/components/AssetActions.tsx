@@ -30,7 +30,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxAssetId, TrimmedDescriptionLength } from '../FoxCommon'
+import { FOX_ASSET_ID, TrimmedDescriptionLength } from '../FoxCommon'
 
 type FoxTabProps = {
   assetId: AssetId
@@ -48,7 +48,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const query = useGetAssetDescriptionQuery(assetId)
   const isLoaded = !query.isLoading
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
-  const isFoxAsset = assetId === FoxAssetId
+  const isFoxAsset = assetId === FOX_ASSET_ID
 
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const accountId = accountIds?.[0]

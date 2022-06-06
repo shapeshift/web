@@ -9,7 +9,7 @@ import { useFoxyApr } from './useFoxyApr'
 export const useOtherOpportunities = (assetId: AssetId) => {
   const { farmingApr } = useFarmingApr()
   const { lpApr } = useLpApr()
-  const { data } = useFoxyApr()
+  const { foxyApr } = useFoxyApr()
 
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
@@ -50,7 +50,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           opportunities: [
             {
               title: 'FOX',
-              apy: data,
+              apy: foxyApr,
               link: 'https://www.tokemak.xyz/',
               icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
             },
@@ -76,7 +76,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }
 
     return opportunities[assetId]
-  }, [lpApr, data, farmingApr, assetId])
+  }, [lpApr, foxyApr, farmingApr, assetId])
 
   return otherOpportunities
 }

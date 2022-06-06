@@ -35,10 +35,16 @@ import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Governance } from './components/Governance'
 import { Layout } from './components/Layout'
+import { OtherOpportunities } from './components/OtherOpportunities/OtherOpportunities'
 import { Total } from './components/Total'
 import { TradeOpportunities, TradeOpportunitiesBucket } from './components/TradeOpportunities'
-import { FoxAssetId, FoxyAssetId } from './constants'
-import { foxTradeOpportunitiesBuckets, foxyTradeOpportunitiesBuckets } from './FoxCommon'
+import {
+  FOX_ASSET_ID,
+  foxTradeOpportunitiesBuckets,
+  FOXY_ASSET_ID,
+  foxyTradeOpportunitiesBuckets,
+} from './FoxCommon'
+import { useOtherOpportunities } from './hooks/useOtherOpportunities'
 
 export enum FoxPageRoutes {
   Fox = '/fox/fox',
@@ -46,13 +52,13 @@ export enum FoxPageRoutes {
 }
 
 const assetsRoutes: Record<AssetId, FoxPageRoutes> = {
-  [FoxAssetId]: FoxPageRoutes.Fox,
-  [FoxyAssetId]: FoxPageRoutes.Foxy,
+  [FOX_ASSET_ID]: FoxPageRoutes.Fox,
+  [FOXY_ASSET_ID]: FoxPageRoutes.Foxy,
 }
 
 const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[]> = {
-  [FoxAssetId]: foxTradeOpportunitiesBuckets,
-  [FoxyAssetId]: foxyTradeOpportunitiesBuckets,
+  [FOX_ASSET_ID]: foxTradeOpportunitiesBuckets,
+  [FOXY_ASSET_ID]: foxyTradeOpportunitiesBuckets,
 }
 
 export type FoxPageProps = {
@@ -66,8 +72,9 @@ export const FoxPage = (props: FoxPageProps) => {
   const history = useHistory()
 
   // TODO(gomes): Use useRouteAssetId and selectAssetById programatically
-  const assetFox = useAppSelector(state => selectAssetById(state, FoxAssetId))
-  const assetFoxy = useAppSelector(state => selectAssetById(state, FoxyAssetId))
+  const assetFox = useAppSelector(state => selectAssetById(state, FOX_ASSET_ID))
+  const assetFoxy = useAppSelector(state => selectAssetById(state, FOXY_ASSET_ID))
+  const otherOpportunities = useOtherOpportunities(props.activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
 
@@ -83,19 +90,19 @@ export const FoxPage = (props: FoxPageProps) => {
   )
 
   const fiatBalanceFox = useAppSelector(state =>
-    selectTotalFiatBalanceWithDelegations(state, { assetId: FoxAssetId, accountSpecifier }),
+    selectTotalFiatBalanceWithDelegations(state, { assetId: FOX_ASSET_ID, accountSpecifier }),
   )
 
   const fiatBalanceFoxy = useAppSelector(state =>
-    selectTotalFiatBalanceWithDelegations(state, { assetId: FoxyAssetId, accountSpecifier }),
+    selectTotalFiatBalanceWithDelegations(state, { assetId: FOXY_ASSET_ID, accountSpecifier }),
   )
 
   const cryptoBalanceFox = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, { assetId: FoxAssetId, accountSpecifier }),
+    selectTotalCryptoBalanceWithDelegations(state, { assetId: FOX_ASSET_ID, accountSpecifier }),
   )
 
   const cryptoBalanceFoxy = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, { assetId: FoxyAssetId, accountSpecifier }),
+    selectTotalCryptoBalanceWithDelegations(state, { assetId: FOXY_ASSET_ID, accountSpecifier }),
   )
 
   const fiatBalances = useMemo(() => {
@@ -111,10 +118,10 @@ export const FoxPage = (props: FoxPageProps) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
   const description =
-    selectedAsset?.assetId === FoxAssetId
+    selectedAsset?.assetId === FOX_ASSET_ID
       ? FOX_DESCRIPTION // FOX has a custom description, other assets can use the asset-service one
       : selectedAsset?.description
-  const query = useGetAssetDescriptionQuery(FoxAssetId)
+  const query = useGetAssetDescriptionQuery(FOX_ASSET_ID)
   const isLoaded = !query.isLoading
 
   const handleTabClick = (assetId: AssetId) => {
@@ -196,28 +203,45 @@ export const FoxPage = (props: FoxPageProps) => {
         </TabList>
         <TabPanels>
           <TabPanel p={0}>
-            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
+            <Stack
+              alignItems='flex-start'
+              spacing={4}
+              mx='auto'
+              direction={{ base: 'column', xl: 'row' }}
+            >
               <Stack spacing={4} flex='1 1 0%' width='full'>
+                <OtherOpportunities
+                  description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
+                  opportunities={otherOpportunities}
+                />
                 <Governance />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <AssetActions assetId={FoxAssetId} />
-              </Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <FoxChart assetId={FoxAssetId} />
-                <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FoxAssetId]} />
+                <AssetActions assetId={FOX_ASSET_ID} />
+                <FoxChart assetId={FOX_ASSET_ID} />
+                <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FOX_ASSET_ID]} />
               </Stack>
             </Stack>
           </TabPanel>
           <TabPanel p={0}>
-            <Stack alignItems='flex-end' spacing={4} mx='auto' direction={{ base: 'column' }}>
-              <Stack spacing={4} flex='1 1 0%' width='full'></Stack>
-              <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <AssetActions assetId={FoxyAssetId} />
+            <Stack
+              alignItems='flex-start'
+              spacing={4}
+              mx='auto'
+              direction={{ base: 'column', xl: 'row' }}
+            >
+              <Stack spacing={4} flex='1 1 0%' width='full'>
+                <OtherOpportunities
+                  description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
+                  opportunities={otherOpportunities}
+                />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
-                <FoxChart assetId={FoxyAssetId} />
-                <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FoxyAssetId]} />
+                <AssetActions assetId={FOXY_ASSET_ID} />
+                <FoxChart assetId={FOXY_ASSET_ID} />
+                <TradeOpportunities
+                  opportunities={assetsTradeOpportunitiesBuckets[FOXY_ASSET_ID]}
+                />
               </Stack>
             </Stack>
           </TabPanel>

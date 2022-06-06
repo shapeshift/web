@@ -14,7 +14,7 @@ import debounce from 'lodash/debounce'
 import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { BuildQuoteTxOutput, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -133,7 +133,7 @@ export const useSwapper = () => {
     sellAsset: Asset
     buyAsset: Asset
     amount: string
-  }): Promise<BuildQuoteTxOutput> => {
+  }): Promise<void> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: buyAsset.assetId,
       sellAssetId: sellAsset.assetId,
@@ -152,7 +152,6 @@ export const useSwapper = () => {
     })
     setFees(result, sellAsset)
     setValue('trade', result)
-    return result
   }
 
   const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {

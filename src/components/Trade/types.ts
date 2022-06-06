@@ -17,11 +17,6 @@ export type TradeProps = {
   defaultBuyAssetId: AssetId
 }
 
-export type BuildQuoteTxOutput = {
-  success: boolean
-  statusReason: string
-}
-
 export type TradeState<C extends SupportedChainIds> = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset

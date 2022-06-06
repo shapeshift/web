@@ -1,44 +1,99 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { YearnVaultWithApyAndTvl } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
 
-export const mockVault = (obj?: {
-  vaultAddress?: string
-  underlyingTokenBalanceUsdc?: string
+export const mockVault = (obj: {
+  id: string
+  tvl: {
+    balance: string
+    balanceUsdc: string
+    assetId: string
+  }
   apy?: number
-}): YearnVaultWithApyAndTvl => ({
-  vaultAddress: '',
+}): SerializableOpportunity & { fiatAmount: string } => ({
   version: '',
   expired: false,
   isNew: false,
-  tvl: {
+  isApprovalRequired: true,
+  displayName: '',
+  feeAsset: {
     assetId: '',
-    balance: new BigNumber('0'),
-    balanceUsdc: new BigNumber('0'),
   },
-  tokenAddress: '',
-  apy: 0,
-  chain: ChainTypes.Ethereum,
+  price: new BigNumber(0),
+  supply: new BigNumber(0),
+  metadata: {
+    symbol: '',
+    pricePerShare: '',
+    migrationAvailable: false,
+    latestVaultAddress: '',
+    depositLimit: '',
+    emergencyShutdown: false,
+    controller: '',
+    totalAssets: '',
+    totalSupply: '',
+    displayIcon: '',
+    displayName: '',
+    defaultDisplayToken: '',
+    hideIfNoDeposits: false,
+  },
+  underlyingAsset: {
+    assetId: '',
+    balance: new BigNumber(0),
+  },
+  positionAsset: {
+    assetId: '',
+    balance: new BigNumber(0),
+    underlyingPerPosition: new BigNumber(1),
+  },
   name: '',
   symbol: '',
-  provider: DefiProvider.Yearn,
-  type: DefiType.Vault,
-  underlyingTokenBalanceUsdc: '0',
   ...obj,
+  tvl: {
+    balance: new BigNumber(obj.tvl.balance),
+    balanceUsdc: new BigNumber(obj.tvl.balanceUsdc),
+    assetId: '',
+  },
+  apy: new BigNumber(obj.apy || 0),
+  fiatAmount: '0',
 })
 
-export const mockVaultWithBalance = (obj?: {
-  vaultAddress?: string
-  fiatAmount?: string
-}): MergedEarnVault => ({
+export const mockVaultWithBalance = (obj: { id: string; fiatAmount: string }): MergedEarnVault => ({
+  feeAsset: {
+    assetId: '',
+  },
+  price: new BigNumber(0),
+  supply: new BigNumber(0),
+  displayName: '',
+  isApprovalRequired: true,
+  metadata: {
+    symbol: '',
+    pricePerShare: '',
+    migrationAvailable: false,
+    latestVaultAddress: '',
+    depositLimit: '',
+    emergencyShutdown: false,
+    controller: '',
+    totalAssets: '',
+    totalSupply: '',
+    displayIcon: '',
+    displayName: '',
+    defaultDisplayToken: '',
+    hideIfNoDeposits: false,
+  },
+  underlyingAsset: {
+    assetId: '',
+    balance: new BigNumber(0),
+  },
+  positionAsset: {
+    assetId: '',
+    balance: new BigNumber(0),
+    underlyingPerPosition: new BigNumber(1),
+  },
   vaultAssetId: '',
   tokenAssetId: '',
   pricePerShare: new BigNumber(0),
   cryptoAmount: '0',
-  fiatAmount: '',
-  vaultAddress: '',
   version: '',
   expired: false,
   isNew: false,
@@ -47,13 +102,10 @@ export const mockVaultWithBalance = (obj?: {
     balance: new BigNumber('0'),
     balanceUsdc: new BigNumber('0'),
   },
-  tokenAddress: '',
-  apy: 0,
   chain: ChainTypes.Ethereum,
   name: '',
   symbol: '',
-  provider: DefiProvider.Yearn,
-  type: DefiType.Vault,
   underlyingTokenBalanceUsdc: '0',
+  apy: new BigNumber(0),
   ...obj,
 })

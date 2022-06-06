@@ -30,13 +30,13 @@ type YearnDepositValues = DepositValues &
   }
 
 // Redux only stores things that are serializable. Class methods are removed when put in state.
-type StateOpportunity = Omit<
+export type SerializableOpportunity = Omit<
   YearnOpportunity,
   'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'signAndBroadcast'
 >
 
 export type YearnDepositState = {
-  opportunity: StateOpportunity | null
+  opportunity: SerializableOpportunity | null
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues

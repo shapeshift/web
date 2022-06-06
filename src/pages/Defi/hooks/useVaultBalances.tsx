@@ -1,15 +1,12 @@
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { YearnInvestor, YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import find from 'lodash/find'
-import toLower from 'lodash/toLower'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { SupportedYearnVault, transfromYearnOpportunities } from 'lib/transformYearnOpportunities'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -19,42 +16,30 @@ import {
 } from 'state/slices/selectors'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
-  SupportedYearnVault & { vaultAssetId: AssetId; tokenAssetId: AssetId; pricePerShare: BigNumber }
+  SerializableOpportunity & {
+    vaultAssetId: AssetId
+    tokenAssetId: AssetId
+    pricePerShare: BigNumber
+  }
 
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInvestor | null) {
   const acc: Record<string, EarnVault> = {}
   if (!yearn) return acc
-  const vaults = await transfromYearnOpportunities(yearn)
   const opportunities = await yearn.findAll()
-  for (let index = 0; index < vaults.length; index++) {
-    // TODO: assetIds in vaults
-    const vault = vaults[index]
-    const vaultAssetId = toAssetId({
-      chainId: chainTypeToMainnetChainId(vault.chain),
-      assetNamespace: 'erc20',
-      assetReference: vault.vaultAddress,
-    })
-    const tokenAssetId = toAssetId({
-      chainId: chainTypeToMainnetChainId(vault.chain),
-      assetNamespace: 'erc20',
-      assetReference: vault.tokenAddress,
-    })
+  for (let index = 0; index < opportunities.length; index++) {
+    const vault = opportunities[index]
+    const vaultAssetId = vault.positionAsset.assetId
+    const tokenAssetId = vault.underlyingAsset.assetId
     const balance = balances[vaultAssetId]
 
     if (balance) {
-      const opportunity = find<YearnOpportunity>(
-        opportunities,
-        (opp: YearnOpportunity) => toLower(opp.id) === toLower(vault.vaultAddress),
-      )
-      if (!opportunity) continue
-      const pricePerShare = opportunity?.positionAsset.underlyingPerPosition
-      acc[vault.vaultAddress] = {
+      acc[vault.id] = {
         ...vault,
-        chainId: chainTypeToMainnetChainId(vault.chain),
+        chainId: fromAssetId(vault.positionAsset.assetId).chainId,
         balance,
         vaultAssetId,
         tokenAssetId,
-        pricePerShare: bnOrZero(pricePerShare),
+        pricePerShare: vault?.positionAsset.underlyingPerPosition,
       }
     }
   }
@@ -64,7 +49,6 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
 export type MergedEarnVault = EarnVault & {
   cryptoAmount: string
   fiatAmount: string
-  apy?: number
   underlyingTokenBalanceUsdc?: string
 }
 

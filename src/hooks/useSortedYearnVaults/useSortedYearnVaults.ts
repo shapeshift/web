@@ -1,16 +1,15 @@
+import { USDC_PRECISION } from 'constants/UsdcPrecision'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
 import { useVaultWithoutBalance } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SupportedYearnVault } from 'lib/transformYearnOpportunities'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
-export type YearnVaultWithApyAndTvl = SupportedYearnVault & {
-  apy?: number
-  underlyingTokenBalanceUsdc?: string
+export type YearnVaultWithFiatAmount = SerializableOpportunity & {
   fiatAmount?: string
 }
 
-export function useSortedYearnVaults(): SupportedYearnVault[] {
+export function useSortedYearnVaults(): SerializableOpportunity[] {
   const { vaults, loading } = useVaultBalances()
   const { vaultsWithoutBalance, vaultsWithoutBalanceLoading } = useVaultWithoutBalance()
   const TVL10M: number = 10_000_000
@@ -21,13 +20,11 @@ export function useSortedYearnVaults(): SupportedYearnVault[] {
       return []
     }
 
-    const updatedVaults: YearnVaultWithApyAndTvl[] = Object.values(vaultsWithoutBalance).map(x =>
-      vaults[x.vaultAddress]
+    const updatedVaults: YearnVaultWithFiatAmount[] = Object.values(vaultsWithoutBalance).map(x =>
+      vaults[x.id]
         ? {
             ...x,
-            apy: vaults[x.vaultAddress].apy,
-            underlyingTokenBalanceUsdc: vaults[x.vaultAddress].underlyingTokenBalanceUsdc,
-            fiatAmount: vaults[x.vaultAddress].fiatAmount,
+            fiatAmount: vaults[x.id].fiatAmount,
           }
         : x,
     )
@@ -43,8 +40,8 @@ export function useSortedYearnVaults(): SupportedYearnVault[] {
         return vaultABalance.gt(0) ? -1 : 1
       }
 
-      const vaultATVL = bnOrZero(vaultA.underlyingTokenBalanceUsdc)
-      const vaultBTVL = bnOrZero(vaultB.underlyingTokenBalanceUsdc)
+      const vaultATVL = bnOrZero(vaultA.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`)
+      const vaultBTVL = bnOrZero(vaultB.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`)
 
       if (vaultATVL.gt(TVL10M) && vaultBTVL.gt(TVL10M)) {
         return compareVaultApy(vaultA, vaultB)
@@ -75,8 +72,8 @@ export function useSortedYearnVaults(): SupportedYearnVault[] {
   }, [vaults, vaultsWithoutBalance, loading, vaultsWithoutBalanceLoading])
 
   function compareVaultApy(
-    vaultA: YearnVaultWithApyAndTvl,
-    vaultB: YearnVaultWithApyAndTvl,
+    vaultA: YearnVaultWithFiatAmount,
+    vaultB: YearnVaultWithFiatAmount,
   ): number {
     return bnOrZero(vaultA.apy).gt(bnOrZero(vaultB.apy)) ? -1 : 1
   }

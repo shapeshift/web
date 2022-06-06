@@ -1,6 +1,8 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
+import toLower from 'lodash/toLower'
 import { useEffect, useMemo, useState } from 'react'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { Card } from 'components/Card/Card'
@@ -8,7 +10,6 @@ import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { logger } from 'lib/logger'
-import { SupportedYearnVault } from 'lib/transformYearnOpportunities'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -24,7 +25,7 @@ const moduleLogger = logger.child({ namespace: ['UnderlyingToken'] })
 export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   const [underlyingAssetId, setUnderlyingAssetId] = useState('')
   const { loading, yearn: yearnInvestor } = useYearn()
-  const vaults: SupportedYearnVault[] = useYearnVaults()
+  const vaults: SerializableOpportunity[] = useYearnVaults()
 
   // Get asset from assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -34,7 +35,7 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   } = useWallet()
 
   const vault = useMemo(() => {
-    return vaults.find(_vault => _vault.vaultAddress === asset.tokenId)
+    return vaults.find(_vault => toLower(_vault.id) === asset.tokenId)
   }, [vaults, asset.tokenId])
 
   const shouldHide = !asset?.tokenId || !yearnInvestor || !vault

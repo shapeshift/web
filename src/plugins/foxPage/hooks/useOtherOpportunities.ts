@@ -21,8 +21,11 @@ export const useOtherOpportunities = (assetId: AssetId) => {
             {
               title: 'ETH-FOX V2',
               apy: lpApr,
-              link: '#',
-              icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
+              link: 'https://app.uniswap.org/#/add/v2/ETH/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d?chain=mainnet',
+              icons: [
+                'https://assets.coincap.io/assets/icons/eth@2x.png',
+                'https://assets.coincap.io/assets/icons/fox@2x.png',
+              ],
             },
           ],
         },
@@ -33,9 +36,9 @@ export const useOtherOpportunities = (assetId: AssetId) => {
             {
               title: 'ETH-FOX V3',
               apy: farmingApr,
-              link: '#',
+              link: 'https://app.uniswap.org/#/add/ETH/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/3000?chain=mainnet',
               icons: [
-                'https://assets.coincap.io/assets/icons/fox@2x.png',
+                'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/fox@2x.png',
               ],
             },
@@ -48,7 +51,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
             {
               title: 'FOX',
               apy: data,
-              link: '#',
+              link: 'https://www.tokemak.xyz/',
               icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
             },
           ],
@@ -62,8 +65,10 @@ export const useOtherOpportunities = (assetId: AssetId) => {
             {
               title: 'ElasticSwap',
               apy: '--',
-              link: '#',
-              icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
+              link: 'https://elasticswap.org/#/liquidity',
+              icons: [
+                'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+              ],
             },
           ],
         },

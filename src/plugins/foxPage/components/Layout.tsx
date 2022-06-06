@@ -35,7 +35,13 @@ export const Layout = ({ children, icon, title, description }: FoxLayoutProps) =
           zIndex='-1'
           display={{ base: 'none', md: 'block' }}
         />
-        <Box maxWidth='900px' width='100%' m='auto' px={4}>
+        <Box
+          minHeight={{ base: '285px', sm: '235px', md: '190px' }}
+          maxWidth='900px'
+          width='100%'
+          m='auto'
+          px={4}
+        >
           <AssetIcon src={icon} boxSize='12' zIndex={2} mb={2} />
           <Text color='inherit' fontSize='1.125rem' fontWeight='bold' mb={2}>
             {title}

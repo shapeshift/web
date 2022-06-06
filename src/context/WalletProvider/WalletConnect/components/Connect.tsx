@@ -7,6 +7,7 @@ import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { LocationState } from '../../NativeWallet/types'
@@ -20,6 +21,10 @@ export interface WalletConnectSetupProps
   > {
   dispatch: React.Dispatch<ActionTypes>
 }
+
+const moduleLogger = logger.child({
+  namespace: ['WalletConnect'],
+})
 
 /**
  * WalletConnect Connect component
@@ -71,7 +76,10 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       } catch (e: unknown) {
         if (e instanceof Error) {
           if (e?.message?.startsWith('walletProvider.')) {
-            console.error('WalletConnect Connect: There was an error initializing the wallet', e)
+            moduleLogger.error(
+              { e },
+              'WalletConnect Connect: There was an error initializing the wallet',
+            )
             setErrorLoading(e?.message)
           } else {
             setErrorLoading(translate('walletProvider.walletConnect.errors.unknown'))

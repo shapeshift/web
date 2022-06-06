@@ -4,6 +4,7 @@ import { getConfig } from 'config'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { useGetGovernanceData } from '../hooks/getGovernanceData'
 
@@ -67,7 +68,11 @@ export const Governance = () => {
                       </Badge>
                     </Flex>
                   </Flex>
-                  <Progress value={66.98} height={1} colorScheme='green' />
+                  <Progress
+                    value={bnOrZero(proposal.results[i].percent).times(100).toNumber()}
+                    height={1}
+                    colorScheme='green'
+                  />
                 </Box>
               ))}
             </Box>

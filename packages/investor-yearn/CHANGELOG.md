@@ -1,3 +1,31 @@
+# [@shapeshiftoss/investor-yearn-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.2.0...@shapeshiftoss/investor-yearn-v3.0.0) (2022-06-06)
+
+
+### Features
+
+* **investor-yearn:** updated investor-yearn to latest investor-core package   ([#747](https://github.com/shapeshift/lib/issues/747)) ([7bf9631](https://github.com/shapeshift/lib/commit/7bf9631d6d9e903e5018f79824b88902248e3a6d))
+
+
+### BREAKING CHANGES
+
+* **investor-yearn:** removes the original api and moves over to investor class and opportunity classes
+
+* chore(investor-yearn): fixed linting
+
+* removed buildTxToSign function and did number to hex inside signAndBroadcast
+
+* removed unused code
+
+* chore: updated for earn opportunities.
+
+* chore: added expired tag and lower cased the id
+
+* chore: removed commented out method
+
+* chore: removed comment
+
+Co-authored-by: Chris Thompson <chris@thompson-web.org>
+
 # [@shapeshiftoss/investor-yearn-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v2.1.0...@shapeshiftoss/investor-yearn-v2.2.0) (2022-06-03)
 
 

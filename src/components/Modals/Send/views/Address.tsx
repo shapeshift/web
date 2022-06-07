@@ -26,7 +26,7 @@ import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 export const Address = () => {
-  const [isValidatingInput, setIsValidatingInput] = useState(false)
+  const [isValidating, setIsValidating] = useState(false)
   const history = useHistory()
   const translate = useTranslate()
   const {
@@ -74,15 +74,15 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
-                  setIsValidatingInput(true)
+                  setIsValidating(true)
                   // this does not throw, everything inside is handled
                   const { address, vanityAddress } = await parseAddressInput({ chainId, value })
                   console.info('value', value)
                   console.info('address', address)
                   console.info('vanityAddress', vanityAddress)
-                  setIsValidatingInput(false)
+                  setIsValidating(false)
                   address && setValue(SendFormFields.Address, address)
-                  vanityAddress && setValue(SendFormFields.VanityDomain, vanityAddress)
+                  vanityAddress && setValue(SendFormFields.VanityAddress, vanityAddress)
                   return address ? true : 'common.invalidAddress'
                 },
               },
@@ -95,8 +95,8 @@ export const Address = () => {
           <Button
             isFullWidth
             isDisabled={!address || addressError}
-            isLoading={isValidatingInput}
-            colorScheme={addressError && !isValidatingInput ? 'red' : 'blue'}
+            isLoading={isValidating}
+            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'
             onClick={handleNext}
             data-test='send-address-next-button'

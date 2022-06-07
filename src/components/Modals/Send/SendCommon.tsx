@@ -7,8 +7,9 @@ export enum SendRoutes {
 }
 
 export enum SendFormFields {
-  Address = 'address',
-  VanityDomain = 'vanityDomain',
+  Input = 'input', // the raw field input on the address input
+  Address = 'address', // a valid on chain address
+  VanityAddress = 'vanityAddress', // a vanity address, e.g. .eth or .crypto
   AccountId = 'accountId',
   Asset = 'asset',
   FeeType = 'feeType',

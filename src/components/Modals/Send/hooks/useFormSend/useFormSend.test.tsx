@@ -39,8 +39,9 @@ jest.mock('hooks/useWallet/useWallet')
 jest.mock('lib/address/ens')
 
 const formData: SendInput = {
+  [SendFormFields.Input]: '',
   [SendFormFields.Address]: EthSend.address,
-  [SendFormFields.VanityDomain]: '',
+  [SendFormFields.VanityAddress]: '',
   [SendFormFields.Asset]: {
     chainId: '',
     assetId: '',

@@ -118,7 +118,7 @@
     "earn": "Заработки",
     "defi": "DeFi",
     "tradeHistory": "История торгов",
-    "foxToken": "FOX токен"
+    "foxToken": "FOX возможности"
   },
   "transactionRow": {
     "send": "Отправлено %{symbol}",

@@ -88,7 +88,7 @@ type ReverseResolversByChainId = {
 }
 
 const reverseLookupResolversByChainId: ReverseResolversByChainId = {
-  [btcChainId]: [],
+  [btcChainId]: [reverseLookupUnstoppableDomain],
   [ethChainId]: [ensReverseLookupShim, reverseLookupUnstoppableDomain],
   [cosmosChainId]: [],
   [osmosisChainId]: [],

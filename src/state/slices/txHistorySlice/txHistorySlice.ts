@@ -15,7 +15,7 @@ import {
   AccountSpecifierMap,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
-import { addToIndex, getRelatedAssetIds, makeUniqueTxId, UNIQUE_TX_ID_DELIMITER } from './utils'
+import { addToIndex, getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
@@ -120,20 +120,20 @@ const initialState: TxHistory = {
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
   const { txs } = txHistory
-  const txid = makeUniqueTxId(accountSpecifier, tx.txid, tx.address)
+  const txIndex = serializeTxIndex(accountSpecifier, tx.txid, tx.address)
 
-  const isNew = !txs.byId[txid]
+  const isNew = !txs.byId[txIndex]
 
   // update or insert tx
-  txs.byId[txid] = tx
+  txs.byId[txIndex] = tx
 
   // add id to ordered set for new tx
   if (isNew) {
     const orderedTxs = orderBy(txs.byId, 'blockTime', ['desc'])
     const index = orderedTxs.findIndex(
-      tx => makeUniqueTxId(accountSpecifier, tx.txid, tx.address) === txid,
+      tx => serializeTxIndex(accountSpecifier, tx.txid, tx.address) === txIndex,
     )
-    txs.ids.splice(index, 0, txid)
+    txs.ids.splice(index, 0, txIndex)
   }
 
   // for a given tx, find all the related assetIds, and keep an index of
@@ -142,7 +142,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
     txs.byAssetId[relatedAssetId] = addToIndex(
       txs.ids,
       txs.byAssetId[relatedAssetId],
-      makeUniqueTxId(accountSpecifier, tx.txid, tx.address),
+      serializeTxIndex(accountSpecifier, tx.txid, tx.address),
     )
   })
 
@@ -150,7 +150,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   txs.byAccountId[accountSpecifier] = addToIndex(
     txs.ids,
     txs.byAccountId[accountSpecifier],
-    makeUniqueTxId(accountSpecifier, tx.txid, tx.address),
+    serializeTxIndex(accountSpecifier, tx.txid, tx.address),
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood

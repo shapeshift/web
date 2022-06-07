@@ -20,7 +20,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
-import { makeUniqueTxId } from 'state/slices/txHistorySlice/utils'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { TradeRoutePaths, TradeState } from '../types'
@@ -55,11 +55,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     selectFirstAccountSpecifierByChainId(state, chainId),
   )
 
-  const parsedTxId = useMemo(
-    () => makeUniqueTxId(accountSpecifier, txid, trade.receiveAddress),
+  const parsedTxIndex = useMemo(
+    () => serializeTxIndex(accountSpecifier, txid, trade.receiveAddress),
     [accountSpecifier, trade.receiveAddress, txid],
   )
-  const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
+  const status = useAppSelector(state => selectTxStatusById(state, parsedTxIndex))
 
   const { showErrorToast } = useErrorHandler()
 

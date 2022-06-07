@@ -1,6 +1,6 @@
 import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from 'test/mocks/txs'
 
-import { addToIndex, deserializeUniqueTxId, getRelatedAssetIds, makeUniqueTxId } from './utils'
+import { addToIndex, deserializeTxIndex, getRelatedAssetIds, serializeTxIndex } from './utils'
 
 describe('txHistorySlice:utils', () => {
   describe('getRelatedAssetIds', () => {
@@ -62,13 +62,13 @@ describe('txHistorySlice:utils', () => {
     })
   })
 
-  describe('deserializeUniqueTxId', () => {
+  describe('deserializeTxIndex', () => {
     it('can deserialize a txId', () => {
       const ethChainId = EthSend.chainId
       const accountSpecifier = `${ethChainId}:0xdef1cafe`
-      const txId = makeUniqueTxId(accountSpecifier, EthSend.txid, EthSend.address)
+      const txIndex = serializeTxIndex(accountSpecifier, EthSend.txid, EthSend.address)
 
-      const { txAccountSpecifier, txid, txAddress } = deserializeUniqueTxId(txId)
+      const { txAccountSpecifier, txid, txAddress } = deserializeTxIndex(txIndex)
 
       expect(txAccountSpecifier).toEqual(accountSpecifier)
       expect(txid).toEqual(EthSend.txid)

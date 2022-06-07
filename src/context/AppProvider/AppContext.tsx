@@ -48,8 +48,7 @@ import {
   selectTxIds,
   selectTxs,
 } from 'state/slices/selectors'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
+import { deserializeTxIndex, TxIndex } from 'state/slices/txHistorySlice/utils'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -224,9 +223,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * refetch an account given a newly confirmed txid
    */
   const refetchAccountByTxId = useCallback(
-    (txId: TxId) => {
+    (txIndex: TxIndex) => {
       // the accountSpecifier the tx came from
-      const { txAccountSpecifier } = deserializeUniqueTxId(txId)
+      const { txAccountSpecifier } = deserializeTxIndex(txIndex)
       // only refetch the specific account for this tx
       const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
         const [chainId, accountSpecifier] = Object.entries(cur)[0]

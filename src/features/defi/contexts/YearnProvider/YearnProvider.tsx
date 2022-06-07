@@ -1,7 +1,7 @@
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { getConfig as getEthereumConfig } from 'plugins/ethereum/config'
 import React, { useContext, useEffect, useState } from 'react'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 
@@ -33,7 +33,7 @@ export const YearnProvider: React.FC = ({ children }) => {
         ) as ChainAdapter<ChainTypes.Ethereum>
         const yearnInvestor = new YearnInvestor({
           chainAdapter,
-          providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+          providerUrl: getEthereumConfig().REACT_APP_ETHEREUM_NODE_URL,
         })
         await yearnInvestor.initialize()
         setYearn(yearnInvestor)

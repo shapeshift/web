@@ -11,6 +11,8 @@ import {
 } from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
+import marketServiceConfig from 'config/validators/marketService'
+import { getConfig as getEthereumConfig } from 'plugins/ethereum/config'
 import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
@@ -67,16 +69,15 @@ let _marketServiceManager: MarketServiceManager | undefined
 type GetMarketServiceManager = () => MarketServiceManager
 
 const getMarketServiceManager: GetMarketServiceManager = () => {
-  const config = getConfig()
   if (!_marketServiceManager) {
     _marketServiceManager = new MarketServiceManager({
-      coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
+      coinGeckoAPIKey: getConfig(marketServiceConfig).REACT_APP_COINGECKO_API_KEY,
       // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
       yearnChainReference: 1,
       providerUrls: {
-        jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
-        unchainedEthereumHttpUrl: config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-        unchainedEthereumWsUrl: config.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
+        jsonRpcProviderUrl: getEthereumConfig().REACT_APP_ETHEREUM_NODE_URL,
+        unchainedEthereumHttpUrl: getEthereumConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+        unchainedEthereumWsUrl: getEthereumConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
       },
     })
   }

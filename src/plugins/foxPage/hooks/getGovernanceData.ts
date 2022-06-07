@@ -1,7 +1,8 @@
 import axios from 'axios'
-import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import { getConfig } from '../config'
 
 type BoardroomGovernanceData = Array<{
   currentState: string

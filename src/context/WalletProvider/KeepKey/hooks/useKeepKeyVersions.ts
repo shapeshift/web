@@ -2,6 +2,7 @@ import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'
+import keepkeyConfig from 'config/validators/wallets/keepkey'
 import { useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -60,7 +61,7 @@ export const useKeepKeyVersions = () => {
     ;(async () => {
       const features = await wallet.getFeatures()
       const { data: releases } = await axios.get<FirmwareReleases>(
-        getConfig().REACT_APP_KEEPKEY_VERSIONS_URL,
+        getConfig(keepkeyConfig).REACT_APP_KEEPKEY_VERSIONS_URL,
         {
           headers: {
             Accept: 'application/json',

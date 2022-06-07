@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
-import { getConfig } from 'config'
+import { getConfig as getOsmosisConfig } from 'plugins/osmosis/config'
 import { simpleLocale } from 'lib/browserLocale'
 
 export type FeatureFlags = {
@@ -18,7 +18,7 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
+    Osmosis: getOsmosisConfig().REACT_APP_FEATURE_OSMOSIS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -1,7 +1,7 @@
 import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { Resolution } from '@unstoppabledomains/resolution'
-import { getConfig } from 'config'
 import last from 'lodash/last'
+import { getConfig as getEthereumConfig } from 'plugins/ethereum/config'
 import {
   ResolveVanityAddress,
   ReverseLookupVanityAddress,
@@ -14,7 +14,7 @@ const moduleLogger = logger.child({ namespace: ['unstoppable-domains'] })
 let _resolution: Resolution | undefined
 
 const getResolution = (): Resolution => {
-  const apiKey = last(getConfig().REACT_APP_ETHEREUM_NODE_URL.split('/')) ?? ''
+  const apiKey = last(getEthereumConfig().REACT_APP_ETHEREUM_NODE_URL.split('/')) ?? ''
   if (!apiKey) moduleLogger.error('No API key found in REACT_APP_ETHEREUM_NODE_URL')
   if (!_resolution) _resolution = Resolution.infura(apiKey)
   return _resolution

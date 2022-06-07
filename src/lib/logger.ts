@@ -1,6 +1,7 @@
 // eslint-disable no-console
 import { Logger, LoggerFunction, LoggerOptions, LogLevel } from '@shapeshiftoss/logger'
 import { getConfig } from 'config'
+import loggingConfig from 'config/validators/logging'
 
 type LogStyle = {
   title: string
@@ -63,7 +64,10 @@ const browserLoggerFn: LoggerFunction = (level, data) => {
  */
 export const getLogLevel = () => {
   try {
-    return globalThis.localStorage?.getItem?.('LOG_LEVEL') || getConfig().REACT_APP_LOG_LEVEL
+    return (
+      globalThis.localStorage?.getItem?.('LOG_LEVEL') ||
+      getConfig(loggingConfig).REACT_APP_LOG_LEVEL
+    )
   } catch (e) {
     return 'debug'
   }

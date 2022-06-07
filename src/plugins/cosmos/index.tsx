@@ -1,10 +1,10 @@
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { getConfig } from 'config'
 import { Plugins } from 'plugins'
 import { AssetIcon } from 'components/AssetIcon'
 
+import { getConfig } from './config'
 import { CosmosAccount } from './CosmosAccount'
 import { CosmosAccountTxHistory } from './CosmosAccountTxHistory'
 import { CosmosAsset } from './CosmosAsset'

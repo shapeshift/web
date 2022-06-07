@@ -1,8 +1,9 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { getConfig } from 'config'
 import { Plugins } from 'plugins'
+
+import { getConfig } from './config'
 
 export function register(): Plugins {
   return [

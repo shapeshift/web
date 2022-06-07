@@ -1,6 +1,7 @@
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
+import gemConfig from 'config/validators/defi/gem'
 import flatten from 'lodash/flatten'
 import memoize from 'lodash/memoize'
 import uniqBy from 'lodash/uniqBy'
@@ -45,7 +46,7 @@ export const fetchCoinifySupportedCurrencies = memoize(async (): Promise<Support
     'Getting Supporting Coins (Coinify)...',
   )
   try {
-    const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
+    const { data } = await axios.get(getConfig(gemConfig).REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
     return data
   } catch (e: any) {
     moduleLogger.error(
@@ -60,7 +61,7 @@ export const fetchCoinifySupportedCurrencies = memoize(async (): Promise<Support
 export const fetchWyreSupportedCurrencies = memoize(async (): Promise<SupportedCurrency[]> => {
   moduleLogger.trace({ fn: 'fetchWyreSupportedCurrencies' }, 'Getting Supporting Coins (Wyre)...')
   try {
-    const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
+    const { data } = await axios.get(getConfig(gemConfig).REACT_APP_GEM_WYRE_SUPPORTED_COINS)
     return data
   } catch (e: any) {
     moduleLogger.error(
@@ -113,10 +114,10 @@ export const makeGemPartnerUrl = memoize(
 
     const GEM_URL = 'https://onramp.gem.co'
     const partnerName = 'ShapeShift'
-    const environment = getConfig().REACT_APP_GEM_ENV
+    const environment = getConfig(gemConfig).REACT_APP_GEM_ENV
     const partnerIconUrl =
       'https://portis-prod.s3.amazonaws.com/assets/dapps-logo/191330a6-d761-4312-9fa5-7f0024483302.png'
-    const apiKey = getConfig().REACT_APP_GEM_API_KEY
+    const apiKey = getConfig(gemConfig).REACT_APP_GEM_API_KEY
     const onrampConfig = {
       partnerName,
       environment,
@@ -136,7 +137,7 @@ export const makeGemPartnerUrl = memoize(
   memoizeAllArgsResolver,
 )
 
-const ASSET_LOGO_BASE_URI = getConfig().REACT_APP_GEM_ASSET_LOGO
+const ASSET_LOGO_BASE_URI = getConfig(gemConfig).REACT_APP_GEM_ASSET_LOGO
 
 const getGemAssetLogoUrl = (asset: GemCurrency) => {
   return ASSET_LOGO_BASE_URI + asset.ticker.toLowerCase() + '.svg'

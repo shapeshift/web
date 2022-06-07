@@ -12,6 +12,7 @@ import {
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import axios from 'axios'
 import { getConfig } from 'config'
+import walletMigrationConfig from 'config/validators/wallets/walletMigration'
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -52,7 +53,7 @@ export const LegacyLogin = () => {
     error: any
   }
 
-  const MIGRATE_URL = getConfig().REACT_APP_WALLET_MIGRATION_URL
+  const MIGRATE_URL = getConfig(walletMigrationConfig).REACT_APP_WALLET_MIGRATION_URL
 
   const onSubmit = async (values: FieldValues) => {
     try {

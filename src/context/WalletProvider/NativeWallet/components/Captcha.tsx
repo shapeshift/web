@@ -1,4 +1,5 @@
 import { getConfig } from 'config'
+import walletMigrationConfig from 'config/validators/wallets/walletMigration'
 import { WidgetInstance } from 'friendly-challenge'
 import { useEffect, useRef } from 'react'
 
@@ -7,7 +8,7 @@ type FriendlyCaptchaProps = {
   solution: string | null
 }
 
-const siteKey = getConfig().REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY
+const siteKey = getConfig(walletMigrationConfig).REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY
 
 export const FriendlyCaptcha = ({ handleCaptcha, solution }: FriendlyCaptchaProps) => {
   const container = useRef<HTMLDivElement | null>(null)

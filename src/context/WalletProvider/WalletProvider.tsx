@@ -5,6 +5,7 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
+import portisConfig from 'config/validators/wallets/portis'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
@@ -489,7 +490,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           try {
             options =
               wallet === 'portis'
-                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
+                ? { portisAppId: getConfig(portisConfig).REACT_APP_PORTIS_DAPP_ID }
                 : undefined
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             adapters.set(wallet, adapter)

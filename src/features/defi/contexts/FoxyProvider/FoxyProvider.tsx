@@ -1,6 +1,6 @@
 import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { getConfig as getEthereumConfig } from 'plugins/ethereum/config'
 import React, { useContext, useEffect, useState } from 'react'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 
@@ -29,7 +29,7 @@ export const FoxyProvider: React.FC = ({ children }) => {
         setLoading(true)
         const api = new FoxyApi({
           adapter: chainAdapterManager.byChain(ChainTypes.Ethereum),
-          providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+          providerUrl: getEthereumConfig().REACT_APP_ETHEREUM_NODE_URL,
           foxyAddresses,
         })
         setFoxy(api)

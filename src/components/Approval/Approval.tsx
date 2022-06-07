@@ -18,6 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { theme } from 'theme/theme'
+import { QuoteFeeData } from '@shapeshiftoss/swapper'
 
 type ApprovalParams = {
   fiatRate: string
@@ -49,7 +50,7 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
-  const fee = fees?.chainSpecific?.approvalFee
+  const fee = (fees as QuoteFeeData<'eip155:1'>).chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
 
   const approve = async () => {

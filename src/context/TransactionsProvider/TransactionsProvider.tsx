@@ -65,7 +65,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (!isPortfolioLoaded) return // wait for all chain portfolios to be loaded before subscribing
     if (isSubscribed) return // don't resubscribe
     if (txHistoryStatus !== 'loaded') return
-
     ;(async () =>
       Promise.all(
         supportedChains

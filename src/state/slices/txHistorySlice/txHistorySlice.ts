@@ -330,15 +330,11 @@ export const txHistoryApi = createApi({
               let currentCursor: string = ''
               try {
                 do {
-                  const now = Date.now()
-
-                  console.time(`txHistory getAllTxHistory: ${pubkey}, ${currentCursor} ${now}`)
                   const { cursor, transactions } = await adapter.getTxHistory({
                     cursor: currentCursor,
                     pubkey,
                     pageSize: 100,
                   })
-                  console.timeEnd(`txHistory getAllTxHistory: ${pubkey}, ${currentCursor} ${now}`)
 
                   currentCursor = cursor
 

@@ -6204,16 +6204,15 @@
   resolved "https://registry.yarnpkg.com/@uniswap/v2-core/-/v2-core-1.0.1.tgz#af8f508bf183204779938969e2e54043e147d425"
   integrity sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==
 
-"@unstoppabledomains/resolution@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-7.0.0.tgz#56317f8018134baef27610d851cf5a26e0d0e274"
-  integrity sha512-gImd7xzytjTVSPQu/SLjeZJqUVkzevw3X81FXZccqIVEMkuOr7QMZ4SXwSbge/yz13vlaVOOaZXE3CNS7BZzFA==
+"@unstoppabledomains/resolution@^7.1.4":
+  version "7.1.4"
+  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-7.1.4.tgz#f3f0f9d2f36b88bf0a3af92c26731a01e5dba94b"
+  integrity sha512-GdXLpP+oRk4lLWMISo7g7gPyKoCONyLoQtYH6GVhXtyY9t+CeHJW2kZ/btcbXg0lmEO6PSr5yYOlDz4wRCq2RA==
   dependencies:
     "@ethersproject/abi" "^5.0.1"
     bn.js "^4.4.0"
     cross-fetch "^3.1.4"
     elliptic "^6.5.4"
-    ethereum-ens-network-map "^1.0.2"
     js-sha256 "^0.9.0"
     js-sha3 "^0.8.0"
 
@@ -11039,11 +11038,6 @@ ethereum-cryptography@^0.1.3:
     scrypt-js "^3.0.0"
     secp256k1 "^4.0.1"
     setimmediate "^1.0.5"
-
-ethereum-ens-network-map@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/ethereum-ens-network-map/-/ethereum-ens-network-map-1.0.2.tgz#4e27bad18dae7bd95d84edbcac2c9e739fc959b9"
-  integrity sha512-5qwJ5n3YhjSpE6O/WEBXCAb2nagUgyagJ6C0lGUBWC4LjKp/rRzD+pwtDJ6KCiITFEAoX4eIrWOjRy0Sylq5Hg==
 
 ethereum-regex@^1.1.12:
   version "1.1.13"

@@ -53,19 +53,19 @@ export const resolveUnstoppableDomain: ResolveVanityAddress = async args => {
 
 // reverse lookup
 export const reverseLookupUnstoppableDomain: ReverseLookupVanityAddress = async args => {
-  const { chainId, value } = args
+  const { chainId } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {
     moduleLogger.error({ chainId }, 'cannot resolve unstoppable domain: unsupported chainId')
     return ''
   }
-  // removed after 7.0.0, apparently, only works for ens, realistically doesn't work at all?
-  // https://unstoppabledomains.github.io/resolution/v1.17.0/classes/resolution.html#reverse
-  try {
-    const result = await getResolution().reverse(value, ticker)
-    if (result) return result
-  } catch (e) {
-    moduleLogger.trace(e, 'cannot resolve')
-  }
+  // TODO(0xdef1cafe): uncomment this once this is actually published - docs are wrong
+  // https://unstoppabledomains.github.io/resolution/v7.0.0/classes/resolution.html#reverse
+  // try {
+  //   const result = await getResolution().reverse(value, ticker)
+  //   if (result) return result
+  // } catch (e) {
+  //   moduleLogger.trace(e, 'cannot resolve')
+  // }
   return ''
 }

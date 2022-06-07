@@ -291,7 +291,7 @@
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet"
@@ -1107,7 +1107,7 @@
       "currentPrice": "Current Price",
       "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
       "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
-      "otherOpportunitiesTitle": "Other opportunities",
+      "otherOpportunitiesTitle": "Opportunities",
       "otherOpportunitiesDescription": {
         "FOX": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
         "FOXy": "Quickly and easily purchase FOXy, the industry’s first DAO rebasing token that offers both yield and profit rewards."
@@ -1116,7 +1116,7 @@
       "farming": "Farming",
       "borrowingAndLending": "Borrowing & Lending",
       "governanceTitle": "Governance",
-      "governanceDescription": "As a FOX holder, you can have a voice in the future of ShapeShift. Below are currently active DAO proposals open for voting by token holders.",
+      "governanceDescription": "As a FOX holder, you can have a voice in the future of ShapeShift. Below are active or recently passed DAO proposals voted on by token holders.",
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",

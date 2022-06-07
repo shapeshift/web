@@ -1,4 +1,5 @@
 import ENS, { getEnsAddress } from '@ensdomains/ensjs'
+import { AddressZero } from '@ethersproject/constants'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import memoize from 'lodash/memoize'
 import { getWeb3Provider } from 'lib/web3-provider'
@@ -28,7 +29,7 @@ export const validateEnsDomain: ValidateVanityAddress = async ({ value }) =>
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAddressReturn> => {
   const ens = await getENS()
   const address = await ens.name(domain).getAddress()
-  if (address === '0x0000000000000000000000000000000000000000') return ''
+  if (address === AddressZero) return ''
   return address
 })
 

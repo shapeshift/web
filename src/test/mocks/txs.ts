@@ -1,3 +1,4 @@
+import { AddressZero } from '@ethersproject/constants'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
@@ -121,7 +122,7 @@ export const TradeTx: Tx = {
   transfers: [
     {
       assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-      from: '0x0000000000000000000000000000000000000000',
+      from: AddressZero,
       to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
       type: chainAdapters.TxType.Receive,
       value: '9178352',
@@ -325,7 +326,7 @@ export const yearnVaultDeposit: Tx = {
   transfers: [
     {
       assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-      from: '0x0000000000000000000000000000000000000000',
+      from: AddressZero,
       to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
       type: chainAdapters.TxType.Receive,
       value: '9178352',
@@ -424,7 +425,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       },
       {
         assetId: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
-        from: '0x0000000000000000000000000000000000000000',
+        from: AddressZero,
         to: account,
         type: chainAdapters.TxType.Receive,
         value: '5481290118862792961',
@@ -450,7 +451,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       {
         assetId: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
         from: account,
-        to: '0x0000000000000000000000000000000000000000',
+        to: AddressZero,
         type: chainAdapters.TxType.Send,
         value: '5481290118862792961',
       },
@@ -482,7 +483,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       {
         assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
         from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-        to: '0x0000000000000000000000000000000000000000',
+        to: AddressZero,
         type: chainAdapters.TxType.Send,
         value: '1000000',
       },
@@ -513,7 +514,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
     transfers: [
       {
         assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-        from: '0x0000000000000000000000000000000000000000',
+        from: AddressZero,
         to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
         type: chainAdapters.TxType.Receive,
         value: '9178352',

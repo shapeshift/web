@@ -18,7 +18,6 @@ import { useHistory } from 'react-router-dom'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInput } from 'lib/address/address'
 
@@ -35,18 +34,11 @@ export const Address = () => {
     formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
-
-  const chainAdapters = useChainAdapters()
   const { send } = useModal()
-
-  if (!(asset?.chain && asset?.name)) return null
-
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  if (!asset) return null
   const { chainId } = asset
-  const adapter = chainAdapters.byChainId(chainId)
-
   const handleNext = () => history.push(SendRoutes.Details)
-
   const addressError = get(errors, `${SendFormFields.Address}.message`, null)
 
   return (
@@ -82,7 +74,6 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
-                  const chainId = adapter.getChainId()
                   setIsValidatingInput(true)
                   // this does not throw, everything inside is handled
                   const { address, vanityAddress } = await parseAddressInput({ chainId, value })

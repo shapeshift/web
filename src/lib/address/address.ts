@@ -14,6 +14,8 @@ type ValidatorsByChainId = {
 const vanityValidatorsByChain: ValidatorsByChainId = {
   [btcChainId]: [validateUnstoppableDomain],
   [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
+  [cosmosChainId]: [],
+  [osmosisChainId]: [],
 }
 
 type ValidateVanityDomainArgs = {
@@ -86,6 +88,8 @@ type ReverseResolversByChainId = {
 const reverseLookupResolversByChainId: ReverseResolversByChainId = {
   [btcChainId]: [],
   [ethChainId]: [],
+  [cosmosChainId]: [],
+  [osmosisChainId]: [],
 }
 
 export const reverseLookupVanityDomain: ReverseLookupVanityDomain = async args => {
@@ -106,8 +110,7 @@ type ValidateAddressArgs = {
 type ValidateAddressReturn = boolean
 export type ValidateAddress = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
 
-export const validateAddress: ValidateAddress = async args => {
-  const { chainId, value } = args
+export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
   try {
     return (await getChainAdapters().byChainId(chainId).validateAddress(value)).valid
   } catch (e) {

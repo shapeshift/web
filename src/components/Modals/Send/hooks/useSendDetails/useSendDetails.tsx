@@ -114,13 +114,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .toFixed(0)
 
     switch (values.asset.chainId) {
-      case cosmosChainId: {
-        const cosmosChainAdapter = chainAdapterManager.byChainId(cosmosChainId)
-        return cosmosChainAdapter.getFeeData({})
-      }
+      case cosmosChainId:
       case osmosisChainId: {
-        const osmosisChainAdapter = chainAdapterManager.byChainId(osmosisChainId)
-        return osmosisChainAdapter.getFeeData({})
+        return chainAdapterManager.byChainId(values.asset.chainId).getFeeData({})
       }
       case ethChainId: {
         const from = await adapter.getAddress({

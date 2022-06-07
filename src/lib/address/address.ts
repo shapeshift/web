@@ -74,9 +74,7 @@ type ReverseLookupVanityDomainArgs = {
   chainId: ChainId
   value: string
 }
-export type ReverseLookupVanityDomainReturn = {
-  vanityAddress: string
-}
+export type ReverseLookupVanityDomainReturn = string
 export type ReverseLookupVanityDomain = (
   args: ReverseLookupVanityDomainArgs,
 ) => Promise<ReverseLookupVanityDomainReturn>
@@ -96,10 +94,10 @@ export const reverseLookupVanityDomain: ReverseLookupVanityDomain = async args =
   for (const resolver of reverseLookupResolversByChainId[args.chainId]) {
     try {
       const result = await resolver(args)
-      return result
+      if (result) return result
     } catch (e) {}
   }
-  return { vanityAddress: '' }
+  return ''
 }
 
 // validate a given address
@@ -135,8 +133,12 @@ export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAd
 
 export const parseAddressInput: ParseAddressInput = async args => {
   const isValidAddress = await validateAddress(args)
-  // we're dealing with a plain address
-  if (isValidAddress) return { address: args.value, vanityAddress: '' }
+  // we're dealing with a valid address
+  if (isValidAddress) {
+    const vanityAddress = await reverseLookupVanityDomain(args)
+    // return a valid address, and a possibly blank or populated vanity address
+    return { address: args.value, vanityAddress }
+  }
   // at this point it's not a valid address, but may not be a vanity address
   const isVanityAddress = await validateVanityDomain(args)
   // it's neither a valid address nor a vanity address

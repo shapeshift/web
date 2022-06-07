@@ -29,12 +29,12 @@ export const TradeOpportunities: React.FC<TradeOpportunitiesProps> = ({ opportun
         </CText>
       </Card.Header>
       <Card.Body>
-        {opportunities.map(bucket => (
-          <Box my={2}>
+        {opportunities.map((bucket, index) => (
+          <Box my={2} key={index}>
             <Text translation={bucket.title} color='gray.500' fontWeight='semibold' mb={4} />
             <Flex flexDirection='row' flexWrap='wrap' m={-2}>
-              {bucket.opportunities.map(opportunity => (
-                <Link href={opportunity.link} isExternal>
+              {bucket.opportunities.map((opportunity, index) => (
+                <Link href={opportunity.link} isExternal key={index}>
                   <Image
                     borderRadius='full'
                     boxSize='32px'

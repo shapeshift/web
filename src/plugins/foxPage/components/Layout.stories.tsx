@@ -28,7 +28,6 @@ import { FoxOpportunity } from './FoxOpportunity'
 import { FoxTab } from './FoxTab'
 import { Governance } from './Governance'
 import { Layout } from './Layout'
-import { OtherOpportunities } from './OtherOpportunities/OtherOpportunities'
 import { Total } from './Total'
 
 export default {
@@ -167,7 +166,6 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
-                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
                 <Governance />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
@@ -190,7 +188,6 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
-                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 {/* <AssetActions assetId={mockAsset.assetId} /> */}
@@ -212,7 +209,6 @@ export const FoxLayout: Story = () => {
                   apy='0.1161'
                   onClick={() => null}
                 />
-                <OtherOpportunities description={'plugins.foxPage.otherOpportunitiesDescription'} />
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
                 {/* <AssetActions assetId={mockAsset.assetId} /> */}

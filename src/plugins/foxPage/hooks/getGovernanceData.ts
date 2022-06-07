@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -10,8 +11,7 @@ type BoardroomGovernanceData = Array<{
   refId: string
 }>
 
-const BOARDROOM_API_BASE_URL = 'https://api.boardroom.info/v1/protocols/shapeshift'
-export const BOARDROOM_APP_BASE_URL = 'https://boardroom.io/shapeshift'
+const BOARDROOM_API_BASE_URL = getConfig().REACT_APP_BOARDROOM_API_BASE_URL
 
 const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
   const activeProposals = governanceData.filter(data => data.currentState === 'active')
@@ -44,7 +44,7 @@ export const useGetGovernanceData = () => {
     const loadGovernanceData = async () => {
       try {
         const response = await axios.get<{ data: BoardroomGovernanceData }>(
-          `${BOARDROOM_API_BASE_URL}/proposals`,
+          `${BOARDROOM_API_BASE_URL}proposals`,
         )
         const governanceData = response?.data?.data
         const parsedGovernanceData = parseGovernanceData(governanceData)

@@ -1,5 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import { Form as CosmosForm } from 'plugins/cosmos/components/modals/Send/Form'
 import { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
@@ -36,11 +37,12 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
             <Route
               path='/'
               component={(props: RouteComponentProps) => {
-                // TODO(gomes): make this cleaner
-                if (asset.chain === ChainTypes.Cosmos || asset.chain === ChainTypes.Osmosis) {
-                  return <CosmosForm asset={asset} accountId={accountId} {...props} />
-                }
-                return <Form asset={asset} accountId={accountId} {...props} />
+                const { chainNamespace } = fromChainId(asset.chainId)
+                return chainNamespace === CHAIN_NAMESPACE.Cosmos ? (
+                  <CosmosForm asset={asset} accountId={accountId} {...props} />
+                ) : (
+                  <Form asset={asset} accountId={accountId} {...props} />
+                )
               }}
             />
           </Switch>

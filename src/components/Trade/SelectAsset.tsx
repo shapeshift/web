@@ -10,7 +10,7 @@ import { WithBackButton } from './WithBackButton'
 
 type SelectAssetProps = {
   onClick: (asset: Asset) => void
-  filterBy: (assets: Asset[]) => Asset[]
+  filterBy: (assets: Asset[]) => Asset[] | undefined
 } & RouteComponentProps
 
 export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history, filterBy }) => {

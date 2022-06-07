@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      const target = new URL(window.location.href);
+      if (target.pathname !== '/') {
+        target.hash = '#' + target.pathname;
+        target.pathname = '/';
+        window.location.replace(target.toString());
+      }
+    </script>
+  </head>
+  <body>
+    Redirecting...
+  </body>
+</html>

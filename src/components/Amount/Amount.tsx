@@ -153,6 +153,17 @@ const Percent = ({ value, autoColor, options, ...props }: PercentAmountProps) =>
   )
 }
 
+const Supply = ({ value, ...props }: AmountProps) => {
+  const {
+    number: { toSupply },
+  } = useLocaleFormatter({ fiatType: 'USD' })
+
+  const volume = toSupply(value)
+
+  return <RawText {...props}>{volume}</RawText>
+}
+
 Amount.Crypto = Crypto
 Amount.Fiat = Fiat
 Amount.Percent = Percent
+Amount.Supply = Supply

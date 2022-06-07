@@ -286,7 +286,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             }
             default: {
               throw new Error(
-                `useSendDetails(handleSendMax): no adapter available for chain ${chain}`,
+                `useSendDetails(handleSendMax): no adapter available for chainId ${chainId}`,
               )
             }
           }

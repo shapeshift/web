@@ -32,7 +32,7 @@
     "@shapeshiftoss/investor-yearn": "^3.0.1",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^4.6.0",
-    "@shapeshiftoss/swapper": "5.10.0",
+    "@shapeshiftoss/swapper": "5.12.0",
     "@shapeshiftoss/types": "4.3.2",
     "@shapeshiftoss/unchained-client": "^8.3.4",
     "@uniswap/sdk": "^3.0.3",

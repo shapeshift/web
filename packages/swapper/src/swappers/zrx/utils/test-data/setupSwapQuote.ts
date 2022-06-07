@@ -1,8 +1,8 @@
 import { Asset } from '@shapeshiftoss/types'
 
 import { GetTradeQuoteInput, TradeQuote } from '../../../../api'
+import { FOX, WETH } from '../../../utils/test-data/assets'
 import { ZrxQuoteResponse } from '../../types'
-import { FOX, WETH } from './assets'
 
 export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX }

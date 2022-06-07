@@ -4,7 +4,7 @@ import { ChainTypes } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { BuildTradeInput } from '../../../api'
-import { bnOrZero } from '../utils/bignumber'
+import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../utils/constants'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'

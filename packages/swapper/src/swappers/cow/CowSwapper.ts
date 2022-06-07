@@ -16,9 +16,19 @@ import {
   TradeResult,
   TradeTxs
 } from '../../api'
+import { getUsdRate } from './utils/helpers/helpers'
+
+export type CowSwapperDeps = {
+  apiUrl: string
+}
 
 export class CowSwapper implements Swapper {
   public static swapperName = 'CowSwapper'
+  deps: CowSwapperDeps
+
+  constructor(deps: CowSwapperDeps) {
+    this.deps = deps
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async initialize() {}
@@ -37,9 +47,8 @@ export class CowSwapper implements Swapper {
     throw new Error('CowSwapper: getTradeQuote unimplemented')
   }
 
-  getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
-    console.info(input)
-    throw new Error('CowSwapper: getUsdRate unimplemented')
+  async getUsdRate(input: Asset): Promise<string> {
+    return getUsdRate(this.deps, input)
   }
 
   async executeTrade(args: ExecuteTradeInput<SupportedChainIds>): Promise<TradeResult> {

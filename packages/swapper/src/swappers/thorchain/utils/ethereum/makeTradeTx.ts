@@ -5,7 +5,7 @@ import { Asset, BIP44Params } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
-import { bnOrZero } from '../../../zrx/utils/bignumber'
+import { bnOrZero } from '../../../utils/bignumber'
 import { InboundResponse, ThorchainSwapperDeps } from '../../types'
 import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { makeSwapMemo } from '../makeSwapMemo/makeSwapMemo'

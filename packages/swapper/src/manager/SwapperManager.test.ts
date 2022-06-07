@@ -4,7 +4,7 @@ import Web3 from 'web3'
 
 import { SwapperType } from '../api'
 import { ThorchainSwapper, ZrxSwapper, ZrxSwapperDeps } from '../swappers'
-import { CowSwapper } from '../swappers/cow/CowSwapper'
+import { CowSwapper, CowSwapperDeps } from '../swappers/cow/CowSwapper'
 import { ThorchainSwapperDeps } from '../swappers/thorchain/types'
 import { SwapperManager } from './SwapperManager'
 
@@ -12,6 +12,9 @@ describe('SwapperManager', () => {
   const zrxSwapperDeps: ZrxSwapperDeps = {
     web3: <Web3>{},
     adapterManager: <ChainAdapterManager>{}
+  }
+  const cowSwapperDeps: CowSwapperDeps = {
+    apiUrl: 'https://api.cow.fi/mainnet/api/'
   }
 
   const thorchainSwapperDeps: ThorchainSwapperDeps = {
@@ -63,7 +66,7 @@ describe('SwapperManager', () => {
       swapper
         .addSwapper(SwapperType.Thorchain, new ThorchainSwapper(thorchainSwapperDeps))
         .addSwapper(SwapperType.Zrx, new ZrxSwapper(zrxSwapperDeps))
-        .addSwapper(SwapperType.CowSwap, new CowSwapper())
+        .addSwapper(SwapperType.CowSwap, new CowSwapper(cowSwapperDeps))
 
       expect(swapper.getSwapper(SwapperType.Thorchain)).toBeInstanceOf(ThorchainSwapper)
       expect(swapper.getSwapper(SwapperType.Zrx)).toBeInstanceOf(ZrxSwapper)

@@ -1,7 +1,7 @@
 import { adapters, AssetId, fromAssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
-import { bn, bnOrZero } from '../../../zrx/utils/bignumber'
+import { bn, bnOrZero } from '../../../utils/bignumber'
 import { InboundResponse, ThorchainSwapperDeps } from '../../types'
 import { thorService } from '../thorService'
 

@@ -1,8 +1,8 @@
 jest.mock('../utils/zrxService')
 jest.mock('../utils/helpers/helpers')
 
+import { BTC, FOX, WETH } from '../../utils/test-data/assets'
 import { MAX_ZRX_TRADE } from '../utils/constants'
-import { BTC, FOX, WETH } from '../utils/test-data/assets'
 import { zrxService as mockZrxService } from '../utils/zrxService'
 import { getZrxMinMax } from './getZrxMinMax'
 ;(<jest.Mock<unknown>>mockZrxService.get).mockImplementation(() => ({

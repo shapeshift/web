@@ -1,7 +1,7 @@
 import { Asset } from '@shapeshiftoss/types'
 
 import { MinMaxOutput, SwapError, SwapErrorTypes } from '../../../api'
-import { bn, bnOrZero } from '../utils/bignumber'
+import { bn, bnOrZero } from '../../utils/bignumber'
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getUsdRate } from '../utils/helpers/helpers'
 

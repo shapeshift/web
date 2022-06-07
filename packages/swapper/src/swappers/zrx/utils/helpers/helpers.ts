@@ -8,8 +8,8 @@ import Web3 from 'web3'
 import { AbiItem, numberToHex } from 'web3-utils'
 
 import { SwapError, SwapErrorTypes, TradeQuote } from '../../../../api'
+import { bn, bnOrZero } from '../../../utils/bignumber'
 import { ZrxPriceResponse } from '../../types'
-import { bn, bnOrZero } from '../bignumber'
 import { zrxService } from '../zrxService'
 
 export type GetAllowanceRequiredArgs = {

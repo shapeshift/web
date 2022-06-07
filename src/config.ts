@@ -37,7 +37,6 @@ const validators = {
   REACT_APP_FEATURE_KEPLR_WALLET: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
-  REACT_APP_ALCHEMY_API_KEY: str(),
   REACT_APP_BOARDROOM_API_BASE_URL: url({
     default: 'https://api.boardroom.info/v1/protocols/shapeshift/',
   }),

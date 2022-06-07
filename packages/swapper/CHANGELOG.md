@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.10.2...@shapeshiftoss/swapper-v5.11.0) (2022-06-07)
+
+
+### Features
+
+* function to estimate thor trade fees ([#756](https://github.com/shapeshift/lib/issues/756)) ([3d052c6](https://github.com/shapeshift/lib/commit/3d052c6d5c798c441371b5f05ac7901ea2d9c432))
+
 # [@shapeshiftoss/swapper-v5.10.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.10.1...@shapeshiftoss/swapper-v5.10.2) (2022-06-06)
 
 

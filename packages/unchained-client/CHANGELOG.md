@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.5.0...@shapeshiftoss/unchained-client-v8.6.0) (2022-06-07)
+
+
+### Features
+
+* generic erc20 approve ([#731](https://github.com/shapeshift/lib/issues/731)) ([ec7f058](https://github.com/shapeshift/lib/commit/ec7f058f21a1c7b31345a2a901250ff589c625e9))
+
 # [@shapeshiftoss/unchained-client-v8.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.4.1...@shapeshiftoss/unchained-client-v8.5.0) (2022-06-01)
 
 

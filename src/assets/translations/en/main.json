@@ -16,7 +16,6 @@
     "estimatedGas": "Estimated Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
-    "unresolvableVanityDomain": "Cannot resolve vanity domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",

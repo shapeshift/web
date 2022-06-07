@@ -2,7 +2,11 @@ import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { Resolution } from '@unstoppabledomains/resolution'
 import { getConfig } from 'config'
 import last from 'lodash/last'
-import { ResolveVanityDomain, ValidateVanityDomain } from 'lib/address/address'
+import {
+  ResolveVanityDomain,
+  ReverseLookupVanityDomain,
+  ValidateVanityDomain,
+} from 'lib/address/address'
 import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['unstoppable-domains'] })
@@ -16,21 +20,7 @@ const getResolution = (): Resolution => {
   return _resolution
 }
 
-export const resolveUnstoppableDomain: ResolveVanityDomain = async ({ chainId, value: domain }) => {
-  const chainIdToUDTicker: Record<string, string> = {
-    [ethChainId]: 'ETH',
-    [btcChainId]: 'BTC',
-  }
-  const ticker = chainIdToUDTicker[chainId]
-  try {
-    if (!ticker) throw new Error(`unknown chainId ${chainId}`)
-    return getResolution().addr(domain, ticker)
-  } catch (e) {
-    moduleLogger.trace(e, 'cannot resolve unstoppable domain')
-    return ''
-  }
-}
-
+// validate
 export const validateUnstoppableDomain: ValidateVanityDomain = async ({ value }) => {
   try {
     return getResolution().isSupportedDomain(value)
@@ -38,4 +28,44 @@ export const validateUnstoppableDomain: ValidateVanityDomain = async ({ value })
     moduleLogger.trace(e, 'cannot validate unstoppable domain')
     return false
   }
+}
+
+const chainIdToUDTicker: Record<string, string> = {
+  [ethChainId]: 'ETH',
+  [btcChainId]: 'BTC',
+}
+
+// resolve
+export const resolveUnstoppableDomain: ResolveVanityDomain = async args => {
+  const { chainId, value } = args
+  const ticker = chainIdToUDTicker[chainId]
+  if (!ticker) {
+    moduleLogger.error({ args }, 'cannot resolve: unsupported chainId')
+    return ''
+  }
+  try {
+    return getResolution().addr(value, ticker)
+  } catch (e) {
+    moduleLogger.trace(e, 'cannot resolve')
+    return ''
+  }
+}
+
+// reverse lookup
+export const reverseLookupUnstoppableDomain: ReverseLookupVanityDomain = async args => {
+  const { chainId, value } = args
+  const ticker = chainIdToUDTicker[chainId]
+  if (!ticker) {
+    moduleLogger.error({ chainId }, 'cannot resolve unstoppable domain: unsupported chainId')
+    return ''
+  }
+  // removed after 7.0.0, apparently, only works for ens, realistically doesn't work at all?
+  // https://unstoppabledomains.github.io/resolution/v1.17.0/classes/resolution.html#reverse
+  try {
+    const result = await getResolution().reverse(value, ticker)
+    if (result) return result
+  } catch (e) {
+    moduleLogger.trace(e, 'cannot resolve')
+  }
+  return ''
 }

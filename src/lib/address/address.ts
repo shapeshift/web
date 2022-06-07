@@ -3,6 +3,7 @@ import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
   resolveUnstoppableDomain,
+  reverseLookupUnstoppableDomain,
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
 
@@ -32,7 +33,8 @@ export type ValidateVanityDomain = (
 export const validateVanityDomain: ValidateVanityDomain = async args => {
   for (const validator of vanityValidatorsByChain[args.chainId]) {
     try {
-      return validator(args)
+      const result = await validator(args)
+      if (result) return result
     } catch (e) {} // expected
   }
   return false
@@ -87,7 +89,7 @@ type ReverseResolversByChainId = {
 
 const reverseLookupResolversByChainId: ReverseResolversByChainId = {
   [btcChainId]: [],
-  [ethChainId]: [ensReverseLookupShim],
+  [ethChainId]: [ensReverseLookupShim, reverseLookupUnstoppableDomain],
   [cosmosChainId]: [],
   [osmosisChainId]: [],
 }

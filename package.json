@@ -36,7 +36,7 @@
     "@shapeshiftoss/types": "4.3.2",
     "@shapeshiftoss/unchained-client": "^8.3.4",
     "@uniswap/sdk": "^3.0.3",
-    "@unstoppabledomains/resolution": "^7.1.4",
+    "@unstoppabledomains/resolution": "7.0.0",
     "@visx/axis": "^2.10.0",
     "@visx/brush": "^2.10.0",
     "@visx/gradient": "^2.10.0",

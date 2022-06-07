@@ -65,13 +65,9 @@ module.exports = async (on: any, config: any) => {
   }
 
   // Allow Cypress to see key Node environment variables via Cypress.env('some-variable')
-  config.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL =
-    process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
-  config.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL = process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL
-  config.env.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL = process.env.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL
-  config.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL = process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL
-  config.env.REACT_APP_PORTIS_DAPP_ID = process.env.REACT_APP_PORTIS_DAPP_ID
-  config.env.REACT_APP_ETHEREUM_NODE_URL = process.env.REACT_APP_ETHEREUM_NODE_URL
+  for (const [k, v] of Object.entries(process.env).filter(([k]) => k.startsWith('REACT_APP_'))) {
+    config.env[k] = v
+  }
 
   return config
 }

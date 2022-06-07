@@ -1,31 +1,23 @@
-// @ts-ignore TODO: add type declarations for ensjs module
 import ENS, { getEnsAddress } from '@ensdomains/ensjs'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import memoize from 'lodash/memoize'
 import { getWeb3Provider } from 'lib/web3-provider'
 
 import { ReverseLookupVanityAddress } from './address'
 import { ResolveVanityAddress, ResolveVanityAddressReturn, ValidateVanityAddress } from './address'
 
-let makeEns: () => void
-// getEnsAddress takes a magic number as string, networkId. 1 stands for mainnet
-const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
-  const unchainedUrls = {
-    ethereum: {
-      httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-      wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
-    },
-  }
+let _ens: any | null
+type GetENS = () => Promise<any>
 
-  const ethereumChainAdapter = new ChainAdapterManager(unchainedUrls).byChain(ChainTypes.Ethereum)
-  const chainId = ethereumChainAdapter.getChainId()
-  const chainIdReference = chainId.match(
-    /^(?<chainIdNamespace>[-a-z0-9]{3,8}):(?<chainIdReference>[-a-zA-Z0-9]{1,32})$/,
-  )?.groups?.chainIdReference
-  return new ENS({ provider: getWeb3Provider(), ensAddress: getEnsAddress(chainIdReference) })
-})
+const getENS: GetENS = () => {
+  if (!_ens) {
+    _ens = new ENS({
+      provider: getWeb3Provider(),
+      ensAddress: getEnsAddress(CHAIN_REFERENCE.EthereumMainnet),
+    })
+  }
+  return _ens
+}
 
 export const resolveEnsDomain: ResolveVanityAddress = async ({ value }) => ensLookup(value)
 
@@ -34,9 +26,8 @@ export const validateEnsDomain: ValidateVanityAddress = async ({ value }) =>
   /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(value)
 
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAddressReturn> => {
-  makeEns()
-  const ensInstance = await ens
-  const address = await ensInstance.name(domain).getAddress()
+  const ens = await getENS()
+  const address = await ens.name(domain).getAddress()
   if (address === '0x0000000000000000000000000000000000000000') return ''
   return address
 })
@@ -45,9 +36,8 @@ export const ensReverseLookup = memoize(
   async (
     address: string,
   ): Promise<{ name: string; error: false } | { name: null; error: true }> => {
-    makeEns()
-    const ensInstance = await ens
-    const lookupName = await ensInstance.getName(address)
+    const ens = await getENS()
+    const lookupName = await ens.getName(address)
     if (!lookupName.name) return { name: null, error: true }
     return { name: lookupName.name, error: false }
   },

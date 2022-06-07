@@ -8,6 +8,7 @@ import { ethChainId } from 'test/mocks/accounts'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { getWeb3Provider } from 'lib/web3-provider'
 
+import { ReverseLookupVanityDomain } from './address'
 import { ResolveVanityDomain, ResolveVanityDomainReturn, ValidateVanityDomain } from './address'
 
 let makeEns: () => void
@@ -56,3 +57,12 @@ export const ensReverseLookup = memoize(
     return { name: lookupName.name, error: false }
   },
 )
+
+/**
+ * TODO(0xdef1cafe): i can't be arsed refactoring other usages of this
+ * right now to make it compile, so map the type sigs to the old lookup impl
+ */
+export const ensReverseLookupShim: ReverseLookupVanityDomain = async ({ value: address }) => {
+  const { name, error } = await ensReverseLookup(address)
+  return error ? '' : name
+}

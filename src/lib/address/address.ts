@@ -6,6 +6,8 @@ import {
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
 
+import { ensReverseLookupShim } from './ens'
+
 type ValidatorsByChainId = {
   [k: ChainId]: ValidateVanityDomain[]
 }
@@ -63,7 +65,7 @@ export const resolveVanityDomain: ResolveVanityDomain = async args => {
   for (const resolver of vanityResolversByChainId[args.chainId]) {
     try {
       const result = await resolver(args)
-      if (!result) continue
+      if (result) return result
     } catch (e) {}
   }
   return ''
@@ -85,7 +87,7 @@ type ReverseResolversByChainId = {
 
 const reverseLookupResolversByChainId: ReverseResolversByChainId = {
   [btcChainId]: [],
-  [ethChainId]: [],
+  [ethChainId]: [ensReverseLookupShim],
   [cosmosChainId]: [],
   [osmosisChainId]: [],
 }

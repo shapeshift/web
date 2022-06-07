@@ -39,7 +39,7 @@ export const Address = () => {
   if (!asset) return null
   const { chainId } = asset
   const handleNext = () => history.push(SendRoutes.Details)
-  const addressError = get(errors, `${SendFormFields.Address}.message`, null)
+  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
     <SlideTransition>
@@ -74,15 +74,16 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
+                  // clear previous values
+                  setValue(SendFormFields.Address, '')
+                  setValue(SendFormFields.VanityAddress, '')
                   setIsValidating(true)
                   // this does not throw, everything inside is handled
                   const { address, vanityAddress } = await parseAddressInput({ chainId, value })
-                  console.info('value', value)
-                  console.info('address', address)
-                  console.info('vanityAddress', vanityAddress)
                   setIsValidating(false)
-                  address && setValue(SendFormFields.Address, address)
-                  vanityAddress && setValue(SendFormFields.VanityAddress, vanityAddress)
+                  // set returned values
+                  setValue(SendFormFields.Address, address)
+                  setValue(SendFormFields.VanityAddress, vanityAddress)
                   return address ? true : 'common.invalidAddress'
                 },
               },

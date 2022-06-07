@@ -1,4 +1,5 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { QuoteFeeData } from '@shapeshiftoss/swapper'
 import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
@@ -18,7 +19,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { theme } from 'theme/theme'
-import { QuoteFeeData } from '@shapeshiftoss/swapper'
 
 type ApprovalParams = {
   fiatRate: string

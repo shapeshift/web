@@ -9,7 +9,7 @@ export enum TradeAmountInputField {
 }
 
 export type TradeAsset = {
-  asset: Asset
+  asset?: Asset
   amount?: string
 }
 
@@ -17,15 +17,10 @@ export type TradeProps = {
   defaultBuyAssetId: AssetId
 }
 
-export type BuildQuoteTxOutput = {
-  success: boolean
-  statusReason: string
-}
-
 export type TradeState<C extends SupportedChainIds> = {
-  sellAsset: TradeAsset
-  buyAsset: TradeAsset
-  fiatSellAmount: string
+  sellAsset: TradeAsset | undefined
+  buyAsset: TradeAsset | undefined
+  fiatSellAmount: string | undefined
   sellAssetFiatRate: string
   feeAssetFiatRate: string
   fees?: QuoteFeeData<C>

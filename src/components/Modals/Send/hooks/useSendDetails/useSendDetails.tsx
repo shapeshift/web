@@ -1,4 +1,10 @@
-import { ethChainId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  cosmosChainId,
+  ethChainId,
+  fromAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -108,20 +114,20 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
-    switch (values.asset.chain) {
-      case ChainTypes.Cosmos: {
-        const cosmosChainAdapter = chainAdapterManager.byChainId('cosmos:cosmoshub-4')
+    switch (values.asset.chainId) {
+      case cosmosChainId: {
+        const cosmosChainAdapter = chainAdapterManager.byChainId(cosmosChainId)
         return cosmosChainAdapter.getFeeData({})
       }
-      case ChainTypes.Osmosis: {
-        const osmosisChainAdapter = chainAdapterManager.byChainId('cosmos:osmosis-1')
+      case osmosisChainId: {
+        const osmosisChainAdapter = chainAdapterManager.byChainId(osmosisChainId)
         return osmosisChainAdapter.getFeeData({})
       }
-      case ChainTypes.Ethereum: {
+      case ethChainId: {
         const from = await adapter.getAddress({
           wallet,
         })
-        const ethereumChainAdapter = chainAdapterManager.byChainId('eip155:1')
+        const ethereumChainAdapter = chainAdapterManager.byChainId(ethChainId)
         const chainId = ethChainId
         const domain = values.address
         const to = (await resolveVanityDomain({ chainId, value: domain })).address ?? values.address
@@ -135,7 +141,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           sendMax: values.sendMax,
         })
       }
-      case ChainTypes.Bitcoin: {
+      case btcChainId: {
         const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
         if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
         if (!accountType) {
@@ -153,9 +159,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-        const bitcoinChainAdapter = await chainAdapterManager.byChainId(
-          'bip122:000000000019d6689c085ae165831e93',
-        )
+        const bitcoinChainAdapter = await chainAdapterManager.byChainId(btcChainId)
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
@@ -227,67 +231,65 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })
 
         // Assume fast fee for send max
-        // This is used to make make sure its impossible to send more than our balance
-        let fastFee: string = ''
-        let adapterFees
-        switch (chain) {
-          case ChainTypes.Cosmos: {
-            const cosmosAdapter = await chainAdapterManager.byChainId('cosmos:cosmoshub-4')
-            adapterFees = await cosmosAdapter.getFeeData({})
-            fastFee = adapterFees.fast.txFee
-            break
-          }
-          case ChainTypes.Ethereum: {
-            const ethAdapter = await chainAdapterManager.byChainId('eip155:1')
-            const contractAddress = tokenId
-            const value = assetBalance
-            adapterFees = await ethAdapter.getFeeData({
-              to,
-              value,
-              chainSpecific: { contractAddress, from },
-              sendMax: true,
-            })
-            fastFee = adapterFees.fast.txFee
-            break
-          }
-          case ChainTypes.Bitcoin: {
-            if (!accountType)
-              throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
-            if (!utxoParams) {
-              throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
+        // This is used to make sure it's impossible to send more than our balance
+        const { chainId } = fromAssetId(assetId)
+        const { fastFee, adapterFees } = await (async () => {
+          switch (chainId) {
+            case cosmosChainId: {
+              const cosmosAdapter = await chainAdapterManager.byChainId(cosmosChainId)
+              const adapterFees = await cosmosAdapter.getFeeData({})
+              const fastFee = adapterFees.fast.txFee
+              return { adapterFees, fastFee }
             }
-            const { bip44Params, scriptType } = utxoParams
-            const pubkeys = await wallet.getPublicKeys([
-              {
-                coin: adapter.getType(),
-                addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
-                curve: 'secp256k1',
-                scriptType,
-              },
-            ])
+            case ethChainId: {
+              const ethAdapter = await chainAdapterManager.byChainId(ethChainId)
+              const contractAddress = tokenId
+              const value = assetBalance
+              const adapterFees = await ethAdapter.getFeeData({
+                to,
+                value,
+                chainSpecific: { contractAddress, from },
+                sendMax: true,
+              })
+              const fastFee = adapterFees.fast.txFee
+              return { adapterFees, fastFee }
+            }
+            case btcChainId: {
+              if (!accountType)
+                throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
+              if (!utxoParams) {
+                throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
+              }
+              const { bip44Params, scriptType } = utxoParams
+              const pubkeys = await wallet.getPublicKeys([
+                {
+                  coin: adapter.getType(),
+                  addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
+                  curve: 'secp256k1',
+                  scriptType,
+                },
+              ])
 
-            if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
-            const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-            const btcAdapter = await chainAdapterManager.byChainId(
-              'bip122:000000000019d6689c085ae165831e93',
-            )
-            const value = assetBalance
-            adapterFees = await btcAdapter.getFeeData({
-              to,
-              value,
-              chainSpecific: { pubkey },
-              sendMax: true,
-            })
-            fastFee = adapterFees.fast.txFee
-            break
+              if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
+              const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
+              const btcAdapter = await chainAdapterManager.byChainId(btcChainId)
+              const value = assetBalance
+              const adapterFees = await btcAdapter.getFeeData({
+                to,
+                value,
+                chainSpecific: { pubkey },
+                sendMax: true,
+              })
+              const fastFee = adapterFees.fast.txFee
+              return { adapterFees, fastFee }
+            }
+            default: {
+              throw new Error(
+                `useSendDetails(handleSendMax): no adapter available for chain ${chain}`,
+              )
+            }
           }
-          default: {
-            throw new Error(
-              `useSendDetails(handleSendMax): no adapter available for chain ${chain}`,
-            )
-          }
-        }
-
+        })()
         fnLogger.trace({ fastFee, adapterFees }, 'Adapter Fees')
 
         setValue(SendFormFields.EstimatedFees, adapterFees)

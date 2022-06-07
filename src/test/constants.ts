@@ -138,5 +138,6 @@ export const ETHCHAIN_QUOTE_FEES = {
     gasPrice: '361000000000',
     totalFee: '0.1532445',
   },
+  tradeFee: '0',
   fee: '0.1532445',
 }

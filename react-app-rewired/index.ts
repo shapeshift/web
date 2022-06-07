@@ -213,7 +213,7 @@ const reactAppRewireConfig = {
                 switch (plugin.constructor.name) {
                   case 'DefinePlugin': {
                     // Remove all REACT_APP_* 'process.env' entries from DefinePlugin; these will
-                    // be pulled from env.json via src/config.ts and src/env/index.ts.
+                    // be pulled from env.json via src/config.ts and src/config/env/index.ts.
                     if (
                       Object.keys((plugin as webpack.DefinePlugin).definitions).filter(
                         x => x !== 'process.env',
@@ -249,20 +249,20 @@ const reactAppRewireConfig = {
               rules: [
                 ...(config.module?.rules ?? []),
                 {
-                  // This rule causes the (placeholder) contents of `src/env/env.json` to be thrown away
+                  // This rule causes the (placeholder) contents of `src/config/env/env.json` to be thrown away
                   // and replaced with `stableStringify(env)`, which is then written out to `build/env.json`.
                   //
                   // Note that simply adding this rule doesn't force `env.json` to be generated. That happens
-                  // because `src/env/process.js` `require()`s it, and that module is provided via ProvidePlugin
-                  // above. If nothing ever uses that `process` global, both `src/env/process.js` and `env.json`
+                  // because `src/config/env/process.js` `require()`s it, and that module is provided via ProvidePlugin
+                  // above. If nothing ever uses that `process` global, both `src/config/env/process.js` and `env.json`
                   // will be omitted from the build.
-                  resource: path.join(buildPath, 'src/env/env.json'),
+                  resource: path.join(buildPath, 'src/config/env/env.json'),
                   // Webpack loads resources by reading them from disk and feeding them through a series
                   // of loaders. It then emits them by feeding the result to a generator.
                   //
                   // The `val-loader` plugin is a customizable loader which `require()`s `executableFile`,
                   // expecting a single exported function which it uses to transform the on-disk module data.
-                  // The stub loader, `src/env/loader.js`, simply takes a `code` function as an option and
+                  // The stub loader, `src/config/env/loader.js`, simply takes a `code` function as an option and
                   // and replaces the module data with its result.
                   //
                   // Webpack requires both the module being loaded and the stub loader to exist as actual files
@@ -272,7 +272,9 @@ const reactAppRewireConfig = {
                     {
                       loader: 'val-loader',
                       options: {
-                        executableFile: require.resolve(path.join(buildPath, 'src/env/loader.js')),
+                        executableFile: require.resolve(
+                          path.join(buildPath, 'src/config/env/loader.js'),
+                        ),
                         code() {
                           return stableStringify(
                             Object.fromEntries(
@@ -307,9 +309,9 @@ const reactAppRewireConfig = {
             // we want to happen in the browser during the build of the webpack bundle.
             resolve: {
               alias: {
-                [path.join(buildPath, 'src/env/index.ts')]: path.join(
+                [path.join(buildPath, 'src/config/env/index.ts')]: path.join(
                   buildPath,
-                  'src/env/webpack.ts',
+                  'src/config/env/webpack.ts',
                 ),
               },
             },

@@ -37,7 +37,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
           />
         )}
         control={control}
-        name={SendFormFields.Address}
+        name={SendFormFields.Input}
         rules={rules}
       />
       <InputRightElement>

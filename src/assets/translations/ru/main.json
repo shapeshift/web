@@ -12,7 +12,6 @@
     "noResultsFound": "Ответ не найден",
     "insufficientFunds": "Недостаточно средств",
     "invalidAddress": "Неверный адрес",
-    "unresolvableEnsDomain": "Не удается определить ENS домен",
     "deposit": "Пополнить",
     "withdraw": "Вывод",
     "getStarted": "Начать",

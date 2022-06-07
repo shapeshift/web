@@ -16,7 +16,6 @@
     "estimatedGas": "Taxa de gás estimada",
     "insufficientAmountForGas": "ETH insuficiente para cobrir taxas de gás",
     "invalidAddress": "Endereço inválido",
-    "unresolvableEnsDomain": "Não foi possível localizar o domínio ENS",
     "deposit": "Depositar",
     "withdraw": "Sacar",
     "withdrawal": "Sacar",

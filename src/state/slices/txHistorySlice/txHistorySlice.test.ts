@@ -6,7 +6,7 @@ import { store } from 'state/store'
 
 import { selectLastNTxIds } from './selectors'
 import { RebasesState, TxHistory, txHistory, TxsState } from './txHistorySlice'
-import { makeUniqueTxId } from './utils'
+import { serializeTxIndex } from './utils'
 
 describe('txHistorySlice', () => {
   const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)
@@ -47,7 +47,7 @@ describe('txHistorySlice', () => {
       const accountSpecifier = `${ethChainId}:0xdef1cafe`
       // expected transaction order
       const expected = map(transactions, tx =>
-        makeUniqueTxId(accountSpecifier, tx.txid, tx.address),
+        serializeTxIndex(accountSpecifier, tx.txid, tx.address),
       )
 
       store.dispatch(txHistory.actions.clear())
@@ -93,12 +93,12 @@ describe('txHistorySlice', () => {
       // eth data exists
       expect(
         store.getState().txHistory.txs.byId[
-          makeUniqueTxId(ethAccountSpecifier, EthSend.txid, EthSend.address)
+          serializeTxIndex(ethAccountSpecifier, EthSend.txid, EthSend.address)
         ],
       ).toEqual(EthSend)
       expect(
         store.getState().txHistory.txs.byId[
-          makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
+          serializeTxIndex(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
         ],
       ).toEqual(EthReceive)
 
@@ -136,12 +136,12 @@ describe('txHistorySlice', () => {
       // btc data exists
       expect(
         store.getState().txHistory.txs.byId[
-          makeUniqueTxId(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address)
+          serializeTxIndex(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address)
         ],
       ).toEqual(BtcSend)
       expect(
         store.getState().txHistory.txs.byId[
-          makeUniqueTxId(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address)
+          serializeTxIndex(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address)
         ],
       ).toEqual(BtcSendSegwit)
     })
@@ -158,7 +158,7 @@ describe('txHistorySlice', () => {
 
       expect(
         store.getState().txHistory.txs.byId[
-          makeUniqueTxId(ethAccountSpecifier, EthReceivePending.txid, EthReceivePending.address)
+          serializeTxIndex(ethAccountSpecifier, EthReceivePending.txid, EthReceivePending.address)
         ].status,
       ).toBe(chainAdapters.TxStatus.Pending)
 
@@ -167,7 +167,7 @@ describe('txHistorySlice', () => {
       )
       expect(
         store.getState().txHistory.txs.byId[
-          makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
+          serializeTxIndex(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
         ].status,
       ).toBe(chainAdapters.TxStatus.Confirmed)
     })
@@ -204,16 +204,18 @@ describe('txHistorySlice', () => {
       )
 
       expect(store.getState().txHistory.txs.byAccountId[ethAccountSpecifier]).toStrictEqual([
-        makeUniqueTxId(ethAccountSpecifier, EthSend.txid, EthSend.address),
-        makeUniqueTxId(ethAccountSpecifier, EthReceive.txid, EthReceive.address),
+        serializeTxIndex(ethAccountSpecifier, EthSend.txid, EthSend.address),
+        serializeTxIndex(ethAccountSpecifier, EthReceive.txid, EthReceive.address),
       ])
 
       expect(
         store.getState().txHistory.txs.byAccountId[segwitNativeAccountSpecifier],
-      ).toStrictEqual([makeUniqueTxId(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address)])
+      ).toStrictEqual([
+        serializeTxIndex(segwitNativeAccountSpecifier, BtcSend.txid, BtcSend.address),
+      ])
 
       expect(store.getState().txHistory.txs.byAccountId[segwitAccountSpecifier]).toStrictEqual([
-        makeUniqueTxId(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address),
+        serializeTxIndex(segwitAccountSpecifier, BtcSendSegwit.txid, BtcSendSegwit.address),
       ])
     })
   })

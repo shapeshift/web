@@ -3,9 +3,9 @@ import { Resolution } from '@unstoppabledomains/resolution'
 import { getConfig } from 'config'
 import last from 'lodash/last'
 import {
-  ResolveVanityDomain,
-  ReverseLookupVanityDomain,
-  ValidateVanityDomain,
+  ResolveVanityAddress,
+  ReverseLookupVanityAddress,
+  ValidateVanityAddress,
 } from 'lib/address/address'
 import { logger } from 'lib/logger'
 
@@ -21,7 +21,7 @@ const getResolution = (): Resolution => {
 }
 
 // validate
-export const validateUnstoppableDomain: ValidateVanityDomain = async ({ value }) => {
+export const validateUnstoppableDomain: ValidateVanityAddress = async ({ value }) => {
   try {
     return getResolution().isSupportedDomain(value)
   } catch (e) {
@@ -36,7 +36,7 @@ const chainIdToUDTicker: Record<string, string> = {
 }
 
 // resolve
-export const resolveUnstoppableDomain: ResolveVanityDomain = async args => {
+export const resolveUnstoppableDomain: ResolveVanityAddress = async args => {
   const { chainId, value } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {
@@ -52,7 +52,7 @@ export const resolveUnstoppableDomain: ResolveVanityDomain = async args => {
 }
 
 // reverse lookup
-export const reverseLookupUnstoppableDomain: ReverseLookupVanityDomain = async args => {
+export const reverseLookupUnstoppableDomain: ReverseLookupVanityAddress = async args => {
   const { chainId, value } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {

@@ -8,8 +8,8 @@ import { ethChainId } from 'test/mocks/accounts'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { getWeb3Provider } from 'lib/web3-provider'
 
-import { ReverseLookupVanityDomain } from './address'
-import { ResolveVanityDomain, ResolveVanityDomainReturn, ValidateVanityDomain } from './address'
+import { ReverseLookupVanityAddress } from './address'
+import { ResolveVanityAddress, ResolveVanityAddressReturn, ValidateVanityAddress } from './address'
 
 let makeEns: () => void
 // getEnsAddress takes a magic number as string, networkId. 1 stands for mainnet
@@ -29,16 +29,16 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
   return new ENS({ provider: getWeb3Provider(), ensAddress: getEnsAddress(chainIdReference) })
 })
 
-export const resolveEnsDomain: ResolveVanityDomain = async ({ value }) =>
+export const resolveEnsDomain: ResolveVanityAddress = async ({ value }) =>
   (await getChainAdapters().byChainId(ethChainId).validateAddress(value)).valid
     ? value
     : ensLookup(value)
 
 // leave async such that this works with other async validators
-export const validateEnsDomain: ValidateVanityDomain = async ({ value }) =>
+export const validateEnsDomain: ValidateVanityAddress = async ({ value }) =>
   /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(value)
 
-export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityDomainReturn> => {
+export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAddressReturn> => {
   makeEns()
   const ensInstance = await ens
   const address = await ensInstance.name(domain).getAddress()
@@ -62,7 +62,7 @@ export const ensReverseLookup = memoize(
  * TODO(0xdef1cafe): i can't be arsed refactoring other usages of this
  * right now to make it compile, so map the type sigs to the old lookup impl
  */
-export const ensReverseLookupShim: ReverseLookupVanityDomain = async ({ value: address }) => {
+export const ensReverseLookupShim: ReverseLookupVanityAddress = async ({ value: address }) => {
   const { name, error } = await ensReverseLookup(address)
   return error ? '' : name
 }

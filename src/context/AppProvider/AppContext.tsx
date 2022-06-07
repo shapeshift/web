@@ -48,6 +48,7 @@ import {
   selectTxIds,
   selectTxs,
 } from 'state/slices/selectors'
+import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { deserializeTxIndex, TxIndex } from 'state/slices/txHistorySlice/utils'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'

@@ -2,7 +2,7 @@ import { adapters } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
-import { MidgardResponse, ThorchainSwapperDeps } from '../../types'
+import { PoolResponse, ThorchainSwapperDeps } from '../../types'
 import { thorService } from '../thorService'
 
 export const getUsdRate = async ({
@@ -21,7 +21,7 @@ export const getUsdRate = async ({
         code: SwapErrorTypes.USD_RATE_FAILED
       })
 
-    const { data: responseData } = await thorService.get<MidgardResponse>(
+    const { data: responseData } = await thorService.get<PoolResponse>(
       `${deps.midgardUrl}/pool/${thorchainPoolId}`
     )
 

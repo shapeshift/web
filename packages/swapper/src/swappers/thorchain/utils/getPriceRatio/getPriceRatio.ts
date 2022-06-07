@@ -2,7 +2,7 @@ import { adapters, AssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { bnOrZero } from '../../../zrx/utils/bignumber'
-import { MidgardResponse, ThorchainSwapperDeps } from '../../types'
+import { PoolResponse, ThorchainSwapperDeps } from '../../types'
 import { thorService } from '../thorService'
 
 export const getPriceRatio = async (
@@ -20,9 +20,7 @@ export const getPriceRatio = async (
         details: { buyPoolId, sellPoolId }
       })
 
-    const { data: responseData } = await thorService.get<MidgardResponse[]>(
-      `${deps.midgardUrl}/pools`
-    )
+    const { data: responseData } = await thorService.get<PoolResponse[]>(`${deps.midgardUrl}/pools`)
 
     const buyUsdPrice = responseData.find((response) => response.asset === buyPoolId)?.assetPrice
     const sellUsdPrice = responseData.find((response) => response.asset === sellPoolId)?.assetPrice

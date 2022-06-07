@@ -13,7 +13,7 @@ import {
   TradeResult,
   TradeTxs
 } from '../../api'
-import { MidgardResponse, ThorchainSwapperDeps } from './types'
+import { PoolResponse, ThorchainSwapperDeps } from './types'
 import { getUsdRate } from './utils/getUsdRate/getUsdRate'
 import { thorService } from './utils/thorService'
 
@@ -31,7 +31,7 @@ export class ThorchainSwapper implements Swapper {
 
   async initialize() {
     try {
-      const { data: responseData } = await thorService.get<MidgardResponse[]>(
+      const { data: responseData } = await thorService.get<PoolResponse[]>(
         `${this.deps.midgardUrl}/pools`
       )
 

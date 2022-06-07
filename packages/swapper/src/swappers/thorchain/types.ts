@@ -1,6 +1,6 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 
-export type MidgardResponse = {
+export type PoolResponse = {
   asset: string
   assetDepth: string
   assetPrice: string

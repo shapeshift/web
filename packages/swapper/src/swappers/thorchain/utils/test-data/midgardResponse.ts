@@ -1,6 +1,6 @@
-import { MidgardResponse } from '../../types'
+import { InboundResponse, PoolResponse } from '../../types'
 
-export const btcMidgardPool: MidgardResponse = {
+export const btcMidgardPool: PoolResponse = {
   asset: 'BTC.BTC',
   assetDepth: '91027798705',
   assetPrice: '10280.68095465986',
@@ -15,7 +15,7 @@ export const btcMidgardPool: MidgardResponse = {
   volume24h: '15031085906495'
 }
 
-export const ethMidgardPool: MidgardResponse = {
+export const ethMidgardPool: PoolResponse = {
   asset: 'ETH.ETH',
   assetDepth: '915018987646',
   assetPrice: '676.2118757936507',
@@ -30,7 +30,7 @@ export const ethMidgardPool: MidgardResponse = {
   volume24h: '9890096673763'
 }
 
-export const foxMidgardPool: MidgardResponse = {
+export const foxMidgardPool: PoolResponse = {
   asset: 'ETH.FOX-0XC770EEFAD204B5180DF6A14EE197D99D808EE52D',
   assetDepth: '166650912393467',
   assetPrice: '0.05303710198887871',
@@ -45,4 +45,57 @@ export const foxMidgardPool: MidgardResponse = {
   volume24h: '251596933033'
 }
 
-export const midgardResponse: MidgardResponse[] = [btcMidgardPool, ethMidgardPool, foxMidgardPool]
+export const mockInboundAdresses: InboundResponse[] = [
+  {
+    chain: 'BCH',
+    pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
+    address: 'qp5a6rn8zmamgmsyspqsl0p6ktk4hrheggdjdvntv0',
+    halted: false,
+    gas_rate: '3'
+  },
+  {
+    chain: 'BNB',
+    pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
+    address: 'bnb1d8wsuecklw6xupyqgy8mcw4ja4dca72z7nvqzw',
+    halted: false,
+    gas_rate: '11250'
+  },
+  {
+    chain: 'BTC',
+    pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
+    address: 'bc1qd8wsuecklw6xupyqgy8mcw4ja4dca72z2dd88d',
+    halted: false,
+    gas_rate: '18'
+  },
+  {
+    chain: 'DOGE',
+    pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
+    address: 'DEnrJfAjC4KMsLsGtoTGSmYaFZLPunWw9q',
+    halted: false,
+    gas_rate: '550384'
+  },
+  {
+    chain: 'ETH',
+    pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
+    address: '0x78e4e10dcacb0a8261eb3d5e57ffb98ae8d4dff1',
+    router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+    halted: false,
+    gas_rate: '280'
+  },
+  {
+    chain: 'LTC',
+    pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
+    address: 'ltc1qd8wsuecklw6xupyqgy8mcw4ja4dca72zw3hrla',
+    halted: false,
+    gas_rate: '60'
+  },
+  {
+    chain: 'TERRA',
+    pub_key: 'thorpub1addwnpepqfyppkehky2hn2gy26y8jqyj9fz0rnvau2r7yueawzvc662w0x9s7n4ypra',
+    address: 'terra1d8wsuecklw6xupyqgy8mcw4ja4dca72z6nfvpq',
+    halted: true,
+    gas_rate: '182523800'
+  }
+]
+
+export const poolResponse: PoolResponse[] = [btcMidgardPool, ethMidgardPool, foxMidgardPool]

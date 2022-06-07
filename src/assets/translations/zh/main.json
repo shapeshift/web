@@ -16,7 +16,6 @@
     "estimatedGas": "预计 Gas 费用",
     "insufficientAmountForGas": "没有足够的 ETH 来支付 gas 费用",
     "invalidAddress": "无效地址",
-    "unresolvableEnsDomain": "无法解析ENS域名",
     "deposit": "存款",
     "withdraw": "提款",
     "withdrawal": "退出",
@@ -282,7 +281,7 @@
     "overview": "概述",
     "transactions": "交易",
     "tradeHistory": "交易记录",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "功能开关标志"
   },
   "transactionRow": {

@@ -16,7 +16,6 @@
     "estimatedGas": "Tarifa Estimada de Gas",
     "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
-    "unresolvableEnsDomain": "No se puede resolver el dominio ENS",
     "deposit": "Depositar",
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
@@ -282,7 +281,7 @@
     "overview": "Resúmenes",
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Indicadores de Funciones"
   },
   "transactionRow": {

@@ -16,7 +16,6 @@
     "estimatedGas": "예상 가스 요금",
     "insufficientAmountForGas": "지불해야 할 ETH 가스가 부족합니다.",
     "invalidAddress": "유효하지 않은 주소입니다.",
-    "unresolvableEnsDomain": "ENS 도메인 확인 중에 문제가 발생했습니다.",
     "deposit": "입금",
     "withdraw": "출금",
     "withdrawal": "출금",

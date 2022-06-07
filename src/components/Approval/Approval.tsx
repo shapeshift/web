@@ -1,4 +1,5 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { QuoteFeeData } from '@shapeshiftoss/swapper'
 import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'

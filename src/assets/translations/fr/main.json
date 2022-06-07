@@ -16,7 +16,6 @@
     "estimatedGas": "Estimation des frais de carburant",
     "insufficientAmountForGas": "Pas assez d'ETH pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
-    "unresolvableEnsDomain": "Impossible de résoudre le domaine ENS",
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
@@ -282,7 +281,7 @@
     "overview": "Vue d'ensemble",
     "transactions": "Transactions",
     "tradeHistory": "Historique des échanges",
-    "foxToken": "Jeton FOX",
+    "foxToken": "Opportunités FOX",
     "featureFlags": "Indicateurs de fonctionnalité"
   },
   "transactionRow": {

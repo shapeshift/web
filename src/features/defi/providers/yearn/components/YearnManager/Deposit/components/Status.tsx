@@ -3,7 +3,7 @@ import { Box, Link, Stack, Tag } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
@@ -11,18 +11,20 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
-  const { state } = useContext(DepositContext)
+  const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId } = query
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = state?.opportunity?.underlyingAsset.assetId || 'undefined'
+
+  // TODO: We need to get the fee asset from the Opportunity
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -30,14 +32,26 @@ export const Status = () => {
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-  const vaultAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
+
+  const vaultAssetId = state?.opportunity?.positionAsset.assetId || 'undefined'
   const vaultAsset = useAppSelector(state => selectAssetById(state, vaultAssetId))
+
+  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, state?.txid || 'undefined'))
+
+  useEffect(() => {
+    if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {
+      dispatch({
+        type: YearnDepositActionType.SET_DEPOSIT,
+        payload: {
+          txStatus: confirmedTransaction.status === 'confirmed' ? 'success' : 'failed',
+          usedGasFee: confirmedTransaction.fee?.value,
+        },
+      })
+    }
+  }, [confirmedTransaction, dispatch])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')
@@ -49,7 +63,7 @@ export const Status = () => {
 
   if (!state) return null
 
-  const apy = state.vault.metadata?.apy?.net_apy
+  const apy = state.opportunity?.metadata?.apy?.net_apy
   const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
   const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
@@ -82,7 +96,8 @@ export const Status = () => {
         {
           ...vaultAsset,
           cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-            .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
+            .div(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
+            .times(`1e+${asset.precision}`)
             .toString(),
           fiatAmount: state.deposit.fiatAmount,
         },

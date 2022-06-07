@@ -3853,10 +3853,10 @@
     web3-core "^1.7.1"
     web3-utils "^1.7.1"
 
-"@shapeshiftoss/investor-yearn@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-2.0.2.tgz#59d12c3c33011c22d5b0a3c39aa4fe5a5fd7ffec"
-  integrity sha512-i7XmXmF6Rk9N7etr5XEIyAOVXR7LzlXZH0liIFmo3cLddn3Sc6O5BytcQLh5oW9iFZeba48s9R6T/ZsGIJtpqA==
+"@shapeshiftoss/investor-yearn@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-3.0.1.tgz#44d4e54f3bfc90bc0e22265e863aee0a7b5f54b7"
+  integrity sha512-Ia7DlelEIMipt8cNmJjzZuf8xtKbHT9qB+YgaMrBbHID8dzDLngqK7eZwyS+CAHPPH85ukzrj9us10FG1oFYQw==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"

@@ -1,4 +1,5 @@
 import { btcChainId, ChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
   resolveUnstoppableDomain,
@@ -39,9 +40,7 @@ export type ResolveVanityDomainArgs = {
   value: string // may be any type of vanity address, e.g. a .eth or a .crypto, or a regular address on any chain
 }
 
-export type ResolveVanityDomainReturn =
-  | { address: string; error: false }
-  | { address: null; error: true }
+export type ResolveVanityDomainReturn = string
 
 export type ResolveVanityDomain = (
   args: ResolveVanityDomainArgs,
@@ -62,9 +61,84 @@ export const resolveVanityDomain: ResolveVanityDomain = async args => {
   for (const resolver of vanityResolversByChainId[args.chainId]) {
     try {
       const result = await resolver(args)
-      if (result.error) continue
+      if (!result) continue
+    } catch (e) {}
+  }
+  return ''
+}
+
+// reverse search - given a on chain address, resolve it to a vanity address
+type ReverseLookupVanityDomainArgs = {
+  chainId: ChainId
+  value: string
+}
+export type ReverseLookupVanityDomainReturn = {
+  vanityAddress: string
+}
+export type ReverseLookupVanityDomain = (
+  args: ReverseLookupVanityDomainArgs,
+) => Promise<ReverseLookupVanityDomainReturn>
+
+type ReverseResolversByChainId = {
+  [k: ChainId]: ReverseLookupVanityDomain[]
+}
+
+const reverseLookupResolversByChainId: ReverseResolversByChainId = {
+  [btcChainId]: [],
+  [ethChainId]: [],
+}
+
+export const reverseLookupVanityDomain: ReverseLookupVanityDomain = async args => {
+  for (const resolver of reverseLookupResolversByChainId[args.chainId]) {
+    try {
+      const result = await resolver(args)
       return result
     } catch (e) {}
   }
-  return { address: null, error: true }
+  return { vanityAddress: '' }
+}
+
+// validate a given address
+type ValidateAddressArgs = {
+  chainId: ChainId
+  value: string
+}
+type ValidateAddressReturn = boolean
+export type ValidateAddress = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
+
+export const validateAddress: ValidateAddress = async args => {
+  const { chainId, value } = args
+  try {
+    return (await getChainAdapters().byChainId(chainId).validateAddress(value)).valid
+  } catch (e) {
+    return false
+  }
+}
+
+/**
+ * given a value, which may be invalid input, a valid address, or a variety of vanity domains
+ * and a chainId, return an object containing and address and vanityAddress
+ * which may both be empty strings, one may be empty, or both may be populated
+ */
+type ParseAddressInputArgs = {
+  chainId: ChainId
+  value: string
+}
+export type ParseAddressInputReturn = {
+  address: string
+  vanityAddress: string
+}
+export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
+
+export const parseAddressInput: ParseAddressInput = async args => {
+  const isValidAddress = await validateAddress(args)
+  // we're dealing with a plain address
+  if (isValidAddress) return { address: args.value, vanityAddress: '' }
+  // at this point it's not a valid address, but may not be a vanity address
+  const isVanityAddress = await validateVanityDomain(args)
+  // it's neither a valid address nor a vanity address
+  if (!isVanityAddress) return { address: '', vanityAddress: '' }
+  // at this point it's a valid vanity address, let's resolve it
+  const address = await resolveVanityDomain(args)
+  return { address, vanityAddress: args.value }
 }

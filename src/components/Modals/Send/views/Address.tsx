@@ -10,7 +10,6 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-import { bitcoin, cosmossdk, ethereum } from '@shapeshiftoss/chain-adapters'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -21,8 +20,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
-import { resolveVanityDomain, validateVanityDomain } from 'lib/address/address'
-import { ensReverseLookup } from 'lib/address/ens'
+import { parseAddressInput } from 'lib/address/address'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -84,49 +82,14 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
-                  if (adapter instanceof cosmossdk.cosmos.ChainAdapter) {
-                    setIsValidatingInput(true)
-                    const validAddress = await adapter.validateAddress(value)
-                    setIsValidatingInput(false)
-                    return validAddress.valid || 'common.invalidAddress'
-                  }
-                  const validAddress = await adapter.validateAddress(value)
-                  if (adapter instanceof ethereum.ChainAdapter) {
-                    setIsValidatingInput(true)
-                    const validVanityDomain = await validateVanityDomain({ chainId, value })
-                    const { error: isUnresolvableVanityDomain, address } =
-                      await resolveVanityDomain({ chainId, value })
-                    setIsValidatingInput(false)
-                    console.info('validVanityDomain', validVanityDomain)
-                    console.info('address', address)
-                    if (isUnresolvableVanityDomain || !address) {
-                      setValue(SendFormFields.VanityDomain, value)
-                      return 'common.unresolvableVanityDomain'
-                    } else {
-                      setValue(SendFormFields.Address, address)
-                    }
-                    if (!validVanityDomain && !validAddress.valid) return 'common.invalidAddress'
-
-                    // If a lookup exists for a 0x address, display ENS name instead
-                    const reverseValueLookup = await ensReverseLookup(value)
-                    !reverseValueLookup.error &&
-                      setValue(SendFormFields.VanityDomain, reverseValueLookup.name)
-                    return true
-                  }
-                  if (adapter instanceof bitcoin.ChainAdapter) {
-                    setIsValidatingInput(true)
-                    const validVanityDomain = await validateVanityDomain({ chainId, value })
-                    const { error: isUnresolvableVanityDomain, address } =
-                      await resolveVanityDomain({ chainId, value })
-                    setIsValidatingInput(false)
-                    console.info('validVanityDomain', validVanityDomain)
-                    console.info('address', address)
-                    if (isUnresolvableVanityDomain) return 'common.unresolvableVanityDomain'
-                    if (!validVanityDomain && !validAddress.valid) return 'common.invalidAddress'
-                    setValue(SendFormFields.VanityDomain, value)
-                    return true
-                  }
-                  return validAddress.valid || 'common.invalidAddress'
+                  const chainId = adapter.getChainId()
+                  setIsValidatingInput(true)
+                  // this does not throw, everything inside is handled
+                  const { address, vanityAddress } = await parseAddressInput({ chainId, value })
+                  setIsValidatingInput(false)
+                  address && setValue(SendFormFields.Address, address)
+                  vanityAddress && setValue(SendFormFields.VanityDomain, vanityAddress)
+                  return address || vanityAddress ? true : 'common.invalidAddress'
                 },
               },
             }}

@@ -30,7 +30,7 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
 
 export const resolveEnsDomain: ResolveVanityDomain = async ({ value }) =>
   (await getChainAdapters().byChainId(ethChainId).validateAddress(value)).valid
-    ? { address: value, error: false }
+    ? value
     : ensLookup(value)
 
 // leave async such that this works with other async validators
@@ -40,11 +40,9 @@ export const validateEnsDomain: ValidateVanityDomain = async ({ value }) =>
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityDomainReturn> => {
   makeEns()
   const ensInstance = await ens
-  const lookupAddress = await ensInstance.name(domain).getAddress()
-  if (lookupAddress === '0x0000000000000000000000000000000000000000') {
-    return { address: null, error: true }
-  }
-  return { address: lookupAddress, error: false }
+  const address = await ensInstance.name(domain).getAddress()
+  if (address === '0x0000000000000000000000000000000000000000') return ''
+  return address
 })
 
 export const ensReverseLookup = memoize(

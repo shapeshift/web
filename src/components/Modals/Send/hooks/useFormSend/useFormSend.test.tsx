@@ -40,6 +40,7 @@ jest.mock('lib/address/ens')
 
 const formData: SendInput = {
   [SendFormFields.Address]: EthSend.address,
+  [SendFormFields.VanityDomain]: '',
   [SendFormFields.Asset]: {
     chainId: '',
     assetId: '',

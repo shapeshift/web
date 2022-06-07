@@ -26,7 +26,7 @@ import { QrCodeScanner } from './views/QrCodeScanner'
 
 export type SendInput = {
   [SendFormFields.Address]: string
-  [SendFormFields.VanityDomain]?: string
+  [SendFormFields.VanityDomain]: string
   [SendFormFields.AccountId]: AccountSpecifier
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset

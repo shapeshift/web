@@ -24,11 +24,10 @@ export const resolveUnstoppableDomain: ResolveVanityDomain = async ({ chainId, v
   const ticker = chainIdToUDTicker[chainId]
   try {
     if (!ticker) throw new Error(`unknown chainId ${chainId}`)
-    const address = await getResolution().addr(domain, ticker)
-    return { address, error: false }
+    return getResolution().addr(domain, ticker)
   } catch (e) {
     moduleLogger.trace(e, 'cannot resolve unstoppable domain')
-    return { address: null, error: true }
+    return ''
   }
 }
 

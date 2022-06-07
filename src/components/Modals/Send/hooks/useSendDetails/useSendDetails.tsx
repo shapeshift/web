@@ -14,7 +14,6 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { resolveVanityDomain } from 'lib/address/address'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
@@ -128,9 +127,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           wallet,
         })
         const ethereumChainAdapter = chainAdapterManager.byChainId(ethChainId)
-        const chainId = ethChainId
-        const domain = values.address
-        const to = (await resolveVanityDomain({ chainId, value: domain })).address ?? values.address
+        const to = values.address
         return ethereumChainAdapter.getFeeData({
           to,
           value,

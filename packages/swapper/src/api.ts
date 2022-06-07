@@ -64,7 +64,6 @@ interface TradeBase<C extends SupportedChainIds> {
   sellAmount: string
   feeData: QuoteFeeData<C>
   rate: string
-  allowanceContract: string
   sources: Array<SwapSource>
   buyAsset: Asset
   sellAsset: Asset
@@ -72,6 +71,7 @@ interface TradeBase<C extends SupportedChainIds> {
 }
 
 export interface TradeQuote<C extends SupportedChainIds> extends TradeBase<C> {
+  allowanceContract: string
   minimum: string
   maximum: string
 }

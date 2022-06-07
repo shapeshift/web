@@ -114,7 +114,6 @@ export async function zrxBuildTrade(
       txData: data.data,
       sellAmount: data.sellAmount,
       buyAmount: data.buyAmount,
-      allowanceContract: data.allowanceTarget,
       sources: data.sources?.filter((s) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE
     }
 

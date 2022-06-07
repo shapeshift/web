@@ -86,7 +86,6 @@ export const setupExecuteTrade = () => {
     receiveAddress: '0x0',
     feeData: { fee: '0', chainSpecific: {}, tradeFee: '0' },
     rate: '0',
-    allowanceContract: '0x0',
     sources: []
   }
   return { executeTradeInput, buyAsset, sellAsset }

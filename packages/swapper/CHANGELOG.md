@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v5.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.11.0...@shapeshiftoss/swapper-v5.12.0) (2022-06-07)
+
+
+### Features
+
+* implements getUsdRate method ([#733](https://github.com/shapeshift/lib/issues/733)) ([36b27f1](https://github.com/shapeshift/lib/commit/36b27f1cbef5bcf929005d93885adf5f058ac21c))
+
 # [@shapeshiftoss/swapper-v5.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v5.10.2...@shapeshiftoss/swapper-v5.11.0) (2022-06-07)
 
 

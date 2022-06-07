@@ -58,8 +58,12 @@ export enum TxParser {
   WETH = 'weth'
 }
 
-export interface StandardTxMetadata {
+export interface BaseTxMetadata {
   method?: string
+  parser: string
+}
+
+export interface StandardTxMetadata extends BaseTxMetadata {
   parser: TxParser
 }
 

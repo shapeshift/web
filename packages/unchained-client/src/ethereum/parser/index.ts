@@ -6,6 +6,7 @@ import { ethers } from 'ethers'
 import { Status, Token, TransferType } from '../../types'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
 import { InternalTx, ParsedTx, SubParser, TxSpecific } from '../types'
+import * as erc20Approve from './erc20Approve'
 import * as foxy from './foxy'
 import * as thor from './thor'
 import * as uniV2 from './uniV2'
@@ -29,6 +30,7 @@ export class TransactionParser {
   private readonly yearn: yearn.Parser
   private readonly foxy: foxy.Parser
   private readonly weth: weth.Parser
+  private readonly erc20Approve: erc20Approve.Parser
   private readonly parsers: Array<SubParser>
 
   constructor(args: TransactionParserArgs) {
@@ -48,8 +50,17 @@ export class TransactionParser {
     this.yearn = new yearn.Parser({ provider, chainId: this.chainId })
     this.foxy = new foxy.Parser()
     this.weth = new weth.Parser({ chainId: this.chainId, provider })
+    this.erc20Approve = new erc20Approve.Parser({ chainId: this.chainId, provider })
 
-    this.parsers = [this.zrx, this.thor, this.uniV2, this.yearn, this.foxy, this.weth]
+    this.parsers = [
+      this.zrx,
+      this.thor,
+      this.uniV2,
+      this.yearn,
+      this.foxy,
+      this.weth,
+      this.erc20Approve
+    ]
   }
 
   // return any addresses that can be detected

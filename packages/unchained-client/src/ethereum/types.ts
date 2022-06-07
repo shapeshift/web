@@ -1,6 +1,22 @@
 import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
 
-import { StandardTx, StandardTxMetadata } from '../types'
+import { BaseTxMetadata, StandardTx, StandardTxMetadata } from '../types'
+
+export enum EthereumTxParser {
+  ERC20Approve = 'erc20Approve'
+}
+
+export enum TxMethod {
+  Approve = 'approve'
+}
+
+export interface ERC20ApproveTxMetadata extends BaseTxMetadata {
+  method: TxMethod.Approve
+  parser: EthereumTxParser.ERC20Approve
+  assetId?: string
+}
+
+export type TxMetadata = StandardTxMetadata | ERC20ApproveTxMetadata
 
 export interface InternalTx {
   blockNumber: string
@@ -20,7 +36,7 @@ export interface InternalTx {
 }
 
 export interface ParsedTx extends StandardTx {
-  data?: StandardTxMetadata
+  data?: TxMetadata
 }
 
 export type TxSpecific = Partial<Pick<ParsedTx, 'trade' | 'transfers' | 'data'>>

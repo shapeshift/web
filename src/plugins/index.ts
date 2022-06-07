@@ -8,8 +8,6 @@ import { Route } from '../Routes/helpers'
 
 const moduleLogger = logger.child({ namespace: ['PluginManager'] })
 
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis']
-
 export type Plugins = [chainId: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }
 
@@ -30,7 +28,7 @@ export class PluginManager {
     this.#pluginManager.clear()
   }
 
-  register(plugin: RegistrablePlugin): void {
+  register<T extends RegistrablePlugin>(plugin: T): void {
     for (const [pluginId, pluginManifest] of plugin.register()) {
       if (this.#pluginManager.has(pluginId)) {
         throw new Error('PluginManager: Duplicate pluginId')
@@ -55,9 +53,15 @@ export const pluginManager = new PluginManager()
 export async function registerPlugins() {
   pluginManager.clear()
 
+  const activeGenerated: { getActivePlugins: () => Promise<RegistrablePlugin[]> } = await import(
+    // Explicitly type-widening this parameter allows type-checking to succeed
+    // even if the file hasn't been generated yet.
+    './active_generated' as string
+  )
+  const activePlugins = await activeGenerated.getActivePlugins()
   for (const plugin of activePlugins) {
     try {
-      pluginManager.register(await import(`./${plugin}/index.tsx`))
+      pluginManager.register(plugin)
       moduleLogger.trace({ fn: 'registerPlugins', pluginManager, plugin }, 'Registered Plugin')
     } catch (e) {
       moduleLogger.error(e, { fn: 'registerPlugins', pluginManager }, 'Register Plugins')

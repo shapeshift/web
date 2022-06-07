@@ -10,7 +10,9 @@ import * as ssri from 'ssri'
 import * as webpack from 'webpack'
 import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity'
 
+import { getConfigKeys } from './env'
 import { cspMeta, headers, serializeCsp } from './headers'
+import { getActivePluginNames } from './plugins'
 
 type DevServerConfigFunction = (
   proxy: unknown,
@@ -202,6 +204,7 @@ const reactAppRewireConfig = {
         .filter(([, v]) => v)
         .map(([k, v]) => [k, JSON.parse(v)]),
     )
+    const configKeys = getConfigKeys()
     // Update the Webpack config to emit the collected env vars as `env.json` and load them
     // dynamically instead of baking them into each chunk that might reference them.
     _.merge(
@@ -276,7 +279,7 @@ const reactAppRewireConfig = {
                         code() {
                           return stableStringify(
                             Object.fromEntries(
-                              Object.entries(env).filter(([k]) => k.startsWith('REACT_APP_')),
+                              Object.entries(env).filter(([k]) => k.startsWith('REACT_APP_') && configKeys.includes(k)),
                             ),
                           )
                         },
@@ -319,6 +322,13 @@ const reactAppRewireConfig = {
           }
         : {},
     )
+
+    const activePluginNames = getActivePluginNames().sort()
+    const activePluginScript = `export async function getActivePlugins() {\n  return await Promise.all([\n${activePluginNames
+      .map(x => `    import('./${x}'),`)
+      .join('\n')}\n  ])\n}\n`
+
+    fs.writeFileSync(path.join(buildPath, 'src/plugins/active_generated.ts'), activePluginScript)
 
     return config
   },

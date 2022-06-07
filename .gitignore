@@ -30,3 +30,5 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+
+/src/plugins/active_generated.ts

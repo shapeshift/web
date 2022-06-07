@@ -821,6 +821,7 @@
         "emailRequired": "L'adresse de courriel est requise",
         "invalidEmail": "L'adresse de courriel est invalide",
         "invalidCaptcha": "Le Capcha est invalide",
+        "captchaRequired": "Le Capcha est requis",
         "invalidLogin": "Identification invalide",
         "noWallet": "Impossible de trouver un porte-monnaie ShapeShift Natif pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
         "decryptionError": "Une erreur s'est produite lors du décryptage de votre porte-monnaie.",

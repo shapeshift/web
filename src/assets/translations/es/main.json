@@ -831,6 +831,7 @@
         "emailRequired": "Correo Electronico es requerido",
         "invalidEmail": "Correo Electrónico es invalido",
         "invalidCaptcha": "El Captcha no es válido",
+        "captchaRequired": "Se requiere captcha",
         "invalidLogin": "Ingreso invalido",
         "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
         "decryptionError": "Algo salió mal al descifrar su billetera.",

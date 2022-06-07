@@ -827,6 +827,7 @@
         "emailRequired": "电子邮件是必需的",
         "invalidEmail": "电子邮件不可用",
         "invalidCaptcha": "验证码不可用",
+        "captchaRequired": "验证码是必需的",
         "invalidLogin": "无效的登录",
         "noWallet": "找不到用于您登录的原生ShapeShift钱包。如果您觉得这条消息是错误的，请联系ShapeShift提供帮助。",
         "decryptionError": "在解密你的钱包时出了问题。",

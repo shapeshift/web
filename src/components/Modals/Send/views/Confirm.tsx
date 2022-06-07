@@ -95,7 +95,6 @@ export const Confirm = () => {
             </Row.Label>
             <Row.Value>
               {vanityDomain ? vanityDomain : <MiddleEllipsis address={address} />}
-              {/* <MiddleEllipsis address={vanityDomain || address} /> */}
             </Row.Value>
           </Row>
           <FormControl mt={4}>

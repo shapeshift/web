@@ -4,8 +4,6 @@ import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
-import { ethChainId } from 'test/mocks/accounts'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { getWeb3Provider } from 'lib/web3-provider'
 
 import { ReverseLookupVanityAddress } from './address'
@@ -29,10 +27,7 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
   return new ENS({ provider: getWeb3Provider(), ensAddress: getEnsAddress(chainIdReference) })
 })
 
-export const resolveEnsDomain: ResolveVanityAddress = async ({ value }) =>
-  (await getChainAdapters().byChainId(ethChainId).validateAddress(value)).valid
-    ? value
-    : ensLookup(value)
+export const resolveEnsDomain: ResolveVanityAddress = async ({ value }) => ensLookup(value)
 
 // leave async such that this works with other async validators
 export const validateEnsDomain: ValidateVanityAddress = async ({ value }) =>

@@ -74,3 +74,18 @@ export const ETH: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/'
 }
+
+export const UNSUPPORTED: Asset = {
+  assetId: 'eip155:1/slip44:420',
+  chainId: 'eip155:1',
+  chain: ChainTypes.Ethereum,
+  network: NetworkTypes.MAINNET,
+  symbol: 'ETH',
+  name: 'Ethereum',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/'
+}

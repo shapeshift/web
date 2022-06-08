@@ -11,7 +11,7 @@ type FoxLayoutProps = {
 }
 
 export const Layout = ({ children, icon, title, description }: FoxLayoutProps) => {
-  const descriptionColor = useColorModeValue('gray.750', 'gray.500')
+  const descriptionColor = useColorModeValue('gray.750', 'whiteAlpha.700')
 
   return (
     <>

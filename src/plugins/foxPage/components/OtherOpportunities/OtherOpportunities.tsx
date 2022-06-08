@@ -1,30 +1,27 @@
 import { Flex } from '@chakra-ui/layout'
-import { Accordion, Text as CText } from '@chakra-ui/react'
+import { Accordion } from '@chakra-ui/react'
 import { OpportunitiesBucket } from 'plugins/foxPage/FoxCommon'
-import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 
 import { FoxOtherOpportunityPanel } from './FoxOtherOpportunityPanel'
 
 type OtherOpportunitiesProps = {
+  title: string
   description: string
   opportunities: OpportunitiesBucket[]
 }
 
 export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
+  title,
   description,
   opportunities,
 }) => {
-  const translate = useTranslate()
-
   return (
     <Card display='block' width='full' borderRadius={8}>
       <Card.Header pb={0}>
         <Flex flexDirection='row' alignItems='center' mb={2}>
-          <CText fontWeight='bold' color='inherit'>
-            {translate('plugins.foxPage.otherOpportunitiesTitle')}
-          </CText>
+          <Text translation={title} fontWeight='bold' color='inherit' />
         </Flex>
         <Text translation={description} color='gray.500' />
       </Card.Header>

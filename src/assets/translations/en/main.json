@@ -1107,12 +1107,16 @@
       "currentApy": "Current APY",
       "balance": "Balance",
       "getStarted": "Get Started",
+      "manage": "Manage",
       "currentPrice": "Current Price",
       "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
       "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
-      "otherOpportunitiesTitle": "Opportunities",
+      "otherOpportunitiesTitle": {
+        "FOX": "Other Opportunities",
+        "FOXy": "Opportunities"
+      },
       "otherOpportunitiesDescription": {
-        "FOX": "Get cagey with your FOX investment strategies! Explore the many opportunities for providing liquidity, farming for yield, lending and borrowing. Click the “Get Started” links below to visit the external sites of interest to learn more—and put your FOX to work for you.",
+        "FOX": "Explore the many opportunities for providing liquidity, farming for yield, lending and borrowing. Click the “Get Started” links below to visit the external sites of interest to learn more—and put your FOX to work for you.",
         "FOXy": "Quickly and easily purchase FOXy, the industry’s first DAO rebasing token that offers both yield and profit rewards."
       },
       "liquidityPools": "Liquidity Pools",

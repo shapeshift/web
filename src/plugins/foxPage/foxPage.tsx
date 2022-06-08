@@ -242,6 +242,7 @@ export const FoxPage = () => {
                 />
 
                 <OtherOpportunities
+                  title={`plugins.foxPage.otherOpportunitiesTitle.${selectedAsset.symbol}`}
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}
                 />
@@ -264,6 +265,7 @@ export const FoxPage = () => {
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
                 <OtherOpportunities
+                  title={`plugins.foxPage.otherOpportunitiesTitle.${selectedAsset.symbol}`}
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}
                 />

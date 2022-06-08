@@ -263,7 +263,6 @@ export const FoxPage = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                r{' '}
                 <OtherOpportunities
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}

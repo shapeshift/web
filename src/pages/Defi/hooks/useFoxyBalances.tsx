@@ -123,7 +123,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
   const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
 
   useEffect(() => {
-    if (!wallet || !supportsEthereumChain || !foxy) return
+    if (!wallet || !supportsEthereumChain || !foxy || !foxyApr) return
     ;(async () => {
       setLoading(true)
       try {

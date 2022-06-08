@@ -1,35 +1,51 @@
 import { Box, Flex, Skeleton } from '@chakra-ui/react'
 import { Button, Text as CText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { fox } from 'test/mocks/assets'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type MainOpportunityProps = {
-  isLoaded: boolean
   apy: string
-  tvl: string
+  assetId: string
   balance: string
+  isLoaded: boolean
   onClick: () => void
+  tvl: string
 }
 
-export const MainOpportunity = ({ apy, tvl, balance, onClick, isLoaded }: MainOpportunityProps) => {
+export const MainOpportunity = ({
+  apy,
+  assetId,
+  tvl,
+  balance,
+  onClick,
+  isLoaded,
+}: MainOpportunityProps) => {
   const translate = useTranslate()
+
+  const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
   return (
     <Card display='block' width='full'>
       <Card.Header>
         <Flex flexDirection='row' alignItems='center' mb={2}>
-          <AssetIcon src={fox.icon} boxSize='6' mr={2} zIndex={2} />
-          <CText fontWeight='bold' color='inherit'>
-            {translate('plugins.foxPage.titleStaking', {
-              assetSymbol: 'FOX',
-            })}
-          </CText>
+          <AssetIcon src={selectedAsset.icon} boxSize='6' mr={2} zIndex={2} />
+          <Text
+            fontWeight='bold'
+            color='inherit'
+            translation={[
+              'plugins.foxPage.mainStakingTitle',
+              {
+                assetSymbol: selectedAsset.symbol,
+              },
+            ]}
+          />
         </Flex>
-        <Text translation='Lorem ipsum sit dolor amet.' color='gray.500' />
+        <Text translation='plugins.foxPage.mainStakingDescription' color='gray.500' />
       </Card.Header>
       <Card.Body>
         <Flex justifyContent='space-between' flexDirection={{ base: 'column', md: 'row' }}>

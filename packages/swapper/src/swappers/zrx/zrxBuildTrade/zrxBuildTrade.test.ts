@@ -42,7 +42,8 @@ const setup = () => {
   const unchainedUrls = {
     [ChainTypes.Ethereum]: {
       httpUrl: 'http://localhost:31300',
-      wsUrl: 'ws://localhost:31300'
+      wsUrl: 'ws://localhost:31300',
+      rpcUrl: 'http://localhost:1000'
     }
   }
   const ethNodeUrl = 'http://localhost:1000'

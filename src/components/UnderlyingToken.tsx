@@ -28,7 +28,6 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
 
   // Get asset from assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const { assetReference } = fromAssetId(assetId)
 
   const {
     state: { wallet },

@@ -48,7 +48,7 @@ export const Withdraw = () => {
   if (!state || !dispatch) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!(state.userAddress && opportunity && tokenId)) return
+    if (!(state.userAddress && opportunity && assetReference)) return
     try {
       const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
         opportunity?.positionAsset.assetId,

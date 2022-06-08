@@ -23,29 +23,29 @@
     "swapcli": "yarn build && node ./dist/swappercli.js"
   },
   "dependencies": {
-    "axios": "^0.26.0",
-    "bignumber.js": "^9.0.1",
+    "axios": "^0.26.1",
+    "bignumber.js": "^9.0.2",
     "lodash": "^4.17.21",
     "retry-axios": "^2.6.0",
-    "web3": "^1.6.1"
+    "web3": "^1.7.3"
   },
   "peerDependencies": {
     "@shapeshiftoss/asset-service": "^4.6.0",
-    "@shapeshiftoss/caip": "^5.2.1",
-    "@shapeshiftoss/chain-adapters": "^4.7.0",
-    "@shapeshiftoss/hdwallet-core": "1.20.0",
-    "@shapeshiftoss/types": "^4.4.0",
-    "@shapeshiftoss/errors": "^1.1.0"
+    "@shapeshiftoss/caip": "^5.2.2",
+    "@shapeshiftoss/chain-adapters": "^4.8.0",
+    "@shapeshiftoss/errors": "^1.1.1",
+    "@shapeshiftoss/hdwallet-core": "^1.23.0",
+    "@shapeshiftoss/types": "^4.4.0"
   },
   "devDependencies": {
     "@shapeshiftoss/asset-service": "^4.6.0",
-    "@shapeshiftoss/caip": "^5.2.1",
-    "@shapeshiftoss/chain-adapters": "^4.7.0",
-    "@shapeshiftoss/hdwallet-core": "^1.20.0",
+    "@shapeshiftoss/caip": "^5.2.2",
+    "@shapeshiftoss/chain-adapters": "^4.8.0",
+    "@shapeshiftoss/errors": "^1.1.1",
+    "@shapeshiftoss/hdwallet-core": "^1.23.0",
     "@shapeshiftoss/types": "^4.4.0",
-    "@shapeshiftoss/errors": "^1.1.0",
     "@types/readline-sync": "^1.4.4",
     "readline-sync": "^1.4.10",
-    "web3-utils": "^1.5.2"
+    "web3-utils": "^1.7.3"
   }
 }

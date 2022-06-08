@@ -31,20 +31,20 @@
     "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "lodash": "^4.17.21",
-    "web3": "^1.7.1",
-    "web3-core": "^1.7.1",
-    "web3-utils": "^1.7.1"
+    "web3": "^1.7.3",
+    "web3-core": "^1.7.3",
+    "web3-utils": "^1.7.3"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^5.2.1",
-    "@shapeshiftoss/chain-adapters": "^4.3.3",
-    "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "4.3.1"
+    "@shapeshiftoss/caip": "^5.2.2",
+    "@shapeshiftoss/chain-adapters": "^4.8.0",
+    "@shapeshiftoss/hdwallet-core": "^1.23.0",
+    "@shapeshiftoss/types": "^4.4.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^5.2.1",
-    "@shapeshiftoss/chain-adapters": "^4.3.3",
-    "@shapeshiftoss/hdwallet-core": "^1.20.0",
-    "@shapeshiftoss/types": "4.3.1"
+    "@shapeshiftoss/caip": "^5.2.2",
+    "@shapeshiftoss/chain-adapters": "^4.8.0",
+    "@shapeshiftoss/hdwallet-core": "^1.23.0",
+    "@shapeshiftoss/types": "^4.4.0"
   }
 }

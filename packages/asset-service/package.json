@@ -28,22 +28,21 @@
     "type-check": "tsc --project ./tsconfig.build.json --noEmit"
   },
   "dependencies": {
-    "axios": "^0.26.0",
+    "axios": "^0.26.1",
     "identicon.js": "^2.3.3",
     "js-pixel-fonts": "^1.5.0",
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^5.2.1",
+    "@shapeshiftoss/caip": "^5.2.2",
     "@shapeshiftoss/types": "^4.4.0"
   },
   "devDependencies": {
-    "@ethersproject/providers": "^5.5.2",
-    "@shapeshiftoss/caip": "^5.2.1",
+    "@ethersproject/providers": "^5.5.3",
+    "@shapeshiftoss/caip": "^5.2.2",
     "@shapeshiftoss/types": "^4.4.0",
-    "@types/lodash": "^4.14.172",
     "@yfi/sdk": "^1.0.30",
     "dotenv": "^14.3.0",
-    "web3": "^1.7.0"
+    "web3": "^1.7.3"
   }
 }

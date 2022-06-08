@@ -7,7 +7,7 @@ import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensLookup } from 'lib/ens'
+import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
@@ -32,7 +32,7 @@ jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('context/PluginProvider/PluginProvider')
-jest.mock('lib/ens', () => ({ ensLookup: jest.fn() }))
+jest.mock('lib/address/ens', () => ({ ensLookup: jest.fn() }))
 
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),

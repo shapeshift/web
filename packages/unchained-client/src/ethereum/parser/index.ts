@@ -1,16 +1,15 @@
-import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
 import { ASSET_REFERENCE, AssetId, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
+import { EthereumTx } from '../../generated/ethereum'
 import { Status, Token, TransferType } from '../../types'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
-import { InternalTx, ParsedTx, SubParser, TxSpecific } from '../types'
-import * as erc20Approve from './erc20Approve'
+import { ParsedTx, SubParser, TxSpecific } from '../types'
+import * as erc20 from './erc20'
 import * as foxy from './foxy'
 import * as thor from './thor'
 import * as uniV2 from './uniV2'
-import { getInternalMultisigAddress, getSigHash, SENDMULTISIG_SIG_HASH } from './utils'
 import * as weth from './weth'
 import * as yearn from './yearn'
 import * as zrx from './zrx'
@@ -30,7 +29,7 @@ export class TransactionParser {
   private readonly yearn: yearn.Parser
   private readonly foxy: foxy.Parser
   private readonly weth: weth.Parser
-  private readonly erc20Approve: erc20Approve.Parser
+  private readonly erc20: erc20.Parser
   private readonly parsers: Array<SubParser>
 
   constructor(args: TransactionParserArgs) {
@@ -50,36 +49,15 @@ export class TransactionParser {
     this.yearn = new yearn.Parser({ provider, chainId: this.chainId })
     this.foxy = new foxy.Parser()
     this.weth = new weth.Parser({ chainId: this.chainId, provider })
-    this.erc20Approve = new erc20Approve.Parser({ chainId: this.chainId, provider })
+    this.erc20 = new erc20.Parser({ chainId: this.chainId, provider })
 
-    this.parsers = [
-      this.zrx,
-      this.thor,
-      this.uniV2,
-      this.yearn,
-      this.foxy,
-      this.weth,
-      this.erc20Approve
-    ]
+    // order here matters currently as weth and yearn have the same sigHash for deposit() and the weth parser is stricter resulting in faster processing times
+    this.parsers = [this.zrx, this.thor, this.uniV2, this.weth, this.foxy, this.yearn, this.erc20]
   }
 
-  // return any addresses that can be detected
-  getInternalAddress(inputData: string): string | undefined {
-    switch (getSigHash(inputData)) {
-      case this.thor.supportedFunctions.transferOutSigHash:
-        return this.thor.getInternalAddress(inputData)
-      case SENDMULTISIG_SIG_HASH:
-        return getInternalMultisigAddress(inputData)
-      default:
-        return
-    }
-  }
+  async parse(tx: EthereumTx, address: string): Promise<ParsedTx> {
+    address = ethers.utils.getAddress(address)
 
-  async parse(
-    tx: BlockbookTx,
-    address: string,
-    internalTxs?: Array<InternalTx>
-  ): Promise<ParsedTx> {
     // We expect only one Parser to return a result. If multiple do, we take the first and early exit.
     const contractParserResult = await findAsyncSequential<SubParser, TxSpecific>(
       this.parsers,
@@ -90,7 +68,7 @@ export class TransactionParser {
       address,
       blockHash: tx.blockHash,
       blockHeight: tx.blockHeight,
-      blockTime: tx.blockTime,
+      blockTime: tx.timestamp,
       chainId: this.chainId,
       confirmations: tx.confirmations,
       status: TransactionParser.getStatus(tx),
@@ -100,11 +78,11 @@ export class TransactionParser {
       data: contractParserResult?.data
     }
 
-    return this.getParsedTxWithTransfers(tx, parsedTx, address, internalTxs)
+    return this.getParsedTxWithTransfers(tx, parsedTx, address)
   }
 
-  private static getStatus(tx: BlockbookTx): Status {
-    const status = tx.ethereumSpecific?.status
+  private static getStatus(tx: EthereumTx): Status {
+    const status = tx.status
 
     if (status === -1 && tx.confirmations <= 0) return Status.Pending
     if (status === 1 && tx.confirmations > 0) return Status.Confirmed
@@ -113,16 +91,8 @@ export class TransactionParser {
     return Status.Unknown
   }
 
-  private getParsedTxWithTransfers(
-    tx: BlockbookTx,
-    parsedTx: ParsedTx,
-    address: string,
-    internalTxs?: Array<InternalTx>
-  ) {
-    const sendAddress = tx.vin[0].addresses?.[0] ?? ''
-    const receiveAddress = tx.vout[0].addresses?.[0] ?? ''
-
-    if (address === sendAddress) {
+  private getParsedTxWithTransfers(tx: EthereumTx, parsedTx: ParsedTx, address: string) {
+    if (address === tx.from) {
       // send amount
       const sendValue = new BigNumber(tx.value)
       if (sendValue.gt(0)) {
@@ -130,20 +100,20 @@ export class TransactionParser {
           parsedTx.transfers,
           TransferType.Send,
           this.assetId,
-          sendAddress,
-          receiveAddress,
+          tx.from,
+          tx.to,
           sendValue.toString(10)
         )
       }
 
       // network fee
-      const fees = new BigNumber(tx.fees ?? 0)
+      const fees = new BigNumber(tx.fee)
       if (fees.gt(0)) {
         parsedTx.fee = { assetId: this.assetId, value: fees.toString(10) }
       }
     }
 
-    if (address === receiveAddress) {
+    if (address === tx.to) {
       // receive amount
       const receiveValue = new BigNumber(tx.value)
       if (receiveValue.gt(0)) {
@@ -151,8 +121,8 @@ export class TransactionParser {
           parsedTx.transfers,
           TransferType.Receive,
           this.assetId,
-          sendAddress,
-          receiveAddress,
+          tx.from,
+          tx.to,
           receiveValue.toString(10)
         )
       }
@@ -160,13 +130,13 @@ export class TransactionParser {
 
     tx.tokenTransfers?.forEach((transfer) => {
       // FTX Token (FTT) name and symbol was set backwards on the ERC20 contract
-      if (transfer.token === '0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9') {
+      if (transfer.contract === '0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9') {
         transfer.name = transfer.symbol
         transfer.symbol = transfer.name
       }
 
       const token: Token = {
-        contract: transfer.token,
+        contract: transfer.contract,
         decimals: transfer.decimals,
         name: transfer.name,
         symbol: transfer.symbol
@@ -176,7 +146,7 @@ export class TransactionParser {
         toAssetId({
           ...fromChainId(this.chainId),
           assetNamespace: 'erc20',
-          assetReference: transfer.token
+          assetReference: transfer.contract
         }),
         transfer.from,
         transfer.to,
@@ -203,7 +173,7 @@ export class TransactionParser {
       }
     })
 
-    internalTxs?.forEach((internalTx) => {
+    tx.internalTxs?.forEach((internalTx) => {
       const transferArgs = [
         toAssetId({
           ...fromChainId(this.chainId),

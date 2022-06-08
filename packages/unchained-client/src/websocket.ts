@@ -10,6 +10,7 @@ const logger = new Logger({
 export interface Connection {
   ws: WebSocket
   pingTimeout?: NodeJS.Timeout
+  interval: NodeJS.Timeout
 }
 
 export interface TransactionMessage<T> {
@@ -29,6 +30,7 @@ export type SubscriptionId = string
 export class Client<T> {
   private readonly url: string
   private readonly connections: Record<Topics, Connection | undefined>
+  private readonly pingInterval = 10000
 
   private txs: Record<SubscriptionId, TxsParams<T>> = {}
 
@@ -45,12 +47,10 @@ export class Client<T> {
     if (!connection) return
 
     connection.pingTimeout && clearTimeout(connection.pingTimeout)
-    connection.pingTimeout = setTimeout(() => connection?.ws.close(), 10000 + 5000)
-  }
-
-  private onOpen(topic: Topics, resolve: (value: unknown) => void): void {
-    this.heartbeat(topic)
-    resolve(true)
+    connection.pingTimeout = setTimeout(() => {
+      logger.warn({ fn: 'pingTimeout' }, `${topic} heartbeat failed`)
+      connection?.ws.close()
+    }, this.pingInterval + 5000)
   }
 
   /**
@@ -91,7 +91,14 @@ export class Client<T> {
     }
 
     const ws = new WebSocket(this.url)
-    this.connections.txs = { ws }
+
+    const interval = setInterval(() => {
+      // browsers do not support ping/pong frame, send ping payload instead
+      const payload: RequestPayload = { subscriptionId: '', method: 'ping' }
+      ws.send(JSON.stringify(payload))
+    }, this.pingInterval)
+
+    this.connections.txs = { ws, interval }
 
     // send connection errors to all subscription onError handlers
     ws.onerror = (event) => {
@@ -101,16 +108,17 @@ export class Client<T> {
     }
 
     // clear heartbeat timeout on close
-    ws.onclose = () =>
+    ws.onclose = () => {
       this.connections.txs?.pingTimeout && clearTimeout(this.connections.txs.pingTimeout)
+      this.connections.txs?.interval && clearInterval(this.connections.txs.interval)
+    }
 
     ws.onmessage = (event) => {
       if (!event) return
       if (event.type !== 'message') return
 
-      // browsers do not support ping/pong frame, handle message instead
-      // trigger heartbeat keep alive on ping message and respond with pong
-      if (event.data === 'ping') {
+      if (event.data === 'pong') {
+        // trigger heartbeat keep alive on pong response
         this.heartbeat('txs')
         return
       }
@@ -134,22 +142,27 @@ export class Client<T> {
     }
 
     // wait for the connection to open
-    const openConnection = new Promise((resolve) => {
+    const openConnection = new Promise((resolve, reject) => {
       ws.onopen = () => {
-        // start heartbeat
-        this.onOpen('txs', resolve)
+        this.heartbeat('txs')
 
-        // subscribe to all queued subscriptions
-        Object.values(this.txs).forEach((tx) => {
-          if (!tx.data) return
-          const payload: RequestPayload = { subscriptionId, method: 'subscribe', data: tx.data }
+        try {
+          // subscribe to all queued subscriptions
+          Object.values(this.txs).forEach((tx) => {
+            if (!tx.data) return
+            const payload: RequestPayload = { subscriptionId, method: 'subscribe', data: tx.data }
+            ws.send(JSON.stringify(payload))
+            delete this.txs[subscriptionId].data
+          })
+
+          // subscribe to initial subscription
+          const payload: RequestPayload = { subscriptionId, method: 'subscribe', data }
           ws.send(JSON.stringify(payload))
-          delete this.txs[subscriptionId].data
-        })
 
-        // subscribe to initial subscription
-        const payload: RequestPayload = { subscriptionId, method: 'subscribe', data }
-        ws.send(JSON.stringify(payload))
+          resolve(true)
+        } catch (err) {
+          reject(err)
+        }
       }
     })
 

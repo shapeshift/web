@@ -238,48 +238,6 @@ describe('BitcoinChainAdapter', () => {
     })
   })
 
-  describe('getTxHistory', () => {
-    it('should return tx history for a specified address', async () => {
-      args.providers.http = {
-        getTxHistory: jest.fn().mockResolvedValue({
-          data: {
-            page: 1,
-            totalPages: 1,
-            txs: 1,
-            transactions: [
-              {
-                network: 'MAINNET',
-                chain: 'bitcoin',
-                symbol: 'BTC',
-                txid: '123',
-                status: 'confirmed',
-                from: 'abc',
-                value: '1337',
-                fee: '1'
-              }
-            ]
-          }
-        })
-      } as any
-
-      const adapter = new bitcoin.ChainAdapter(args)
-      const pubkey = '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx'
-      await expect(adapter.getTxHistory({ pubkey })).rejects.toThrow('Method not implemented.')
-    })
-
-    it('should fail for an unspecified address', async () => {
-      args.providers.http = {
-        getTxHistory: jest.fn().mockResolvedValue({
-          data: {}
-        })
-      } as any
-
-      const adapter = new bitcoin.ChainAdapter(args)
-      const pubkey = ''
-      await expect(adapter.getTxHistory({ pubkey })).rejects.toThrow('Method not implemented.')
-    })
-  })
-
   describe('buildSendTransaction', () => {
     it('should return a formatted BTCSignTx object for a valid BuildSendTxInput parameter', async () => {
       const wallet: any = await getWallet()

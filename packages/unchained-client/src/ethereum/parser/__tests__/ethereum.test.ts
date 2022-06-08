@@ -1,9 +1,10 @@
 import { Dex, Status, Trade, TradeType, TransferType, TxParser } from '../../../types'
-import { EthereumTxParser, ParsedTx as Tx, TxMethod } from '../../types'
+import { ParsedTx as Tx, TxParser as EthereumTxParser } from '../../types'
 import {
   FOXY_STAKING_CONTRACT,
   SHAPE_SHIFT_ROUTER_CONTRACT,
-  UNI_V2_FOX_STAKING_REWARDS_V3
+  UNI_V2_FOX_STAKING_REWARDS_V3,
+  WETH_CONTRACT_MAINNET
 } from '../constants'
 import { TransactionParser } from '../index'
 import ethSelfSend from './mockData/ethSelfSend'
@@ -50,12 +51,23 @@ import zrxTradeEthToMatic from './mockData/zrxTradeEthToMatic'
 import zrxTradeTetherToKishu from './mockData/zrxTradeTetherToKishu'
 import zrxTradeTribeToEth from './mockData/zrxTradeTribeToEth'
 
+jest.mock('@yfi/sdk', () => ({
+  Yearn: jest.fn().mockImplementation(() => ({
+    vaults: {
+      get: () => [
+        { address: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2' },
+        { address: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9' }
+      ]
+    }
+  }))
+}))
+
 const txParser = new TransactionParser({ rpcUrl: '', chainId: 'eip155:1' })
 
 describe('parseTx', () => {
   describe('multiSig', () => {
     it('should be able to parse eth multi sig send', async () => {
-      const { tx, internalTxs } = multiSigSendEth
+      const { tx } = multiSigSendEth
       const address = '0x76DA1578aC163CA7ca4143B7dEAa428e85Db3042'
 
       const standardTransfer = {
@@ -71,7 +83,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -81,7 +93,7 @@ describe('parseTx', () => {
         transfers: [standardTransfer]
       }
 
-      const actual = await txParser.parse(tx, address, internalTxs)
+      const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
     })
@@ -108,7 +120,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -152,7 +164,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -176,7 +188,7 @@ describe('parseTx', () => {
     })
 
     it('should be able to parse eth transfer out', async () => {
-      const { tx, internalTxs } = thorSwapTransferOutEth
+      const { tx } = thorSwapTransferOutEth
       const address = '0x5a8C5afbCC1A58cCbe17542957b587F46828B38E'
       const trade: Trade = {
         dexName: Dex.Thor,
@@ -196,7 +208,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -210,7 +222,7 @@ describe('parseTx', () => {
         trade
       }
 
-      const actual = await txParser.parse(tx, address, internalTxs)
+      const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
     })
@@ -236,7 +248,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -256,7 +268,7 @@ describe('parseTx', () => {
     })
 
     it('should be able to parse eth refund', async () => {
-      const { tx, internalTxs } = thorSwapRefundEth
+      const { tx } = thorSwapRefundEth
       const address = '0xfc0Cc6E85dFf3D75e3985e0CB83B090cfD498dd1'
       const trade: Trade = {
         dexName: Dex.Thor,
@@ -276,7 +288,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -290,7 +302,7 @@ describe('parseTx', () => {
         trade
       }
 
-      const actual = await txParser.parse(tx, address, internalTxs)
+      const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
     })
@@ -298,7 +310,7 @@ describe('parseTx', () => {
 
   describe('zrx', () => {
     it('should be able to parse token -> eth', async () => {
-      const { tx, internalTxs } = zrxTradeTribeToEth
+      const { tx } = zrxTradeTribeToEth
       const address = '0x5bb96c35a68Cba037D0F261C67477416db137F03'
       const trade: Trade = {
         dexName: Dex.Zrx,
@@ -335,7 +347,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -353,7 +365,7 @@ describe('parseTx', () => {
         trade
       }
 
-      const actual = await txParser.parse(tx, address, internalTxs)
+      const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
     })
@@ -397,7 +409,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -451,7 +463,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -525,7 +537,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -557,7 +569,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.blockTime,
+        blockTime: txMempool.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
@@ -596,7 +608,7 @@ describe('parseTx', () => {
         txid: tx.txid,
         blockHash: tx.blockHash,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
@@ -638,7 +650,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.blockTime,
+        blockTime: txMempool.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
@@ -679,7 +691,7 @@ describe('parseTx', () => {
         txid: tx.txid,
         blockHash: tx.blockHash,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
@@ -725,15 +737,15 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
           assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
-          method: TxMethod.Approve,
-          parser: EthereumTxParser.ERC20Approve
+          method: 'approve',
+          parser: EthereumTxParser.ERC20
         },
         status: Status.Confirmed,
         fee: {
@@ -755,7 +767,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.blockTime,
+        blockTime: txMempool.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
@@ -802,7 +814,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -855,7 +867,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.blockTime,
+        blockTime: txMempool.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
@@ -883,13 +895,13 @@ describe('parseTx', () => {
     })
 
     it('should be able to parse remove liquidity', async () => {
-      const { tx, internalTxs } = uniRemoveLiquidity
+      const { tx } = uniRemoveLiquidity
       const address = '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C'
 
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -930,7 +942,7 @@ describe('parseTx', () => {
         ]
       }
 
-      const actual = await txParser.parse(tx, address, internalTxs)
+      const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
     })
@@ -944,7 +956,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -980,7 +992,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.blockTime,
+        blockTime: txMempool.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
@@ -1004,7 +1016,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1043,7 +1055,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.blockTime,
+        blockTime: txMempool.timestamp,
         address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
@@ -1067,7 +1079,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1117,7 +1129,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1145,7 +1157,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1192,7 +1204,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1239,7 +1251,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1288,7 +1300,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1337,7 +1349,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1386,7 +1398,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1435,7 +1447,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1472,23 +1484,13 @@ describe('parseTx', () => {
   describe('weth', () => {
     it('should be able to parse deposit', async () => {
       const { tx } = wethDeposit
-      const address = '0x2d801972327b0f11422d9cc14a3d00b07ae0cceb'
-      const contractAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-
-      const standardTransfer = {
-        assetId: 'eip155:1/slip44:60',
-        components: [{ value: '30000000000000000' }],
-        from: address,
-        to: contractAddress,
-        token: undefined,
-        totalValue: '30000000000000000',
-        type: TransferType.Send
-      }
+      const address = '0x2D801972327b0F11422d9Cc14A3d00B07ae0CceB'
+      const contractAddress = WETH_CONTRACT_MAINNET
 
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1499,7 +1501,7 @@ describe('parseTx', () => {
         },
         status: Status.Confirmed,
         fee: {
-          value: '2161335000000000',
+          value: '2161334514900778',
           assetId: 'eip155:1/slip44:60'
         },
         trade: undefined,
@@ -1518,7 +1520,15 @@ describe('parseTx', () => {
               symbol: 'WETH'
             }
           },
-          standardTransfer
+          {
+            assetId: 'eip155:1/slip44:60',
+            components: [{ value: '30000000000000000' }],
+            from: address,
+            to: contractAddress,
+            token: undefined,
+            totalValue: '30000000000000000',
+            type: TransferType.Send
+          }
         ]
       }
 
@@ -1530,22 +1540,12 @@ describe('parseTx', () => {
     it('should be able to parse deposit extra input data', async () => {
       const { tx2 } = wethDeposit
       const address = '0xE7F92E3d5FDe63C90A917e25854826873497ef3D'
-      const contractAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-
-      const standardTransfer = {
-        assetId: 'eip155:1/slip44:60',
-        components: [{ value: '3264000000000000' }],
-        from: address,
-        to: contractAddress,
-        token: undefined,
-        totalValue: '3264000000000000',
-        type: TransferType.Send
-      }
+      const contractAddress = WETH_CONTRACT_MAINNET
 
       const expected: Tx = {
         txid: tx2.txid,
         blockHeight: tx2.blockHeight,
-        blockTime: tx2.blockTime,
+        blockTime: tx2.timestamp,
         blockHash: tx2.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1575,7 +1575,15 @@ describe('parseTx', () => {
               symbol: 'WETH'
             }
           },
-          standardTransfer
+          {
+            assetId: 'eip155:1/slip44:60',
+            components: [{ value: '3264000000000000' }],
+            from: address,
+            to: contractAddress,
+            token: undefined,
+            totalValue: '3264000000000000',
+            type: TransferType.Send
+          }
         ]
       }
 
@@ -1585,9 +1593,9 @@ describe('parseTx', () => {
     })
 
     it('should be able to parse withdrawal', async () => {
-      const { tx, internalTxs } = wethWithdraw
+      const { tx } = wethWithdraw
       const address = '0xa6F15FB2cc5dC96c2EBA18c101AD3fAD27F74839'
-      const contractAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+      const contractAddress = WETH_CONTRACT_MAINNET
 
       const internalTransfer = {
         assetId: 'eip155:1/slip44:60',
@@ -1602,7 +1610,7 @@ describe('parseTx', () => {
       const expected: Tx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
-        blockTime: tx.blockTime,
+        blockTime: tx.timestamp,
         blockHash: tx.blockHash,
         address,
         chainId: 'eip155:1',
@@ -1613,7 +1621,7 @@ describe('parseTx', () => {
         },
         status: Status.Confirmed,
         fee: {
-          value: '1482223000000000',
+          value: '1482222626533792',
           assetId: 'eip155:1/slip44:60'
         },
         trade: undefined,
@@ -1636,7 +1644,7 @@ describe('parseTx', () => {
         ]
       }
 
-      const actual = await txParser.parse(tx, address, internalTxs)
+      const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
     })

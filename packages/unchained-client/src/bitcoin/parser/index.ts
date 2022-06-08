@@ -1,13 +1,12 @@
-import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
 import { ASSET_REFERENCE, AssetId, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
+import { BitcoinTx } from '../../generated/bitcoin'
 import { Status, TransferType, Tx as ParsedTx } from '../../types'
 import { aggregateTransfer } from '../../utils'
 
 export interface TransactionParserArgs {
   chainId: ChainId
-  rpcUrl: string
 }
 
 export class TransactionParser {
@@ -24,12 +23,12 @@ export class TransactionParser {
     })
   }
 
-  async parse(tx: BlockbookTx, address: string): Promise<ParsedTx> {
+  async parse(tx: BitcoinTx, address: string): Promise<ParsedTx> {
     const parsedTx: ParsedTx = {
       address,
       blockHash: tx.blockHash,
       blockHeight: tx.blockHeight,
-      blockTime: tx.blockTime,
+      blockTime: tx.timestamp,
       chainId: this.chainId,
       confirmations: tx.confirmations,
       status: tx.confirmations > 0 ? Status.Confirmed : Status.Pending,
@@ -38,7 +37,7 @@ export class TransactionParser {
     }
 
     tx.vin.forEach((vin) => {
-      if (vin.isAddress && vin.addresses?.includes(address)) {
+      if (vin.addresses?.includes(address)) {
         // send amount
         const sendValue = new BigNumber(vin.value ?? 0)
         if (sendValue.gt(0)) {
@@ -53,7 +52,7 @@ export class TransactionParser {
         }
 
         // network fee
-        const fees = new BigNumber(tx.fees ?? 0)
+        const fees = new BigNumber(tx.fee ?? 0)
         if (fees.gt(0)) {
           parsedTx.fee = { assetId: this.assetId, value: fees.toString(10) }
         }
@@ -61,7 +60,7 @@ export class TransactionParser {
     })
 
     tx.vout.forEach((vout) => {
-      if (vout.isAddress && vout.addresses?.includes(address)) {
+      if (vout.addresses?.includes(address)) {
         // receive amount
         const receiveValue = new BigNumber(vout.value ?? 0)
         if (receiveValue.gt(0)) {

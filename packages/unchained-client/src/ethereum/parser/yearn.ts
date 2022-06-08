@@ -1,8 +1,8 @@
-import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
 import { ChainId } from '@shapeshiftoss/caip'
 import { ChainId as YearnChainId, Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'
 
+import { EthereumTx } from '../../generated/ethereum'
 import { TxParser } from '../../types'
 import { SubParser, TxSpecific } from '../types'
 import shapeShiftRouter from './abi/shapeShiftRouter'
@@ -45,12 +45,10 @@ export class Parser implements SubParser {
     }
   }
 
-  async parse(tx: BlockbookTx): Promise<TxSpecific | undefined> {
-    const txData = tx.ethereumSpecific?.data
+  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
+    if (!tx.inputData) return
 
-    if (!txData) return
-
-    const txSigHash = getSigHash(txData)
+    const txSigHash = getSigHash(tx.inputData)
 
     const abiInterface = this.getAbiInterface(txSigHash)
     if (!abiInterface) return
@@ -60,25 +58,23 @@ export class Parser implements SubParser {
       this.yearnTokenVaultAddresses = vaults?.map((vault) => vault.address)
     }
 
-    const decoded = abiInterface.parseTransaction({ data: txData })
+    const decoded = abiInterface.parseTransaction({ data: tx.inputData })
 
     // failed to decode input data
     if (!decoded) return
-
-    const receiveAddress = tx.vout?.[0].addresses?.[0]
 
     switch (txSigHash) {
       case this.supportedYearnFunctions.approveSigHash:
         if (decoded?.args._spender !== SHAPE_SHIFT_ROUTER_CONTRACT) return
         break
       case this.supportedShapeShiftFunctions.depositSigHash:
-        if (receiveAddress !== SHAPE_SHIFT_ROUTER_CONTRACT) return
+        if (tx.to !== SHAPE_SHIFT_ROUTER_CONTRACT) return
         break
       case this.supportedYearnFunctions.withdrawSigHash:
       case this.supportedYearnFunctions.depositSigHash:
       case this.supportedYearnFunctions.depositAmountSigHash:
       case this.supportedYearnFunctions.depositAmountAndRecipientSigHash:
-        if (receiveAddress && !this.yearnTokenVaultAddresses?.includes(receiveAddress)) return
+        if (tx.to && !this.yearnTokenVaultAddresses?.includes(tx.to)) return
         break
       default:
         return

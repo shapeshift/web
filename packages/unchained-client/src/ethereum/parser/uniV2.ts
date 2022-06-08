@@ -1,7 +1,7 @@
-import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
 import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
+import { EthereumTx } from '../../generated/ethereum'
 import { TransferType, TxParser } from '../../types'
 import { SubParser, TxSpecific } from '../types'
 import ERC20_ABI from './abi/erc20'
@@ -54,27 +54,24 @@ export class Parser implements SubParser {
     }
   }
 
-  async parseUniV2(tx: BlockbookTx): Promise<TxSpecific | undefined> {
-    const txData = tx.ethereumSpecific?.data
-
-    if (!txData) return
+  async parseUniV2(tx: EthereumTx): Promise<TxSpecific | undefined> {
+    if (!tx.inputData) return
     if (tx.confirmations) return
 
-    const txSigHash = getSigHash(txData)
+    const txSigHash = getSigHash(tx.inputData)
 
     if (!Object.values(this.supportedFunctions).some((hash) => hash === txSigHash)) return
 
-    const decoded = this.abiInterface.parseTransaction({ data: txData })
+    const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
 
     // failed to decode input data
     if (!decoded) return
 
-    const sendAddress = tx.vin[0].addresses?.[0] ?? ''
     const tokenAddress = ethers.utils.getAddress(decoded.args.token.toLowerCase())
     const lpTokenAddress = Parser.pairFor(tokenAddress, this.wethContract)
 
     const transfers = await (async () => {
-      switch (getSigHash(txData)) {
+      switch (getSigHash(tx.inputData)) {
         case this.supportedFunctions.addLiquidityEthSigHash: {
           const contract = new ethers.Contract(tokenAddress, ERC20_ABI, this.provider)
           const decimals = await contract.decimals()
@@ -91,7 +88,7 @@ export class Parser implements SubParser {
           return [
             {
               type: TransferType.Send,
-              from: sendAddress,
+              from: tx.from,
               to: lpTokenAddress,
               assetId,
               totalValue: value,
@@ -116,7 +113,7 @@ export class Parser implements SubParser {
           return [
             {
               type: TransferType.Send,
-              from: sendAddress,
+              from: tx.from,
               to: lpTokenAddress,
               assetId,
               totalValue: value,
@@ -142,17 +139,15 @@ export class Parser implements SubParser {
     }
   }
 
-  async parseStakingRewards(tx: BlockbookTx): Promise<TxSpecific | undefined> {
-    const txData = tx.ethereumSpecific?.data
+  async parseStakingRewards(tx: EthereumTx): Promise<TxSpecific | undefined> {
+    if (!tx.inputData) return
 
-    if (!txData) return
-
-    const txSigHash = getSigHash(txData)
+    const txSigHash = getSigHash(tx.inputData)
 
     if (!Object.values(this.supportedStakingRewardsFunctions).some((hash) => hash === txSigHash))
       return
 
-    const decoded = this.stakingRewardsInterface.parseTransaction({ data: txData })
+    const decoded = this.stakingRewardsInterface.parseTransaction({ data: tx.inputData })
 
     // failed to decode input data
     if (!decoded) return
@@ -165,7 +160,7 @@ export class Parser implements SubParser {
     }
   }
 
-  async parse(tx: BlockbookTx): Promise<TxSpecific | undefined> {
+  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
     if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return this.parseUniV2(tx)
     // TODO: parse any transaction that has input data that is able to be decoded using the `stakingRewardsInterface`
     if (txInteractsWithContract(tx, UNI_V2_FOX_STAKING_REWARDS_V3))

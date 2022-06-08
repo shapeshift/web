@@ -4,7 +4,6 @@ import standardNoChange from './mockData/standardNoChange'
 import standardWithChange from './mockData/standardWithChange'
 
 const txParser = new TransactionParser({
-  rpcUrl: '',
   chainId: 'bip122:000000000019d6689c085ae165831e93'
 })
 
@@ -16,7 +15,7 @@ describe('parseTx', () => {
     const expected: Tx = {
       txid: txMempool.txid,
       blockHeight: txMempool.blockHeight,
-      blockTime: txMempool.blockTime,
+      blockTime: txMempool.timestamp,
       confirmations: txMempool.confirmations,
       status: Status.Pending,
       address,
@@ -49,7 +48,7 @@ describe('parseTx', () => {
     const expected: Tx = {
       txid: tx.txid,
       blockHeight: tx.blockHeight,
-      blockTime: tx.blockTime,
+      blockTime: tx.timestamp,
       blockHash: tx.blockHash,
       confirmations: tx.confirmations,
       status: Status.Confirmed,
@@ -83,7 +82,7 @@ describe('parseTx', () => {
     const expected: Tx = {
       txid: txMempool.txid,
       blockHeight: txMempool.blockHeight,
-      blockTime: txMempool.blockTime,
+      blockTime: txMempool.timestamp,
       confirmations: txMempool.confirmations,
       status: Status.Pending,
       address,
@@ -112,7 +111,7 @@ describe('parseTx', () => {
     const expected: Tx = {
       txid: tx.txid,
       blockHeight: tx.blockHeight,
-      blockTime: tx.blockTime,
+      blockTime: tx.timestamp,
       blockHash: tx.blockHash,
       confirmations: tx.confirmations,
       status: Status.Confirmed,
@@ -142,7 +141,7 @@ describe('parseTx', () => {
     const expected: Tx = {
       txid: txMempool.txid,
       blockHeight: txMempool.blockHeight,
-      blockTime: txMempool.blockTime,
+      blockTime: txMempool.timestamp,
       confirmations: txMempool.confirmations,
       status: Status.Pending,
       address,
@@ -183,7 +182,7 @@ describe('parseTx', () => {
     const expected: Tx = {
       txid: tx.txid,
       blockHeight: tx.blockHeight,
-      blockTime: tx.blockTime,
+      blockTime: tx.timestamp,
       blockHash: tx.blockHash,
       confirmations: tx.confirmations,
       status: Status.Confirmed,

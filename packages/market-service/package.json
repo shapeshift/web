@@ -34,7 +34,7 @@
     "bignumber.js": "^9.0.2",
     "dayjs": "^1.10.6",
     "p-ratelimit": "^1.0.1",
-    "@shapeshiftoss/chain-adapters": "^4.8.0",
+    "@shapeshiftoss/chain-adapters": "4.8.0",
     "@shapeshiftoss/investor-foxy": "^3.4.0"
   },
   "peerDependencies": {

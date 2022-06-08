@@ -1,12 +1,11 @@
-import { Tx as BlockbookTx } from '@shapeshiftoss/blockbook'
-
+import { EthereumTx } from '../../generated/ethereum'
 import { Dex, TradeType, TxParser } from '../../types'
 import { SubParser, TxSpecific } from '../types'
 import { ZRX_PROXY_CONTRACT } from './constants'
 import { txInteractsWithContract } from './utils'
 
 export class Parser implements SubParser {
-  async parse(tx: BlockbookTx): Promise<TxSpecific | undefined> {
+  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, ZRX_PROXY_CONTRACT)) return
     if (!(tx.tokenTransfers && tx.tokenTransfers.length)) return
 

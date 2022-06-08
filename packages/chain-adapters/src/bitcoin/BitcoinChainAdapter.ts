@@ -1,11 +1,4 @@
-import {
-  ASSET_REFERENCE,
-  AssetId,
-  CHAIN_NAMESPACE,
-  ChainId,
-  fromChainId,
-  toAssetId
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   BTCOutputAddressType,
@@ -52,29 +45,29 @@ export class ChainAdapter
     'bip122:000000000019d6689c085ae165831e93',
     'bip122:000000000933ea01ad0ee984209779ba'
   ]
-  chainId = this.supportedChainIds[0]
+
+  protected chainId = this.supportedChainIds[0]
+
+  private parser: unchained.bitcoin.TransactionParser
 
   constructor(args: ChainAdapterArgs) {
     super(args)
-    if (args.chainId && !this.supportedChainIds.includes(args.chainId))
+
+    if (args.chainId && !this.supportedChainIds.includes(args.chainId)) {
       throw new Error(`Bitcoin chainId ${args.chainId} not supported`)
-    if (args.chainId) {
-      this.chainId = args.chainId
-    } else {
-      this.chainId = this.supportedChainIds[0]
     }
 
-    const chainId = this.chainId
-    const { chainNamespace } = fromChainId(chainId)
-    if (chainNamespace !== CHAIN_NAMESPACE.Bitcoin) {
-      throw new Error('chainId must be a bitcoin chain type')
+    if (args.chainId) {
+      this.chainId = args.chainId
     }
+
     this.coinName = args.coinName
     this.assetId = toAssetId({
-      chainId,
+      chainId: this.chainId,
       assetNamespace: 'slip44',
       assetReference: ASSET_REFERENCE.Bitcoin
     })
+    this.parser = new unchained.bitcoin.TransactionParser({ chainId: this.chainId })
   }
 
   getType(): ChainTypes.Bitcoin {
@@ -90,10 +83,74 @@ export class ChainAdapter
   }
 
   async getTxHistory(
-    // @ts-ignore: keep type signature with unimplemented state
-    input: chainAdapters.TxHistoryInput // eslint-disable-line @typescript-eslint/no-unused-vars
+    input: chainAdapters.TxHistoryInput
   ): Promise<chainAdapters.TxHistoryResponse<ChainTypes.Bitcoin>> {
-    throw new Error('Method not implemented.')
+    if (!this.accountAddresses[input.pubkey]) {
+      await this.getAccount(input.pubkey)
+    }
+
+    const { data } = await this.providers.http.getTxHistory({
+      pubkey: input.pubkey,
+      pageSize: input.pageSize,
+      cursor: input.cursor
+    })
+
+    const getAddresses = (tx: unchained.bitcoin.BitcoinTx): Array<string> => {
+      const addresses: Array<string> = []
+
+      tx.vin?.forEach((vin) => {
+        if (!vin.addresses) return
+        addresses.push(...vin.addresses)
+      })
+
+      tx.vout?.forEach((vout) => {
+        if (!vout.addresses) return
+        addresses.push(...vout.addresses)
+      })
+
+      return [...new Set(addresses)]
+    }
+
+    const txs = await Promise.all(
+      (data.txs ?? []).map(async (tx) => {
+        const addresses = getAddresses(tx).filter((addr) =>
+          this.accountAddresses[input.pubkey].includes(addr)
+        )
+
+        return await Promise.all(
+          addresses.map(async (addr) => {
+            const parsedTx = await this.parser.parse(tx, addr)
+
+            return {
+              address: addr,
+              blockHash: parsedTx.blockHash,
+              blockHeight: parsedTx.blockHeight,
+              blockTime: parsedTx.blockTime,
+              chainId: parsedTx.chainId,
+              chain: this.getType(),
+              confirmations: parsedTx.confirmations,
+              txid: parsedTx.txid,
+              fee: parsedTx.fee,
+              status: getStatus(parsedTx.status),
+              tradeDetails: parsedTx.trade,
+              transfers: parsedTx.transfers.map((transfer) => ({
+                assetId: transfer.assetId,
+                from: transfer.from,
+                to: transfer.to,
+                type: getType(transfer.type),
+                value: transfer.totalValue
+              }))
+            }
+          })
+        )
+      })
+    )
+
+    return {
+      cursor: data.cursor ?? '',
+      pubkey: input.pubkey,
+      transactions: txs.flat()
+    }
   }
 
   async buildSendTransaction(tx: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin>): Promise<{
@@ -357,14 +414,8 @@ export class ChainAdapter
     await this.providers.ws.subscribeTxs(
       subscriptionId,
       { topic: 'txs', addresses },
-      ({ data: tx }) => {
-        const transfers = tx.transfers.map<chainAdapters.TxTransfer>((transfer) => ({
-          assetId: transfer.assetId,
-          from: transfer.from,
-          to: transfer.to,
-          type: getType(transfer.type),
-          value: transfer.totalValue
-        }))
+      async (msg) => {
+        const tx = await this.parser.parse(msg.data, msg.address)
 
         onMessage({
           address: tx.address,
@@ -377,7 +428,13 @@ export class ChainAdapter
           fee: tx.fee,
           status: getStatus(tx.status),
           tradeDetails: tx.trade,
-          transfers,
+          transfers: tx.transfers.map((transfer) => ({
+            assetId: transfer.assetId,
+            from: transfer.from,
+            to: transfer.to,
+            type: getType(transfer.type),
+            value: transfer.totalValue
+          })),
           txid: tx.txid
         })
       },

@@ -11,6 +11,7 @@ import * as ethereum from './ethereum'
 export type UnchainedUrl = {
   httpUrl: string
   wsUrl: string
+  rpcUrl?: string
 }
 export type UnchainedUrls = Partial<Record<ChainTypes, UnchainedUrl>>
 
@@ -23,20 +24,25 @@ export class ChainAdapterManager {
       throw new Error('Blockchain urls required')
     }
     ;(Object.entries(unchainedUrls) as Array<[keyof UnchainedUrls, UnchainedUrl]>).forEach(
-      ([type, { httpUrl, wsUrl }]) => {
+      ([type, { httpUrl, wsUrl, rpcUrl }]) => {
         switch (type) {
           case ChainTypes.Ethereum: {
+            if (!rpcUrl) throw new Error('rpcUrl required')
+
             const http = new unchained.ethereum.V1Api(
               new unchained.ethereum.Configuration({ basePath: httpUrl })
             )
-            const ws = new unchained.ws.Client<unchained.ethereum.ParsedTx>(wsUrl)
-            return this.addChain(type, () => new ethereum.ChainAdapter({ providers: { http, ws } }))
+            const ws = new unchained.ws.Client<unchained.ethereum.EthereumTx>(wsUrl)
+            return this.addChain(
+              type,
+              () => new ethereum.ChainAdapter({ providers: { http, ws }, rpcUrl })
+            )
           }
           case ChainTypes.Bitcoin: {
             const http = new unchained.bitcoin.V1Api(
               new unchained.bitcoin.Configuration({ basePath: httpUrl })
             )
-            const ws = new unchained.ws.Client<unchained.Tx>(wsUrl)
+            const ws = new unchained.ws.Client<unchained.bitcoin.BitcoinTx>(wsUrl)
             return this.addChain(
               type,
               () => new bitcoin.ChainAdapter({ providers: { http, ws }, coinName: 'Bitcoin' })

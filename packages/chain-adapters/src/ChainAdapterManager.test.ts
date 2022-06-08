@@ -8,7 +8,8 @@ const getCAM = (opts?: UnchainedUrls) => {
   const defaultAdapters: UnchainedUrls = {
     [ChainTypes.Ethereum]: {
       httpUrl: 'http://localhost',
-      wsUrl: ''
+      wsUrl: '',
+      rpcUrl: 'http://localhost'
     }
   }
   return new ChainAdapterManager({ ...defaultAdapters, ...opts })

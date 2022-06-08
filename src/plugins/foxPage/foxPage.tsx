@@ -146,10 +146,10 @@ export const FoxPage = () => {
   return (
     <Layout
       title={translate('plugins.foxPage.foxToken', {
-        assetSymbol: assetFox.symbol,
+        assetSymbol: selectedAsset.symbol,
       })}
       description={description ?? ''}
-      icon={assetFox.icon}
+      icon={selectedAsset.icon}
     >
       <Tabs variant='unstyled' index={selectedAssetIndex}>
         <TabList>

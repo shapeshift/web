@@ -1,3 +1,5 @@
+# [@shapeshiftoss/investor-foxy-v3.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v3.4.1...@shapeshiftoss/investor-foxy-v3.4.2) (2022-06-08)
+
 # [@shapeshiftoss/investor-foxy-v3.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v3.4.0...@shapeshiftoss/investor-foxy-v3.4.1) (2022-06-08)
 
 # [@shapeshiftoss/investor-foxy-v3.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v3.3.0...@shapeshiftoss/investor-foxy-v3.4.0) (2022-06-03)

@@ -24,7 +24,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
@@ -45,8 +44,6 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const location = useLocation()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { description } = asset || {}
-  const query = useGetAssetDescriptionQuery(assetId)
-  const isLoaded = !query.isLoading
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === FOX_ASSET_ID
 
@@ -94,7 +91,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               <Box mb={6}>
                 <AssetIcon src={asset.icon} boxSize='16' />
               </Box>
-              <SkeletonText isLoaded={isLoaded} noOfLines={3}>
+              <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
                 <CText color='gray.500' mb={6}>
                   {trimmedDescription}
                 </CText>
@@ -136,7 +133,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               {isFoxAsset && <TradeCard defaultBuyAssetId={assetId} />}
               {!isFoxAsset && (
                 <Stack width='full' p={6}>
-                  <SkeletonText isLoaded={isLoaded} noOfLines={3}>
+                  <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
                     <CText color='gray.500' mt={6} mb={6}>
                       {translate('plugins.foxPage.tradingUnavailable', {
                         assetSymbol: asset.symbol,

@@ -16,12 +16,17 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
+import { getConfig } from 'config'
+import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
+import qs from 'qs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectTotalCryptoBalanceWithDelegations,
@@ -37,6 +42,7 @@ import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
 import { Governance } from './components/Governance'
 import { Layout } from './components/Layout'
+import { MainOpportunity } from './components/MainOpportunity'
 import { OtherOpportunities } from './components/OtherOpportunities/OtherOpportunities'
 import { Total } from './components/Total'
 import { TradeOpportunities, TradeOpportunitiesBucket } from './components/TradeOpportunities'
@@ -68,11 +74,13 @@ const FOX_DESCRIPTION =
 export const FoxPage = () => {
   const translate = useTranslate()
   const history = useHistory()
+  const location = useLocation()
 
   const activeAssetId = useRouteAssetId()
   // TODO(gomes): Use useRouteAssetId and selectAssetById programatically
   const assetFox = useAppSelector(state => selectAssetById(state, FOX_ASSET_ID))
   const assetFoxy = useAppSelector(state => selectAssetById(state, FOXY_ASSET_ID))
+  const foxyBalances = useFoxyBalances()
   const otherOpportunities = useOtherOpportunities(activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
@@ -108,9 +116,10 @@ export const FoxPage = () => {
     return [fiatBalanceFox, fiatBalanceFoxy]
   }, [fiatBalanceFox, fiatBalanceFoxy])
 
-  const cryptoBalances = useMemo(() => {
-    return [cryptoBalanceFox, cryptoBalanceFoxy]
-  }, [cryptoBalanceFox, cryptoBalanceFoxy])
+  const cryptoBalances = useMemo(
+    () => [cryptoBalanceFox, cryptoBalanceFoxy],
+    [cryptoBalanceFox, cryptoBalanceFoxy],
+  )
 
   const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
 
@@ -120,8 +129,9 @@ export const FoxPage = () => {
     selectedAsset?.assetId === FOX_ASSET_ID
       ? FOX_DESCRIPTION // FOX has a custom description, other assets can use the asset-service one
       : selectedAsset?.description
-  const query = useGetAssetDescriptionQuery(FOX_ASSET_ID)
-  const isLoaded = !query.isLoading
+  // TODO(gomes): Export a similar RTK select() query, consumed to determine wallet + staking balance loaded
+  const getAssetDescriptionQuery = useGetAssetDescriptionQuery(selectedAsset?.assetId)
+  const isAssetDescriptionLoaded = !getAssetDescriptionQuery.isLoading
 
   const handleTabClick = (assetId: AssetId) => {
     if (assetId === activeAssetId) {
@@ -131,15 +141,15 @@ export const FoxPage = () => {
     history.push(assetsRoutes[assetId])
   }
 
-  if (!isLoaded || !activeAssetId) return null
+  if (!isAssetDescriptionLoaded || !activeAssetId) return null
 
   return (
     <Layout
       title={translate('plugins.foxPage.foxToken', {
-        assetSymbol: assetFox.symbol,
+        assetSymbol: selectedAsset.symbol,
       })}
-      description={description ? description : ''}
-      icon={assetFox.icon}
+      description={description ?? ''}
+      icon={selectedAsset.icon}
     >
       <Tabs variant='unstyled' index={selectedAssetIndex}>
         <TabList>
@@ -209,6 +219,26 @@ export const FoxPage = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
+                <MainOpportunity
+                  assetId={selectedAsset.assetId}
+                  apy={getConfig().REACT_APP_FOXY_APY.toString()}
+                  tvl={bnOrZero(foxyBalances.opportunities?.[0]?.tvl).toString()}
+                  isLoaded={!foxyBalances.loading}
+                  balance={cryptoBalances[selectedAssetIndex]}
+                  onClick={() => {
+                    history.push({
+                      pathname: FoxyPath.Overview,
+                      search: qs.stringify({
+                        chainId: assetFoxy.chainId,
+                        contractAddress: foxyAddresses[0].staking,
+                        tokenId: foxyAddresses[0].fox,
+                        rewardId: foxyAddresses[0].foxy,
+                      }),
+                      state: { background: location },
+                    })
+                  }}
+                />
+
                 <OtherOpportunities
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}
@@ -217,9 +247,9 @@ export const FoxPage = () => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={FOX_ASSET_ID} />
+                <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FOX_ASSET_ID]} />
                 <AssetMarketData assetId={selectedAsset.assetId} />
                 <FoxChart assetId={FOX_ASSET_ID} />
-                <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[FOX_ASSET_ID]} />
               </Stack>
             </Stack>
           </TabPanel>
@@ -238,11 +268,11 @@ export const FoxPage = () => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={FOXY_ASSET_ID} />
-                <AssetMarketData assetId={selectedAsset.assetId} />
-                <FoxChart assetId={FOXY_ASSET_ID} />
                 <TradeOpportunities
                   opportunities={assetsTradeOpportunitiesBuckets[FOXY_ASSET_ID]}
                 />
+                <AssetMarketData assetId={selectedAsset.assetId} />
+                <FoxChart assetId={FOXY_ASSET_ID} />
               </Stack>
             </Stack>
           </TabPanel>

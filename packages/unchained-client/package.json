@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/unchained-client",
-  "version": "8.6.1",
+  "version": "9.0.0",
   "license": "MIT",
   "main": "dist/index.js",
   "source": "src/index.ts",

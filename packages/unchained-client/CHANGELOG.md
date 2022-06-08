@@ -1,3 +1,23 @@
+# [@shapeshiftoss/unchained-client-v9.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.6.1...@shapeshiftoss/unchained-client-v9.0.0) (2022-06-08)
+
+
+### Features
+
+* update btc/eth to use historical tx history and new ws payloads ([#674](https://github.com/shapeshift/lib/issues/674)) ([0189e3b](https://github.com/shapeshift/lib/commit/0189e3b4dd5a3b998ddf285e761ae11dea72f94b))
+
+
+### BREAKING CHANGES
+
+* unchained-client and chain-adapters
+
+* revert pre release package versions
+
+* revert changes to no breaking packages
+
+* dependencies
+
+* pin package versions
+
 # [@shapeshiftoss/unchained-client-v8.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.6.0...@shapeshiftoss/unchained-client-v8.6.1) (2022-06-08)
 
 # [@shapeshiftoss/unchained-client-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v8.5.0...@shapeshiftoss/unchained-client-v8.6.0) (2022-06-07)

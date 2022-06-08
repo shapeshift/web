@@ -83,7 +83,7 @@ export const mockStore: ReduxState = {
       byAssetId: {},
       byAccountId: {},
       ids: [],
-      status: 'idle',
+      status: 'loading',
     },
     rebases: {
       byAssetId: {},

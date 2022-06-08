@@ -57,7 +57,7 @@
     "dompurify": "^2.3.8",
     "envalid": "^7.3.1",
     "framer-motion": "^4.1.16",
-    "friendly-challenge": "0.9.2",
+    "friendly-challenge": "0.9.1",
     "html-react-parser": "^1.4.14",
     "https-browserify": "^1.0.0",
     "lit-html": "^2.2.5",

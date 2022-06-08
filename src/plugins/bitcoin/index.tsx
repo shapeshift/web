@@ -16,7 +16,7 @@ export function register(): Plugins {
               ChainTypes.Bitcoin,
               () => {
                 const http = new unchained.bitcoin.V1Api(
-                  new unchained.ethereum.Configuration({
+                  new unchained.bitcoin.Configuration({
                     basePath: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
                   }),
                 )

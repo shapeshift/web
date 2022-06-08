@@ -11888,10 +11888,10 @@ fresh@0.5.2:
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
 
-friendly-challenge@0.9.1:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/friendly-challenge/-/friendly-challenge-0.9.1.tgz#32bea4c05a22acb3f991835e7fb9386443f2a04f"
-  integrity sha512-01k7Er+93FgWT1bFMR9cTU3mQ8NVJcrVsD9TaArotSbOTQ7OzWTNQSHldvnRhkv1N3HLZUDlYRCSq30wXRSTRQ==
+friendly-challenge@0.9.2:
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/friendly-challenge/-/friendly-challenge-0.9.2.tgz#340831bd2eec0130c59f74f0c514a9c06ac4ad7d"
+  integrity sha512-kr1RZvS030FNA+b3kgmRzCtADfHFq1y4oggrWBu0K6I9I53L7JdVg3OCSIeTdP7y/HqvNG5FjlAvLwReJkx91g==
   dependencies:
     "@babel/runtime-corejs3" "^7.10.4"
     core-js "^3.6.5"

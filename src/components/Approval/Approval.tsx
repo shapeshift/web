@@ -19,7 +19,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { theme } from 'theme/theme'
-import { QuoteFeeData } from '@shapeshiftoss/swapper'
 
 type ApprovalParams = {
   fiatRate: string

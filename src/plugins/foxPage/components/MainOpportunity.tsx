@@ -35,9 +35,11 @@ export const MainOpportunity = ({ apy, tvl, balance, onClick, isLoaded }: MainOp
         <Flex justifyContent='space-between' flexDirection={{ base: 'column', md: 'row' }}>
           <Box>
             <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
-            <CText color='green.400' fontSize={'xl'}>
-              <Amount.Percent value={apy} />
-            </CText>
+            <Skeleton isLoaded={Boolean(apy)}>
+              <CText color='green.400' fontSize={'xl'}>
+                <Amount.Percent value={apy} />
+              </CText>
+            </Skeleton>
           </Box>
           <Box>
             <Text translation='plugins.foxPage.tvl' color='gray.500' mb={1} />

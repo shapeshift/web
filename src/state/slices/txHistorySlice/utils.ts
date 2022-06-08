@@ -4,11 +4,8 @@ import union from 'lodash/union'
 
 import { AccountSpecifier } from '../portfolioSlice/portfolioSliceCommon'
 import { Tx } from './txHistorySlice'
-<<<<<<< HEAD
 
 type TxIndex = string
-=======
->>>>>>> develop
 
 export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
   // we only want unique ids

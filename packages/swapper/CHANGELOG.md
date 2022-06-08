@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v6.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.1.0...@shapeshiftoss/swapper-v6.2.0) (2022-06-08)
+
+
+### Features
+
+* thorchain price calculation ([#763](https://github.com/shapeshift/lib/issues/763)) ([8f42b6d](https://github.com/shapeshift/lib/commit/8f42b6db48dfc92b3ad44687387434c09bbc95f2))
+
 # [@shapeshiftoss/swapper-v6.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.0.1...@shapeshiftoss/swapper-v6.1.0) (2022-06-08)
 
 

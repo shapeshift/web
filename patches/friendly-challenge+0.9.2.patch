@@ -1,0 +1,177 @@
+diff --git a/node_modules/friendly-challenge/index.js b/node_modules/friendly-challenge/index.js
+index 9152aa1..7b1dd50 100644
+--- a/node_modules/friendly-challenge/index.js
++++ b/node_modules/friendly-challenge/index.js
+@@ -2,6 +2,8 @@
+ // (https://github.com/niklasvh/base64-arraybuffer, MIT licensed)
+ const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+ const EQ_CHAR = "=".charCodeAt(0);
++const { svg, html, render } = require('lit-html')
++
+ // Use a lookup table to find the index.
+ const lookup = new Uint8Array(256);
+ for (let i = 0; i < CHARS.length; i++) {
+@@ -54,19 +56,19 @@ const SOLVER_TYPE_JS = 1;
+ const CHALLENGE_SIZE_BYTES = 128;
+ 
+ // @ts-ignore
+-const loaderSVG = `<circle cx="12" cy="12" r="8" stroke-width="3" stroke-dasharray="15 10" fill="none" stroke-linecap="round" transform="rotate(0 12 12)"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.9s" values="0 12 12;360 12 12"/></circle>`;
+-const errorSVG = `<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>`;
++const loaderSVG = svg`<circle cx="12" cy="12" r="8" stroke-width="3" stroke-dasharray="15 10" fill="none" stroke-linecap="round" transform="rotate(0 12 12)"><animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.9s" values="0 12 12;360 12 12"/></circle>`;
++const errorSVG = svg`<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>`;
+ /**
+  * Base template used for all widget states
+  * The reason we use raw string interpolation here is so we don't have to ship something like lit-html.
+  */
+ function getTemplate(fieldName, svgContent, textContent, solutionString, buttonText, progress = false, debugData, additionalContainerClasses) {
+-    return `<div class="frc-container${additionalContainerClasses ? " " + additionalContainerClasses : ""}">
++    return html`<div class="frc-container${additionalContainerClasses ? " " + additionalContainerClasses : ""}">
+ <svg class="frc-icon" role="img" xmlns="http://www.w3.org/2000/svg" height="32" width="32" viewBox="0 0 24 24">${svgContent}</svg>
+ <div class="frc-content">
+-    <span class="frc-text" ${debugData ? `title="${debugData}"` : ``}>${textContent}</span>
+-    ${buttonText ? `<button type="button" class="frc-button">${buttonText}</button>` : ""}
+-    ${progress ? `<progress class="frc-progress" value="0">0%</progress>` : ""}
++    <span class="frc-text" ${debugData ? html`title="${debugData}"` : ''}>${textContent}</span>
++    ${buttonText ? html`<button type="button" class="frc-button">${buttonText}</button>` : ""}
++    ${progress ? html`<progress class="frc-progress" value="0">0%</progress>` : ""}
+ </div>
+ </div><span class="frc-banner"><a lang="en" href="https://friendlycaptcha.com/" rel="noopener" target="_blank"><b>Friendly</b>Captcha ⇗</a></span>
+ <input name="${fieldName}" class="frc-captcha-solution" type="hidden" value="${solutionString}">`;
+@@ -75,7 +77,7 @@ function getTemplate(fieldName, svgContent, textContent, solutionString, buttonT
+  * Used when the widget is ready to start solving.
+  */
+ function getReadyHTML(fieldName, l) {
+-    return getTemplate(fieldName, `<path d="M17,11c0.34,0,0.67,0.04,1,0.09V6.27L10.5,3L3,6.27v4.91c0,4.54,3.2,8.79,7.5,9.82c0.55-0.13,1.08-0.32,1.6-0.55 C11.41,19.47,11,18.28,11,17C11,13.69,13.69,11,17,11z"/><path d="M17,13c-2.21,0-4,1.79-4,4c0,2.21,1.79,4,4,4s4-1.79,4-4C21,14.79,19.21,13,17,13z M17,14.38"/>`, l.text_ready, ".UNSTARTED", l.button_start, false);
++    return getTemplate(fieldName, svg`<path d="M17,11c0.34,0,0.67,0.04,1,0.09V6.27L10.5,3L3,6.27v4.91c0,4.54,3.2,8.79,7.5,9.82c0.55-0.13,1.08-0.32,1.6-0.55 C11.41,19.47,11,18.28,11,17C11,13.69,13.69,11,17,11z"/><path d="M17,13c-2.21,0-4,1.79-4,4c0,2.21,1.79,4,4,4s4-1.79,4-4C21,14.79,19.21,13,17,13z M17,14.38"/>`, l.text_ready, ".UNSTARTED", l.button_start, false);
+ }
+ /**
+  * Used when the widget is retrieving a puzzle
+@@ -91,13 +93,13 @@ function getRunningHTML(fieldName, l) {
+ }
+ function getDoneHTML(fieldName, l, solution, data) {
+     const timeData = `${data.t.toFixed(0)}s (${((data.h / data.t) * 0.001).toFixed(0)}K/s)${data.solver === SOLVER_TYPE_JS ? " JS Fallback" : ""}`;
+-    return getTemplate(fieldName, `<title>${l.text_completed_sr}</title><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"></path>`, l.text_completed, solution, undefined, false, timeData, "frc-success");
++    return getTemplate(fieldName, svg`<title>${timeData}</title><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"></path>`, l.text_completed, solution, undefined, false, timeData, "frc-success");
+ }
+ function getExpiredHTML(fieldName, l) {
+     return getTemplate(fieldName, errorSVG, l.text_expired, ".EXPIRED", l.button_restart);
+ }
+ function getErrorHTML(fieldName, l, errorDescription, recoverable = true, headless = false) {
+-    return getTemplate(fieldName, errorSVG, `<b>${l.text_error}</b><br>${errorDescription}`, headless ? ".HEADLESS_ERROR" : ".ERROR", recoverable ? l.button_retry : undefined);
++    return getTemplate(fieldName, errorSVG, html`<b>${l.text_error}</b><br>${errorDescription}`, headless ? ".HEADLESS_ERROR" : ".ERROR", recoverable ? l.button_retry : undefined);
+ }
+ /**
+  * Injects the style if no #frc-style element is already present
+@@ -105,10 +107,8 @@ function getErrorHTML(fieldName, l, errorDescription, recoverable = true, headle
+  */
+ function injectStyle() {
+     if (!document.querySelector("#frc-style")) {
+-        const styleSheet = document.createElement("style");
+-        styleSheet.id = "frc-style";
+-        styleSheet.innerHTML = css;
+-        document.head.appendChild(styleSheet);
++        const styleSheet = html`<style id="frc-style">${css}</style>`;
++        render(styleSheet, document.head);
+     }
+ }
+ /**
+@@ -481,6 +481,17 @@ let URL;
+ if (typeof window !== "undefined") {
+     URL = window.URL || window.webkitURL;
+ }
++
++const createPolicy = window.trustedTypes ? window.trustedTypes.createPolicy.bind(window.trustedTypes) : (name, policy) => policy;
++
++const fnStr = workerString
++const trustedURL = createPolicy('friendly-challenge', {
++  createScriptURL(input) {
++    const workerBlob = new Blob([fnStr], { type: "text/javascript" });
++    return URL.createObjectURL(workerBlob)
++  }
++});
++
+ class WorkerGroup {
+     constructor() {
+         this.workers = [];
+@@ -512,9 +523,8 @@ class WorkerGroup {
+         this.startCount = 0;
+         // Setup four workers for now - later we could calculate this depending on the device
+         this.workers = new Array(4);
+-        const workerBlob = new Blob([workerString], { type: "text/javascript" });
+         for (let i = 0; i < this.workers.length; i++) {
+-            this.workers[i] = new Worker(URL.createObjectURL(workerBlob));
++            this.workers[i] = new Worker(trustedURL.createScriptURL(''));
+             this.workers[i].onerror = (e) => this.errorCallback(e);
+             this.workers[i].onmessage = (e) => {
+                 const data = e.data;
+@@ -694,7 +704,7 @@ class WidgetInstance {
+     }
+     onWorkerError(e) {
+         this.needsReInit = true;
+-        this.e.innerHTML = getErrorHTML(this.opts.solutionFieldName, this.lang, "Background worker error " + e.message);
++        render(getErrorHTML(this.opts.solutionFieldName, this.lang, "Background worker error " + e.message), this.e);
+         this.makeButtonStart();
+         // Just out of precaution
+         this.opts.forceJSFallback = true;
+@@ -704,12 +714,12 @@ class WidgetInstance {
+             updateProgressBar(this.e, progress);
+         };
+         this.workerGroup.readyCallback = () => {
+-            this.e.innerHTML = getReadyHTML(this.opts.solutionFieldName, this.lang);
++            render(getReadyHTML(this.opts.solutionFieldName, this.lang), this.e);
+             this.makeButtonStart();
+             this.opts.readyCallback();
+         };
+         this.workerGroup.startedCallback = () => {
+-            this.e.innerHTML = getRunningHTML(this.opts.solutionFieldName, this.lang);
++            render(getRunningHTML(this.opts.solutionFieldName, this.lang), this.e);
+             this.opts.startedCallback();
+         };
+         this.workerGroup.doneCallback = (data) => {
+@@ -727,7 +737,7 @@ class WidgetInstance {
+         this.workerGroup.setupSolver(this.opts.forceJSFallback);
+     }
+     expire() {
+-        this.e.innerHTML = getExpiredHTML(this.opts.solutionFieldName, this.lang);
++        render(getExpiredHTML(this.opts.solutionFieldName, this.lang), this.e);
+         this.makeButtonStart();
+     }
+     async start() {
+@@ -743,11 +753,11 @@ class WidgetInstance {
+         const sitekey = this.opts.sitekey || this.e.dataset["sitekey"];
+         if (!sitekey) {
+             console.error("FriendlyCaptcha: sitekey not set on frc-captcha element");
+-            this.e.innerHTML = getErrorHTML(this.opts.solutionFieldName, this.lang, "Website problem: sitekey not set", false);
++            render(getErrorHTML(this.opts.solutionFieldName, this.lang, "Website problem: sitekey not set", false), this.e);
+             return;
+         }
+         if (isHeadless()) {
+-            this.e.innerHTML = getErrorHTML(this.opts.solutionFieldName, this.lang, "Browser check failed, try a different browser", false, true);
++            render(getErrorHTML(this.opts.solutionFieldName, this.lang, "Browser check failed, try a different browser", false, true), this.e);
+             return;
+         }
+         if (this.needsReInit) {
+@@ -756,12 +766,12 @@ class WidgetInstance {
+             return;
+         }
+         try {
+-            this.e.innerHTML = getFetchingHTML(this.opts.solutionFieldName, this.lang);
++            render(getFetchingHTML(this.opts.solutionFieldName, this.lang), this.e);
+             this.puzzle = decodeBase64Puzzle(await getPuzzle(this.opts.puzzleEndpoint, sitekey, this.lang));
+             setTimeout(() => this.expire(), this.puzzle.expiry - 30000); // 30s grace
+         }
+         catch (e) {
+-            this.e.innerHTML = getErrorHTML(this.opts.solutionFieldName, this.lang, e.message);
++            render(getErrorHTML(this.opts.solutionFieldName, this.lang, e.message), this.e);
+             this.makeButtonStart();
+             const code = "error_getting_puzzle";
+             this.opts.errorCallback({ code, description: e.toString(), error: e });
+@@ -781,7 +791,7 @@ class WidgetInstance {
+     handleDone(data) {
+         this.valid = true;
+         const puzzleSolutionMessage = `${this.puzzle.signature}.${this.puzzle.base64}.${encode(data.solution)}.${encode(data.diagnostics)}`;
+-        this.e.innerHTML = getDoneHTML(this.opts.solutionFieldName, this.lang, puzzleSolutionMessage, data);
++        render(getDoneHTML(this.opts.solutionFieldName, this.lang, puzzleSolutionMessage, data), this.e);
+         // this.worker = null; // This literally crashes very old browsers..
+         this.needsReInit = true;
+         return puzzleSolutionMessage;

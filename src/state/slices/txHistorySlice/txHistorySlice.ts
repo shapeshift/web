@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId, ChainId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
@@ -9,7 +9,6 @@ import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
-import { chainIdToChainType } from 'lib/utils'
 import {
   AccountSpecifier,
   AccountSpecifierMap,
@@ -26,8 +25,7 @@ export type TxHistoryById = {
   [k: TxId]: Tx
 }
 
-/* this is a one to many relationship of asset id to tx id, built up as
- * tx's come into the store over websockets
+/* this is a one to many relationship of asset id to tx id
  *
  * e.g. an account with a single trade of FOX to USDC will produce the following
  * three related assets
@@ -52,10 +50,8 @@ export type TxIdByAccountId = {
   [k: AccountSpecifier]: TxId[]
 }
 
-// before the wallet is connected, we're idle
-// when we subscribe to the history, we're loading
-// after logic managing a delay after no new tx's in TransactionsProvider, we're loaded
-export type TxHistoryStatus = 'idle' | 'loading' | 'loaded'
+// status is loading until all tx history is fetched
+export type TxHistoryStatus = 'loading' | 'loaded'
 
 type RebaseId = string
 type RebaseById = {
@@ -102,7 +98,7 @@ const initialState: TxHistory = {
     ids: [], // sorted, newest first
     byAssetId: {},
     byAccountId: {},
-    status: 'idle',
+    status: 'loading',
   },
   rebases: {
     byAssetId: {},
@@ -239,7 +235,7 @@ export const txHistory = createSlice({
   },
 })
 
-type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
+type AllTxHistoryArgs = { accountSpecifiersList: Array<AccountSpecifierMap> }
 
 type RebaseTxHistoryArgs = {
   accountSpecifierMap: AccountSpecifierMap
@@ -288,7 +284,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = (await adapters.byChainId(chainId)) as ChainAdapter<ChainTypes.Ethereum>
+        const adapter = adapters.byChainId(chainId) as ChainAdapter<ChainTypes.Ethereum>
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
@@ -312,40 +308,56 @@ export const txHistoryApi = createApi({
       },
     }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
-      queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
-        if (isEmpty(accountSpecifierMap)) {
-          const data = 'getAllTxHistory: No account specifier given to get all tx history'
-          const error = { data, status: 400 }
-          return { error }
+      queryFn: async ({ accountSpecifiersList }, { dispatch }) => {
+        if (!accountSpecifiersList.length) {
+          return { error: { data: 'getAllTxHistory: no account specifiers provided', status: 400 } }
         }
-        const [chainId, pubkey] = Object.entries(accountSpecifierMap)[0] as [ChainId, string]
-        const accountSpecifier = `${chainId}:${pubkey}`
-        try {
-          let txs: chainAdapters.Transaction<ChainTypes>[] = []
-          const chainAdapters = getChainAdapters()
-          const chain = chainIdToChainType(chainId)
-          const adapter = chainAdapters.byChain(chain)
-          let currentCursor: string = ''
-          const pageSize = 100
-          do {
-            const { cursor: _cursor, transactions } = await adapter.getTxHistory({
-              cursor: currentCursor,
-              pubkey,
-              pageSize,
-            })
-            currentCursor = _cursor
-            txs = [...txs, ...transactions]
-          } while (currentCursor)
-          dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier }))
-          return { data: txs }
-        } catch (err) {
-          return {
-            error: {
-              data: `getAllTxHistory: An error occurred fetching all tx history for accountSpecifier: ${accountSpecifier}`,
-              status: 500,
-            },
+
+        for (const accountSpecifierMap of accountSpecifiersList) {
+          if (isEmpty(accountSpecifierMap)) {
+            moduleLogger.warn(
+              { fn: 'getAllTxHistory', accountSpecifierMap },
+              'no account specifiers provided',
+            )
+            continue
           }
+
+          const txHistories = await Promise.allSettled(
+            Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
+              const accountSpecifier = toAccountId({ chainId, account: pubkey })
+              const adapter = getChainAdapters().byChainId(chainId)
+
+              let currentCursor: string = ''
+              try {
+                do {
+                  const { cursor, transactions } = await adapter.getTxHistory({
+                    cursor: currentCursor,
+                    pubkey,
+                    pageSize: 100,
+                  })
+
+                  currentCursor = cursor
+
+                  dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountSpecifier }))
+                } while (currentCursor)
+              } catch (err) {
+                throw new Error(
+                  `failed to fetch tx history for account: ${accountSpecifier}: ${err}`,
+                )
+              }
+            }),
+          )
+
+          txHistories.forEach(promise => {
+            if (promise.status === 'rejected') {
+              moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
+            }
+          })
         }
+
+        dispatch(txHistory.actions.setStatus('loaded'))
+
+        return { data: [] }
       },
     }),
   }),

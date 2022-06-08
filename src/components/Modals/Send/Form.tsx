@@ -25,8 +25,9 @@ import { Details } from './views/Details'
 import { QrCodeScanner } from './views/QrCodeScanner'
 
 export type SendInput = {
+  [SendFormFields.Input]: string
   [SendFormFields.Address]: string
-  [SendFormFields.EnsName]?: string
+  [SendFormFields.VanityAddress]: string
   [SendFormFields.AccountId]: AccountSpecifier
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
@@ -55,7 +56,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     defaultValues: {
       accountId,
       address: '',
-      ensName: '',
+      vanityAddress: '',
       asset: initialAsset,
       feeType: chainAdapters.FeeDataKey.Average,
       cryptoAmount: '',

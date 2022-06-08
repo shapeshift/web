@@ -17,7 +17,6 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { getConfig } from 'config'
 import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
 import qs from 'qs'
 import { useMemo } from 'react'
@@ -52,6 +51,7 @@ import {
   FOXY_ASSET_ID,
   foxyTradeOpportunitiesBuckets,
 } from './FoxCommon'
+import { useFoxyApr } from './hooks/useFoxyApr'
 import { useOtherOpportunities } from './hooks/useOtherOpportunities'
 
 export enum FoxPageRoutes {
@@ -120,6 +120,8 @@ export const FoxPage = () => {
     () => [cryptoBalanceFox, cryptoBalanceFoxy],
     [cryptoBalanceFox, cryptoBalanceFoxy],
   )
+
+  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
 
   const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
 
@@ -221,9 +223,9 @@ export const FoxPage = () => {
               <Stack spacing={4} flex='1 1 0%' width='full'>
                 <MainOpportunity
                   assetId={selectedAsset.assetId}
-                  apy={getConfig().REACT_APP_FOXY_APY.toString()}
+                  apy={foxyApr ?? ''}
                   tvl={bnOrZero(foxyBalances.opportunities?.[0]?.tvl).toString()}
-                  isLoaded={!foxyBalances.loading}
+                  isLoaded={!foxyBalances.loading && isFoxyAprLoaded}
                   balance={cryptoBalances[selectedAssetIndex]}
                   onClick={() => {
                     history.push({

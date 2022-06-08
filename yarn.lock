@@ -2789,7 +2789,7 @@
   dependencies:
     "@ethersproject/logger" "^5.6.0"
 
-"@ethersproject/providers@5.6.5", "@ethersproject/providers@^5.5.1", "@ethersproject/providers@^5.5.3":
+"@ethersproject/providers@5.6.5", "@ethersproject/providers@^5.5.3":
   version "5.6.5"
   resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.6.5.tgz#aefecf78459817a323452e05a16d56afcf807e27"
   integrity sha512-TRS+c2Ud+cMpWodmGAc9xbnYRPWzRNYt2zkCSnj58nJoamBQ6x4cUbBeo0lTC3y+6RDVIBeJv18OqsDbSktLVg==
@@ -3747,12 +3747,12 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@4.5.0":
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.5.0.tgz#9a863c1eb34148ba15bc5546a178c4231cd40d45"
-  integrity sha512-K8VlUJ+L+RNGcohx1gY0JIz6msOsGPQiRIbxzgHOoVM1jqYriuhzF2TqzVZ9dA3PVBdr5wt9DJa5YpOKp2OirQ==
+"@shapeshiftoss/asset-service@^4.6.1":
+  version "4.6.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.6.1.tgz#69b1e8daaa2afb35b84b0316332a728bd6543674"
+  integrity sha512-EoOAX8slt1JD5fzQk6z/bObwx0tqYBd/aEpP8LnZ6dkeff72Zu+82+9dMHMKXhV3D59Sm5GofFlccRnV7d6cPQ==
   dependencies:
-    axios "^0.26.0"
+    axios "^0.26.1"
     identicon.js "^2.3.3"
     js-pixel-fonts "^1.5.0"
     lodash "^4.17.21"
@@ -3795,29 +3795,29 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-5.0.1.tgz#ce0934dccfec596fc230dbf442b4d41d78256577"
-  integrity sha512-xXEB6WWOqDbGDunPT2GS4gfS5W3BGgsYLidMQjsK8ChAbpf24P/rkdRAaaYq8aiwDUnYLXgdUVCPjmIZWGNscA==
+"@shapeshiftoss/caip@^5.2.3":
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-5.2.3.tgz#1fd97cf61b50bca565c26787b7f2a59cccc3d427"
+  integrity sha512-vYI49SiIl/OwAyBDDACftWuZgya0FHkvRTPeBp7NpAkRi7unYRXk4In6Y5vB7XLF9YHxfre8IRebJu87xEw7sA==
 
-"@shapeshiftoss/chain-adapters@^4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-4.6.0.tgz#8ea38d78f7d2c38a8ead0c275d3abe8625944e9c"
-  integrity sha512-jUbP1Y0yQyB7JUALd7l8F5Z+YXHuVf6vsoH04sBF7M64l/4aYPu/8A4DVXlCgkeOtKSZkkJGUf4LDQYVJyg7mA==
+"@shapeshiftoss/chain-adapters@^4.8.0", "@shapeshiftoss/chain-adapters@^4.8.1":
+  version "4.8.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-4.8.1.tgz#8bf1a9283fa2769b09aec70452e0677c2fb38a79"
+  integrity sha512-kM9MVN6Pz7GT3leQSrIGJQvdJ3s9U/mx38nuyRiLVATGFe7aSEcGGqXEcXTzYabvcXXmPSrj1Pm3k0c9GVOVuA==
   dependencies:
-    axios "^0.26.0"
+    axios "^0.26.1"
     bech32 "^2.0.0"
-    bignumber.js "^9.0.1"
+    bignumber.js "^9.0.2"
     bitcoinjs-lib "^5.2.0"
     coinselect "^3.1.12"
     ethers "^5.4.7"
     multicoin-address-validator "^0.5.2"
-    web3-utils "^1.6.0"
+    web3-utils "^1.7.3"
 
-"@shapeshiftoss/errors@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/errors/-/errors-1.1.1.tgz#a716cac589ba901c86088480d62604732dfb9b73"
-  integrity sha512-m1NgQsoo2n+YZpRkwIcFE47fW48UNoNOvn1bgxXI27oxErjLyZ/xnc/euWQvCCbHo829xXRju9h1Lu6wQe8Ryw==
+"@shapeshiftoss/errors@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/errors/-/errors-1.1.2.tgz#19e2419a509723c0521b40c254eed0a1bee7ae77"
+  integrity sha512-7OiRrNyl3g0r6hiaDu/mm3mefULyi8xboSuTb7Bbta0aHyS1r2vQ3dimNsDyKeKP86gWYr9ILwHCxmf9L2xbuQ==
   dependencies:
     lodash.clonedeep "^4.5.0"
     lodash.snakecase "^4.1.1"
@@ -3980,7 +3980,7 @@
     p-lazy "^3.1.0"
     web3 "^1.5.1"
 
-"@shapeshiftoss/hdwallet-tallyho@^1.22.0":
+"@shapeshiftoss/hdwallet-tallyho@^1.23.0":
   version "1.23.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-tallyho/-/hdwallet-tallyho-1.23.0.tgz#3a40a112d8855c613b3a30af8f11003c3d5f0b57"
   integrity sha512-Y4yZfaRzdLmGVGYCwLLNvR9w/j7b775qMNPW4iSN56QxlXPhPX+7H8lZ+5nIY3lyX7PFU+T6Ch1cvbUuIayIDQ==
@@ -3997,49 +3997,49 @@
     "@shapeshiftoss/hdwallet-core" "1.23.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/investor-foxy@^3.1.1", "@shapeshiftoss/investor-foxy@^3.3.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.4.0.tgz#5d47090a619054d4036290eb6c1559bc01e351d9"
-  integrity sha512-6knqawziUkkXOszcGp09P/a+Km2mfNuYdD4dvOOYymOeMuAaVmbcQNc1CewBaHgQiPsNVq85wxTVoUzeceZBUA==
+"@shapeshiftoss/investor-foxy@^3.4.0", "@shapeshiftoss/investor-foxy@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.4.1.tgz#904b4cf8a61e1b91db004ad5a3d8467b90355c3e"
+  integrity sha512-h8kVpHZONgp6IbJ09rMxj+gygeoUuUnWjyhmXaanucILmYjegFPFAKEZngEArw2gbknuBY8i21LLewfqFj2wEQ==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"
     bignumber.js "^9.0.2"
     lodash "^4.17.21"
-    web3 "^1.7.1"
-    web3-core "^1.7.1"
-    web3-utils "^1.7.1"
+    web3 "^1.7.3"
+    web3-core "^1.7.3"
+    web3-utils "^1.7.3"
 
-"@shapeshiftoss/investor-yearn@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-3.0.1.tgz#44d4e54f3bfc90bc0e22265e863aee0a7b5f54b7"
-  integrity sha512-Ia7DlelEIMipt8cNmJjzZuf8xtKbHT9qB+YgaMrBbHID8dzDLngqK7eZwyS+CAHPPH85ukzrj9us10FG1oFYQw==
+"@shapeshiftoss/investor-yearn@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-3.0.2.tgz#b976dacb42c290c880ad1022cac357da7e1a94a4"
+  integrity sha512-TrVyTfrTCeJ4dvWSckyLPJbnuZOjvZYY/pPBYItgfIpxpGPqO8sWI6gT0p0zrrkhSGDVQsh+bXWXmFngeqsN7g==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"
     lodash "^4.17.21"
-    web3 "^1.7.0"
-    web3-core "^1.7.0"
-    web3-utils "^1.7.0"
+    web3 "^1.7.3"
+    web3-core "^1.7.3"
+    web3-utils "^1.7.3"
 
 "@shapeshiftoss/logger@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.6.0.tgz#dfd8b2984c22db3c0b8065515b3553a17df43802"
-  integrity sha512-PdMGrSVhJkKPIciXqehWdN/rPDqlfpq1HGG3BgWVM27JaE+N2w2QD7uKqgrLUQtTNDVN6W/aJZ+WUBYW+KmqXQ==
+"@shapeshiftoss/market-service@^4.6.1":
+  version "4.6.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-4.6.1.tgz#9bf0777d4908b71dbd37a09a69a314d66f6fbdbc"
+  integrity sha512-jbneaZItLYkLehXwGDgNwPfDcHQNHc8uKD+Xr3+h1Ivj/VwuAr/2OY7hd4Nq6rAMIF+YvSrLMoCZ29GExYlSUg==
   dependencies:
-    "@ethersproject/providers" "^5.5.1"
-    "@shapeshiftoss/chain-adapters" "^4.6.0"
-    "@shapeshiftoss/investor-foxy" "^3.3.0"
+    "@ethersproject/providers" "^5.5.3"
+    "@shapeshiftoss/chain-adapters" "^4.8.0"
+    "@shapeshiftoss/investor-foxy" "^3.4.0"
     "@yfi/sdk" "^1.0.30"
-    axios "^0.26.0"
+    axios "^0.26.1"
     axios-rate-limit "^1.3.0"
-    bignumber.js "^9.0.1"
+    bignumber.js "^9.0.2"
     dayjs "^1.10.6"
     p-ratelimit "^1.0.1"
 
@@ -4055,35 +4055,35 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@5.12.0":
-  version "5.12.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-5.12.0.tgz#92e2edff22bef05ceec3edc0435490cb2cfd18d0"
-  integrity sha512-b3LbHRtkVCRppSJ0TMGpfPcr+NKTz0qSoElQ5CoEDXjcLoo9TRZPdi7owioeMoknlmOiSj0k8VsUaO/Txrr0cA==
+"@shapeshiftoss/swapper@5.12.1":
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-5.12.1.tgz#6f9ae3aa7b1d9c423914055accba2822e475067f"
+  integrity sha512-wTsUPB8bpf8g97ZYecu/a7jWWdsup/Aixvcqmc9JmuQ+PkGHvli+AxtzvGUsl/ql/ZlQPxLzH8Wk3WW5CcgYXw==
   dependencies:
-    axios "^0.26.0"
-    bignumber.js "^9.0.1"
+    axios "^0.26.1"
+    bignumber.js "^9.0.2"
     lodash "^4.17.21"
     retry-axios "^2.6.0"
-    web3 "^1.6.1"
+    web3 "^1.7.3"
 
 "@shapeshiftoss/types@3.1.3":
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.1.3.tgz#26b1d626d2b342b107e2ea538b5aedb0bee896ab"
   integrity sha512-Nhrs8gQelmsFAQQHTEq8TS3wueBKqjBf0pX6VxOiIQyasordSHQT4Di6WQOL1NWhciYptJ2nHPbarmhKOD63Eg==
 
-"@shapeshiftoss/types@4.3.2":
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.3.2.tgz#f8ff003e3cd0db2ee1baebad8e6d52ffa3b326b3"
-  integrity sha512-TQtGSi/kaK/ciNc9CVLRQHZgj7zYszNIDTSpsdmyt7K3MaYoidqk1x/m+QOsJk3hWNELvXtVy0iVbIIPN/viCQ==
+"@shapeshiftoss/types@^4.4.1":
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.4.1.tgz#a503dd43036a210fed5fa0ce2b1c8f8e8ffa7b4b"
+  integrity sha512-zP5MO/BX1d47Y99m4nO56YIf1fBfXxYwq15DQYcq+xrPdY20kOyFM0zPf04Q32vb0ev4SbqC9R/S9jxQDs95rg==
 
-"@shapeshiftoss/unchained-client@^8.3.4":
-  version "8.3.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-8.3.4.tgz#eb9dc1d4c58e00572296617490b033647cba471d"
-  integrity sha512-AhT5xOmejdV2zTF2OwCsm5qNdt38Qz2GbG5KVgsqh6a4D56xIiYaaVPF5C/gw/ICztc+nzYWmCRocX4ij14F6g==
+"@shapeshiftoss/unchained-client@^8.6.1":
+  version "8.6.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-8.6.1.tgz#9c5907a23f7765de5c0ec0f77824fe9f492b1895"
+  integrity sha512-eG46ojd9Ty8FqVhI42aV6/OrYhKiWMe9yNZU9UW1uizKzM7LFbLNmx6YniuDc84wv1xk+F5JcRCIyd0D2ciVhg==
   dependencies:
     "@shapeshiftoss/blockbook" "^6.11.0"
     "@yfi/sdk" "^1.0.30"
-    bignumber.js "^9.0.1"
+    bignumber.js "^9.0.2"
     ethers "^5.5.3"
     isomorphic-ws "^4.0.1"
     ws "^8.3.0"
@@ -21632,7 +21632,7 @@ web3-core-subscriptions@1.7.3:
     eventemitter3 "4.0.4"
     web3-core-helpers "1.7.3"
 
-web3-core@1.7.3, web3-core@^1.7.0, web3-core@^1.7.1:
+web3-core@1.7.3, web3-core@^1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/web3-core/-/web3-core-1.7.3.tgz#2ef25c4cc023997f43af9f31a03b571729ff3cda"
   integrity sha512-4RNxueGyevD1XSjdHE57vz/YWRHybpcd3wfQS33fgMyHZBVLFDNwhn+4dX4BeofVlK/9/cmPAokLfBUStZMLdw==
@@ -21808,7 +21808,7 @@ web3-shh@1.7.3:
     web3-core-subscriptions "1.7.3"
     web3-net "1.7.3"
 
-web3-utils@1.7.3, web3-utils@^1.0.0-beta.31, web3-utils@^1.5.2, web3-utils@^1.6.0, web3-utils@^1.7.0, web3-utils@^1.7.1:
+web3-utils@1.7.3, web3-utils@^1.0.0-beta.31, web3-utils@^1.5.2, web3-utils@^1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.7.3.tgz#b214d05f124530d8694ad364509ac454d05f207c"
   integrity sha512-g6nQgvb/bUpVUIxJE+ezVN+rYwYmlFyMvMIRSuqpi1dk6ApDD00YNArrk7sPcZnjvxOJ76813Xs2vIN2rgh4lg==
@@ -21821,7 +21821,7 @@ web3-utils@1.7.3, web3-utils@^1.0.0-beta.31, web3-utils@^1.5.2, web3-utils@^1.6.
     randombytes "^2.1.0"
     utf8 "3.0.0"
 
-web3@^1.5.1, web3@^1.6.1, web3@^1.7.0, web3@^1.7.1:
+web3@^1.5.1, web3@^1.6.1, web3@^1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/web3/-/web3-1.7.3.tgz#30fe786338b2cc775881cb28c056ee5da4be65b8"
   integrity sha512-UgBvQnKIXncGYzsiGacaiHtm0xzQ/JtGqcSO/ddzQHYxnNuwI72j1Pb4gskztLYihizV9qPNQYHMSCiBlStI9A==

@@ -8,7 +8,7 @@ import { EthSend } from 'test/mocks/txs'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensLookup } from 'lib/ens'
+import { ensLookup } from 'lib/address/ens'
 
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
@@ -31,10 +31,12 @@ jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('hooks/useModal/useModal')
 jest.mock('hooks/useWallet/useWallet')
 
-jest.mock('lib/ens')
+jest.mock('lib/address/ens')
 
 const formData: SendInput = {
+  [SendFormFields.Input]: '',
   [SendFormFields.Address]: EthSend.address,
+  [SendFormFields.VanityAddress]: '',
   [SendFormFields.Asset]: {
     chainId: ethChainId,
     assetId: ethAssetId,

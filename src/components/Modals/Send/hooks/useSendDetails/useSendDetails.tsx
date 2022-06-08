@@ -15,9 +15,7 @@ import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { ensLookup } from 'lib/ens'
 import { logger } from 'lib/logger'
-import { isEthAddress } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetById,
@@ -116,22 +114,16 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .toFixed(0)
 
     switch (values.asset.chainId) {
-      case cosmosChainId: {
-        const cosmosChainAdapter = await chainAdapterManager.byChainId(cosmosChainId)
-        return cosmosChainAdapter.getFeeData({})
-      }
+      case cosmosChainId:
       case osmosisChainId: {
-        const osmosisChainAdapter = await chainAdapterManager.byChainId(osmosisChainId)
-        return osmosisChainAdapter.getFeeData({})
+        return chainAdapterManager.byChainId(values.asset.chainId).getFeeData({})
       }
       case ethChainId: {
         const from = await adapter.getAddress({
           wallet,
         })
-        const ethereumChainAdapter = await chainAdapterManager.byChainId(ethChainId)
-        const to = isEthAddress(values.address)
-          ? values.address
-          : ((await ensLookup(values.address)).address as string)
+        const ethereumChainAdapter = chainAdapterManager.byChainId(ethChainId)
+        const to = values.address
         return ethereumChainAdapter.getFeeData({
           to,
           value,

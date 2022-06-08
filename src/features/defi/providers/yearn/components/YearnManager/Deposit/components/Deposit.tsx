@@ -1,8 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -19,17 +19,17 @@ import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnDepositProps = {
-  api: YearnVaultApi
-  apy: number | undefined
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
 }
 
-export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) => {
+export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { yearn: yearnInvestor } = useYearn()
   const { chainId, assetReference } = query
+  const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -44,17 +44,18 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
 
   if (!state || !dispatch) return null
 
-  const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !assetReference) return
+  const getApproveGasEstimate = async (): Promise<string | undefined> => {
+    if (!(state.userAddress && assetReference && opportunity)) return
     try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateApproveGas({
-          tokenContractAddress: assetReference,
-          userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedApproval = await yearnOpportunity.prepareApprove(state.userAddress)
+      return bnOrZero(preparedApproval.gasPrice)
+        .times(preparedApproval.estimatedGas)
+        .integerValue()
+        .toString()
     } catch (error) {
       console.error('YearnDeposit:getApproveEstimate error:', error)
       toast({
@@ -67,15 +68,16 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
   }
 
   const handleContinue = async (formValues: DepositValues) => {
-    if (!state.userAddress) return
+    if (!(state.userAddress && opportunity)) return
     // set deposit state for future use
     dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
     try {
       // Check is approval is required for user address
-      const _allowance = await api.allowance({
-        tokenContractAddress: assetReference,
-        userAddress: state.userAddress,
-      })
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const _allowance = await yearnOpportunity.allowance(state.userAddress)
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
       // Skip approval step if user allowance is greater than requested deposit amount
@@ -134,7 +136,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: YearnDepositProps) 
   return (
     <ReusableDeposit
       asset={asset}
-      apy={String(apy)}
+      apy={String(opportunity?.metadata.apy?.net_apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

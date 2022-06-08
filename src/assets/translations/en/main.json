@@ -16,7 +16,6 @@
     "estimatedGas": "Estimated Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
-    "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
@@ -50,7 +49,6 @@
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
-    "apy": "%{apy}% APY",
     "settings": "Settings",
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
@@ -291,7 +289,7 @@
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet"
@@ -341,6 +339,9 @@
         "unstake": "Unstake",
         "instantUnstake": "Instant Unstake",
         "claimWithdraw": "Claim Withdraw"
+      },
+      "erc20": {
+        "approve": "Approve"
       }
     },
     "unknown": "Transaction"
@@ -811,7 +812,7 @@
         "connectFailure": "Unable to connect Tally Ho wallet",
         "network": "Tally Ho isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not Tally Ho. Do you have multiple wallets installed?",
-        "tallyNotInstalledOrSetToDefault":"We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
+        "tallyNotInstalledOrSetToDefault": "We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
       },
       "connect": {
         "header": "Pair Tally",
@@ -942,6 +943,7 @@
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
+        "captchaRequired": "Captcha is required",
         "tooManyAttempts": "Too many attempts, please try again later.",
         "invalidLogin": "Invalid login",
         "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
@@ -1099,7 +1101,8 @@
       "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "trade": "Trade",
       "receive": "Receive",
-      "titleStaking": "%{assetSymbol} Token Staking",
+      "mainStakingTitle": "%{assetSymbol} Token Staking",
+      "mainStakingDescription": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
       "tvl": "TVL",
       "currentApy": "Current APY",
       "balance": "Balance",
@@ -1107,16 +1110,16 @@
       "currentPrice": "Current Price",
       "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
       "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
-      "otherOpportunitiesTitle": "Other opportunities",
+      "otherOpportunitiesTitle": "Opportunities",
       "otherOpportunitiesDescription": {
-        "FOX": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
+        "FOX": "Get cagey with your FOX investment strategies! Explore the many opportunities for providing liquidity, farming for yield, lending and borrowing. Click the “Get Started” links below to visit the external sites of interest to learn more—and put your FOX to work for you.",
         "FOXy": "Quickly and easily purchase FOXy, the industry’s first DAO rebasing token that offers both yield and profit rewards."
       },
       "liquidityPools": "Liquidity Pools",
       "farming": "Farming",
       "borrowingAndLending": "Borrowing & Lending",
       "governanceTitle": "Governance",
-      "governanceDescription": "As a FOX holder, you can have a voice in the future of ShapeShift. Below are currently active DAO proposals open for voting by token holders.",
+      "governanceDescription": "As a FOX holder, you can have a voice in the future of ShapeShift. Below are active or recently passed DAO proposals voted on by token holders.",
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",

@@ -13,10 +13,8 @@ import {
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import difference from 'lodash/difference'
-import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
@@ -34,15 +32,13 @@ import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectAssets,
+  selectIsPortfolioLoaded,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectSelectedCurrency,
   selectTxHistoryStatus,
-  selectTxIds,
-  selectTxs,
 } from 'state/slices/selectors'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
+import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -72,10 +68,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   } = useWallet()
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
+  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
+  const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
+  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
+  const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
-
-  // keep track of pending tx ids, so we can refetch the portfolio when they confirm
-  const [pendingTxIds, setPendingTxIds] = useState<Set<TxId>>(new Set<TxId>())
+  const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -85,20 +83,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
-  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-
-  // once the wallet is connected, reach out to unchained to fetch
-  // accounts for each chain/account specifier combination
-  useEffect(() => {
-    const { getAccount } = portfolioApi.endpoints
-    // forceRefetch is enabled here to make sure that we always have the latest wallet information
-    // it also forces queryFn to run and that's needed for the wallet info to be dispatched
-    const options = { forceRefetch: true }
-    // fetch each account
-    accountSpecifiersList.forEach(accountSpecifierMap =>
-      dispatch(getAccount.initiate({ accountSpecifierMap }, options)),
-    )
-  }, [dispatch, accountSpecifiersList])
 
   /**
    * handle wallet disconnect/switch logic
@@ -114,6 +98,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (switched || disconnected) {
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())
+      dispatch(txHistory.actions.clear())
     }
     // this effect changes accountSpecifiersList, don't create infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -201,98 +186,76 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
 
-  const txIds = useSelector(selectTxIds)
-  const txsById = useSelector(selectTxs)
-  const txHistoryStatus = useSelector(selectTxHistoryStatus)
+  // once account specifiers are set after wallet connect, fetch all account data to build out portfolio
+  useEffect(() => {
+    const { getAccount } = portfolioApi.endpoints
 
-  /**
-   * refetch an account given a newly confirmed txid
-   */
-  const refetchAccountByTxId = useCallback(
-    (txId: TxId) => {
-      // the accountSpecifier the tx came from
-      const { txAccountSpecifier } = deserializeUniqueTxId(txId)
-      // only refetch the specific account for this tx
-      const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
-        const [chainId, accountSpecifier] = Object.entries(cur)[0]
-        const accountId = `${chainId}:${accountSpecifier}`
-        if (accountId === txAccountSpecifier) acc[chainId] = accountSpecifier
-        return acc
-      }, {})
-      const { getAccount } = portfolioApi.endpoints
+    accountSpecifiersList.forEach(accountSpecifierMap => {
       dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
-    },
-    [accountSpecifiersList, dispatch],
-  )
+    })
+  }, [dispatch, accountSpecifiersList])
 
-  const portfolioAccounts = useAppSelector(state => selectPortfolioAccounts(state))
-
-  /**
-   * monitor for new pending txs, add them to a set, so we can monitor when they're confirmed
-   */
+  // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
-    // we only want to refetch portfolio if a new tx comes in after we're finished loading
-    if (txHistoryStatus !== 'loaded') return
-    // don't fire with nothing connected
-    if (isEmpty(accountSpecifiers)) return
-    // grab the most recent txId
-    const txId = head(txIds)!
-    // grab the actual tx
-    const tx = txsById[txId]
-    // always wear protection, or don't it's your choice really
-    if (!tx) return
+    if (!isPortfolioLoaded) return
 
-    if (tx.chainId === cosmosChainId) {
-      // This block refetches validator data on subsequent Txs in case TVL or APR changed.
-      const validators = portfolioAccounts[`${cosmosChainId}:${tx.address}`]?.validatorIds
-      validators?.forEach(validatorAddress => {
-        dispatch(
-          validatorDataApi.endpoints.getValidatorData.initiate({
-            validatorAddress,
-          }),
-        )
+    const { getAllTxHistory } = txHistoryApi.endpoints
+
+    dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
+  }, [dispatch, accountSpecifiersList, isPortfolioLoaded])
+
+  // once portfolio and transaction history are done loading, fetch remaining chain specific data
+  useEffect(() => {
+    if (!isPortfolioLoaded) return
+    if (txHistoryStatus !== 'loaded') return
+
+    const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+    const { getValidatorData } = validatorDataApi.endpoints
+
+    // forceRefetch is enabled here to make sure that we always have the latest state from chain
+    // and ensure the queryFn runs resulting in dispatches occuring to update client state
+    const options = { forceRefetch: true }
+
+    accountSpecifiersList.forEach(accountSpecifierMap => {
+      Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
+        switch (chainId) {
+          case cosmosChainId:
+            const accountSpecifier = `${chainId}:${account}`
+            dispatch(getValidatorData.initiate({ accountSpecifier }, options))
+            break
+          case ethChainId:
+            /**
+             * fetch all rebase history for foxy
+             *
+             * foxy rebase history is most closely linked to transactions.
+             * unfortunately, we have to call this for a specific asset here
+             * because we need it for the dashboard balance chart
+             *
+             * if you're reading this and are about to add another rebase token here,
+             * stop, and make a getRebaseHistoryByAccountId that takes
+             * an accountId and assetId[] in the txHistoryApi
+             */
+            dispatch(
+              getFoxyRebaseHistoryByAccountId.initiate(
+                { accountSpecifierMap, portfolioAssetIds },
+                options,
+              ),
+            )
+            break
+          default:
+        }
       })
-      // cosmos txs only come in when they're confirmed, so refetch that account immediately
-      return refetchAccountByTxId(txId)
-    } else {
-      /**
-       * the unchained getAccount call does not include pending txs in the portfolio
-       * add them to a set, and the two effects below monitor the set of pending txs
-       */
-      if (tx.status === 'pending') setPendingTxIds(new Set([...pendingTxIds, txId]))
-    }
-
-    // txsById changes on each tx - as txs have more confirmations
-    // pendingTxIds is changed by this effect, so don't create an infinite loop
+    })
+    // this effect cares specifically about changes to portfolio accounts or assets
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txIds, txHistoryStatus, refetchAccountByTxId])
+  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds, txHistoryStatus])
 
-  /**
-   * monitor the pending tx ids for when they change to confirmed.
-   * when they do change to confirmed, refetch the portfolio for that chain
-   * (unchained does not include assets for pending txs)
-   */
+  // once the portfolio and transaction history are done loading, fetch market data for all portfolio assets
+  // start refetch timer to keep market data up to date
   useEffect(() => {
-    // don't monitor any of this stuff if we're still loading - txsByIds will be thrashing
+    if (!isPortfolioLoaded) return
     if (txHistoryStatus !== 'loaded') return
-    if (!pendingTxIds.size) return
-    // can't map a set, spread it first
-    const confirmedTxIds = [...pendingTxIds].filter(txId => txsById[txId]?.status === 'confirmed')
-    // txsById will change often, but we only care that if they've gone from pending -> confirmed
-    if (!confirmedTxIds.length) return
-    // refetch the account for each newly confirmed tx
-    confirmedTxIds.forEach(txId => refetchAccountByTxId(txId))
-    // stop monitoring the pending tx ids that have now been confirmed
-    setPendingTxIds(new Set([...difference([...pendingTxIds], confirmedTxIds)]))
-  }, [pendingTxIds, refetchAccountByTxId, txsById, txHistoryStatus])
 
-  // we only prefetch market data for the top 1000 assets
-  // once the portfolio has loaded, check we have market data
-  // for more obscure assets, if we don't have it, fetch it
-  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
-
-  // market data pre and refetch management
-  useEffect(() => {
     const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
         dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
@@ -304,7 +267,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [portfolioAssetIds, dispatch])
+  }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
 
   /**
    * fetch forex spot and history for user's selected currency

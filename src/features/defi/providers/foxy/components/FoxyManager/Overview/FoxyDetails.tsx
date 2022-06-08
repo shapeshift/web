@@ -1,4 +1,4 @@
-import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
+import { Center, Flex, ModalBody, ModalFooter, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchPath } from 'react-router'
@@ -43,7 +43,7 @@ export const FoxyDetails = () => {
     assetReference: rewardId,
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
-  const apy = bnOrZero(opportunity?.apy).times(100).toString()
+  const apy = opportunity?.apy
   if (loading || !opportunity) {
     return (
       <Center minW='350px' minH='350px'>
@@ -55,7 +55,7 @@ export const FoxyDetails = () => {
     return (
       <FoxyEmpty
         assets={[stakingAsset, rewardAsset]}
-        apy={apy}
+        apy={apy ?? ''}
         onClick={() =>
           browserHistory.push({
             ...browserLocation,
@@ -84,7 +84,11 @@ export const FoxyDetails = () => {
               symbol={rewardAsset?.symbol}
             />
           </Stack>
-          <Tag colorScheme='green'>{apy}% APR</Tag>
+          <Skeleton isLoaded={Boolean(apy)}>
+            <Tag colorScheme='green'>
+              <Amount.Percent value={apy ?? ''} suffix='APR' />
+            </Tag>
+          </Skeleton>
         </Stack>
       </ModalBody>
       <ModalFooter justifyContent='flex-start' alignItems='flex-start' flexDir='column'>

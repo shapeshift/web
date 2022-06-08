@@ -17,7 +17,7 @@ import {
 import { SlideTransition } from 'components/SlideTransition'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensReverseLookup } from 'lib/ens'
+import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
 import { ChainIdType, isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 

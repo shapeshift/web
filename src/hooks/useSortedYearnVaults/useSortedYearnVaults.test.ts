@@ -1,6 +1,9 @@
+/**
+ * @jest-environment jsdom
+ */
 import { renderHook } from '@testing-library/react-hooks'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { mockVault, mockVaultWithBalance } from 'test/mocks/vaults'
-import { YearnVaultWithApyAndTvl } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
 
 import { useSortedYearnVaults } from './useSortedYearnVaults'
@@ -23,15 +26,15 @@ jest.mock('pages/Defi/hooks/useVaultBalances', () => {
     useVaultBalances: () => {
       const vaults: Record<string, MergedEarnVault> = {}
       vaults[addressWithBalance1] = mockVaultWithBalance({
-        vaultAddress: addressWithBalance1,
+        id: addressWithBalance1,
         fiatAmount: '222',
       })
       vaults[addressWithBalance2] = mockVaultWithBalance({
-        vaultAddress: addressWithBalance2,
+        id: addressWithBalance2,
         fiatAmount: '111',
       })
       vaults[addressWithBalance3] = mockVaultWithBalance({
-        vaultAddress: addressWithBalance3,
+        id: addressWithBalance3,
         fiatAmount: '333',
       })
 
@@ -47,53 +50,98 @@ jest.mock('pages/Defi/hooks/useVaultBalances', () => {
 jest.mock('hooks/useVaultWithoutBalance/useVaultWithoutBalance', () => {
   return {
     useVaultWithoutBalance: () => {
-      const vaults: Record<string, YearnVaultWithApyAndTvl> = {}
+      const vaults: Record<string, SerializableOpportunity> = {}
       vaults[address400KTVL3] = mockVault({
-        vaultAddress: address400KTVL3,
-        underlyingTokenBalanceUsdc: '400000',
+        id: address400KTVL3,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '400000000000',
+          assetId: 'mock',
+        },
         apy: 0.03,
       })
       vaults[address10MTVL2] = mockVault({
-        vaultAddress: address10MTVL2,
-        underlyingTokenBalanceUsdc: '10000002',
+        id: address10MTVL2,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '10000002000000',
+          assetId: 'mock',
+        },
         apy: 0.03,
       })
-      vaults[addressWithBalance1] = mockVault({ vaultAddress: addressWithBalance1 })
+      vaults[addressWithBalance1] = mockVault({
+        id: addressWithBalance1,
+        tvl: { balance: '0', balanceUsdc: '0', assetId: 'mock' },
+      })
       vaults[address5MTVL3] = mockVault({
-        vaultAddress: address5MTVL3,
-        underlyingTokenBalanceUsdc: '5000002',
+        id: address5MTVL3,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '5000002000000',
+          assetId: 'mock',
+        },
         apy: 0.3,
       })
-      vaults[addressWithBalance2] = mockVault({ vaultAddress: addressWithBalance2 })
+      vaults[addressWithBalance2] = mockVault({
+        id: addressWithBalance2,
+        tvl: { balance: '0', balanceUsdc: '0', assetId: 'mock' },
+      })
       vaults[address10MTVL1] = mockVault({
-        vaultAddress: address10MTVL1,
-        underlyingTokenBalanceUsdc: '10000001',
+        id: address10MTVL1,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '10000001000000',
+          assetId: 'mock',
+        },
         apy: 0.01,
       })
       vaults[address5MTVL2] = mockVault({
-        vaultAddress: address5MTVL2,
-        underlyingTokenBalanceUsdc: '5000001',
+        id: address5MTVL2,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '5000001000000',
+          assetId: 'mock',
+        },
         apy: 0.2,
       })
       vaults[address5MTVL1] = mockVault({
-        vaultAddress: address5MTVL1,
-        underlyingTokenBalanceUsdc: '5000003',
+        id: address5MTVL1,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '5000003000000',
+          assetId: 'mock',
+        },
         apy: 0.1,
       })
       vaults[address400KTVL1] = mockVault({
-        vaultAddress: address400KTVL1,
-        underlyingTokenBalanceUsdc: '400000',
+        id: address400KTVL1,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '400000000000',
+          assetId: 'mock',
+        },
         apy: 0.004,
       })
       vaults[address400KTVL2] = mockVault({
-        vaultAddress: address400KTVL2,
-        underlyingTokenBalanceUsdc: '400000',
+        id: address400KTVL2,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '400000000000',
+          assetId: 'mock',
+        },
         apy: 0.5,
       })
-      vaults[addressWithBalance3] = mockVault({ vaultAddress: addressWithBalance3 })
+      vaults[addressWithBalance3] = mockVault({
+        id: addressWithBalance3,
+        tvl: { balance: '0', balanceUsdc: '0', assetId: 'mock' },
+      })
       vaults[address10MTVL3] = mockVault({
-        vaultAddress: address10MTVL3,
-        underlyingTokenBalanceUsdc: '10000003',
+        id: address10MTVL3,
+        tvl: {
+          balance: '10000',
+          balanceUsdc: '10000003000000',
+          assetId: 'mock',
+        },
         apy: 0.02,
       })
 
@@ -108,25 +156,26 @@ jest.mock('hooks/useVaultWithoutBalance/useVaultWithoutBalance', () => {
 describe('useSortedYearnVaults hook', () => {
   it('should sorted array depending on balance, TVL and apy', () => {
     const { result } = renderHook(() => useSortedYearnVaults())
+
     expect(result.current.length).toBe(12)
     // vaults with balance sorted by balance
-    expect(result.current[0].vaultAddress).toBe(addressWithBalance3)
-    expect(result.current[1].vaultAddress).toBe(addressWithBalance1)
-    expect(result.current[2].vaultAddress).toBe(addressWithBalance2)
+    expect(result.current[0].id).toBe(addressWithBalance3)
+    expect(result.current[1].id).toBe(addressWithBalance1)
+    expect(result.current[2].id).toBe(addressWithBalance2)
 
     // vaults without balance, TVL > 10M, sorted by apy
-    expect(result.current[3].vaultAddress).toBe(address10MTVL2)
-    expect(result.current[4].vaultAddress).toBe(address10MTVL3)
-    expect(result.current[5].vaultAddress).toBe(address10MTVL1)
+    expect(result.current[3].id).toBe(address10MTVL2)
+    expect(result.current[4].id).toBe(address10MTVL3)
+    expect(result.current[5].id).toBe(address10MTVL1)
 
     // vaults without balance, 1M < TVL < 10M, sorted by apy
-    expect(result.current[6].vaultAddress).toBe(address5MTVL3)
-    expect(result.current[7].vaultAddress).toBe(address5MTVL2)
-    expect(result.current[8].vaultAddress).toBe(address5MTVL1)
+    expect(result.current[6].id).toBe(address5MTVL3)
+    expect(result.current[7].id).toBe(address5MTVL2)
+    expect(result.current[8].id).toBe(address5MTVL1)
 
     // vaults without balance, TVL < 1M, sorted by apy
-    expect(result.current[9].vaultAddress).toBe(address400KTVL2)
-    expect(result.current[10].vaultAddress).toBe(address400KTVL3)
-    expect(result.current[11].vaultAddress).toBe(address400KTVL1)
+    expect(result.current[9].id).toBe(address400KTVL2)
+    expect(result.current[10].id).toBe(address400KTVL3)
+    expect(result.current[11].id).toBe(address400KTVL1)
   })
 })

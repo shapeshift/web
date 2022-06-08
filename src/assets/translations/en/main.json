@@ -941,6 +941,7 @@
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
+        "captchaRequired": "Captcha is required",
         "tooManyAttempts": "Too many attempts, please try again later.",
         "invalidLogin": "Invalid login",
         "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",

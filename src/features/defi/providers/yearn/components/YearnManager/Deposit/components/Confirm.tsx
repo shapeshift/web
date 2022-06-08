@@ -1,13 +1,12 @@
 import { Alert, AlertIcon, Box, Stack, Tag, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import isNil from 'lodash/isNil'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -15,22 +14,20 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type YearnConfirmProps = {
-  api: YearnVaultApi
-}
-
-export const Confirm = ({ api }: YearnConfirmProps) => {
+export const Confirm = () => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { yearn: yearnInvestor } = useYearn()
+  // TODO: Allow user to set fee priority
+  const opportunity = state?.opportunity
   const { chainId, contractAddress: vaultAddress, tokenId } = query
 
   const assetNamespace = 'erc20'
@@ -44,6 +41,7 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+
   const vaultAssetId = toAssetId({
     chainId,
     assetNamespace,
@@ -61,36 +59,34 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
 
   const handleDeposit = async () => {
     try {
-      if (!state.userAddress || !tokenId || !walletState.wallet) return
+      if (
+        !(
+          state.userAddress &&
+          tokenId &&
+          walletState.wallet &&
+          supportsETH(walletState.wallet) &&
+          opportunity
+        )
+      )
+        return
+
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
-      const [txid, gasPrice] = await Promise.all([
-        api.deposit({
-          amountDesired: bnOrZero(state.deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          tokenContractAddress: tokenId,
-          userAddress: state.userAddress,
-          vaultAddress,
-          wallet: walletState.wallet,
-        }),
-        api.getGasPrice(),
-      ])
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const tx = await yearnOpportunity.prepareDeposit({
+        address: state.userAddress,
+        amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+      })
+      const txid = await yearnOpportunity.signAndBroadcast({
+        wallet: walletState.wallet,
+        tx,
+        // TODO: allow user to choose fee priority
+        feePriority: undefined,
+      })
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       history.push(DepositPath.Status)
-
-      const transactionReceipt = await poll({
-        fn: () => api.getTxReceipt({ txid }),
-        validate: (result: TransactionReceipt) => !isNil(result),
-        interval: 15000,
-        maxAttempts: 30,
-      })
-      dispatch({
-        type: YearnDepositActionType.SET_DEPOSIT,
-        payload: {
-          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
-        },
-      })
     } catch (error) {
       console.error('YearnDeposit:handleDeposit error', error)
       toast({
@@ -108,7 +104,7 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
     browserHistory.goBack()
   }
 
-  const apy = state.vault.metadata?.apy?.net_apy
+  const apy = opportunity?.metadata?.apy?.net_apy
   const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
   const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
@@ -130,7 +126,8 @@ export const Confirm = ({ api }: YearnConfirmProps) => {
           ...vaultAsset,
           color: '#FFFFFF',
           cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-            .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
+            .times(`1e+${asset.precision}`)
+            .div(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
             .toString(),
           fiatAmount: state.deposit.fiatAmount,
         },

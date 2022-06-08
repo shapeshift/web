@@ -8,8 +8,6 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { ensLookup } from 'lib/ens'
-import { isEthAddress } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
@@ -42,7 +40,6 @@ export const useFormSend = () => {
           const {
             chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
           } = fees
-          const address = isEthAddress(to) ? to : ((await ensLookup(to)).address as string)
           const shouldUseEIP1559Fees =
             (await wallet.ethSupportsEIP1559()) &&
             maxFeePerGas !== undefined &&
@@ -51,7 +48,7 @@ export const useFormSend = () => {
             throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
           }
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
-            to: address,
+            to,
             value,
             wallet,
             chainSpecific: {

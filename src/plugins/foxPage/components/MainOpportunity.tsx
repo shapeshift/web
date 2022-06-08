@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/layout'
+import { Box, Flex, Skeleton } from '@chakra-ui/react'
 import { Button, Text as CText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { fox } from 'test/mocks/assets'
@@ -6,16 +6,16 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
-import { BigNumber } from 'lib/bignumber/bignumber'
 
 type MainOpportunityProps = {
+  isLoaded: boolean
   apy: string
-  tvl: BigNumber
+  tvl: string
   balance: string
   onClick: () => void
 }
 
-export const MainOpportunity = ({ apy, tvl, balance, onClick }: MainOpportunityProps) => {
+export const MainOpportunity = ({ apy, tvl, balance, onClick, isLoaded }: MainOpportunityProps) => {
   const translate = useTranslate()
 
   return (
@@ -36,17 +36,14 @@ export const MainOpportunity = ({ apy, tvl, balance, onClick }: MainOpportunityP
           <Box>
             <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
             <CText color='green.400' fontSize={'xl'}>
-              {apy}
+              <Amount.Percent value={apy} />
             </CText>
           </Box>
           <Box>
             <Text translation='plugins.foxPage.tvl' color='gray.500' mb={1} />
-            <Amount.Fiat
-              color='inherit'
-              fontSize={'xl'}
-              fontWeight='semibold'
-              value={tvl.toString()}
-            />
+            <Skeleton isLoaded={isLoaded}>
+              <Amount.Fiat color='inherit' fontSize={'xl'} fontWeight='semibold' value={tvl} />
+            </Skeleton>
           </Box>
           <Box>
             <Text translation='plugins.foxPage.balance' color='gray.500' mb={1} />

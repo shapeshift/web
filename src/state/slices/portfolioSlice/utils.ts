@@ -118,14 +118,14 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
 }
 
 export const accountIdToUtxoParams = (
-  asset: Asset,
+  _asset: Asset,
   accountId: AccountSpecifier,
   accountIndex: number,
 ) => {
   const accountType = accountIdToAccountType(accountId)
   // for eth, we don't return a UtxoAccountType or utxoParams
   if (!accountType) return {}
-  const utxoParams = utxoAccountParams(asset, accountType, accountIndex)
+  const utxoParams = utxoAccountParams(accountType, accountIndex)
   return { utxoParams, accountType }
 }
 

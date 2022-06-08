@@ -1,3 +1,5 @@
+# [@shapeshiftoss/errors-v1.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/errors-v1.1.1...@shapeshiftoss/errors-v1.1.2) (2022-06-08)
+
 # [@shapeshiftoss/errors-v1.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/errors-v1.1.0...@shapeshiftoss/errors-v1.1.1) (2022-05-12)
 
 

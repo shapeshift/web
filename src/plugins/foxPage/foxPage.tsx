@@ -121,7 +121,7 @@ export const FoxPage = () => {
     [cryptoBalanceFox, cryptoBalanceFoxy],
   )
 
-  const { foxyApr } = useFoxyApr()
+  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
 
   const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
 
@@ -221,6 +221,26 @@ export const FoxPage = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
+                <MainOpportunity
+                  assetId={selectedAsset.assetId}
+                  apy={foxyApr ?? ''}
+                  tvl={bnOrZero(foxyBalances.opportunities?.[0]?.tvl).toString()}
+                  isLoaded={!foxyBalances.loading && isFoxyAprLoaded}
+                  balance={cryptoBalances[selectedAssetIndex]}
+                  onClick={() => {
+                    history.push({
+                      pathname: FoxyPath.Overview,
+                      search: qs.stringify({
+                        chainId: assetFoxy.chainId,
+                        contractAddress: foxyAddresses[0].staking,
+                        tokenId: foxyAddresses[0].fox,
+                        rewardId: foxyAddresses[0].foxy,
+                      }),
+                      state: { background: location },
+                    })
+                  }}
+                />
+
                 <OtherOpportunities
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}
@@ -243,24 +263,7 @@ export const FoxPage = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity
-                  apy={foxyApr ?? ''}
-                  tvl={bnOrZero(foxyBalances.opportunities?.[0]?.tvl).toString()}
-                  isLoaded={!foxyBalances.loading}
-                  balance={cryptoBalances[selectedAssetIndex]}
-                  onClick={() => {
-                    history.push({
-                      pathname: FoxyPath.Overview,
-                      search: qs.stringify({
-                        chainId: assetFoxy.chainId,
-                        contractAddress: foxyAddresses[0].staking,
-                        tokenId: foxyAddresses[0].fox,
-                        rewardId: foxyAddresses[0].foxy,
-                      }),
-                      state: { background: location },
-                    })
-                  }}
-                />
+                r{' '}
                 <OtherOpportunities
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}

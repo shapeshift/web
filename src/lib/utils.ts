@@ -1,4 +1,6 @@
 import {
+  ASSET_REFERENCE,
+  AssetReference,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ChainId,
@@ -132,3 +134,9 @@ export const chainIdToChainType = (chainId: ChainId): ChainTypes => {
   const { chainNamespace, chainReference } = fromChainId(chainId)
   return chainPartsToChainType(chainNamespace, chainReference)
 }
+
+export const isToken = (assetReference: AssetReference | string) =>
+  !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
+
+export const tokenOrUndefined = (assetReference: AssetReference | string) =>
+  isToken(assetReference) ? assetReference : undefined

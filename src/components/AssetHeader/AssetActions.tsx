@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, AssetId, AssetReference, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -8,6 +8,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { tokenOrUndefined } from 'lib/utils'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -47,9 +48,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const { assetReference } = fromAssetId(asset.assetId)
-  const maybeToken = !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
-    ? assetReference
-    : undefined
+  const maybeToken = tokenOrUndefined(assetReference)
 
   // If token is undefined, redirect to the basic explorer link
   // else redirect to the token explorer link

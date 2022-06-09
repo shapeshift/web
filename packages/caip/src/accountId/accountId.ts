@@ -1,8 +1,9 @@
 import { ChainId, ChainNamespace, ChainReference, fromChainId, toChainId } from '../chainId/chainId'
 import { CHAIN_NAMESPACE } from '../constants'
 import { assertIsChainId, assertIsChainNamespace, assertIsChainReference } from '../typeGuards'
+import { Nominal } from '../utils'
 
-export type AccountId = string
+export type AccountId = Nominal<string, 'AccountId'>
 
 type ToAccountIdWithChainId = {
   chainId: ChainId

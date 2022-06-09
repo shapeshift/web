@@ -11,9 +11,9 @@ import {
   isAssetId,
   isAssetNamespace
 } from '../typeGuards'
-import { parseAssetIdRegExp } from '../utils'
+import { Nominal, parseAssetIdRegExp } from '../utils'
 
-export type AssetId = string
+export type AssetId = Nominal<string, 'AssetId'>
 
 export type AssetNamespace = typeof ASSET_NAMESPACE_STRINGS[number]
 

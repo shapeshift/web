@@ -648,14 +648,14 @@ describe('assetId', () => {
       expect(() => fromAssetId('invalid')).toThrow()
     })
 
-    it('errors for invalid chaintype', () => {
+    it('errors for invalid ChainNamespace', () => {
       expect(() => fromAssetId('invalid:cosmoshub-4/slip44:118')).toThrow()
     })
 
-    it('errors for invalid network type', () => {
+    it('errors for invalid ChainReference type', () => {
       expect(() => fromAssetId('cosmos:invalid/slip44:118')).toThrow()
     })
-    it('errors for invalid osmosis asset namespace', () => {
+    it('errors for invalid osmosis AssetNamespace', () => {
       expect(() => fromAssetId('cosmos:osmosis-1/invalid:118')).toThrow()
     })
   })

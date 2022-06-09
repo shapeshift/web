@@ -49,7 +49,6 @@
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
-    "apy": "%{apy}% APY",
     "settings": "Settings",
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
@@ -1117,7 +1116,8 @@
       "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "trade": "Trade",
       "receive": "Receive",
-      "titleStaking": "%{assetSymbol} Token Staking",
+      "mainStakingTitle": "%{assetSymbol} Token Staking",
+      "mainStakingDescription": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
       "tvl": "TVL",
       "currentApy": "Current APY",
       "balance": "Balance",
@@ -1127,7 +1127,7 @@
       "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
       "otherOpportunitiesTitle": "Opportunities",
       "otherOpportunitiesDescription": {
-        "FOX": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
+        "FOX": "Get cagey with your FOX investment strategies! Explore the many opportunities for providing liquidity, farming for yield, lending and borrowing. Click the “Get Started” links below to visit the external sites of interest to learn more—and put your FOX to work for you.",
         "FOXy": "Quickly and easily purchase FOXy, the industry’s first DAO rebasing token that offers both yield and profit rewards."
       },
       "liquidityPools": "Liquidity Pools",

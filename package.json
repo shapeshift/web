@@ -1,7 +1,78 @@
 {
-  "name": "web",
-  "version": "0.1.0",
+  "name": "@shapeshiftoss/web",
+  "version": "1.27.0",
   "private": true,
+  "scripts": {
+    "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
+    "link-packages": "./scripts/link-packages.sh",
+    "unlink-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node ./headers/write.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh",
+    "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true react-app-rewired start",
+    "dev:silent": "BROWSER=none yarn dev",
+    "local-ci": "yarn lint && yarn type-check && yarn test && yarn build",
+    "lint": "eslint -c .eslintrc src cypress --ext .ts,.tsx",
+    "lint:cypress": "eslint -c ./cypress/.eslintrc src --ext .ts,.tsx",
+    "lint:fix": "yarn lint --fix",
+    "lint:cypress:fix": "yarn lint:cypress --fix",
+    "minify": "yarn yarn-minify",
+    "test": "yarn jest --preset ts-jest headers && react-app-rewired test --coverage --watchAll=false",
+    "test:cypress": "yarn cypress open",
+    "test:cypress:headless": "yarn cypress run --headless",
+    "test:cypress:rerecord": "yarn cypress run --browser chrome --headless --env forceRecord=true",
+    "test:cypress:clean": "yarn cypress run --browser chrome --headless --env cleanMocks=true",
+    "clean": "rimraf node_modules",
+    "test:dev": "react-app-rewired test --watch",
+    "type-check": "tsc --project ./tsconfig.json --noEmit",
+    "type-check-watch": "tsc --watch --project ./tsconfig.json --noEmit",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public",
+    "postinstall": "./scripts/postinstall.sh",
+    "create-release": "./scripts/release.sh create",
+    "merge-release": "./scripts/release.sh merge"
+  },
+  "eslintConfig": {
+    "extends": "react-app",
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [],
+    "coveragePathIgnorePatterns": [
+      "./src/env"
+    ],
+    "setupFiles": [
+      "./src/test/setupGlobalMocks.ts"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "resolutions": {
+    "@shapeshiftoss/hdwallet-core": "1.23.0"
+  },
+  "config-overrides-path": "react-app-rewired.config.js",
+  "fork-ts-checker": {
+    "typescript": {
+      "memoryLimit": 4096
+    }
+  },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.7",
     "@chakra-ui/react": "^1.8.8",
@@ -99,68 +170,6 @@
     "web-vitals": "^2.1.0",
     "web3": "^1.6.1"
   },
-  "scripts": {
-    "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
-    "link-packages": "./scripts/link-packages.sh",
-    "unlink-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
-    "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node ./headers/write.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh",
-    "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true react-app-rewired start",
-    "dev:silent": "BROWSER=none yarn dev",
-    "local-ci": "yarn lint && yarn type-check && yarn test && yarn build",
-    "lint": "eslint -c .eslintrc src cypress --ext .ts,.tsx",
-    "lint:cypress": "eslint -c ./cypress/.eslintrc src --ext .ts,.tsx",
-    "lint:fix": "yarn lint --fix",
-    "lint:cypress:fix": "yarn lint:cypress --fix",
-    "minify": "yarn yarn-minify",
-    "test": "yarn jest --preset ts-jest headers && react-app-rewired test --coverage --watchAll=false",
-    "test:cypress": "yarn cypress open",
-    "test:cypress:headless": "yarn cypress run --headless",
-    "test:cypress:rerecord": "yarn cypress run --browser chrome --headless --env forceRecord=true",
-    "test:cypress:clean": "yarn cypress run --browser chrome --headless --env cleanMocks=true",
-    "clean": "rimraf node_modules",
-    "test:dev": "react-app-rewired test --watch",
-    "type-check": "tsc --project ./tsconfig.json --noEmit",
-    "type-check-watch": "tsc --watch --project ./tsconfig.json --noEmit",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public",
-    "postinstall": "./scripts/postinstall.sh",
-    "create-release": "./scripts/release.sh create",
-    "merge-release": "./scripts/release.sh merge"
-  },
-  "eslintConfig": {
-    "extends": "react-app",
-    "overrides": [
-      {
-        "files": [
-          "**/*.stories.*"
-        ],
-        "rules": {
-          "import/no-anonymous-default-export": "off"
-        }
-      }
-    ]
-  },
-  "jest": {
-    "collectCoverageFrom": [],
-    "coveragePathIgnorePatterns": [
-      "./src/env"
-    ],
-    "setupFiles": [
-      "./src/test/setupGlobalMocks.ts"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^15.0.0",
@@ -229,14 +238,5 @@
     "webpack": "5.65.0",
     "webpack-subresource-integrity": "^5.0.0",
     "yarn-minify": "^1.0.1"
-  },
-  "resolutions": {
-    "babel-loader": "8.1.0"
-  },
-  "config-overrides-path": "react-app-rewired.config.js",
-  "fork-ts-checker": {
-    "typescript": {
-      "memoryLimit": 4096
-    }
   }
 }

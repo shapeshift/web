@@ -9,10 +9,13 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
+
+const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseFormSend'] })
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -142,6 +145,7 @@ export const useFormSend = () => {
           })
         }, 5000)
       } catch (error) {
+        moduleLogger.error(error, { fn: 'handleSend' }, 'Error handling send')
         toast({
           title: translate('modals.send.errorTitle', {
             asset: data.asset.name,

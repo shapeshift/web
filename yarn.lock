@@ -2559,6 +2559,19 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
+"@shapeshiftoss/investor-foxy@^3.4.0":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-3.4.2.tgz#3389f1f7aa5cb1346b6d4d6d0ac4ed34ca8d09b6"
+  integrity sha512-HOLSOnR4T41yguyadb3cyrdsypARSt0CRW1zdf/4U/eypv9c+PHKg/26ht0cm56j40/VwK67zJJFjjAa64oOcA==
+  dependencies:
+    "@ethersproject/providers" "^5.5.3"
+    axios "^0.26.1"
+    bignumber.js "^9.0.2"
+    lodash "^4.17.21"
+    web3 "^1.7.3"
+    web3-core "^1.7.3"
+    web3-utils "^1.7.3"
+
 "@shapeshiftoss/proto-tx-builder@^0.2.1":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.2.1.tgz#82106d45adcec0d5d215a6098b52d16ef3db3dc8"

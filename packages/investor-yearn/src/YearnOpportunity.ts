@@ -8,7 +8,7 @@ import {
   InvestorOpportunity
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { type ChainId, type Vault, type VaultMetadata, Yearn } from '@yfi/sdk'
 import type { BigNumber } from 'bignumber.js'
 import isNil from 'lodash/isNil'
@@ -22,7 +22,7 @@ import { toPath } from './utils'
 import { bnOrZero } from './utils/bignumber'
 
 type YearnOpportunityDeps = {
-  chainAdapter: ChainAdapter<ChainTypes.Ethereum>
+  chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
   contract: Contract
   dryRun?: true
   logger?: Logger
@@ -52,7 +52,7 @@ export class YearnOpportunity
     ApprovalRequired<PreparedTransaction>
 {
   readonly #internals: {
-    chainAdapter: ChainAdapter<ChainTypes.Ethereum>
+    chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
     logger?: Logger
     routerContract: Contract

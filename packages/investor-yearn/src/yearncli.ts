@@ -1,7 +1,6 @@
-import { toChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { ChainTypes } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 
 import { bnOrZero } from './utils'
@@ -26,17 +25,21 @@ const getWallet = async (): Promise<NativeHDWallet> => {
 }
 
 const main = async (): Promise<void> => {
-  const unchainedUrls = {
-    [ChainTypes.Ethereum]: {
-      httpUrl: 'http://api.ethereum.shapeshift.com',
-      wsUrl: 'ws://api.ethereum.shapeshift.com'
-    }
-  }
-  const adapterManager = new ChainAdapterManager(unchainedUrls)
   const wallet = await getWallet()
-  const chainAdapter = adapterManager.byChainId(
-    toChainId({ chainNamespace: 'eip155', chainReference: '1' })
-  ) as ChainAdapter<ChainTypes.Ethereum>
+  const chainAdapter = new ethereum.ChainAdapter({
+    providers: {
+      ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(
+        'wss://dev-api.ethereum.shapeshift.com'
+      ),
+      http: new unchained.ethereum.V1Api(
+        new unchained.ethereum.Configuration({
+          basePath: 'https://dev-api.ethereum.shapeshift.com'
+        })
+      )
+    },
+    rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57'
+  })
+
   const yearnInvestor = new YearnInvestor({
     providerUrl: 'https://daemon.ethereum.shapeshift.com',
     dryRun: true,

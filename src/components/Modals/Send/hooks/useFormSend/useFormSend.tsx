@@ -9,6 +9,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { tokenOrUndefined } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
@@ -48,12 +49,15 @@ export const useFormSend = () => {
           if (!shouldUseEIP1559Fees && gasPrice === undefined) {
             throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
           }
+          const erc20ContractAddress = tokenOrUndefined(
+            fromAssetId(data.asset.assetId).assetReference,
+          )
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to,
             value,
             wallet,
             chainSpecific: {
-              erc20ContractAddress: fromAssetId(data.asset.assetId).assetReference,
+              erc20ContractAddress,
               gasLimit,
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             },

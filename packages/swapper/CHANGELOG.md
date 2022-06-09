@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v6.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.2.0...@shapeshiftoss/swapper-v6.2.1) (2022-06-09)
+
+
+### Bug Fixes
+
+* change asset account number name and type ([#775](https://github.com/shapeshift/lib/issues/775)) ([5b62783](https://github.com/shapeshift/lib/commit/5b62783661e7ade1a5d00de28ca75db82e9e10a8))
+
 # [@shapeshiftoss/swapper-v6.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.1.0...@shapeshiftoss/swapper-v6.2.0) (2022-06-08)
 
 

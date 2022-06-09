@@ -9,7 +9,7 @@ import {
   toAssetId
 } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
@@ -18,7 +18,30 @@ import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
-import { getAssetNamespace, getStatus, getType, toPath, toRootDerivationPath } from '../utils'
+import {
+  Account,
+  BuildSendTxInput,
+  FeeDataEstimate,
+  GetAddressInput,
+  GetFeeDataInput,
+  SignTxInput,
+  SubscribeError,
+  SubscribeTxsInput,
+  Transaction,
+  TxHistoryInput,
+  TxHistoryResponse,
+  ValidAddressResult,
+  ValidAddressResultType,
+  ZrxGasApiResponse
+} from '../types'
+import {
+  chainIdToChainLabel,
+  getAssetNamespace,
+  getStatus,
+  getType,
+  toPath,
+  toRootDerivationPath
+} from '../utils'
 import { bn, bnOrZero } from '../utils/bignumber'
 import erc20Abi from './erc20Abi.json'
 
@@ -38,7 +61,7 @@ async function getErc20Data(to: string, value: string, contractAddress?: string)
   return callData || ''
 }
 
-export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
+export class ChainAdapter implements IChainAdapter<KnownChainIds.EthereumMainnet> {
   private readonly chainId: ChainId = 'eip155:1'
   private readonly providers: {
     http: unchained.ethereum.V1Api
@@ -73,8 +96,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     })
   }
 
-  getType(): ChainTypes.Ethereum {
-    return ChainTypes.Ethereum
+  getType(): KnownChainIds.EthereumMainnet {
+    return KnownChainIds.EthereumMainnet
   }
 
   getChainId(): ChainId {
@@ -85,7 +108,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return 'eip155:1/slip44:60'
   }
 
-  async getAccount(pubkey: string): Promise<chainAdapters.Account<ChainTypes.Ethereum>> {
+  async getAccount(pubkey: string): Promise<Account<KnownChainIds.EthereumMainnet>> {
     try {
       const chainId = this.getChainId()
       const { data } = await this.providers.http.getAccount({ pubkey })
@@ -100,7 +123,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
           assetNamespace: 'slip44',
           assetReference: ASSET_REFERENCE.Ethereum
         }),
-        chain: ChainTypes.Ethereum,
+        chain: KnownChainIds.EthereumMainnet,
         chainSpecific: {
           nonce: data.nonce,
           tokens: data.tokens.map((token) => ({
@@ -124,8 +147,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   }
 
   async getTxHistory(
-    input: chainAdapters.TxHistoryInput
-  ): Promise<chainAdapters.TxHistoryResponse<ChainTypes.Ethereum>> {
+    input: TxHistoryInput
+  ): Promise<TxHistoryResponse<KnownChainIds.EthereumMainnet>> {
     const { data } = await this.providers.http.getTxHistory({
       pubkey: input.pubkey,
       pageSize: input.pageSize,
@@ -167,7 +190,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  async buildSendTransaction(tx: chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>): Promise<{
+  async buildSendTransaction(tx: BuildSendTxInput<KnownChainIds.EthereumMainnet>): Promise<{
     txToSign: ETHSignTx
   }> {
     try {
@@ -315,7 +338,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  async signTransaction(signTxInput: chainAdapters.SignTxInput<ETHSignTx>): Promise<string> {
+  async signTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
       const signedTx = await (wallet as ETHWallet).ethSignTx(txToSign)
@@ -328,9 +351,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  async signAndBroadcastTransaction(
-    signTxInput: chainAdapters.SignTxInput<ETHSignTx>
-  ): Promise<string> {
+  async signAndBroadcastTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
       const ethHash = await (wallet as ETHWallet)?.ethSendTx?.(txToSign)
@@ -352,12 +373,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     value,
     chainSpecific: { contractAddress, from, contractData },
     sendMax = false
-  }: chainAdapters.GetFeeDataInput<ChainTypes.Ethereum>): Promise<
-    chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
+  }: GetFeeDataInput<KnownChainIds.EthereumMainnet>): Promise<
+    FeeDataEstimate<KnownChainIds.EthereumMainnet>
   > {
-    const { data: responseData } = await axios.get<chainAdapters.ZrxGasApiResponse>(
-      'https://gas.api.0x.org/'
-    )
+    const { data: responseData } = await axios.get<ZrxGasApiResponse>('https://gas.api.0x.org/')
     const fees = responseData.result.find((result) => result.source === 'MEDIAN')
 
     if (!fees) throw new TypeError('ETH Gas Fees should always exist')
@@ -442,7 +461,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  async getAddress(input: chainAdapters.GetAddressInput): Promise<string> {
+  async getAddress(input: GetAddressInput): Promise<string> {
     const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
     const path = toPath(bip44Params)
     const addressNList = bip32ToAddressNList(path)
@@ -453,23 +472,23 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return ethAddress as string
   }
 
-  async validateAddress(address: string): Promise<chainAdapters.ValidAddressResult> {
-    const isValidAddress = WAValidator.validate(address, this.getType())
-    if (isValidAddress) return { valid: true, result: chainAdapters.ValidAddressResultType.Valid }
-    return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
+  async validateAddress(address: string): Promise<ValidAddressResult> {
+    const chainLabel = chainIdToChainLabel(this.chainId)
+    const isValidAddress = WAValidator.validate(address, chainLabel)
+    if (isValidAddress) return { valid: true, result: ValidAddressResultType.Valid }
+    return { valid: false, result: ValidAddressResultType.Invalid }
   }
 
-  async validateEnsAddress(address: string): Promise<chainAdapters.ValidAddressResult> {
+  async validateEnsAddress(address: string): Promise<ValidAddressResult> {
     const isValidEnsAddress = /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(address)
-    if (isValidEnsAddress)
-      return { valid: true, result: chainAdapters.ValidAddressResultType.Valid }
-    return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
+    if (isValidEnsAddress) return { valid: true, result: ValidAddressResultType.Valid }
+    return { valid: false, result: ValidAddressResultType.Invalid }
   }
 
   async subscribeTxs(
-    input: chainAdapters.SubscribeTxsInput,
-    onMessage: (msg: chainAdapters.Transaction<ChainTypes.Ethereum>) => void,
-    onError: (err: chainAdapters.SubscribeError) => void
+    input: SubscribeTxsInput,
+    onMessage: (msg: Transaction<KnownChainIds.EthereumMainnet>) => void,
+    onError: (err: SubscribeError) => void
   ): Promise<void> {
     const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
 
@@ -488,7 +507,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
           blockHeight: tx.blockHeight,
           blockTime: tx.blockTime,
           chainId: tx.chainId,
-          chain: ChainTypes.Ethereum,
+          chain: KnownChainIds.EthereumMainnet,
           confirmations: tx.confirmations,
           fee: tx.fee,
           status: getStatus(tx.status),
@@ -508,7 +527,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     )
   }
 
-  unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void {
+  unsubscribeTxs(input?: SubscribeTxsInput): void {
     if (!input) return this.providers.ws.unsubscribeTxs()
 
     const { bip44Params = ChainAdapter.defaultBIP44Params } = input

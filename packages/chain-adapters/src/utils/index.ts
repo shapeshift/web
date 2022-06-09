@@ -1,6 +1,15 @@
-import { AssetNamespace } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
+import {
+  AssetNamespace,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  ChainId,
+  ChainNamespace,
+  ChainReference,
+  fromChainId
+} from '@shapeshiftoss/caip'
 import { Status, TransferType } from '@shapeshiftoss/unchained-client'
+
+import { TxStatus, TxType } from '../types'
 
 export * from './bip44'
 export * from './utxoUtils'
@@ -11,17 +20,42 @@ export const getAssetNamespace = (type: string): AssetNamespace => {
   throw new Error(`Unknown asset namespace. type: ${type}`)
 }
 
-export const getStatus = (status: Status): chainAdapters.TxStatus => {
-  if (status === Status.Pending) return chainAdapters.TxStatus.Pending
-  if (status === Status.Confirmed) return chainAdapters.TxStatus.Confirmed
-  if (status === Status.Failed) return chainAdapters.TxStatus.Failed
+export const getStatus = (status: Status): TxStatus => {
+  if (status === Status.Pending) return TxStatus.Pending
+  if (status === Status.Confirmed) return TxStatus.Confirmed
+  if (status === Status.Failed) return TxStatus.Failed
 
-  return chainAdapters.TxStatus.Unknown
+  return TxStatus.Unknown
 }
 
-export const getType = (type: TransferType): chainAdapters.TxType => {
-  if (type === TransferType.Send) return chainAdapters.TxType.Send
-  if (type === TransferType.Receive) return chainAdapters.TxType.Receive
+export const getType = (type: TransferType): TxType => {
+  if (type === TransferType.Send) return TxType.Send
+  if (type === TransferType.Receive) return TxType.Receive
 
-  return chainAdapters.TxType.Unknown
+  return TxType.Unknown
+}
+
+export const chainPartsToChainLabel = (
+  chainNamespace: ChainNamespace,
+  chainReference?: ChainReference
+): string => {
+  return (() => {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Bitcoin:
+        return 'bitcoin'
+      case CHAIN_NAMESPACE.Ethereum:
+        return 'ethereum'
+      case CHAIN_NAMESPACE.Cosmos:
+        return chainReference === CHAIN_REFERENCE.CosmosHubMainnet ? 'cosmos' : 'osmosis'
+      default:
+        throw new Error(
+          `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`
+        )
+    }
+  })()
+}
+
+export const chainIdToChainLabel = (chainId: ChainId): string => {
+  const { chainNamespace, chainReference } = fromChainId(chainId)
+  return chainPartsToChainLabel(chainNamespace, chainReference)
 }

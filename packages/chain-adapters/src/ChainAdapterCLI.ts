@@ -1,12 +1,74 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP44Params, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 
-import { cosmossdk } from './'
-import { ChainAdapterManager } from './ChainAdapterManager'
+import { ChainAdapter as BitcoinChainAdapter } from './bitcoin/BitcoinChainAdapter'
+import { ChainAdapter as CosmosChainAdapter } from './cosmossdk/cosmos'
+import { ChainAdapter as OsmosisChainAdapter } from './cosmossdk/osmosis'
+import { ChainAdapter as EthereumChainAdapter } from './ethereum/EthereumChainAdapter'
 
 dotenv.config()
+
+const btcChainAdapter = new BitcoinChainAdapter({
+  providers: {
+    ws: new unchained.ws.Client<unchained.bitcoin.BitcoinTx>(
+      'wss://dev-api.bitcoin.shapeshift.com'
+    ),
+    http: new unchained.bitcoin.V1Api(
+      new unchained.ethereum.Configuration({
+        basePath: 'https://dev-api.ethereum.shapeshift.com'
+      })
+    )
+  },
+  coinName: 'Bitcoin'
+})
+
+const ethChainAdapter = new EthereumChainAdapter({
+  providers: {
+    ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(
+      'wss://dev-api.ethereum.shapeshift.com'
+    ),
+    http: new unchained.ethereum.V1Api(
+      new unchained.ethereum.Configuration({
+        basePath: 'https://dev-api.ethereum.shapeshift.com'
+      })
+    )
+  },
+  rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57'
+})
+
+const cosmosChainAdapter = new CosmosChainAdapter({
+  providers: {
+    ws: new unchained.ws.Client<unchained.cosmos.Tx>('wss://dev-api.cosmos.shapeshift.com'),
+    http: new unchained.cosmos.V1Api(
+      new unchained.cosmos.Configuration({
+        basePath: 'https://dev-api.cosmos.shapeshift.com'
+      })
+    )
+  },
+  coinName: 'Cosmos'
+})
+
+const osmosisChainAdapter = new OsmosisChainAdapter({
+  providers: {
+    ws: new unchained.ws.Client<unchained.osmosis.Tx>('wss://dev-api.ethereum.shapeshift.com'),
+    http: new unchained.osmosis.V1Api(
+      new unchained.osmosis.Configuration({
+        basePath: 'https://dev-api.cosmos.shapeshift.com'
+      })
+    )
+  },
+  coinName: 'Osmosis'
+})
+
+const adapters = {
+  btc: btcChainAdapter,
+  eth: ethChainAdapter,
+  cosmos: cosmosChainAdapter,
+  osmo: osmosisChainAdapter
+} as const
 
 const getWallet = async (): Promise<NativeHDWallet> => {
   const nativeAdapterArgs: NativeAdapterArgs = {
@@ -19,28 +81,9 @@ const getWallet = async (): Promise<NativeHDWallet> => {
   return wallet
 }
 
-const unchainedUrls = {
-  [ChainTypes.Bitcoin]: {
-    httpUrl: 'https://dev-api.bitcoin.shapeshift.com',
-    wsUrl: 'wss://dev-api.bitcoin.shapeshift.com'
-  },
-  [ChainTypes.Ethereum]: {
-    httpUrl: 'https://dev-api.ethereum.shapeshift.com',
-    wsUrl: 'wss://dev-api.ethereum.shapeshift.com'
-  },
-  [ChainTypes.Cosmos]: {
-    httpUrl: 'https://dev-api.cosmos.shapeshift.com',
-    wsUrl: 'wss://dev-api.cosmos.shapeshift.com'
-  }
-}
-
 // @ts-ignore:nextLine
-const testBitcoin = async (
-  chainAdapterManager: ChainAdapterManager,
-  wallet: NativeHDWallet,
-  broadcast = false
-) => {
-  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
+const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
+  const chainAdapter = adapters.btc
   const bip44Params: BIP44Params = {
     purpose: 84,
     coinType: 0,
@@ -90,12 +133,8 @@ const testBitcoin = async (
 }
 
 // @ts-ignore:nextLine
-const testEthereum = async (
-  chainAdapterManager: ChainAdapterManager,
-  wallet: NativeHDWallet,
-  broadcast = false
-) => {
-  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
+  const chainAdapter = adapters.eth
   const bip44Params: BIP44Params = { purpose: 44, coinType: 60, accountNumber: 0 }
 
   const address = await chainAdapter.getAddress({ wallet, bip44Params })
@@ -165,14 +204,8 @@ const testEthereum = async (
 }
 
 // @ts-ignore:nextLine
-const testCosmos = async (
-  chainAdapterManager: ChainAdapterManager,
-  wallet: NativeHDWallet,
-  broadcast = false
-) => {
-  const chainAdapter = chainAdapterManager.byChain(
-    ChainTypes.Cosmos
-  ) as cosmossdk.cosmos.ChainAdapter
+const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
+  const chainAdapter = adapters.cosmos
   const bip44Params: BIP44Params = { purpose: 44, coinType: 118, accountNumber: 0 }
 
   const address = await chainAdapter.getAddress({ wallet, bip44Params })
@@ -241,13 +274,11 @@ const testCosmos = async (
 
 const main = async () => {
   try {
-    const chainAdapterManager = new ChainAdapterManager(unchainedUrls)
-
     const wallet = await getWallet()
 
-    await testBitcoin(chainAdapterManager, wallet)
-    await testEthereum(chainAdapterManager, wallet)
-    await testCosmos(chainAdapterManager, wallet)
+    await testBitcoin(wallet)
+    await testEthereum(wallet)
+    await testCosmos(wallet)
   } catch (err) {
     console.error(err)
   }

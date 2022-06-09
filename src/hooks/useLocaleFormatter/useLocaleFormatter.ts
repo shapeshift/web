@@ -199,7 +199,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   }
 
   const abbreviateNumber = useCallback(
-    (number: number, fiatType?: string, options?: NumberFormatOptions) => {
+    (number: number, fiatType: string = 'USD', options?: NumberFormatOptions) => {
       const bounds = { min: 10000, max: 1000000 }
       const noDecimals = bounds.min <= number && number < bounds.max
       const minDisplayValue = 0.000001

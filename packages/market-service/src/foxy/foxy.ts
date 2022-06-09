@@ -1,8 +1,6 @@
-import { ethChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import {
-  ChainTypes,
   HistoryData,
   HistoryTimeframe,
   MarketCapResult,
@@ -10,6 +8,7 @@ import {
   MarketDataArgs,
   PriceHistoryArgs
 } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 
 import { MarketService } from '../api'
@@ -28,21 +27,10 @@ const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINCAP)
 
 export class FoxyMarketService implements MarketService {
   jsonRpcProviderUrl: string
-  adapterManager: ChainAdapterManager
   baseUrl = 'https://api.coincap.io/v2'
 
   constructor(providerUrls: ProviderUrls) {
     this.jsonRpcProviderUrl = providerUrls.jsonRpcProviderUrl
-
-    const unchainedUrls = {
-      [ChainTypes.Ethereum]: {
-        // from web env, both are always defined despite what the typings suggest
-        httpUrl: providerUrls.unchainedEthereumHttpUrl,
-        wsUrl: providerUrls.unchainedEthereumWsUrl,
-        rpcUrl: providerUrls.jsonRpcProviderUrl
-      }
-    }
-    this.adapterManager = new ChainAdapterManager(unchainedUrls)
   }
 
   async findAll() {
@@ -67,12 +55,27 @@ export class FoxyMarketService implements MarketService {
       const { data } = await axios.get(`${this.baseUrl}/assets/${FOX_COINCAP_ID}`)
       const marketData = data.data as CoinCapMarketCap
 
+      const ethChainAdapter = new ethereum.ChainAdapter({
+        providers: {
+          ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(
+            'wss://dev-api.ethereum.shapeshift.com'
+          ),
+          http: new unchained.ethereum.V1Api(
+            new unchained.ethereum.Configuration({
+              basePath: 'https://dev-api.ethereum.shapeshift.com'
+            })
+          )
+        },
+        rpcUrl: this.jsonRpcProviderUrl
+      })
+
       // Make maxSupply as an additional field, effectively EIP-20's totalSupply
       const api = new FoxyApi({
-        adapter: this.adapterManager.byChainId(ethChainId) as ChainAdapter<ChainTypes.Ethereum>,
+        adapter: ethChainAdapter,
         providerUrl: this.jsonRpcProviderUrl,
         foxyAddresses
       })
+
       const tokenContractAddress = foxyAddresses[0].foxy
       const foxyTotalSupply = await api.totalSupply({ tokenContractAddress })
       const supply = await api.tvl({ tokenContractAddress })

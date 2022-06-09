@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.2.1...@shapeshiftoss/swapper-v6.3.0) (2022-06-09)
+
+
+### Features
+
+* thorswap get trade quote ([#765](https://github.com/shapeshift/lib/issues/765)) ([a643be3](https://github.com/shapeshift/lib/commit/a643be3c74183d0c67100e6f288fc957db0cba45))
+
 # [@shapeshiftoss/swapper-v6.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.2.0...@shapeshiftoss/swapper-v6.2.1) (2022-06-09)
 
 

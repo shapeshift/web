@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v5.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.2.3...@shapeshiftoss/caip-v5.3.0) (2022-06-09)
+
+
+### Features
+
+* **caip:** implement Nominal types for ChainId and AssetId ([#774](https://github.com/shapeshift/lib/issues/774)) ([5f47845](https://github.com/shapeshift/lib/commit/5f47845cd0c5e1ad9090e36fb68503a22de94bfd))
+
 # [@shapeshiftoss/caip-v5.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.2.2...@shapeshiftoss/caip-v5.2.3) (2022-06-08)
 
 # [@shapeshiftoss/caip-v5.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.2.1...@shapeshiftoss/caip-v5.2.2) (2022-06-01)

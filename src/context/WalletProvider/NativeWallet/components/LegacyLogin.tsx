@@ -175,7 +175,7 @@ export const LegacyLogin = () => {
             <FormControl isInvalid={!captchaSolution} my={6}>
               <FriendlyCaptcha handleCaptcha={setCaptchaSolution} solution={captchaSolution} />
               <FormErrorMessage>
-                {translate('walletProvider.shapeShift.invalidCaptcha')}
+                {translate('walletProvider.shapeShift.legacy.captchaRequired')}
               </FormErrorMessage>
             </FormControl>
           </Box>
@@ -208,7 +208,7 @@ export const LegacyLogin = () => {
             <FormControl isInvalid={!captchaSolution} my={6}>
               <FriendlyCaptcha handleCaptcha={setCaptchaSolution} solution={captchaSolution} />
               <FormErrorMessage>
-                {translate('walletProvider.shapeShift.invalidCaptcha')}
+                {translate('walletProvider.shapeShift.legacy.captchaRequired')}
               </FormErrorMessage>
             </FormControl>
           </Box>

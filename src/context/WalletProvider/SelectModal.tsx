@@ -16,6 +16,7 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
+  const keplrFeatureFlag = useFeatureFlag('KeplrWallet')
 
   const tallyHoFeatureFlag = useFeatureFlag('TallyHoWallet')
 
@@ -33,6 +34,9 @@ export const SelectModal = () => {
             wallets.map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
+              if (!keplrFeatureFlag && key === KeyManager.Keplr) {
+                return false
+              }
 
               // some wallets (e.g. tally ho) do not exist on mobile
               if (isMobile && !option.mobileEnabled) return false

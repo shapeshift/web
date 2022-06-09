@@ -1,4 +1,5 @@
-import { Box, Button, Divider, Link, Stack } from '@chakra-ui/react'
+import { WarningTwoIcon } from '@chakra-ui/icons'
+import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
 import { TradeTxs } from '@shapeshiftoss/swapper'
 import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
@@ -19,7 +20,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
-import { makeUniqueTxId } from 'state/slices/txHistorySlice/utils'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { TradeRoutePaths, TradeState } from '../types'
@@ -55,7 +56,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   )
 
   const parsedTxId = useMemo(
-    () => makeUniqueTxId(accountSpecifier, txid, trade.receiveAddress),
+    () => serializeTxIndex(accountSpecifier, txid, trade.receiveAddress),
     [accountSpecifier, trade.receiveAddress, txid],
   )
   const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
@@ -104,6 +105,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       .times(bnOrZero(sellAssetFiatRate))
       .toNumber(),
   )
+  const feeFiatValue = bnOrZero(fees?.fee).times(fiatRate)
+
+  const tradeFiatValue = bnOrZero(
+    fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0),
+  ).times(bnOrZero(sellAssetFiatRate))
+
+  //ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
+  const gasFeeToTradeRatioPercentage = feeFiatValue.dividedBy(tradeFiatValue).times(100).toNumber()
+  const gasFeeToTradeRatioPercentageThreshold = 5
+  const isFeeRatioOverThreshold =
+    gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
   return (
     <SlideTransition>
@@ -173,6 +185,18 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Row.Value>{toFiat(0)}</Row.Value>
               </Row>
+              {isFeeRatioOverThreshold && (
+                <Flex justifyContent='space-evenly' alignItems='center'>
+                  <WarningTwoIcon w={5} h={5} color='red.400' />
+                  <Text
+                    color='red.400'
+                    translation={[
+                      'trade.gasFeeExceedsTradeAmountThreshold',
+                      { percentage: gasFeeToTradeRatioPercentage.toFixed(0) },
+                    ]}
+                  />
+                </Flex>
+              )}
             </Stack>
           </Card.Body>
           <Card.Footer px={0} py={0}>

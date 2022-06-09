@@ -16,7 +16,6 @@
     "estimatedGas": "Taxa de gás estimada",
     "insufficientAmountForGas": "ETH insuficiente para cobrir taxas de gás",
     "invalidAddress": "Endereço inválido",
-    "unresolvableEnsDomain": "Não foi possível localizar o domínio ENS",
     "deposit": "Depositar",
     "withdraw": "Sacar",
     "withdrawal": "Sacar",
@@ -282,7 +281,7 @@
     "overview": "Visão geral",
     "transactions": "Transações",
     "tradeHistory": "Histórico de Negociações",
-    "foxToken": "Token FOX",
+    "foxToken": "Oportunidades FOX",
     "featureFlags": "Recursos"
   },
   "transactionRow": {
@@ -700,6 +699,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com a Keplr",
+        "connectFailure": "Não foi possível conectar sua carteira Keplr"
+      },
+      "connect": {
+        "header": "Emparelhar Keplr",
+        "body": "Clique em Emparelhar e conecte sua carteira Keplr na janela pop-up",
+        "button": "Emparelhar"
+      },
+      "failure": {
+        "header": "Erro",
+        "body": "Não foi possível conectar sua carteira Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
@@ -813,6 +827,7 @@
         "emailRequired": "O e-mail é obrigatório",
         "invalidEmail": "Email inválido",
         "invalidCaptcha": "Captcha inválido",
+        "captchaRequired": "Captcha é obrigatório",
         "invalidLogin": "Login inválido",
         "noWallet": "Não foi possível encontrar uma carteira ShapeShift Native para o seu login. Se você achar que esta mensagem está errada, entre em contato com o suporte da ShapeShift.",
         "decryptionError": "Algo deu errado ao descriptografar sua carteira.",

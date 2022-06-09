@@ -1,8 +1,8 @@
-import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
@@ -23,7 +23,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     loading: foxyLoading,
   } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
-  const vaultArray: SupportedYearnVault[] = useMemo(() => Object.values(vaults), [vaults])
+  const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
   const { cosmosStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
     useCosmosStakingBalances({
       assetId: 'cosmos:cosmoshub-4/slip44:118',

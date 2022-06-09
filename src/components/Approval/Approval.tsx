@@ -1,4 +1,5 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { QuoteFeeData } from '@shapeshiftoss/swapper'
 import { SupportedChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
@@ -49,7 +50,7 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
-  const fee = fees?.chainSpecific?.approvalFee
+  const fee = (fees as QuoteFeeData<'eip155:1'>).chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
 
   const approve = async () => {

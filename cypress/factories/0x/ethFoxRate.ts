@@ -1,3 +1,5 @@
+import { AddressZero } from '@ethersproject/constants'
+
 import { sources } from './sources'
 
 export const makeEthFoxRateResponse = () => {
@@ -16,7 +18,7 @@ export const makeEthFoxRateResponse = () => {
     sellTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     sellAmount: '89000000000000000000',
     sources,
-    allowanceTarget: '0x0000000000000000000000000000000000000000',
+    allowanceTarget: AddressZero,
     sellTokenToEthRate: '1',
     buyTokenToEthRate: '7846.55087491411914402',
   }

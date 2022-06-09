@@ -73,7 +73,11 @@ const getMarketServiceManager: GetMarketServiceManager = () => {
       coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
       // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
       yearnChainReference: 1,
-      jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
+      providerUrls: {
+        jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
+        unchainedEthereumHttpUrl: config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+        unchainedEthereumWsUrl: config.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
+      },
     })
   }
   return _marketServiceManager

@@ -27,7 +27,7 @@ export async function ZrxApprovalNeeded(
       return { approvalNeeded: false }
     }
 
-    const accountNumber = bnOrZero(quote.sellAssetAccountId).toNumber()
+    const accountNumber = quote.sellAssetAccountNumber
 
     const adapter = await adapterManager.byChainId(sellAsset.chainId)
     const bip44Params = adapter.buildBIP44Params({ accountNumber })

@@ -112,7 +112,7 @@ const main = async (): Promise<void> => {
       sellAsset,
       buyAsset,
       sellAmount: sellAmountBase,
-      sellAssetAccountId: '0',
+      sellAssetAccountNumber: 0,
       sendMax: false
     })
   } catch (e) {
@@ -139,8 +139,8 @@ const main = async (): Promise<void> => {
       sendMax: false,
       sellAmount: sellAmountBase,
       sellAsset,
-      sellAssetAccountId: '0',
-      buyAssetAccountId: '0'
+      sellAssetAccountNumber: 0,
+      buyAssetAccountNumber: 0
     })
     const txid = await swapper.executeTrade({ trade, wallet })
     console.info('broadcast tx with id: ', txid)

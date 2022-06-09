@@ -29,7 +29,7 @@ describe('ZrxExecuteTrade', () => {
     buyAmount: '',
     depositAddress: '0x123',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    sellAssetAccountId: '0',
+    sellAssetAccountNumber: 0,
     txData: '0x123',
     rate: '1',
     feeData: {

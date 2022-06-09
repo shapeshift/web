@@ -49,12 +49,12 @@ export type CommonTradeInput = {
   buyAsset: Asset
   sellAmount: string
   sendMax: boolean
-  sellAssetAccountId: string
+  sellAssetAccountNumber: number
 }
 export type GetTradeQuoteInput = CommonTradeInput
 
 export type BuildTradeInput = CommonTradeInput & {
-  buyAssetAccountId: string
+  buyAssetAccountNumber: number
   slippage?: string
   wallet: HDWallet
 }
@@ -67,7 +67,7 @@ interface TradeBase<C extends SupportedChainIds> {
   sources: Array<SwapSource>
   buyAsset: Asset
   sellAsset: Asset
-  sellAssetAccountId: string
+  sellAssetAccountNumber: number
 }
 
 export interface TradeQuote<C extends SupportedChainIds> extends TradeBase<C> {

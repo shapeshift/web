@@ -71,8 +71,8 @@ describe('ZrxBuildTrade', () => {
     sellAsset,
     buyAsset,
     sellAmount: '1000000000000000000',
-    sellAssetAccountId: '0',
-    buyAssetAccountId: '0',
+    sellAssetAccountNumber: 0,
+    buyAssetAccountNumber: 0,
     wallet
   }
 
@@ -82,7 +82,7 @@ describe('ZrxBuildTrade', () => {
     buyAmount: '',
     depositAddress: quoteResponse.to,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    sellAssetAccountId: '0',
+    sellAssetAccountNumber: 0,
     txData: quoteResponse.data,
     rate: quoteResponse.price,
     feeData: {

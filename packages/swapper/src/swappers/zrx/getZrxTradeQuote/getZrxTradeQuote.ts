@@ -11,7 +11,7 @@ import { zrxService } from '../utils/zrxService'
 
 export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<'eip155:1'>> {
   try {
-    const { sellAsset, buyAsset, sellAmount, sellAssetAccountId } = input
+    const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber } = input
     if (buyAsset.chainId !== 'eip155:1' || sellAsset.chainId !== 'eip155:1') {
       throw new SwapError(
         '[getZrxTradeQuote] - Both assets need to be on the Ethereum chain to use Zrx',
@@ -87,7 +87,7 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
       allowanceContract: data.allowanceTarget,
       buyAsset,
       sellAsset,
-      sellAssetAccountId
+      sellAssetAccountNumber
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

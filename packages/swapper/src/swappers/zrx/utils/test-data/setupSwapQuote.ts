@@ -13,7 +13,7 @@ export const setupQuote = () => {
     sellAsset,
     buyAsset,
     allowanceContract: 'allowanceContractAddress',
-    sellAssetAccountId: '0',
+    sellAssetAccountNumber: 0,
     minimum: '0',
     maximum: '999999999999',
     feeData: { fee: '0', tradeFee: '0', chainSpecific: {} },
@@ -25,7 +25,7 @@ export const setupQuote = () => {
     sellAmount: '1000000000000000000',
     sellAsset,
     buyAsset,
-    sellAssetAccountId: '0',
+    sellAssetAccountNumber: 0,
     sendMax: false
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
@@ -59,8 +59,8 @@ export const setupBuildTrade = () => {
     buyAmount: '',
     buyAsset,
     sendMax: false,
-    sellAssetAccountId: '0',
-    buyAssetAccountId: '0',
+    sellAssetAccountNumber: 0,
+    buyAssetAccountNumber: 0,
     sellAsset
   }
   return { buildTradeInput, buyAsset, sellAsset }
@@ -80,7 +80,7 @@ export const setupExecuteTrade = () => {
     buyAsset,
     sellAsset,
     sendMax: false,
-    sellAssetAccountId: '0',
+    sellAssetAccountNumber: 0,
     txData: '0x0',
     depositAddress: '0x0',
     receiveAddress: '0x0',

@@ -2,11 +2,13 @@ import {
   AccountId,
   AssetId,
   btcChainId,
+  CHAIN_NAMESPACE,
   ChainId,
   chainIdToFeeAssetId,
   cosmosChainId,
   ethChainId,
   fromAssetId,
+  fromChainId,
   osmosisChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
@@ -116,14 +118,14 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
 }
 
 export const accountIdToUtxoParams = (
-  asset: Asset,
+  _asset: Asset,
   accountId: AccountSpecifier,
   accountIndex: number,
 ) => {
   const accountType = accountIdToAccountType(accountId)
   // for eth, we don't return a UtxoAccountType or utxoParams
   if (!accountType) return {}
-  const utxoParams = utxoAccountParams(asset, accountType, accountIndex)
+  const utxoParams = utxoAccountParams(accountType, accountIndex)
   return { utxoParams, accountType }
 }
 
@@ -170,10 +172,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args.portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
-    const { chain } = account
+    const { chainId } = account
+    const { chainNamespace } = fromChainId(chainId)
 
-    switch (chain) {
-      case ChainTypes.Ethereum: {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { chainId, assetId, pubkey } = account
         const accountSpecifier = `${chainId}:${toLower(pubkey)}`
@@ -223,7 +226,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         })
         break
       }
-      case ChainTypes.Bitcoin: {
+      case CHAIN_NAMESPACE.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
         const { balance, chainId, assetId, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
@@ -272,8 +275,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         break
       }
-      case ChainTypes.Cosmos:
-      case ChainTypes.Osmosis: {
+      case CHAIN_NAMESPACE.Cosmos: {
         const cosmosAccount = account as chainAdapters.Account<ChainTypes.Cosmos>
         const { chainId, assetId } = account
         const accountSpecifier = `${chainId}:${_xpubOrAccount}`

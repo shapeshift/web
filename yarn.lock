@@ -2428,6 +2428,16 @@
     lodash "^4.17.4"
     read-pkg-up "^7.0.0"
 
+"@shapeshiftoss/asset-service@^4.6.0":
+  version "4.6.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.6.1.tgz#69b1e8daaa2afb35b84b0316332a728bd6543674"
+  integrity sha512-EoOAX8slt1JD5fzQk6z/bObwx0tqYBd/aEpP8LnZ6dkeff72Zu+82+9dMHMKXhV3D59Sm5GofFlccRnV7d6cPQ==
+  dependencies:
+    axios "^0.26.1"
+    identicon.js "^2.3.3"
+    js-pixel-fonts "^1.5.0"
+    lodash "^4.17.21"
+
 "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2":
   version "5.2.0-shapeshift.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-5.2.0-shapeshift.2.tgz#f000da26302a8a35822201a6c49a4cf7e1379ed4"

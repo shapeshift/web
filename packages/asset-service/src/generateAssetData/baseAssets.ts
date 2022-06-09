@@ -1,10 +1,8 @@
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 
 export const ethereum: Asset = {
   assetId: 'eip155:1/slip44:60',
   chainId: 'eip155:1',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
   symbol: 'ETH',
   name: 'Ethereum',
   precision: 18,
@@ -18,8 +16,6 @@ export const ethereum: Asset = {
 export const bitcoin: Asset = {
   assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   chainId: 'bip122:000000000019d6689c085ae165831e93',
-  chain: ChainTypes.Bitcoin,
-  network: NetworkTypes.MAINNET,
   symbol: 'BTC',
   name: 'Bitcoin',
   precision: 8,
@@ -33,8 +29,6 @@ export const bitcoin: Asset = {
 export const tBitcoin: Asset = {
   assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
   chainId: 'bip122:000000000933ea01ad0ee984209779ba',
-  chain: ChainTypes.Bitcoin,
-  network: NetworkTypes.TESTNET,
   symbol: 'BTC',
   name: 'Bitcoin',
   precision: 8,
@@ -48,8 +42,6 @@ export const tBitcoin: Asset = {
 export const atom: Asset = {
   assetId: 'cosmos:cosmoshub-4/slip44:118',
   chainId: 'cosmos:cosmoshub-4',
-  chain: ChainTypes.Cosmos,
-  network: NetworkTypes.COSMOSHUB_MAINNET,
   symbol: 'ATOM',
   name: 'Cosmos',
   precision: 6,
@@ -63,8 +55,6 @@ export const atom: Asset = {
 export const osmosis: Asset = {
   assetId: 'cosmos:osmosis-1/slip44:118',
   chainId: 'cosmos:osmosis-1',
-  chain: ChainTypes.Osmosis,
-  network: NetworkTypes.OSMOSIS_MAINNET,
   symbol: 'OSMO',
   name: 'Osmosis',
   precision: 6,

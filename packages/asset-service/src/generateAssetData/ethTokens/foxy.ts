@@ -1,5 +1,5 @@
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 
 export const getFoxyToken = (): Asset[] => {
   const assetNamespace = 'erc20'
@@ -11,8 +11,6 @@ export const getFoxyToken = (): Asset[] => {
       assetNamespace,
       assetReference
     }),
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     chainId,
     name: 'FOX Yieldy',
     precision: 18,

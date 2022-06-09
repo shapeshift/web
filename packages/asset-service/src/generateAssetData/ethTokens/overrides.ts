@@ -1,4 +1,4 @@
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 
 export const overrideTokens: Array<Asset> = [
   // example overriding FOX token with custom values instead of goingecko
@@ -10,8 +10,6 @@ export const overrideTokens: Array<Asset> = [
     color: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
     symbol: 'FOX',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     explorer: 'https://etherscan.io',
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/'

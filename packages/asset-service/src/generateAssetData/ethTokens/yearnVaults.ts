@@ -1,5 +1,5 @@
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import { Token, Vault } from '@yfi/sdk'
 import toLower from 'lodash/toLower'
 
@@ -24,9 +24,7 @@ export const getYearnVaults = async (): Promise<Asset[]> => {
       }),
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
-      explorerTxLink: 'https://etherscan.io/tx/',
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET
+      explorerTxLink: 'https://etherscan.io/tx/'
     }
   })
 }
@@ -38,8 +36,6 @@ export const getIronBankTokens = async (): Promise<Asset[]> => {
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
       explorerTxLink: 'https://etherscan.io/tx/',
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET,
       color: '#276BDB', // yearn.finance blue
       icon: token.icon ?? '',
       name: token.name,
@@ -62,8 +58,6 @@ export const getZapperTokens = async (): Promise<Asset[]> => {
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
       explorerTxLink: 'https://etherscan.io/tx/',
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET,
       color: '#7057F5', // zapper protocol purple
       icon: token.icon ?? '',
       name: token.name,
@@ -86,8 +80,6 @@ export const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
       explorerTxLink: 'https://etherscan.io/tx/',
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET,
       color: '#FFFFFF',
       icon: token.icon ?? '',
       name: token.name,

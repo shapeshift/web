@@ -1,5 +1,5 @@
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 
 export const getUniswapV2Pools = (): Asset[] => {
   const assetNamespace = 'erc20'
@@ -19,9 +19,7 @@ export const getUniswapV2Pools = (): Asset[] => {
     symbol: 'UNI-V2-FOX-WETH',
     explorer: 'https://etherscan.io',
     explorerAddressLink: 'https://etherscan.io/address/',
-    explorerTxLink: 'https://etherscan.io/tx/',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET
+    explorerTxLink: 'https://etherscan.io/tx/'
   }
 
   return [result]

@@ -1,4 +1,4 @@
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
 import { AssetService } from './AssetService'
@@ -11,8 +11,6 @@ const mockedAxios = axios as jest.Mocked<typeof axios>
 const EthAsset: Asset = {
   assetId: 'eip155:3/slip44:60',
   chainId: 'eip155:3',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.ETH_ROPSTEN,
   symbol: 'ETH',
   name: 'Ropsten Testnet Ethereum',
   precision: 18,
@@ -68,11 +66,9 @@ describe('AssetService', () => {
       const tokenData: Asset = {
         assetId: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
         chainId: 'eip155:3',
-        chain: ChainTypes.Ethereum,
         explorer: 'https://etherscan.io',
         explorerTxLink: 'https://etherscan.io/tx/',
         explorerAddressLink: 'https://etherscan.io/address/',
-        network: NetworkTypes.MAINNET,
         name: 'Test Token',
         precision: 18,
         color: '#FFFFFF',

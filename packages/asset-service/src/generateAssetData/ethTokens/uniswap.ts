@@ -1,5 +1,5 @@
 import { ethChainId as chainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
 
@@ -52,8 +52,6 @@ export async function getUniswapTokens(): Promise<Asset[]> {
       color: '#FFFFFF', // TODO
       icon: token.logoURI,
       symbol: token.symbol,
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET,
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
       explorerTxLink: 'https://etherscan.io/tx/'

@@ -1,12 +1,10 @@
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 
 import { AssetsById } from './AssetService'
 
 export const ETHMockedAsset: Asset = {
   assetId: 'eip155:1/slip44:60',
   chainId: 'eip155:1',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
   symbol: 'ETH',
   name: 'Ethereum',
   precision: 18,
@@ -42,8 +40,6 @@ export const ETHMockedAsset: Asset = {
 export const BTCMockedAsset: Asset = {
   assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   chainId: 'bip122:000000000019d6689c085ae165831e93',
-  chain: ChainTypes.Bitcoin,
-  network: NetworkTypes.MAINNET,
   symbol: 'BTC',
   name: 'Bitcoin',
   precision: 8,
@@ -59,8 +55,6 @@ export const mockBaseAssets: Asset[] = [
   {
     assetId: 'eip155:3/slip44:60',
     chainId: 'eip155:3',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.ETH_ROPSTEN,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
@@ -85,8 +79,6 @@ export const mockBaseAssets: Asset[] = [
   {
     assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
     chainId: 'bip122:000000000933ea01ad0ee984209779ba',
-    chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.TESTNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,
@@ -102,8 +94,6 @@ export const mockAssets: Asset[] = [
   {
     assetId: 'eip155:1/slip44:60',
     chainId: 'eip155:1',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
@@ -121,8 +111,6 @@ export const mockAssets: Asset[] = [
     color: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png?1601374110',
     symbol: 'AAVE',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/'
@@ -135,8 +123,6 @@ export const mockAssets: Asset[] = [
     color: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
     symbol: 'FOX',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/'
@@ -144,8 +130,6 @@ export const mockAssets: Asset[] = [
   {
     assetId: 'eip155:3/slip44:60',
     chainId: 'eip155:3',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.ETH_ROPSTEN,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
@@ -163,8 +147,6 @@ export const mockAssets: Asset[] = [
     color: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
     symbol: 'FOX',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.ETH_ROPSTEN,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/'
@@ -172,8 +154,6 @@ export const mockAssets: Asset[] = [
   {
     assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
     chainId: 'bip122:000000000019d6689c085ae165831e93',
-    chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.MAINNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,
@@ -186,8 +166,6 @@ export const mockAssets: Asset[] = [
   {
     assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
     chainId: 'bip122:000000000933ea01ad0ee984209779ba',
-    chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.TESTNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,
@@ -203,8 +181,6 @@ export const mockIndexedAssetData: AssetsById = {
   ethereum_MAINNET: {
     assetId: 'eip155:1/slip44:60',
     chainId: 'eip155:1',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
@@ -222,8 +198,6 @@ export const mockIndexedAssetData: AssetsById = {
     color: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png?1601374110',
     symbol: 'AAVE',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     explorer: 'https://etherscan.io',
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/'
@@ -236,8 +210,6 @@ export const mockIndexedAssetData: AssetsById = {
     color: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
     symbol: 'FOX',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     explorer: 'https://etherscan.io',
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/'
@@ -245,8 +217,6 @@ export const mockIndexedAssetData: AssetsById = {
   ethereum_ETH_ROPSTEN: {
     assetId: 'eip155:3/slip44:60',
     chainId: 'eip155:3',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.ETH_ROPSTEN,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
@@ -264,8 +234,6 @@ export const mockIndexedAssetData: AssetsById = {
     color: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
     symbol: 'FOX',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.ETH_ROPSTEN,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/'
@@ -273,8 +241,6 @@ export const mockIndexedAssetData: AssetsById = {
   bitcoin_MAINNET: {
     assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
     chainId: 'bip122:000000000019d6689c085ae165831e93',
-    chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.MAINNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,
@@ -287,8 +253,6 @@ export const mockIndexedAssetData: AssetsById = {
   bitcoin_TESTNET: {
     assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
     chainId: 'bip122:000000000933ea01ad0ee984209779ba',
-    chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.TESTNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,

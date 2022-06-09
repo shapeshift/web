@@ -17,7 +17,6 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { getConfig } from 'config'
 import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
 import qs from 'qs'
 import { useMemo } from 'react'
@@ -52,6 +51,7 @@ import {
   FOXY_ASSET_ID,
   foxyTradeOpportunitiesBuckets,
 } from './FoxCommon'
+import { useFoxyApr } from './hooks/useFoxyApr'
 import { useOtherOpportunities } from './hooks/useOtherOpportunities'
 
 export enum FoxPageRoutes {
@@ -121,6 +121,8 @@ export const FoxPage = () => {
     [cryptoBalanceFox, cryptoBalanceFoxy],
   )
 
+  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
+
   const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
@@ -146,10 +148,10 @@ export const FoxPage = () => {
   return (
     <Layout
       title={translate('plugins.foxPage.foxToken', {
-        assetSymbol: assetFox.symbol,
+        assetSymbol: selectedAsset.symbol,
       })}
       description={description ?? ''}
-      icon={assetFox.icon}
+      icon={selectedAsset.icon}
     >
       <Tabs variant='unstyled' index={selectedAssetIndex}>
         <TabList>
@@ -219,7 +221,28 @@ export const FoxPage = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
+                <MainOpportunity
+                  assetId={selectedAsset.assetId}
+                  apy={foxyApr ?? ''}
+                  tvl={bnOrZero(foxyBalances.opportunities?.[0]?.tvl).toString()}
+                  isLoaded={!foxyBalances.loading && isFoxyAprLoaded}
+                  balance={cryptoBalances[selectedAssetIndex]}
+                  onClick={() => {
+                    history.push({
+                      pathname: FoxyPath.Overview,
+                      search: qs.stringify({
+                        chainId: assetFoxy.chainId,
+                        contractAddress: foxyAddresses[0].staking,
+                        tokenId: foxyAddresses[0].fox,
+                        rewardId: foxyAddresses[0].foxy,
+                      }),
+                      state: { background: location },
+                    })
+                  }}
+                />
+
                 <OtherOpportunities
+                  title={`plugins.foxPage.otherOpportunitiesTitle.${selectedAsset.symbol}`}
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}
                 />
@@ -241,25 +264,8 @@ export const FoxPage = () => {
               direction={{ base: 'column', xl: 'row' }}
             >
               <Stack spacing={4} flex='1 1 0%' width='full'>
-                <MainOpportunity
-                  apy={getConfig().REACT_APP_FOXY_APY.toString()}
-                  tvl={bnOrZero(foxyBalances.opportunities?.[0]?.tvl).toString()}
-                  isLoaded={!foxyBalances.loading}
-                  balance={cryptoBalances[selectedAssetIndex]}
-                  onClick={() => {
-                    history.push({
-                      pathname: FoxyPath.Overview,
-                      search: qs.stringify({
-                        chainId: assetFoxy.chainId,
-                        contractAddress: foxyAddresses[0].staking,
-                        tokenId: foxyAddresses[0].fox,
-                        rewardId: foxyAddresses[0].foxy,
-                      }),
-                      state: { background: location },
-                    })
-                  }}
-                />
                 <OtherOpportunities
+                  title={`plugins.foxPage.otherOpportunitiesTitle.${selectedAsset.symbol}`}
                   description={`plugins.foxPage.otherOpportunitiesDescription.${selectedAsset.symbol}`}
                   opportunities={otherOpportunities}
                 />

@@ -104,8 +104,6 @@ export const chainTypeToMainnetChainId = (chainType: ChainTypes): ChainId => {
   return toChainId(chainTypeToMainnetChainParts(chainType))
 }
 
-// const chainId = chainTypeToMainnetChainId(chain)
-
 // TODO: Remove: this is a temporary helper to allow web to support caip v5 before other lib packages are ready
 export const chainPartsToChainType = (
   chainNamespace: ChainNamespace,

@@ -16,6 +16,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { tokenOrUndefined } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetById,
@@ -99,6 +100,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   } = useWallet()
 
   const { assetReference } = fromAssetId(assetId)
+  const contractAddress = tokenOrUndefined(assetReference)
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
@@ -129,7 +131,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           value,
           chainSpecific: {
             from,
-            contractAddress: assetReference,
+            contractAddress,
           },
           sendMax: values.sendMax,
         })
@@ -236,7 +238,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             }
             case ethChainId: {
               const ethAdapter = await chainAdapterManager.byChainId(ethChainId)
-              const contractAddress = assetReference
               const value = assetBalance
               const adapterFees = await ethAdapter.getFeeData({
                 to,

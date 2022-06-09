@@ -4,7 +4,7 @@ import forEach from 'lodash/forEach'
 
 import env from './env'
 
-const { cleanEnv, str, url, num } = envalid
+const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -28,8 +28,6 @@ const validators = {
   REACT_APP_GEM_ENV: str(),
   REACT_APP_GEM_API_KEY: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
-  REACT_APP_FOXY_APY: num({ default: 0.15 }),
-  REACT_APP_ETH_FOX_APR: num({ default: 0.6 }),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_TALLYHO_WALLET: bool({ default: false }),

@@ -1,5 +1,6 @@
-import { sources } from './sources'
+import { AddressZero } from '@ethersproject/constants'
 
+import { sources } from './sources'
 export const makeEthUsdcRateResponse = () => {
   return {
     chainId: 1,
@@ -16,7 +17,7 @@ export const makeEthUsdcRateResponse = () => {
     sellTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     sellAmount: '376837347525673',
     sources,
-    allowanceTarget: '0x0000000000000000000000000000000000000000',
+    allowanceTarget: AddressZero,
     sellTokenToEthRate: '1',
     buyTokenToEthRate: '2653.65836',
   }

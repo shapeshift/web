@@ -31,9 +31,7 @@ export type NumberFormatOptions = {
   maximumFractionDigits?: number
   minimumFractionDigits?: number
   notation?: 'compact' | 'standard' | 'scientific' | 'engineering'
-  compactDisplay?: 'short' | 'long'
   fiatType?: string
-  style?: 'currency' | 'decimal'
 }
 
 export type NumberFormatter = {
@@ -201,6 +199,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   const abbreviateNumber = useCallback(
     (number: number, fiatType?: string, options?: NumberFormatOptions) => {
       const bounds = { min: 10000, max: 1000000 }
+      const longCompactDisplayLowerBound = 1_000_000_000
       const noDecimals = bounds.min <= number && number < bounds.max
       const minDisplayValue = 0.000001
       const lessThanMin = 0 < number && minDisplayValue > number
@@ -212,8 +211,8 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       )
       const formatter = new Intl.NumberFormat(deviceLocale, {
         notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
-        compactDisplay: options?.compactDisplay ?? 'short',
-        style: options?.style ?? 'currency',
+        compactDisplay: fiatType || number < longCompactDisplayLowerBound ? 'short' : 'long',
+        style: fiatType ? 'currency' : 'decimal',
         currency: fiatType,
         minimumFractionDigits,
         maximumFractionDigits: 10,

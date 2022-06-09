@@ -5,6 +5,8 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,6 +30,9 @@ export const MainOpportunity = ({
   const translate = useTranslate()
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const { opportunities: foxyOpportunities, loading: isFoxyBalancesLoading } = useFoxyBalances()
+  const hasActiveStaking = bnOrZero(foxyOpportunities?.[0]?.balance).gt(0)
 
   return (
     <Card display='block' width='full'>
@@ -69,11 +74,17 @@ export const MainOpportunity = ({
               {balance}
             </CText>
           </Box>
-          <Box alignSelf='center'>
-            <Button onClick={onClick} colorScheme={'blue'}>
-              <CText>{translate('plugins.foxPage.getStarted')}</CText>
-            </Button>
-          </Box>
+          <Skeleton isLoaded={isFoxyBalancesLoading === false}>
+            <Box alignSelf='center'>
+              <Button onClick={onClick} colorScheme={'blue'}>
+                <CText>
+                  {translate(
+                    hasActiveStaking ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted',
+                  )}
+                </CText>
+              </Button>
+            </Box>
+          </Skeleton>
         </Flex>
       </Card.Body>
     </Card>

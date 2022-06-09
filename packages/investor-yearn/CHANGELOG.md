@@ -1,3 +1,15 @@
+# [@shapeshiftoss/investor-yearn-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v3.0.3...@shapeshiftoss/investor-yearn-v4.0.0) (2022-06-09)
+
+
+### Features
+
+* **investor-yearn:** use "KnownChainIds" instead of "ChainTypes" ([#779](https://github.com/shapeshift/lib/issues/779)) ([f44bc8f](https://github.com/shapeshift/lib/commit/f44bc8fe4a50951207632fdad4106b645d91686d))
+
+
+### BREAKING CHANGES
+
+* **investor-yearn:** Requires updated peerDependencies
+
 # [@shapeshiftoss/investor-yearn-v3.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v3.0.2...@shapeshiftoss/investor-yearn-v3.0.3) (2022-06-08)
 
 # [@shapeshiftoss/investor-yearn-v3.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v3.0.1...@shapeshiftoss/investor-yearn-v3.0.2) (2022-06-08)

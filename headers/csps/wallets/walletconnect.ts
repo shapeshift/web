@@ -4,6 +4,6 @@ export const csp: Csp = {
   'connect-src': [
     'wss://*.bridge.walletconnect.org/',
     'https://registry.walletconnect.com/api/v2/wallets',
-    'https://imagedelivery.net/',
   ],
+  'img-src': ['https://imagedelivery.net/'],
 }

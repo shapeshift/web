@@ -1,3 +1,15 @@
+# [@shapeshiftoss/types-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v4.4.1...@shapeshiftoss/types-v5.0.0) (2022-06-09)
+
+
+### Features
+
+* **types:** remove chainAdapters types ([#773](https://github.com/shapeshift/lib/issues/773)) ([40a32cb](https://github.com/shapeshift/lib/commit/40a32cb8077e1b6336f0f8fec00e871b989146c8))
+
+
+### BREAKING CHANGES
+
+* **types:** Removed `chainAdapters` types. Those will now be in the `chain-adapters` package.
+
 # [@shapeshiftoss/types-v4.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v4.4.0...@shapeshiftoss/types-v4.4.1) (2022-06-08)
 
 # [@shapeshiftoss/types-v4.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v4.3.2...@shapeshiftoss/types-v4.4.0) (2022-06-03)

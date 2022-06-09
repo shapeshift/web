@@ -1,3 +1,15 @@
+# [@shapeshiftoss/asset-service-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.6.1...@shapeshiftoss/asset-service-v5.0.0) (2022-06-09)
+
+
+### Features
+
+* **asset-service:** remove "chain" and "network" from assets ([#778](https://github.com/shapeshift/lib/issues/778)) ([34350e8](https://github.com/shapeshift/lib/commit/34350e88611e24710f71590316a90937925dc08d))
+
+
+### BREAKING CHANGES
+
+* **asset-service:** Asset shape has changed
+
 # [@shapeshiftoss/asset-service-v4.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.6.0...@shapeshiftoss/asset-service-v4.6.1) (2022-06-08)
 
 # [@shapeshiftoss/asset-service-v4.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.5.0...@shapeshiftoss/asset-service-v4.6.0) (2022-06-03)

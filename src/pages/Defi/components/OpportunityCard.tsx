@@ -10,7 +10,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { AssetId, cosmosChainId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
@@ -22,12 +22,22 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById } from 'state/slices/selectors'
+import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type OpportunityCardProps = {
   isLoaded?: boolean
 } & EarnOpportunityType
+
+const getOverrideIconFromAssetId = (assetId: AssetId, assets: AssetsById): string => {
+  const overrideAssetIds: Record<AssetId, AssetId> = {
+    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d':
+      'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+  }
+  const overrideAssetId = overrideAssetIds[assetId] ?? assetId
+  return assets[overrideAssetId]?.icon ?? ''
+}
 
 export const OpportunityCard = ({
   type,
@@ -35,7 +45,7 @@ export const OpportunityCard = ({
   rewardAddress,
   contractAddress,
   provider,
-  chain,
+  chainId,
   isLoaded,
   apy,
   cryptoAmount,
@@ -49,7 +59,9 @@ export const OpportunityCard = ({
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
-  const isCosmosStaking = chain === ChainTypes.Cosmos
+  const isCosmosStaking = chainId === cosmosChainId
+
+  const assets = useAppSelector(selectAssets)
 
   const {
     state: { isConnected },
@@ -76,7 +88,7 @@ export const OpportunityCard = ({
       history.push({
         pathname,
         search: qs.stringify({
-          chain,
+          chainId,
           contractAddress,
           tokenId: tokenAddress,
           rewardId: rewardAddress,
@@ -97,7 +109,11 @@ export const OpportunityCard = ({
         <Flex alignItems='center'>
           <Flex>
             <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon src={asset.icon} boxSize='10' zIndex={2} />
+              <AssetIcon
+                src={getOverrideIconFromAssetId(assetId, assets)}
+                boxSize='10'
+                zIndex={2}
+              />
             </SkeletonCircle>
           </Flex>
           <Box ml={4}>

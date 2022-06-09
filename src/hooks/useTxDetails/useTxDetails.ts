@@ -1,6 +1,6 @@
 import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
-import { ensReverseLookup } from 'lib/ens'
+import { ensReverseLookup } from 'lib/address/ens'
 import { ReduxState } from 'state/reducer'
 import {
   selectAssetById,

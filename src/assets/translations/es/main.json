@@ -16,7 +16,6 @@
     "estimatedGas": "Tarifa Estimada de Gas",
     "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
-    "unresolvableEnsDomain": "No se puede resolver el dominio ENS",
     "deposit": "Depositar",
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
@@ -282,7 +281,7 @@
     "overview": "Resúmenes",
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Indicadores de Funciones"
   },
   "transactionRow": {
@@ -304,6 +303,12 @@
     "amount": "Cantidad",
     "for": "para",
     "parser": {
+      "weth": {
+        "deposit": "Depositar",
+        "approve": "Aprobar",
+        "withdraw": "Retirar",
+        "receive": "Recibir"
+      },
       "yearn": {
         "deposit": "Depositar",
         "approve": "Aprobar",
@@ -698,6 +703,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con Keplr",
+        "connectFailure": "No se puede conectar la billetera Keplr"
+      },
+      "connect": {
+        "header": "Emparejar Keplr",
+        "body": "Haga clic en Emparejar y luego seleccione Keplr en la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
@@ -811,6 +831,7 @@
         "emailRequired": "Correo Electronico es requerido",
         "invalidEmail": "Correo Electrónico es invalido",
         "invalidCaptcha": "El Captcha no es válido",
+        "captchaRequired": "Se requiere captcha",
         "invalidLogin": "Ingreso invalido",
         "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
         "decryptionError": "Algo salió mal al descifrar su billetera.",

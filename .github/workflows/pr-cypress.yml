@@ -97,7 +97,7 @@ jobs:
         uses: cypress-io/github-action@v3
         with:
           record: true
-          start: yarn dev
+          start: yarn dev:silent
           parallel: true
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300 # seconds

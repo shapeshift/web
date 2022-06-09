@@ -129,6 +129,28 @@ export const fox: Asset = {
   tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
 }
 
+export const foxy: Asset = {
+  chainId: 'eip155:1',
+  assetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+  chain: ChainTypes.Ethereum,
+  color: '#CE3885',
+  contractType: 'erc20',
+  dataSource: AssetDataSource.CoinGecko,
+  explorer: 'https://etherscan.io',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+  name: 'FOX Yieldy',
+  network: NetworkTypes.MAINNET,
+  precision: 18,
+  receiveSupport: true,
+  secondaryColor: '#CE3885',
+  sendSupport: true,
+  slip44: 60,
+  symbol: 'FOXy',
+  tokenId: '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3',
+}
+
 export const cosmos: Asset = {
   chainId: 'cosmos:cosmoshub-4',
   assetId: 'cosmos:cosmoshub-4/slip44:118',

@@ -1,4 +1,4 @@
-import { ChainId, toChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import {
   HDWallet,
   supportsBTC,
@@ -6,7 +6,6 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
@@ -14,17 +13,6 @@ type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 // use outside react
 export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
-  const ethChainId = toChainId({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
-  const btcChainId = toChainId({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
-  const cosmosChainId = toChainId({
-    chain: ChainTypes.Cosmos,
-    network: NetworkTypes.COSMOSHUB_MAINNET,
-  })
-
-  const osmosisChainId = toChainId({
-    chain: ChainTypes.Osmosis,
-    network: NetworkTypes.OSMOSIS_MAINNET,
-  })
   switch (chainId) {
     case ethChainId: {
       return supportsETH(wallet)

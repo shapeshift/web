@@ -47,11 +47,10 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
-      ReduxLogging: false,
       Osmosis: false,
-      WalletMigration: false,
-      BanxaRamp: false,
       FoxPage: false,
+      KeplrWallet: false,
+      TallyHoWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -84,7 +83,7 @@ export const mockStore: ReduxState = {
       byAssetId: {},
       byAccountId: {},
       ids: [],
-      status: 'idle',
+      status: 'loading',
     },
     rebases: {
       byAssetId: {},

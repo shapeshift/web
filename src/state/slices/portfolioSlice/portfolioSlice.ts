@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ChainId, fromChainId } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { chainIdToChainType } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
 
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -100,11 +101,12 @@ export const portfolioApi = createApi({
           string,
         ]
         // TODO(0xdef1cafe): chainAdapters.ChainId()
-        const { chain } = fromChainId(chainId)
+        const chain = chainIdToChainType(chainId)
         try {
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)
             .getAccount(accountSpecifier)
+
           const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
           // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded

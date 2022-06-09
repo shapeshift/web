@@ -2,14 +2,15 @@ import {
   AccountId,
   AssetId,
   btcChainId,
+  CHAIN_NAMESPACE,
   ChainId,
   chainIdToFeeAssetId,
   cosmosChainId,
   ethChainId,
   fromAssetId,
+  fromChainId,
   osmosisChainId,
   toAccountId,
-  toChainId,
 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -48,6 +49,16 @@ export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
 
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
+
+export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
+  if (!content) return ''
+
+  if (!trimmedContentLength) return content
+
+  if (content.length < trimmedContentLength) return content
+
+  return content.slice(0, trimmedContentLength).concat('...')
+}
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountSpecifier): string => {
@@ -107,14 +118,14 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
 }
 
 export const accountIdToUtxoParams = (
-  asset: Asset,
+  _asset: Asset,
   accountId: AccountSpecifier,
   accountIndex: number,
 ) => {
   const accountType = accountIdToAccountType(accountId)
   // for eth, we don't return a UtxoAccountType or utxoParams
   if (!accountType) return {}
-  const utxoParams = utxoAccountParams(asset, accountType, accountIndex)
+  const utxoParams = utxoAccountParams(accountType, accountIndex)
   return { utxoParams, accountType }
 }
 
@@ -161,11 +172,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args.portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
-    const { chain } = account
+    const { chainId } = account
+    const { chainNamespace } = fromChainId(chainId)
 
-    switch (chain) {
-      // TODO: Handle Cosmos ChainType here
-      case ChainTypes.Ethereum: {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { chainId, assetId, pubkey } = account
         const accountSpecifier = `${chainId}:${toLower(pubkey)}`
@@ -215,7 +226,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         })
         break
       }
-      case ChainTypes.Bitcoin: {
+      case CHAIN_NAMESPACE.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
         const { balance, chainId, assetId, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
@@ -264,8 +275,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         break
       }
-      case ChainTypes.Cosmos:
-      case ChainTypes.Osmosis: {
+      case CHAIN_NAMESPACE.Cosmos: {
         const cosmosAccount = account as chainAdapters.Account<ChainTypes.Cosmos>
         const { chainId, assetId } = account
         const accountSpecifier = `${chainId}:${_xpubOrAccount}`
@@ -401,8 +411,7 @@ export const makeBalancesByChainBucketsFlattened = (
 
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
   if (!assetId) return false
-  const { chain, network } = fromAssetId(assetId)
-  const chainId = toChainId({ chain, network })
+  const { chainId } = fromAssetId(assetId)
   switch (chainId) {
     case ethChainId:
       return supportsETH(wallet)

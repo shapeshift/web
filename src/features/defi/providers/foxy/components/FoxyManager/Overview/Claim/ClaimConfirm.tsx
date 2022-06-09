@@ -8,8 +8,7 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { ASSET_REFERENCE, AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,7 +29,7 @@ type ClaimConfirmProps = {
   assetId: AssetId
   amount?: string
   contractAddress: string
-  chain: ChainTypes
+  chainId: ChainId
   onBack: () => void
 }
 
@@ -38,7 +37,7 @@ export const ClaimConfirm = ({
   assetId,
   amount,
   contractAddress,
-  chain,
+  chainId,
   onBack,
 }: ClaimConfirmProps) => {
   const [userAddress, setUserAddress] = useState<string>('')
@@ -52,11 +51,9 @@ export const ClaimConfirm = ({
   const history = useHistory()
 
   // Asset Info
-  const network = NetworkTypes.MAINNET
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
@@ -81,7 +78,7 @@ export const ClaimConfirm = ({
         amount,
         userAddress,
         estimatedGas,
-        chain,
+        chainId,
       })
     } catch (error) {
       console.error('ClaimWithdraw:handleConfirm error', error)

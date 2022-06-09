@@ -16,7 +16,6 @@
     "estimatedGas": "Perkiraan Biaya Gas",
     "insufficientAmountForGas": "Tidak cukup ETH untuk menutupi gas",
     "invalidAddress": "Alamat Tidak Valid",
-    "unresolvableEnsDomain": "Tidak dapat menyelesaikan domain ENS",
     "deposit": "Setoran",
     "withdraw": "Penarikan",
     "withdrawal": "Penarikan",
@@ -291,7 +290,7 @@
     "overview": "Ringkasan ",
     "transactions": "Transaksi",
     "tradeHistory": "Sejarah Perdagangan",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Fitur Bendera"
   },
   "transactionRow": {
@@ -313,6 +312,12 @@
     "amount": "Jumlah",
     "for": "Untuk",
     "parser": {
+      "weth": {
+        "deposit": "Deposit",
+        "approve": "Menyetujui",
+        "withdraw": "Penarikan ",
+        "receive": "Menerima"
+      },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Menyetujui",
@@ -703,6 +708,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan Keplr",
+        "connectFailure": "Tidak dapat menghubungkan dompet Keplr"
+      },
+      "connect": {
+        "header": "Pasangkan Keplr",
+        "body": "Klik Pasangkan lalu pilih Keplr dari jendela popup",
+        "button": "Pasangkan"
+      },
+      "failure": {
+        "header": "Kesalahan",
+        "body": "Tidak dapat menghubungkan dompet Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan MetaMask",
@@ -816,6 +836,7 @@
         "emailRequired": "Email diperlukan ",
         "invalidEmail": "Email tidak valid",
         "invalidCaptcha": "Captcha tidak valid",
+        "captchaRequired": "Captcha diperlukan",
         "invalidLogin": "Invalid login",
         "noWallet": "Tidak dapat menemukan dompet ShapeShift Asli untuk login Anda. Jika Anda merasa pesan ini salah, silakan hubungi dukungan ShapeShift.",
         "decryptionError": "Terjadi kesalahan saat mendekripsi dompet Anda.",

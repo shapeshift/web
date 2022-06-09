@@ -141,7 +141,7 @@ export const ClaimBroadcast = ({
           <Button
             isLoading={loading}
             onClick={onClose}
-            loadingText={translate('defi.modals.staking.claimingRewards')}
+            loadingText={translate('defi.modals.claim.claimingRewards')}
             colorScheme={'blue'}
             minWidth='150px'
             mb='10px'

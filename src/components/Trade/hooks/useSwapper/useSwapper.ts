@@ -148,8 +148,8 @@ export const useSwapper = () => {
       sellAmount: amount,
       sellAsset,
       buyAsset,
-      sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-      buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+      sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
+      buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
       wallet,
       sendMax: true,
     })
@@ -205,7 +205,7 @@ export const useSwapper = () => {
           buyAsset,
           sellAmount,
           sendMax: false,
-          sellAssetAccountId: '0',
+          sellAssetAccountNumber: 0,
         })
 
         setFees(tradeQuote, sellAsset)
@@ -255,16 +255,15 @@ export const useSwapper = () => {
     switch (sellAsset.chainId) {
       case 'eip155:1':
         {
-          const zrxTrade = trade as Trade<'eip155:1'>
-          const approvalFee = bnOrZero(zrxTrade?.feeData?.chainSpecific?.approvalFee)
+          const ethTrade = trade as Trade<'eip155:1'>
+          const approvalFee = bnOrZero(ethTrade.feeData.chainSpecific.approvalFee)
             .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
           const totalFee = feeBN.plus(approvalFee).toString()
-          const gasPrice = bnOrZero(zrxTrade?.feeData?.chainSpecific?.gasPrice).toString()
-          const estimatedGas = bnOrZero(zrxTrade?.feeData?.chainSpecific?.estimatedGas).toString()
+          const gasPrice = bnOrZero(ethTrade.feeData.chainSpecific.gasPrice).toString()
+          const estimatedGas = bnOrZero(ethTrade.feeData.chainSpecific.estimatedGas).toString()
 
-          // get rid of this type hack in followup PR once corresponding lib pr is merged
-          const fees: QuoteFeeData<'eip155:1'> & { tradeFee?: string } = {
+          const fees: QuoteFeeData<'eip155:1'> = {
             fee,
             chainSpecific: {
               approvalFee,
@@ -272,7 +271,7 @@ export const useSwapper = () => {
               estimatedGas,
               totalFee,
             },
-            tradeFee: '0', // TODO populate this from trade once corresponding lib pr is merged
+            tradeFee: ethTrade.feeData.tradeFee,
           }
           setValue('fees', fees)
         }

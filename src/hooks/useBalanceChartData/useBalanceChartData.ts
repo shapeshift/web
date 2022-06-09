@@ -78,7 +78,7 @@ type MakeBucketsArgs = {
 }
 
 // adjust this to give charts more or less granularity
-export const timeframeMap = {
+export const timeframeMap: Record<HistoryTimeframe, BucketMeta> = {
   [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
   [HistoryTimeframe.DAY]: { count: 289, duration: 5, unit: 'minutes' },
   [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },

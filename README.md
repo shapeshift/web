@@ -10,20 +10,12 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Table Of Contents
 
-- [ShapeShift DAO Web Interface](#shapeshift-dao-web-interface)
-  - [Table Of Contents](#table-of-contents)
-  - [Helpful Docs](#helpful-docs)
-  - [Resources](#resources)
-  - [Dependencies](#dependencies)
-  - [Quick Start](#quick-start)
-    - [.env](#env)
-    - [Commands](#commands)
-    - [Linking](#linking)
-  - [Developer Onboarding](#developer-onboarding)
-  - [Epheremal Environments](#epheremal-environments)
-  - [Releases](#releases)
-    - [Create a release branch](#create-a-release-branch)
-    - [Merge a release into main](#merge-a-release-into-main)
+- [Helpful Docs](#helpful-docs)
+- [Resources](#resources)
+- [Dependencies](#dependencies)
+- [Developer Onboarding](#developer-onboarding)
+- [Commands](#commands)
+- [Linking local dependencies](#linking)
 
 ## Helpful Docs
 
@@ -172,10 +164,6 @@ If your changes only touch `web` these steps are not necessary.
 2. Ensure you've followed the guidelines in [CONTRIBUTING.md](https://github.com/shapeshift/web/blob/main/CONTRIBUTING.md); in particular, make sure that the title of your PR conforms to the Conventional Commits format.
 3. Post a link to your new pull request in `#engineering-prs` in the [Discord](https://discord.gg/shapeshift)
 4. (optional) Return to the `develop` branch to get ready to start another task.
-
-## Epheremal Environments
-
-All branches pushed to `shapeshift/web` will trigger a Fleek build on pull request events.
 
 ## Releases
 The script `./scripts/release.sh` helps to automate the release process.

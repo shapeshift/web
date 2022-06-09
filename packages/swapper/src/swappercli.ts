@@ -89,7 +89,7 @@ const main = async (): Promise<void> => {
   const zrxSwapperDeps = { wallet, adapterManager, web3 }
   const thorchainSwapperDeps = {
     midgardUrl: 'https://midgard.thorchain.info/v2',
-    adapterManager: <ChainAdapterManager>{}
+    adapterManager
   }
 
   const manager = new SwapperManager()
@@ -113,6 +113,7 @@ const main = async (): Promise<void> => {
       buyAsset,
       sellAmount: sellAmountBase,
       sellAssetAccountNumber: 0,
+      wallet,
       sendMax: false
     })
   } catch (e) {

@@ -3,7 +3,7 @@ import Web3 from 'web3'
 
 import { ZrxSwapper } from '../..'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import { normalizeAmount } from '../utils/helpers/helpers'
+import { normalizeAmount } from '../../utils/helpers/helpers'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
 
@@ -11,6 +11,7 @@ const axios = jest.createMockFromModule('axios')
 //@ts-ignore
 axios.create = jest.fn(() => axios)
 jest.mock('../utils/helpers/helpers')
+jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 
 describe('getZrxTradeQuote', () => {

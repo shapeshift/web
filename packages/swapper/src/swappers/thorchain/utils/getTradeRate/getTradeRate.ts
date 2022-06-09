@@ -3,8 +3,8 @@ import { Asset } from '@shapeshiftoss/types'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { BN, bn } from '../../../utils/bignumber'
+import { fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
 import { PoolResponse, ThorchainSwapperDeps } from '../../types'
-import { fromBaseUnit, toBaseUnit } from '../ethereum/makeTradeTx'
 import { thorService } from '../thorService'
 
 const THOR_PRECISION = 8

@@ -3,12 +3,11 @@ import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
-import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 import { AbiItem, numberToHex } from 'web3-utils'
 
 import { SwapError, SwapErrorTypes, TradeQuote } from '../../../../api'
-import { bn, bnOrZero } from '../../../utils/bignumber'
+import { BN, bn, bnOrZero } from '../../../utils/bignumber'
 import { ZrxPriceResponse } from '../../types'
 import { zrxService } from '../zrxService'
 
@@ -37,18 +36,6 @@ type GrantAllowanceArgs = {
   web3: Web3
 }
 
-/**
- * Very large amounts like those found in ERC20s with a precision of 18 get converted
- * to exponential notation ('1.6e+21') in javascript. The 0x api doesn't play well with
- * exponential notation so we need to ensure that it is represented as an integer string.
- * This function keeps 17 significant digits, so even if we try to trade 1 Billion of an
- * ETH or ERC20, we still keep 7 decimal places.
- * @param amount
- */
-export const normalizeAmount = (amount: string | number | BigNumber): string => {
-  return bnOrZero(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
-}
-
 export const getERC20Allowance = async ({
   erc20AllowanceAbi,
   web3,
@@ -67,7 +54,7 @@ export const getAllowanceRequired = async ({
   sellAmount,
   web3,
   erc20AllowanceAbi
-}: GetAllowanceRequiredArgs): Promise<BigNumber> => {
+}: GetAllowanceRequiredArgs): Promise<BN> => {
   try {
     if (sellAsset.assetId === 'eip155:1/slip44:60') {
       return bn(0)

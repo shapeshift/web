@@ -5,6 +5,7 @@ import {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
+  GetTradeQuoteInput,
   SwapError,
   SwapErrorTypes,
   Swapper,
@@ -15,6 +16,7 @@ import {
   TradeResult,
   TradeTxs
 } from '../../api'
+import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { PoolResponse, ThorchainSwapperDeps } from './types'
 import { getUsdRate } from './utils/getUsdRate/getUsdRate'
 import { thorService } from './utils/thorService'
@@ -84,8 +86,8 @@ export class ThorchainSwapper implements Swapper {
     throw new Error('ThorchainSwapper: buildTrade unimplemented')
   }
 
-  async getTradeQuote(): Promise<TradeQuote<SupportedChainIds>> {
-    throw new Error('ThorchainSwapper: getTradeQuote unimplemented')
+  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<SupportedChainIds>> {
+    return getThorTradeQuote({ deps: this.deps, input })
   }
 
   async executeTrade(args: ExecuteTradeInput<SupportedChainIds>): Promise<TradeResult> {

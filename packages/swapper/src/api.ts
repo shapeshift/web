@@ -50,6 +50,7 @@ export type CommonTradeInput = {
   sellAmount: string
   sendMax: boolean
   sellAssetAccountNumber: number
+  wallet?: HDWallet
 }
 export type GetTradeQuoteInput = CommonTradeInput
 

@@ -33,6 +33,7 @@ export type NumberFormatOptions = {
   notation?: 'compact' | 'standard' | 'scientific' | 'engineering'
   compactDisplay?: 'short' | 'long'
   fiatType?: string
+  style?: 'currency' | 'decimal'
 }
 
 export type NumberFormatter = {
@@ -199,7 +200,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   }
 
   const abbreviateNumber = useCallback(
-    (number: number, fiatType: string = 'USD', options?: NumberFormatOptions) => {
+    (number: number, fiatType?: string, options?: NumberFormatOptions) => {
       const bounds = { min: 10000, max: 1000000 }
       const noDecimals = bounds.min <= number && number < bounds.max
       const minDisplayValue = 0.000001
@@ -212,8 +213,8 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       )
       const formatter = new Intl.NumberFormat(deviceLocale, {
         notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
-        compactDisplay: 'short',
-        style: 'currency',
+        compactDisplay: options?.compactDisplay ?? 'short',
+        style: options?.style ?? 'currency',
         currency: fiatType,
         minimumFractionDigits,
         maximumFractionDigits: 10,
@@ -314,9 +315,9 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     (value: NumberValue, options?: NumberFormatOptions): string => {
       try {
         const number = toNumber(value)
-        return abbreviateNumber(number, undefined, options)
+        const numberFiat = options?.fiatType || fiatTypeToUse
+        return abbreviateNumber(number, numberFiat, options)
       } catch (e) {
-        // @TODO: figure out logging
         moduleLogger.error(
           e,
           { fn: 'numberToSupply' },

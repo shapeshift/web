@@ -325,30 +325,33 @@ describe('useLocaleFormatter', () => {
   })
 
   describe('toSupply', () => {
-    const scenarios: [{ number: NumberValue }, string][] = [
-      [{ number: 123.456 }, '123.45'],
-      [{ number: 1234.567 }, '1,234.56'],
-      [{ number: 12345.6789 }, '12,345'],
-      [{ number: 123456.789 }, '123,456'],
-      [{ number: 1234567.89123 }, '1.23M'],
-      [{ number: 12345678.9123 }, '12.34M'],
-      [{ number: 123456789.12345 }, '123.45M'],
-      [{ number: 1234567891.2345 }, '1.23 billion'],
-      [{ number: 12345678912.3456 }, '12.34 billion'],
-      [{ number: 123456789123.4567 }, '123.45 billion'],
-      [{ number: 1004567.89123 }, '1M'],
-      [{ number: 1014567.89123 }, '1.01M'],
-      [{ number: 10005678.9123 }, '10M'],
-      [{ number: 123006789.12345 }, '123M'],
-      [{ number: 1004567891.2345 }, '1 billion'],
-      [{ number: 12005678912.3456 }, '12 billion'],
-      [{ number: 123006789123.4567 }, '123 billion'],
+    const scenarios: [{ number: NumberValue }, string, 'short' | 'long'][] = [
+      [{ number: 123.456 }, '123.45', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234567891.2345 }, '1.23 billion', 'long'],
+      [{ number: 12345678912.3456 }, '12.34 billion', 'long'],
+      [{ number: 123456789123.4567 }, '123.45 billion', 'long'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1234.567 }, '1,234.56', 'short'],
+      [{ number: 1004567891.2345 }, '1 billion', 'long'],
+      [{ number: 12005678912.3456 }, '12 billion', 'long'],
+      [{ number: 123006789123.4567 }, '123 billion', 'long'],
     ]
 
-    it.each(scenarios)('parses %p and returns %s', async ({ number }, expected) => {
+    it.each(scenarios)('parses %p and returns %s', async ({ number }, expected, compactDisplay) => {
       const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
 
-      expect(result.current.number.toSupply(number)).toEqual(expected)
+      const fiatType = ''
+      const style = 'decimal' as const
+      const options = { compactDisplay, fiatType, style }
+      expect(result.current.number.toSupply(number, options)).toEqual(expected)
     })
   })
 })

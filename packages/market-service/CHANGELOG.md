@@ -1,3 +1,15 @@
+# [@shapeshiftoss/market-service-v6.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v5.0.1...@shapeshiftoss/market-service-v6.0.0) (2022-06-09)
+
+
+### Features
+
+* **market-service:** removed usage of ChainAdapterManager ([#780](https://github.com/shapeshift/lib/issues/780)) ([ee30485](https://github.com/shapeshift/lib/commit/ee30485e312f112f98e65e0b0f4d86d45478186e))
+
+
+### BREAKING CHANGES
+
+* **market-service:** Requires updated peerDependencies
+
 # [@shapeshiftoss/market-service-v5.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v5.0.0...@shapeshiftoss/market-service-v5.0.1) (2022-06-08)
 
 # [@shapeshiftoss/market-service-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v4.6.1...@shapeshiftoss/market-service-v5.0.0) (2022-06-08)

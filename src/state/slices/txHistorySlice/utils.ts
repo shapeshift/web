@@ -5,6 +5,8 @@ import union from 'lodash/union'
 import { AccountSpecifier } from '../portfolioSlice/portfolioSliceCommon'
 import { Tx } from './txHistorySlice'
 
+type TxIndex = string
+
 export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
   // we only want unique ids
   const relatedAssets = new Set<AssetId>()
@@ -45,8 +47,8 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
 
 // we can't use a hyphen as a delimiter, as it appears in the chain reference for cosmos
 export const UNIQUE_TX_ID_DELIMITER = '*'
-export const makeUniqueTxId = (
+export const serializeTxIndex = (
   accountId: AccountSpecifier,
   txId: Tx['txid'],
   txAddress: Tx['address'],
-): string => [accountId, txId, txAddress.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
+): TxIndex => [accountId, txId, txAddress.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)

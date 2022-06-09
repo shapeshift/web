@@ -9,5 +9,5 @@ yarn add @shapeshiftoss/types
 ## Usage
 
 ```ts
-import { Asset, ChainTypes, Network } from '@shapeshiftoss/types'
+import { Asset, UtxoAccountType } from '@shapeshiftoss/types'
 ```

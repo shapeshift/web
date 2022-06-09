@@ -15,14 +15,12 @@ export enum ChainTypes {
   Osmosis = 'osmosis'
 }
 
-const supportedChainIds = [
-  'eip155:1',
-  'bip122:000000000019d6689c085ae165831e93',
-  'cosmos:cosmoshub-4',
-  'cosmos:osmosis-1'
-] as const
-
-export type SupportedChainIds = typeof supportedChainIds[number]
+export enum KnownChainIds {
+  EthereumMainnet = 'eip155:1',
+  BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
+  CosmosMainnet = 'cosmos:cosmoshub-4',
+  OsmosisMainnet = 'cosmos:osmosis-1'
+}
 
 export enum NetworkTypes {
   MAINNET = 'MAINNET',
@@ -58,11 +56,11 @@ export type Asset = {
   assetId: string
   chainId: string
   /** @deprecated: do not use. This will be removed once consumers have handled it */
-  chain: ChainTypes
+  chain?: ChainTypes
   description?: string
   isTrustedDescription?: boolean
   /** @deprecated: do not use. This will be removed once consumers have handled it */
-  network: NetworkTypes
+  network?: NetworkTypes
   symbol: string
   name: string
   precision: number

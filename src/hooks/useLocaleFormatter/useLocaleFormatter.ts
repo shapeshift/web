@@ -47,7 +47,6 @@ export type NumberFormatter = {
     toParts: (value: string) => FiatParts
     toPercent: (number: NumberValue, options?: NumberFormatOptions) => string
     toString: (number: NumberValue, options?: NumberFormatOptions) => string
-    toSupply: (number: NumberValue, options?: NumberFormatOptions) => string
   }
   date: {
     toDateTime: (date: DateValue, options?: Intl.DateTimeFormatOptions) => string
@@ -310,25 +309,6 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     [localeParts, numberToFiat, showTrailingDecimal],
   )
 
-  /** Format a number as a supply display value */
-  const numberToSupply = useCallback(
-    (value: NumberValue, options?: NumberFormatOptions): string => {
-      try {
-        const number = toNumber(value)
-        const numberFiat = options?.fiatType || fiatTypeToUse
-        return abbreviateNumber(number, numberFiat, options)
-      } catch (e) {
-        moduleLogger.error(
-          e,
-          { fn: 'numberToSupply' },
-          'Error formatting number to supply display value',
-        )
-        return String(value)
-      }
-    },
-    [deviceLocale], // eslint-disable-line react-hooks/exhaustive-deps
-  )
-
   const numberToPercent = (number: NumberValue, options: NumberFormatOptions = {}): string => {
     return toNumber(number).toLocaleString(deviceLocale, {
       style: 'percent',
@@ -370,7 +350,6 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       toParts: numberToParts,
       toPercent: numberToPercent,
       toString: numberToString,
-      toSupply: numberToSupply,
     },
     date: {
       toDateTime,

@@ -102,7 +102,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
                 <Text translation='assets.assetDetails.assetHeader.maxTotalSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount.Supply value={marketData?.maxSupply ?? 0} />
+                <Amount value={marketData?.maxSupply ?? 0} />
               </StatValue>
             </Stat>
           )}
@@ -112,7 +112,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
                 <Text translation='assets.assetDetails.assetHeader.availableSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount.Supply value={marketData?.supply} />
+                <Amount value={Math.round(Number(marketData?.supply ?? 0))} />
               </StatValue>
             </Stat>
           )}

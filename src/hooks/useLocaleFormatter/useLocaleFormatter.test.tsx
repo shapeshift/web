@@ -323,35 +323,4 @@ describe('useLocaleFormatter', () => {
       },
     )
   })
-
-  describe('toSupply', () => {
-    const scenarios: [{ number: NumberValue }, string, 'short' | 'long'][] = [
-      [{ number: 123.456 }, '123.45', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234567891.2345 }, '1.23 billion', 'long'],
-      [{ number: 12345678912.3456 }, '12.34 billion', 'long'],
-      [{ number: 123456789123.4567 }, '123.45 billion', 'long'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1234.567 }, '1,234.56', 'short'],
-      [{ number: 1004567891.2345 }, '1 billion', 'long'],
-      [{ number: 12005678912.3456 }, '12 billion', 'long'],
-      [{ number: 123006789123.4567 }, '123 billion', 'long'],
-    ]
-
-    it.each(scenarios)('parses %p and returns %s', async ({ number }, expected, compactDisplay) => {
-      const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
-
-      const fiatType = ''
-      const style = 'decimal' as const
-      const options = { compactDisplay, fiatType, style }
-      expect(result.current.number.toSupply(number, options)).toEqual(expected)
-    })
-  })
 })

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v5.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v5.0.0...@shapeshiftoss/asset-service-v5.0.1) (2022-06-10)
+
+
+### Bug Fixes
+
+* native asset description ([#777](https://github.com/shapeshift/lib/issues/777)) ([3baca79](https://github.com/shapeshift/lib/commit/3baca79252326e3bb97b047bd53a6444dc03aea8))
+
 # [@shapeshiftoss/asset-service-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v4.6.1...@shapeshiftoss/asset-service-v5.0.0) (2022-06-09)
 
 

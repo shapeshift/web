@@ -16,6 +16,7 @@ import {
   TradeResult,
   TradeTxs
 } from '../../api'
+import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 
 export type CowSwapperDeps = {
@@ -67,13 +68,25 @@ export class CowSwapper implements Swapper<ChainId> {
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    console.info(args)
-    return []
+    const { assetIds = [], sellAssetId } = args
+    if (
+      !sellAssetId?.startsWith('eip155:1/erc20') ||
+      COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
+    )
+      return []
+
+    return assetIds.filter(
+      (id) =>
+        id !== sellAssetId &&
+        id.startsWith('eip155:1/erc20') &&
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+    )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    console.info(assetIds)
-    return []
+    return assetIds.filter(
+      (id) => id.startsWith('eip155:1/erc20') && !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+    )
   }
 
   async getTradeTxs(): Promise<TradeTxs> {

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v6.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v6.0.0...@shapeshiftoss/chain-adapters-v6.0.1) (2022-06-10)
+
+
+### Bug Fixes
+
+* **chain-adapters:** correct the ChainAdapterManager type to use ChainId ([#784](https://github.com/shapeshift/lib/issues/784)) ([0e9b3b6](https://github.com/shapeshift/lib/commit/0e9b3b61782d10d0b65bc724bd147865c83ae101))
+
 # [@shapeshiftoss/chain-adapters-v6.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v5.0.1...@shapeshiftoss/chain-adapters-v6.0.0) (2022-06-09)
 
 

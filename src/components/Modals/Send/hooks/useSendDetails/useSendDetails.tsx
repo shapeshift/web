@@ -165,7 +165,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       default:
         throw new Error('unsupported chain type')
     }
-  }, [accountId, adapter, assetReference, chainAdapterManager, getValues, wallet])
+  }, [accountId, adapter, chainAdapterManager, contractAddress, getValues, wallet])
 
   const handleNextClick = async () => {
     try {

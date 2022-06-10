@@ -3747,12 +3747,12 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.6.0.tgz#276e3a1876a43fa433d736848982c88f56686c8f"
-  integrity sha512-PN+31J3L9zRrcweN4uOZV1OqpBxNfYNXvt3nlwZq7EYwXcniG7R8KyeXJkShYmDksQa8o8GYR9ADPN3dWTadMw==
+"@shapeshiftoss/asset-service@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-5.0.1.tgz#2f340376218330b0827217e7b9975e7db781372b"
+  integrity sha512-6HnRmijIHFngxtitkMq/X9TWezRK62h2UItRXjw8OcAAV0DaEE1/MwDek1ikkMWVqLjc1q5kiMBdCgdRq9DkDQ==
   dependencies:
-    axios "^0.26.0"
+    axios "^0.26.1"
     identicon.js "^2.3.3"
     js-pixel-fonts "^1.5.0"
     lodash "^4.17.21"
@@ -7283,7 +7283,7 @@ axios@^0.21.1, axios@^0.21.2, axios@^0.21.4:
   dependencies:
     follow-redirects "^1.14.0"
 
-axios@^0.26.0, axios@^0.26.1:
+axios@^0.26.1:
   version "0.26.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
   integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==

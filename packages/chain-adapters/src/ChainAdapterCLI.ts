@@ -17,8 +17,8 @@ const btcChainAdapter = new BitcoinChainAdapter({
       'wss://dev-api.bitcoin.shapeshift.com'
     ),
     http: new unchained.bitcoin.V1Api(
-      new unchained.ethereum.Configuration({
-        basePath: 'https://dev-api.ethereum.shapeshift.com'
+      new unchained.bitcoin.Configuration({
+        basePath: 'https://dev-api.bitcoin.shapeshift.com'
       })
     )
   },

@@ -1,3 +1,15 @@
+# [@shapeshiftoss/swapper-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.3.0...@shapeshiftoss/swapper-v7.0.0) (2022-06-10)
+
+
+### Features
+
+* **swapper:** remove usage of "ChainTypes" ([#782](https://github.com/shapeshift/lib/issues/782)) ([9a548c9](https://github.com/shapeshift/lib/commit/9a548c981139fc551838763c2e1c59dfde853698))
+
+
+### BREAKING CHANGES
+
+* **swapper:** replace usage of ChainTypes with ChainId
+
 # [@shapeshiftoss/swapper-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.2.1...@shapeshiftoss/swapper-v6.3.0) (2022-06-09)
 
 

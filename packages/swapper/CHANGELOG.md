@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.0.0...@shapeshiftoss/swapper-v7.1.0) (2022-06-10)
+
+
+### Features
+
+* cowswap getcowswapminmax and filtering methods implementation ([#757](https://github.com/shapeshift/lib/issues/757)) ([d58e1c1](https://github.com/shapeshift/lib/commit/d58e1c1fd9503811e2f365d1d5d70cd541e8366b))
+
 # [@shapeshiftoss/swapper-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v6.3.0...@shapeshiftoss/swapper-v7.0.0) (2022-06-10)
 
 

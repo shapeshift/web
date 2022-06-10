@@ -120,6 +120,7 @@ export const ETHCHAIN_QUOTE = {
       estimatedGas: '424500',
       gasPrice: '361000000000',
     },
+    tradeFee: '0',
   },
   sellAmount: '324000000000000000000',
   buyAmount: '1243923191084',

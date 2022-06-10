@@ -4,7 +4,7 @@ import forEach from 'lodash/forEach'
 
 import env from './env'
 
-const { cleanEnv, str, url, num } = envalid
+const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -30,12 +30,8 @@ const validators = {
   REACT_APP_GEM_ENV: str(),
   REACT_APP_GEM_API_KEY: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
-  REACT_APP_ETH_FOX_APR: num({ default: 0.6 }),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
-  REACT_APP_FEATURE_TALLYHO_WALLET: bool({ default: false }),
-  REACT_APP_FEATURE_FOX_PAGE: bool({ default: false }),
-  REACT_APP_FEATURE_KEPLR_WALLET: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_BOARDROOM_API_BASE_URL: url({

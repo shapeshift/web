@@ -54,12 +54,16 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
                 </Box>
               </Flex>
               <Box display={['none', 'block']}>
-                <Tag colorScheme='green' mr={2}>
-                  <Text translation='fiatRamps.buy' style={{ textTransform: 'uppercase' }} />
-                </Tag>
-                <Tag colorScheme='gray'>
-                  <Text translation='fiatRamps.sell' style={{ textTransform: 'uppercase' }} />
-                </Tag>
+                {entry[1].supportsBuy ? (
+                  <Tag colorScheme='green' mr={2}>
+                    <Text translation='fiatRamps.buy' style={{ textTransform: 'uppercase' }} />
+                  </Tag>
+                ) : null}
+                {entry[1].supportsSell ? (
+                  <Tag colorScheme='gray'>
+                    <Text translation='fiatRamps.sell' style={{ textTransform: 'uppercase' }} />
+                  </Tag>
+                ) : null}
               </Box>
             </Flex>
           </Button>,

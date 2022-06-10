@@ -15,7 +15,7 @@ env:
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: https://dev-api.cosmos.shapeshift.com
   REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
   REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: https://dev-api.osmosis.shapeshift.com
-  REACT_APP_UNCHAINED_OSMOSIS_WS_URL: wss://dev-api.osmosis.shapeshift.com  
+  REACT_APP_UNCHAINED_OSMOSIS_WS_URL: wss://dev-api.osmosis.shapeshift.com
   REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
   REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
@@ -25,6 +25,8 @@ env:
   REACT_APP_GEM_API_KEY: bb4164a72246dae1e03010d664d6cdae4e19b2554de02e3bf6c3cd30aa7e359e
   REACT_APP_GEM_WYRE_SUPPORTED_COINS: https://api.gem.co/institutions/wyre/supported_currencies
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: https://api.gem.co/institutions/coinify/supported_currencies
+  REACT_APP_COINBASE_SUPPORTED_COINS: https://api.pro.coinbase.com/currencies
+  REACT_APP_COINBASE_PAY_APP_ID: 1dbd2a0b94
   REACT_APP_GEM_ENV: production
 
 jobs:

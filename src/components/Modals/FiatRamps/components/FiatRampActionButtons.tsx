@@ -6,9 +6,13 @@ import { FiatRampAction } from '../FiatRampsCommon'
 export const FiatRampActionButtons = ({
   action,
   setAction,
+  supportsBuy,
+  supportsSell,
 }: {
   action: FiatRampAction
   setAction: (action: FiatRampAction) => void
+  supportsBuy: boolean
+  supportsSell: boolean
 }) => {
   const translate = useTranslate()
 
@@ -21,20 +25,24 @@ export const FiatRampActionButtons = ({
 
   return (
     <ButtonGroup variant='ghost' colorScheme='blue'>
-      <Button
-        {...commonButtonProps}
-        isActive={action === FiatRampAction.Buy}
-        onClick={() => setAction(FiatRampAction.Buy)}
-      >
-        {translate('fiatRamps.buy')}
-      </Button>
-      <Button
-        {...commonButtonProps}
-        isActive={action === FiatRampAction.Sell}
-        onClick={() => setAction(FiatRampAction.Sell)}
-      >
-        {translate('fiatRamps.sell')}
-      </Button>
+      {supportsBuy ? (
+        <Button
+          {...commonButtonProps}
+          isActive={action === FiatRampAction.Buy}
+          onClick={() => setAction(FiatRampAction.Buy)}
+        >
+          {translate('fiatRamps.buy')}
+        </Button>
+      ) : null}
+      {supportsSell ? (
+        <Button
+          {...commonButtonProps}
+          isActive={action === FiatRampAction.Sell}
+          onClick={() => setAction(FiatRampAction.Sell)}
+        >
+          {translate('fiatRamps.sell')}
+        </Button>
+      ) : null}
     </ButtonGroup>
   )
 }

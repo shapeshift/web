@@ -1,9 +1,13 @@
+import { generateOnRampURL } from '@coinbase/cbpay-js'
 import { btcAssetId } from '@shapeshiftoss/caip'
+import { getConfig } from 'config'
 import concat from 'lodash/concat'
-import banxalogo from 'assets/banxa.png'
-import gemlogo from 'assets/gem-mark.png'
+import banxaLogo from 'assets/banxa.png'
+import coinbaseLogo from 'assets/coinbase-pay/button-cbPay-normal-generic-condensed@3x.png'
+import gemLogo from 'assets/gem-mark.png'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
+import { getCoinbasePayAssets } from './fiatRampProviders/coinbase-pay'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -23,19 +27,20 @@ export interface SupportedFiatRampConfig {
   getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
   minimumSellThreshold?: number
+  supportsBuy: boolean
+  supportsSell: boolean
 }
 
-export enum FiatRamp {
-  Gem = 'Gem',
-  Banxa = 'Banxa',
-}
+export type FiatRamp = 'Gem' | 'Banxa' | 'CoinbasePay'
 
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 export const supportedFiatRamps: SupportedFiatRamp = {
-  [FiatRamp.Gem]: {
+  Gem: {
     label: 'fiatRamps.gem',
     info: 'fiatRamps.gemMessage',
-    logo: gemlogo,
+    logo: gemLogo,
+    supportsBuy: true,
+    supportsSell: true,
     getBuyAndSellList: async () => {
       const coinifyAssets = await fetchCoinifySupportedCurrencies()
       const wyreAssets = await fetchWyreSupportedCurrencies()
@@ -51,12 +56,14 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     isImplemented: true,
     minimumSellThreshold: 5,
   },
-  [FiatRamp.Banxa]: {
+  Banxa: {
     label: 'fiatRamps.banxa',
     info: 'fiatRamps.banxaMessage',
-    logo: banxalogo,
+    logo: banxaLogo,
     isImplemented: true,
     minimumSellThreshold: 50,
+    supportsBuy: true,
+    supportsSell: true,
     getBuyAndSellList: async () => {
       const buyAssets = getBanxaAssets()
       /**
@@ -69,6 +76,25 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: (action: FiatRampAction, asset: string, address: string) => {
       const banxaCheckoutUrl = createBanxaUrl(action, asset, address)
       window.open(banxaCheckoutUrl, '_blank')?.focus()
+    },
+  },
+  CoinbasePay: {
+    label: 'fiatRamps.coinbasePay',
+    info: 'fiatRamps.coinbasePayMessage',
+    logo: coinbaseLogo,
+    isImplemented: true,
+    supportsBuy: true,
+    supportsSell: false,
+    getBuyAndSellList: async () => {
+      const buyAssets = await getCoinbasePayAssets()
+      return [buyAssets, []]
+    },
+    onSubmit: (_, asset: string, address: string) => {
+      const coinbaseProUrl = generateOnRampURL({
+        appId: getConfig().REACT_APP_COINBASE_PAY_APP_ID,
+        destinationWallets: [{ address, assets: [asset] }],
+      })
+      window.open(coinbaseProUrl, '_blank')?.focus()
     },
   },
 }

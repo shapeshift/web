@@ -22,6 +22,8 @@ const validators = {
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_WALLET_MIGRATION_URL: url(),
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),
+  REACT_APP_COINBASE_SUPPORTED_COINS: url(),
+  REACT_APP_COINBASE_PAY_APP_ID: str({ devDefault: '1dbd2a0b94' }), // Default is coinbase Testing App.
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
   REACT_APP_GEM_WYRE_SUPPORTED_COINS: url(),
   REACT_APP_GEM_ASSET_LOGO: url(),

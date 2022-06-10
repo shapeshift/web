@@ -7,7 +7,7 @@ import { getERC20Allowance } from '../utils/helpers/helpers'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function ZrxApprovalNeeded(
-  { adapterManager, web3 }: ZrxSwapperDeps,
+  { adapter, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApprovalNeededInput<'eip155:1'>
 ): Promise<ApprovalNeededOutput> {
   const { sellAsset } = quote
@@ -29,7 +29,6 @@ export async function ZrxApprovalNeeded(
 
     const accountNumber = quote.sellAssetAccountNumber
 
-    const adapter = await adapterManager.byChainId(sellAsset.chainId)
     const bip44Params = adapter.buildBIP44Params({ accountNumber })
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 

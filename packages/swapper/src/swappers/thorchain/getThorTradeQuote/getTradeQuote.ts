@@ -1,9 +1,7 @@
-import { fromAssetId, getFeeAssetIdFromAssetId, toChainId } from '@shapeshiftoss/caip'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { ChainId, fromAssetId, getFeeAssetIdFromAssetId, toChainId } from '@shapeshiftoss/caip'
 
 import { GetTradeQuoteInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
-import { fromBaseUnit } from '../../utils/bignumber'
-import { bnOrZero } from '../../utils/bignumber'
+import { bnOrZero, fromBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { ThorchainSwapperDeps } from '../types'
@@ -18,7 +16,7 @@ export const getThorTradeQuote = async ({
 }: {
   deps: ThorchainSwapperDeps
   input: GetTradeQuoteInput
-}): Promise<TradeQuote<SupportedChainIds>> => {
+}): Promise<TradeQuote<ChainId>> => {
   const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, wallet } = input
 
   if (!wallet)
@@ -35,7 +33,13 @@ export const getThorTradeQuote = async ({
 
     const isErc20Trade = sellAssetErc20Address.startsWith('0x')
     const sellAssetChainId = toChainId({ chainReference, chainNamespace })
-    const adapter = deps.adapterManager.byChainId(sellAssetChainId)
+    const adapter = deps.adapterManager.get(sellAssetChainId)
+    if (!adapter)
+      throw new SwapError(`[getThorTxInfo] - No chain adapter found for ${sellAssetChainId}.`, {
+        code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+        details: { sellAssetChainId }
+      })
+
     const bip44Params = adapter.buildBIP44Params({ accountNumber: Number(sellAssetAccountNumber) })
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 

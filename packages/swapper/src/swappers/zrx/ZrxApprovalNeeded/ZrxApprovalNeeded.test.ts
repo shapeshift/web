@@ -27,8 +27,7 @@ Web3.mockImplementation(() => ({
 }))
 
 describe('ZrxApprovalNeeded', () => {
-  const { web3Instance: web3, adapterManager } = setupZrxDeps()
-  const args = { web3, adapterManager }
+  const deps = setupZrxDeps()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
@@ -42,7 +41,7 @@ describe('ZrxApprovalNeeded', () => {
       wallet
     }
 
-    expect(await ZrxApprovalNeeded(args, input)).toEqual({ approvalNeeded: false })
+    expect(await ZrxApprovalNeeded(deps, input)).toEqual({ approvalNeeded: false })
   })
 
   it('throws an error if sellAsset chain is not ETH', async () => {
@@ -51,7 +50,7 @@ describe('ZrxApprovalNeeded', () => {
       wallet
     }
 
-    await expect(ZrxApprovalNeeded(args, input)).rejects.toThrow('[ZrxApprovalNeeded]')
+    await expect(ZrxApprovalNeeded(deps, input)).rejects.toThrow('[ZrxApprovalNeeded]')
   })
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
@@ -65,7 +64,7 @@ describe('ZrxApprovalNeeded', () => {
       },
       wallet
     }
-    ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(deps.web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
       methods: {
         allowance: jest.fn(() => ({
           call: jest.fn(() => allowanceOnChain)
@@ -74,7 +73,7 @@ describe('ZrxApprovalNeeded', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await ZrxApprovalNeeded(args, input)).toEqual({
+    expect(await ZrxApprovalNeeded(deps, input)).toEqual({
       approvalNeeded: false
     })
   })
@@ -90,7 +89,7 @@ describe('ZrxApprovalNeeded', () => {
       },
       wallet
     }
-    ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(deps.web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
       methods: {
         allowance: jest.fn(() => ({
           call: jest.fn(() => allowanceOnChain)
@@ -99,7 +98,7 @@ describe('ZrxApprovalNeeded', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await ZrxApprovalNeeded(args, input)).toEqual({
+    expect(await ZrxApprovalNeeded(deps, input)).toEqual({
       approvalNeeded: true
     })
   })

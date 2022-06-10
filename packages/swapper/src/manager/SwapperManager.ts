@@ -1,9 +1,10 @@
+import { ChainId } from '@shapeshiftoss/caip'
 import uniq from 'lodash/uniq'
 
 import { BuyAssetBySellIdInput, ByPairInput, SupportedSellAssetsInput, Swapper } from '..'
 import { SwapError, SwapErrorTypes, SwapperType } from '../api'
 
-function validateSwapper(swapper: Swapper) {
+function validateSwapper(swapper: Swapper<ChainId>) {
   if (!(typeof swapper === 'object' && typeof swapper.getType === 'function'))
     throw new SwapError('[validateSwapper] - invalid swapper instance', {
       code: SwapErrorTypes.MANAGER_ERROR
@@ -12,10 +13,10 @@ function validateSwapper(swapper: Swapper) {
 
 // TODO: remove me
 export class SwapperManager {
-  public swappers: Map<SwapperType, Swapper>
+  public swappers: Map<SwapperType, Swapper<ChainId>>
 
   constructor() {
-    this.swappers = new Map<SwapperType, Swapper>()
+    this.swappers = new Map<SwapperType, Swapper<ChainId>>()
   }
 
   /**
@@ -24,7 +25,7 @@ export class SwapperManager {
    * @param swapperInstance swapper instance {Swapper}
    * @returns {SwapperManager}
    */
-  addSwapper(swapperType: SwapperType, swapperInstance: Swapper): this {
+  addSwapper(swapperType: SwapperType, swapperInstance: Swapper<ChainId>): this {
     const swapper = this.swappers.get(swapperType)
     if (swapper)
       throw new SwapError('[addSwapper] - swapper already exists', {
@@ -42,7 +43,7 @@ export class SwapperManager {
    * @returns {Swapper}
    * @deprecated this will be removed, currently used in swapper tests
    */
-  getSwapper(swapperType: SwapperType): Swapper {
+  getSwapper(swapperType: SwapperType): Swapper<ChainId> {
     const swapper = this.swappers.get(swapperType)
     if (!swapper)
       throw new SwapError('[getSwapper] - swapperType doesnt exist', {
@@ -68,7 +69,7 @@ export class SwapperManager {
     return this
   }
 
-  async getBestSwapper(args: ByPairInput): Promise<Swapper | undefined> {
+  async getBestSwapper(args: ByPairInput): Promise<Swapper<ChainId> | undefined> {
     // TODO: This will eventually have logic to determine the best swapper.
     // For now we return the first swapper we get from getSwappersByPair
     return this.getSwappersByPair(args)[0]
@@ -79,17 +80,17 @@ export class SwapperManager {
    * @param pair type {GetQuoteInput}
    * @returns {SwapperType}
    */
-  getSwappersByPair(pair: ByPairInput): Swapper[] {
+  getSwappersByPair(pair: ByPairInput): Swapper<ChainId>[] {
     const { sellAssetId, buyAssetId } = pair
     return Array.from(this.swappers.values()).filter(
-      (swapper: Swapper) =>
+      (swapper: Swapper<ChainId>) =>
         swapper.filterBuyAssetsBySellAssetId({ sellAssetId, assetIds: [buyAssetId] }).length
     )
   }
 
   getSupportedBuyAssetIdsFromSellId(args: BuyAssetBySellIdInput) {
     return uniq(
-      Array.from(this.swappers.values()).flatMap((swapper: Swapper) =>
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
         swapper.filterBuyAssetsBySellAssetId(args)
       )
     )
@@ -99,7 +100,7 @@ export class SwapperManager {
     const { assetIds } = args
 
     return uniq(
-      Array.from(this.swappers.values()).flatMap((swapper: Swapper) =>
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
         swapper.filterAssetIdsBySellable(assetIds)
       )
     )

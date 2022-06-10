@@ -1,6 +1,6 @@
 import { AssetReference } from '@shapeshiftoss/caip'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { ChainAdapterManager, ethereum } from '@shapeshiftoss/chain-adapters'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 
 import { QuoteFeeData, SwapError, SwapErrorTypes } from '../../../../../api'
 import { bnOrZero } from '../../../../utils/bignumber'
@@ -28,7 +28,18 @@ export const getEthTxFees = async ({
   receiveAddress: string
 }): Promise<QuoteFeeData<'eip155:1'>> => {
   try {
-    const adapter = adapterManager.byChainId('eip155:1')
+    const adapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
+      | ethereum.ChainAdapter
+      | undefined
+    if (!adapter)
+      throw new SwapError(
+        `[getThorTxInfo] - No chain adapter found for ${KnownChainIds.EthereumMainnet}.`,
+        {
+          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+          details: { chainId: KnownChainIds.EthereumMainnet }
+        }
+      )
+
     // TODO(ryankk): add falling back on hard coded gas Limit * new chain adapter method if it fails
     const feeDataOptions = await adapter.getFeeData({
       to: router,
@@ -36,7 +47,7 @@ export const getEthTxFees = async ({
       chainSpecific: { from: receiveAddress, contractData: data }
     })
 
-    const feeData = feeDataOptions['fast'] as chainAdapters.FeeData<ChainTypes.Ethereum>
+    const feeData = feeDataOptions['fast']
     const tradeFee = await estimateTradeFee(deps, buyAsset.assetId)
 
     return {

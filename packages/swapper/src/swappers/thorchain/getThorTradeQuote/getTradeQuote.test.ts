@@ -1,3 +1,4 @@
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { TradeQuote } from '../../../api'
@@ -37,13 +38,16 @@ const quoteResponse: TradeQuote<'eip155:1'> = {
   sellAssetAccountNumber: 0
 }
 
-const adapterManager = {
-  byChainId: jest.fn(() => ({
-    buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
-    getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
-    getFeeData: jest.fn(() => feeData)
-  }))
-}
+const adapterManager = new Map([
+  [
+    'eip155:1',
+    {
+      buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
+      getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
+      getFeeData: jest.fn(() => feeData)
+    } as unknown as ChainAdapter<'eip155:1'>
+  ]
+])
 
 describe('getTradeQuote', () => {
   const { quoteInput } = setupQuote()

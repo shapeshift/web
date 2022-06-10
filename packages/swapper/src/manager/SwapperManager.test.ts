@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterManager, ethereum } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
 import { SwapperType } from '../api'
@@ -11,7 +11,7 @@ import { SwapperManager } from './SwapperManager'
 describe('SwapperManager', () => {
   const zrxSwapperDeps: ZrxSwapperDeps = {
     web3: <Web3>{},
-    adapterManager: <ChainAdapterManager>{}
+    adapter: <ethereum.ChainAdapter>{}
   }
   const cowSwapperDeps: CowSwapperDeps = {
     apiUrl: 'https://api.cow.fi/mainnet/api/'

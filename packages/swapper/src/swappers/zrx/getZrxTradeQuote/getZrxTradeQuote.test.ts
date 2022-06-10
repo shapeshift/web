@@ -1,4 +1,4 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
 import { ZrxSwapper } from '../..'
@@ -19,7 +19,7 @@ describe('getZrxTradeQuote', () => {
   ;(normalizeAmount as jest.Mock<unknown>).mockReturnValue(sellAmount)
   const zrxSwapperDeps = {
     web3: <Web3>{},
-    adapterManager: <ChainAdapterManager>{}
+    adapter: <ethereum.ChainAdapter>{}
   }
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()

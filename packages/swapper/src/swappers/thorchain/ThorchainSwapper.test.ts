@@ -3,6 +3,7 @@ import axios from 'axios'
 
 import { ThorchainSwapper } from './ThorchainSwapper'
 import { thorService } from './utils/thorService'
+
 jest.mock('./utils/thorService')
 
 const mockedAxios = thorService as jest.Mocked<typeof axios>

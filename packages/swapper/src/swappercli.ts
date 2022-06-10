@@ -1,7 +1,7 @@
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { ChainTypes } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import dotenv from 'dotenv'
 import readline from 'readline-sync'
@@ -9,8 +9,8 @@ import Web3 from 'web3'
 
 import { SwapperType } from './api'
 import { SwapperManager } from './manager/SwapperManager'
-import { ThorchainSwapper } from './swappers/thorchain/ThorchainSwapper'
 import { ZrxSwapper } from './swappers/zrx/ZrxSwapper'
+
 dotenv.config()
 
 const {
@@ -76,28 +76,26 @@ const main = async (): Promise<void> => {
 
   // Swapper Deps
   const wallet = await getWallet()
-  const unchainedUrls = {
-    [ChainTypes.Ethereum]: {
-      httpUrl: UNCHAINED_HTTP_API,
-      wsUrl: UNCHAINED_WS_API
-    }
-  }
-  const adapterManager = new ChainAdapterManager(unchainedUrls)
+
+  const ethChainAdapter = new ethereum.ChainAdapter({
+    providers: {
+      ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(UNCHAINED_WS_API),
+      http: new unchained.ethereum.V1Api(
+        new unchained.ethereum.Configuration({
+          basePath: UNCHAINED_HTTP_API
+        })
+      )
+    },
+    rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57'
+  })
+
   const web3Provider = new Web3.providers.HttpProvider(ETH_NODE_URL)
   const web3 = new Web3(web3Provider)
-
-  const zrxSwapperDeps = { wallet, adapterManager, web3 }
-  const thorchainSwapperDeps = {
-    midgardUrl: 'https://midgard.thorchain.info/v2',
-    adapterManager
-  }
+  const zrxSwapperDeps = { wallet, adapter: ethChainAdapter, web3 }
 
   const manager = new SwapperManager()
   const zrxSwapper = new ZrxSwapper(zrxSwapperDeps)
-  const thorchainSwapper = new ThorchainSwapper(thorchainSwapperDeps)
-  await thorchainSwapper.initialize()
   manager.addSwapper(SwapperType.Zrx, zrxSwapper)
-  manager.addSwapper(SwapperType.Thorchain, thorchainSwapper)
   const swapper = await manager.getBestSwapper({
     sellAssetId: 'eip155:1/slip44:60',
     buyAssetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'

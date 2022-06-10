@@ -1,6 +1,6 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import Web3 from 'web3'
 
 import { BuildTradeInput } from '../../../api'
@@ -9,6 +9,7 @@ import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
 import { zrxBuildTrade } from './zrxBuildTrade'
+
 jest.mock('web3')
 
 jest.mock('axios', () => {
@@ -39,30 +40,33 @@ Web3.mockImplementation(() => ({
 }))
 
 const setup = () => {
-  const unchainedUrls = {
-    [ChainTypes.Ethereum]: {
-      httpUrl: 'http://localhost:31300',
-      wsUrl: 'ws://localhost:31300',
-      rpcUrl: 'http://localhost:1000'
-    }
-  }
   const ethNodeUrl = 'http://localhost:1000'
-  const adapterManager = new ChainAdapterManager(unchainedUrls)
   const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)
   const web3Instance = new Web3(web3Provider)
+  const adapter = new ethereum.ChainAdapter({
+    providers: {
+      ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>('ws://localhost:31300'),
+      http: new unchained.ethereum.V1Api(
+        new unchained.ethereum.Configuration({
+          basePath: 'http://localhost:31300'
+        })
+      )
+    },
+    rpcUrl: ethNodeUrl
+  })
 
-  return { web3Instance, adapterManager }
+  return { web3Instance, adapter }
 }
 
 describe('ZrxBuildTrade', () => {
   const { quoteResponse, sellAsset, buyAsset } = setupZrxTradeQuoteResponse()
-  const { web3Instance, adapterManager } = setup()
+  const { web3Instance, adapter } = setup()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
   } as unknown as HDWallet
   const deps = {
-    adapterManager,
+    adapter,
     web3: web3Instance
   }
 

@@ -1,12 +1,10 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { SupportedChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
 import { BuildTradeInput, SwapError, SwapErrorTypes, ZrxTrade } from '../../..'
 import { bnOrZero } from '../../utils/bignumber'
-import { DEFAULT_SLIPPAGE } from '../../utils/constants'
-import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
+import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { ZrxQuoteResponse } from '../types'
 import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
@@ -17,9 +15,9 @@ import { zrxService } from '../utils/zrxService'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function zrxBuildTrade(
-  { adapterManager, web3 }: ZrxSwapperDeps,
+  { adapter, web3 }: ZrxSwapperDeps,
   input: BuildTradeInput
-): Promise<ZrxTrade<SupportedChainIds>> {
+): Promise<ZrxTrade> {
   const {
     sellAsset,
     buyAsset,
@@ -45,8 +43,7 @@ export async function zrxBuildTrade(
       })
     }
 
-    const adapter = await adapterManager.byChainId(buyAsset.chainId)
-    const bip44Params = adapter.buildBIP44Params({ accountNumber: buyAssetAccountNumber })
+    const bip44Params = adapter.buildBIP44Params({ accountNumber: Number(buyAssetAccountNumber) })
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 
     const slippagePercentage = slippage ? bnOrZero(slippage).div(100).toString() : DEFAULT_SLIPPAGE
@@ -94,7 +91,7 @@ export async function zrxBuildTrade(
 
     const estimatedGas = bnOrZero(data.gas || 0)
 
-    const trade: ZrxTrade<'eip155:1'> = {
+    const trade: ZrxTrade = {
       sellAsset,
       buyAsset,
       sellAssetAccountNumber,

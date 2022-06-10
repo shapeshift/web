@@ -1,6 +1,6 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
+import { Asset } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import {
@@ -27,11 +27,11 @@ import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
 export type ZrxSwapperDeps = {
-  adapterManager: ChainAdapterManager
+  adapter: ethereum.ChainAdapter
   web3: Web3
 }
 
-export class ZrxSwapper implements Swapper {
+export class ZrxSwapper implements Swapper<'eip155:1'> {
   public static swapperName = 'ZrxSwapper'
   deps: ZrxSwapperDeps
 
@@ -47,11 +47,11 @@ export class ZrxSwapper implements Swapper {
     return SwapperType.Zrx
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<ZrxTrade<SupportedChainIds>> {
+  async buildTrade(args: BuildTradeInput): Promise<ZrxTrade> {
     return zrxBuildTrade(this.deps, args)
   }
 
-  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<SupportedChainIds>> {
+  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<'eip155:1'>> {
     return getZrxTradeQuote(input)
   }
 
@@ -67,7 +67,7 @@ export class ZrxSwapper implements Swapper {
     return ZrxApprovalNeeded(this.deps, args)
   }
 
-  async approveInfinite(args: ApproveInfiniteInput<SupportedChainIds>): Promise<string> {
+  async approveInfinite(args: ApproveInfiniteInput<'eip155:1'>): Promise<string> {
     return ZrxApproveInfinite(this.deps, args)
   }
 

@@ -1,8 +1,9 @@
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { ZrxSwapperDeps } from 'packages/swapper/src/swappers/zrx/ZrxSwapper'
 
 import { ExecuteTradeInput, ZrxTrade } from '../../../api'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
-import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { zrxExecuteTrade } from './zrxExecuteTrade'
 
 describe('ZrxExecuteTrade', () => {
@@ -11,18 +12,18 @@ describe('ZrxExecuteTrade', () => {
   let wallet = {
     supportsOfflineSigning: jest.fn(() => true)
   } as unknown as HDWallet
-  const adapterManager = {
-    byChainId: jest.fn(() => ({
-      buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
-      buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
-      signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
-      broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
-      signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid))
-    }))
-  }
-  const deps = { adapterManager } as unknown as ZrxSwapperDeps
 
-  const trade: ZrxTrade<'eip155:1'> = {
+  const adapter = {
+    buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
+    buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
+    signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
+    broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
+    signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid))
+  } as unknown as ChainAdapter<'eip155:1'>
+
+  const deps = { adapter } as unknown as ZrxSwapperDeps
+
+  const trade: ZrxTrade = {
     buyAsset,
     sellAsset,
     sellAmount: '1',

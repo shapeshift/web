@@ -32,7 +32,7 @@ Web3.mockImplementation(() => ({
 
 describe('utils', () => {
   const { tradeQuote, sellAsset } = setupQuote()
-  const { web3Instance, adapterManager } = setupZrxDeps()
+  const { web3, adapter } = setupZrxDeps()
 
   describe('getUsdRate', () => {
     it('getUsdRate gets the usd rate of the symbol', async () => {
@@ -58,7 +58,7 @@ describe('utils', () => {
   describe('getAllowanceRequired', () => {
     const getAllowanceInput = {
       receiveAddress: '0x0',
-      web3: web3Instance,
+      web3,
       erc20AllowanceAbi,
       allowanceContract: '0x0',
       sellAmount: '100',
@@ -76,7 +76,7 @@ describe('utils', () => {
 
     it('should return sellAmount if allowanceOnChain is 0', async () => {
       const allowanceOnChain = '0'
-      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
             call: jest.fn(() => allowanceOnChain)
@@ -91,7 +91,7 @@ describe('utils', () => {
 
     it('should throw error if allowanceOnChain is undefined', async () => {
       const allowanceOnChain = undefined
-      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
             call: jest.fn(() => allowanceOnChain)
@@ -107,7 +107,7 @@ describe('utils', () => {
     it('should return 0 if sellAmount minus allowanceOnChain is negative', async () => {
       const allowanceOnChain = '1000'
 
-      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
             call: jest.fn(() => allowanceOnChain)
@@ -121,7 +121,7 @@ describe('utils', () => {
     it('should return sellAsset minus allowanceOnChain', async () => {
       const allowanceOnChain = '100'
 
-      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
             call: jest.fn(() => allowanceOnChain)
@@ -146,7 +146,7 @@ describe('utils', () => {
       const quote = {
         ...tradeQuote
       }
-      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           approve: jest.fn(() => ({
             encodeABI: jest.fn(
@@ -155,10 +155,11 @@ describe('utils', () => {
           }))
         }
       }))
-
-      expect(
-        await grantAllowance({ quote, wallet, adapterManager, erc20Abi, web3: web3Instance })
-      ).toEqual('broadcastedTx')
+      ;(adapter.buildSendTransaction as jest.Mock).mockResolvedValueOnce({ txToSign: {} })
+      ;(adapter.broadcastTransaction as jest.Mock).mockResolvedValueOnce('broadcastedTx')
+      expect(await grantAllowance({ quote, wallet, adapter, erc20Abi, web3 })).toEqual(
+        'broadcastedTx'
+      )
     })
   })
 })

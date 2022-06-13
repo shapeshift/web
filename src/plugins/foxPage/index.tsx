@@ -9,7 +9,6 @@ export function register(): Plugins {
       'foxPage',
       {
         name: 'foxPage',
-        featureFlag: 'FoxPage',
         icon: <FoxIcon />,
         routes: [
           {

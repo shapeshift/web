@@ -5,9 +5,6 @@ import { simpleLocale } from 'lib/browserLocale'
 
 export type FeatureFlags = {
   Osmosis: boolean
-  FoxPage: boolean
-  KeplrWallet: boolean
-  TallyHoWallet: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -22,9 +19,6 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
-    KeplrWallet: getConfig().REACT_APP_FEATURE_KEPLR_WALLET,
-    TallyHoWallet: getConfig().REACT_APP_FEATURE_TALLYHO_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

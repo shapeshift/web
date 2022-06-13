@@ -3840,7 +3840,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.21.1", "@shapeshiftoss/hdwallet-core@1.23.0", "@shapeshiftoss/hdwallet-core@^1.23.0", "@shapeshiftoss/hdwallet-core@latest":
+"@shapeshiftoss/hdwallet-core@1.21.1", "@shapeshiftoss/hdwallet-core@1.22.0", "@shapeshiftoss/hdwallet-core@1.23.0", "@shapeshiftoss/hdwallet-core@^1.23.0", "@shapeshiftoss/hdwallet-core@latest":
   version "1.23.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.23.0.tgz#8e7552b684d9c4600381cf3131c9d304df4b169a"
   integrity sha512-CP0ysBeyRMtjx1OTSj+EmuhYWeh3YGxrbobj7HZDYYl8kHyUseJTTQ3s42ezS1AfXkDf/YidKDxa7p6+v7/0sw==
@@ -17926,6 +17926,19 @@ qr-image@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/qr-image/-/qr-image-3.2.0.tgz#9fa8295beae50c4a149cf9f909a1db464a8672e8"
   integrity sha1-n6gpW+rlDEoUnPn5CaHbRkqGcug=
+
+qrcode@1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.4.4.tgz#f0c43568a7e7510a55efc3b88d9602f71963ea83"
+  integrity sha512-oLzEC5+NKFou9P0bMj5+v6Z40evexeE29Z9cummZXZ9QXyMr3lphkURzxjXgPJC5azpxcshoDWV1xE46z+/c3Q==
+  dependencies:
+    buffer "^5.4.3"
+    buffer-alloc "^1.2.0"
+    buffer-from "^1.1.1"
+    dijkstrajs "^1.0.1"
+    isarray "^2.0.1"
+    pngjs "^3.3.0"
+    yargs "^13.2.4"
 
 qs@6.10.3:
   version "6.10.3"

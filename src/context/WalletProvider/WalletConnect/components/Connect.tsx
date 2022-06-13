@@ -1,4 +1,5 @@
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
+import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import React, { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -12,6 +13,7 @@ import { logger } from 'lib/logger'
 import { ConnectModal } from '../../components/ConnectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { WalletConnectConfig } from '../config'
+import { WalletNotFoundError } from '../Error'
 
 export interface WalletConnectSetupProps
   extends RouteComponentProps<
@@ -25,6 +27,12 @@ export interface WalletConnectSetupProps
 const moduleLogger = logger.child({
   namespace: ['WalletConnect', 'Components', 'Connect'],
 })
+
+type WalletConnectProviderConfig =
+  | {
+      infuraId: string
+    }
+  | { rpc: { [key: number]: string } }
 
 /**
  * WalletConnect Connect component
@@ -43,27 +51,32 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
   }
 
   const pairDevice = async () => {
-    setError(null)
-    setLoading(true)
+    try {
+      setLoading(true)
 
-    const rpcUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
-    const config = {
-      rpc: {
-        1: rpcUrl,
-      },
-    }
-
-    if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
-      const wallet = (await state.adapters
-        .get(KeyManager.WalletConnect)
-        ?.pairDevice(config)) as WalletConnectHDWallet
-      if (!wallet) {
-        setErrorLoading(translate('walletProvider.errors.walletNotFound'))
-        throw new Error('Call to hdwallet-walletconnect::pairDevice returned null or undefined')
+      const rpcUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
+      const config: WalletConnectProviderConfig = {
+        rpc: {
+          1: rpcUrl,
+        },
       }
 
-      const { name, icon } = WalletConnectConfig
-      try {
+      const provider = new WalletConnectProvider(config)
+      provider.connector.on('disconnect', () => {
+        // Handle WalletConnect session rejection
+        history.push('/walletconnect/failure')
+      })
+
+      if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
+        const wallet = (await state.adapters
+          .get(KeyManager.WalletConnect)
+          ?.pairDevice(provider)) as WalletConnectHDWallet
+
+        if (!wallet) {
+          throw new WalletNotFoundError()
+        }
+
+        const { name, icon } = WalletConnectConfig
         const deviceId = await wallet.getDeviceID()
 
         dispatch({
@@ -73,23 +86,19 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.WalletConnect, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-      } catch (e: unknown) {
-        if (e instanceof Error) {
-          if (e?.message?.startsWith('walletProvider.')) {
-            moduleLogger.error(
-              e,
-              { fn: 'pairDevice' },
-              'WalletConnect Connect: There was an error initializing the wallet',
-            )
-            setErrorLoading(e?.message)
-          } else {
-            setErrorLoading(translate('walletProvider.walletConnect.errors.unknown'))
-            history.push('/walletconnect/failure')
-          }
-        }
+      }
+    } catch (e: unknown) {
+      if (e instanceof WalletNotFoundError) {
+        moduleLogger.error(
+          e,
+          { fn: 'pairDevice' },
+          'WalletConnect Connect: There was an error initializing the wallet',
+        )
+        setErrorLoading(translate(e.message))
+      } else {
+        history.push('/walletconnect/failure')
       }
     }
-    setLoading(false)
   }
 
   // The WalletConnect modal handles desktop and mobile detection as well as deep linking

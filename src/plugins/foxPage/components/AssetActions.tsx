@@ -106,11 +106,14 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
           <TabPanels>
             <TabPanel textAlign='center' p={6}>
               <Box mb={6}>
-                <AssetIcon src={coinbasePayFeatureFlag ? coinbaseLogo : asset.icon} boxSize='16' />
+                <AssetIcon
+                  src={coinbasePayFeatureFlag && isFoxAsset ? coinbaseLogo : asset.icon}
+                  boxSize='16'
+                />
               </Box>
               <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
                 <CText color='gray.500' mb={6}>
-                  {coinbasePayFeatureFlag
+                  {coinbasePayFeatureFlag && isFoxAsset
                     ? translate('plugins.foxPage.purchaseFox')
                     : trimmedDescription}
                 </CText>

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v5.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v5.0.1...@shapeshiftoss/asset-service-v5.0.2) (2022-06-13)
+
+
+### Bug Fixes
+
+* **assetService:** build fix ([#789](https://github.com/shapeshift/lib/issues/789)) ([8a90d56](https://github.com/shapeshift/lib/commit/8a90d56f5273f6e78fac09f3f54cf4e69e06afa2))
+
 # [@shapeshiftoss/asset-service-v5.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v5.0.0...@shapeshiftoss/asset-service-v5.0.1) (2022-06-10)
 
 

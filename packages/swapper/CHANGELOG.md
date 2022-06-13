@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.1.0...@shapeshiftoss/swapper-v7.2.0) (2022-06-13)
+
+
+### Features
+
+* cowswap approval needed approve infinite ([#771](https://github.com/shapeshift/lib/issues/771)) ([9cf3700](https://github.com/shapeshift/lib/commit/9cf3700e8fa4abe139df0d94c106c1266fd076f1))
+
 # [@shapeshiftoss/swapper-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.0.0...@shapeshiftoss/swapper-v7.1.0) (2022-06-10)
 
 

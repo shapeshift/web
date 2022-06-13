@@ -74,7 +74,7 @@ export const MainOpportunity = ({
               {balance}
             </CText>
           </Box>
-          <Skeleton isLoaded={isFoxyBalancesLoading === false}>
+          <Skeleton isLoaded={!isFoxyBalancesLoading}>
             <Box alignSelf='center'>
               <Button onClick={onClick} colorScheme={'blue'}>
                 <CText>

@@ -1,3 +1,19 @@
+# [@shapeshiftoss/asset-service-v6.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v5.0.2...@shapeshiftoss/asset-service-v6.0.0) (2022-06-13)
+
+
+### Features
+
+* **asset-service:** handle removal of ChainTypes, NetworkTypes, & AssetDataSource ([#793](https://github.com/shapeshift/lib/issues/793)) ([94f7449](https://github.com/shapeshift/lib/commit/94f74495b8d3b082517c10c60288f8fa1e411daf))
+
+
+### BREAKING CHANGES
+
+* **asset-service:** removes useages of ChainTypes, NetworkTypes, and AssetDataSource
+
+* chore: simplify chainIdToCoingeckoAssetPlatform and fix logic
+
+* chore: use CoingeckoAssetPlatform from types package
+
 # [@shapeshiftoss/asset-service-v5.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v5.0.1...@shapeshiftoss/asset-service-v5.0.2) (2022-06-13)
 
 

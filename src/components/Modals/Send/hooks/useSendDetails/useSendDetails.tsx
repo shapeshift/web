@@ -52,7 +52,6 @@ const moduleLogger = logger.child({
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.CryptoAmount)
   const [loading, setLoading] = useState<boolean>(false)
-  const [curInput, setCurInput] = useState<string>('')
   const history = useHistory()
   const { getValues, setValue } = useFormContext<SendInput>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({
@@ -153,7 +152,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-        const bitcoinChainAdapter = await chainAdapterManager.byChainId(btcChainId)
+        const bitcoinChainAdapter = chainAdapterManager.byChainId(btcChainId)
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
@@ -179,14 +178,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [])
 
   const handleNextClick = async () => {
-    try {
-      setLoading(true)
-      history.push(SendRoutes.Confirm)
-    } catch (e) {
-      moduleLogger.error(e, 'This should never happen')
-    } finally {
-      setLoading(true)
-    }
+    history.push(SendRoutes.Confirm)
   }
 
   const handleSendMax = async () => {
@@ -343,9 +335,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const inputHandler = useCallback(
     async (inputValue: string) => {
-      setLoading(true)
-      const prevInput = curInput
-      setCurInput(inputValue)
       setValue(SendFormFields.SendMax, false)
 
       const key =
@@ -353,59 +342,77 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           ? SendFormFields.FiatAmount
           : SendFormFields.CryptoAmount
 
-      if (inputValue === '') {
-        // Cancel any pending requests
-        debouncedEstimateFormFees.cancel()
-        // Don't show an error message when the input is empty
-        setValue(SendFormFields.AmountFieldError, '')
-        setLoading(false)
-        // Set value of the other input to an empty string as well
-        setValue(key, '')
-        return
-      }
-
-      const amount =
-        fieldName === SendFormFields.FiatAmount
-          ? bnOrZero(bn(inputValue).div(price)).toString()
-          : bnOrZero(bn(inputValue).times(price)).toString()
-
-      setValue(key, amount)
-
-      let estimatedFees
-      let hasEnoughNativeTokenForGas = false
-
       try {
-        // Make API call when input goes from empty to some length > 0
-        // otherwise, debounce user input and use last call
-        if (inputValue.length && prevInput === '') {
-          estimatedFees = await estimateFormFees()
-        } else {
+        if (inputValue === '') {
+          // TODO: use isDirty instead
+          // Cancel any pending requests
+          debouncedEstimateFormFees.cancel()
+          // Don't show an error message when the input is empty
+          setValue(SendFormFields.AmountFieldError, '')
+          // Set value of the other input to an empty string as well
+          setValue(key, '') // TODO: this shouldnt be a thing, using a single amount field
+          return
+        }
+
+        const amount =
+          fieldName === SendFormFields.FiatAmount
+            ? bnOrZero(bn(inputValue).div(price)).toString()
+            : bnOrZero(bn(inputValue).times(price)).toString()
+
+        setValue(key, amount)
+
+        // TODO: turn to actual validators
+        let estimatedFees
+        let hasEnoughNativeTokenForGas = false
+        let hasValidBalance = false
+
+        try {
+          setLoading(true)
           estimatedFees = await debouncedEstimateFormFees()
+        } catch (e) {
+          throw new Error('common.insufficientFunds')
+        } finally {
+          setLoading(false)
         }
 
-        if (estimatedFees !== undefined) {
-          setValue(SendFormFields.EstimatedFees, estimatedFees)
-
-          hasEnoughNativeTokenForGas = nativeAssetBalance
-            .minus(estimatedFees.fast.txFee)
-            .isPositive()
+        if (estimatedFees === undefined) {
+          throw new Error('common.generalError')
         }
-        const values = getValues()
-        const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+
+        if (estimatedFees instanceof Error) {
+          throw estimatedFees.message
+        }
+
+        hasEnoughNativeTokenForGas = nativeAssetBalance.minus(estimatedFees.fast.txFee).isPositive()
+
+        const { cryptoAmount } = getValues()
+        hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
 
         if (!hasValidBalance) {
-          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-        } else if (!hasEnoughNativeTokenForGas) {
+          throw new Error('common.insufficientFunds')
+        }
+
+        if (!hasEnoughNativeTokenForGas) {
           setValue(SendFormFields.AmountFieldError, [
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol },
           ])
-        } else {
-          // Remove existing error messages because the send amount is valid
+          setLoading(false)
+          return
+        }
+
+        // Remove existing error messages because the send amount is valid
+        if (estimatedFees !== undefined) {
           setValue(SendFormFields.AmountFieldError, '')
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
         }
       } catch (e) {
-        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+        if (e instanceof Error) {
+          setValue(SendFormFields.AmountFieldError, e.message)
+        }
+        // setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+        // TODO: useForm::setError instead of setValue
+        // setError(SendFormFields[key], { type: 'custom', message: 'Insufficient Funds' })
       } finally {
         setLoading(false)
       }

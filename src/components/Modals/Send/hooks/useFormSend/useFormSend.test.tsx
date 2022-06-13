@@ -1,14 +1,9 @@
 import { useToast } from '@chakra-ui/react'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import {
-  AssetDataSource,
-  chainAdapters,
-  ChainTypes,
-  NetworkTypes,
-  UtxoAccountType,
-} from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
+import { ethAssetId, ethChainId } from 'test/mocks/accounts'
 import { EthSend } from 'test/mocks/txs'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -43,24 +38,19 @@ const formData: SendInput = {
   [SendFormFields.Address]: EthSend.address,
   [SendFormFields.VanityAddress]: '',
   [SendFormFields.Asset]: {
-    chainId: '',
-    assetId: '',
+    chainId: ethChainId,
+    assetId: ethAssetId,
     description: '',
     chain: ChainTypes.Ethereum,
-    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
-    slip44: 60,
     color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
-    sendSupport: true,
-    receiveSupport: true,
   },
   [SendFormFields.AmountFieldError]: '',
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
@@ -98,13 +88,13 @@ const formData: SendInput = {
   [SendFormFields.AccountId]: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
 }
 
-const formDataEnsAddres = { ...formData, [SendFormFields.Address]: 'willywonka.eth' }
+const formDataEnsAddress = { ...formData, [SendFormFields.Address]: 'willywonka.eth' }
 
 const textTxToSign = {
   addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
   value: '0x0',
   to: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
-  chainId: 1,
+  chainId: ethChainId,
   data: '0xa9059cbb000000000000000000000000f293f9e575aec02d3da5952b5fd95353c53a134e0000000000000000000000000000000000000000000000000000000000000000',
   nonce: '136',
   gasPrice: '0x1b3dbe5200',
@@ -197,7 +187,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddres)
+    await result.current.handleSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -268,7 +258,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddres)
+    await result.current.handleSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()

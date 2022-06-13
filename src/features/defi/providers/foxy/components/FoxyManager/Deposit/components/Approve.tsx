@@ -29,10 +29,10 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   const translate = useTranslate()
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, tokenId } = query
+  const { chainId, contractAddress, assetReference } = query
   const alertText = useColorModeValue('blue.800', 'white')
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -49,11 +49,11 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
   if (!state || !dispatch) return null
 
   const handleApprove = async () => {
-    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    if (!assetReference || !state.userAddress || !walletState.wallet) return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       await api.approve({
-        tokenContractAddress: tokenId,
+        tokenContractAddress: assetReference,
         contractAddress,
         userAddress: state.userAddress,
         wallet: walletState.wallet,
@@ -61,7 +61,7 @@ export const Approve = ({ api, getDepositGasEstimate }: FoxyApproveProps) => {
       await poll({
         fn: () =>
           api.allowance({
-            tokenContractAddress: tokenId,
+            tokenContractAddress: assetReference,
             contractAddress,
             userAddress: state.userAddress!,
           }),

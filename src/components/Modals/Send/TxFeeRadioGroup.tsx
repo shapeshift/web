@@ -1,4 +1,5 @@
 import { Box, Button, ButtonGroup, Radio, Spinner, useColorModeValue } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
@@ -86,6 +87,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
         const current = fees[key]
         const color = getFeeColor(key)
         const translation = getFeeTranslation(key)
+        const { assetReference } = fromAssetId(asset.assetId)
 
         return (
           <Button
@@ -114,7 +116,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
               fontSize='sm'
               fontWeight='normal'
               maximumFractionDigits={6}
-              symbol={asset.tokenId ? 'ETH' : asset.symbol}
+              symbol={assetReference ? 'ETH' : asset.symbol}
               value={current.txFee}
             />
             <Amount.Fiat

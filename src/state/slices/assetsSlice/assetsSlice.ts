@@ -11,10 +11,7 @@ let service: AssetService | undefined = undefined
 // or directly from the store outside react components
 const getAssetService = async () => {
   if (!service) {
-    service = new AssetService('')
-  }
-  if (!service?.isInitialized) {
-    await service.initialize()
+    service = new AssetService()
   }
 
   return service
@@ -58,13 +55,11 @@ export const assetApi = createApi({
       queryFn: async () => {
         // @ts-ignore
         const service = await getAssetService()
-        const assetArray = service?.byNetwork()
-        const data = assetArray.reduce<AssetsState>((acc, cur) => {
-          const { assetId } = cur
-          acc.byId[assetId] = cur
-          acc.ids.push(assetId)
-          return acc
-        }, cloneDeep(initialState))
+        const assetArray = service?.getAll()
+        const data = {
+          byId: assetArray ?? {},
+          ids: Object.keys(assetArray) ?? [],
+        }
         return { data }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
@@ -80,7 +75,7 @@ export const assetApi = createApi({
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)
         try {
-          const { description, isTrusted } = await service.description({ asset: byId[assetId] })
+          const { description, isTrusted } = await service.description(assetId)
           byId[assetId].description = description
           byId[assetId].isTrustedDescription = isTrusted
           const data = { byId, ids }

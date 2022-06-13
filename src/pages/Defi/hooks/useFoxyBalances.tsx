@@ -104,7 +104,7 @@ async function getFoxyOpportunities(
 }
 
 export function useFoxyBalances(): UseFoxyBalancesReturn {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [opportunities, setOpportunities] = useState<Record<string, FoxyOpportunity>>({})
   const marketData = useSelector(selectMarketData)
   const assets = useSelector(selectAssets)
@@ -123,9 +123,11 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
   const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
 
   useEffect(() => {
-    if (!wallet || !supportsEthereumChain || !foxy || !foxyApr) return
+    if (!wallet || !supportsEthereumChain || !foxy || !foxyApr) {
+      setLoading(false)
+      return
+    }
     ;(async () => {
-      setLoading(true)
       try {
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const userAddress = await chainAdapter.getAddress({ wallet })

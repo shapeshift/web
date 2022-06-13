@@ -11,12 +11,16 @@ import {
   Tabs,
   Text as CText,
 } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { generateOnRampURL } from '@coinbase/cbpay-js'
+import { AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
+import { getConfig } from 'config'
 import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
 import qs from 'qs'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
+import coinbaseLogo from 'assets/coinbase-pay/cb-pay-icon.png'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
@@ -36,19 +40,20 @@ type FoxTabProps = {
 }
 
 const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
-const COINBASE_FOX_EXTERNAL_URL = `https://www.coinbase.com/price/fox-token`
 
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const [coinbasePayLink, setCoinbasePayLink] = useState<string | null>(null)
   const { description } = asset || {}
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === FOX_ASSET_ID
 
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const accountId = accountIds?.[0]
+
   const {
     state: { isConnected },
     dispatch,
@@ -58,6 +63,18 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleReceiveClick = () =>
     isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
+
+  useEffect(() => {
+    if (!accountId) return
+    const { account: foxUserAddress } = fromAccountId(accountId)
+    const coinbasePayFoxLink = generateOnRampURL({
+      appId: getConfig().REACT_APP_COINBASE_PAY_APP_ID,
+      destinationWallets: [{ address: foxUserAddress, assets: ['FOX'] }],
+    })
+    setCoinbasePayLink(coinbasePayFoxLink)
+  }, [accountId])
+
+  const coinbasePayFeatureFlag = getConfig().REACT_APP_FEATURE_COINBASE_RAMP
 
   const onGetAssetClick = () => {
     history.push({
@@ -89,11 +106,13 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
           <TabPanels>
             <TabPanel textAlign='center' p={6}>
               <Box mb={6}>
-                <AssetIcon src={asset.icon} boxSize='16' />
+                <AssetIcon src={coinbasePayFeatureFlag ? coinbaseLogo : asset.icon} boxSize='16' />
               </Box>
               <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
                 <CText color='gray.500' mb={6}>
-                  {trimmedDescription}
+                  {coinbasePayFeatureFlag
+                    ? translate('plugins.foxPage.purchaseFox')
+                    : trimmedDescription}
                 </CText>
               </SkeletonText>
 
@@ -107,14 +126,15 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     </CText>
                   </Button>
                 )}
-                {isFoxAsset && (
+                {isFoxAsset && coinbasePayFeatureFlag && (
                   <Button
+                    isDisabled={!coinbasePayLink}
                     colorScheme={'blue'}
                     mb={2}
                     size='lg'
                     as={Link}
                     leftIcon={<ExternalLinkIcon />}
-                    href={COINBASE_FOX_EXTERNAL_URL}
+                    href={coinbasePayLink}
                     isExternal
                   >
                     <CText>

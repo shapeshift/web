@@ -1130,7 +1130,8 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized"
+      "centralized": "Centralized",
+      "purchaseFox": "Purchase the agile FOX token on Coinbase directly into your ShapeShift-compatible wallet."
     },
     "analytics": {
       "optInModal": {

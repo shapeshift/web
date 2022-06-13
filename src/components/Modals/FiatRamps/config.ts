@@ -3,7 +3,7 @@ import { btcAssetId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
-import coinbaseLogo from 'assets/coinbase-pay/button-cbPay-normal-generic-condensed@3x.png'
+import coinbaseLogo from 'assets/coinbase-pay/cb-pay-icon.png'
 import gemLogo from 'assets/gem-mark.png'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
@@ -82,7 +82,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     label: 'fiatRamps.coinbasePay',
     info: 'fiatRamps.coinbasePayMessage',
     logo: coinbaseLogo,
-    isImplemented: true,
+    isImplemented: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {
@@ -90,11 +90,11 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return [buyAssets, []]
     },
     onSubmit: (_, asset: string, address: string) => {
-      const coinbaseProUrl = generateOnRampURL({
+      const coinbasePayUrl = generateOnRampURL({
         appId: getConfig().REACT_APP_COINBASE_PAY_APP_ID,
         destinationWallets: [{ address, assets: [asset] }],
       })
-      window.open(coinbaseProUrl, '_blank')?.focus()
+      window.open(coinbasePayUrl, '_blank')?.focus()
     },
   },
 }

@@ -9,11 +9,9 @@ import {
 import { BIP44Params, ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
 import * as bitcoin from './bitcoin'
-import * as cosmos from './cosmos'
+import * as cosmos from './cosmossdk/cosmos'
+import * as osmosis from './cosmossdk/osmosis'
 import * as ethereum from './ethereum'
-import * as osmosis from './osmosis'
-
-export { bitcoin, cosmos, ethereum }
 
 type ChainSpecificAccount<T> = ChainSpecific<
   T,

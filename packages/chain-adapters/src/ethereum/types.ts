@@ -1,4 +1,4 @@
-import { AssetBalance } from '.'
+import { AssetBalance } from '../types'
 
 export type Account = {
   nonce: number

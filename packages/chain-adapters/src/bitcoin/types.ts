@@ -1,6 +1,6 @@
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
-import { GetAddressInputBase } from '.'
+import { GetAddressInputBase } from '../types'
 
 export type Account = {
   /** Derived addresses and associated balances if account is xpub based (gap limit 20) */

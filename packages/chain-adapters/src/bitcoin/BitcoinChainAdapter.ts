@@ -12,10 +12,10 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import coinSelect from 'coinselect'
 import split from 'coinselect/split'
 
+import { bitcoin } from '../'
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import {
-  bitcoin,
   BuildSendTxInput,
   ChainTxType,
   FeeDataEstimate,

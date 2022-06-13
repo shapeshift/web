@@ -10,7 +10,6 @@ import {
   Account,
   BuildSendTxInput,
   ChainTxType,
-  cosmos,
   FeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
@@ -24,6 +23,7 @@ import {
   ValidAddressResultType
 } from '../types'
 import { getStatus, getType, toRootDerivationPath } from '../utils'
+import { cosmos } from './'
 
 export type CosmosChainIds = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
 

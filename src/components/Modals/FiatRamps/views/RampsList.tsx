@@ -20,77 +20,85 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
   const ramps = useMemo(() => {
     type Entry = [keyof typeof supportedFiatRamps, SupportedFiatRampConfig]
     const initial: ReactElement[] = []
-    const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce((acc, entry) => {
-      const [fiatRamp, fiatRampConfig] = entry
-      if (fiatRampConfig.isImplemented) {
-        acc.unshift(
-          <Button
-            key={fiatRamp}
-            width='full'
-            height='auto'
-            justifyContent='space-between'
-            variant='ghost'
-            fontWeight='normal'
-            py={2}
-            onClick={() => {
-              setFiatRampProvider(fiatRamp)
-              history.push(FiatRampsRoutes.Manager)
-            }}
-            rightIcon={<ChevronRightIcon boxSize={6} />}
-          >
-            <Flex
-              flex={1}
-              flexDirection={['column', 'row']}
+    const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce(
+      (acc, supportedFiatRamp) => {
+        const [fiatRamp, fiatRampConfig] = supportedFiatRamp
+        if (fiatRampConfig.isImplemented) {
+          acc.unshift(
+            <Button
+              key={fiatRamp}
+              width='full'
+              height='auto'
               justifyContent='space-between'
-              alignItems={['baseline', 'center']}
-              gap={['1em', 0]}
-              width='100%'
+              variant='ghost'
+              fontWeight='normal'
+              py={2}
+              onClick={() => {
+                setFiatRampProvider(fiatRamp)
+                history.push(FiatRampsRoutes.Manager)
+              }}
+              rightIcon={<ChevronRightIcon boxSize={6} />}
             >
-              <Flex flexDirection='row' justifyContent='center' alignItems='center'>
+              <Flex
+                flex={1}
+                flexDirection={['column', 'row']}
+                justifyContent='space-between'
+                alignItems={['baseline', 'center']}
+                gap={['1em', 0]}
+                width='100%'
+              >
+                <Flex flexDirection='row' justifyContent='center' alignItems='center'>
+                  <AssetIcon src={fiatRampConfig.logo} />
+                  <Box textAlign='left' ml={2}>
+                    <Text fontWeight='bold' translation={fiatRampConfig.label} />
+                    <Text translation={fiatRampConfig.info ?? ''} />
+                  </Box>
+                </Flex>
+                <Box display={['none', 'block']}>
+                  {fiatRampConfig.supportsBuy ? (
+                    <Tag colorScheme='green' mr={2}>
+                      <Text translation='fiatRamps.buy' style={{ textTransform: 'uppercase' }} />
+                    </Tag>
+                  ) : null}
+                  {fiatRampConfig.supportsSell ? (
+                    <Tag colorScheme='gray'>
+                      <Text translation='fiatRamps.sell' style={{ textTransform: 'uppercase' }} />
+                    </Tag>
+                  ) : null}
+                </Box>
+              </Flex>
+            </Button>,
+          )
+        } else {
+          acc.push(
+            <Button
+              key={fiatRampConfig.label}
+              width='full'
+              height='auto'
+              justifyContent='flex-start'
+              variant='ghost'
+              fontWeight='normal'
+              py={2}
+            >
+              <Flex
+                flexDirection='row'
+                justifyContent='flex-start'
+                alignItems='center'
+                width='100%'
+              >
                 <AssetIcon src={fiatRampConfig.logo} />
                 <Box textAlign='left' ml={2}>
                   <Text fontWeight='bold' translation={fiatRampConfig.label} />
-                  <Text translation={fiatRampConfig.info ?? ''} />
+                  <Text translation='fiatRamps.comingSoon' />
                 </Box>
               </Flex>
-              <Box display={['none', 'block']}>
-                {entry[1].supportsBuy ? (
-                  <Tag colorScheme='green' mr={2}>
-                    <Text translation='fiatRamps.buy' style={{ textTransform: 'uppercase' }} />
-                  </Tag>
-                ) : null}
-                {entry[1].supportsSell ? (
-                  <Tag colorScheme='gray'>
-                    <Text translation='fiatRamps.sell' style={{ textTransform: 'uppercase' }} />
-                  </Tag>
-                ) : null}
-              </Box>
-            </Flex>
-          </Button>,
-        )
-      } else {
-        acc.push(
-          <Button
-            key={fiatRampConfig.label}
-            width='full'
-            height='auto'
-            justifyContent='flex-start'
-            variant='ghost'
-            fontWeight='normal'
-            py={2}
-          >
-            <Flex flexDirection='row' justifyContent='flex-start' alignItems='center' width='100%'>
-              <AssetIcon src={fiatRampConfig.logo} />
-              <Box textAlign='left' ml={2}>
-                <Text fontWeight='bold' translation={fiatRampConfig.label} />
-                <Text translation='fiatRamps.comingSoon' />
-              </Box>
-            </Flex>
-          </Button>,
-        )
-      }
-      return acc
-    }, initial)
+            </Button>,
+          )
+        }
+        return acc
+      },
+      initial
+    )
     return result
   }, [history, setFiatRampProvider])
 

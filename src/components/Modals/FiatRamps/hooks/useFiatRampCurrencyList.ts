@@ -80,9 +80,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
             return {
               ...asset,
               name: reduxAsset.name,
-              // Symbol is passed down to the link generation. We can't expect the redux asset
-              // symbol to match the third party's internal symbols.
-              symbol: asset.fiatRampCoinId ? asset.fiatRampCoinId : reduxAsset.symbol,
+              symbol: reduxAsset.symbol,
               disabled: !isAssetSupportedByWallet(asset.assetId, wallet),
             }
           })

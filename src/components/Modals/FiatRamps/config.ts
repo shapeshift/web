@@ -1,10 +1,11 @@
 import { generateOnRampURL } from '@coinbase/cbpay-js'
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { adapters, AssetId, btcAssetId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import coinbaseLogo from 'assets/coinbase-pay/cb-pay-icon.png'
 import gemLogo from 'assets/gem-mark.png'
+import { logger } from 'lib/logger'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import { getCoinbasePayAssets } from './fiatRampProviders/coinbase-pay'
@@ -16,6 +17,10 @@ import {
   parseGemSellAssets,
 } from './fiatRampProviders/gem'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
+
+const moduleLogger = logger.child({
+  namespace: ['Modals', 'FiatRamps', 'config'],
+})
 
 export interface SupportedFiatRampConfig {
   // key of translation jsons, will be used to show the provider name in the list
@@ -49,9 +54,14 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const parsedSellList = parseGemSellAssets(currencyList)
       return [parsedBuyList, parsedSellList]
     },
-    onSubmit: (action, asset, address) => {
-      const gemPartnerUrl = makeGemPartnerUrl(action, asset, address)
-      window.open(gemPartnerUrl, '_blank')?.focus()
+    onSubmit: (action, assetId: AssetId, address) => {
+      try {
+        const ticker = adapters.assetIdToGemTicker(assetId)
+        const gemPartnerUrl = makeGemPartnerUrl(action, ticker, address)
+        window.open(gemPartnerUrl, '_blank')?.focus()
+      } catch (err) {
+        moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
+      }
     },
     isImplemented: true,
     minimumSellThreshold: 5,
@@ -73,9 +83,15 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssets = buyAssets.filter(a => a.assetId === btcAssetId)
       return [buyAssets, sellAssets]
     },
-    onSubmit: (action: FiatRampAction, asset: string, address: string) => {
-      const banxaCheckoutUrl = createBanxaUrl(action, asset, address)
-      window.open(banxaCheckoutUrl, '_blank')?.focus()
+    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+      try {
+        const ticker = adapters.assetIdToBanxaTicker(assetId)
+        if (!ticker) throw new Error('Asset not supported by Banxa')
+        const banxaCheckoutUrl = createBanxaUrl(action, ticker, address)
+        window.open(banxaCheckoutUrl, '_blank')?.focus()
+      } catch (err) {
+        moduleLogger.error(err, { fn: 'Banxa onSubmit' }, 'Asset not supported by Banxa')
+      }
     },
   },
   CoinbasePay: {
@@ -89,12 +105,22 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAssets = await getCoinbasePayAssets()
       return [buyAssets, []]
     },
-    onSubmit: (_, asset: string, address: string) => {
-      const coinbasePayUrl = generateOnRampURL({
-        appId: getConfig().REACT_APP_COINBASE_PAY_APP_ID,
-        destinationWallets: [{ address, assets: [asset] }],
-      })
-      window.open(coinbasePayUrl, '_blank')?.focus()
+    onSubmit: (_, assetId: AssetId, address: string) => {
+      try {
+        const ticker = adapters.assetIdToCoinbaseTicker(assetId)
+        if (!ticker) throw new Error('Asset not supported by Coinbase')
+        const coinbasePayUrl = generateOnRampURL({
+          appId: getConfig().REACT_APP_COINBASE_PAY_APP_ID,
+          destinationWallets: [{ address, assets: [ticker] }],
+        })
+        window.open(coinbasePayUrl, '_blank')?.focus()
+      } catch (err) {
+        moduleLogger.error(
+          err,
+          { fn: 'CoinbasePay onSubmit' },
+          'Asset not supported by Coinbase Pay',
+        )
+      }
     },
   },
 }

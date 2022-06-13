@@ -12,7 +12,7 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import { generateOnRampURL } from '@coinbase/cbpay-js'
-import { AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { adapters, AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { getConfig } from 'config'
 import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
@@ -40,6 +40,7 @@ type FoxTabProps = {
 }
 
 const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
+const coinbasePayFeatureFlag = getConfig().REACT_APP_FEATURE_COINBASE_RAMP
 
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
@@ -67,14 +68,13 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   useEffect(() => {
     if (!accountId) return
     const { account: foxUserAddress } = fromAccountId(accountId)
+    const ticker = adapters.coinbaseTickerToAssetId(assetId) ?? 'FOX'
     const coinbasePayFoxLink = generateOnRampURL({
       appId: getConfig().REACT_APP_COINBASE_PAY_APP_ID,
-      destinationWallets: [{ address: foxUserAddress, assets: ['FOX'] }],
+      destinationWallets: [{ address: foxUserAddress, assets: [ticker] }],
     })
     setCoinbasePayLink(coinbasePayFoxLink)
-  }, [accountId])
-
-  const coinbasePayFeatureFlag = getConfig().REACT_APP_FEATURE_COINBASE_RAMP
+  }, [accountId, assetId])
 
   const onGetAssetClick = () => {
     history.push({

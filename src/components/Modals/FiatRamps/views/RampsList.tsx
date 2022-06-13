@@ -97,7 +97,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
         }
         return acc
       },
-      initial
+      initial,
     )
     return result
   }, [history, setFiatRampProvider])

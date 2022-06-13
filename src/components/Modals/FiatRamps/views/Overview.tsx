@@ -252,7 +252,7 @@ export const Overview: React.FC<OverviewProps> = ({
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(
               fiatRampAction,
-              selectedAsset?.symbol || '',
+              selectedAsset?.assetId || '',
               addressFull || '',
             )
           }

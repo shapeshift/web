@@ -1,7 +1,6 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import toLower from 'lodash/toLower'
 import { logger } from 'lib/logger'
 
 import { FiatRampAsset } from '../FiatRampsCommon'
@@ -45,13 +44,12 @@ export async function getCoinbasePayAssets(): Promise<FiatRampAsset[]> {
     const fiatRampAssets = data.reduce<FiatRampAsset[]>((acc, curr) => {
       if (curr.details.type !== 'crypto') return acc
       if (!supportedBlockchains.includes(curr.default_network)) return acc
-      const assetId = coinbaseCurrencyToAssetId(curr)
+      const assetId = adapters.coinbaseTickerToAssetId(curr.id)
       if (!assetId) return acc
       acc.push({
         name: curr.name,
         assetId,
         symbol: curr.id,
-        fiatRampCoinId: curr.id,
       })
       return acc
     }, [])
@@ -64,18 +62,4 @@ export async function getCoinbasePayAssets(): Promise<FiatRampAsset[]> {
     )
     return []
   }
-}
-
-function coinbaseCurrencyToAssetId(currency: CoinbaseCurrency): AssetId | null {
-  if (currency.id === 'BTC') return 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-  if (currency.id === 'ATOM') return 'cosmos:cosmoshub-4/slip44:118'
-  if (currency.id === 'OSMO') return 'cosmos:osmosis-1/slip44:118'
-  if (currency.id === 'ETH') return 'eip155:1/slip44:60'
-  if (currency.default_network === 'ethereum') {
-    const addressQuery = currency.details.crypto_address_link?.split('token/')[1]
-    const address = addressQuery?.split('?a')[0]
-    return `eip155:1/erc20:${toLower(address)}`
-  }
-  moduleLogger.info(`Could not create assetId from coinbase asset ${currency.id}`)
-  return null
 }

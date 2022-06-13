@@ -115,7 +115,7 @@ const mockedCoinbaseCurrencies = [
 ]
 
 describe('coinbase-pay', () => {
-  it('should return assets', async () => {
+  it('should properly transfor assets', async () => {
     mockAxios.get.mockImplementation(() => {
       return Promise.resolve({
         data: mockedCoinbaseCurrencies,
@@ -126,19 +126,16 @@ describe('coinbase-pay', () => {
         name: 'Bitcoin',
         assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         symbol: 'BTC',
-        fiatRampCoinId: 'BTC',
       },
       {
         name: 'Cosmos',
         assetId: 'cosmos:cosmoshub-4/slip44:118',
         symbol: 'ATOM',
-        fiatRampCoinId: 'ATOM',
       },
       {
         name: 'ShapeShift FOX Token',
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         symbol: 'FOX',
-        fiatRampCoinId: 'FOX',
       },
     ]
     const cryptos = await getCoinbasePayAssets()

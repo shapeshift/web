@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v4.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v4.0.0...@shapeshiftoss/investor-yearn-v4.0.1) (2022-06-13)
+
+
+### Bug Fixes
+
+* add unchained-client devDependencies ([#804](https://github.com/shapeshift/lib/issues/804)) ([809fbda](https://github.com/shapeshift/lib/commit/809fbdae899ab4d8aecc021baa8df8162aae7d86))
+
 # [@shapeshiftoss/investor-yearn-v4.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v3.0.3...@shapeshiftoss/investor-yearn-v4.0.0) (2022-06-09)
 
 

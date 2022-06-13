@@ -1,5 +1,7 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { Asset } from '@shapeshiftoss/types'
+import Web3 from 'web3'
 
 import {
   ApprovalNeededInput,
@@ -16,14 +18,18 @@ import {
   TradeResult,
   TradeTxs
 } from '../../api'
+import { CowApprovalNeeded } from './CowApprovalNeeded/CowApprovalNeeded'
+import { CowApproveInfinite } from './CowApproveInfinite/CowApproveInfinite'
 import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 
 export type CowSwapperDeps = {
   apiUrl: string
+  adapter: ethereum.ChainAdapter
+  web3: Web3
 }
 
-export class CowSwapper implements Swapper<ChainId> {
+export class CowSwapper implements Swapper<'eip155:1'> {
   public static swapperName = 'CowSwapper'
   deps: CowSwapperDeps
 
@@ -38,12 +44,12 @@ export class CowSwapper implements Swapper<ChainId> {
     return SwapperType.CowSwap
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<Trade<ChainId>> {
+  async buildTrade(args: BuildTradeInput): Promise<Trade<'eip155:1'>> {
     console.info(args)
     throw new Error('CowSwapper: buildTrade unimplemented')
   }
 
-  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
+  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<'eip155:1'>> {
     console.info(input)
     throw new Error('CowSwapper: getTradeQuote unimplemented')
   }
@@ -52,19 +58,17 @@ export class CowSwapper implements Swapper<ChainId> {
     return getUsdRate(this.deps, input)
   }
 
-  async executeTrade(args: ExecuteTradeInput<ChainId>): Promise<TradeResult> {
+  async executeTrade(args: ExecuteTradeInput<'eip155:1'>): Promise<TradeResult> {
     console.info(args)
     throw new Error('CowSwapper: executeTrade unimplemented')
   }
 
-  async approvalNeeded(args: ApprovalNeededInput<ChainId>): Promise<ApprovalNeededOutput> {
-    console.info(args)
-    throw new Error('CowSwapper: approvalNeeded unimplemented')
+  async approvalNeeded(args: ApprovalNeededInput<'eip155:1'>): Promise<ApprovalNeededOutput> {
+    return CowApprovalNeeded(this.deps, args)
   }
 
-  async approveInfinite(args: ApproveInfiniteInput<ChainId>): Promise<string> {
-    console.info(args)
-    throw new Error('CowSwapper: approveInfinite unimplemented')
+  async approveInfinite(args: ApproveInfiniteInput<'eip155:1'>): Promise<string> {
+    return CowApproveInfinite(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

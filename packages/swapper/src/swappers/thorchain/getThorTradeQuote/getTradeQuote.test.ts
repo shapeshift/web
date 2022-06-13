@@ -3,7 +3,7 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { TradeQuote } from '../../../api'
 import { ETH, FOX } from '../../utils/test-data/assets'
-import { setupQuote } from '../../zrx/utils/test-data/setupSwapQuote'
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { ThorchainSwapperDeps } from '../types'
 import { ethMidgardPool, foxMidgardPool } from '../utils/test-data/midgardResponse'
 import { thorService } from '../utils/thorService'

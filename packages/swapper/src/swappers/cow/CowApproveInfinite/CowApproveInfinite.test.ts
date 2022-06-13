@@ -3,19 +3,11 @@ import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { zrxService } from '../utils/zrxService'
-import { ZrxApproveInfinite } from '../ZrxApproveInfinite/ZrxApproveInfinite'
+import { CowApproveInfinite } from '../CowApproveInfinite/CowApproveInfinite'
 
 jest.mock('web3')
 jest.mock('../../utils/helpers/helpers', () => ({
   grantAllowance: jest.fn(() => 'grantAllowanceTxId')
-}))
-jest.mock('axios', () => ({
-  create: () => ({
-    get: jest.fn(() => Promise.resolve({ data: {} })),
-    post: jest.fn(() => Promise.resolve({ data: { txid: 'txid' } }))
-  }),
-  get: jest.fn(() => Promise.resolve({ data: { result: [{ source: 'MEDIAN' }] } }))
 }))
 
 // @ts-ignore
@@ -31,8 +23,8 @@ Web3.mockImplementation(() => ({
   }
 }))
 
-describe('ZrxApproveInfinite', () => {
-  const deps = setupDeps()
+describe('CowApproveInfinite', () => {
+  const { web3, adapter } = setupDeps()
   const { tradeQuote } = setupQuote()
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve('0xc770eefad204b5180df6a14ee197d99d808ee52d')),
@@ -40,10 +32,9 @@ describe('ZrxApproveInfinite', () => {
   } as unknown as HDWallet
 
   it('should return a txid', async () => {
-    const data = { allowanceTarget: '10000' }
+    const deps = { web3, adapter, apiUrl: '' }
     const quote = { ...tradeQuote }
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await ZrxApproveInfinite(deps, { quote, wallet })).toEqual('grantAllowanceTxId')
+    expect(await CowApproveInfinite(deps, { quote, wallet })).toEqual('grantAllowanceTxId')
   })
 })

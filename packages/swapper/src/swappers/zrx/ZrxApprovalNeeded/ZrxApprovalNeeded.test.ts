@@ -1,8 +1,8 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
 
-import { setupQuote } from '../utils/test-data/setupSwapQuote'
-import { setupZrxDeps } from '../utils/test-data/setupZrxDeps'
+import { setupDeps } from '../../utils/test-data/setupDeps'
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
 import { ZrxApprovalNeeded } from './ZrxApprovalNeeded'
 
@@ -27,7 +27,7 @@ Web3.mockImplementation(() => ({
 }))
 
 describe('ZrxApprovalNeeded', () => {
-  const deps = setupZrxDeps()
+  const deps = setupDeps()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))

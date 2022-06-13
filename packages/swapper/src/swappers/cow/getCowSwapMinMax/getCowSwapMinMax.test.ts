@@ -1,3 +1,6 @@
+import { ethereum } from '@shapeshiftoss/chain-adapters'
+import Web3 from 'web3'
+
 import { BTC, ETH, FOX, WETH } from '../../utils/test-data/assets'
 import { MAX_COWSWAP_TRADE } from '../utils/constants'
 import { getCowSwapMinMax } from './getCowSwapMinMax'
@@ -7,7 +10,9 @@ jest.mock('../utils/helpers/helpers', () => ({
 }))
 
 const DEPS = {
-  apiUrl: ''
+  apiUrl: '',
+  web3: <Web3>{},
+  adapter: <ethereum.ChainAdapter>{}
 }
 
 describe('getCowSwapMinMax', () => {

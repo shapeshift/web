@@ -6,7 +6,7 @@ import Web3 from 'web3'
 import { BuildTradeInput } from '../../../api'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
-import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupSwapQuote'
+import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
 import { zrxService } from '../utils/zrxService'
 import { zrxBuildTrade } from './zrxBuildTrade'
 

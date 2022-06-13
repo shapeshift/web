@@ -46,6 +46,7 @@
     "@shapeshiftoss/types": "^5.0.0",
     "@types/readline-sync": "^1.4.4",
     "readline-sync": "^1.4.10",
-    "web3-utils": "^1.7.3"
+    "web3-utils": "^1.7.3",
+    "@shapeshiftoss/unchained-client": "^9.0.0"
   }
 }

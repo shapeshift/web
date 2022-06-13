@@ -47,6 +47,7 @@
     "@shapeshiftoss/chain-adapters": "^6.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",
     "@shapeshiftoss/investor": "^1.0.1",
-    "@shapeshiftoss/types": "^5.0.0"
+    "@shapeshiftoss/types": "^5.0.0",
+    "@shapeshiftoss/unchained-client": "^9.0.0"
   }
 }

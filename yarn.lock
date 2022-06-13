@@ -2428,6 +2428,16 @@
     lodash "^4.17.4"
     read-pkg-up "^7.0.0"
 
+"@shapeshiftoss/asset-service@^5.0.0":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-5.0.2.tgz#b6b5bf47038cd09e0c0e9804435d7cdd87581ffa"
+  integrity sha512-3f7SDEYPcjQnmyhNKF+XGenXjTPTPPCxqXEjpSobCRBdrTVp3aPHcLO3xasOuGsl0b7GD5mL1PfW+yiKMUSwUQ==
+  dependencies:
+    axios "^0.26.1"
+    identicon.js "^2.3.3"
+    js-pixel-fonts "^1.5.0"
+    lodash "^4.17.21"
+
 "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2":
   version "5.2.0-shapeshift.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-5.2.0-shapeshift.2.tgz#f000da26302a8a35822201a6c49a4cf7e1379ed4"
@@ -2449,6 +2459,20 @@
     typeforce "^1.11.3"
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
+
+"@shapeshiftoss/chain-adapters@^6.0.0", "@shapeshiftoss/chain-adapters@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-6.0.1.tgz#07c4d658055e17ac262ab2f1eab06b2c099168d8"
+  integrity sha512-0qafOakDY8kwxYtcBJau5hfE/LaLhetLmFNpckNof40iUxS2sCmsXkVX+HF+HU3OjASBjBznvOCtlxTCFnOy7w==
+  dependencies:
+    axios "^0.26.1"
+    bech32 "^2.0.0"
+    bignumber.js "^9.0.2"
+    bitcoinjs-lib "^5.2.0"
+    coinselect "^3.1.12"
+    ethers "^5.4.7"
+    multicoin-address-validator "^0.5.2"
+    web3-utils "^1.7.3"
 
 "@shapeshiftoss/common-api@^7.0.0":
   version "7.0.0"
@@ -2552,10 +2576,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.4.1.tgz#a503dd43036a210fed5fa0ce2b1c8f8e8ffa7b4b"
   integrity sha512-zP5MO/BX1d47Y99m4nO56YIf1fBfXxYwq15DQYcq+xrPdY20kOyFM0zPf04Q32vb0ev4SbqC9R/S9jxQDs95rg==
 
-"@shapeshiftoss/types@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-6.1.0.tgz#0cdb6ead9d2d2c2c60cacdbd34921386e34e7a50"
-  integrity sha512-rNdpsimskpl1gQtHLogbHqlRsbeniqFFrbStuOEFpw66FDyIdM+aJcaG4VR4qukn3PsdmWleABXCuRmp49EPQA==
+"@shapeshiftoss/types@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-5.0.0.tgz#43a1580f44599ecdfdde54ae8c0f6c223508f52d"
+  integrity sha512-KszGC6SIunecRXQ94FeUIdCtCw+5jDtb1nPvQX9L0k+wpUqrCDMhU0avvQH75UoDaSO9yMhsxfoh+gfnH9fd+g==
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"

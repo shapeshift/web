@@ -1,6 +1,4 @@
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { AssetReference } from '@shapeshiftoss/caip/src/assetId/assetId'
-import { ASSET_REFERENCE } from '@shapeshiftoss/caip/src/constants'
+import { ASSET_REFERENCE, AssetId, AssetReference, fromAssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 

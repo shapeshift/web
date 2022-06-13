@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.2.0...@shapeshiftoss/swapper-v7.2.1) (2022-06-13)
+
+
+### Bug Fixes
+
+* add unchained-client devDependencies ([#804](https://github.com/shapeshift/lib/issues/804)) ([809fbda](https://github.com/shapeshift/lib/commit/809fbdae899ab4d8aecc021baa8df8162aae7d86))
+
 # [@shapeshiftoss/swapper-v7.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.1.0...@shapeshiftoss/swapper-v7.2.0) (2022-06-13)
 
 

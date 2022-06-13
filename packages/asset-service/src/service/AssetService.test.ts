@@ -32,7 +32,10 @@ jest.mock(
 jest.mock(
   './generatedAssetData.json',
   () => ({
-    'eip155:3/slip44:60': 'a blue fox'
+    'eip155:3/slip44:60': {
+      assetId: 'eip155:3/slip44:60',
+      chainId: 'eip155:3'
+    }
   }),
   { virtual: true }
 )

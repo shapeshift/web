@@ -15,6 +15,13 @@ export enum KnownChainIds {
   OsmosisMainnet = 'cosmos:osmosis-1'
 }
 
+// https://api.coingecko.com/api/v3/asset_platforms
+export enum CoingeckoAssetPlatform {
+  Ethereum = 'ethereum',
+  Cosmos = 'cosmos',
+  Osmosis = 'osmosis'
+}
+
 export enum WithdrawType {
   DELAYED,
   INSTANT

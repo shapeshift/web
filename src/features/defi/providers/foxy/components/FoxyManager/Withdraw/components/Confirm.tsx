@@ -32,14 +32,14 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, tokenId, rewardId } = query
+  const { chainId, contractAddress, assetReference, rewardId } = query
 
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assetId = toAssetId({

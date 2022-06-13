@@ -51,7 +51,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+  const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
 
   useEffect(() => {
     ;(async () => {

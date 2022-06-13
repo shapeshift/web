@@ -1,3 +1,23 @@
+# [@shapeshiftoss/chain-adapters-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v6.0.1...@shapeshiftoss/chain-adapters-v7.0.0) (2022-06-13)
+
+
+### Features
+
+* **chain-adapters:** refactor types and add `ChainNamespace`d exports ([#791](https://github.com/shapeshift/lib/issues/791)) ([90a65fd](https://github.com/shapeshift/lib/commit/90a65fd3a1bc0ae6a044f2779d74305fb7e8718f))
+
+
+### BREAKING CHANGES
+
+* **chain-adapters:** removes chainAdapters export
+
+* chore: remove redundant namespaced exports
+
+Co-authored-by: kevin <35275952+kaladinlight@users.noreply.github.com>
+
+* chore: use top level imports
+
+Co-authored-by: kevin <35275952+kaladinlight@users.noreply.github.com>
+
 # [@shapeshiftoss/chain-adapters-v6.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v6.0.0...@shapeshiftoss/chain-adapters-v6.0.1) (2022-06-10)
 
 

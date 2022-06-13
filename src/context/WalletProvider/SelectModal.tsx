@@ -2,11 +2,11 @@ import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakr
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 export const SelectModal = () => {
   const {
@@ -17,9 +17,6 @@ export const SelectModal = () => {
   const translate = useTranslate()
 
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
-  const keplrFeatureFlag = useFeatureFlag('KeplrWallet')
-
-  const tallyHoFeatureFlag = useFeatureFlag('TallyHoWallet')
   const walletConnectFeatureFlag = useFeatureFlag('WalletConnectWallet')
 
   return (
@@ -36,15 +33,9 @@ export const SelectModal = () => {
             wallets.map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
-              if (!keplrFeatureFlag && key === KeyManager.Keplr) {
-                return false
-              }
 
               // some wallets (e.g. tally ho) do not exist on mobile
               if (isMobile && !option.mobileEnabled) return false
-
-              if (!tallyHoFeatureFlag && key === KeyManager.TallyHo) return false
-
               if (!walletConnectFeatureFlag && key === KeyManager.WalletConnect) return false
 
               return (

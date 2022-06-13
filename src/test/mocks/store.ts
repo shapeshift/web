@@ -50,8 +50,6 @@ export const mockStore: ReduxState = {
       Osmosis: false,
       WalletConnectWallet: false,
       FoxPage: false,
-      KeplrWallet: false,
-      TallyHoWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

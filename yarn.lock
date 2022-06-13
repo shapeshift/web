@@ -2552,6 +2552,11 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.4.1.tgz#a503dd43036a210fed5fa0ce2b1c8f8e8ffa7b4b"
   integrity sha512-zP5MO/BX1d47Y99m4nO56YIf1fBfXxYwq15DQYcq+xrPdY20kOyFM0zPf04Q32vb0ev4SbqC9R/S9jxQDs95rg==
 
+"@shapeshiftoss/types@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-5.0.0.tgz#43a1580f44599ecdfdde54ae8c0f6c223508f52d"
+  integrity sha512-KszGC6SIunecRXQ94FeUIdCtCw+5jDtb1nPvQX9L0k+wpUqrCDMhU0avvQH75UoDaSO9yMhsxfoh+gfnH9fd+g==
+
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"

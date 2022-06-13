@@ -26,11 +26,11 @@ const FOXY_ASSET_PRECISION = '18'
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINCAP)
 
 export class FoxyMarketService implements MarketService {
-  jsonRpcProviderUrl: string
+  providerUrls: ProviderUrls
   baseUrl = 'https://api.coincap.io/v2'
 
   constructor(providerUrls: ProviderUrls) {
-    this.jsonRpcProviderUrl = providerUrls.jsonRpcProviderUrl
+    this.providerUrls = providerUrls
   }
 
   async findAll() {
@@ -58,21 +58,21 @@ export class FoxyMarketService implements MarketService {
       const ethChainAdapter = new ethereum.ChainAdapter({
         providers: {
           ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(
-            'wss://dev-api.ethereum.shapeshift.com'
+            this.providerUrls.unchainedEthereumWsUrl
           ),
           http: new unchained.ethereum.V1Api(
             new unchained.ethereum.Configuration({
-              basePath: 'https://dev-api.ethereum.shapeshift.com'
+              basePath: this.providerUrls.unchainedEthereumHttpUrl
             })
           )
         },
-        rpcUrl: this.jsonRpcProviderUrl
+        rpcUrl: this.providerUrls.jsonRpcProviderUrl
       })
 
       // Make maxSupply as an additional field, effectively EIP-20's totalSupply
       const api = new FoxyApi({
         adapter: ethChainAdapter,
-        providerUrl: this.jsonRpcProviderUrl,
+        providerUrl: this.providerUrls.jsonRpcProviderUrl,
         foxyAddresses
       })
 

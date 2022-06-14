@@ -42,7 +42,7 @@ const banxaTickerToAssetIdMap = invert(AssetIdToBanxaTickerMap)
 
 export const banxaTickerToAssetId = (id: string): string | undefined => banxaTickerToAssetIdMap[id]
 
-export const AssetIdToBanxaTicker = (assetId: string): string | undefined =>
+export const assetIdToBanxaTicker = (assetId: string): string | undefined =>
   AssetIdToBanxaTickerMap[toLower(assetId)]
 
 export const getSupportedBanxaAssets = () =>

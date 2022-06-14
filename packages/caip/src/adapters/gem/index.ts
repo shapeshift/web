@@ -29,7 +29,7 @@ const invert = <T extends Record<string, string>>(data: T) =>
 
 const gemAssetIdToAssetIdMap = invert(assetIdToGemAssetIdMap)
 
-export const gemAssetIdToAssetId = (id: string): string | undefined => gemAssetIdToAssetIdMap[id]
+export const gemTickerToAssetId = (id: string): string | undefined => gemAssetIdToAssetIdMap[id]
 
-export const assetIdToGemAssetId = (assetId: string): string | undefined =>
+export const assetIdToGemTicker = (assetId: string): string | undefined =>
   assetIdToGemAssetIdMap[toLower(assetId)]

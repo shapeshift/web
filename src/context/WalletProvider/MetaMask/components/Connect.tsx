@@ -48,6 +48,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       throw new Error('walletProvider.metaMask.errors.connectFailure')
     }
 
+    //Handles UX issues caused by MM and Tally Ho both being injected.
+    if (provider.isTally) {
+      setErrorLoading('walletProvider.metaMask.errors.tallyInstalledAndSetToDefault')
+      throw new Error('Tally Ho wallet installed and set as default')
+    }
+
     if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
       const wallet = await state.adapters.get(KeyManager.MetaMask)?.pairDevice()
       if (!wallet) {
@@ -58,10 +64,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       const { name, icon } = MetaMaskConfig
       try {
         const deviceId = await wallet.getDeviceID()
-
-        if (provider !== window.ethereum) {
-          throw new Error('walletProvider.metaMask.errors.multipleWallets')
-        }
 
         if (provider?.chainId !== '0x1') {
           throw new Error('walletProvider.metaMask.errors.network')

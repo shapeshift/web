@@ -1,16 +1,24 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { QuoteFeeData, SwapperManager, Trade, TradeQuote, ZrxSwapper } from '@shapeshiftoss/swapper'
-import { Asset, ExecQuoteOutput, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
+import {
+  QuoteFeeData,
+  SwapperManager,
+  Trade,
+  TradeQuote,
+  TradeResult,
+  TradeTxs,
+  ZrxSwapper,
+} from '@shapeshiftoss/swapper'
+import { Asset, SupportedChainIds, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { BuildQuoteTxOutput, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import {
   selectAssetIds,
@@ -32,22 +40,13 @@ type GetQuoteInput = {
   forceQuote?: boolean
 }
 
-export enum TRADE_ERRORS {
-  TITLE = 'trade.errors.title',
-  NOT_ENOUGH_ETH = 'trade.errors.notEnoughEth',
-  AMOUNT_TO_SMALL = 'trade.errors.amountToSmall',
-  DEX_TRADE_FAILED = 'trade.errors.dexTradeFailed',
-  QUOTE_FAILED = 'trade.errors.quoteFailed',
-}
-
 export const useSwapper = () => {
   const { setValue } = useFormContext()
-  const translate = useTranslate()
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
     TradeQuote<SupportedChainIds> & Trade<SupportedChainIds>,
-    TradeAsset,
+    TradeAsset | undefined,
     Trade<SupportedChainIds>,
   ]
   const adapterManager = useChainAdapters()
@@ -73,13 +72,16 @@ export const useSwapper = () => {
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
-    (assets: Asset[]): Asset[] => {
+    (assets: Asset[]): Asset[] | undefined => {
+      const sellAssetId = sellTradeAsset?.asset?.assetId
       const assetIds = assets.map(asset => asset.assetId)
-      const supportedBuyAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
-        assetIds,
-        sellAssetId: sellTradeAsset?.asset.assetId,
-      })
-      return filterAssetsByIds(assets, supportedBuyAssetIds)
+      const supportedBuyAssetIds = sellAssetId
+        ? swapperManager.getSupportedBuyAssetIdsFromSellId({
+            assetIds,
+            sellAssetId,
+          })
+        : undefined
+      return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
     [swapperManager, sellTradeAsset],
   )
@@ -90,12 +92,14 @@ export const useSwapper = () => {
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellTradeAsset?.asset.assetId }),
+    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
   )
 
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset.assetId ?? 'eip155:1/slip44:60'),
+    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? 'eip155:1/slip44:60'),
   )
+
+  const { showErrorToast } = useErrorHandler()
 
   const getSendMaxAmount = async ({
     sellAsset,
@@ -132,44 +136,42 @@ export const useSwapper = () => {
     sellAsset: Asset
     buyAsset: Asset
     amount: string
-  }): Promise<BuildQuoteTxOutput> => {
+  }): Promise<void> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: buyAsset.assetId,
       sellAssetId: sellAsset.assetId,
     })
 
-    const minSellAmount = toBaseUnit(quote.minimum, sellAsset.precision)
+    if (!swapper) throw new Error('no swapper available')
 
-    if (bnOrZero(amount).lt(minSellAmount)) {
-      return {
-        success: false,
-        statusReason: translate(TRADE_ERRORS.AMOUNT_TO_SMALL, { minLimit: quote.minimum }),
-      }
-    }
-
-    const result = await swapper?.buildTrade({
+    const result = await swapper.buildTrade({
       sellAmount: amount,
       sellAsset,
       buyAsset,
-      sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-      buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+      sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
+      buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
       wallet,
       sendMax: true,
     })
     setFees(result, sellAsset)
     setValue('trade', result)
-    return result
   }
 
-  const executeQuote = async ({
-    wallet,
-  }: {
-    wallet: HDWallet
-  }): Promise<ExecQuoteOutput | undefined> => {
+  const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,
     })
+    if (!swapper) throw new Error('no swapper available')
+    return swapper.getTradeTxs(tradeResult)
+  }
+
+  const executeQuote = async ({ wallet }: { wallet: HDWallet }): Promise<TradeResult> => {
+    const swapper = await swapperManager.getBestSwapper({
+      buyAssetId: trade.buyAsset.assetId,
+      sellAssetId: trade.sellAsset.assetId,
+    })
+    if (!swapper) throw new Error('no swapper available')
     return swapper.executeTrade({ trade, wallet })
   }
 
@@ -181,22 +183,29 @@ export const useSwapper = () => {
           sellAssetId: sellAsset.assetId,
         })
 
-        const { sellAmount, buyAmount, sellAssetUsdRate, feeAssetUsdRate, fiatSellAmount } =
-          await calculateAmounts({
-            buyAsset,
-            sellAsset,
-            feeAsset,
-            swapper,
-            action,
-            amount,
-          })
+        if (!swapper) throw new Error('no swapper available')
+
+        const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
+          swapper.getUsdRate({ ...sellAsset }),
+          swapper.getUsdRate({ ...buyAsset }),
+          swapper.getUsdRate({ ...feeAsset }),
+        ])
+
+        const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
+          amount,
+          buyAsset,
+          sellAsset,
+          buyAssetUsdRate,
+          sellAssetUsdRate,
+          action,
+        })
 
         const tradeQuote = await swapper.getTradeQuote({
           sellAsset,
           buyAsset,
           sellAmount,
           sendMax: false,
-          sellAssetAccountId: '0',
+          sellAssetAccountNumber: 0,
         })
 
         setFees(tradeQuote, sellAsset)
@@ -210,7 +219,7 @@ export const useSwapper = () => {
         setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
         setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
       } catch (e) {
-        console.error(e)
+        showErrorToast(e)
       }
     }, debounceTime),
   )
@@ -246,12 +255,13 @@ export const useSwapper = () => {
     switch (sellAsset.chainId) {
       case 'eip155:1':
         {
-          const approvalFee = bnOrZero(trade?.feeData?.chainSpecific?.approvalFee)
-            .dividedBy(bn(10).exponentiatedBy(18))
+          const ethTrade = trade as Trade<'eip155:1'>
+          const approvalFee = bnOrZero(ethTrade.feeData.chainSpecific.approvalFee)
+            .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
           const totalFee = feeBN.plus(approvalFee).toString()
-          const gasPrice = bnOrZero(trade?.feeData?.chainSpecific?.gasPrice).toString()
-          const estimatedGas = bnOrZero(trade?.feeData?.chainSpecific?.estimatedGas).toString()
+          const gasPrice = bnOrZero(ethTrade.feeData.chainSpecific.gasPrice).toString()
+          const estimatedGas = bnOrZero(ethTrade.feeData.chainSpecific.estimatedGas).toString()
 
           const fees: QuoteFeeData<'eip155:1'> = {
             fee,
@@ -261,6 +271,7 @@ export const useSwapper = () => {
               estimatedGas,
               totalFee,
             },
+            tradeFee: ethTrade.feeData.tradeFee,
           }
           setValue('fees', fees)
         }
@@ -275,6 +286,8 @@ export const useSwapper = () => {
       buyAssetId: quote.buyAsset.assetId,
       sellAssetId: quote.sellAsset.assetId,
     })
+
+    if (!swapper) throw new Error('no swapper available')
     const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
   }
@@ -284,6 +297,8 @@ export const useSwapper = () => {
       buyAssetId: quote.buyAsset.assetId,
       sellAssetId: quote.sellAsset.assetId,
     })
+
+    if (!swapper) throw new Error('no swapper available')
     const txid = await swapper.approveInfinite({ quote, wallet })
     return txid
   }
@@ -307,5 +322,6 @@ export const useSwapper = () => {
     getSendMaxAmount,
     reset,
     feeAsset,
+    getTradeTxs,
   }
 }

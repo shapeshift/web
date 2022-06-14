@@ -1,4 +1,4 @@
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainId } from '@shapeshiftoss/caip'
 
 export enum DefiType {
   Pool = 'pool',
@@ -27,9 +27,9 @@ export type DefiParams = {
 }
 
 export type DefiQueryParams = {
-  chain: ChainTypes
+  chainId: ChainId
   contractAddress: string
-  tokenId: string
+  assetReference: string
   rewardId: string
 }
 

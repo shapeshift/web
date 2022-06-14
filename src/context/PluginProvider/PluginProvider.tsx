@@ -21,7 +21,7 @@ type PluginProviderContextProps = {
   routes: Route[]
 }
 
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage']
+const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis']
 
 // don't export me, access me through the getter
 let _chainAdapterManager: ChainAdapterManager | undefined

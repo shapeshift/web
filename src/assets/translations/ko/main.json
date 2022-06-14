@@ -16,7 +16,6 @@
     "estimatedGas": "예상 가스 요금",
     "insufficientAmountForGas": "지불해야 할 ETH 가스가 부족합니다.",
     "invalidAddress": "유효하지 않은 주소입니다.",
-    "unresolvableEnsDomain": "ENS 도메인 확인 중에 문제가 발생했습니다.",
     "deposit": "입금",
     "withdraw": "출금",
     "withdrawal": "출금",
@@ -107,7 +106,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift (셰이프시프트)",
-    "alpha": "알파 빌드",
     "exploreThe": "광활한 Defi Universe를",
     "defiUniverse": "지금 탐험해 보세요",
     "body": "100% 무료인, 중개인이 없는 비 수탁형(Non-custodial) 오픈소스 플랫폼입니다.",
@@ -137,7 +135,7 @@
           "rateFluctuationInfo": "귀하가 벌어들이는 %{assetName}의 비율인 연간 수익률(APR)은 일반적으로 7% - 20% 사이에서 변동합니다.",
           "amountStakingInfo": "%{assetName}의 금액에 관계없이 스테이킹할 수 있으며 스테이킹 즉시 보상이 쌓이기 시작합니다.",
           "withdrawInfo": "언제든지 보상을 인출할 수 있으며, 인출 시에는 약간의 가스 요금(~$.01)이 지불됩니다.",
-          "unbondingInfo": "토큰 스테이킹을 해제하면 14일 동안 잠김 상태로 들어가며, 그 동안에는 보상을 받지 못합니다. 14일이 지나면 %{assetName}이 기본 지갑으로 돌아갑니다.",
+          "unbondingInfo": "토큰 스테이킹을 해제하면 %{unbondingDays}일 동안 잠김 상태로 들어가며, 그 동안에는 보상을 받지 못합니다. %{unbondingDays}일이 지나면 %{assetName}이 기본 지갑으로 돌아갑니다.",
           "slashingInfo": "스테이킹은 검증자(Validator)를 통해 이루어집니다. 매우 드문 경우지만, 당신이 스테이킹한 토큰의 검증자가 부정하거나 잘못된 트랜잭션를 시도하게 되면 스테이킹한 자산의 일부를 잃을 수 있습니다.",
           "partnerInfo": "우리는 안전하고 신뢰할 수 있으며 검증된 인프라를 갖춘 평판 좋은 검증자(Validator)와 협력하여 이러한 위험을 완화하려 지속적으로 노력하고 있습니다."
         },
@@ -305,6 +303,12 @@
     "amount": "거래량",
     "for": "for",
     "parser": {
+      "weth": {
+        "deposit": "자산 입금",
+        "approve": "승인하기",
+        "withdraw": "자산 출금",
+        "receive": "받음"
+      },
       "yearn": {
         "deposit": "자산 입금",
         "approve": "승인하기",
@@ -699,6 +703,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Keplr와 연동하는 도중에 예기치 못한 오류가 발생했습니다.",
+        "connectFailure": "Keplr 지갑을 연결할 수 없습니다."
+      },
+      "connect": {
+        "header": "Keplr 지갑 연동하기",
+        "body": "연결하기 버튼을 누른 후 팝업창에서 Keplr를 선택하세요.",
+        "button": "연결하기"
+      },
+      "failure": {
+        "header": "오류 발생",
+        "body": "Keplr 지갑을 연결할 수 없습니다."
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Metamask 연동 중 예기치 못한 오류가 발생했습니다.",
@@ -812,6 +831,7 @@
         "emailRequired": "이메일 입력이 필요합니다",
         "invalidEmail": "올바른 이메일이 아닙니다",
         "invalidCaptcha": "올바른 Captcha가 아닙니다",
+        "captchaRequired": "보안문자가 필요합니다",
         "invalidLogin": "로그인 실패",
         "noWallet": "로그인을 하기 위한 ShapeShift 기본 지갑을 찾을 수 없습니다. 이 안내에 오류가 있다고 생각하시면 ShapeShift 고객 지원 센터에 문의해주세요.",
         "decryptionError": "지갑을 복호화하는 중에 오류가 발생하였습니다.",

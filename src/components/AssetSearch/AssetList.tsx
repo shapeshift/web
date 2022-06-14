@@ -1,4 +1,5 @@
 import { ListProps } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useRouteMatch } from 'react-router-dom'
@@ -27,7 +28,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     onInit: node => {
       if (!node) return
       const index = node.props.itemData?.items.findIndex(
-        ({ tokenId: address }: Asset) => address === match.params.address,
+        ({ assetId }: Asset) => fromAssetId(assetId).assetReference === match.params.address,
       )
       if (typeof index === 'number' && index >= 0) {
         node.scrollToItem?.(index, 'center')

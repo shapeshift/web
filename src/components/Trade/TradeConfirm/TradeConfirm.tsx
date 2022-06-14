@@ -1,7 +1,8 @@
-import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { NetworkTypes, SupportedChainIds } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { WarningTwoIcon } from '@chakra-ui/icons'
+import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
+import { TradeTxs } from '@shapeshiftoss/swapper'
+import { SupportedChainIds } from '@shapeshiftoss/types'
+import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -10,13 +11,16 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
-import { selectLastTxStatusByAssetId } from 'state/slices/selectors'
+import { poll } from 'lib/poll/poll'
+import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { TradeRoutePaths, TradeState } from '../types'
@@ -34,10 +38,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     handleSubmit,
     formState: { isSubmitting },
   } = useFormContext<TradeState<SupportedChainIds>>()
-  const toast = useToast()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
-  const { executeQuote, reset } = useSwapper()
+  const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
   const {
@@ -47,46 +50,46 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { wallet, isConnected },
     dispatch,
   } = useWallet()
-  const { chain, tokenId } = trade.sellAsset
-  const network = NetworkTypes.MAINNET
-  type AssetParams = Pick<Parameters<typeof toAssetId>[0], 'assetNamespace' | 'assetReference'>
-  const extra: AssetParams = tokenId
-    ? {
-        assetNamespace: 'erc20',
-        assetReference: tokenId,
-      }
-    : { assetNamespace: 'slip44', assetReference: ASSET_REFERENCE.Ethereum }
-  const assetId = toAssetId({ chain, network, ...extra })
+  const { chainId } = trade.sellAsset
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
 
-  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, assetId))
+  const parsedTxId = useMemo(
+    () => serializeTxIndex(accountSpecifier, txid, trade.receiveAddress),
+    [accountSpecifier, trade.receiveAddress, txid],
+  )
+  const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
+
+  const { showErrorToast } = useErrorHandler()
 
   const onSubmit = async () => {
-    if (!wallet) return
-    if (!isConnected) {
-      /**
-       * call handleBack to reset current form state
-       * before opening the connect wallet modal.
-       */
-      handleBack()
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
     try {
-      const result = await executeQuote({ wallet })
-      const transactionId = result?.txid
-      if (transactionId) {
-        setTxid(transactionId)
+      if (!wallet) return
+      if (!isConnected) {
+        /**
+         * call handleBack to reset current form state
+         * before opening the connect wallet modal.
+         */
+        handleBack()
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
       }
-    } catch (err) {
-      console.error(`TradeConfirm:onSubmit - ${err}`)
-      toast({
-        title: translate('trade.errors.title'),
-        description: translate(TRADE_ERRORS.DEX_TRADE_FAILED),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
+
+      const result = await executeQuote({ wallet })
+
+      // Poll until we have a "buy" txid
+      // This means the trade is just about finished
+      const txs = await poll({
+        fn: () => getTradeTxs(result),
+        validate: (txs: TradeTxs) => !!txs.buyTxid,
+        interval: 10000, // 10 seconds
+        maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
+      if (!txs.buyTxid) throw new Error('No buyTxid from getTradeTxs')
+      setTxid(txs.buyTxid)
+    } catch (e) {
+      showErrorToast(e)
     }
   }
 
@@ -102,6 +105,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       .times(bnOrZero(sellAssetFiatRate))
       .toNumber(),
   )
+  const feeFiatValue = bnOrZero(fees?.fee).times(fiatRate)
+
+  const tradeFiatValue = bnOrZero(
+    fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0),
+  ).times(bnOrZero(sellAssetFiatRate))
+
+  //ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
+  const gasFeeToTradeRatioPercentage = feeFiatValue.dividedBy(tradeFiatValue).times(100).toNumber()
+  const gasFeeToTradeRatioPercentageThreshold = 5
+  const isFeeRatioOverThreshold =
+    gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
   return (
     <SlideTransition>
@@ -171,6 +185,18 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Row.Value>{toFiat(0)}</Row.Value>
               </Row>
+              {isFeeRatioOverThreshold && (
+                <Flex justifyContent='space-evenly' alignItems='center'>
+                  <WarningTwoIcon w={5} h={5} color='red.400' />
+                  <Text
+                    color='red.400'
+                    translation={[
+                      'trade.gasFeeExceedsTradeAmountThreshold',
+                      { percentage: gasFeeToTradeRatioPercentage.toFixed(0) },
+                    ]}
+                  />
+                </Flex>
+              )}
             </Stack>
           </Card.Body>
           <Card.Footer px={0} py={0}>

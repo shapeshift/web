@@ -1,10 +1,11 @@
-import { Center, Flex } from '@chakra-ui/react'
+import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useReducer } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -27,27 +28,26 @@ import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
 type YearnWithdrawProps = {
-  api: YearnVaultApi
+  yearnInvestor: YearnInvestor
 }
 
-export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
+export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
+  const translate = useTranslate()
+  const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: vaultAddress,
   })
@@ -63,31 +63,36 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !vaultAddress) return
-        const [address, vault, pricePerShare] = await Promise.all([
+        if (!(walletState.wallet && vaultAddress && yearnInvestor)) return
+        const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositVaultAddress(vaultAddress),
-          api.pricePerShare({ vaultAddress }),
+          yearnInvestor.findByOpportunityId(
+            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
+          ),
         ])
+        if (!opportunity) {
+          return toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
         dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnWithdrawActionType.SET_VAULT, payload: vault })
-        dispatch({
-          type: YearnWithdrawActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString(),
-        })
+        dispatch({ type: YearnWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet])
+  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     switch (route.path) {
       case WithdrawPath.Withdraw:
-        return <Withdraw api={api} />
+        return <Withdraw />
       case WithdrawPath.Confirm:
-        return <Confirm api={api} />
+        return <Confirm />
       case WithdrawPath.Status:
         return <Status />
       default:

@@ -1,11 +1,12 @@
-import { Button, Stack } from '@chakra-ui/react'
+import { Button, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
+import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
 type FoxyEmptyProps = {
   assets: Asset[]
-  apy: string
+  apy: string | undefined
   onClick?: () => void
 }
 
@@ -21,7 +22,11 @@ export const FoxyEmpty = ({ assets, apy, onClick }: FoxyEmptyProps) => {
     >
       <Stack direction='row' spacing={1} justifyContent='center' mb={4}>
         <Text translation='defi.modals.foxyOverview.header' />
-        <Text color='green.500' translation={['common.apy', { apy }]} />
+        <CText color='green.500'>
+          <Skeleton isLoaded={Boolean(apy)}>
+            <Amount.Percent value={apy ?? ''} suffix='APR' />
+          </Skeleton>
+        </CText>
       </Stack>
       <Text color='gray.500' translation='defi.modals.foxyOverview.body' />
       <Text color='gray.500' translation='defi.modals.foxyOverview.rewards' />

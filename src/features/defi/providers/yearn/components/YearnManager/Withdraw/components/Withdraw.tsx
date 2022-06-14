@@ -1,11 +1,10 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import {
   Withdraw as ReusableWithdraw,
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -20,28 +19,23 @@ import { useAppSelector } from 'state/store'
 import { WithdrawPath, YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type YearnWithdrawProps = {
-  api: YearnVaultApi
-}
-
-export const Withdraw = ({ api }: YearnWithdrawProps) => {
+export const Withdraw = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { yearn: yearnInvestor } = useYearn()
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const opportunity = state?.opportunity
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: vaultAddress,
   })
@@ -54,21 +48,17 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   if (!state || !dispatch) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!(state.userAddress && opportunity && assetReference)) return
     try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateWithdrawGas({
-          tokenContractAddress: tokenId,
-          vaultAddress,
-          amountDesired: bnOrZero(withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-      return returVal
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        opportunity?.positionAsset.assetId,
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedTx = await yearnOpportunity.prepareWithdrawal({
+        amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        address: state.userAddress,
+      })
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error('YearnWithdraw:getWithdrawGasEstimate error:', error)
@@ -76,7 +66,7 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const handleContinue = async (formValues: WithdrawValues) => {
-    if (!state.userAddress) return
+    if (!(state.userAddress && opportunity)) return
     // set withdraw state for future use
     dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
 
@@ -111,7 +101,9 @@ export const Withdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-  const pricePerShare = bnOrZero(state.pricePerShare).div(`1e+${asset?.precision}`)
+  const pricePerShare = bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
+    `1e+${asset?.precision}`,
+  )
   const vaultTokenPrice = pricePerShare.times(marketData.price)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 

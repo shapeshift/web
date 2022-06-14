@@ -1,5 +1,5 @@
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
-import { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 
 export enum DepositPath {
   Deposit = '/',
@@ -29,29 +29,33 @@ type YearnDepositValues = DepositValues &
     usedGasFee: string
   }
 
+// Redux only stores things that are serializable. Class methods are removed when put in state.
+export type SerializableOpportunity = Omit<
+  YearnOpportunity,
+  'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'signAndBroadcast'
+>
+
 export type YearnDepositState = {
-  vault: SupportedYearnVault
+  opportunity: SerializableOpportunity | null
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues
   loading: boolean
-  pricePerShare: string
   txid: string | null
 }
 
 export enum YearnDepositActionType {
-  SET_VAULT = 'SET_VAULT',
+  SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
 }
 
-type SetVaultAction = {
-  type: YearnDepositActionType.SET_VAULT
-  payload: YearnVault | null
+type SetOpportunityAction = {
+  type: YearnDepositActionType.SET_OPPORTUNITY
+  payload: YearnOpportunity
 }
 
 type SetApprove = {
@@ -74,21 +78,15 @@ type SetLoading = {
   payload: boolean
 }
 
-type SetPricePerShare = {
-  type: YearnDepositActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
 type SetTxid = {
   type: YearnDepositActionType.SET_TXID
   payload: string
 }
 
 export type YearnDepositActions =
-  | SetVaultAction
+  | SetOpportunityAction
   | SetApprove
   | SetDeposit
   | SetUserAddress
   | SetLoading
-  | SetPricePerShare
   | SetTxid

@@ -1,13 +1,21 @@
-import { Box, Flex, Heading, Link, Stack, useColorModeValue } from '@chakra-ui/react'
-import { getConfig } from 'config'
+import {
+  Box,
+  Flex,
+  Heading,
+  Link,
+  Skeleton,
+  Stack,
+  Text as CText,
+  useColorModeValue,
+} from '@chakra-ui/react'
+import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
-import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -21,7 +29,8 @@ const DefiHeader = () => {
 }
 
 const FoxFarmCTA = () => {
-  const apr = bnOrZero(getConfig().REACT_APP_ETH_FOX_APR).times(100).toString()
+  const translate = useTranslate()
+  const { farmingApr, loaded: isFarmingAprLoaded } = useFarmingApr()
   const ethAsset = useAppSelector(state => selectAssetById(state, 'eip155:1/slip44:60'))
   const foxAsset = useAppSelector(state =>
     selectAssetById(state, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'),
@@ -53,12 +62,13 @@ const FoxFarmCTA = () => {
           </RawText>
           <AssetIcon ml={-3} p={0.5} boxSize='40px' src={ethAssetIcon} />
           <AssetIcon ml={-2} boxSize='40px' src={foxAssetIcon} />
-          <Text
-            ml={5}
-            fontWeight='normal'
-            fontSize={{ base: 'md', md: 'lg' }}
-            translation={['defi.earnCopy', { apr }]}
-          />
+          <CText ml='5' fontWeight='normal' fontSize={{ base: 'md', md: 'lg' }}>
+            {translate('defi.clickHereToEarn')}
+            <Skeleton display='inline-block' isLoaded={isFarmingAprLoaded}>
+              <Amount.Percent as='span' value={farmingApr ?? ''} />
+            </Skeleton>
+            {translate('defi.byFarming')}
+          </CText>
         </Flex>
       </Stack>
     </Card>

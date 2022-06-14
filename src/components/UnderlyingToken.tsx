@@ -1,9 +1,7 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { AssetId } from '@shapeshiftoss/caip'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import toLower from 'lodash/toLower'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useEffect, useMemo, useState } from 'react'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { Card } from 'components/Card/Card'
@@ -25,8 +23,8 @@ const moduleLogger = logger.child({ namespace: ['UnderlyingToken'] })
 // In the future we should add a hook to get the provider interface by vault provider
 export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   const [underlyingAssetId, setUnderlyingAssetId] = useState('')
-  const { loading, yearn } = useYearn()
-  const vaults: SupportedYearnVault[] = useYearnVaults()
+  const { loading, yearn: yearnInvestor } = useYearn()
+  const vaults: SerializableOpportunity[] = useYearnVaults()
 
   // Get asset from assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -36,32 +34,29 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
   } = useWallet()
 
   const vault = useMemo(() => {
-    return vaults.find(_vault => _vault.vaultAddress === asset.tokenId)
-  }, [vaults, asset.tokenId])
+    return vaults.find(_vault => _vault.positionAsset.assetId === asset.assetId)
+  }, [vaults, asset.assetId])
 
-  const shouldHide = !asset?.tokenId || !yearn || !vault
+  const shouldHide = !asset?.assetId || !yearnInvestor || !vault
 
   useEffect(() => {
     ;(async () => {
       try {
         if (shouldHide || !wallet) return
         moduleLogger.trace(
-          { tokenId: asset.tokenId, chain: asset.chain, fn: 'yearn.token' },
+          { assetId: asset.assetId, chain: asset.chainId, fn: 'yearn.token' },
           'Get Yearn Token',
         )
-        const token = await yearn.token({ vaultAddress: asset.tokenId! })
-        const chain = asset.chain
-        const network = NetworkTypes.MAINNET
-        const assetNamespace = 'erc20'
-        const assetReference = toLower(token)
-        const assetId = toAssetId({ chain, network, assetNamespace, assetReference })
+        const opportunity = await yearnInvestor.findByOpportunityId(asset.assetId!)
+        if (!opportunity) return
+        const assetId = opportunity.underlyingAsset.assetId
         moduleLogger.trace({ assetId, fn: 'yearn.token' }, 'Yearn Asset')
         setUnderlyingAssetId(assetId)
       } catch (error) {
         moduleLogger.error(error, 'yearn.token() failed')
       }
     })()
-  }, [shouldHide, asset.tokenId, asset.chain, vault, wallet, yearn])
+  }, [shouldHide, asset.chainId, asset.assetId, vault, wallet, yearnInvestor])
 
   if (shouldHide || loading || !underlyingAssetId) return null
 

@@ -10,7 +10,6 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-import { cosmossdk, ethereum } from '@shapeshiftoss/chain-adapters'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -19,18 +18,15 @@ import { useHistory } from 'react-router-dom'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
-import { ensLookup, ensReverseLookup } from 'lib/ens'
+import { parseAddressInput } from 'lib/address/address'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 export const Address = () => {
-  const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
-  const [isValidatingCosmosAddress, setIsValidatingCosmosAddress] = useState(false)
-  const isValidating = isValidatingEnsName || isValidatingCosmosAddress
+  const [isValidating, setIsValidating] = useState(false)
   const history = useHistory()
   const translate = useTranslate()
   const {
@@ -38,18 +34,12 @@ export const Address = () => {
     formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
-
-  const chainAdapters = useChainAdapters()
   const { send } = useModal()
-
-  if (!(asset?.chain && asset?.name)) return null
-
-  const adapter = chainAdapters.byChain(asset.chain)
-
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  if (!asset) return null
+  const { chainId } = asset
   const handleNext = () => history.push(SendRoutes.Details)
-
-  const addressError = get(errors, `${SendFormFields.Address}.message`, null)
+  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
     <SlideTransition>
@@ -84,34 +74,17 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
-                  if (adapter instanceof cosmossdk.cosmos.ChainAdapter) {
-                    setIsValidatingCosmosAddress(true)
-                    const validAddress = await adapter.validateAddress(value)
-                    setIsValidatingCosmosAddress(false)
-                    return validAddress.valid || 'common.invalidAddress'
-                  }
-                  const validAddress = await adapter.validateAddress(value)
-                  if (adapter instanceof ethereum.ChainAdapter) {
-                    const validEnsAddress = await adapter.validateEnsAddress(value)
-                    if (validEnsAddress.valid) {
-                      // Verify that the ENS name resolves to an address
-                      setisValidatingEnsName(true)
-                      const { error: isUnresolvableEnsName } = await ensLookup(value)
-                      if (isUnresolvableEnsName) {
-                        setisValidatingEnsName(false)
-                        return 'common.unresolvableEnsDomain'
-                      }
-                      // and add it to form state as a side effect
-                      setisValidatingEnsName(false)
-                      setValue(SendFormFields.EnsName, value)
-                      return true
-                    }
-                    // If a lookup exists for a 0x address, display ENS name instead
-                    const reverseValueLookup = await ensReverseLookup(value)
-                    !reverseValueLookup.error &&
-                      setValue(SendFormFields.EnsName, reverseValueLookup.name)
-                  }
-                  return validAddress.valid || 'common.invalidAddress'
+                  // clear previous values
+                  setValue(SendFormFields.Address, '')
+                  setValue(SendFormFields.VanityAddress, '')
+                  setIsValidating(true)
+                  // this does not throw, everything inside is handled
+                  const { address, vanityAddress } = await parseAddressInput({ chainId, value })
+                  setIsValidating(false)
+                  // set returned values
+                  setValue(SendFormFields.Address, address)
+                  setValue(SendFormFields.VanityAddress, vanityAddress)
+                  return address ? true : 'common.invalidAddress'
                 },
               },
             }}

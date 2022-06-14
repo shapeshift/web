@@ -256,6 +256,13 @@ const variantUnstyled = {
   p: 0,
 }
 
+const variantReadOnly = {
+  px: 0,
+  bg: 'none',
+  minWidth: 'auto',
+  pointerEvents: 'none',
+}
+
 const variants = {
   ghost: variantGhost,
   'ghost-filled': variantGhostFilled,
@@ -265,6 +272,7 @@ const variants = {
   input: variantInput,
   unstyled: variantUnstyled,
   tab: variantTab,
+  'read-only': variantReadOnly,
 }
 
 const sizes = {

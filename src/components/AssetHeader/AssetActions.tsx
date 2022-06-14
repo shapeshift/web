@@ -1,11 +1,14 @@
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { tokenOrUndefined } from 'lib/utils'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,6 +20,8 @@ type AssetActionProps = {
 }
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+  const [isValidChainId, setIsValidChainId] = useState(true)
+  const chainAdapterManager = useChainAdapters()
   const { send, receive } = useModal()
   const translate = useTranslate()
   const {
@@ -25,6 +30,15 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  useEffect(() => {
+    try {
+      chainAdapterManager.byChainId(asset.chainId)
+      setIsValidChainId(true)
+    } catch (e) {
+      setIsValidChainId(false)
+    }
+  }, [chainAdapterManager, asset])
+
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleSendClick = () =>
@@ -32,6 +46,13 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const handleReceiveClick = () =>
     isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
+
+  const { assetReference } = fromAssetId(asset.assetId)
+  const maybeToken = tokenOrUndefined(assetReference)
+
+  // If token is undefined, redirect to the basic explorer link
+  // else redirect to the token explorer link
+  const href = maybeToken ? `${asset?.explorerAddressLink}${maybeToken}` : asset?.explorer
 
   return (
     <Stack
@@ -43,11 +64,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
       <Button
         as={Link}
         leftIcon={<ExternalLinkIcon />}
-        // If tokenId is undefined, redirect to the basic explorer link
-        // else redirect to the token explorer link
-        href={`${asset?.tokenId ? asset?.explorerAddressLink : asset?.explorer}${
-          asset?.tokenId ?? ''
-        }`}
+        href={href}
         variant='solid'
         width={{ base: '100%', md: 'auto' }}
         isExternal
@@ -65,6 +82,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           {translate('common.send')}
         </Button>
         <Button
+          disabled={!isValidChainId}
           onClick={handleReceiveClick}
           leftIcon={<ArrowDownIcon />}
           width={{ base: '100%', md: 'auto' }}

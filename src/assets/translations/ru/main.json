@@ -12,7 +12,6 @@
     "noResultsFound": "Ответ не найден",
     "insufficientFunds": "Недостаточно средств",
     "invalidAddress": "Неверный адрес",
-    "unresolvableEnsDomain": "Не удается определить ENS домен",
     "deposit": "Пополнить",
     "withdraw": "Вывод",
     "getStarted": "Начать",
@@ -59,7 +58,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explore The",
     "defiUniverse": "DeFi Universe",
     "body": "100% Бесплатно. Открытый код. Пренадлежит сообществу. Некастодиальный. Приватный.",
@@ -120,7 +118,7 @@
     "earn": "Заработки",
     "defi": "DeFi",
     "tradeHistory": "История торгов",
-    "foxToken": "FOX токен"
+    "foxToken": "FOX возможности"
   },
   "transactionRow": {
     "send": "Отправлено %{symbol}",
@@ -358,6 +356,21 @@
         "header": "Подтвердите свой новый пин",
         "body": "Используйте схему PIN-кода, показанную на вашем устройстве, чтобы найти место, которое нужно нажать на пин-паде.",
         "button": "Сохранить пин"
+      }
+    },
+    "keplr": {
+      "errors": {
+        "unknown": "Возникла непредвиденная ошибка при соединении с Keplr",
+        "connectFailure": "Невозможно подключить кошелек Keplr"
+      },
+      "connect": {
+        "header": "Обьединить Keplr",
+        "body": "Нажмите обьединить, затем выберите Keplr во всплывающем окне",
+        "button": "Обьединить"
+      },
+      "failure": {
+        "header": "Ошибка",
+        "body": "Невозможно подключить кошелек Keplr"
       }
     },
     "metaMask": {

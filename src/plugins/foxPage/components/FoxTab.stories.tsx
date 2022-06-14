@@ -18,7 +18,7 @@ export const FoxPageTabs: Story = () => (
   <Tabs variant='unstyled'>
     <TabList>
       <SimpleGrid
-        gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(4, 1fr)' }}
+        gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={4}
         mb={4}
         width='full'
@@ -34,21 +34,16 @@ export const FoxPageTabs: Story = () => (
         <FoxTab
           assetIcon={fox.icon}
           assetSymbol={fox.symbol}
-          isSelected={true}
           cryptoAmount={'3000'}
           fiatAmount={'1000'}
+          onClick={() => {}}
         />
         <FoxTab
           assetIcon={fox.icon}
           assetSymbol={fox.symbol}
           cryptoAmount={'3000'}
           fiatAmount={'1000'}
-        />
-        <FoxTab
-          assetIcon={fox.icon}
-          assetSymbol={fox.symbol}
-          cryptoAmount={'3000'}
-          fiatAmount={'1000'}
+          onClick={() => {}}
         />
       </SimpleGrid>
     </TabList>

@@ -4,10 +4,9 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
-import { logging } from './middleware/logging'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
-import { marketApi } from './slices/marketDataSlice/marketDataSlice'
+import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -25,7 +24,6 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
-  logging,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
@@ -47,13 +45,22 @@ export const clearState = () => {
 
 /**
  * These actions make the redux devtools crash. Blacklist them from the developer tools.
+ * remove the blacklist for local debugging, but don't commit it
  */
 const actionSanitizer = (action: any) => {
+  const marketDataBlackList = Object.keys(marketData.actions).reduce<Array<string>>((acc, k) => {
+    if (k.startsWith('set')) acc.push(`marketData/${k}`)
+    return acc
+  }, [])
+
   const blackList = [
+    // our normalized data actions
     'asset/setAssets',
+    ...marketDataBlackList,
+    // RTK query internal actions
     'assetApi/executeQuery/fulfilled',
-    'marketData/setMarketData',
-    'marketData/setPriceHistory',
+    'marketApi/executeQuery/fulfilled',
+    'txHistoryApi/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)
     ? {
@@ -66,7 +73,17 @@ const actionSanitizer = (action: any) => {
 /**
  * Remove data from state to improve developer tools experience
  */
-const stateSanitizer = (state: any) => ({ ...state, assets: 'see stateSanitizer in store.ts' })
+const stateSanitizer = (state: any) => {
+  // typing state here gives a circular dependency
+  const msg = 'see stateSanitizer in store.ts'
+  return {
+    ...state,
+    assets: msg,
+    marketData: msg,
+    assetApi: msg,
+    marketApi: msg,
+  }
+}
 
 /// This allows us to create an empty store for tests
 export const createStore = () =>

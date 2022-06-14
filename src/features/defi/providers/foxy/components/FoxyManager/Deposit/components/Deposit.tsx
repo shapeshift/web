@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext } from 'react'
@@ -30,10 +29,9 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId } = query
-  const network = NetworkTypes.MAINNET
+  const { chainId, contractAddress, assetReference } = query
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -47,11 +45,11 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   if (!state || !dispatch) return null
 
   const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !assetReference) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateApproveGas({
-          tokenContractAddress: tokenId,
+          tokenContractAddress: assetReference,
           contractAddress,
           userAddress: state.userAddress,
         }),
@@ -76,7 +74,7 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
-        tokenContractAddress: tokenId,
+        tokenContractAddress: assetReference,
         contractAddress,
         userAddress: state.userAddress,
       })

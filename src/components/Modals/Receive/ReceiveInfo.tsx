@@ -28,7 +28,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensReverseLookup } from 'lib/ens'
+import { ensReverseLookup } from 'lib/address/ens'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
@@ -51,7 +51,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+  const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
 
   useEffect(() => {
     ;(async () => {

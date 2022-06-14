@@ -16,7 +16,6 @@
     "estimatedGas": "Estimation des frais de carburant",
     "insufficientAmountForGas": "Pas assez d'ETH pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
-    "unresolvableEnsDomain": "Impossible de résoudre le domaine ENS",
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
@@ -107,7 +106,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explorer l'",
     "defiUniverse": "Univers DeFi",
     "body": "100% Gratuit. Open Source. Propriété communautaire. Non-dépositaire. Privé.",
@@ -134,10 +132,10 @@
           "risks": "Y a-t-il des risques ?"
         },
         "bodies": {
-          "rateFluctuationInfo": "Le taux de %{assetName'actif} que vous gagnez, le taux annuel effectif global (APR), fluctue généralement entre 7 % et 20 %.",
+          "rateFluctuationInfo": "Le taux de %{assetName} que vous gagnez, le taux annuel effectif global (APR), fluctue généralement entre 7 % et 20 %.",
           "amountStakingInfo": "Vous pouvez miser n'importe quel montant de %{assetName} et ils commenceront immédiatement à gagner des récompenses.",
           "withdrawInfo": "Vous pouvez retirer vos récompenses à tout moment, ce qui nécessite des frais de carburant minimes d'environ ~$.01.",
-          "unbondingInfo": "Lorsque vous démisez vos jetons, ils restent verrouillés pendant 14 jours, au cours desquels ils ne sont pas récompensés. Après ces 14 jours, vos %{assetName} retourneront dans votre Porte-monnaie Principal.",
+          "unbondingInfo": "Lorsque vous démisez vos jetons, ils restent verrouillés pendant %{unbondingDays} jours, au cours desquels ils ne sont pas récompensés. Après ces %{unbondingDays} jours, vos %{assetName} retourneront dans votre Porte-monnaie Principal.",
           "slashingInfo": "La mise est effectuée par un validateur. C'est extrêmement rare, mais si le validateur avec lequel vous avez effectué la mise en réserve se trompe en autorisant des transactions fausses ou incorrectes, vous pouvez perdre une partie de vos actifs.",
           "partnerInfo": "Nous avons mitigé ce risque en nous associant à un validateur réputé, qui dispose d'une infrastructure sécurisée, fiable et auditée."
         },
@@ -283,7 +281,7 @@
     "overview": "Vue d'ensemble",
     "transactions": "Transactions",
     "tradeHistory": "Historique des échanges",
-    "foxToken": "Jeton FOX",
+    "foxToken": "Opportunités FOX",
     "featureFlags": "Indicateurs de fonctionnalité"
   },
   "transactionRow": {
@@ -695,6 +693,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec Keplr",
+        "connectFailure": "Impossible de connecter le porte-monnaie Keplr."
+      },
+      "connect": {
+        "header": "Appairer Keplr",
+        "body": "Cliquez sur Appairer et connectez-vous à Keplr à partir de la fenêtre popup",
+        "button": "Appairer"
+      },
+      "failure": {
+        "header": "Erreur",
+        "body": "Impossible de se connecter au porte-monnaie Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec MetaMask",
@@ -808,6 +821,7 @@
         "emailRequired": "L'adresse de courriel est requise",
         "invalidEmail": "L'adresse de courriel est invalide",
         "invalidCaptcha": "Le Capcha est invalide",
+        "captchaRequired": "Le Capcha est requis",
         "invalidLogin": "Identification invalide",
         "noWallet": "Impossible de trouver un porte-monnaie ShapeShift Natif pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
         "decryptionError": "Une erreur s'est produite lors du décryptage de votre porte-monnaie.",

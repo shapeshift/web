@@ -1,7 +1,7 @@
 import { Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNil from 'lodash/isNil'
@@ -32,28 +32,24 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId, rewardId } = query
+  const { chainId, contractAddress, assetReference, rewardId } = query
 
-  const network = NetworkTypes.MAINNET
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace,
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
-    chain,
-    network,
+    chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
@@ -100,7 +96,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
+          txStatus: transactionReceipt.status ? 'success' : 'failed',
           usedGasFee: bnOrZero(bn(gasPrice).times(transactionReceipt.gasUsed)).toFixed(0),
         },
       })

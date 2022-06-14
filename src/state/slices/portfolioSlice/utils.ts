@@ -1,10 +1,16 @@
 import {
   AccountId,
   AssetId,
+  btcChainId,
+  CHAIN_NAMESPACE,
   ChainId,
+  chainIdToFeeAssetId,
+  cosmosChainId,
+  ethChainId,
   fromAssetId,
+  fromChainId,
+  osmosisChainId,
   toAccountId,
-  toChainId,
 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -23,27 +29,8 @@ import {
   PortfolioAccounts as PortfolioSliceAccounts,
 } from './portfolioSliceCommon'
 
-// TODO(gomes): Import from caip after lib#572 is merged
-export const ethChainId = 'eip155:1'
-export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
-export const cosmosChainId = 'cosmos:cosmoshub-4'
-const osmosisChainId = 'cosmos:osmosis-1'
-export const ethAssetId = 'eip155:1/slip44:60'
-export const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-export const cosmosAssetId = 'cosmos:cosmoshub-4/slip44:118'
-export const osmosisAssetId = 'cosmos:osmosis-1/slip44:118'
-
-export const chainIds = [ethChainId, btcChainId, cosmosChainId] as const
+export const chainIds = [ethChainId, btcChainId, cosmosChainId, osmosisChainId] as const
 export type ChainIdType = typeof chainIds[number]
-
-// we only need to update this when we support additional chains, which is infrequent
-// so it's ok to hardcode this map here
-const chainIdToAssetId: Record<string, string> = {
-  [ethChainId]: ethAssetId,
-  [btcChainId]: btcAssetId,
-  [cosmosChainId]: cosmosAssetId,
-  [osmosisChainId]: osmosisAssetId,
-}
 
 export const assetIdToChainId = (assetId: AssetId): ChainIdType =>
   assetId.split('/')[0] as ChainIdType
@@ -62,6 +49,16 @@ export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
 
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
+
+export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
+  if (!content) return ''
+
+  if (!trimmedContentLength) return content
+
+  if (content.length < trimmedContentLength) return content
+
+  return content.slice(0, trimmedContentLength).concat('...')
+}
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountSpecifier): string => {
@@ -99,13 +96,14 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     case cosmosChainId: {
       return 'Cosmos'
     }
+    case osmosisChainId: {
+      return 'Osmosis'
+    }
     default: {
       return ''
     }
   }
 }
-
-export const chainIdToFeeAssetId = (chainId: ChainId): AssetId => chainIdToAssetId[chainId]
 
 // note - this is not really a selector, more of a util
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
@@ -119,15 +117,11 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   return null
 }
 
-export const accountIdToUtxoParams = (
-  asset: Asset,
-  accountId: AccountSpecifier,
-  accountIndex: number,
-) => {
+export const accountIdToUtxoParams = (accountId: AccountSpecifier, accountIndex: number) => {
   const accountType = accountIdToAccountType(accountId)
   // for eth, we don't return a UtxoAccountType or utxoParams
   if (!accountType) return {}
-  const utxoParams = utxoAccountParams(asset, accountType, accountIndex)
+  const utxoParams = utxoAccountParams(accountType, accountIndex)
   return { utxoParams, accountType }
 }
 
@@ -174,11 +168,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args.portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
-    const { chain } = account
+    const { chainId } = account
+    const { chainNamespace } = fromChainId(chainId)
 
-    switch (chain) {
-      // TODO: Handle Cosmos ChainType here
-      case ChainTypes.Ethereum: {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { chainId, assetId, pubkey } = account
         const accountSpecifier = `${chainId}:${toLower(pubkey)}`
@@ -228,7 +222,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         })
         break
       }
-      case ChainTypes.Bitcoin: {
+      case CHAIN_NAMESPACE.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
         const { balance, chainId, assetId, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
@@ -277,8 +271,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         break
       }
-      case ChainTypes.Cosmos:
-      case ChainTypes.Osmosis: {
+      case CHAIN_NAMESPACE.Cosmos: {
         const cosmosAccount = account as chainAdapters.Account<ChainTypes.Cosmos>
         const { chainId, assetId } = account
         const accountSpecifier = `${chainId}:${_xpubOrAccount}`
@@ -414,8 +407,7 @@ export const makeBalancesByChainBucketsFlattened = (
 
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
   if (!assetId) return false
-  const { chain, network } = fromAssetId(assetId)
-  const chainId = toChainId({ chain, network })
+  const { chainId } = fromAssetId(assetId)
   switch (chainId) {
     case ethChainId:
       return supportsETH(wallet)

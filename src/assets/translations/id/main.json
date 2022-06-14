@@ -16,7 +16,6 @@
     "estimatedGas": "Perkiraan Biaya Gas",
     "insufficientAmountForGas": "Tidak cukup ETH untuk menutupi gas",
     "invalidAddress": "Alamat Tidak Valid",
-    "unresolvableEnsDomain": "Tidak dapat menyelesaikan domain ENS",
     "deposit": "Setoran",
     "withdraw": "Penarikan",
     "withdrawal": "Penarikan",
@@ -107,7 +106,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Jelajahi",
     "defiUniverse": "Alam Semesta DeFi",
     "body": "100% Gratis. Sumber Terbuka. Milik Komunitas. Non-Penahanan. Pribadi.",
@@ -137,7 +135,7 @@
           "rateFluctuationInfo": "Tingkat %{assetName} yang Anda peroleh, Persentase Pengembalian Tahunan (APR), biasanya berfluktuasi antara 7% - 20%.",
           "amountStakingInfo": "Anda dapat mempertaruhkan %{assetName} dalam jumlah berapa pun dan mereka akan segera mulai mendapatkan hadiah.",
           "withdrawInfo": "Anda dapat menarik hadiah Anda kapan saja, yang memerlukan sedikit biaya gas sekitar ~$.01.",
-          "unbondingInfo": "Saat Anda unstaking token, token akan tetap terkunci selama 14 hari, selama waktu tersebut mereka tidak akan mendapatkan hadiah. Setelah 14 hari, %{assetName} Anda akan kembali ke Dompet Utama Anda.",
+          "unbondingInfo": "Saat Anda unstaking token, token akan tetap terkunci selama %{unbondingDays} hari, selama waktu tersebut mereka tidak akan mendapatkan hadiah. Setelah %{unbondingDays} hari, %{assetName} Anda akan kembali ke Dompet Utama Anda.",
           "slashingInfo": "Staking dilakukan melalui validator. Ini sangat jarang terjadi, tetapi jika validator yang Anda pertaruhkan mengacaukan dengan membiarkan transaksi yang salah atau salah, Anda bisa kehilangan sebagian dari aset Anda.",
           "partnerInfo": "Kami telah mengurangi risiko ini dengan bermitra dengan validator yang memiliki reputasi baik—yang memiliki infrastruktur yang aman, andal, dan diaudit."
         },
@@ -292,7 +290,7 @@
     "overview": "Ringkasan ",
     "transactions": "Transaksi",
     "tradeHistory": "Sejarah Perdagangan",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Fitur Bendera"
   },
   "transactionRow": {
@@ -314,6 +312,12 @@
     "amount": "Jumlah",
     "for": "Untuk",
     "parser": {
+      "weth": {
+        "deposit": "Deposit",
+        "approve": "Menyetujui",
+        "withdraw": "Penarikan ",
+        "receive": "Menerima"
+      },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Menyetujui",
@@ -704,6 +708,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan Keplr",
+        "connectFailure": "Tidak dapat menghubungkan dompet Keplr"
+      },
+      "connect": {
+        "header": "Pasangkan Keplr",
+        "body": "Klik Pasangkan lalu pilih Keplr dari jendela popup",
+        "button": "Pasangkan"
+      },
+      "failure": {
+        "header": "Kesalahan",
+        "body": "Tidak dapat menghubungkan dompet Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan MetaMask",
@@ -817,6 +836,7 @@
         "emailRequired": "Email diperlukan ",
         "invalidEmail": "Email tidak valid",
         "invalidCaptcha": "Captcha tidak valid",
+        "captchaRequired": "Captcha diperlukan",
         "invalidLogin": "Invalid login",
         "noWallet": "Tidak dapat menemukan dompet ShapeShift Asli untuk login Anda. Jika Anda merasa pesan ini salah, silakan hubungi dukungan ShapeShift.",
         "decryptionError": "Terjadi kesalahan saat mendekripsi dompet Anda.",

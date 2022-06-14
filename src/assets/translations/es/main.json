@@ -16,7 +16,6 @@
     "estimatedGas": "Tarifa Estimada de Gas",
     "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
-    "unresolvableEnsDomain": "No se puede resolver el dominio ENS",
     "deposit": "Depositar",
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
@@ -107,7 +106,6 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "alpha": "Alpha",
     "exploreThe": "Explora El",
     "defiUniverse": "Universo DeFi",
     "body": "100% gratis. Código abierto. Propiedad de la comunidad. Sin custodia. Privado.",
@@ -137,7 +135,7 @@
           "rateFluctuationInfo": "La tasa de %{assetName} que gana, el rendimiento porcentual anual (APR), normalmente fluctúa entre el 7 % y el 20 %.",
           "amountStakingInfo": "Puede hacer staking en cualquier cantidad de %{assetName} e inmediatamente comenzará a ganar recompensas.",
           "withdrawInfo": "Puede retirar sus recompensas en cualquier momento, lo que requiere una pequeña tarifa de gasolina alrededor de ~ $ 0,01.",
-          "unbondingInfo": "Cuando realice unstaking de sus activos, permanecerán bloqueados durante 14 días, sin generar recompensas. Después de los 14 días, su %{assetName} volverá a su billetera principal.",
+          "unbondingInfo": "Cuando realice unstaking de sus activos, permanecerán bloqueados durante %{unbondingDays} días, sin generar recompensas. Después de los %{unbondingDays} días, su %{assetName} volverá a su billetera principal.",
           "slashingInfo": "El staking se realiza a través de un validador. Es increíblemente raro, pero si el validador delegado se equivoca al permitir que se realicen transacciones falsas o incorrectas, podría perder parte de sus activos.",
           "partnerInfo": "Hemos mitigado este riesgo al asociarnos con un validador acreditado, que tiene una infraestructura segura, confiable y auditada."
         },
@@ -283,7 +281,7 @@
     "overview": "Resúmenes",
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Indicadores de Funciones"
   },
   "transactionRow": {
@@ -305,6 +303,12 @@
     "amount": "Cantidad",
     "for": "para",
     "parser": {
+      "weth": {
+        "deposit": "Depositar",
+        "approve": "Aprobar",
+        "withdraw": "Retirar",
+        "receive": "Recibir"
+      },
       "yearn": {
         "deposit": "Depositar",
         "approve": "Aprobar",
@@ -699,6 +703,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con Keplr",
+        "connectFailure": "No se puede conectar la billetera Keplr"
+      },
+      "connect": {
+        "header": "Emparejar Keplr",
+        "body": "Haga clic en Emparejar y luego seleccione Keplr en la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
@@ -812,6 +831,7 @@
         "emailRequired": "Correo Electronico es requerido",
         "invalidEmail": "Correo Electrónico es invalido",
         "invalidCaptcha": "El Captcha no es válido",
+        "captchaRequired": "Se requiere captcha",
         "invalidLogin": "Ingreso invalido",
         "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
         "decryptionError": "Algo salió mal al descifrar su billetera.",

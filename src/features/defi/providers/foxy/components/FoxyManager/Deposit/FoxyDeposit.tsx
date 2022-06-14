@@ -1,10 +1,10 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
+import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import { useEffect, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -40,10 +40,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const translate = useTranslate()
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId } = query
-  const network = NetworkTypes.MAINNET
+  const { chainId, contractAddress, assetReference } = query
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chain, network, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -51,32 +50,36 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   // user info
   const chainAdapterManager = useChainAdapters()
   const { state: walletState } = useWallet()
+  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !contractAddress) return
+        if (!walletState.wallet || !contractAddress || !isFoxyAprLoaded) return
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: FoxyDepositActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
+        dispatch({
+          type: FoxyDepositActionType.SET_OPPORTUNITY,
+          payload: { ...foxyOpportunity, apy: foxyApr ?? '' },
+        })
       } catch (error) {
         // TODO: handle client side errors
         console.error('FoxyDeposit error:', error)
       }
     })()
-  }, [api, chainAdapterManager, contractAddress, walletState.wallet])
+  }, [api, chainAdapterManager, contractAddress, walletState.wallet, foxyApr, isFoxyAprLoaded])
 
   const getDepositGasEstimate = async (deposit: DepositValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !assetReference) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({
-          tokenContractAddress: tokenId,
+          tokenContractAddress: assetReference,
           contractAddress,
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)

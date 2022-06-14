@@ -3,6 +3,7 @@ import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 
 type StakingInput =
   | {
@@ -35,6 +36,8 @@ export const useStakingAction = () => {
         let result
 
         const { chainSpecific, validator, action, value } = data
+        const memo = validator === SHAPESHIFT_VALIDATOR_ADDRESS ? 'Delegated with ShapeShift' : ''
+
         if (adapterType === ChainTypes.Cosmos) {
           switch (action) {
             case StakingAction.Claim: {
@@ -44,6 +47,7 @@ export const useStakingAction = () => {
                 wallet,
                 validator,
                 chainSpecific,
+                memo,
               })
               break
             }
@@ -53,6 +57,7 @@ export const useStakingAction = () => {
                 validator,
                 value,
                 chainSpecific,
+                memo,
               })
               break
             }
@@ -62,6 +67,7 @@ export const useStakingAction = () => {
                 validator,
                 value,
                 chainSpecific,
+                memo,
               })
               break
             }

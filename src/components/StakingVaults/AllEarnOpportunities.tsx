@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -10,6 +10,7 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -41,14 +42,14 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const { type, provider, contractAddress, chain, tokenAddress, rewardAddress, assetId } =
-        opportunity
-      if (!isConnected && walletInfo?.deviceId !== 'DemoWallet') {
+      const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
+      const { assetReference } = fromAssetId(assetId)
+      if (!isConnected && walletInfo?.deviceId !== DemoConfig.name) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
 
-      if (chain === ChainTypes.Cosmos) {
+      if (chainId === cosmosChainId) {
         cosmosStaking.open({
           assetId,
           validatorAddress: contractAddress,
@@ -60,9 +61,9 @@ export const AllEarnOpportunities = () => {
       history.push({
         pathname: `/defi/${type}/${provider}/overview`,
         search: qs.stringify({
-          chain,
+          chainId,
           contractAddress,
-          tokenId: tokenAddress,
+          assetReference,
           rewardId: rewardAddress,
         }),
         state: { background: location },

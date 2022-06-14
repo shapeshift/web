@@ -1,15 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { chainAdapters } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { logger } from 'lib/logger'
+import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
 
-import { cosmosChainId } from '../portfolioSlice/utils'
+import { PortfolioAccounts } from '../portfolioSlice/portfolioSliceCommon'
+
+const moduleLogger = logger.child({ namespace: ['validatorDataSlice'] })
 
 export type PubKey = string
 
-type SingleValidatorDataArgs = { validatorAddress: PubKey }
+type SingleValidatorDataArgs = { accountSpecifier: string }
 
 export type Validators = {
   validators: chainAdapters.cosmos.Validator[]
@@ -64,28 +69,48 @@ export const validatorDataApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
-      queryFn: async ({ validatorAddress }, { dispatch }) => {
-        const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(
-          cosmosChainId,
-        )) as cosmossdk.cosmos.ChainAdapter
-        try {
-          const data = await adapter.getValidator(validatorAddress)
-          dispatch(
-            validatorData.actions.upsertValidatorData({
-              validators: [data],
-            }),
-          )
-          return { data }
-        } catch (e) {
-          console.error('Error fetching single validator data', e)
-          return {
-            error: {
-              data: `Error fetching validator data`,
-              status: 500,
-            },
-          }
+      queryFn: async ({ accountSpecifier }, { dispatch, getState }) => {
+        // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
+        const { byId } = (getState() as any).portfolio.accounts as PortfolioAccounts
+
+        const portfolioAccount = byId[accountSpecifier]
+
+        if (!portfolioAccount) {
+          return { error: { data: `No portfolio data found for ${accountSpecifier}`, status: 404 } }
         }
+
+        const validatorIds = portfolioAccount.validatorIds?.length
+          ? portfolioAccount.validatorIds
+          : [SHAPESHIFT_VALIDATOR_ADDRESS]
+
+        const chainAdapters = getChainAdapters()
+        const adapter = chainAdapters.byChainId(cosmosChainId) as cosmossdk.cosmos.ChainAdapter
+
+        const validators = await Promise.allSettled(
+          validatorIds.map(async validatorId => {
+            try {
+              const data = await adapter.getValidator(validatorId)
+
+              dispatch(
+                validatorData.actions.upsertValidatorData({
+                  validators: [data],
+                }),
+              )
+            } catch (err) {
+              if (err instanceof Error) {
+                throw new Error(`failed to get data for validator: ${validatorId}: ${err.message}`)
+              }
+            }
+          }),
+        )
+
+        validators.forEach(promise => {
+          if (promise.status === 'rejected') {
+            moduleLogger.child({ fn: 'getValidatorData' }).warn(promise.reason)
+          }
+        })
+
+        return { data: {} as chainAdapters.cosmos.Validator }
       },
     }),
   }),

@@ -1,4 +1,4 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, chainIdToFeeAssetId } from '@shapeshiftoss/caip'
 import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -7,46 +7,65 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapper'
 
-const ETHEREUM_ASSET_ID = 'eip155:1/slip44:60'
-
 export const useTradeRoutes = (
-  defaultBuyAssetId?: AssetId,
+  routeBuyAssetId?: AssetId,
 ): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<SupportedChainIds>>()
-  const { updateQuote, getDefaultPair } = useSwapper()
+  const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
+  const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
-  const feeAsset = assets[ETHEREUM_ASSET_ID]
 
   const setDefaultAssets = useCallback(async () => {
     // wait for assets to be loaded
     if (isEmpty(assets) || !feeAsset) return
 
     try {
-      const [sellAssetId, buyAssetId] = getDefaultPair()
-      const sellAsset = assets[sellAssetId]
+      const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
+      const sellAsset = assets[defaultSellAssetId]
 
-      // ugly hack until we add proper error handling in another PR soon
-      const buyAsset =
-        assets[
-          defaultBuyAssetId?.startsWith('eip155:1') && defaultBuyAssetId !== 'eip155:1/slip44:60'
-            ? defaultBuyAssetId
-            : buyAssetId
-        ]
+      const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
+
+      // make sure the same buy and sell assets arent selected
+      const buyAssetToCheckId =
+        preBuyAssetToCheckId === defaultSellAssetId ? defaultBuyAssetId : preBuyAssetToCheckId
+
+      const bestSwapper = await swapperManager.getBestSwapper({
+        buyAssetId: buyAssetToCheckId,
+        sellAssetId: defaultSellAssetId,
+      })
+
+      // TODO update swapper to have an official way to validate a pair is supported.
+      // This works for now
+      const isSupportedPair = await (async () => {
+        try {
+          if (bestSwapper) {
+            await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
+            return true
+          }
+        } catch (e) {}
+        return false
+      })()
+
+      const buyAssetId = isSupportedPair ? buyAssetToCheckId : defaultBuyAssetId
+
+      const buyAsset = assets[buyAssetId]
 
       if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
         setValue('sellAsset.asset', sellAsset)
-        updateQuote({
+        await updateQuote({
           forceQuote: true,
           amount: '0',
           sellAsset,
@@ -58,11 +77,11 @@ export const useTradeRoutes = (
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, defaultBuyAssetId, feeAsset, getDefaultPair, setValue, updateQuote])
+  }, [assets, feeAsset, getDefaultPair, routeBuyAssetId, setValue, swapperManager, updateQuote])
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, feeAsset]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assets, routeBuyAssetId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
@@ -71,21 +90,23 @@ export const useTradeRoutes = (
         const previousBuyAsset = { ...getValues('buyAsset') }
 
         // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousBuyAsset?.asset.assetId) {
+        if (asset.assetId === previousBuyAsset?.asset?.assetId) {
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', previousSellAsset.asset)
         } else {
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', buyTradeAsset?.asset)
         }
-        updateQuote({
-          forceQuote: true,
-          amount: bnOrZero(sellTradeAsset?.amount).toString(),
-          sellAsset: asset,
-          buyAsset: buyTradeAsset?.asset,
-          feeAsset,
-          action: TradeAmountInputField.SELL,
-        })
+        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+          await updateQuote({
+            forceQuote: true,
+            amount: bnOrZero(sellTradeAsset.amount).toString(),
+            sellAsset: asset,
+            buyAsset: buyTradeAsset.asset,
+            feeAsset,
+            action: TradeAmountInputField.SELL,
+          })
+        }
       } catch (e) {
         console.warn(e)
       } finally {
@@ -94,11 +115,12 @@ export const useTradeRoutes = (
     },
     [
       getValues,
-      updateQuote,
+      sellTradeAsset?.asset,
       sellTradeAsset?.amount,
       buyTradeAsset?.asset,
-      feeAsset,
       setValue,
+      updateQuote,
+      feeAsset,
       history,
     ],
   )
@@ -110,7 +132,7 @@ export const useTradeRoutes = (
         const previousBuyAsset = { ...getValues('buyAsset') }
 
         // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousSellAsset?.asset.assetId) {
+        if (asset.assetId === previousSellAsset?.asset?.assetId) {
           setValue('buyAsset.asset', asset)
           setValue('sellAsset.asset', previousBuyAsset.asset)
         } else {
@@ -118,14 +140,16 @@ export const useTradeRoutes = (
           setValue('sellAsset.asset', sellTradeAsset?.asset)
         }
 
-        updateQuote({
-          forceQuote: true,
-          amount: bnOrZero(buyTradeAsset?.amount).toString(),
-          sellAsset: sellTradeAsset?.asset,
-          buyAsset: asset,
-          feeAsset,
-          action: TradeAmountInputField.SELL,
-        })
+        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+          await updateQuote({
+            forceQuote: true,
+            amount: bnOrZero(buyTradeAsset.amount).toString(),
+            sellAsset: sellTradeAsset.asset,
+            buyAsset: asset,
+            feeAsset,
+            action: TradeAmountInputField.SELL,
+          })
+        }
       } catch (e) {
         console.warn(e)
       } finally {

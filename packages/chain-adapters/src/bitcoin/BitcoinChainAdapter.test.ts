@@ -265,7 +265,6 @@ describe('BitcoinChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
-          opReturnData: 'nm, u',
           accountType: UtxoAccountType.SegwitNative,
           satoshiPerByte: '1'
         }
@@ -284,6 +283,7 @@ describe('BitcoinChainAdapter', () => {
               hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000'
             }
           ],
+          opReturnData: undefined,
           outputs: [
             {
               addressType: 'spend',
@@ -332,7 +332,6 @@ describe('BitcoinChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
-          opReturnData: 'sup fool',
           accountType: UtxoAccountType.SegwitNative,
           satoshiPerByte: '1'
         }

@@ -24,11 +24,6 @@ export type TransactionSpecific = {
   opReturnData?: string
 }
 
-export type Recipient = {
-  value: number
-  address?: string
-}
-
 export type ScriptSig = {
   hex: string
   asm: string

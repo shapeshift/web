@@ -10,7 +10,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId, cosmosChainId } from '@shapeshiftoss/caip'
+import { AssetId, cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
@@ -41,7 +41,6 @@ const getOverrideIconFromAssetId = (assetId: AssetId, assets: AssetsById): strin
 
 export const OpportunityCard = ({
   type,
-  tokenAddress,
   rewardAddress,
   contractAddress,
   provider,
@@ -59,6 +58,7 @@ export const OpportunityCard = ({
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
+  const { assetReference } = fromAssetId(assetId)
   const isCosmosStaking = chainId === cosmosChainId
 
   const assets = useAppSelector(selectAssets)
@@ -90,7 +90,7 @@ export const OpportunityCard = ({
         search: qs.stringify({
           chainId,
           contractAddress,
-          tokenId: tokenAddress,
+          assetReference,
           rewardId: rewardAddress,
         }),
         state: { background: location },

@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { AssetDataSource, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -28,20 +28,15 @@ const formData: SendInput = {
     assetId: 'cosmos:cosmoshub-4/slip44:118',
     chainId: 'cosmos:cosmoshub-4',
     chain: ChainTypes.Cosmos,
-    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.COSMOSHUB_MAINNET,
     symbol: 'ATOM',
     name: 'Cosmos',
     precision: 6,
-    slip44: 118,
     color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
     explorer: 'https://www.mintscan.io/cosmos',
     explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
     explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
-    sendSupport: true,
-    receiveSupport: true,
     description: 'Cosmos Description',
   },
   [SendFormFields.AmountFieldError]: '',

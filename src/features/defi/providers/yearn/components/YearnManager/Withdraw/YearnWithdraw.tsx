@@ -37,14 +37,14 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
   const translate = useTranslate()
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const assetId = toAssetId({
     chainId,

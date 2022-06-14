@@ -1,4 +1,6 @@
 import {
+  ASSET_REFERENCE,
+  AssetReference,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ChainId,
@@ -102,8 +104,6 @@ export const chainTypeToMainnetChainId = (chainType: ChainTypes): ChainId => {
   return toChainId(chainTypeToMainnetChainParts(chainType))
 }
 
-// const chainId = chainTypeToMainnetChainId(chain)
-
 // TODO: Remove: this is a temporary helper to allow web to support caip v5 before other lib packages are ready
 export const chainPartsToChainType = (
   chainNamespace: ChainNamespace,
@@ -132,3 +132,9 @@ export const chainIdToChainType = (chainId: ChainId): ChainTypes => {
   const { chainNamespace, chainReference } = fromChainId(chainId)
   return chainPartsToChainType(chainNamespace, chainReference)
 }
+
+export const isToken = (assetReference: AssetReference | string) =>
+  !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
+
+export const tokenOrUndefined = (assetReference: AssetReference | string) =>
+  isToken(assetReference) ? assetReference : undefined

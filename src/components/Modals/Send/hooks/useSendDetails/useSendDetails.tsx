@@ -16,6 +16,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { tokenOrUndefined } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetById,
@@ -98,7 +99,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet },
   } = useWallet()
 
-  const { chain, tokenId } = asset
+  const { assetReference } = fromAssetId(assetId)
+  const contractAddress = tokenOrUndefined(assetReference)
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
@@ -129,13 +131,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           value,
           chainSpecific: {
             from,
-            contractAddress: values.asset.tokenId,
+            contractAddress,
           },
           sendMax: values.sendMax,
         })
       }
       case btcChainId: {
-        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+        const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
         if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
         if (!accountType) {
           throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
@@ -163,7 +165,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       default:
         throw new Error('unsupported chain type')
     }
-  }, [accountId, adapter, asset, chainAdapterManager, getValues, wallet])
+  }, [accountId, adapter, chainAdapterManager, contractAddress, getValues, wallet])
 
   const handleNextClick = async () => {
     try {
@@ -215,8 +217,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
-        fnLogger.trace({ utxoParams, accountType, chain }, 'Getting Address...')
+        const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
+        fnLogger.trace({ utxoParams, accountType }, 'Getting Address...')
         const from = await adapter.getAddress({
           wallet,
           accountType,
@@ -236,7 +238,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             }
             case ethChainId: {
               const ethAdapter = await chainAdapterManager.byChainId(ethChainId)
-              const contractAddress = tokenId
               const value = assetBalance
               const adapterFees = await ethAdapter.getFeeData({
                 to,
@@ -278,7 +279,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             }
             default: {
               throw new Error(
-                `useSendDetails(handleSendMax): no adapter available for chain ${chain}`,
+                `useSendDetails(handleSendMax): no adapter available for chainId ${chainId}`,
               )
             }
           }

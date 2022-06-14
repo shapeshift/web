@@ -40,9 +40,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const translate = useTranslate()
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, tokenId } = query
+  const { chainId, contractAddress, assetReference } = query
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -75,11 +75,11 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }, [api, chainAdapterManager, contractAddress, walletState.wallet, foxyApr, isFoxyAprLoaded])
 
   const getDepositGasEstimate = async (deposit: DepositValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !assetReference) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({
-          tokenContractAddress: tokenId,
+          tokenContractAddress: assetReference,
           contractAddress,
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)

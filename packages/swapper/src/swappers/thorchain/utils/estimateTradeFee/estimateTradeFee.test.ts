@@ -1,4 +1,5 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import Web3 from 'web3'
 
 import { mockInboundAdresses } from '../test-data/midgardResponse'
 import { thorService } from '../thorService'
@@ -7,7 +8,11 @@ import { estimateTradeFee } from './estimateTradeFee'
 jest.mock('../thorService')
 
 describe('estimateTradeFee', () => {
-  const deps = { midgardUrl: 'localhost:3000', adapterManager: <ChainAdapterManager>{} }
+  const deps = {
+    midgardUrl: 'localhost:3000',
+    adapterManager: <ChainAdapterManager>{},
+    web3: <Web3>{}
+  }
   it('should correctly estimate a trade fee for bitcoin', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({ data: mockInboundAdresses })

@@ -1,4 +1,5 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import Web3 from 'web3'
 
 import { foxMidgardPool } from '../test-data/midgardResponse'
 import { thorService } from '../thorService'
@@ -7,7 +8,11 @@ import { getUsdRate } from './getUsdRate'
 jest.mock('../thorService')
 
 describe('getUsdRate', () => {
-  const deps = { midgardUrl: 'localhost:3000', adapterManager: <ChainAdapterManager>{} }
+  const deps = {
+    midgardUrl: 'localhost:3000',
+    adapterManager: <ChainAdapterManager>{},
+    web3: <Web3>{}
+  }
   it('should return USD rate of given Thorchain asset', async () => {
     const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(

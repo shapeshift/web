@@ -1,4 +1,5 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import Web3 from 'web3'
 
 export type PoolResponse = {
   asset: string
@@ -27,4 +28,5 @@ export type InboundResponse = {
 export type ThorchainSwapperDeps = {
   midgardUrl: string
   adapterManager: ChainAdapterManager
+  web3: Web3
 }

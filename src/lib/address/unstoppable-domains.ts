@@ -16,7 +16,19 @@ let _resolution: Resolution | undefined
 const getResolution = (): Resolution => {
   const apiKey = last(getConfig().REACT_APP_ETHEREUM_NODE_URL.split('/')) ?? ''
   if (!apiKey) moduleLogger.error('No API key found in REACT_APP_ETHEREUM_NODE_URL')
-  if (!_resolution) _resolution = Resolution.infura(apiKey)
+  if (!_resolution)
+    _resolution = Resolution.infura(apiKey, {
+      uns: {
+        locations: {
+          Layer1: {
+            network: 'mainnet',
+          },
+          Layer2: {
+            network: 'polygon-mainnet',
+          },
+        },
+      },
+    })
   return _resolution
 }
 

@@ -79,5 +79,6 @@ export const ASSET_REFERENCE = {
   Bitcoin: '0',
   Ethereum: '60',
   Cosmos: '118',
-  Osmosis: '118'
+  Osmosis: '118',
+  AvalancheC: '9000'
 } as const

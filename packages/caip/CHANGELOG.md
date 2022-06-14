@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v5.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.3.0...@shapeshiftoss/caip-v5.4.0) (2022-06-14)
+
+
+### Features
+
+* avalanche c chain support ([#805](https://github.com/shapeshift/lib/issues/805)) ([17b70a0](https://github.com/shapeshift/lib/commit/17b70a0c8620ad9303eda818b300f2411942c98b))
+
 # [@shapeshiftoss/caip-v5.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v5.2.3...@shapeshiftoss/caip-v5.3.0) (2022-06-09)
 
 

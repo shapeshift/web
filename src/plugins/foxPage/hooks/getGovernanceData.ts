@@ -13,7 +13,7 @@ type BoardroomGovernanceData = Array<{
 
 const BOARDROOM_API_BASE_URL = getConfig().REACT_APP_BOARDROOM_API_BASE_URL
 
-const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
+export const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
   const activeProposals = governanceData.filter(data => data.currentState === 'active')
   const proposals = activeProposals.length ? activeProposals : [governanceData[0]]
 
@@ -28,7 +28,7 @@ const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
       title,
       choices,
       results: choices.map((_, i) => ({
-        absolute: results[i] ? results[i].total : 0,
+        absolute: bnOrZero(results[i]?.total).toString(),
         percent: results[i] ? bnOrZero(results[i].total).div(totalResults).toString() : '0',
       })),
     }

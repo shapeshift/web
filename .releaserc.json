@@ -1,5 +1,5 @@
 {
-  "branches": ["main"],
+  "branches": ["main", "next"],
   "repositoryUrl": "https://github.com/shapeshift/lib",
   "debug": "true",
   "plugins": [

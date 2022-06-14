@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { WithdrawType } from '@shapeshiftoss/types'
@@ -17,7 +17,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
@@ -65,6 +69,10 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
       : '0'
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+
   if (!state || !dispatch) return null
 
   const handleConfirm = async () => {
@@ -106,11 +114,16 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
     }
   }
 
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .gte(0)
+
   return (
     <ReusableConfirm
       onCancel={() => history.push('/')}
       headerText='modals.confirm.withdraw.header'
       onConfirm={handleConfirm}
+      isDisabled={!hasEnoughBalanceForGas}
       loading={state.loading}
       loadingText={translate('common.confirm')}
       assets={[
@@ -180,6 +193,12 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
             </Box>
           </Row.Value>
         </Row>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
       </Stack>
     </ReusableConfirm>
   )

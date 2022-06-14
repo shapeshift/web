@@ -35,7 +35,7 @@ export const getThorTradeQuote = async ({
     const sellAssetChainId = toChainId({ chainReference, chainNamespace })
     const adapter = deps.adapterManager.get(sellAssetChainId)
     if (!adapter)
-      throw new SwapError(`[getThorTxInfo] - No chain adapter found for ${sellAssetChainId}.`, {
+      throw new SwapError(`[getThorTradeQuote] - No chain adapter found for ${sellAssetChainId}.`, {
         code: SwapErrorTypes.UNSUPPORTED_CHAIN,
         details: { sellAssetChainId }
       })
@@ -67,7 +67,7 @@ export const getThorTradeQuote = async ({
             sellAssetReference: sellAssetErc20Address
           })
         default:
-          throw new SwapError('[getThorTxInfo] - Asset chainId is not supported.', {
+          throw new SwapError('[getThorTradeQuote] - Asset chainId is not supported.', {
             code: SwapErrorTypes.UNSUPPORTED_CHAIN,
             details: { sellAssetChainId }
           })
@@ -78,7 +78,7 @@ export const getThorTradeQuote = async ({
     const buyAssetId = buyAsset.assetId
     const feeAssetId = getFeeAssetIdFromAssetId(buyAssetId)
     if (!feeAssetId)
-      throw new SwapError(`[getThorTxInfo] - No feeAssetId found for ${buyAssetId}.`, {
+      throw new SwapError(`[getThorTradeQuote] - No feeAssetId found for ${buyAssetId}.`, {
         code: SwapErrorTypes.VALIDATION_FAILED,
         details: { buyAssetId }
       })

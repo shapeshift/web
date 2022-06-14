@@ -4,6 +4,7 @@ import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset } from '@shapeshiftoss/types'
 
 import {
+  ApprovalNeededInput,
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
@@ -19,6 +20,7 @@ import {
   TradeTxs
 } from '../../api'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
+import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded/thorTradeApprovalNeeded'
 import { PoolResponse, ThorchainSwapperDeps } from './types'
 import { getUsdRate } from './utils/getUsdRate/getUsdRate'
 import { thorService } from './utils/thorService'
@@ -65,8 +67,8 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return getUsdRate({ deps: this.deps, input })
   }
 
-  async approvalNeeded(): Promise<ApprovalNeededOutput> {
-    throw new Error('ThorchainSwapper: approvalNeeded unimplemented')
+  async approvalNeeded(input: ApprovalNeededInput<'eip155:1'>): Promise<ApprovalNeededOutput> {
+    return thorTradeApprovalNeeded({ deps: this.deps, input })
   }
 
   async approveInfinite(): Promise<string> {

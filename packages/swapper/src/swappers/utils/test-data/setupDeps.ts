@@ -3,6 +3,7 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import Web3 from 'web3'
 
 jest.mock('@shapeshiftoss/chain-adapters')
+jest.mock('web3')
 
 export const setupDeps = () => {
   const ethChainAdapter = new ethereum.ChainAdapter({

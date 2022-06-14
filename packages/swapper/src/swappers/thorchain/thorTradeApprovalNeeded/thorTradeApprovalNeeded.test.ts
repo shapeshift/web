@@ -1,0 +1,75 @@
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+
+import { getERC20Allowance } from '../../utils/helpers/helpers'
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
+import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded'
+
+jest.mock('../../utils/helpers/helpers')
+
+describe('thorTradeApprovalNeeded', () => {
+  const deps = setupThorswapDeps()
+  const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+  const wallet = {
+    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
+  } as unknown as HDWallet
+
+  const { tradeQuote, sellAsset } = setupQuote()
+
+  it('returns false if sellAsset assetId is ETH', async () => {
+    const input = {
+      quote: { ...tradeQuote, sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' } },
+      wallet
+    }
+
+    expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({ approvalNeeded: false })
+  })
+
+  it('throws an error if sellAsset chain is not ETH', async () => {
+    const input = {
+      quote: {
+        ...tradeQuote,
+        sellAsset: { ...sellAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' }
+      },
+      wallet
+    }
+
+    await expect(thorTradeApprovalNeeded({ deps, input })).rejects.toThrow(
+      '[thorTradeApprovalNeeded]'
+    )
+  })
+
+  it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
+    const allowanceOnChain = '50'
+    const input = {
+      quote: {
+        ...tradeQuote,
+        sellAmount: '10',
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' }
+      },
+      wallet
+    }
+    ;(getERC20Allowance as jest.Mock<unknown>).mockImplementation(() => allowanceOnChain)
+
+    expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({
+      approvalNeeded: false
+    })
+  })
+
+  it('returns true if allowanceOnChain is less than quote.sellAmount', async () => {
+    const allowanceOnChain = '5'
+    const input = {
+      quote: {
+        ...tradeQuote,
+        sellAmount: '10',
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' }
+      },
+      wallet
+    }
+    ;(getERC20Allowance as jest.Mock<unknown>).mockImplementation(() => allowanceOnChain)
+
+    expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({
+      approvalNeeded: true
+    })
+  })
+})

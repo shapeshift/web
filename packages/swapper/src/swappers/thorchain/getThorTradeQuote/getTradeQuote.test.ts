@@ -1,25 +1,33 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import Web3 from 'web3'
 
 import { TradeQuote } from '../../../api'
 import { ETH, FOX } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { ThorchainSwapperDeps } from '../types'
 import { ethMidgardPool, foxMidgardPool } from '../utils/test-data/midgardResponse'
+import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
 
 jest.mock('../utils/thorService')
+jest.mock('web3')
+
+// @ts-ignore
+Web3.mockImplementation(() => ({
+  eth: {
+    Contract: jest.fn(() => ({
+      methods: {
+        deposit: jest.fn(() => ({
+          encodeABI: jest.fn(() => '0x1234')
+        }))
+      }
+    }))
+  }
+}))
 
 const mockedAxios = jest.mocked(thorService, true)
 
-const feeData = {
-  fast: {
-    txFee: '1',
-    chainSpecific: { approvalFee: '1', gasLimit: '1', gasPrice: '1' },
-    tradeFee: '2'
-  }
-}
 const quoteResponse: TradeQuote<'eip155:1'> = {
   minimum: '2.202188',
   maximum: '100000000000000000000000000',
@@ -38,19 +46,9 @@ const quoteResponse: TradeQuote<'eip155:1'> = {
   sellAssetAccountNumber: 0
 }
 
-const adapterManager = new Map([
-  [
-    'eip155:1',
-    {
-      buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
-      getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
-      getFeeData: jest.fn(() => feeData)
-    } as unknown as ChainAdapter<'eip155:1'>
-  ]
-])
-
 describe('getTradeQuote', () => {
   const { quoteInput } = setupQuote()
+  const { adapterManager } = setupThorswapDeps()
   const deps = {
     midgardUrl: 'https://midgard.thorchain.info/v2',
     adapterManager

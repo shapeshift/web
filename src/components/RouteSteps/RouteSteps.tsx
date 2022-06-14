@@ -8,7 +8,6 @@ export type RouteConfig = {
   step?: number
   path: string
   label: string
-  isCompleted?: boolean
 }
 
 export enum StatusTextEnum {

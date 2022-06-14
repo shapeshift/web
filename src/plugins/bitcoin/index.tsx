@@ -1,4 +1,4 @@
-import { bitcoin } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter as BitcoinChainAdapter } from '@shapeshiftoss/chain-adapters/dist/bitcoin/BitcoinChainAdapter'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -25,7 +25,7 @@ export function register(): Plugins {
                   getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL,
                 )
 
-                return new bitcoin.ChainAdapter({ providers: { http, ws }, coinName: 'Bitcoin' })
+                return new BitcoinChainAdapter({ providers: { http, ws }, coinName: 'Bitcoin' })
               },
             ],
           ],

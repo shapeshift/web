@@ -32,7 +32,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData, WithdrawType } from '@shapeshiftoss/types'
-import { useRef, useState } from 'react'
+import { FormEvent, useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
 import { FaBolt, FaClock } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -221,16 +221,24 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const onSubmit = (values: WithdrawValues) => {
-    if (!isConnected) {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
     onContinue(values)
+  }
+
+  const handleWalletModalOpen = (event: FormEvent<unknown>) => {
+    event.preventDefault()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   return (
     <SlideTransition>
-      <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
+      <Box
+        as='form'
+        maxWidth='lg'
+        width='full'
+        onSubmit={(event: FormEvent<unknown>) => {
+          isConnected ? handleSubmit(onSubmit) : handleWalletModalOpen(event)
+        }}
+      >
         <ModalBody py={6}>
           <Card size='sm' width='full' variant='group' mb={6}>
             <Card.Body>

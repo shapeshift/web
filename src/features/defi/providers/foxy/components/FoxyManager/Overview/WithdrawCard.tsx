@@ -1,5 +1,5 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
+import { WithdrawInfo } from '@shapeshiftoss/investor-foxy/dist/api/foxy-types'
 import { Asset } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'

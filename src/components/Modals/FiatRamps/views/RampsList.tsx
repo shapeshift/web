@@ -107,7 +107,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       initial,
     )
     return result
-  }, [history, setFiatRampProvider])
+  }, [history, setFiatRampProvider, coinbasePayFeatureFlag])
 
   return (
     <Flex justifyContent='center' alignItems='center' width={['100%', '32rem']}>

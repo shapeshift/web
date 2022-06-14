@@ -113,7 +113,11 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
             translation={'walletProvider.shapeShift.testPhrase.body'}
           />{' '}
           <Tag colorScheme='green'>
-            {translate(`walletProvider.shapeShift.testPhrase.${testState.targetWordIndex + 1}${ordinalSuffix(testState.targetWordIndex + 1)`)})} 
+            {translate(
+              `walletProvider.shapeShift.testPhrase.${testState.targetWordIndex + 1}${ordinalSuffix(
+                testState.targetWordIndex + 1,
+              )}`,
+            )}
             <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
           </Tag>{' '}
           <Text

@@ -8,27 +8,10 @@ import { FiatRampAsset } from '../FiatRampsCommon'
 type CoinbaseCurrency = {
   id: string
   name: string
-  min_size: string
-  status: string
-  message: string
-  max_precision: string
-  convertible_to: string[]
   details: {
     type: 'fiat' | 'crypto'
-    symbol: string | null
-    network_confirmations: number | null
-    sort_order: number
-    crypto_address_link: string | null
-    crypto_transaction_link: string | null
-    push_payment_methods: string[]
-    group_types: string[]
-    display_name: string | null
-    processing_time_seconds: string | null
-    min_withdrawal_amount: number | null
-    max_withdrawal_amount: number | null
   }
   default_network: string
-  supported_networks: string[]
 }
 
 const moduleLogger = logger.child({

@@ -5,11 +5,13 @@ export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip
 export const ethAssetId: AssetId = 'eip155:1/slip44:60'
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const osmosisAssetId: AssetId = 'cosmos:osmosis-1/slip44:118'
+export const avalancheAssetId: AssetId = 'eip155:43114/slip44:9000'
 
 export const ethChainId: ChainId = 'eip155:1'
 export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
+export const avalancheChainId: ChainId = 'eip155:43114'
 
 export const CHAIN_NAMESPACE = {
   Ethereum: 'eip155',
@@ -33,7 +35,8 @@ export const CHAIN_REFERENCE = {
   CosmosHubMainnet: 'cosmoshub-4',
   CosmosHubVega: 'vega-testnet',
   OsmosisMainnet: 'osmosis-1',
-  OsmosisTestnet: 'osmo-testnet-1'
+  OsmosisTestnet: 'osmo-testnet-1',
+  AvalancheCChain: '43114' // https://docs.avax.network/apis/avalanchego/apis/c-chain
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -41,7 +44,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.Ethereum]: [
     CHAIN_REFERENCE.EthereumMainnet,
     CHAIN_REFERENCE.EthereumRopsten,
-    CHAIN_REFERENCE.EthereumRinkeby
+    CHAIN_REFERENCE.EthereumRinkeby,
+    CHAIN_REFERENCE.AvalancheCChain
   ],
   [CHAIN_NAMESPACE.Cosmos]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

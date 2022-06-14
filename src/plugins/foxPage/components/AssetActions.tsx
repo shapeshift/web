@@ -25,6 +25,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
@@ -40,7 +41,6 @@ type FoxTabProps = {
 }
 
 const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
-const coinbasePayFeatureFlag = getConfig().REACT_APP_FEATURE_COINBASE_RAMP
 
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
@@ -51,6 +51,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const { description } = asset || {}
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === FOX_ASSET_ID
+  const coinbasePayFeatureFlag = useFeatureFlag('CoinbasePay')
 
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const accountId = accountIds?.[0]

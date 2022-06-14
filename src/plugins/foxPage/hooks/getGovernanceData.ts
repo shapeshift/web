@@ -27,9 +27,9 @@ const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
       refId,
       title,
       choices,
-      results: results.map(result => ({
-        absolute: result.total,
-        percent: bnOrZero(result.total).div(totalResults).toString(),
+      results: choices.map((_, i) => ({
+        absolute: results[i] ? results[i].total : 0,
+        percent: results[i] ? bnOrZero(results[i].total).div(totalResults).toString() : '0',
       })),
     }
   })

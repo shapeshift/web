@@ -1,12 +1,12 @@
 import { ListProps } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
-import { useRouteMatch } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
+import { MatchParams } from 'pages/Accounts/Account'
 
 import { AssetRow } from './AssetRow'
 
@@ -23,12 +23,13 @@ type ItemData<T> = {
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   type HandleClick = ReturnType<typeof handleClick>
 
-  const match = useRouteMatch<{ address: string }>()
+  const { assetId } = useParams<MatchParams>()
+  const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
   const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<ItemData<HandleClick>>>({
     onInit: node => {
       if (!node) return
       const index = node.props.itemData?.items.findIndex(
-        ({ assetId }: Asset) => fromAssetId(assetId).assetReference === match.params.address,
+        ({ assetId }: Asset) => assetId === parsedAssetId,
       )
       if (typeof index === 'number' && index >= 0) {
         node.scrollToItem?.(index, 'center')

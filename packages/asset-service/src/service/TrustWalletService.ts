@@ -2,7 +2,7 @@ import { AssetId, CHAIN_NAMESPACE, ChainNamespace, fromAssetId } from '@shapeshi
 import Web3 from 'web3'
 
 export const generateTrustWalletUrl = (assetId: AssetId) => {
-  const { chainNamespace, chainReference } = fromAssetId(assetId)
+  const { chainNamespace, chainReference, assetReference } = fromAssetId(assetId)
   // https://github.com/trustwallet/assets/tree/master/blockchains
   const chainNamespaceToTrustWallet: Record<ChainNamespace, string> = {
     bip122: 'bitcoin/info',
@@ -16,7 +16,7 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
     url += `/assets/`
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Ethereum:
-        url += Web3.utils.toChecksumAddress(chainReference)
+        url += Web3.utils.toChecksumAddress(assetReference)
         break
     }
   }

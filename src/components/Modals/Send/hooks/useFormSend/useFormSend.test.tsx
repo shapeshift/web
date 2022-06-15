@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainId } from '@shapeshiftoss/caip'
-import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
@@ -35,7 +34,7 @@ jest.mock('hooks/useWallet/useWallet')
 
 jest.mock('lib/address/ens')
 
-const formData: SendInput = {
+const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',
   [SendFormFields.Address]: EthSend.address,
   [SendFormFields.VanityAddress]: '',
@@ -60,7 +59,8 @@ const formData: SendInput = {
       chainSpecific: {
         gasLimit: '42000',
         gasPrice: '10000000000',
-        satoshiPerByte: '5',
+        maxFeePerGas: '0x1b3dbe5200',
+        maxPriorityFeePerGas: '0x1b3dbe5200',
       },
     },
     [FeeDataKey.Average]: {
@@ -68,7 +68,8 @@ const formData: SendInput = {
       chainSpecific: {
         gasLimit: '42000',
         gasPrice: '10000000000',
-        satoshiPerByte: '5',
+        maxFeePerGas: '0x1b3dbe5200',
+        maxPriorityFeePerGas: '0x1b3dbe5200',
       },
     },
     [FeeDataKey.Fast]: {
@@ -76,10 +77,11 @@ const formData: SendInput = {
       chainSpecific: {
         gasLimit: '42000',
         gasPrice: '10000000000',
-        satoshiPerByte: '5',
+        maxFeePerGas: '0x1b3dbe5200',
+        maxPriorityFeePerGas: '0x1b3dbe5200',
       },
     },
-  } as { [k in FeeDataKey]: FeeData<ChainId> },
+  },
   [SendFormFields.CryptoAmount]: '1',
   [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',

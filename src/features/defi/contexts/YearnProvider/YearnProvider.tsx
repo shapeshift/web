@@ -26,7 +26,7 @@ export const YearnProvider: React.FC = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!Object.keys(chainAdapterManager).includes(KnownChainIds.EthereumMainnet)) return
+        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
         setLoading(true)
         const chainAdapter = chainAdapterManager.get(
           KnownChainIds.EthereumMainnet,

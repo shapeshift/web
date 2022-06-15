@@ -26,7 +26,7 @@ export const FoxyProvider: React.FC = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!Object.keys(chainAdapterManager).includes(KnownChainIds.EthereumMainnet)) return
+        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
         setLoading(true)
         const api = new FoxyApi({
           adapter: chainAdapterManager.get(

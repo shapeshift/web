@@ -4037,7 +4037,7 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^7.3.1":
+"@shapeshiftoss/swapper@^7.5.0":
   version "7.5.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-7.5.0.tgz#8d4a02bc9611be4c6d13da7bf145e60aeea87135"
   integrity sha512-391uQCFcw3CWc19QGoPtoEpDMlzv0laulLoQcl7/FAun49WmK2INKrkNYU0HoiOksUDYmxrqBbGuq7SonkL10Q==

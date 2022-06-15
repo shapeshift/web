@@ -6,8 +6,8 @@ import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useState } from 'react'
-import { RawText, Text } from 'components/Text'
 import { useTranslate } from 'react-polyglot'
+import { RawText, Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
 

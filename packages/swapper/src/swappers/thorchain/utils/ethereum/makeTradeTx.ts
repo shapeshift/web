@@ -17,6 +17,7 @@ export const makeTradeTx = async ({
   adapter,
   maxFeePerGas,
   maxPriorityFeePerGas,
+  gasPrice,
   slippageTolerance,
   deps,
   gasLimit
@@ -28,18 +29,27 @@ export const makeTradeTx = async ({
   sellAsset: Asset
   destinationAddress: string
   adapter: ethereum.ChainAdapter
-  maxFeePerGas: string
-  maxPriorityFeePerGas: string
   slippageTolerance: string
   deps: ThorchainSwapperDeps
   gasLimit: string
-}): Promise<{
+} & (
+  | {
+      gasPrice: string
+      maxFeePerGas?: never
+      maxPriorityFeePerGas?: never
+    }
+  | {
+      gasPrice?: never
+      maxFeePerGas: string
+      maxPriorityFeePerGas: string
+    }
+)): Promise<{
   txToSign: ETHSignTx
 }> => {
   try {
-    const { assetReference } = fromAssetId(sellAsset.assetId)
+    const { assetNamespace } = fromAssetId(sellAsset.assetId)
 
-    const isErc20Trade = assetReference.startsWith('0x')
+    const isErc20Trade = assetNamespace === 'erc20'
 
     const { data, router } = await getThorTxInfo({
       deps,
@@ -56,8 +66,14 @@ export const makeTradeTx = async ({
       bip44Params,
       to: router,
       gasLimit,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
+      ...(gasPrice !== undefined
+        ? {
+            gasPrice
+          }
+        : {
+            maxFeePerGas,
+            maxPriorityFeePerGas
+          }),
       value: isErc20Trade ? '0' : sellAmount,
       data
     })

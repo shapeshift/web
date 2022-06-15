@@ -28,7 +28,7 @@ let _chainAdapterManager: ChainAdapterManager | undefined
 
 // we need to be able to access this outside react
 export const getChainAdapters = (): ChainAdapterManager => {
-  if (!_chainAdapterManager) _chainAdapterManager = new Map<ChainId, ChainAdapter<ChainId>>()
+  if (!_chainAdapterManager) _chainAdapterManager = new Map()
   return _chainAdapterManager
 }
 

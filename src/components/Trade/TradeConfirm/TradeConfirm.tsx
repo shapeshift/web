@@ -1,7 +1,7 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
 import { TradeTxs } from '@shapeshiftoss/swapper'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -37,7 +37,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     getValues,
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TradeState<SupportedChainIds>>()
+  } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()

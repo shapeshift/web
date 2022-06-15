@@ -1,4 +1,4 @@
-import { chainAdapters } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { mocked } from 'jest-mock'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -54,7 +54,7 @@ const balances: PortfolioBalancesById = {
 const runeFiatAmount = '14490.00'
 
 const estimatedFees = {
-  [chainAdapters.FeeDataKey.Fast]: {
+  [FeeDataKey.Fast]: {
     networkFee: '6000000000000000',
     chainSpecific: {
       feePerTx: '6000000000000000',

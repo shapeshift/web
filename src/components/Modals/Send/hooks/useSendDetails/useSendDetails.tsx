@@ -1,13 +1,14 @@
+import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  btcChainId,
-  cosmosChainId,
-  ethChainId,
-  fromAssetId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
-import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
+  bitcoin,
+  convertXpubVersion,
+  cosmos,
+  ethereum,
+  FeeDataEstimate,
+  toRootDerivationPath,
+} from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -102,11 +103,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { assetReference } = fromAssetId(assetId)
   const contractAddress = tokenOrUndefined(assetReference)
 
-  const adapter = chainAdapterManager.byChain(asset.chain)
+  const adapter = chainAdapterManager.get(asset.chainId)
+  if (!adapter) throw new Error(`No adapter available for ${asset.chainId}`)
 
-  const estimateFormFees = useCallback(async (): Promise<
-    chainAdapters.FeeDataEstimate<ChainTypes>
-  > => {
+  const estimateFormFees = useCallback(async (): Promise<FeeDataEstimate<ChainId>> => {
     const values = getValues()
 
     if (!wallet) throw new Error('No wallet connected')
@@ -116,15 +116,21 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .toFixed(0)
 
     switch (values.asset.chainId) {
-      case cosmosChainId:
-      case osmosisChainId: {
-        return chainAdapterManager.byChainId(values.asset.chainId).getFeeData({})
+      case KnownChainIds.CosmosMainnet:
+      case KnownChainIds.OsmosisMainnet: {
+        const adapter = chainAdapterManager.get(values.asset.chainId)
+        if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
+        return adapter.getFeeData({})
       }
-      case ethChainId: {
+      case KnownChainIds.EthereumMainnet: {
         const from = await adapter.getAddress({
           wallet,
         })
-        const ethereumChainAdapter = chainAdapterManager.byChainId(ethChainId)
+        const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet) as
+          | ethereum.ChainAdapter
+          | undefined
+        if (!ethereumChainAdapter)
+          throw new Error(`No adapter available for ${KnownChainIds.EthereumMainnet}`)
         const to = values.address
         return ethereumChainAdapter.getFeeData({
           to,
@@ -136,7 +142,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           sendMax: values.sendMax,
         })
       }
-      case btcChainId: {
+      case KnownChainIds.BitcoinMainnet: {
         const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
         if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
         if (!accountType) {
@@ -145,7 +151,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const { bip44Params, scriptType } = utxoParams
         const pubkeys = await wallet.getPublicKeys([
           {
-            coin: adapter.getType(),
+            coin: adapter.getChainId(),
             addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
             curve: 'secp256k1',
             scriptType,
@@ -154,7 +160,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-        const bitcoinChainAdapter = await chainAdapterManager.byChainId(btcChainId)
+        const bitcoinChainAdapter = (await chainAdapterManager.get(
+          KnownChainIds.BitcoinMainnet,
+        )) as bitcoin.ChainAdapter | undefined
+        if (!bitcoinChainAdapter)
+          throw new Error(`No adapter available for ${KnownChainIds.BitcoinMainnet}`)
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
@@ -230,14 +240,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const { chainId } = fromAssetId(assetId)
         const { fastFee, adapterFees } = await (async () => {
           switch (chainId) {
-            case cosmosChainId: {
-              const cosmosAdapter = await chainAdapterManager.byChainId(cosmosChainId)
+            case KnownChainIds.CosmosMainnet: {
+              const cosmosAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet) as
+                | cosmos.ChainAdapter
+                | undefined
+              if (!cosmosAdapter)
+                throw new Error(`No adapter available for ${KnownChainIds.CosmosMainnet}`)
               const adapterFees = await cosmosAdapter.getFeeData({})
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case ethChainId: {
-              const ethAdapter = await chainAdapterManager.byChainId(ethChainId)
+            case KnownChainIds.EthereumMainnet: {
+              const ethAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet) as
+                | ethereum.ChainAdapter
+                | undefined
+              if (!ethAdapter)
+                throw new Error(`No adapter available for ${KnownChainIds.EthereumMainnet}`)
               const value = assetBalance
               const adapterFees = await ethAdapter.getFeeData({
                 to,
@@ -248,7 +266,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case btcChainId: {
+            case KnownChainIds.BitcoinMainnet: {
               if (!accountType)
                 throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
               if (!utxoParams) {
@@ -257,7 +275,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const { bip44Params, scriptType } = utxoParams
               const pubkeys = await wallet.getPublicKeys([
                 {
-                  coin: adapter.getType(),
+                  coin: adapter.getChainId(),
                   addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                   curve: 'secp256k1',
                   scriptType,
@@ -266,7 +284,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
               if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
               const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-              const btcAdapter = await chainAdapterManager.byChainId(btcChainId)
+              const btcAdapter = (await chainAdapterManager.get(KnownChainIds.BitcoinMainnet)) as
+                | bitcoin.ChainAdapter
+                | undefined
+              if (!btcAdapter)
+                throw new Error(`No adapter available for ${KnownChainIds.BitcoinMainnet}`)
               const value = assetBalance
               const adapterFees = await btcAdapter.getFeeData({
                 to,

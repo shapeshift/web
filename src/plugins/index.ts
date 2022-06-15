@@ -1,5 +1,5 @@
+import { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { Route } from '../Routes/helpers'
@@ -14,7 +14,7 @@ export interface Plugin {
   icon?: JSX.Element
   featureFlag?: keyof FeatureFlags
   providers?: {
-    chainAdapters?: Array<[ChainTypes, () => ChainAdapter<ChainTypes>]>
+    chainAdapters?: Array<[ChainId, () => ChainAdapter<ChainId>]>
   }
   routes?: Route[]
 }

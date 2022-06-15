@@ -31,12 +31,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   useEffect(() => {
-    try {
-      chainAdapterManager.byChainId(asset.chainId)
-      setIsValidChainId(true)
-    } catch (e) {
-      setIsValidChainId(false)
-    }
+    const hasChainAdapter = !!chainAdapterManager.get(asset.chainId)
+    setIsValidChainId(hasChainAdapter)
   }, [chainAdapterManager, asset])
 
   const handleWalletModalOpen = () =>

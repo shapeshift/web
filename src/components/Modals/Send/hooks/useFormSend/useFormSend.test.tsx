@@ -1,6 +1,8 @@
 import { useToast } from '@chakra-ui/react'
+import { ChainId } from '@shapeshiftoss/caip'
+import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { ethAssetId, ethChainId } from 'test/mocks/accounts'
@@ -41,8 +43,6 @@ const formData: SendInput = {
     chainId: ethChainId,
     assetId: ethAssetId,
     description: '',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
@@ -53,9 +53,9 @@ const formData: SendInput = {
     explorerAddressLink: 'https://etherscan.io/address/',
   },
   [SendFormFields.AmountFieldError]: '',
-  [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
+  [SendFormFields.FeeType]: FeeDataKey.Average,
   [SendFormFields.EstimatedFees]: {
-    [chainAdapters.FeeDataKey.Slow]: {
+    [FeeDataKey.Slow]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
@@ -63,7 +63,7 @@ const formData: SendInput = {
         satoshiPerByte: '5',
       },
     },
-    [chainAdapters.FeeDataKey.Average]: {
+    [FeeDataKey.Average]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
@@ -71,7 +71,7 @@ const formData: SendInput = {
         satoshiPerByte: '5',
       },
     },
-    [chainAdapters.FeeDataKey.Fast]: {
+    [FeeDataKey.Fast]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
@@ -79,7 +79,7 @@ const formData: SendInput = {
         satoshiPerByte: '5',
       },
     },
-  },
+  } as { [k in FeeDataKey]: FeeData<ChainId> },
   [SendFormFields.CryptoAmount]: '1',
   [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',
@@ -118,7 +118,7 @@ describe.each([
       state: {
         preferences: {
           accountTypes: {
-            [ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh,
+            [KnownChainIds.BitcoinMainnet]: UtxoAccountType.SegwitP2sh,
           },
         },
       },
@@ -145,7 +145,7 @@ describe.each([
         buildSendTransaction: () => Promise.resolve(textTxToSign),
         signTransaction: () => Promise.resolve(testSignedTx),
         broadcastTransaction: () => Promise.resolve(expectedTx),
-        getType: () => ChainTypes.Ethereum,
+        getType: () => KnownChainIds.EthereumMainnet,
       }),
     }))
 
@@ -181,7 +181,7 @@ describe.each([
         buildSendTransaction: () => Promise.resolve(textTxToSign),
         signTransaction: () => Promise.resolve(testSignedTx),
         broadcastTransaction: () => Promise.resolve(expectedTx),
-        getType: () => ChainTypes.Ethereum,
+        getType: () => KnownChainIds.EthereumMainnet,
       }),
     }))
 
@@ -214,7 +214,7 @@ describe.each([
       byChain: () => ({
         buildSendTransaction: () => Promise.resolve(textTxToSign),
         signAndBroadcastTransaction,
-        getType: () => ChainTypes.Ethereum,
+        getType: () => KnownChainIds.EthereumMainnet,
       }),
     }))
 
@@ -252,7 +252,7 @@ describe.each([
       byChain: () => ({
         buildSendTransaction: () => Promise.resolve(textTxToSign),
         signAndBroadcastTransaction,
-        getType: () => ChainTypes.Ethereum,
+        getType: () => KnownChainIds.EthereumMainnet,
       }),
     }))
 

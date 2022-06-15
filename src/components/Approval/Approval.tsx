@@ -1,6 +1,6 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
 import { QuoteFeeData } from '@shapeshiftoss/swapper'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
@@ -39,7 +39,7 @@ export const Approval = () => {
     getValues,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useFormContext<TradeState<SupportedChainIds>>()
+  } = useFormContext<TradeState<KnownChainIds>>()
   const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
@@ -50,7 +50,7 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
-  const fee = (fees as QuoteFeeData<'eip155:1'>).chainSpecific.approvalFee
+  const fee = (fees as unknown as QuoteFeeData<'eip155:1'>).chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
 
   const approve = async () => {

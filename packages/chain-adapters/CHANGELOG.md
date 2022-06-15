@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.0.3...@shapeshiftoss/chain-adapters-v7.1.0) (2022-06-15)
+
+
+### Features
+
+* add getGasFeeData for Eth chain adapter ([#817](https://github.com/shapeshift/lib/issues/817)) ([c6495dc](https://github.com/shapeshift/lib/commit/c6495dc38d0197bd8e620b98e7e5c5428ceb63a7))
+
 # [@shapeshiftoss/chain-adapters-v7.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.0.2...@shapeshiftoss/chain-adapters-v7.0.3) (2022-06-15)
 
 

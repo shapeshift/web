@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.3.1...@shapeshiftoss/swapper-v7.4.0) (2022-06-15)
+
+
+### Features
+
+* btc thor trade fees ([#823](https://github.com/shapeshift/lib/issues/823)) ([e9f93cd](https://github.com/shapeshift/lib/commit/e9f93cd675492aef5c903f3e254cf51a147d8971))
+
 # [@shapeshiftoss/swapper-v7.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.3.0...@shapeshiftoss/swapper-v7.3.1) (2022-06-15)
 
 # [@shapeshiftoss/swapper-v7.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.2.1...@shapeshiftoss/swapper-v7.3.0) (2022-06-14)

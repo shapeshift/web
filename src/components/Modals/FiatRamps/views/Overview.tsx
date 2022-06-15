@@ -158,7 +158,12 @@ export const Overview: React.FC<OverviewProps> = ({
   return (
     <SlideTransition>
       <Flex direction='column'>
-        <FiatRampActionButtons action={fiatRampAction} setAction={onFiatRampActionClick} />
+        <FiatRampActionButtons
+          action={fiatRampAction}
+          setAction={onFiatRampActionClick}
+          supportsBuy={supportedFiatRamps[fiatRampProvider].supportsBuy}
+          supportsSell={supportedFiatRamps[fiatRampProvider].supportsSell}
+        />
         <Text
           translation={assetTranslation}
           color='gray.500'
@@ -247,7 +252,7 @@ export const Overview: React.FC<OverviewProps> = ({
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(
               fiatRampAction,
-              selectedAsset?.symbol || '',
+              selectedAsset?.assetId || '',
               addressFull || '',
             )
           }

@@ -76,6 +76,7 @@
   "dependencies": {
     "@chakra-ui/icons": "^1.1.7",
     "@chakra-ui/react": "^1.8.8",
+    "@coinbase/cbpay-js": "^1.0.1",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@ensdomains/ensjs": "^2.1.0",
@@ -86,7 +87,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.8.0",
     "@shapeshiftoss/asset-service": "^5.0.2",
-    "@shapeshiftoss/caip": "^5.0.1",
+    "@shapeshiftoss/caip": "^6.0.0",
     "@shapeshiftoss/chain-adapters": "^5.0.1",
     "@shapeshiftoss/errors": "^1.1.1",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",

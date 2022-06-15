@@ -100,6 +100,8 @@
     "banxa": "Banxa",
     "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
+    "coinbasePay": "Coinbase Pay",
+    "coinbasePayMessage": "Buy Crypto with Coinbase Pay",
     "buy": "Buy",
     "sell": "Sell",
     "assetToBuy": "Asset to Buy",
@@ -1153,7 +1155,8 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized"
+      "centralized": "Centralized",
+      "purchaseFox": "Purchase the agile FOX token on Coinbase directly into your ShapeShift-compatible wallet."
     },
     "analytics": {
       "optInModal": {

@@ -288,9 +288,8 @@ export class ChainAdapter
   async getFeeData({
     to,
     value,
-    chainSpecific: { pubkey },
-    sendMax = false,
-    opReturnData
+    chainSpecific: { pubkey, opReturnData },
+    sendMax = false
   }: GetFeeDataInput<KnownChainIds.BitcoinMainnet>): Promise<
     FeeDataEstimate<KnownChainIds.BitcoinMainnet>
   > {

@@ -230,7 +230,6 @@ export type GetFeeDataInput<T extends ChainId> = {
   to: string
   value: string
   sendMax?: boolean
-  opReturnData?: string
 } & ChainSpecificGetFeeDataInput<T>
 
 export enum ValidAddressResultType {

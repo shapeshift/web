@@ -167,7 +167,7 @@ export const useSwapper = () => {
     const swapper = (await swapperManager.getBestSwapper({
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,
-    })) as Swapper<ChainId, TradeTxs>
+    })) as Swapper<ChainId>
     if (!swapper) throw new Error('no swapper available')
     return swapper.getTradeTxs(tradeResult)
   }

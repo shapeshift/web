@@ -1,40 +1,15 @@
-import { parseGovernanceData } from './getGovernanceData'
+import { BoardroomGovernanceResult, parseGovernanceData } from './getGovernanceData'
 
-const EMPTY_RESULTS_PROPOSAL = {
+const EMPTY_RESULTS_PROPOSAL: BoardroomGovernanceResult = {
   refId: 'refId1',
-  id: 'id1',
   title: 'Proposal 1',
-  content: 'Content 1',
-  protocol: 'shapeshift',
-  adapter: 'default',
-  proposer: '0x9Fca79Fb30aa631a82312A7a34d0f05359C626ad',
-  totalVotes: 5,
-  blockNumber: 14963724,
-  externalUrl: 'https://snapshot.org/#/shapeshiftdao.eth/proposal/id1',
-  startTime: { timestamp: 1655239110 },
-  endTime: { timestamp: 1655498315 },
-  startTimestamp: '1655239110',
-  endTimestamp: '1655498315',
   currentState: 'active',
   choices: ['YES', 'NO'],
   results: [],
-  events: [],
 }
-const PARTIAL_RESULTS_PROPOSAL = {
+const PARTIAL_RESULTS_PROPOSAL: BoardroomGovernanceResult = {
   refId: 'refId2',
-  id: 'id2',
   title: 'Proposal 2',
-  content: 'Content 2',
-  protocol: 'shapeshift',
-  adapter: 'default',
-  proposer: '0x9Fca79Fb30aa631a82312A7a34d0f05359C626ad',
-  totalVotes: 5,
-  blockNumber: 14963724,
-  externalUrl: 'https://snapshot.org/#/shapeshiftdao.eth/proposal/id2',
-  startTime: { timestamp: 1655239110 },
-  endTime: { timestamp: 1655498315 },
-  startTimestamp: '1655239110',
-  endTimestamp: '1655498315',
   currentState: 'active',
   choices: ['YES', 'NO'],
   results: [
@@ -43,24 +18,11 @@ const PARTIAL_RESULTS_PROPOSAL = {
       choice: 0,
     },
   ],
-  events: [],
 }
 
-const ALL_RESULTS_PROPOSAL = {
+const ALL_RESULTS_PROPOSAL: BoardroomGovernanceResult = {
   refId: 'refId3',
-  id: 'id3',
   title: 'Proposal 3',
-  content: 'Content 3',
-  protocol: 'shapeshift',
-  adapter: 'default',
-  proposer: '0x82c6b4E75Ef8A3669359F7368266FF8F7C719D93',
-  totalVotes: 48,
-  blockNumber: 14896948,
-  externalUrl: 'https://snapshot.org/#/shapeshiftdao.eth/proposal/id3',
-  startTime: { timestamp: 1654256993 },
-  endTime: { timestamp: 1654516193 },
-  startTimestamp: '1654256993',
-  endTimestamp: '1654516193',
   currentState: 'closed',
   choices: ['Yes (For)', 'No (Against)'],
   results: [
@@ -73,28 +35,11 @@ const ALL_RESULTS_PROPOSAL = {
       choice: 1,
     },
   ],
-  events: [],
 }
 
-const INACTIVE_PROPOSAL = {
+const INACTIVE_PROPOSAL: BoardroomGovernanceResult = {
   refId: 'refId4',
-  id: 'id4',
   title: 'Proposal 4',
-  content: 'Content 4',
-  protocol: 'shapeshift',
-  adapter: 'default',
-  proposer: '0x9304b785e517b8644fCf6F2a12dD05877BC035E2',
-  totalVotes: 65,
-  blockNumber: 14310669,
-  externalUrl: 'https://snapshot.org/#/shapeshiftdao.eth/proposal/id4',
-  startTime: {
-    timestamp: 1646269200,
-  },
-  endTime: {
-    timestamp: 1646960400,
-  },
-  startTimestamp: '1646269200',
-  endTimestamp: '1646960400',
   currentState: 'closed',
   choices: ['For', 'Against'],
   results: [
@@ -103,28 +48,11 @@ const INACTIVE_PROPOSAL = {
       choice: 0,
     },
   ],
-  events: [],
 }
 
-const INACTIVE_PROPOSAL_TWO = {
+const INACTIVE_PROPOSAL_TWO: BoardroomGovernanceResult = {
   refId: 'refId5',
-  id: 'id5',
   title: 'Proposal 5',
-  content: 'Content 5',
-  protocol: 'shapeshift',
-  adapter: 'default',
-  proposer: '0x9304b785e517b8644fCf6F2a12dD05877BC035E2',
-  totalVotes: 65,
-  blockNumber: 14310669,
-  externalUrl: 'https://snapshot.org/#/shapeshiftdao.eth/proposal/id5',
-  startTime: {
-    timestamp: 1646269200,
-  },
-  endTime: {
-    timestamp: 1646960400,
-  },
-  startTimestamp: '1646269200',
-  endTimestamp: '1646960400',
   currentState: 'closed',
   choices: ['For', 'Against'],
   results: [
@@ -133,7 +61,6 @@ const INACTIVE_PROPOSAL_TWO = {
       choice: 0,
     },
   ],
-  events: [],
 }
 
 describe('parseGovernanceData', () => {

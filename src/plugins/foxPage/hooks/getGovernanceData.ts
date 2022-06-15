@@ -3,17 +3,30 @@ import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-type BoardroomGovernanceData = Array<{
+// Non-exhaustive typings. We do not want to keep this a 1/1 mapping to an external API
+export type BoardroomGovernanceResult = {
   currentState: string
   title: string
   choices: Array<string>
   results: Array<{ total: number; choice: number }>
   refId: string
-}>
+}
+
+export type ParsedBoardroomGovernanceResult = {
+  refId: string
+  title: string
+  choices: string[]
+  results: Array<{
+    absolute: string
+    percent: string
+  }>
+}
 
 const BOARDROOM_API_BASE_URL = getConfig().REACT_APP_BOARDROOM_API_BASE_URL
 
-export const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
+export const parseGovernanceData = (
+  governanceData: BoardroomGovernanceResult[],
+): ParsedBoardroomGovernanceResult[] => {
   const activeProposals = governanceData.filter(data => data.currentState === 'active')
   const proposals = activeProposals.length ? activeProposals : [governanceData[0]]
 
@@ -43,7 +56,7 @@ export const useGetGovernanceData = () => {
   useEffect(() => {
     const loadGovernanceData = async () => {
       try {
-        const response = await axios.get<{ data: BoardroomGovernanceData }>(
+        const response = await axios.get<{ data: BoardroomGovernanceResult[] }>(
           `${BOARDROOM_API_BASE_URL}proposals`,
         )
         const governanceData = response?.data?.data

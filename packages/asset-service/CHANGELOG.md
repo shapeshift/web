@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v6.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.0.3...@shapeshiftoss/asset-service-v6.0.4) (2022-06-15)
+
+
+### Bug Fixes
+
+* **asset-service:** fix missing declaration file in published package ([f1eb5cf](https://github.com/shapeshift/lib/commit/f1eb5cf613c98cb60f4e039ee8fa4cac4b3d7d84))
+
 # [@shapeshiftoss/asset-service-v6.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.0.2...@shapeshiftoss/asset-service-v6.0.3) (2022-06-15)
 
 

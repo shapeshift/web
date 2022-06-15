@@ -25,10 +25,10 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
     const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce(
       (acc, supportedFiatRamp) => {
         const [fiatRamp, fiatRampConfig] = supportedFiatRamp
-        if (fiatRamp === 'CoinbasePay' && !coinbasePayFeatureFlag) {
+        if (fiatRamp === 'CoinbasePay') {
           // Since isImplemented is set in a config file where we can't use hooks,
           // we reassign isImplemented here based on the feature flag.
-          fiatRampConfig.isImplemented = false
+          fiatRampConfig.isImplemented = coinbasePayFeatureFlag
         }
         if (fiatRampConfig.isImplemented) {
           acc.unshift(

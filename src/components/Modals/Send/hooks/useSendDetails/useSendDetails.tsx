@@ -1,4 +1,4 @@
-import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { bitcoin, cosmos, ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
@@ -53,7 +53,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const address = useWatch<SendInput, SendFormFields.Address>({
     name: SendFormFields.Address,
   })
-  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
+  const accountSpecifier = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
 
@@ -67,22 +67,27 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     useAppSelector(state =>
       selectPortfolioCryptoHumanBalanceByFilter(state, {
         assetId,
-        accountId,
+        accountId: accountSpecifier,
       }),
     ),
   )
 
   const fiatBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
+    useAppSelector(state =>
+      selectPortfolioFiatBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
+    ),
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.assetId, accountId }),
+      selectPortfolioCryptoBalanceByFilter(state, {
+        assetId: feeAsset.assetId,
+        accountId: accountSpecifier,
+      }),
     ),
   )
 
@@ -100,8 +105,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const estimateFormFees = useCallback(async (): Promise<FeeDataEstimate<ChainId>> => {
     const values = getValues()
     if (!wallet) throw new Error('No wallet connected')
-
-    const { account } = fromAccountId(accountId)
 
     const value = bnOrZero(values.cryptoAmount)
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
@@ -125,7 +128,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to,
           value,
           chainSpecific: {
-            from: account,
+            from: accountSpecifier,
             contractAddress,
           },
           sendMax: values.sendMax,
@@ -140,14 +143,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { pubkey: account },
+          chainSpecific: { pubkey: accountSpecifier },
           sendMax: values.sendMax,
         })
       }
       default:
         throw new Error('unsupported chain type')
     }
-  }, [accountId, chainAdapterManager, contractAddress, getValues, wallet])
+  }, [accountSpecifier, chainAdapterManager, contractAddress, getValues, wallet])
 
   const handleNextClick = async () => {
     try {
@@ -199,7 +202,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { chainId, account } = fromAccountId(accountId)
+        const { chainId } = fromAssetId(assetId)
 
         const { fastFee, adapterFees } = await (async () => {
           switch (chainId) {
@@ -223,7 +226,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const adapterFees = await ethAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { contractAddress, from: account },
+                chainSpecific: { contractAddress, from: accountSpecifier },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee
@@ -239,7 +242,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const adapterFees = await btcAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { pubkey: account },
+                chainSpecific: { pubkey: accountSpecifier },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee

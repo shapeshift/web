@@ -35,7 +35,7 @@ export const useFormSend = () => {
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
-        const adapterType = adapter?.getChainId()
+        const adapterType = adapter.getChainId()
 
         let result
 

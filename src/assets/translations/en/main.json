@@ -612,6 +612,7 @@
       "withdrawDelayedTime": "7 to 14 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
+      "notEnoughGas":  "Not enough %{assetSymbol} to cover gas",
       "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"

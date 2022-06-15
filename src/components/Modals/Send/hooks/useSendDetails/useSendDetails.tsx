@@ -1,13 +1,5 @@
-import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import {
-  bitcoin,
-  convertXpubVersion,
-  cosmos,
-  ethereum,
-  FeeDataEstimate,
-  toRootDerivationPath,
-} from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
+import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { bitcoin, cosmos, ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
@@ -18,7 +10,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetById,
   selectMarketDataById,
@@ -108,8 +99,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const estimateFormFees = useCallback(async (): Promise<FeeDataEstimate<ChainId>> => {
     const values = getValues()
-
     if (!wallet) throw new Error('No wallet connected')
+
+    const { account } = fromAccountId(accountId)
 
     const value = bnOrZero(values.cryptoAmount)
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
@@ -123,9 +115,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return adapter.getFeeData({})
       }
       case KnownChainIds.EthereumMainnet: {
-        const from = await adapter.getAddress({
-          wallet,
-        })
         const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet) as
           | ethereum.ChainAdapter
           | undefined
@@ -136,30 +125,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to,
           value,
           chainSpecific: {
-            from,
+            from: account,
             contractAddress,
           },
           sendMax: values.sendMax,
         })
       }
       case KnownChainIds.BitcoinMainnet: {
-        const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
-        if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
-        if (!accountType) {
-          throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
-        }
-        const { bip44Params, scriptType } = utxoParams
-        const pubkeys = await wallet.getPublicKeys([
-          {
-            coin: adapter.getChainId(),
-            addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
-            curve: 'secp256k1',
-            scriptType,
-          },
-        ])
-
-        if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
-        const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         const bitcoinChainAdapter = (await chainAdapterManager.get(
           KnownChainIds.BitcoinMainnet,
         )) as bitcoin.ChainAdapter | undefined
@@ -168,14 +140,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { pubkey },
+          chainSpecific: { pubkey: account },
           sendMax: values.sendMax,
         })
       }
       default:
         throw new Error('unsupported chain type')
     }
-  }, [accountId, adapter, chainAdapterManager, contractAddress, getValues, wallet])
+  }, [accountId, chainAdapterManager, contractAddress, getValues, wallet])
 
   const handleNextClick = async () => {
     try {
@@ -227,17 +199,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
-        fnLogger.trace({ utxoParams, accountType }, 'Getting Address...')
-        const from = await adapter.getAddress({
-          wallet,
-          accountType,
-          ...utxoParams,
-        })
+        const { chainId, account } = fromAccountId(accountId)
 
-        // Assume fast fee for send max
-        // This is used to make sure it's impossible to send more than our balance
-        const { chainId } = fromAssetId(assetId)
         const { fastFee, adapterFees } = await (async () => {
           switch (chainId) {
             case KnownChainIds.CosmosMainnet: {
@@ -260,30 +223,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const adapterFees = await ethAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { contractAddress, from },
+                chainSpecific: { contractAddress, from: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
             case KnownChainIds.BitcoinMainnet: {
-              if (!accountType)
-                throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
-              if (!utxoParams) {
-                throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
-              }
-              const { bip44Params, scriptType } = utxoParams
-              const pubkeys = await wallet.getPublicKeys([
-                {
-                  coin: adapter.getChainId(),
-                  addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
-                  curve: 'secp256k1',
-                  scriptType,
-                },
-              ])
-
-              if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
-              const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
               const btcAdapter = (await chainAdapterManager.get(KnownChainIds.BitcoinMainnet)) as
                 | bitcoin.ChainAdapter
                 | undefined
@@ -293,7 +239,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const adapterFees = await btcAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { pubkey },
+                chainSpecific: { pubkey: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee

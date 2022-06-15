@@ -70,9 +70,17 @@ const setup = ({
   setError = jest.fn(),
   setValue = jest.fn(),
 }) => {
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) =>
-    name === 'asset' ? asset : '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-  )
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) => {
+    switch (name) {
+      case 'asset':
+        return asset
+      case 'accountId':
+        return 'eip155:1:0x00000005D5F96b2d030a4966AF206230e46849cb'
+      default:
+        return undefined
+    }
+  })
+
   mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
     const fakeMarketData = {
       [mockEthereum.assetId]: {

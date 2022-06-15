@@ -1,4 +1,4 @@
-import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { bitcoin, cosmos, ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
@@ -106,6 +106,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     const values = getValues()
     if (!wallet) throw new Error('No wallet connected')
 
+    const { account } = fromAccountId(accountSpecifier)
+
     const value = bnOrZero(values.cryptoAmount)
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
@@ -128,7 +130,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to,
           value,
           chainSpecific: {
-            from: accountSpecifier,
+            from: account,
             contractAddress,
           },
           sendMax: values.sendMax,
@@ -143,7 +145,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { pubkey: accountSpecifier },
+          chainSpecific: { pubkey: account },
           sendMax: values.sendMax,
         })
       }
@@ -202,8 +204,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { chainId } = fromAssetId(assetId)
-
+        const { chainId, account } = fromAccountId(accountSpecifier)
+        fnLogger.error({ chainId, account, accountSpecifier }, 'debug')
         const { fastFee, adapterFees } = await (async () => {
           switch (chainId) {
             case KnownChainIds.CosmosMainnet: {

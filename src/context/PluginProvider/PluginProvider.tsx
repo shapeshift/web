@@ -1,8 +1,8 @@
+import { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { Plugin, PluginManager } from 'plugins'
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import React, { createContext } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
 import { logger } from 'lib/logger'
@@ -17,7 +17,7 @@ type PluginProviderContextProps = {
   pluginManager: PluginManager
   plugins: [string, Plugin][]
   chainAdapterManager: ChainAdapterManager
-  supportedChains: ChainTypes[]
+  supportedChains: ChainId[]
   routes: Route[]
 }
 
@@ -28,7 +28,7 @@ let _chainAdapterManager: ChainAdapterManager | undefined
 
 // we need to be able to access this outside react
 export const getChainAdapters = (): ChainAdapterManager => {
-  if (!_chainAdapterManager) _chainAdapterManager = new ChainAdapterManager({})
+  if (!_chainAdapterManager) _chainAdapterManager = new Map()
   return _chainAdapterManager
 }
 
@@ -45,7 +45,7 @@ const moduleLogger = logger.child({ namespace: ['PluginProvider'] })
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
   const [pluginManager] = useState(new PluginManager())
   const [plugins, setPlugins] = useState<[string, Plugin][] | null>(null)
-  const [supportedChains, setSupportedChains] = useState<ChainTypes[]>([])
+  const [supportedChains, setSupportedChains] = useState<ChainId[]>([])
   const [routes, setRoutes] = useState<Route[]>([])
   const featureFlags = useSelector(selectFeatureFlags)
 
@@ -83,7 +83,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
-    const newChainAdapters: { [k in ChainTypes]?: () => ChainAdapter<ChainTypes> } = {}
+    const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<ChainId> } = {}
 
     // register providers from each plugin
     for (const [, plugin] of pluginManager.entries()) {
@@ -107,28 +107,32 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     }
 
     // unregister the difference between what we had, and now have after loading plugins
-    partitionCompareWith<ChainTypes>(
-      chainAdapterManager.getSupportedChains(),
-      Object.keys(newChainAdapters) as ChainTypes[],
+    partitionCompareWith<ChainId>(
+      Object.keys(KnownChainIds) as ChainId[],
+      Object.keys(newChainAdapters) as ChainId[],
       {
-        add: chain => {
-          const factory = newChainAdapters[chain]
+        add: chainId => {
+          const factory = newChainAdapters[chainId]
           if (factory) {
-            getChainAdapters().addChain(chain, factory)
-            moduleLogger.debug({ chain, fn: 'partitionCompareWith' }, 'Added ChainAdapter')
+            _chainAdapterManager?.set(chainId, factory())
+            moduleLogger.debug({ chainId, fn: 'partitionCompareWith' }, 'Added ChainAdapter')
           }
         },
-        remove: chain => {
-          moduleLogger.trace({ chain, fn: 'partitionCompareWith' }, 'Closing Subscriptions')
-          getChainAdapters().byChain(chain).closeTxs()
-          getChainAdapters().removeChain(chain)
-          moduleLogger.debug({ chain, fn: 'partitionCompareWith' }, 'Removed ChainAdapter')
+        remove: chainId => {
+          moduleLogger.trace({ chainId, fn: 'partitionCompareWith' }, 'Closing Subscriptions')
+          _chainAdapterManager?.delete(chainId)
+          _chainAdapterManager?.get(chainId)?.closeTxs()
+          moduleLogger.debug({ chainId, fn: 'partitionCompareWith' }, 'Removed ChainAdapter')
         },
       },
     )
 
     setRoutes(pluginRoutes)
-    const _supportedChains = getChainAdapters().getSupportedChains()
+    const knownChainIds = featureFlags.Osmosis
+      ? Object.values(KnownChainIds)
+      : Object.values(KnownChainIds).filter(chainId => chainId !== KnownChainIds.OsmosisMainnet)
+
+    const _supportedChains = Object.values(knownChainIds) as ChainId[]
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
     setSupportedChains(_supportedChains)
   }, [chainAdapterManager, featureFlags, plugins, pluginManager])

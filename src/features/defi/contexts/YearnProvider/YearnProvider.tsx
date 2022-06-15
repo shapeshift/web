@@ -1,6 +1,6 @@
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { useContext, useEffect, useState } from 'react'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -26,11 +26,11 @@ export const YearnProvider: React.FC = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!chainAdapterManager.getSupportedChains().includes(ChainTypes.Ethereum)) return
+        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
         setLoading(true)
-        const chainAdapter = chainAdapterManager.byChainId(
-          'eip155:1',
-        ) as ChainAdapter<ChainTypes.Ethereum>
+        const chainAdapter = chainAdapterManager.get(
+          KnownChainIds.EthereumMainnet,
+        ) as ChainAdapter<KnownChainIds.EthereumMainnet>
         const yearnInvestor = new YearnInvestor({
           chainAdapter,
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,

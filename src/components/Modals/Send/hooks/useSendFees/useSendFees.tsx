@@ -1,4 +1,4 @@
-import { chainAdapters } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -39,8 +39,8 @@ export const useSendFees = () => {
           txFee: '',
         },
       }
-      const txFees = (Object.keys(estimatedFees) as chainAdapters.FeeDataKey[]).reduce<FeePrice>(
-        (acc: FeePrice, key: chainAdapters.FeeDataKey) => {
+      const txFees = (Object.keys(estimatedFees) as FeeDataKey[]).reduce<FeePrice>(
+        (acc: FeePrice, key: FeeDataKey) => {
           const txFee = bnOrZero(estimatedFees[key].txFee)
             .dividedBy(bn(`1e+${feeAsset.precision}`))
             .toPrecision()

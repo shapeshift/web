@@ -1,6 +1,7 @@
 import { AssetId, cosmosAssetId, cosmosChainId, toAccountId } from '@shapeshiftoss/caip'
+import { TxStatus, TxType } from '@shapeshiftoss/chain-adapters'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -222,7 +223,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         // balance history being built in descending order, so fee means we had more before
         // TODO(0xdef1cafe): this is awful but gets us out of trouble
         // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
-        if (tx.chain !== ChainTypes.Bitcoin) {
+        if (tx.chain !== KnownChainIds.BitcoinMainnet) {
           bucket.balance.crypto[tx.fee.assetId] = bucket.balance.crypto[tx.fee.assetId].plus(
             bnOrZero(tx.fee.value),
           )
@@ -237,16 +238,16 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
         if (!assetIds.includes(asset)) return
         if (!includeTx) return
-        if (tx.status === chainAdapters.TxStatus.Failed) return
+        if (tx.status === TxStatus.Failed) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
         switch (transfer.type) {
-          case chainAdapters.TxType.Send:
+          case TxType.Send:
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
             break
-          case chainAdapters.TxType.Receive:
+          case TxType.Receive:
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break

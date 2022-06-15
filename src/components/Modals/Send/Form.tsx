@@ -1,5 +1,6 @@
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { ChainId } from '@shapeshiftoss/caip'
+import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -24,15 +25,15 @@ import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { QrCodeScanner } from './views/QrCodeScanner'
 
-export type SendInput = {
+export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.Input]: string
   [SendFormFields.Address]: string
   [SendFormFields.VanityAddress]: string
   [SendFormFields.AccountId]: AccountSpecifier
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
-  [SendFormFields.FeeType]: chainAdapters.FeeDataKey
-  [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
+  [SendFormFields.FeeType]: FeeDataKey
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
@@ -58,7 +59,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
       address: '',
       vanityAddress: '',
       asset: initialAsset,
-      feeType: chainAdapters.FeeDataKey.Average,
+      feeType: FeeDataKey.Average,
       cryptoAmount: '',
       cryptoSymbol: initialAsset?.symbol,
       fiatAmount: '',

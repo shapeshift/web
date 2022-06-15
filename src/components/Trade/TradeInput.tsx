@@ -1,5 +1,5 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
@@ -25,7 +25,7 @@ import { useAppSelector } from 'state/store'
 
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
-type TS = TradeState<SupportedChainIds>
+type TS = TradeState<KnownChainIds>
 
 const moduleLogger = logger.child({ namespace: ['Trade', 'TradeInput'] })
 
@@ -36,7 +36,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     getValues,
     setValue,
     formState: { errors, isDirty, isValid, isSubmitting },
-  } = useFormContext<TradeState<SupportedChainIds>>()
+  } = useFormContext<TradeState<KnownChainIds>>()
   const {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -277,7 +277,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               </FormErrorMessage>
             </FormControl>
             <FormControl>
-              <TokenRow<TradeState<SupportedChainIds>>
+              <TokenRow<TradeState<KnownChainIds>>
                 control={control}
                 fieldName='sellAsset.amount'
                 disabled={isSendMaxLoading}
@@ -349,7 +349,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               </Box>
             </FormControl>
             <FormControl mb={6}>
-              <TokenRow<TradeState<SupportedChainIds>>
+              <TokenRow<TradeState<KnownChainIds>>
                 control={control}
                 fieldName='buyAsset.amount'
                 disabled={isSendMaxLoading}

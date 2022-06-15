@@ -144,8 +144,8 @@ export const Overview: React.FC<OverviewProps> = ({
   }
 
   const handleVerify = async () => {
-    if (!wallet) return
-    const chainAdapter = await chainAdapterManager.byChainId(chainId)
+    const chainAdapter = await chainAdapterManager.get(chainId)
+    if (!(wallet && chainAdapter)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,

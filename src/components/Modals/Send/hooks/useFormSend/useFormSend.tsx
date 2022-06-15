@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -8,9 +9,13 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
+import { tokenOrUndefined } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
+
+const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseFormSend'] })
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -47,12 +52,15 @@ export const useFormSend = () => {
           if (!shouldUseEIP1559Fees && gasPrice === undefined) {
             throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
           }
+          const erc20ContractAddress = tokenOrUndefined(
+            fromAssetId(data.asset.assetId).assetReference,
+          )
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to,
             value,
             wallet,
             chainSpecific: {
-              erc20ContractAddress: data.asset.tokenId,
+              erc20ContractAddress,
               gasLimit,
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             },
@@ -61,7 +69,7 @@ export const useFormSend = () => {
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
 
-          const { accountType, utxoParams } = accountIdToUtxoParams(data.asset, data.accountId, 0)
+          const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
 
           if (!accountType) {
             throw new Error(
@@ -137,6 +145,7 @@ export const useFormSend = () => {
           })
         }, 5000)
       } catch (error) {
+        moduleLogger.error(error, { fn: 'handleSend' }, 'Error handling send')
         toast({
           title: translate('modals.send.errorTitle', {
             asset: data.asset.name,

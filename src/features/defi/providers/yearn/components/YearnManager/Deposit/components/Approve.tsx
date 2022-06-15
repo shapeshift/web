@@ -28,13 +28,13 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, tokenId } = query
+  const { chainId, assetReference } = query
   const alertText = useColorModeValue('blue.800', 'white')
   const { yearn: yearnInvestor } = useYearn()
   const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -55,7 +55,7 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
   const handleApprove = async () => {
     if (
       !(
-        tokenId &&
+        assetReference &&
         state.userAddress &&
         walletState.wallet &&
         supportsETH(walletState.wallet) &&

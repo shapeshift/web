@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { Allocations } from 'components/AccountRow/Allocations'
@@ -54,6 +54,7 @@ export const AssetAccountRow = ({
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
+  const { assetReference } = fromAssetId(asset.assetId)
 
   const filter = useMemo(
     () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
@@ -95,7 +96,7 @@ export const AssetAccountRow = ({
     >
       <Flex alignItems='center'>
         <Box position='relative'>
-          {asset?.tokenId && (
+          {assetReference && (
             <AssetIcon
               src={feeAsset.icon}
               right={0}
@@ -109,7 +110,7 @@ export const AssetAccountRow = ({
           <AssetIcon src={asset?.icon} boxSize='30px' mr={2} />
         </Box>
         <Flex flexDir='column' ml={2} maxWidth='100%'>
-          {asset?.tokenId && (
+          {assetReference && (
             <RawText fontWeight='bold' color='gray.500' fontSize='sm'>
               {feeAsset.name}
             </RawText>
@@ -125,7 +126,7 @@ export const AssetAccountRow = ({
             >
               {asset?.name}
             </RawText>
-            {!asset.tokenId && (
+            {assetReference && (
               <Tag
                 whiteSpace='nowrap'
                 colorScheme='blue'

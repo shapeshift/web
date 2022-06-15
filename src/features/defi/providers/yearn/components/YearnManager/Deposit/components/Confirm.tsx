@@ -32,10 +32,10 @@ export const Confirm = () => {
   const { yearn: yearnInvestor } = useYearn()
   // TODO: Allow user to set fee priority
   const opportunity = state?.opportunity
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -70,7 +70,7 @@ export const Confirm = () => {
       if (
         !(
           state.userAddress &&
-          tokenId &&
+          assetReference &&
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity

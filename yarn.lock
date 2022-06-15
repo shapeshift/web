@@ -3747,12 +3747,12 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@4.5.0":
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-4.5.0.tgz#9a863c1eb34148ba15bc5546a178c4231cd40d45"
-  integrity sha512-K8VlUJ+L+RNGcohx1gY0JIz6msOsGPQiRIbxzgHOoVM1jqYriuhzF2TqzVZ9dA3PVBdr5wt9DJa5YpOKp2OirQ==
+"@shapeshiftoss/asset-service@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-5.0.2.tgz#b6b5bf47038cd09e0c0e9804435d7cdd87581ffa"
+  integrity sha512-3f7SDEYPcjQnmyhNKF+XGenXjTPTPPCxqXEjpSobCRBdrTVp3aPHcLO3xasOuGsl0b7GD5mL1PfW+yiKMUSwUQ==
   dependencies:
-    axios "^0.26.0"
+    axios "^0.26.1"
     identicon.js "^2.3.3"
     js-pixel-fonts "^1.5.0"
     lodash "^4.17.21"
@@ -4050,10 +4050,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.1.3.tgz#26b1d626d2b342b107e2ea538b5aedb0bee896ab"
   integrity sha512-Nhrs8gQelmsFAQQHTEq8TS3wueBKqjBf0pX6VxOiIQyasordSHQT4Di6WQOL1NWhciYptJ2nHPbarmhKOD63Eg==
 
-"@shapeshiftoss/types@4.3.2":
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.3.2.tgz#f8ff003e3cd0db2ee1baebad8e6d52ffa3b326b3"
-  integrity sha512-TQtGSi/kaK/ciNc9CVLRQHZgj7zYszNIDTSpsdmyt7K3MaYoidqk1x/m+QOsJk3hWNELvXtVy0iVbIIPN/viCQ==
+"@shapeshiftoss/types@4.4.0":
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-4.4.0.tgz#b0dafb2bbf2d51269ab61517e8519c0e95dec5dc"
+  integrity sha512-Y5dlZjCBx0J4KyCFeFPuB7hoyjMa+CLVMO31uwmB0BAOhKDJi9aVShhYjfbnyt8VfKA6IHqN1F55CWcl+BUv8g==
 
 "@shapeshiftoss/unchained-client@^9.0.0":
   version "9.0.0"
@@ -7283,7 +7283,7 @@ axios@^0.21.1, axios@^0.21.2, axios@^0.21.4:
   dependencies:
     follow-redirects "^1.14.0"
 
-axios@^0.26.0, axios@^0.26.1:
+axios@^0.26.1:
   version "0.26.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
   integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==

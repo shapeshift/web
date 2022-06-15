@@ -233,7 +233,7 @@ export const FoxPage = () => {
                       search: qs.stringify({
                         chainId: assetFoxy.chainId,
                         contractAddress: foxyAddresses[0].staking,
-                        tokenId: foxyAddresses[0].fox,
+                        assetReference: foxyAddresses[0].fox,
                         rewardId: foxyAddresses[0].foxy,
                       }),
                       state: { background: location },

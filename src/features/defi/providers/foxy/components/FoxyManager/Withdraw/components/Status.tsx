@@ -20,7 +20,7 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, tokenId, rewardId } = query
+  const { chainId, assetReference, rewardId } = query
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
 
   const assetNamespace = 'erc20'
@@ -28,7 +28,7 @@ export const Status = () => {
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assetId = toAssetId({

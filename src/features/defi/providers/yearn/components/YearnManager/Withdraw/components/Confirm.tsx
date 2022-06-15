@@ -30,7 +30,7 @@ export const Confirm = () => {
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'
@@ -38,7 +38,7 @@ export const Confirm = () => {
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assetId = toAssetId({
@@ -69,7 +69,7 @@ export const Confirm = () => {
       if (
         !(
           state.userAddress &&
-          tokenId &&
+          assetReference &&
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity

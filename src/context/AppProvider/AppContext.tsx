@@ -1,11 +1,4 @@
-import {
-  ASSET_REFERENCE,
-  btcChainId,
-  cosmosChainId,
-  ethChainId,
-  osmosisChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { btcChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
@@ -143,14 +136,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             }
             case btcChainId: {
               if (!supportsBTC(wallet)) continue
-              const assetId = toAssetId({
-                chainId,
-                assetNamespace: 'slip44',
-                assetReference: ASSET_REFERENCE.Bitcoin,
-              })
-              const bitcoin = assetsById[assetId]
-
-              if (!bitcoin) continue
               const supportedAccountTypes = (
                 adapter as bitcoin.ChainAdapter
               ).getSupportedAccountTypes()

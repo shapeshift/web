@@ -128,7 +128,11 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     )
 
     setRoutes(pluginRoutes)
-    const _supportedChains = Object.keys(KnownChainIds) as ChainId[]
+    const knownChainIds = featureFlags.Osmosis
+      ? Object.values(KnownChainIds)
+      : Object.values(KnownChainIds).filter(chainId => chainId !== KnownChainIds.OsmosisMainnet)
+
+    const _supportedChains = Object.values(knownChainIds) as ChainId[]
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
     setSupportedChains(_supportedChains)
   }, [chainAdapterManager, featureFlags, plugins, pluginManager])

@@ -196,6 +196,39 @@ describe('EthereumChainAdapter', () => {
     })
   })
 
+  describe('getGasFeeData', () => {
+    it('should return current ETH network gas fees', async () => {
+      const httpProvider = {
+        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse())
+      } as unknown as unchained.ethereum.V1Api
+      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
+
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const data = await adapter.getGasFeeData()
+
+      expect(data).toEqual(
+        expect.objectContaining({
+          average: {
+            gasPrice: '45000000000',
+            maxFeePerGas: '300',
+            maxPriorityFeePerGas: '10'
+          },
+          fast: {
+            gasPrice: '50180000000',
+            maxFeePerGas: '335',
+            maxPriorityFeePerGas: '12'
+          },
+          slow: {
+            gasPrice: '41000000000',
+            maxFeePerGas: '274',
+            maxPriorityFeePerGas: '10'
+          }
+        })
+      )
+    })
+  })
+
   const validAddressTuple = {
     valid: true,
     result: ValidAddressResultType.Valid

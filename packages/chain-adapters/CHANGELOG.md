@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.0.2...@shapeshiftoss/chain-adapters-v7.0.3) (2022-06-15)
+
+
+### Bug Fixes
+
+* move op return data into chain specific for get fees ([#821](https://github.com/shapeshift/lib/issues/821)) ([45d8a94](https://github.com/shapeshift/lib/commit/45d8a940ba22bc95842217ecb1c486ebabffad9f))
+
 # [@shapeshiftoss/chain-adapters-v7.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.0.1...@shapeshiftoss/chain-adapters-v7.0.2) (2022-06-15)
 
 # [@shapeshiftoss/chain-adapters-v7.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.0.0...@shapeshiftoss/chain-adapters-v7.0.1) (2022-06-14)

@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { bitcoin, ethereum, FeeData } from '@shapeshiftoss/chain-adapters'
+import { bitcoin, ChainAdapter, ethereum, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +29,7 @@ export const useFormSend = () => {
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
-        const adapter = chainAdapterManager.get(data.asset.chainId)
+        const adapter = chainAdapterManager.get(data.asset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter) throw new Error(`useFormSend: no adapter available for ${data.asset.chainId}`)
         const value = bnOrZero(data.cryptoAmount)
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))

@@ -82,15 +82,15 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
       moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
       const payload = { wallet }
       try {
-        supportsETH(wallet) &&
-          ethereumChainAdapter &&
+        if (supportsETH(wallet) && ethereumChainAdapter) {
           setEthAddress(await ethereumChainAdapter.getAddress(payload))
-        supportsBTC(wallet) &&
-          bitcoinChainAdapter &&
+        }
+        if (supportsBTC(wallet) && bitcoinChainAdapter) {
           setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
-        supportsCosmos(wallet) &&
-          cosmosChainAdapter &&
+        }
+        if (supportsCosmos(wallet) && cosmosChainAdapter) {
           setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
+        }
       } catch (e) {
         moduleLogger.error(e, { fn: 'getAddress' }, 'GetAddress Failed')
       }

@@ -1,5 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperManager } from '@shapeshiftoss/swapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -97,11 +98,14 @@ function setup({
 
 describe('useSwapper', () => {
   beforeEach(() => {
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: jest.fn(),
-      addChain: jest.fn(),
-      getSupportedChains: jest.fn(),
-    }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, {}],
+          [KnownChainIds.CosmosMainnet, {}],
+          [KnownChainIds.EthereumMainnet, {}],
+        ]),
+    )
   })
   it('approves infinite', async () => {
     const { result, wallet } = setup()

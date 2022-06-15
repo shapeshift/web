@@ -103,7 +103,10 @@ export const useFormSend = () => {
         let broadcastTXID: string | undefined
 
         if (wallet.supportsOfflineSigning()) {
-          const signedTx = await adapter.signTransaction({ txToSign, wallet })
+          const signedTx = await adapter.signTransaction({
+            txToSign,
+            wallet,
+          })
           broadcastTXID = await adapter.broadcastTransaction(signedTx)
         } else if (wallet.supportsBroadcast()) {
           /**

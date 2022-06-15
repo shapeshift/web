@@ -116,13 +116,24 @@ describe('useFormSend', () => {
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
-        signTransaction: () => Promise.resolve(testSignedTx),
-        getType: () => KnownChainIds.CosmosMainnet,
-      }),
-    }))
+    const mockAdapter = {
+      buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
+      signTransaction: () => Promise.resolve(testSignedTx),
+    }
+
+    const mockCosmosAdapter = {
+      ...mockAdapter,
+      getType: () => KnownChainIds.CosmosMainnet,
+      getChainId: () => KnownChainIds.CosmosMainnet,
+    }
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockCosmosAdapter],
+          [KnownChainIds.EthereumMainnet, mockAdapter],
+        ]),
+    )
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()

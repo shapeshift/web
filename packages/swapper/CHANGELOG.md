@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.5.0...@shapeshiftoss/swapper-v7.5.1) (2022-06-15)
+
+
+### Bug Fixes
+
+* type ([#825](https://github.com/shapeshift/lib/issues/825)) ([34ec284](https://github.com/shapeshift/lib/commit/34ec284c8d55baf7c73d7ef33669e1a996b8fedb))
+
 # [@shapeshiftoss/swapper-v7.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.4.0...@shapeshiftoss/swapper-v7.5.0) (2022-06-15)
 
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.4.0...@shapeshiftoss/swapper-v7.5.0) (2022-06-15)
+
+
+### Features
+
+* maketrade work with either gasprice or eip1559 ([#824](https://github.com/shapeshift/lib/issues/824)) ([619a940](https://github.com/shapeshift/lib/commit/619a940c0ceec4021e3840b8787580df853d13a2))
+
 # [@shapeshiftoss/swapper-v7.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.3.1...@shapeshiftoss/swapper-v7.4.0) (2022-06-15)
 
 

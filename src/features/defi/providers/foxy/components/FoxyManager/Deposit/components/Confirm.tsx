@@ -63,9 +63,7 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   const toast = useToast()
 
   const feeAssetBalance = useAppSelector(state =>
-    feeAsset
-      ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId })
-      : null,
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
   if (!state || !dispatch) return null

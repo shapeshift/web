@@ -11,6 +11,7 @@ import * as webpack from 'webpack'
 import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity'
 
 import { cspMeta, headers, serializeCsp } from './headers'
+import { getActivePluginNames } from './plugins'
 import { progressPlugin } from './progress'
 
 type DevServerConfigFunction = (
@@ -321,6 +322,13 @@ const reactAppRewireConfig = {
           }
         : {},
     )
+
+    const activePluginNames = getActivePluginNames().sort()
+    const activePluginScript = `export async function getActivePlugins() {\n  return await Promise.all([\n${activePluginNames
+      .map(x => `    import('./${x}'),`)
+      .join('\n')}\n  ])\n}\n`
+
+    fs.writeFileSync(path.join(buildPath, 'src/plugins/active_generated.ts'), activePluginScript)
 
     return config
   },

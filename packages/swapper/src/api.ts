@@ -168,7 +168,7 @@ export enum SwapErrorTypes {
   POOL_NOT_FOUND = 'POOL_NOT_FOUND'
 }
 
-export interface Swapper<T extends ChainId, TxType = unknown> {
+export interface Swapper<T extends ChainId> {
   /** perform any necessary async initialization */
   initialize(): Promise<void>
 
@@ -215,5 +215,5 @@ export interface Swapper<T extends ChainId, TxType = unknown> {
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[]
 
-  getTradeTxs(tradeResult: TradeResult): Promise<TxType>
+  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs>
 }

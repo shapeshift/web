@@ -14,8 +14,9 @@ import farmingAbi from '../farmingAbi.json'
 import { getEthersProvider, rewardRatePerToken } from '../utils'
 import { useCurrentBlockNumber } from './useCurrentBlockNumber'
 
+const ethersProvider = getEthersProvider()
+
 export const useFarmingApr = () => {
-  const ethersProvider = getEthersProvider()
   const [farmingApr, setFarmingApr] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
   const blockNumber = useCurrentBlockNumber()
@@ -23,15 +24,14 @@ export const useFarmingApr = () => {
   const liquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
   const uniswapLPContract = useMemo(
     () => new Contract(liquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
-    [liquidityContractAddress, ethersProvider],
+    [liquidityContractAddress],
   )
   const farmingRewardsContract = useMemo(
     () => new Contract(UNISWAP_V2_WETH_FOX_FARMING_REWARDS_ADDRESS, farmingAbi, ethersProvider),
-    [ethersProvider],
+    [],
   )
 
   useEffect(() => {
-    const ethersProvider = getEthersProvider()
     if (
       !ethersProvider ||
       !Fetcher ||

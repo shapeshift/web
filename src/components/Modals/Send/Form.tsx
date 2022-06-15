@@ -25,7 +25,7 @@ import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { QrCodeScanner } from './views/QrCodeScanner'
 
-export type SendInput = {
+export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.Input]: string
   [SendFormFields.Address]: string
   [SendFormFields.VanityAddress]: string
@@ -33,7 +33,7 @@ export type SendInput = {
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<ChainId>
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string

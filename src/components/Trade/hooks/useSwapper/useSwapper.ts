@@ -151,25 +151,26 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
-    let result
-    if (sellAsset.chainId === 'eip155:1') {
-      result = await swapper.buildTrade({
-        chainId: 'eip155:1',
-        sellAmount: amount,
-        sellAsset,
-        buyAsset,
-        sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
-        buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
-        wallet,
-        sendMax: true,
-      })
-    } else if (sellAsset.chainId === 'bip122:000000000019d6689c085ae165831e93') {
-      // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
-      // They will need to have selected an accountType from a modal if bitcoin
-      throw new Error('bitcoin unsupported')
-    } else {
-      throw new Error(`unsupported chain id `)
-    }
+    const result = await (async () => {
+      if (sellAsset.chainId === 'eip155:1') {
+        return swapper.buildTrade({
+          chainId: 'eip155:1',
+          sellAmount: amount,
+          sellAsset,
+          buyAsset,
+          sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
+          buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
+          wallet,
+          sendMax: true,
+        })
+      } else if (sellAsset.chainId === 'bip122:000000000019d6689c085ae165831e93') {
+        // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
+        // They will need to have selected an accountType from a modal if bitcoin
+        throw new Error('bitcoin unsupported')
+      } else {
+        throw new Error(`unsupported chain id `)
+      }
+    })()
 
     setFees(result, sellAsset)
     setValue('trade', result)
@@ -219,24 +220,24 @@ export const useSwapper = () => {
           action,
         })
 
-        let tradeQuote: TradeQuote<KnownChainIds>
-
-        if (sellAsset.chainId === 'eip155:1') {
-          tradeQuote = await swapper.getTradeQuote({
-            chainId: 'eip155:1',
-            sellAsset,
-            buyAsset,
-            sellAmount,
-            sendMax: false,
-            sellAssetAccountNumber: 0,
-          })
-        } else if ('bip122:000000000019d6689c085ae165831e93') {
-          // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
-          // They will need to have selected an accountType from a modal if bitcoin
-          throw new Error('bitcoin unsupported')
-        } else {
-          throw new Error(`unsupported chain id `)
-        }
+        const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
+          if (sellAsset.chainId === 'eip155:1') {
+            return swapper.getTradeQuote({
+              chainId: 'eip155:1',
+              sellAsset,
+              buyAsset,
+              sellAmount,
+              sendMax: false,
+              sellAssetAccountNumber: 0,
+            })
+          } else if ('bip122:000000000019d6689c085ae165831e93') {
+            // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
+            // They will need to have selected an accountType from a modal if bitcoin
+            throw new Error('bitcoin unsupported')
+          } else {
+            throw new Error(`unsupported chain id `)
+          }
+        })()
 
         setFees(tradeQuote, sellAsset)
 

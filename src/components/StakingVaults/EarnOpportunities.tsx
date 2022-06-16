@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
@@ -43,10 +43,11 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
     vaultArray: vaults,
     foxyArray: foxyRows,
     cosmosStakingOpportunities: [],
-  }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
+  }).filter(row => row.assetId.toLowerCase() === asset.assetId.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chainId, tokenAddress, rewardAddress } = opportunity
+    const { type, provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
+    const { assetReference } = fromAssetId(assetId)
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
@@ -64,7 +65,7 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
       search: qs.stringify({
         chainId,
         contractAddress,
-        tokenId: tokenAddress,
+        assetReference,
         rewardId: rewardAddress,
       }),
       state: { background: location },

@@ -1,5 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TestProviders } from 'test/TestProviders'
@@ -18,21 +18,21 @@ jest.mock('state/slices/selectors', () => ({
 }))
 
 const fees = {
-  [chainAdapters.FeeDataKey.Slow]: {
+  [FeeDataKey.Slow]: {
     txFee: '42000000000',
     chainSpecific: {
       gasPrice: '123456700',
       gasLimit: '123456700',
     },
   },
-  [chainAdapters.FeeDataKey.Average]: {
+  [FeeDataKey.Average]: {
     txFee: '42000000000',
     chainSpecific: {
       gasPrice: '123456700',
       gasLimit: '123456700',
     },
   },
-  [chainAdapters.FeeDataKey.Fast]: {
+  [FeeDataKey.Fast]: {
     txFee: '42000000000',
     chainSpecific: {
       gasPrice: '123456700',

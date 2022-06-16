@@ -10,15 +10,13 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { cosmossdk, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import {
   ConfirmFormFields,
   ConfirmFormInput,
   TxFeeRadioGroup,
 } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
-import { getFormFees } from 'plugins/cosmos/utils'
-import { FeePrice } from 'plugins/cosmos/utils'
+import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
 import { useEffect, useMemo, useState } from 'react'
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -65,7 +63,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const chainAdapterManager = useChainAdapters()
-  const adapter = chainAdapterManager.byChain(asset.chain) as cosmossdk.cosmos.ChainAdapter
+  const adapter = chainAdapterManager.get(asset.chainId) as unknown as cosmossdk.cosmos.ChainAdapter // FIXME: this is silly
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
@@ -90,7 +88,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
   }, [adapter, asset.precision, marketData.price])
 
   const history = useHistory()
-  const onSubmit = async ({ feeType }: { feeType: chainAdapters.FeeDataKey }) => {
+  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
     if (!wallet || !feeData) return
     if (!isConnected) {
       /**

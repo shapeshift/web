@@ -28,11 +28,11 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
-  const { chainId, tokenId } = query
+  const { chainId, assetReference } = query
   const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -45,7 +45,7 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   if (!state || !dispatch) return null
 
   const getApproveGasEstimate = async (): Promise<string | undefined> => {
-    if (!(state.userAddress && tokenId && opportunity)) return
+    if (!(state.userAddress && assetReference && opportunity)) return
     try {
       const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',

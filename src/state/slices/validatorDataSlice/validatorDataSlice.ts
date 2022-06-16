@@ -1,9 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { cosmosChainId } from '@shapeshiftoss/caip'
-import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { cosmos } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
-import { chainAdapters } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
 import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
@@ -17,7 +16,7 @@ export type PubKey = string
 type SingleValidatorDataArgs = { accountSpecifier: string }
 
 export type Validators = {
-  validators: chainAdapters.cosmos.Validator[]
+  validators: cosmos.Validator[]
 }
 
 export type ValidatorData = {
@@ -26,7 +25,7 @@ export type ValidatorData = {
 }
 
 export type ValidatorDataByPubKey = {
-  [k: PubKey]: chainAdapters.cosmos.Validator
+  [k: PubKey]: cosmos.Validator
 }
 
 const initialState: ValidatorData = {
@@ -36,7 +35,7 @@ const initialState: ValidatorData = {
 
 const updateOrInsertValidatorData = (
   validatorDataState: ValidatorData,
-  validators: chainAdapters.cosmos.Validator[],
+  validators: cosmos.Validator[],
 ) => {
   validators.forEach(validator => {
     validatorDataState.validatorIds.push(validator.address)
@@ -51,7 +50,7 @@ export const validatorData = createSlice({
     clear: () => initialState,
     upsertValidatorData: (
       validatorDataState,
-      { payload }: { payload: { validators: chainAdapters.cosmos.Validator[] } },
+      { payload }: { payload: { validators: cosmos.Validator[] } },
     ) => {
       updateOrInsertValidatorData(validatorDataState, payload.validators)
     },
@@ -68,7 +67,7 @@ export const validatorDataApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
+    getValidatorData: build.query<cosmos.Validator, SingleValidatorDataArgs>({
       queryFn: async ({ accountSpecifier }, { dispatch, getState }) => {
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId } = (getState() as any).portfolio.accounts as PortfolioAccounts
@@ -84,7 +83,12 @@ export const validatorDataApi = createApi({
           : [SHAPESHIFT_VALIDATOR_ADDRESS]
 
         const chainAdapters = getChainAdapters()
-        const adapter = chainAdapters.byChainId(cosmosChainId) as cosmossdk.cosmos.ChainAdapter
+        const adapter = chainAdapters.get(cosmosChainId) as cosmos.ChainAdapter | undefined
+        if (!adapter) {
+          return {
+            error: { data: `No adapter available for chainId ${cosmosChainId}`, status: 404 },
+          }
+        }
 
         const validators = await Promise.allSettled(
           validatorIds.map(async validatorId => {
@@ -110,7 +114,7 @@ export const validatorDataApi = createApi({
           }
         })
 
-        return { data: {} as chainAdapters.cosmos.Validator }
+        return { data: {} as cosmos.Validator }
       },
     }),
   }),

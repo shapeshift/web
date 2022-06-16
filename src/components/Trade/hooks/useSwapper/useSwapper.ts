@@ -4,7 +4,6 @@ import {
   QuoteFeeData,
   Swapper,
   SwapperManager,
-  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,

@@ -244,7 +244,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const adapterFees = await btcAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { pubkey: accountSpecifier },
+                chainSpecific: { pubkey: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee

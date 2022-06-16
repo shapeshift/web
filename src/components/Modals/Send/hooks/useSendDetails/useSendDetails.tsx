@@ -242,11 +242,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
                 throw new Error(`No adapter available for ${KnownChainIds.BitcoinMainnet}`)
               const value = assetBalance
 
-              const { account: pubkey } = fromAccountId(accountSpecifier)
               const adapterFees = await btcAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { pubkey },
+                chainSpecific: { pubkey: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee

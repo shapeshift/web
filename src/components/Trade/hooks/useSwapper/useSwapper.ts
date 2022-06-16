@@ -64,15 +64,15 @@ export const useSwapper = () => {
 
     const web3 = getWeb3Instance()
 
-    const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
     ;(async () => {
-      const thorSwapper = new ThorchainSwapper({
-        midgardUrl,
-        adapterManager,
-        web3,
-      })
-      await thorSwapper.initialize()
-      swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      // const thorSwapper = new ThorchainSwapper({
+      //   midgardUrl,
+      //   adapterManager,
+      //   web3,
+      // })
+      // await thorSwapper.initialize()
+      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
       const zrxSwapper = new ZrxSwapper({
         web3,

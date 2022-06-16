@@ -241,7 +241,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               if (!btcAdapter)
                 throw new Error(`No adapter available for ${KnownChainIds.BitcoinMainnet}`)
               const value = assetBalance
-
               const adapterFees = await btcAdapter.getFeeData({
                 to,
                 value,

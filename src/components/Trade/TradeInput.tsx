@@ -80,7 +80,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     .gte(0)
 
   const onSubmit = async () => {
-    if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
 
     const minSellAmount = toBaseUnit(quote.minimum, quote.sellAsset.precision)
@@ -99,7 +98,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     }
 
     try {
-      const approvalNeeded = await checkApprovalNeeded(wallet)
+      const approvalNeeded = await checkApprovalNeeded()
       if (approvalNeeded) {
         history.push({
           pathname: TradeRoutePaths.Approval,
@@ -110,7 +109,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         return
       }
       await updateTrade({
-        wallet,
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
         amount: quote?.sellAmount,
@@ -122,7 +120,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const onSetMaxTrade = async () => {
-    if (!(wallet && sellTradeAsset?.asset && buyTradeAsset?.asset)) return
+    if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
     const fnLogger = moduleLogger.child({ namespace: ['onSwapMax'] })
 
     try {
@@ -137,7 +135,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         'Getting Send Max Amount...',
       )
       const maxSendAmount = await getSendMaxAmount({
-        wallet,
         sellAsset: sellTradeAsset.asset,
         buyAsset: buyTradeAsset.asset,
         feeAsset,

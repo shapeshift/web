@@ -9,6 +9,7 @@ import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'test/
 import { TestProviders } from 'test/TestProviders'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useSwapper } from './useSwapper'
 
@@ -16,6 +17,7 @@ jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
+jest.mock('hooks/useWallet/useWallet')
 jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
@@ -106,21 +108,26 @@ describe('useSwapper', () => {
           [KnownChainIds.EthereumMainnet, {}],
         ]),
     )
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+      state: {
+        wallet: {},
+      },
+    }))
   })
   it('approves infinite', async () => {
-    const { result, wallet } = setup()
-    const txid = await result.current.approveInfinite(wallet)
+    const { result } = setup()
+    const txid = await result.current.approveInfinite()
     expect(txid).toBe('0x023423093248420937')
   })
   it('gets approval needed', async () => {
-    const { result, wallet } = setup()
-    const approvalNeeded = await result.current.checkApprovalNeeded(wallet)
+    const { result } = setup()
+    const approvalNeeded = await result.current.checkApprovalNeeded()
     expect(approvalNeeded).toBe(false)
   })
   it('returns true when approval is needed', async () => {
-    const { result, wallet } = setup({ approvalNeededBoolean: true })
+    const { result } = setup({ approvalNeededBoolean: true })
 
-    const approvalNeeded = await result.current.checkApprovalNeeded(wallet)
+    const approvalNeeded = await result.current.checkApprovalNeeded()
     expect(approvalNeeded).toBe(true)
   })
   it('gets default pair', () => {

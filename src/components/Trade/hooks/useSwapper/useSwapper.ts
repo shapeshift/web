@@ -53,25 +53,21 @@ export const useSwapper = () => {
     Trade<KnownChainIds>,
   ]
   const adapterManager = useChainAdapters()
-  const adapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
-    | ethereum.ChainAdapter
-    | undefined
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
     return manager
   })
 
   useEffect(() => {
+    if (!adapterManager || !swapperManager) {
+      return
+    }
+    const web3 = getWeb3Instance()
+
     ;(async () => {
-      if (!adapterManager || !swapperManager) {
-        console.log('returning early')
-        return
-      }
-      console.log('initializing swappers')
-      const web3 = getWeb3Instance()
       const zrxSwapper = new ZrxSwapper({
         web3,
-        adapter: (await adapterManager.get('eip155:1')) as ethereum.ChainAdapter,
+        adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
       })
 
       const thorSwapper = new ThorchainSwapper({
@@ -79,14 +75,10 @@ export const useSwapper = () => {
         adapterManager,
         web3,
       })
-      try {
-        await zrxSwapper.initialize()
-        await thorSwapper.initialize()
-        swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
-        swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
-      } catch (e) {
-        console.log('e is', { e })
-      }
+      await zrxSwapper.initialize()
+      await thorSwapper.initialize()
+      swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
     })()
   }, [adapterManager, swapperManager])
 
@@ -223,7 +215,7 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action }) => {
+    debounce(async ({ amount, sellAsset, buyAsset, action, wallet }) => {
       try {
         const swapper = await swapperManager.getBestSwapper({
           buyAssetId: buyAsset.assetId,
@@ -256,6 +248,7 @@ export const useSwapper = () => {
               sellAmount,
               sendMax: false,
               sellAssetAccountNumber: 0,
+              wallet,
             })
           } else if ('bip122:000000000019d6689c085ae165831e93') {
             // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
@@ -289,6 +282,7 @@ export const useSwapper = () => {
     action,
     forceQuote,
   }: GetQuoteInput) => {
+    if (!wallet) return
     if (!forceQuote && bnOrZero(amount).isZero()) return
     setValue('quote', undefined)
     await updateQuoteDebounced.current({
@@ -297,6 +291,7 @@ export const useSwapper = () => {
       sellAsset,
       action,
       buyAsset,
+      wallet,
     })
   }
 

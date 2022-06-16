@@ -1,5 +1,5 @@
 import type { Csp } from '../../../types'
 
 export const csp: Csp = {
-  'connect-src': [process.env.REACT_APP_MIDGARD_URL!],
+  'connect-src': ['https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org'],
 }

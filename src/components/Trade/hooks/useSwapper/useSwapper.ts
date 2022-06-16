@@ -64,19 +64,20 @@ export const useSwapper = () => {
     const web3 = getWeb3Instance()
 
     ;(async () => {
+      // const thorSwapper = new ThorchainSwapper({
+      //   midgardUrl: process.env.REACT_APP_MIDGARD_URL!,
+      //   adapterManager,
+      //   web3,
+      // })
+      // await thorSwapper.initialize()
+      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+
       const zrxSwapper = new ZrxSwapper({
         web3,
         adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
       })
 
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl: 'https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org/v2',
-      //   adapterManager,
-      //   web3,
-      // })
       await zrxSwapper.initialize()
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
       swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
     })()
   }, [adapterManager, swapperManager])

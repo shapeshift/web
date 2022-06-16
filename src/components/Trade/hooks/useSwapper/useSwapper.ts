@@ -4,6 +4,7 @@ import {
   QuoteFeeData,
   Swapper,
   SwapperManager,
+  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
@@ -30,6 +31,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+import { getConfig } from 'config'
 
 const debounceTime = 1000
 
@@ -62,14 +64,15 @@ export const useSwapper = () => {
 
     const web3 = getWeb3Instance()
 
+    const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
     ;(async () => {
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl: process.env.REACT_APP_MIDGARD_URL!,
-      //   adapterManager,
-      //   web3,
-      // })
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      const thorSwapper = new ThorchainSwapper({
+        midgardUrl,
+        adapterManager,
+        web3,
+      })
+      await thorSwapper.initialize()
+      swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
       const zrxSwapper = new ZrxSwapper({
         web3,

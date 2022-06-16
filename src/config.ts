@@ -42,6 +42,9 @@ const validators = {
   REACT_APP_BOARDROOM_APP_BASE_URL: url({
     default: 'https://boardroom.io/shapeshift/',
   }),
+  REACT_APP_MIDGARD_URL: url({
+    default: 'https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org/v2',
+  }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

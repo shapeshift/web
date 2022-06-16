@@ -43,7 +43,7 @@ const validators = {
     default: 'https://boardroom.io/shapeshift/',
   }),
   REACT_APP_MIDGARD_URL: url({
-    default: 'https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org/v2',
+    default: 'https://midgard.thorchain.info/v2',
   }),
 }
 

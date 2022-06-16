@@ -107,11 +107,11 @@ const main = async (): Promise<void> => {
   let quote
   try {
     quote = await swapper.getTradeQuote({
+      chainId: 'eip155:1',
       sellAsset,
       buyAsset,
       sellAmount: sellAmountBase,
       sellAssetAccountNumber: 0,
-      wallet,
       sendMax: false
     })
   } catch (e) {
@@ -133,6 +133,7 @@ const main = async (): Promise<void> => {
   )
   if (answer === 'y') {
     const trade = await swapper.buildTrade({
+      chainId: 'eip155:1',
       wallet,
       buyAsset,
       sendMax: false,

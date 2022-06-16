@@ -59,8 +59,7 @@ describe('ZrxSwapper', () => {
   it('calls zrxBuildTrade on swapper.buildQuoteTx', async () => {
     const { buildTradeInput } = setupBuildTrade()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    const args = { ...buildTradeInput, wallet }
-    await swapper.buildTrade(args)
+    await swapper.buildTrade(buildTradeInput)
     expect(zrxBuildTrade).toHaveBeenCalled()
   })
   it('calls ZrxExecuteTrade on swapper.executeTrade', async () => {

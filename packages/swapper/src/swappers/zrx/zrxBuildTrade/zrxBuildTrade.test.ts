@@ -71,6 +71,7 @@ describe('ZrxBuildTrade', () => {
   }
 
   const buildTradeInput: BuildTradeInput = {
+    chainId: 'eip155:1',
     sendMax: false,
     sellAsset,
     buyAsset,

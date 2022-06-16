@@ -1,5 +1,7 @@
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 
+import { BuildTradeInput } from '../../../../api'
 import { FOX, WETH } from '../../../utils/test-data/assets'
 import { ZrxQuoteResponse } from '../../types'
 
@@ -23,17 +25,15 @@ export const setupZrxTradeQuoteResponse = () => {
 export const setupBuildTrade = () => {
   const sellAsset: Asset = { ...FOX }
   const buyAsset: Asset = { ...WETH }
-  const buildTradeInput = {
+  const buildTradeInput: BuildTradeInput = {
+    chainId: 'eip155:1',
     sellAmount: '1000000000000000000',
-    allowanceTarget: 'allowanceTargetAddress',
-    price: '1',
-    to: '0x123',
-    buyAmount: '',
     buyAsset,
     sendMax: false,
     sellAssetAccountNumber: 0,
     buyAssetAccountNumber: 0,
-    sellAsset
+    sellAsset,
+    wallet: <HDWallet>{}
   }
   return { buildTradeInput, buyAsset, sellAsset }
 }

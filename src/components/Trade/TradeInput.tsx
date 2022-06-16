@@ -99,7 +99,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     }
 
     try {
-      const approvalNeeded = await checkApprovalNeeded(wallet)
+      const approvalNeeded = await checkApprovalNeeded()
       if (approvalNeeded) {
         history.push({
           pathname: TradeRoutePaths.Approval,
@@ -110,7 +110,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         return
       }
       await updateTrade({
-        wallet,
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
         amount: quote?.sellAmount,
@@ -137,7 +136,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         'Getting Send Max Amount...',
       )
       const maxSendAmount = await getSendMaxAmount({
-        wallet,
         sellAsset: sellTradeAsset.asset,
         buyAsset: buyTradeAsset.asset,
         feeAsset,

@@ -43,7 +43,7 @@ export const Approval = () => {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet, isConnected },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
@@ -53,7 +53,6 @@ export const Approval = () => {
 
   const approve = async () => {
     try {
-      if (!wallet) return
       if (!isConnected) {
         /**
          * call history.goBack() to reset current form state
@@ -66,14 +65,14 @@ export const Approval = () => {
       const fnLogger = logger.child({ name: 'approve' })
       fnLogger.trace('Attempting Approval...')
 
-      const txId = await approveInfinite(wallet)
+      const txId = await approveInfinite()
 
       setApprovalTxId(txId)
 
       approvalInterval.current = setInterval(async () => {
         fnLogger.trace({ fn: 'checkApprovalNeeded' }, 'Checking Approval Needed...')
         try {
-          const approvalNeeded = await checkApprovalNeeded(wallet)
+          const approvalNeeded = await checkApprovalNeeded()
           if (approvalNeeded) return
         } catch (e) {
           showErrorToast(e)
@@ -83,7 +82,6 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         await updateTrade({
-          wallet,
           sellAsset: quote?.sellAsset,
           buyAsset: quote?.buyAsset,
           amount: quote?.sellAmount,

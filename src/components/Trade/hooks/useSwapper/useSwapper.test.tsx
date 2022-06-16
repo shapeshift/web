@@ -108,19 +108,19 @@ describe('useSwapper', () => {
     )
   })
   it('approves infinite', async () => {
-    const { result, wallet } = setup()
-    const txid = await result.current.approveInfinite(wallet)
+    const { result } = setup()
+    const txid = await result.current.approveInfinite()
     expect(txid).toBe('0x023423093248420937')
   })
   it('gets approval needed', async () => {
-    const { result, wallet } = setup()
-    const approvalNeeded = await result.current.checkApprovalNeeded(wallet)
+    const { result } = setup()
+    const approvalNeeded = await result.current.checkApprovalNeeded()
     expect(approvalNeeded).toBe(false)
   })
   it('returns true when approval is needed', async () => {
-    const { result, wallet } = setup({ approvalNeededBoolean: true })
+    const { result } = setup({ approvalNeededBoolean: true })
 
-    const approvalNeeded = await result.current.checkApprovalNeeded(wallet)
+    const approvalNeeded = await result.current.checkApprovalNeeded()
     expect(approvalNeeded).toBe(true)
   })
   it('gets default pair', () => {

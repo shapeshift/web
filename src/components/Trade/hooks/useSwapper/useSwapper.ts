@@ -1,6 +1,6 @@
 
 import { ChainId } from '@shapeshiftoss/caip'
-import { ethereum, osmosis } from '@shapeshiftoss/chain-adapters'
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   OsmosisSwapper,
   QuoteFeeData,
@@ -57,15 +57,13 @@ export const useSwapper = () => {
   const ethAdapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
     | ethereum.ChainAdapter
     | undefined
-  const osmoAdapter = adapterManager.get(KnownChainIds.OsmosisMainnet) as
-    | osmosis.ChainAdapter
-    | undefined
+
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
     const web3 = getWeb3Instance()
 
     ethAdapter && manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ adapter: ethAdapter, web3 }))
-    osmoAdapter && wallet && manager.addSwapper(SwapperType.Zrx, new OsmosisSwapper({ adapter: osmoAdapter, wallet }))
+    wallet && manager.addSwapper(SwapperType.Osmosis, new OsmosisSwapper({ adapterManager: manager, wallet }))
 
     return manager
   })

@@ -1,0 +1,13 @@
+diff --git a/node_modules/@coinbase/cbpay-js/dist/chunk-BM7N7EVA.js b/node_modules/@coinbase/cbpay-js/dist/chunk-BM7N7EVA.js
+index f7cc7a8..d4c26cf 100644
+--- a/node_modules/@coinbase/cbpay-js/dist/chunk-BM7N7EVA.js
++++ b/node_modules/@coinbase/cbpay-js/dist/chunk-BM7N7EVA.js
+@@ -32,7 +32,7 @@ var _typeof = function(obj) {
+     "@swc/helpers - typeof";
+     return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj;
+ };
+-import regeneratorRuntime from "regenerator-runtime";
++var regeneratorRuntime = require("regenerator-runtime");
+ Object.defineProperty(exports, "__esModule", {
+     value: true
+ });

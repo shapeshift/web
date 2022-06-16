@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import {
@@ -66,9 +66,9 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const [ensName, setEnsName] = useState<string>('')
 
   const chainAdapterManager = useChainAdapters()
-  const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-  const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
-  const cosmosChainAdapter = chainAdapterManager.byChain(ChainTypes.Cosmos)
+  const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+  const bitcoinChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinMainnet)
+  const cosmosChainAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet)
 
   const [chainId, setChainId] = useState<ChainIdType>(ethChainId)
 
@@ -82,9 +82,15 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
       moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
       const payload = { wallet }
       try {
-        supportsETH(wallet) && setEthAddress(await ethereumChainAdapter.getAddress(payload))
-        supportsBTC(wallet) && setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
-        supportsCosmos(wallet) && setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
+        if (supportsETH(wallet) && ethereumChainAdapter) {
+          setEthAddress(await ethereumChainAdapter.getAddress(payload))
+        }
+        if (supportsBTC(wallet) && bitcoinChainAdapter) {
+          setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
+        }
+        if (supportsCosmos(wallet) && cosmosChainAdapter) {
+          setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
+        }
       } catch (e) {
         moduleLogger.error(e, { fn: 'getAddress' }, 'GetAddress Failed')
       }

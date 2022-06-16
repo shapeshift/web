@@ -1,4 +1,4 @@
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 
 export const rune: Asset = {
@@ -12,15 +12,11 @@ export const rune: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'RUNE',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
 }
 
 export const ethereum: Asset = {
   chainId: 'eip155:1',
   assetId: 'eip155:1/slip44:60',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
   symbol: 'ETH',
   name: 'Ethereum',
   precision: 18,
@@ -34,8 +30,6 @@ export const ethereum: Asset = {
 export const usdc: Asset = {
   chainId: 'eip155:1',
   assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
   symbol: 'ETH',
   name: 'USD Coin',
   precision: 6,
@@ -49,8 +43,6 @@ export const usdc: Asset = {
 export const aapl: Asset = {
   chainId: 'eip155:1',
   assetId: 'eip155:1/erc20:0x41efc0253ee7ea44400abb5f907fdbfdebc82bec',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
@@ -64,8 +56,6 @@ export const aapl: Asset = {
 export const zero: Asset = {
   chainId: 'eip155:1',
   assetId: 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
@@ -79,8 +69,6 @@ export const zero: Asset = {
 export const fox: Asset = {
   chainId: 'eip155:1',
   assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
@@ -94,14 +82,12 @@ export const fox: Asset = {
 export const foxy: Asset = {
   chainId: 'eip155:1',
   assetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-  chain: ChainTypes.Ethereum,
   color: '#CE3885',
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
   explorerTxLink: 'https://etherscan.io/tx/',
   icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
   name: 'FOX Yieldy',
-  network: NetworkTypes.MAINNET,
   precision: 18,
   symbol: 'FOXy',
 }
@@ -109,8 +95,6 @@ export const foxy: Asset = {
 export const cosmos: Asset = {
   chainId: 'cosmos:cosmoshub-4',
   assetId: 'cosmos:cosmoshub-4/slip44:118',
-  chain: ChainTypes.Cosmos,
-  network: NetworkTypes.COSMOSHUB_MAINNET,
   color: '#FFFFFF',
   explorer: 'https://www.mintscan.io/cosmos',
   explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',

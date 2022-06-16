@@ -1,5 +1,5 @@
+import { ChainId } from '@shapeshiftoss/caip'
 import { DefiType } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
@@ -28,7 +28,7 @@ type SupportedFoxyOpportunity = {
   contractAddress: string
   rewardToken: string
   stakingToken: string
-  chain: ChainTypes
+  chain: ChainId
   tvl: BigNumber
   apy: string
   expired: boolean

@@ -1,5 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeData } from '@shapeshiftoss/chain-adapters/dist/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -27,8 +29,6 @@ const formData: SendInput = {
   [SendFormFields.Asset]: {
     assetId: 'cosmos:cosmoshub-4/slip44:118',
     chainId: 'cosmos:cosmoshub-4',
-    chain: ChainTypes.Cosmos,
-    network: NetworkTypes.COSMOSHUB_MAINNET,
     symbol: 'ATOM',
     name: 'Cosmos',
     precision: 6,
@@ -40,21 +40,21 @@ const formData: SendInput = {
     description: 'Cosmos Description',
   },
   [SendFormFields.AmountFieldError]: '',
-  [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
+  [SendFormFields.FeeType]: FeeDataKey.Average,
   [SendFormFields.EstimatedFees]: {
-    [chainAdapters.FeeDataKey.Slow]: {
+    [FeeDataKey.Slow]: {
       txFee: '2500',
       chainSpecific: { gasLimit: '250000' },
     },
-    [chainAdapters.FeeDataKey.Average]: {
+    [FeeDataKey.Average]: {
       txFee: '3500',
       chainSpecific: { gasLimit: '250000' },
     },
-    [chainAdapters.FeeDataKey.Fast]: {
+    [FeeDataKey.Fast]: {
       txFee: '5000',
       chainSpecific: { gasLimit: '250000' },
     },
-  },
+  } as { [k in FeeDataKey]: FeeData<KnownChainIds.CosmosMainnet> },
   [SendFormFields.CryptoAmount]: '1',
   [SendFormFields.CryptoSymbol]: 'ATOM',
   [SendFormFields.FiatAmount]: '28',
@@ -116,13 +116,24 @@ describe('useFormSend', () => {
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
-        signTransaction: () => Promise.resolve(testSignedTx),
-        getType: () => ChainTypes.Cosmos,
-      }),
-    }))
+    const mockAdapter = {
+      buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
+      signTransaction: () => Promise.resolve(testSignedTx),
+    }
+
+    const mockCosmosAdapter = {
+      ...mockAdapter,
+      getType: () => KnownChainIds.CosmosMainnet,
+      getChainId: () => KnownChainIds.CosmosMainnet,
+    }
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockCosmosAdapter],
+          [KnownChainIds.EthereumMainnet, mockAdapter],
+        ]),
+    )
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
@@ -146,7 +157,7 @@ describe('useFormSend', () => {
         buildSendTransaction: () => Promise.reject('All these calls failed'),
         signTransaction: () => Promise.reject('All these calls failed'),
         broadcastTransaction: () => Promise.reject('All these calls failed'),
-        getType: () => ChainTypes.Cosmos,
+        getType: () => KnownChainIds.CosmosMainnet,
       }),
     }))
 

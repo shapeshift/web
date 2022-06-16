@@ -1,15 +1,15 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Tag, useMediaQuery } from '@chakra-ui/react'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/chain-adapters'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { breakpoints } from 'theme/theme'
 
-export const Status = ({ status }: { status: chainAdapters.TxStatus }) => {
+export const Status = ({ status }: { status: TxStatus }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
   const tagSize = isLargerThanMd ? 'lg' : 'md'
   switch (status) {
-    case chainAdapters.TxStatus.Confirmed:
+    case TxStatus.Confirmed:
       return (
         <>
           <Tag colorScheme='green' size={tagSize}>
@@ -18,7 +18,7 @@ export const Status = ({ status }: { status: chainAdapters.TxStatus }) => {
           </Tag>
         </>
       )
-    case chainAdapters.TxStatus.Pending:
+    case TxStatus.Pending:
       return (
         <>
           <Tag colorScheme='blue' size={tagSize}>
@@ -27,7 +27,7 @@ export const Status = ({ status }: { status: chainAdapters.TxStatus }) => {
           </Tag>
         </>
       )
-    case chainAdapters.TxStatus.Failed:
+    case TxStatus.Failed:
     default:
       return (
         <>

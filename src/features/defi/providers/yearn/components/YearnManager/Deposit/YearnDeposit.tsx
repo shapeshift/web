@@ -48,14 +48,14 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
-  const chainAdapter = chainAdapterManager.byChainId(chainId)
+  const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           yearnInvestor.findByOpportunityId(

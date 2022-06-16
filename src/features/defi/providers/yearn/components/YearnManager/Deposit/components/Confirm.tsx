@@ -14,7 +14,11 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DepositPath, YearnDepositActionType } from '../DepositCommon'
@@ -54,6 +58,10 @@ export const Confirm = () => {
 
   // notify
   const toast = useToast()
+
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
 
   if (!state || !dispatch) return null
 
@@ -107,11 +115,15 @@ export const Confirm = () => {
   const apy = opportunity?.metadata?.apy?.net_apy
   const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
   const annualYieldFiat = annualYieldCrypto.times(marketData.price)
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .gte(0)
 
   return (
     <ReusableConfirm
       onCancel={handleCancel}
       onConfirm={handleDeposit}
+      isDisabled={!hasEnoughBalanceForGas}
       loading={state.loading}
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
@@ -200,6 +212,12 @@ export const Confirm = () => {
           <AlertIcon />
           <Text translation='modals.confirm.deposit.preFooter' />
         </Alert>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
       </Stack>
     </ReusableConfirm>
   )

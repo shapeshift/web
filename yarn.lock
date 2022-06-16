@@ -2460,7 +2460,7 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/chain-adapters@^6.0.0", "@shapeshiftoss/chain-adapters@^6.0.1":
+"@shapeshiftoss/chain-adapters@^6.0.0":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-6.0.1.tgz#07c4d658055e17ac262ab2f1eab06b2c099168d8"
   integrity sha512-0qafOakDY8kwxYtcBJau5hfE/LaLhetLmFNpckNof40iUxS2sCmsXkVX+HF+HU3OjASBjBznvOCtlxTCFnOy7w==

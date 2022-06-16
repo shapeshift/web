@@ -6,6 +6,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
+  ApproveInfiniteInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
@@ -21,6 +22,7 @@ import {
 } from '../../api'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded/thorTradeApprovalNeeded'
+import { thorTradeApproveInfinite } from './thorTradeApproveInfinite/thorTradeApproveInfinite'
 import { PoolResponse, ThorchainSwapperDeps } from './types'
 import { getUsdRate } from './utils/getUsdRate/getUsdRate'
 import { thorService } from './utils/thorService'
@@ -71,8 +73,8 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return thorTradeApprovalNeeded({ deps: this.deps, input })
   }
 
-  async approveInfinite(): Promise<string> {
-    throw new Error('ThorchainSwapper: approveInfinite unimplemented')
+  async approveInfinite(input: ApproveInfiniteInput<'eip155:1'>): Promise<string> {
+    return thorTradeApproveInfinite({ deps: this.deps, input })
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

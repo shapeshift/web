@@ -1,6 +1,6 @@
 
 import { ChainId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import { ethereum, osmosis } from '@shapeshiftoss/chain-adapters'
 import {
   OsmosisSwapper,
   QuoteFeeData,
@@ -32,7 +32,6 @@ import {
 import { useAppSelector } from "state/store";
 
 import { calculateAmounts } from "./calculateAmounts";
-import { useWallet } from "hooks/useWallet/useWallet";
 
 const debounceTime = 1000;
 
@@ -50,18 +49,24 @@ export const useSwapper = () => {
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ["quote", "sellAsset", "trade"],
   }) as [
-    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-    TradeAsset | undefined,
-    Trade<KnownChainIds>,
-  ]
+      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+      TradeAsset | undefined,
+      Trade<KnownChainIds>,
+    ]
   const adapterManager = useChainAdapters()
-  const adapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
+  const ethAdapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
     | ethereum.ChainAdapter
+    | undefined
+  const osmoAdapter = adapterManager.get(KnownChainIds.OsmosisMainnet) as
+    | osmosis.ChainAdapter
     | undefined
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
     const web3 = getWeb3Instance()
-    adapter && manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapter }))
+
+    ethAdapter && manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ adapter: ethAdapter, web3 }))
+    osmoAdapter && wallet && manager.addSwapper(SwapperType.Zrx, new OsmosisSwapper({ adapter: osmoAdapter, wallet }))
+
     return manager
   })
 
@@ -93,9 +98,9 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-            assetIds,
-            sellAssetId,
-          })
+          assetIds,
+          sellAssetId,
+        })
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },

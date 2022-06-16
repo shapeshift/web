@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.6.0...@shapeshiftoss/swapper-v7.7.0) (2022-06-16)
+
+
+### Features
+
+* thorswap approve infinite ([#822](https://github.com/shapeshift/lib/issues/822)) ([3a69efe](https://github.com/shapeshift/lib/commit/3a69efe26453855c525d4554b216d3e7091146a8))
+
 # [@shapeshiftoss/swapper-v7.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.5.1...@shapeshiftoss/swapper-v7.6.0) (2022-06-16)
 
 

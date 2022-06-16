@@ -1,5 +1,6 @@
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { Asset, chainAdapters } from '@shapeshiftoss/types'
+import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { Asset } from '@shapeshiftoss/types'
 
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
@@ -24,10 +25,10 @@ import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 export type AccountSpecifier = string
 
 export type Staking = {
-  delegations: chainAdapters.cosmos.Delegation[]
-  redelegations: chainAdapters.cosmos.Redelegation[]
-  undelegations: chainAdapters.cosmos.UndelegationEntry[]
-  rewards: chainAdapters.cosmos.Reward[]
+  delegations: cosmos.Delegation[]
+  redelegations: cosmos.Redelegation[]
+  undelegations: cosmos.UndelegationEntry[]
+  rewards: cosmos.Reward[]
 }
 
 export type PortfolioAccount = {

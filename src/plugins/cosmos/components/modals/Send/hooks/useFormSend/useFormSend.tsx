@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { ChainAdapter, FeeData } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -18,13 +19,16 @@ export const useFormSend = () => {
     state: { wallet },
   } = useWallet()
 
-  type CosmosSdkChainFees = chainAdapters.FeeData<ChainTypes.Cosmos> &
-    chainAdapters.FeeData<ChainTypes.Osmosis>
+  type CosmosSdkChainFees = FeeData<KnownChainIds.CosmosMainnet> &
+    FeeData<KnownChainIds.OsmosisMainnet>
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
-        const adapter = chainAdapterManager.byChain(data.asset.chain)
+        const adapter = chainAdapterManager.get(data.asset.chainId) as unknown as ChainAdapter<
+          KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
+        >
+        if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
         const value = bnOrZero(data.cryptoAmount)
           .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)

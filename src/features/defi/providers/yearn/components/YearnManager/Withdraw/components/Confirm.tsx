@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -14,7 +14,11 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithdrawPath, YearnWithdrawActionType } from '../WithdrawCommon'
@@ -26,7 +30,7 @@ export const Confirm = () => {
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'
@@ -34,7 +38,7 @@ export const Confirm = () => {
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assetId = toAssetId({
@@ -54,6 +58,10 @@ export const Confirm = () => {
   // user info
   const { state: walletState } = useWallet()
 
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+
   if (!state || !dispatch) return null
 
   const handleConfirm = async () => {
@@ -61,7 +69,7 @@ export const Confirm = () => {
       if (
         !(
           state.userAddress &&
-          tokenId &&
+          assetReference &&
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity
@@ -96,10 +104,15 @@ export const Confirm = () => {
     browserHistory.goBack()
   }
 
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .gte(0)
+
   return (
     <ReusableConfirm
       onCancel={handleCancel}
       headerText='modals.confirm.withdraw.header'
+      isDisabled={!hasEnoughBalanceForGas}
       loading={state.loading}
       loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}
@@ -161,6 +174,12 @@ export const Confirm = () => {
             </Box>
           </Row.Value>
         </Row>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
       </Stack>
     </ReusableConfirm>
   )

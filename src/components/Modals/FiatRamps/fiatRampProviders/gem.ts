@@ -89,9 +89,9 @@ export const parseGemBuyAssets = memoize((assets: SupportedCurrency[]): FiatRamp
 
 const parseGemAssets = (filteredList: GemCurrency[][]): FiatRampAsset[] => {
   const results = uniqBy(flatten(filteredList), 'gem_asset_id')
-    .filter(asset => Boolean(adapters.gemAssetIdToAssetId(asset.gem_asset_id)))
+    .filter(asset => Boolean(adapters.gemTickerToAssetId(asset.gem_asset_id)))
     .map(asset => {
-      const assetId = adapters.gemAssetIdToAssetId(asset.gem_asset_id) || ''
+      const assetId = adapters.gemTickerToAssetId(asset.gem_asset_id) || ''
       const { ticker, name } = asset
       return {
         symbol: ticker,

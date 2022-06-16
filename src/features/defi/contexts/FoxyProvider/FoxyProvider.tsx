@@ -1,5 +1,6 @@
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { useContext, useEffect, useState } from 'react'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -20,15 +21,17 @@ export const useFoxy = () => {
 export const FoxyProvider: React.FC = ({ children }) => {
   const [foxy, setFoxy] = useState<FoxyApi | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const { supportedChains, chainAdapterManager } = usePlugins()
+  const { chainAdapterManager } = usePlugins()
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!supportedChains.includes(ChainTypes.Ethereum)) return
+        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
         setLoading(true)
         const api = new FoxyApi({
-          adapter: chainAdapterManager.byChain(ChainTypes.Ethereum),
+          adapter: chainAdapterManager.get(
+            KnownChainIds.EthereumMainnet,
+          ) as ChainAdapter<KnownChainIds.EthereumMainnet>,
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
           foxyAddresses,
         })
@@ -39,7 +42,7 @@ export const FoxyProvider: React.FC = ({ children }) => {
         setLoading(false)
       }
     })()
-  }, [chainAdapterManager, supportedChains])
+  }, [chainAdapterManager])
 
   return <FoxyContext.Provider value={{ foxy, loading }}>{children}</FoxyContext.Provider>
 }

@@ -9,6 +9,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -96,8 +97,8 @@ export const ClaimConfirm = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !contractAddress || !foxy) return
-        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
+        const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+        if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
         const [gasLimit, gasPrice] = await Promise.all([

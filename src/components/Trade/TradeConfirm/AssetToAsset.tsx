@@ -9,17 +9,18 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { TxStatus } from '@shapeshiftoss/chain-adapters'
 import { Trade } from '@shapeshiftoss/swapper'
-import { chainAdapters, SupportedChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
-type AssetToAssetProps<C extends SupportedChainIds> = {
+type AssetToAssetProps<C extends KnownChainIds> = {
   tradeFiatAmount: string
   buyIcon: string
-  status?: chainAdapters.TxStatus
+  status?: TxStatus
   trade?: Trade<C>
 } & FlexProps
 
@@ -30,7 +31,7 @@ export const AssetToAsset = ({
   boxSize = '24px',
   status,
   ...rest
-}: AssetToAssetProps<SupportedChainIds>) => {
+}: AssetToAssetProps<KnownChainIds>) => {
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const {
@@ -42,21 +43,21 @@ export const AssetToAsset = ({
 
   const renderIcon = () => {
     switch (status) {
-      case chainAdapters.TxStatus.Confirmed: {
+      case TxStatus.Confirmed: {
         return (
           <Circle bg={green} size='100%'>
             <CheckIcon />
           </Circle>
         )
       }
-      case chainAdapters.TxStatus.Failed: {
+      case TxStatus.Failed: {
         return (
           <Circle bg={red} size='100%'>
             <CloseIcon p={1} />
           </Circle>
         )
       }
-      case chainAdapters.TxStatus.Pending: {
+      case TxStatus.Pending: {
         return (
           <Circle bg={gray} size='100%'>
             <Spinner />

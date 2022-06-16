@@ -7,7 +7,7 @@ import {
   ethAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
@@ -773,7 +773,7 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
   selectAllStakingDataByValidator,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
-  (stakingDataByValidator, validatorAddress, assetId): chainAdapters.cosmos.UndelegationEntry[] => {
+  (stakingDataByValidator, validatorAddress, assetId): cosmos.UndelegationEntry[] => {
     const validatorStakingData = stakingDataByValidator?.[validatorAddress]?.[assetId]
 
     if (!validatorStakingData?.undelegations?.length) return []
@@ -845,7 +845,7 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
       const delegatedAmount = bnOrZero(
         stakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount,
       ).toString()
-      const undelegatedEntries: chainAdapters.cosmos.UndelegationEntry[] =
+      const undelegatedEntries: cosmos.UndelegationEntry[] =
         stakingDataByValidator?.[validatorId]?.[assetId]?.undelegations ?? []
       const totalDelegations = bnOrZero(delegatedAmount)
         .plus(

@@ -1,5 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 
 export enum StakingAction {
   Stake = 'stake',
@@ -64,7 +64,7 @@ export enum Field {
 export type StakingValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
-  [Field.FeeType]: chainAdapters.FeeDataKey
+  [Field.FeeType]: FeeDataKey
   [Field.GasLimit]: string
   [Field.TxFee]: string
   [Field.FiatFee]: string

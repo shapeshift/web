@@ -17,7 +17,6 @@ export type EarnOpportunityType = {
   provider: string
   version?: string
   contractAddress: string
-  tokenAddress: string
   rewardAddress: string
   apy?: number | string
   tvl: string
@@ -50,7 +49,6 @@ const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityTy
       provider: DefiProvider.Yearn,
       version: vault.version,
       contractAddress: vault.id,
-      tokenAddress: fromAssetId(vault.underlyingAsset.assetId).assetReference,
       rewardAddress: vault.id,
       tvl: bnOrZero(vault.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
       apy: vault.apy.toString(),
@@ -128,7 +126,6 @@ const useTransformCosmosStaking = (
         type: DefiType.TokenStaking,
         provider: chainIdToLabel(staking.chainId),
         contractAddress: staking.address,
-        tokenAddress: staking.tokenAddress,
         rewardAddress: '',
         tvl: staking.tvl,
         apy: staking.apr,

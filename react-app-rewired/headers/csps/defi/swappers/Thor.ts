@@ -1,5 +1,6 @@
 import type { Csp } from '../../../types'
 
 export const csp: Csp = {
-  'connect-src': ['https://midgard.thorchain.info'],
+  // removes `/v2` from midgard url
+  'connect-src': [process.env.REACT_APP_MIDGARD_URL!.slice(0, -3)],
 }

@@ -154,7 +154,7 @@ export const useSwapper = () => {
     const result = await (async () => {
       if (sellAsset.chainId === 'eip155:1') {
         return swapper.buildTrade({
-          chainId: 'eip155:1',
+          chainId: sellAsset.chainId,
           sellAmount: amount,
           sellAsset,
           buyAsset,
@@ -167,9 +167,8 @@ export const useSwapper = () => {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
         // They will need to have selected an accountType from a modal if bitcoin
         throw new Error('bitcoin unsupported')
-      } else {
-        throw new Error(`unsupported chain id `)
       }
+      throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
     setFees(result, sellAsset)

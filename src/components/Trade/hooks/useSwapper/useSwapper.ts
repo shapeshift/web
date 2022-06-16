@@ -4,6 +4,7 @@ import {
   QuoteFeeData,
   Swapper,
   SwapperManager,
+  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
@@ -12,7 +13,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { Asset, KnownChainIds, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
@@ -57,10 +58,37 @@ export const useSwapper = () => {
     | undefined
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
-    const web3 = getWeb3Instance()
-    adapter && manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapter }))
     return manager
   })
+
+  useEffect(() => {
+    ;(async () => {
+      if (!adapterManager || !swapperManager) {
+        console.log('returning early')
+        return
+      }
+      console.log('initializing swappers')
+      const web3 = getWeb3Instance()
+      const zrxSwapper = new ZrxSwapper({
+        web3,
+        adapter: (await adapterManager.get('eip155:1')) as ethereum.ChainAdapter,
+      })
+
+      const thorSwapper = new ThorchainSwapper({
+        midgardUrl: 'https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org/v2',
+        adapterManager,
+        web3,
+      })
+      try {
+        await zrxSwapper.initialize()
+        await thorSwapper.initialize()
+        swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
+        swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      } catch (e) {
+        console.log('e is', { e })
+      }
+    })()
+  }, [adapterManager, swapperManager])
 
   const {
     state: { wallet },

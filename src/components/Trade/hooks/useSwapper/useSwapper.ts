@@ -70,14 +70,14 @@ export const useSwapper = () => {
         adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
       })
 
-      const thorSwapper = new ThorchainSwapper({
-        midgardUrl: 'https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org/v2',
-        adapterManager,
-        web3,
-      })
+      // const thorSwapper = new ThorchainSwapper({
+      //   midgardUrl: 'https://thor-midgard.cointainers.prod.chiefhappinessofficerellie.org/v2',
+      //   adapterManager,
+      //   web3,
+      // })
       await zrxSwapper.initialize()
-      await thorSwapper.initialize()
-      swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      // await thorSwapper.initialize()
+      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
       swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
     })()
   }, [adapterManager, swapperManager])

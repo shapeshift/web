@@ -233,9 +233,8 @@ export const useSwapper = () => {
             // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
             // They will need to have selected an accountType from a modal if bitcoin
             throw new Error('bitcoin unsupported')
-          } else {
-            throw new Error(`unsupported chain id `)
           }
+          throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
         setFees(tradeQuote, sellAsset)

@@ -4,7 +4,6 @@ import {
   QuoteFeeData,
   Swapper,
   SwapperManager,
-  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
@@ -31,7 +30,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
-import { getConfig } from 'config'
 
 const debounceTime = 1000
 

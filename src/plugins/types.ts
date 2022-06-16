@@ -4,7 +4,7 @@ import type { Get, ReadonlyDeep, ValueOf } from 'type-fest'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import type { Route } from '../Routes/helpers'
-import type { activePlugins } from './active'
+import type { activePlugins } from './active_generated'
 
 /**
  * We need plugins to be able to export (a register function that returns) a narrow (i.e. non-widened) type. The simplest

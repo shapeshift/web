@@ -1,7 +1,7 @@
 import * as envalid from 'envalid'
 import { memoize } from 'lodash'
 import forEach from 'lodash/forEach'
-import { activePluginValidators } from 'plugins/config'
+import { activePluginValidators } from 'plugins/config_generated'
 import * as ta from 'type-assertions'
 
 import env from './env'

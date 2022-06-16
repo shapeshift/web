@@ -30,3 +30,7 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+
+/react-app-rewired/env_generated.json
+/src/plugins/active_generated.ts
+/src/plugins/config_generated.ts

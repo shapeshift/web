@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
 import type { Csp } from './types'
-import { collectCsps, cspMerge, serializeCsp } from './util'
+import { collectCsps, collectPluginCsps, cspMerge, serializeCsp } from './util'
 
 export { serializeCsp } from './util'
 
@@ -20,6 +20,7 @@ export const cspHeader: Csp = {
  */
 export const cspMeta = cspMerge(
   ...collectCsps('./csps'),
+  ...collectPluginCsps('./pluginCsps'),
   'report-uri' in cspHeader
     ? {
         'script-src': ["'report-sample'"],

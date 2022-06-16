@@ -60,9 +60,10 @@ export function serializeCsp(x: Csp): string {
  * Recursively collects all the CSPs exported by scripts in a certain directory.
  * @param dir Path to the directory to search.
  */
-export function collectCsps(dir: string): Csp[] {
-  const out = []
+export function collectCsps(dir: string, exclude: string[] = []): Csp[] {
+  const out: Csp[] = []
   for (const item of fs.readdirSync(path.resolve(__dirname, dir), { withFileTypes: true })) {
+    if (exclude.includes(item.name)) continue
     const itemPath = `${dir}/${item.name}`
     if (item.isDirectory()) {
       out.push(...collectCsps(itemPath))
@@ -75,4 +76,8 @@ export function collectCsps(dir: string): Csp[] {
     }
   }
   return out
+}
+
+export function collectPluginCsps(dir: string): Csp[] {
+  return collectCsps(dir, (process.env.EXCLUDED_PLUGINS ?? '').split(','))
 }

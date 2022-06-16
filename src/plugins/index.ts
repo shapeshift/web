@@ -18,7 +18,7 @@ export async function registerPlugins() {
   // (PluginProvider -> plugins/index -> plugin/active -> each plugin, so if
   // any active plugin imports anything that ends up importing PluginProvider
   // things fall over.)
-  const { activePlugins } = await import('./active')
+  const { activePlugins } = await import('./active_generated')
   for (const [pluginName, registrablePlugin] of Object.entries(activePlugins)) {
     try {
       const plugin = registrablePlugin.register()

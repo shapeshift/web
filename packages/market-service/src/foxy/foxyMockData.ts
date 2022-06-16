@@ -21,7 +21,7 @@ export const mockFoxyMarketData = {
   price: '0.2794809217688426',
   volume: '0',
   supply: '52018758.965754575223841191',
-  maxSupply: '502526240.759422886301171305'
+  maxSupply: '52018758.965754575223841191'
 }
 
 export const mockFoxyPriceHistoryData = [

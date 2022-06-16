@@ -77,8 +77,8 @@ export class FoxyMarketService implements MarketService {
       })
 
       const tokenContractAddress = foxyAddresses[0].foxy
-      const foxyTotalSupply = await api.totalSupply({ tokenContractAddress })
-      const supply = await api.tvl({ tokenContractAddress })
+      const foxyTotalSupply = await api.tvl({ tokenContractAddress })
+      const supply = foxyTotalSupply
 
       return {
         price: marketData.priceUsd,

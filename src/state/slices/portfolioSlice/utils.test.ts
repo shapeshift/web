@@ -1,5 +1,5 @@
 import { AssetId, btcChainId, ethChainId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 
 import {
   accountIdToChainId,
@@ -9,6 +9,7 @@ import {
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
+  trimWithEndEllipsis,
 } from './utils'
 
 describe('accountIdToChainId', () => {
@@ -155,16 +156,16 @@ describe('makeSortedAccountBalances', () => {
 describe('makeBalancesByChainBucketsFlattened', () => {
   const assets = {
     'cosmos:cosmoshub-4/slip44:118': {
-      chain: 'cosmos',
+      chainId: KnownChainIds.CosmosMainnet,
     },
     'bip122:000000000019d6689c085ae165831e93/slip44:0': {
-      chain: 'bitcoin',
+      chainId: KnownChainIds.BitcoinMainnet,
     },
     'bip122:000000000933ea01ad0ee984209779ba/slip44:0': {
-      chain: 'bitcoin',
+      chainId: KnownChainIds.BitcoinMainnet,
     },
     'eip155:1/slip44:60': {
-      chain: 'ethereum',
+      chainId: KnownChainIds.EthereumMainnet,
     },
   } as unknown as { [k: AssetId]: Asset }
 
@@ -199,5 +200,24 @@ describe('makeBalancesByChainBucketsFlattened', () => {
       'bip122:000000000019d6689c085ae165831e93:someZpub',
       'bip122:000000000019d6689c085ae165831e93:someYpub',
     ])
+  })
+})
+
+describe('trimWithEndEllipsis', () => {
+  it('should trim the description according to the max number of characters', () => {
+    const LongFoxDescription =
+      'FOX is an ERC-20 token created by ShapeShift which serves as the governance token for the ShapeShift DAO, token holders can vote on proposals relating to the operation and treasury of the DAO. The token supports'
+    const ExpectedTrimmedFoxDescription =
+      'FOX is an ERC-20 token created by ShapeShift which serves as the governance token for the ShapeShift DAO, token holders can vote on proposals relating to the operation and treasury of the DAO...'
+
+    expect(trimWithEndEllipsis(undefined)).toEqual('')
+    expect(trimWithEndEllipsis('')).toEqual('')
+    expect(trimWithEndEllipsis('abcdef')).toEqual('abcdef')
+    expect(trimWithEndEllipsis(LongFoxDescription)).toEqual(LongFoxDescription)
+
+    expect(trimWithEndEllipsis(undefined, 191)).toEqual('')
+    expect(trimWithEndEllipsis('', 191)).toEqual('')
+    expect(trimWithEndEllipsis('abcdef', 191)).toEqual('abcdef')
+    expect(trimWithEndEllipsis(LongFoxDescription, 191)).toEqual(ExpectedTrimmedFoxDescription)
   })
 })

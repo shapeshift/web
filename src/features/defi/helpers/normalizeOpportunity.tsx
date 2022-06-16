@@ -1,25 +1,22 @@
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
-import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
-import { chainTypeToLabel } from './utils'
+import { DefiProvider, DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
+import { SerializableOpportunity } from '../providers/yearn/components/YearnManager/Deposit/DepositCommon'
+import { chainIdToLabel } from './utils'
 
 export type EarnOpportunityType = {
   type?: string
   provider: string
   version?: string
   contractAddress: string
-  tokenAddress: string
   rewardAddress: string
   apy?: number | string
   tvl: string
@@ -27,42 +24,36 @@ export type EarnOpportunityType = {
   fiatAmount: string
   cryptoAmount: string
   expired?: boolean
-  chain: ChainTypes
+  chainId: ChainId
   moniker?: string
   showAssetSymbol?: boolean
   isLoaded: boolean
 }
 
-const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[] => {
+const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityType[] => {
   const assetIds = useSelector(selectAssetIds)
 
-  const assetNamespace = 'erc20'
   const { vaults: vaultsWithBalances } = useVaultBalances()
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
-    const chainId = chainTypeToMainnetChainId(vault.chain)
+    const chainId = fromAssetId(vault.feeAsset.assetId).chainId
     let fiatAmount = '0'
     let cryptoAmount = '0'
-    if (vaultsWithBalances[vault.vaultAddress]) {
-      const balances = vaultsWithBalances[vault.vaultAddress]
+    if (vaultsWithBalances[vault.id]) {
+      const balances = vaultsWithBalances[vault.id]
       cryptoAmount = balances.cryptoAmount
       fiatAmount = balances.fiatAmount
     }
-    const assetId = toAssetId({
-      chainId,
-      assetNamespace,
-      assetReference: vault.tokenAddress,
-    })
+    const assetId = vault.underlyingAsset.assetId
     const data = {
-      type: vault.type,
-      provider: vault.provider,
+      type: DefiType.Vault,
+      provider: DefiProvider.Yearn,
       version: vault.version,
-      contractAddress: vault.vaultAddress,
-      tokenAddress: vault.tokenAddress,
-      rewardAddress: vault.vaultAddress,
-      tvl: bnOrZero(vault.underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString(),
-      apy: vault.metadata.apy?.net_apy,
+      contractAddress: vault.id,
+      rewardAddress: vault.id,
+      tvl: bnOrZero(vault.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
+      apy: vault.apy.toString(),
       expired: vault.expired,
-      chain: vault.chain,
+      chainId,
       assetId,
       fiatAmount,
       cryptoAmount,
@@ -76,9 +67,9 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
     if (assetIds.includes(assetId)) {
       if (
         vault.expired ||
-        bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) ||
-        bnOrZero(vault.underlyingTokenBalance.amountUsdc).isEqualTo(0) ||
-        (bnOrZero(vault?.metadata?.apy?.net_apy).gt(200) && vault?.metadata?.apy?.type === 'new')
+        bnOrZero(vault?.apy).isEqualTo(0) ||
+        bnOrZero(vault.tvl.balanceUsdc).isEqualTo(0) ||
+        (bnOrZero(vault?.apy).gt(200) && vault.isNew)
       ) {
         if (bnOrZero(cryptoAmount).gt(0)) {
           acc.push(data)
@@ -101,7 +92,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       tvl,
       apy,
       expired,
-      chain,
+      chainId,
       tokenAssetId: assetId,
       fiatAmount,
       cryptoAmount,
@@ -115,7 +106,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       tvl: bnOrZero(tvl).toString(),
       apy,
       expired,
-      chain,
+      chainId,
       assetId,
       fiatAmount,
       cryptoAmount,
@@ -133,13 +124,12 @@ const useTransformCosmosStaking = (
     .map(staking => {
       return {
         type: DefiType.TokenStaking,
-        provider: chainTypeToLabel(staking.chain),
+        provider: chainIdToLabel(staking.chainId),
         contractAddress: staking.address,
-        tokenAddress: staking.tokenAddress,
         rewardAddress: '',
         tvl: staking.tvl,
         apy: staking.apr,
-        chain: staking.chain,
+        chainId: staking.chainId,
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
         cryptoAmount: staking.cryptoAmount ?? '',
@@ -157,7 +147,7 @@ const useTransformCosmosStaking = (
 }
 
 type NormalizeOpportunitiesProps = {
-  vaultArray: SupportedYearnVault[]
+  vaultArray: SerializableOpportunity[]
   foxyArray: MergedFoxyOpportunity[]
   cosmosStakingOpportunities: MergedActiveStakingOpportunity[]
 }

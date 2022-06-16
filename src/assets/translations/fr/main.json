@@ -16,7 +16,6 @@
     "estimatedGas": "Estimation des frais de carburant",
     "insufficientAmountForGas": "Pas assez d'ETH pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
-    "unresolvableEnsDomain": "Impossible de résoudre le domaine ENS",
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
@@ -282,7 +281,7 @@
     "overview": "Vue d'ensemble",
     "transactions": "Transactions",
     "tradeHistory": "Historique des échanges",
-    "foxToken": "Jeton FOX",
+    "foxToken": "Opportunités FOX",
     "featureFlags": "Indicateurs de fonctionnalité"
   },
   "transactionRow": {
@@ -694,6 +693,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec Keplr",
+        "connectFailure": "Impossible de connecter le porte-monnaie Keplr."
+      },
+      "connect": {
+        "header": "Appairer Keplr",
+        "body": "Cliquez sur Appairer et connectez-vous à Keplr à partir de la fenêtre popup",
+        "button": "Appairer"
+      },
+      "failure": {
+        "header": "Erreur",
+        "body": "Impossible de se connecter au porte-monnaie Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec MetaMask",
@@ -780,6 +794,30 @@
       "testPhrase": {
         "header": "Vérifier votre phrase secrète de récupération",
         "body": "Lequel de ces éléments est le",
+        "1st": "1er",
+        "2nd": "2ème",
+        "3rd": "3ème",
+        "4th": "4ème",
+        "5th": "5ème",
+        "6th": "6ème",
+        "7th": "7ème",
+        "8th": "8ème",
+        "9th": "9ème",
+        "10th": "10ème",
+        "11th": "11ème",
+        "12th": "12ème",
+        "13th": "13ème",
+        "14th": "14ème",
+        "15th": "15ème",
+        "16th": "16ème",
+        "17th": "17ème",
+        "18th": "18ème",
+        "19th": "19ème",
+        "20th": "20ème",
+        "21th": "21ème",
+        "22th": "22ème",
+        "23th": "23ème",
+        "24th": "24ème",
         "body2": " mot",
         "body3": "dans votre phrase secrète.",
         "button": "Suivant"
@@ -807,6 +845,7 @@
         "emailRequired": "L'adresse de courriel est requise",
         "invalidEmail": "L'adresse de courriel est invalide",
         "invalidCaptcha": "Le Capcha est invalide",
+        "captchaRequired": "Le Capcha est requis",
         "invalidLogin": "Identification invalide",
         "noWallet": "Impossible de trouver un porte-monnaie ShapeShift Natif pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
         "decryptionError": "Une erreur s'est produite lors du décryptage de votre porte-monnaie.",

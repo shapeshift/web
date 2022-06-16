@@ -1,6 +1,7 @@
 import { AssetId, cosmosAssetId, cosmosChainId, toAccountId } from '@shapeshiftoss/caip'
+import { TxStatus, TxType } from '@shapeshiftoss/chain-adapters'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -78,7 +79,7 @@ type MakeBucketsArgs = {
 }
 
 // adjust this to give charts more or less granularity
-export const timeframeMap = {
+export const timeframeMap: Record<HistoryTimeframe, BucketMeta> = {
   [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
   [HistoryTimeframe.DAY]: { count: 289, duration: 5, unit: 'minutes' },
   [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },
@@ -222,7 +223,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         // balance history being built in descending order, so fee means we had more before
         // TODO(0xdef1cafe): this is awful but gets us out of trouble
         // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
-        if (tx.chain !== ChainTypes.Bitcoin) {
+        if (tx.chain !== KnownChainIds.BitcoinMainnet) {
           bucket.balance.crypto[tx.fee.assetId] = bucket.balance.crypto[tx.fee.assetId].plus(
             bnOrZero(tx.fee.value),
           )
@@ -237,16 +238,16 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
         if (!assetIds.includes(asset)) return
         if (!includeTx) return
-        if (tx.status === chainAdapters.TxStatus.Failed) return
+        if (tx.status === TxStatus.Failed) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
         switch (transfer.type) {
-          case chainAdapters.TxType.Send:
+          case TxType.Send:
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
             break
-          case chainAdapters.TxType.Receive:
+          case TxType.Receive:
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
@@ -394,7 +395,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       delegationTotal,
     })
 
-    debugCharts({ assets, calculatedBuckets, txs })
+    debugCharts({ assets, calculatedBuckets, timeframe, txs })
 
     const chartData = bucketsToChartData(calculatedBuckets)
 
@@ -421,13 +422,15 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
 type DebugChartsArgs = {
   assets: AssetsById
+  timeframe: HistoryTimeframe
   calculatedBuckets: Bucket[]
   txs: Tx[]
 }
 
 type DebugCharts = (args: DebugChartsArgs) => void
 
-const debugCharts: DebugCharts = ({ assets, calculatedBuckets, txs }) => {
+const debugCharts: DebugCharts = ({ assets, calculatedBuckets, timeframe, txs }) => {
+  if (timeframe !== HistoryTimeframe.ALL) return
   /**
    * there is a long tail of potentially obscure bugs in the charts
    * the best way to address this is log when it happens, and fix the edge cases

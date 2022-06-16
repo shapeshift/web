@@ -15,6 +15,9 @@ import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPin } from './KeepKey/components/Pin'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
+import { KeplrConnect } from './Keplr/components/Connect'
+import { KeplrFailure } from './Keplr/components/Failure'
+import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
@@ -34,12 +37,16 @@ import { NativeConfig } from './NativeWallet/config'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisConfig } from './Portis/config'
+import { TallyHoConnect } from './TallyHo/components/Connect'
+import { TallyHoFailure } from './TallyHo/components/Failure'
+import { TallyHoConfig } from './TallyHo/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
 
 export interface SupportedWalletInfo {
   adapter: any
+  mobileEnabled: boolean
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   routes: RouteProps[]
@@ -92,6 +99,13 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/portis/failure', component: PortisFailure },
     ],
   },
+  [KeyManager.TallyHo]: {
+    ...TallyHoConfig,
+    routes: [
+      { path: '/tallyho/connect', component: TallyHoConnect },
+      { path: '/tallyho/failure', component: TallyHoFailure },
+    ],
+  },
   [KeyManager.XDefi]: {
     ...XDEFIConfig,
     routes: [
@@ -102,5 +116,12 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
+  },
+  [KeyManager.Keplr]: {
+    ...KeplrConfig,
+    routes: [
+      { path: '/keplr/connect', component: KeplrConnect },
+      { path: '/keplr/failure', component: KeplrFailure },
+    ],
   },
 }

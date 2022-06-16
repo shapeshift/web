@@ -16,8 +16,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { chainTypeToMainnetChainId } from 'lib/utils'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DepositPath, FoxyDepositActionType } from '../DepositCommon'
@@ -33,10 +36,9 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId, rewardId } = query
-  const chainId = chainTypeToMainnetChainId(chain)
+  const { chainId, contractAddress, assetReference, rewardId } = query
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -60,18 +62,22 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   // notify
   const toast = useToast()
 
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+
   if (!state || !dispatch) return null
 
   const handleDeposit = async () => {
     try {
-      if (!state.userAddress || !tokenId || !walletState.wallet) return
+      if (!state.userAddress || !assetReference || !walletState.wallet) return
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.deposit({
           amountDesired: bnOrZero(state.deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
-          tokenContractAddress: tokenId,
+          tokenContractAddress: assetReference,
           userAddress: state.userAddress,
           contractAddress,
           wallet: walletState.wallet,
@@ -110,12 +116,17 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
   const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .gte(0)
+
   return (
     <ReusableConfirm
       onCancel={() => history.push('/')}
       onConfirm={handleDeposit}
       loading={state.loading}
       loadingText={translate('common.confirm')}
+      isDisabled={!hasEnoughBalanceForGas}
       headerText='modals.confirm.deposit.header'
       assets={[
         {
@@ -201,6 +212,12 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
           <AlertIcon />
           <Text translation='modals.confirm.deposit.preFooter' />
         </Alert>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
       </Stack>
     </ReusableConfirm>
   )

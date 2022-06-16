@@ -1,5 +1,5 @@
-import { AssetId } from '@shapeshiftoss/caip'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { cosmos } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -22,17 +22,16 @@ export type UseCosmosStakingBalancesReturn = {
 
 export type MergedActiveStakingOpportunity = ActiveStakingOpportunity & {
   fiatAmount?: string
-  tokenAddress: string
   assetId: AssetId
-  chain: ChainTypes
+  chainId: ChainId
   tvl: string
   isLoaded?: boolean
 }
 
-export type MergedStakingOpportunity = chainAdapters.cosmos.Validator & {
+export type MergedStakingOpportunity = cosmos.Validator & {
   tokenAddress: string
   assetId: AssetId
-  chain: ChainTypes
+  chainId: ChainId
   tvl: string
 }
 
@@ -71,9 +70,8 @@ export function useCosmosStakingBalances({
           .toString(),
         tvl,
         fiatAmount,
-        chain: asset.chain,
+        chainId: asset.chainId,
         assetId,
-        tokenAddress: asset.slip44.toString(),
       }
       return data
     })

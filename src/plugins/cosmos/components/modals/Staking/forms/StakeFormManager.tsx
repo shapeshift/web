@@ -1,4 +1,4 @@
-import { chainAdapters } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useHistory } from 'react-router'
@@ -26,7 +26,7 @@ export const StakeFormManager = ({ children }: StakeFormProps) => {
       [Field.AmountFieldError]: '',
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.FeeType]: chainAdapters.FeeDataKey.Average,
+      [Field.FeeType]: FeeDataKey.Average,
       [Field.GasLimit]: '',
       [Field.TxFee]: '',
       [Field.FiatFee]: '',

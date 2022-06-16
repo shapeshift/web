@@ -16,7 +16,6 @@
     "estimatedGas": "Estimated Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
-    "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
@@ -50,7 +49,6 @@
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
-    "apy": "%{apy}% APY",
     "settings": "Settings",
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
@@ -102,6 +100,8 @@
     "banxa": "Banxa",
     "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
+    "coinbasePay": "Coinbase Pay",
+    "coinbasePayMessage": "Buy Crypto with Coinbase Pay",
     "buy": "Buy",
     "sell": "Sell",
     "assetToBuy": "Asset to Buy",
@@ -241,7 +241,8 @@
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
-    "earnCopy": "Click here to Earn %{apr}%+ APR* by farming your ETH-FOX liquidity pool tokens",
+    "clickHereToEarn": "Click here to Earn ",
+    "byFarming": " APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -291,7 +292,7 @@
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet"
@@ -341,6 +342,9 @@
         "unstake": "Unstake",
         "instantUnstake": "Instant Unstake",
         "claimWithdraw": "Claim Withdraw"
+      },
+      "erc20": {
+        "approve": "Approve"
       }
     },
     "unknown": "Transaction"
@@ -351,6 +355,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "shapeshiftFee": "ShapeShift Fee",
+    "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
     "complete": "Trade Complete",
@@ -471,6 +476,20 @@
         "error": {
           "invalid": "Invalid Password",
           "required": "Password is required",
+          "length": "Your password must be at least %{length} characters",
+          "maxLength": "Nickname must be %{length} characters maximum"
+        }
+      },
+      "confirmPassword": {
+        "header": "Confirm Your Password",
+        "walletName": "Wallet nickname (optional)",
+        "body": "Confirm your password to decrypt your wallet",
+        "placeholder": "Confirm Password",
+        "show": "Show password",
+        "hide": "Hide password",
+        "error": {
+          "invalid": "Password must match",
+          "required": "Password confirmation is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
@@ -595,6 +614,7 @@
       "withdrawDelayedTime": "7 to 14 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
+      "notEnoughGas":  "Not enough %{assetSymbol} to cover gas",
       "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
@@ -751,12 +771,29 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "connectFailure": "Unable to connect Keplr wallet",
+        "unknown": "An unexpected error occurred communicating with Keplr",
+        "noProvider": "Keplr wallet extension not found"
+      },
+      "connect": {
+        "header": "Pair Keplr",
+        "body": "Click Pair then select Keplr from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Keplr wallet"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
         "network": "MetaMask isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
+        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
+        "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
       },
       "connect": {
         "header": "Pair MetaMask",
@@ -770,6 +807,29 @@
       "redirect": {
         "header": "Open in MetaMask App",
         "body": "Click to open ShapeShift dashboard in MetaMask",
+        "button": "Open"
+      }
+    },
+    "tallyHo": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Tally Ho",
+        "connectFailure": "Unable to connect Tally Ho wallet",
+        "network": "Tally Ho isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not Tally Ho. Do you have multiple wallets installed?",
+        "tallyNotInstalledOrSetToDefault": "We have detected that Tally Ho is either not installed or not set to default. If you would like to use Tally Ho please install it or set it as your default wallet and refresh the page."
+      },
+      "connect": {
+        "header": "Pair Tally",
+        "body": "Click Pair and login to Tally Ho from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Tally Ho wallet"
+      },
+      "redirect": {
+        "header": "Open in Tally Ho App",
+        "body": "Click to open ShapeShift dashboard in Tally Ho",
         "button": "Open"
       }
     },
@@ -831,8 +891,9 @@
         "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
       },
       "password": {
-        "header": "Enter Your Password",
-        "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
+        "header": "Create a New Password",
+        "body": "Enter a strong password to encrypt your imported wallet. This is how you will access your wallet.",
+        "warning": "Note: If you forget your password, ShapeShift can’t help you recover it.",
         "button": "Next",
         "connect": "Connect to another wallet"
       },
@@ -859,6 +920,30 @@
       "testPhrase": {
         "header": "Verify Your Secret Recovery Phrase",
         "body": "Which of these is the",
+        "1st": "1st",
+        "2nd": "2nd",
+        "3rd": "3rd",
+        "4th": "4th",
+        "5th": "5th",
+        "6th": "6th",
+        "7th": "7th",
+        "8th": "8th",
+        "9th": "9th",
+        "10th": "10th",
+        "11th": "11th",
+        "12th": "12th",
+        "13th": "13th",
+        "14th": "14th",
+        "15th": "15th",
+        "16th": "16th",
+        "17th": "17th",
+        "18th": "18th",
+        "19th": "19th",
+        "20th": "20th",
+        "21th": "21th",
+        "22th": "22th",
+        "23th": "23th",
+        "24th": "24th",
         "body2": " word",
         "body3": "in your secret phrase.",
         "button": "Next"
@@ -886,6 +971,7 @@
         "emailRequired": "Email is required",
         "invalidEmail": "Email is invalid",
         "invalidCaptcha": "Captcha is invalid",
+        "captchaRequired": "Captcha is required",
         "tooManyAttempts": "Too many attempts, please try again later.",
         "invalidLogin": "Invalid login",
         "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
@@ -929,7 +1015,9 @@
         "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
         "btcFormat": "BTC format",
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
-        "loading": "Fetching price history, hang tight..."
+        "loading": "Fetching price history, hang tight...",
+        "maxTotalSupply": "Max Total Supply",
+        "availableSupply": "Available Supply"
       },
       "assetDescription": {
         "showMore": "Show More",
@@ -1041,19 +1129,46 @@
       "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "trade": "Trade",
       "receive": "Receive",
-      "titleStaking": "%{assetSymbol} Token Staking",
+      "mainStakingTitle": "%{assetSymbol} Token Staking",
+      "mainStakingDescription": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
       "tvl": "TVL",
       "currentApy": "Current APY",
       "balance": "Balance",
       "getStarted": "Get Started",
-      "otherOpportunitiesTitle": "Other opportunities",
-      "otherOpportunitiesDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget elit faucibus, vestibulum mauris sed, cursus nulla. Nunc tempor leo sit amet velit gravida lacinia. In sit amet luctus lectus. Pellentesque dapibus, justo vel iaculis ullamcorper, mi purus tristique libero, et laoreet nisi neque ut justo.",
+      "manage": "Manage",
+      "currentPrice": "Current Price",
+      "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
+      "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
+      "otherOpportunitiesTitle": {
+        "FOX": "Other Opportunities",
+        "FOXy": "Opportunities"
+      },
+      "otherOpportunitiesDescription": {
+        "FOX": "Explore the many opportunities for providing liquidity, farming for yield, lending and borrowing. Click the “Get Started” links below to visit the external sites of interest to learn more—and put your FOX to work for you.",
+        "FOXy": "Quickly and easily purchase FOXy, the industry’s first DAO rebasing token that offers both yield and profit rewards."
+      },
       "liquidityPools": "Liquidity Pools",
       "farming": "Farming",
       "borrowingAndLending": "Borrowing & Lending",
-      "currentPrice": "Current Price",
       "governanceTitle": "Governance",
-      "seeAllProposals": "See All Proposals"
+      "governanceDescription": "As a FOX holder, you can have a voice in the future of ShapeShift. Below are active or recently passed DAO proposals voted on by token holders.",
+      "seeAllProposals": "See All Proposals",
+      "availableToTradeOn": "Available to Trade On",
+      "dex": "DEX",
+      "centralized": "Centralized",
+      "purchaseFox": "Purchase the agile FOX token on Coinbase directly into your ShapeShift-compatible wallet."
+    },
+    "analytics": {
+      "optInModal": {
+        "title": "Help us improve ShapeShift",
+        "description": "ShapeShift would like to gather usage data to better understand how our users interact with the app. This data will be used to continually improve the usability and user experience of our product.",
+        "actionsSentence": "ShapeShift will...",
+        "noThanks": "No Thanks, take me to the private version",
+        "sendEvents": "Send anonymized click and pageview events",
+        "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
+        "neverCollectIp": "Never collect your full IP address",
+        "neverSellData": "Never sell data for profit"
+      }
     }
   }
 }

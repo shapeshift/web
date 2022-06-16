@@ -1,16 +1,12 @@
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
-import {
-  getSupportedVaults,
-  SupportedYearnVault,
-  YearnVaultApi,
-} from '@shapeshiftoss/investor-yearn'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { Account } from '@shapeshiftoss/chain-adapters'
+import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -19,35 +15,31 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 
-export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
-  SupportedYearnVault & { vaultAssetId: AssetId; tokenAssetId: AssetId; pricePerShare: BigNumber }
+export type EarnVault = Partial<Account<ChainId>> &
+  SerializableOpportunity & {
+    vaultAssetId: AssetId
+    tokenAssetId: AssetId
+    pricePerShare: BigNumber
+  }
 
-async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVaultApi | null) {
+async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInvestor | null) {
   const acc: Record<string, EarnVault> = {}
-  const vaults = await getSupportedVaults()
-  for (let index = 0; index < vaults.length; index++) {
-    // TODO: assetIds in vaults
-    const vault = vaults[index]
-    const vaultAssetId = toAssetId({
-      chainId: chainTypeToMainnetChainId(vault.chain),
-      assetNamespace: 'erc20',
-      assetReference: vault.vaultAddress,
-    })
-    const tokenAssetId = toAssetId({
-      chainId: chainTypeToMainnetChainId(vault.chain),
-      assetNamespace: 'erc20',
-      assetReference: vault.tokenAddress,
-    })
+  if (!yearn) return acc
+  const opportunities = await yearn.findAll()
+  for (let index = 0; index < opportunities.length; index++) {
+    const vault = opportunities[index]
+    const vaultAssetId = vault.positionAsset.assetId
+    const tokenAssetId = vault.underlyingAsset.assetId
     const balance = balances[vaultAssetId]
 
     if (balance) {
-      const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
-      acc[vault.vaultAddress] = {
+      acc[vault.id] = {
         ...vault,
+        chainId: fromAssetId(vault.positionAsset.assetId).chainId,
         balance,
         vaultAssetId,
         tokenAssetId,
-        pricePerShare: bnOrZero(pricePerShare),
+        pricePerShare: vault?.positionAsset.underlyingPerPosition,
       }
     }
   }
@@ -57,7 +49,6 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
 export type MergedEarnVault = EarnVault & {
   cryptoAmount: string
   fiatAmount: string
-  apy?: number
   underlyingTokenBalanceUsdc?: string
 }
 
@@ -88,6 +79,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       setLoading(true)
       try {
         const yearnVaults = await getYearnVaults(balances, yearn)
+        if (!yearnVaults) return
         setVaults(yearnVaults)
       } catch (error) {
         console.error('error', error)
@@ -124,13 +116,12 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       (acc: Record<string, MergedEarnVault>, [vaultAddress, vault]) => {
         const asset = assets[vault.vaultAssetId]
         const fiatAmount = makeVaultFiatAmount(vault)
-        const yearnVault = yearn?.findByVaultTokenId(vaultAddress)
         acc[vaultAddress] = {
           ...vault,
           cryptoAmount: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
-          apy: yearnVault?.metadata?.apy?.net_apy,
-          underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
+          apy: vault.apy,
+          underlyingTokenBalanceUsdc: bnOrZero(vault.tvl.balanceUsdc)
             .div(`1e+${USDC_PRECISION}`)
             .toString(),
         }
@@ -138,7 +129,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       },
       {},
     )
-  }, [assets, makeVaultFiatAmount, vaults, yearn])
+  }, [assets, makeVaultFiatAmount, vaults])
 
   return {
     vaults: mergedVaults,

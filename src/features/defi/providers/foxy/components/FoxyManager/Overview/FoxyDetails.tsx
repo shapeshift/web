@@ -1,4 +1,4 @@
-import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
+import { Center, Flex, ModalBody, ModalFooter, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchPath } from 'react-router'
@@ -8,7 +8,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -27,16 +26,15 @@ export const FoxyDetails = () => {
     path: '/defi/:earnType/:provider/:action',
     exact: true,
   })
-  const { chain, contractAddress, tokenId, rewardId } = query
+  const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
-  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const rewardAssetId = toAssetId({
@@ -45,7 +43,7 @@ export const FoxyDetails = () => {
     assetReference: rewardId,
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
-  const apy = bnOrZero(opportunity?.apy).times(100).toString()
+  const apy = opportunity?.apy
   if (loading || !opportunity) {
     return (
       <Center minW='350px' minH='350px'>
@@ -57,7 +55,7 @@ export const FoxyDetails = () => {
     return (
       <FoxyEmpty
         assets={[stakingAsset, rewardAsset]}
-        apy={apy}
+        apy={apy ?? ''}
         onClick={() =>
           browserHistory.push({
             ...browserLocation,
@@ -86,7 +84,11 @@ export const FoxyDetails = () => {
               symbol={rewardAsset?.symbol}
             />
           </Stack>
-          <Tag colorScheme='green'>{apy}% APR</Tag>
+          <Skeleton isLoaded={Boolean(apy)}>
+            <Tag colorScheme='green'>
+              <Amount.Percent value={apy ?? ''} suffix='APR' />
+            </Tag>
+          </Skeleton>
         </Stack>
       </ModalBody>
       <ModalFooter justifyContent='flex-start' alignItems='flex-start' flexDir='column'>

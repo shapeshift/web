@@ -14,7 +14,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensReverseLookup } from 'lib/ens'
+import { ensReverseLookup } from 'lib/address/ens'
 
 export const entries = [WalletConnectedRoutes.Connected]
 

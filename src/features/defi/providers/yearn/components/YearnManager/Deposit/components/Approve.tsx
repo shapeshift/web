@@ -1,9 +1,10 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -12,7 +13,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -20,21 +20,21 @@ import { DepositPath, YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApproveProps = {
-  api: YearnVaultApi
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
 }
 
-export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
+export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, tokenId } = query
+  const { chainId, assetReference } = query
   const alertText = useColorModeValue('blue.800', 'white')
+  const { yearn: yearnInvestor } = useYearn()
+  const opportunity = state?.opportunity
 
-  const chainId = chainTypeToMainnetChainId(chain)
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -53,20 +53,33 @@ export const Approve = ({ api, getDepositGasEstimate }: YearnApproveProps) => {
   if (!state || !dispatch) return null
 
   const handleApprove = async () => {
-    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    if (
+      !(
+        assetReference &&
+        state.userAddress &&
+        walletState.wallet &&
+        supportsETH(walletState.wallet) &&
+        opportunity
+      )
+    )
+      return
+
     try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
-      await api.approve({
-        tokenContractAddress: tokenId,
-        userAddress: state.userAddress,
+      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const tx = await yearnOpportunity.prepareApprove(state.userAddress)
+      await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
+        tx,
+        // TODO: allow user to choose fee priority
+        feePriority: undefined,
       })
+      const address = state.userAddress
       await poll({
-        fn: () =>
-          api.allowance({
-            tokenContractAddress: tokenId!,
-            userAddress: state.userAddress!,
-          }),
+        fn: () => yearnOpportunity.allowance(address),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)

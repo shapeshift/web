@@ -1,5 +1,6 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainId } from '@shapeshiftoss/caip'
+import { ChainAdapter, ethereum } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import { Plugins } from 'plugins'
@@ -13,7 +14,7 @@ export function register(): Plugins {
         providers: {
           chainAdapters: [
             [
-              ChainTypes.Ethereum,
+              KnownChainIds.EthereumMainnet,
               () => {
                 const http = new unchained.ethereum.V1Api(
                   new unchained.ethereum.Configuration({
@@ -21,11 +22,14 @@ export function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.ethereum.ParsedTx>(
+                const ws = new unchained.ws.Client<unchained.ethereum.EthereumTx>(
                   getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
                 )
 
-                return new ethereum.ChainAdapter({ providers: { http, ws } })
+                return new ethereum.ChainAdapter({
+                  providers: { http, ws },
+                  rpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly
               },
             ],
           ],

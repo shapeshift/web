@@ -1,4 +1,5 @@
 import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -29,6 +30,10 @@ export const SelectModal = () => {
             wallets.map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
+
+              // some wallets (e.g. tally ho) do not exist on mobile
+              if (isMobile && !option.mobileEnabled) return false
+
               return (
                 <Button
                   key={key}

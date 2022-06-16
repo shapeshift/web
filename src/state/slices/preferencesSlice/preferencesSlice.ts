@@ -1,15 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
+import { getConfig } from 'config'
 import { simpleLocale } from 'lib/browserLocale'
-
-import { getConfig } from '../../../config'
 
 export type FeatureFlags = {
   Osmosis: boolean
-  ReduxLogging: boolean
-  WalletMigration: boolean
-  BanxaRamp: boolean
-  FoxPage: boolean
+  CoinbasePay: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -24,10 +20,7 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
-    WalletMigration: getConfig().REACT_APP_FEATURE_WALLET_MIGRATION,
-    BanxaRamp: getConfig().REACT_APP_FEATURE_BANXA_RAMP,
-    FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
+    CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -16,7 +16,6 @@
     "estimatedGas": "预计 Gas 费用",
     "insufficientAmountForGas": "没有足够的 ETH 来支付 gas 费用",
     "invalidAddress": "无效地址",
-    "unresolvableEnsDomain": "无法解析ENS域名",
     "deposit": "存款",
     "withdraw": "提款",
     "withdrawal": "退出",
@@ -282,7 +281,7 @@
     "overview": "概述",
     "transactions": "交易",
     "tradeHistory": "交易记录",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "功能开关标志"
   },
   "transactionRow": {
@@ -700,6 +699,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "与您的 Keplr 通讯出现未知错误",
+        "connectFailure": "无法连接 Keplr"
+      },
+      "connect": {
+        "header": "与 Keplr 配对",
+        "body": "点击配对并在弹窗中选择 Keplr",
+        "button": "配对"
+      },
+      "failure": {
+        "header": "错误",
+        "body": "无法连接 Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "与您的 MetaMask 通讯出现未知错误",
@@ -786,6 +800,30 @@
       "testPhrase": {
         "header": "验证您的助记词",
         "body": "以下哪个",
+        "1st": "1st",
+        "2nd": "2nd",
+        "3rd": "3rd",
+        "4th": "4th",
+        "5th": "5th",
+        "6th": "6th",
+        "7th": "7th",
+        "8th": "8th",
+        "9th": "9th",
+        "10th": "10th",
+        "11th": "11th",
+        "12th": "12th",
+        "13th": "13th",
+        "14th": "14th",
+        "15th": "15th",
+        "16th": "16th",
+        "17th": "17th",
+        "18th": "18th",
+        "19th": "19th",
+        "20th": "20th",
+        "21th": "21th",
+        "22th": "22th",
+        "23th": "23th",
+        "24th": "24th",
         "body2": " 词",
         "body3": "在您的助记词中。",
         "button": "下一步"
@@ -813,6 +851,7 @@
         "emailRequired": "电子邮件是必需的",
         "invalidEmail": "电子邮件不可用",
         "invalidCaptcha": "验证码不可用",
+        "captchaRequired": "验证码是必需的",
         "invalidLogin": "无效的登录",
         "noWallet": "找不到用于您登录的原生ShapeShift钱包。如果您觉得这条消息是错误的，请联系ShapeShift提供帮助。",
         "decryptionError": "在解密你的钱包时出了问题。",

@@ -16,7 +16,6 @@
     "estimatedGas": "Tarifa Estimada de Gas",
     "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
-    "unresolvableEnsDomain": "No se puede resolver el dominio ENS",
     "deposit": "Depositar",
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
@@ -282,7 +281,7 @@
     "overview": "Resúmenes",
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
-    "foxToken": "FOX Token",
+    "foxToken": "FOX Opportunities",
     "featureFlags": "Indicadores de Funciones"
   },
   "transactionRow": {
@@ -704,6 +703,21 @@
         }
       }
     },
+    "keplr": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con Keplr",
+        "connectFailure": "No se puede conectar la billetera Keplr"
+      },
+      "connect": {
+        "header": "Emparejar Keplr",
+        "body": "Haga clic en Emparejar y luego seleccione Keplr en la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera Keplr"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
@@ -790,6 +804,30 @@
       "testPhrase": {
         "header": "Verifique su frase secreta de recuperación",
         "body": "¿Cuál de estos es la",
+        "1st": "1ro",
+        "2nd": "2do",
+        "3rd": "3er",
+        "4th": "4to",
+        "5th": "5to",
+        "6th": "6to",
+        "7th": "7mo",
+        "8th": "8vo",
+        "9th": "9no",
+        "10th": "10mo",
+        "11th": "11mo",
+        "12th": "12mo",
+        "13th": "13cio",
+        "14th": "14to",
+        "15th": "15to",
+        "16th": "16to",
+        "17th": "17mo",
+        "18th": "18vo",
+        "19th": "19no",
+        "20th": "20mo",
+        "21th": "21mo",
+        "22th": "22mo",
+        "23th": "23mo",
+        "24th": "24mo",
         "body2": " palabra",
         "body3": "en tu frase secreta.",
         "button": "Siguiente"
@@ -817,6 +855,7 @@
         "emailRequired": "Correo Electronico es requerido",
         "invalidEmail": "Correo Electrónico es invalido",
         "invalidCaptcha": "El Captcha no es válido",
+        "captchaRequired": "Se requiere captcha",
         "invalidLogin": "Ingreso invalido",
         "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
         "decryptionError": "Algo salió mal al descifrar su billetera.",

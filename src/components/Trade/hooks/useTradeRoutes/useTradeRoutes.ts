@@ -1,5 +1,5 @@
 import { AssetId, chainIdToFeeAssetId } from '@shapeshiftoss/caip'
-import { Asset, SupportedChainIds } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -19,7 +19,7 @@ export const useTradeRoutes = (
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TradeState<SupportedChainIds>>()
+  const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
@@ -65,7 +65,7 @@ export const useTradeRoutes = (
       if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
         setValue('sellAsset.asset', sellAsset)
-        updateQuote({
+        await updateQuote({
           forceQuote: true,
           amount: '0',
           sellAsset,
@@ -90,21 +90,23 @@ export const useTradeRoutes = (
         const previousBuyAsset = { ...getValues('buyAsset') }
 
         // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousBuyAsset?.asset.assetId) {
+        if (asset.assetId === previousBuyAsset?.asset?.assetId) {
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', previousSellAsset.asset)
         } else {
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', buyTradeAsset?.asset)
         }
-        updateQuote({
-          forceQuote: true,
-          amount: bnOrZero(sellTradeAsset?.amount).toString(),
-          sellAsset: asset,
-          buyAsset: buyTradeAsset?.asset,
-          feeAsset,
-          action: TradeAmountInputField.SELL,
-        })
+        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+          await updateQuote({
+            forceQuote: true,
+            amount: bnOrZero(sellTradeAsset.amount).toString(),
+            sellAsset: asset,
+            buyAsset: buyTradeAsset.asset,
+            feeAsset,
+            action: TradeAmountInputField.SELL,
+          })
+        }
       } catch (e) {
         console.warn(e)
       } finally {
@@ -113,11 +115,12 @@ export const useTradeRoutes = (
     },
     [
       getValues,
-      updateQuote,
+      sellTradeAsset?.asset,
       sellTradeAsset?.amount,
       buyTradeAsset?.asset,
-      feeAsset,
       setValue,
+      updateQuote,
+      feeAsset,
       history,
     ],
   )
@@ -129,7 +132,7 @@ export const useTradeRoutes = (
         const previousBuyAsset = { ...getValues('buyAsset') }
 
         // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousSellAsset?.asset.assetId) {
+        if (asset.assetId === previousSellAsset?.asset?.assetId) {
           setValue('buyAsset.asset', asset)
           setValue('sellAsset.asset', previousBuyAsset.asset)
         } else {
@@ -137,14 +140,16 @@ export const useTradeRoutes = (
           setValue('sellAsset.asset', sellTradeAsset?.asset)
         }
 
-        updateQuote({
-          forceQuote: true,
-          amount: bnOrZero(buyTradeAsset?.amount).toString(),
-          sellAsset: sellTradeAsset?.asset,
-          buyAsset: asset,
-          feeAsset,
-          action: TradeAmountInputField.SELL,
-        })
+        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+          await updateQuote({
+            forceQuote: true,
+            amount: bnOrZero(buyTradeAsset.amount).toString(),
+            sellAsset: sellTradeAsset.asset,
+            buyAsset: asset,
+            feeAsset,
+            action: TradeAmountInputField.SELL,
+          })
+        }
       } catch (e) {
         console.warn(e)
       } finally {

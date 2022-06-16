@@ -6,15 +6,10 @@ import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
-import { selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
   const translate = useTranslate()
-  const walletMigrationFeatureFlag = useAppSelector(state =>
-    selectFeatureFlag(state, 'WalletMigration'),
-  )
 
   useEffect(() => {
     ;(async () => {
@@ -80,29 +75,25 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
-          {walletMigrationFeatureFlag && (
-            <>
-              <Divider mt={4} />
-              <Flex
-                direction={['column', 'row']}
-                mt={2}
-                pt={4}
-                justifyContent='center'
-                alignItems='center'
-              >
-                <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
-                <Button
-                  variant='link'
-                  ml={[0, 1.5]}
-                  borderTopRadius='none'
-                  colorScheme='blue'
-                  onClick={() => history.push('/native/legacy/login')}
-                >
-                  {translate('common.login')}
-                </Button>
-              </Flex>
-            </>
-          )}
+          <Divider mt={4} />
+          <Flex
+            direction={['column', 'row']}
+            mt={2}
+            pt={4}
+            justifyContent='center'
+            alignItems='center'
+          >
+            <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
+            <Button
+              variant='link'
+              ml={[0, 1.5]}
+              borderTopRadius='none'
+              colorScheme='blue'
+              onClick={() => history.push('/native/legacy/login')}
+            >
+              {translate('common.login')}
+            </Button>
+          </Flex>
         </Stack>
       </ModalBody>
     </>

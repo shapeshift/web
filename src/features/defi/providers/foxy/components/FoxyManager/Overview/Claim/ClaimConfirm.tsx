@@ -8,8 +8,8 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { ASSET_REFERENCE, AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,7 +23,6 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -31,7 +30,7 @@ type ClaimConfirmProps = {
   assetId: AssetId
   amount?: string
   contractAddress: string
-  chain: ChainTypes
+  chainId: ChainId
   onBack: () => void
 }
 
@@ -39,7 +38,7 @@ export const ClaimConfirm = ({
   assetId,
   amount,
   contractAddress,
-  chain,
+  chainId,
   onBack,
 }: ClaimConfirmProps) => {
   const [userAddress, setUserAddress] = useState<string>('')
@@ -53,7 +52,6 @@ export const ClaimConfirm = ({
   const history = useHistory()
 
   // Asset Info
-  const chainId = chainTypeToMainnetChainId(chain)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
@@ -81,7 +79,7 @@ export const ClaimConfirm = ({
         amount,
         userAddress,
         estimatedGas,
-        chain,
+        chainId,
       })
     } catch (error) {
       console.error('ClaimWithdraw:handleConfirm error', error)
@@ -99,8 +97,8 @@ export const ClaimConfirm = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !contractAddress || !foxy) return
-        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
+        const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+        if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
         const [gasLimit, gasPrice] = await Promise.all([

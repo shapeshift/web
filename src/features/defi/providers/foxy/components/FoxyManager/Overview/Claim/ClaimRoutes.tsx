@@ -5,7 +5,6 @@ import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { ClaimConfirm } from './ClaimConfirm'
@@ -27,13 +26,12 @@ type ClaimRouteProps = {
 
 export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, tokenId, chain } = query
-  const chainId = chainTypeToMainnetChainId(chain)
+  const { contractAddress, assetReference, chainId } = query
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const { opportunities } = useFoxyBalances()
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
@@ -47,7 +45,7 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
           <Route exact path='/'>
             <ClaimConfirm
               assetId={stakingAssetId}
-              chain={chain}
+              chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
               amount={opportunity?.withdrawInfo.amount}

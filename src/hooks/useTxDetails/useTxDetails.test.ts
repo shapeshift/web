@@ -1,4 +1,5 @@
-import { Asset, chainAdapters } from '@shapeshiftoss/types'
+import { TxTransfer, TxType } from '@shapeshiftoss/chain-adapters'
+import { Asset } from '@shapeshiftoss/types'
 import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import {
   getBuyTransfer,
@@ -40,11 +41,11 @@ describe('isTradeContract', () => {
     const buy = {
       from: '0xpoolA',
       to: account,
-    } as chainAdapters.TxTransfer
+    } as TxTransfer
     const sell = {
       from: account,
       to: '0xpoolB',
-    } as chainAdapters.TxTransfer
+    } as TxTransfer
     expect(isTradeContract(buy, sell)).toEqual(true)
   })
 
@@ -52,11 +53,11 @@ describe('isTradeContract', () => {
     const buy = {
       from: '0xpoolA',
       to: '0xfoxy',
-    } as chainAdapters.TxTransfer
+    } as TxTransfer
     const sell = {
       from: '0xzyzz',
       to: '0xpoolB',
-    } as chainAdapters.TxTransfer
+    } as TxTransfer
     expect(isTradeContract(buy, sell)).toEqual(false)
   })
 
@@ -66,11 +67,11 @@ describe('isTradeContract', () => {
     const buy = {
       from: pool,
       to: account,
-    } as chainAdapters.TxTransfer
+    } as TxTransfer
     const sell = {
       from: account,
       to: pool,
-    } as chainAdapters.TxTransfer
+    } as TxTransfer
     expect(isTradeContract(buy, sell)).toEqual(false)
   })
 })
@@ -78,25 +79,25 @@ describe('isTradeContract', () => {
 describe('getTransferByType', () => {
   describe('TxType.Send', () => {
     it('finds transfer with TxType.Send', () => {
-      const result = getTransferByType(EthSend, chainAdapters.TxType.Send)
+      const result = getTransferByType(EthSend, TxType.Send)
       const expected = EthSend.transfers[0]
       expect(result).toEqual(expected)
     })
     it('returns undefined on failure', () => {
       // receive !== send
-      const result = getTransferByType(EthReceive, chainAdapters.TxType.Send)
+      const result = getTransferByType(EthReceive, TxType.Send)
       expect(result).toBeUndefined()
     })
 
     describe('TxType.Receive', () => {
       it('finds transfer with TxType.Receive', () => {
-        const result = getTransferByType(EthReceive, chainAdapters.TxType.Receive)
+        const result = getTransferByType(EthReceive, TxType.Receive)
         const expected = EthReceive.transfers[0]
         expect(result).toEqual(expected)
       })
       it('returns undefined on failure', () => {
         // send !== receive
-        const result = getTransferByType(EthSend, chainAdapters.TxType.Receive)
+        const result = getTransferByType(EthSend, TxType.Receive)
         expect(result).toBeUndefined()
       })
     })

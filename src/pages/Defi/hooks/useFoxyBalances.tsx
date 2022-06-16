@@ -1,15 +1,15 @@
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -25,7 +25,7 @@ export type FoxyOpportunity = {
   contractAddress: string
   rewardToken: string
   stakingToken: string
-  chain: ChainTypes
+  chainId: ChainId
   tvl?: BigNumber
   expired?: boolean
   apy?: string
@@ -55,6 +55,7 @@ async function getFoxyOpportunities(
   balances: PortfolioBalancesById,
   api: FoxyApi,
   userAddress: string,
+  foxyApr: string,
 ) {
   const acc: Record<string, FoxyOpportunity> = {}
   try {
@@ -67,17 +68,17 @@ async function getFoxyOpportunities(
         userAddress,
       })
       const rewardTokenAssetId = toAssetId({
-        chainId: chainTypeToMainnetChainId(opportunity.chain),
+        chainId: opportunity.chain,
         assetNamespace: 'erc20',
         assetReference: opportunity.rewardToken,
       })
       const contractAssetId = toAssetId({
-        chainId: chainTypeToMainnetChainId(opportunity.chain),
+        chainId: opportunity.chain,
         assetNamespace: 'erc20',
         assetReference: opportunity.contractAddress,
       })
       const tokenAssetId = toAssetId({
-        chainId: chainTypeToMainnetChainId(opportunity.chain),
+        chainId: opportunity.chain,
         assetNamespace: 'erc20',
         assetReference: opportunity.stakingToken,
       })
@@ -86,6 +87,8 @@ async function getFoxyOpportunities(
       const pricePerShare = api.pricePerShare()
       acc[opportunity.contractAddress] = {
         ...opportunity,
+        apy: foxyApr,
+        chainId: opportunity.chain,
         balance: bnOrZero(balance).toString(),
         contractAssetId,
         tokenAssetId,
@@ -101,7 +104,7 @@ async function getFoxyOpportunities(
 }
 
 export function useFoxyBalances(): UseFoxyBalancesReturn {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [opportunities, setOpportunities] = useState<Record<string, FoxyOpportunity>>({})
   const marketData = useSelector(selectMarketData)
   const assets = useSelector(selectAssets)
@@ -113,23 +116,29 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
   } = useWallet()
 
   const { foxy, loading: foxyLoading } = useFoxy()
+  const { foxyApr } = useFoxyApr()
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
 
-  useEffect(() => {
-    if (!wallet || !foxy) return
-    ;(async () => {
-      setLoading(true)
-      try {
-        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
-        const userAddress = await chainAdapter.getAddress({ wallet })
-        const foxyOpportunities = await getFoxyOpportunities(balances, foxy, userAddress)
-        if (!foxyOpportunities) return
+  const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
 
-        // remove when Tokemak has api to get real apy
-        for (const key in foxyOpportunities) {
-          foxyOpportunities[key].apy = bnOrZero(getConfig().REACT_APP_FOXY_APY).toString()
-        }
+  useEffect(() => {
+    if (!wallet || !supportsEthereumChain || !foxy || !foxyApr) {
+      setLoading(false)
+      return
+    }
+    ;(async () => {
+      try {
+        const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+        if (!chainAdapter) return
+        const userAddress = await chainAdapter.getAddress({ wallet })
+        const foxyOpportunities = await getFoxyOpportunities(
+          balances,
+          foxy,
+          userAddress,
+          foxyApr ?? '',
+        )
+        if (!foxyOpportunities) return
 
         setOpportunities(foxyOpportunities)
       } catch (error) {
@@ -138,7 +147,16 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [wallet, foxyLoading, foxy, balances, balancesLoading, chainAdapterManager])
+  }, [
+    wallet,
+    foxyLoading,
+    foxy,
+    balances,
+    balancesLoading,
+    chainAdapterManager,
+    supportsEthereumChain,
+    foxyApr,
+  ])
 
   const makeFiatAmount = useCallback(
     (opportunity: FoxyOpportunity) => {

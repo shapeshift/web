@@ -1,19 +1,32 @@
 import axios from 'axios'
+import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-type BoardroomGovernanceData = Array<{
+// Non-exhaustive typings. We do not want to keep this a 1/1 mapping to an external API
+export type BoardroomGovernanceResult = {
   currentState: string
   title: string
   choices: Array<string>
   results: Array<{ total: number; choice: number }>
   refId: string
-}>
+}
 
-const BOARDROOM_API_BASE_URL = 'https://api.boardroom.info/v1/protocols/shapeshift'
-export const BOARDROOM_APP_BASE_URL = 'https://boardroom.io/shapeshift'
+export type ParsedBoardroomGovernanceResult = {
+  refId: string
+  title: string
+  choices: string[]
+  results: Array<{
+    absolute: string
+    percent: string
+  }>
+}
 
-const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
+const BOARDROOM_API_BASE_URL = getConfig().REACT_APP_BOARDROOM_API_BASE_URL
+
+export const parseGovernanceData = (
+  governanceData: BoardroomGovernanceResult[],
+): ParsedBoardroomGovernanceResult[] => {
   const activeProposals = governanceData.filter(data => data.currentState === 'active')
   const proposals = activeProposals.length ? activeProposals : [governanceData[0]]
 
@@ -27,9 +40,9 @@ const parseGovernanceData = (governanceData: BoardroomGovernanceData) => {
       refId,
       title,
       choices,
-      results: results.map(result => ({
-        absolute: result.total,
-        percent: bnOrZero(result.total).div(totalResults).toString(),
+      results: choices.map((_, i) => ({
+        absolute: bnOrZero(results[i]?.total).toString(),
+        percent: results[i] ? bnOrZero(results[i].total).div(totalResults).toString() : '0',
       })),
     }
   })
@@ -43,8 +56,8 @@ export const useGetGovernanceData = () => {
   useEffect(() => {
     const loadGovernanceData = async () => {
       try {
-        const response = await axios.get<{ data: BoardroomGovernanceData }>(
-          `${BOARDROOM_API_BASE_URL}/proposals`,
+        const response = await axios.get<{ data: BoardroomGovernanceResult[] }>(
+          `${BOARDROOM_API_BASE_URL}proposals`,
         )
         const governanceData = response?.data?.data
         const parsedGovernanceData = parseGovernanceData(governanceData)

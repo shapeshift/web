@@ -58,9 +58,8 @@ export const useSwapper = () => {
   })
 
   useEffect(() => {
-    if (!adapterManager || !swapperManager) {
-      return
-    }
+    if (!adapterManager || !swapperManager) return
+
     const web3 = getWeb3Instance()
 
     ;(async () => {

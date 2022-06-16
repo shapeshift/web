@@ -1,70 +1,43 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { logger } from 'lib/logger'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
-import { Route } from '../Routes/helpers'
+import { Plugin } from './types'
+
+export * from './types'
 
 const moduleLogger = logger.child({ namespace: ['PluginManager'] })
 
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis']
-
-export type Plugins = [chainId: string, chain: Plugin][]
-export type RegistrablePlugin = { register: () => Plugins }
-
-export interface Plugin {
-  name: string
-  icon?: JSX.Element
-  featureFlag?: keyof FeatureFlags
-  providers?: {
-    chainAdapters?: Array<[ChainId, () => ChainAdapter<ChainId>]>
-  }
-  routes?: Route[]
-}
-
-export class PluginManager {
-  #pluginManager = new Map<string, Plugin>()
-
-  clear(): void {
-    this.#pluginManager.clear()
-  }
-
-  register(plugin: RegistrablePlugin): void {
-    for (const [pluginId, pluginManifest] of plugin.register()) {
-      if (this.#pluginManager.has(pluginId)) {
-        throw new Error('PluginManager: Duplicate pluginId')
-      }
-      this.#pluginManager.set(pluginId, pluginManifest)
-    }
-  }
-
-  keys(): string[] {
-    return [...this.#pluginManager.keys()]
-  }
-
-  entries(): [string, Plugin][] {
-    return [...this.#pluginManager.entries()]
-  }
-}
-
 // @TODO - In the future we may want to create a Provider for this
 // if we need to support features that require re-rendering. Currently we do not.
+export class PluginManager extends Map<string, Plugin> {}
 export const pluginManager = new PluginManager()
 
 export async function registerPlugins() {
   pluginManager.clear()
 
-  for (const plugin of activePlugins) {
+  // This can't be a synchronous import because it can create dependency loops.
+  // (PluginProvider -> plugins/index -> plugin/active -> each plugin, so if
+  // any active plugin imports anything that ends up importing PluginProvider
+  // things fall over.)
+  const { activePlugins } = await import('./active')
+  for (const [pluginName, registrablePlugin] of Object.entries(activePlugins)) {
     try {
-      pluginManager.register(await import(`./${plugin}/index.tsx`))
-      moduleLogger.trace({ fn: 'registerPlugins', pluginManager, plugin }, 'Registered Plugin')
+      const plugin = registrablePlugin.register()
+      pluginManager.set(pluginName, plugin)
+      moduleLogger.trace(
+        { fn: 'registerPlugins', pluginManager, pluginName, plugin },
+        'Registered plugin',
+      )
     } catch (e) {
-      moduleLogger.error(e, { fn: 'registerPlugins', pluginManager }, 'Register Plugins')
+      moduleLogger.error(
+        e,
+        { fn: 'registerPlugins', pluginManager, pluginName, registrablePlugin },
+        'Failed to register plugin',
+      )
     }
   }
 
   moduleLogger.debug(
     { pluginManager, plugins: pluginManager.keys() },
-    'Plugins Registration Completed',
+    'Plugin Registration Completed',
   )
 }

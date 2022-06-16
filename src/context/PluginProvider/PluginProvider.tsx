@@ -5,6 +5,7 @@ import { PluginManager, registerPlugins } from 'plugins'
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
+import { Entries } from 'type-fest'
 import { logger } from 'lib/logger'
 import { partitionCompareWith } from 'lib/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -71,23 +72,28 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<ChainId> } = {}
 
     // register providers from each plugin
-    for (const [, plugin] of pluginManager.entries()) {
+    for (const [name, plugin] of pluginManager.entries()) {
       fnLogger.trace({ plugin }, 'Checking Plugin...')
       // Ignore plugins that have their feature flag disabled
       // If no featureFlag is present, then we assume it's enabled
       if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
         // routes providers
         if (plugin.routes) {
-          pluginRoutes = pluginRoutes.concat(plugin.routes)
-          fnLogger.trace({ plugin: plugin.name }, 'Added Routes')
+          // strip "readonly" from routes; it's only there as a workaround to allow plugin authors to use 'as const'.
+          pluginRoutes = pluginRoutes.concat(plugin.routes.map(x => x as Route))
+          fnLogger.trace({ plugin: name }, 'Added Routes')
         }
 
         // chain adapters providers
-        plugin.providers?.chainAdapters?.forEach(([chain, factory]) => {
+        const pluginChainAdapters = plugin.providers?.chainAdapters ?? {}
+        for (const [chain, factory] of Object.entries(pluginChainAdapters) as Entries<
+          typeof pluginChainAdapters
+        >) {
+          if (!factory) continue
           // track newly registered adapters by plugins
           newChainAdapters[chain] = factory
-          fnLogger.trace({ plugin: plugin.name, chain }, 'Added ChainAdapter')
-        })
+          fnLogger.trace({ plugin: name, chain }, 'Added ChainAdapter')
+        }
       }
     }
 

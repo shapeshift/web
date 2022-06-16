@@ -205,7 +205,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       try {
         const { chainId, account } = fromAccountId(accountSpecifier)
-        fnLogger.error({ chainId, account, accountSpecifier }, 'debug')
         const { fastFee, adapterFees } = await (async () => {
           switch (chainId) {
             case KnownChainIds.CosmosMainnet: {
@@ -228,7 +227,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const adapterFees = await ethAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { contractAddress, from: accountSpecifier },
+                chainSpecific: { contractAddress, from: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee
@@ -244,7 +243,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const adapterFees = await btcAdapter.getFeeData({
                 to,
                 value,
-                chainSpecific: { pubkey: accountSpecifier },
+                chainSpecific: { pubkey: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee

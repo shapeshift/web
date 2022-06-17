@@ -1,6 +1,5 @@
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { TxStatus } from '@shapeshiftoss/types/dist/chain-adapters'
+import { TxStatus, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,8 +19,7 @@ import {
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
-import { store } from 'state/store'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
@@ -50,7 +48,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
     if (!isSubscribed) return
     moduleLogger.info('unsubscribing txs')
-    supportedChains.forEach(chain => chainAdapterManager.byChain(chain).unsubscribeTxs())
+    supportedChains.forEach(chainId => chainAdapterManager.get(chainId)?.unsubscribeTxs())
     setIsSubscribed(false)
     // setting isSubscribed to false will trigger this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,18 +66,16 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     ;(async () =>
       Promise.all(
         supportedChains
-          .filter(chain => {
-            const chainId = chainAdapterManager.byChain(chain).getChainId()
+          .filter(chainId => {
             return walletSupportsChain({ chainId, wallet })
           })
-          .map(async chain => {
-            const adapter = chainAdapterManager.byChain(chain)
-            const chainId = adapter.getChainId()
+          .map(async chainId => {
+            const adapter = chainAdapterManager.get(chainId)
 
             // subscribe to new transactions for all supported accounts
             try {
               // account types are only supported for utxo chains, default to undefined if no accountTypes are supported
-              const supportedAccountTypes = adapter.getSupportedAccountTypes?.() ?? [undefined]
+              const supportedAccountTypes = adapter?.getSupportedAccountTypes?.() ?? [undefined]
 
               await Promise.all(
                 supportedAccountTypes.map(async accountType => {
@@ -87,7 +83,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
                   const accountParams = accountType ? utxoAccountParams(accountType, 0) : {}
 
-                  return adapter.subscribeTxs(
+                  return adapter?.subscribeTxs(
                     { wallet, accountType, ...accountParams },
                     msg => {
                       const state = store.getState()
@@ -131,7 +127,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               // and need this to prevent resubscribing when switching wallets
               setIsSubscribed(true)
             } catch (e: unknown) {
-              moduleLogger.error(e, { chain }, 'error subscribing to transactions')
+              moduleLogger.error(e, { chainId }, 'error subscribing to transactions')
             }
           }),
       ))()

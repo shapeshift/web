@@ -1,6 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
+import memoize from 'lodash/memoize'
 import { BN, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getWeb3Instance } from 'lib/web3-instance'
@@ -11,16 +12,19 @@ const moduleLogger = logger.child({
   namespace: ['Plugins', 'FoxPage', 'Utils'],
 })
 
+let maybeEthersProvider: providers.Web3Provider | undefined
 // The provider we get from getWeb3Instance is a web3.js Provider
 // But uniswap SDK needs a Web3Provider from ethers.js
 export const getEthersProvider = () => {
+  if (maybeEthersProvider) return maybeEthersProvider
+
   const provider = getWeb3Instance().currentProvider
 
-  const ethersProvider = new providers.Web3Provider(
+  maybeEthersProvider = new providers.Web3Provider(
     provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?
   )
 
-  return ethersProvider
+  return maybeEthersProvider
 }
 
 export const getToken0Volume24Hr = async ({
@@ -55,37 +59,39 @@ export const getToken0Volume24Hr = async ({
   return token0Volume24hr.decimalPlaces(0).valueOf()
 }
 
-export const calculateAPRFromToken0 = async ({
-  token0Decimals,
-  token0Reserves,
-  blockNumber,
-  uniswapLPContract,
-}: {
-  token0Decimals: number
-  token0Reserves: TokenAmount
-  blockNumber: number
-  uniswapLPContract: Contract
-}) => {
-  const token0Volume24Hr = await getToken0Volume24Hr({
+export const calculateAPRFromToken0 = memoize(
+  async ({
+    token0Decimals,
+    token0Reserves,
     blockNumber,
     uniswapLPContract,
-  })
+  }: {
+    token0Decimals: number
+    token0Reserves: TokenAmount
+    blockNumber: number
+    uniswapLPContract: Contract
+  }) => {
+    const token0Volume24Hr = await getToken0Volume24Hr({
+      blockNumber,
+      uniswapLPContract,
+    })
 
-  const token0PoolReservesEquivalent = bnOrZero(token0Reserves.toFixed())
-    .times(2) // Double to get equivalent of both sides of pool
-    .times(bnOrZero(10).pow(token0Decimals))
+    const token0PoolReservesEquivalent = bnOrZero(token0Reserves.toFixed())
+      .times(2) // Double to get equivalent of both sides of pool
+      .times(bnOrZero(10).pow(token0Decimals))
 
-  const estimatedAPR = bnOrZero(token0Volume24Hr) // 24hr volume in terms of token0
-    .div(token0PoolReservesEquivalent) // Total value (both sides) of pool reserves in terms of token0
-    .times(TRADING_FEE_RATE) // Trading fee rate of pool
-    .times(365.25) // Days in a year
-    .times(100) // To get a percentage instead of a decimal
-    .decimalPlaces(4)
-    .valueOf()
-  return estimatedAPR
-}
+    const estimatedAPR = bnOrZero(token0Volume24Hr) // 24hr volume in terms of token0
+      .div(token0PoolReservesEquivalent) // Total value (both sides) of pool reserves in terms of token0
+      .times(TRADING_FEE_RATE) // Trading fee rate of pool
+      .times(365.25) // Days in a year
+      .times(100) // To get a percentage instead of a decimal
+      .decimalPlaces(4)
+      .valueOf()
+    return estimatedAPR
+  },
+)
 
-export const totalLpSupply = async (farmingRewardsContract: Contract) => {
+const getTotalLpSupply = memoize(async (farmingRewardsContract: Contract) => {
   try {
     const totalSupply = await farmingRewardsContract.totalSupply()
     return bnOrZero(totalSupply.toString())
@@ -94,12 +100,17 @@ export const totalLpSupply = async (farmingRewardsContract: Contract) => {
     moduleLogger.error(error, { fn: 'totalLpSupply' }, errorMsg)
     throw new Error(errorMsg)
   }
-}
+})
 
-export const rewardRatePerToken = async (farmingRewardsContract: Contract) => {
+// Rate of FOX given per second for all staked addresses)
+const getRewardsRate = memoize(
+  async (farmingRewardsContract: Contract) => await farmingRewardsContract.rewardRate(),
+)
+
+export const rewardRatePerToken = memoize(async (farmingRewardsContract: Contract) => {
   try {
-    const rewardRate = await farmingRewardsContract.rewardRate() // Rate of FOX given per second for all staked addresses
-    const totalSupply = await totalLpSupply(farmingRewardsContract)
+    const rewardRate = await getRewardsRate(farmingRewardsContract)
+    const totalSupply = await getTotalLpSupply(farmingRewardsContract)
     return bnOrZero(rewardRate.toString())
       .div(totalSupply)
       .times('1e+18')
@@ -110,4 +121,4 @@ export const rewardRatePerToken = async (farmingRewardsContract: Contract) => {
     console.error(error, errorMsg)
     throw new Error(errorMsg)
   }
-}
+})

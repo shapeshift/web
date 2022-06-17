@@ -1,11 +1,4 @@
-import {
-  ASSET_REFERENCE,
-  btcChainId,
-  cosmosChainId,
-  ethChainId,
-  osmosisChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { btcChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
@@ -27,7 +20,6 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { chainTypeToMainnetChainId } from 'lib/utils'
 import {
   AccountSpecifierMap,
   accountSpecifiers,
@@ -129,9 +121,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const acc: AccountSpecifierMap[] = []
 
-        for (const chain of supportedChains) {
-          const adapter = chainAdapterManager.byChain(chain)
-          const chainId = chainTypeToMainnetChainId(chain)
+        for (const chainId of supportedChains) {
+          const adapter = chainAdapterManager.get(chainId)
+          if (!adapter) return
 
           switch (chainId) {
             case ethChainId: {
@@ -143,23 +135,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             }
             case btcChainId: {
               if (!supportsBTC(wallet)) continue
-              const assetId = toAssetId({
-                chainId,
-                assetNamespace: 'slip44',
-                assetReference: ASSET_REFERENCE.Bitcoin,
-              })
-              const bitcoin = assetsById[assetId]
-
-              if (!bitcoin) continue
               const supportedAccountTypes = (
-                adapter as bitcoin.ChainAdapter
+                adapter as unknown as bitcoin.ChainAdapter
               ).getSupportedAccountTypes()
               for (const accountType of supportedAccountTypes) {
                 const accountParams = utxoAccountParams(accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 const pubkeys = await wallet.getPublicKeys([
                   {
-                    coin: adapter.getType(),
+                    coin: 'bitcoin',
                     addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                     curve: 'secp256k1',
                     scriptType,

@@ -1,9 +1,9 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { bitcoin, ChainAdapter, ethereum, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -29,19 +29,20 @@ export const useFormSend = () => {
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
-        const adapter = chainAdapterManager.byChain(data.asset.chain)
+        const adapter = chainAdapterManager.get(data.asset.chainId) as ChainAdapter<KnownChainIds>
+        if (!adapter) throw new Error(`useFormSend: no adapter available for ${data.asset.chainId}`)
         const value = bnOrZero(data.cryptoAmount)
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
-        const adapterType = adapter.getType()
+        const adapterType = adapter.getChainId()
 
         let result
 
         const { estimatedFees, feeType, address: to } = data
-        if (adapterType === ChainTypes.Ethereum) {
+        if (adapterType === KnownChainIds.EthereumMainnet) {
           if (!supportsETH(wallet)) throw new Error(`useFormSend: wallet does not support ethereum`)
-          const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
+          const fees = estimatedFees[feeType] as FeeData<KnownChainIds.EthereumMainnet>
           const {
             chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
           } = fees
@@ -55,7 +56,7 @@ export const useFormSend = () => {
           const erc20ContractAddress = tokenOrUndefined(
             fromAssetId(data.asset.assetId).assetReference,
           )
-          result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
+          result = await (adapter as unknown as ethereum.ChainAdapter).buildSendTransaction({
             to,
             value,
             wallet,
@@ -66,8 +67,8 @@ export const useFormSend = () => {
             },
             sendMax: data.sendMax,
           })
-        } else if (adapterType === ChainTypes.Bitcoin) {
-          const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
+        } else if (adapterType === KnownChainIds.BitcoinMainnet) {
+          const fees = estimatedFees[feeType] as FeeData<KnownChainIds.BitcoinMainnet>
 
           const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
 
@@ -83,7 +84,7 @@ export const useFormSend = () => {
             )
           }
 
-          result = await (adapter as ChainAdapter<ChainTypes.Bitcoin>).buildSendTransaction({
+          result = await (adapter as unknown as bitcoin.ChainAdapter).buildSendTransaction({
             to,
             value,
             wallet,
@@ -102,7 +103,10 @@ export const useFormSend = () => {
         let broadcastTXID: string | undefined
 
         if (wallet.supportsOfflineSigning()) {
-          const signedTx = await adapter.signTransaction({ txToSign, wallet })
+          const signedTx = await adapter.signTransaction({
+            txToSign,
+            wallet,
+          })
           broadcastTXID = await adapter.broadcastTransaction(signedTx)
         } else if (wallet.supportsBroadcast()) {
           /**

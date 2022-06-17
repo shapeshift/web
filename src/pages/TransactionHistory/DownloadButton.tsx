@@ -1,5 +1,5 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { TxType } from '@shapeshiftoss/chain-adapters'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useJsonToCsv } from 'react-json-csv'
@@ -63,7 +63,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const transaction = allTxs[txId]
       const standardTx = getStandardTx(transaction)
       const txType = isSupportedContract(transaction)
-        ? chainAdapters.TxType.Contract
+        ? TxType.Contract
         : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
       const buyTransfer = getBuyTransfer(transaction)
       const sellTransfer = getSellTransfer(transaction)

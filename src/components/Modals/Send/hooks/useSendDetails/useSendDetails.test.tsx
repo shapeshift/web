@@ -1,4 +1,5 @@
-import { chainAdapters } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { mocked } from 'jest-mock'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -54,7 +55,7 @@ const balances: PortfolioBalancesById = {
 const runeFiatAmount = '14490.00'
 
 const estimatedFees = {
-  [chainAdapters.FeeDataKey.Fast]: {
+  [FeeDataKey.Fast]: {
     networkFee: '6000000000000000',
     chainSpecific: {
       feePerTx: '6000000000000000',
@@ -69,9 +70,17 @@ const setup = ({
   setError = jest.fn(),
   setValue = jest.fn(),
 }) => {
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) =>
-    name === 'asset' ? asset : '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-  )
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) => {
+    switch (name) {
+      case 'asset':
+        return asset
+      case 'accountId':
+        return 'eip155:1:0x00000005D5F96b2d030a4966AF206230e46849cb'
+      default:
+        return undefined
+    }
+  })
+
   mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
     const fakeMarketData = {
       [mockEthereum.assetId]: {
@@ -111,25 +120,24 @@ const setup = ({
 }
 
 describe('useSendDetails', () => {
+  const mockAdapter = {
+    getAddress: () => '0xMyWalletsAddress',
+    getFeeData: () => estimatedFees,
+    buildSendTransaction: () => ({
+      txToSign: {},
+    }),
+  }
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        getAddress: () => '0xMyWalletsAddress',
-        getFeeData: () => estimatedFees,
-        buildSendTransaction: () => ({
-          txToSign: {},
-        }),
-      }),
-      byChainId: () => ({
-        getAddress: () => '0xMyWalletsAddress',
-        getFeeData: () => estimatedFees,
-        buildSendTransaction: () => ({
-          txToSign: {},
-        }),
-      }),
-    }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockAdapter],
+          [KnownChainIds.EthereumMainnet, mockAdapter],
+        ]),
+    )
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,

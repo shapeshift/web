@@ -144,8 +144,8 @@ export const Overview: React.FC<OverviewProps> = ({
   }
 
   const handleVerify = async () => {
-    if (!wallet) return
-    const chainAdapter = await chainAdapterManager.byChainId(chainId)
+    const chainAdapter = await chainAdapterManager.get(chainId)
+    if (!(wallet && chainAdapter)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
@@ -158,7 +158,12 @@ export const Overview: React.FC<OverviewProps> = ({
   return (
     <SlideTransition>
       <Flex direction='column'>
-        <FiatRampActionButtons action={fiatRampAction} setAction={onFiatRampActionClick} />
+        <FiatRampActionButtons
+          action={fiatRampAction}
+          setAction={onFiatRampActionClick}
+          supportsBuy={supportedFiatRamps[fiatRampProvider].supportsBuy}
+          supportsSell={supportedFiatRamps[fiatRampProvider].supportsSell}
+        />
         <Text
           translation={assetTranslation}
           color='gray.500'
@@ -247,7 +252,7 @@ export const Overview: React.FC<OverviewProps> = ({
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(
               fiatRampAction,
-              selectedAsset?.symbol || '',
+              selectedAsset?.assetId || '',
               addressFull || '',
             )
           }

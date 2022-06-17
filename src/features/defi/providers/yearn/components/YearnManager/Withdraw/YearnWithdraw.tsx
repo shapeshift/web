@@ -1,7 +1,7 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useReducer } from 'react'
@@ -56,14 +56,14 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
 
   // user info
   const chainAdapterManager = useChainAdapters()
-  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && yearnInvestor)) return
+        if (!(walletState.wallet && vaultAddress && yearnInvestor && chainAdapter)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           yearnInvestor.findByOpportunityId(

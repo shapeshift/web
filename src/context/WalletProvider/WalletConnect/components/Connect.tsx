@@ -55,7 +55,6 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     setLoading(true)
 
     try {
-
       const rpcUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
       const config: WalletConnectProviderConfig = {
         rpc: {

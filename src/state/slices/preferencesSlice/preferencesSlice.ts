@@ -5,6 +5,7 @@ import { simpleLocale } from 'lib/browserLocale'
 
 export type FeatureFlags = {
   Osmosis: boolean
+  CoinbasePay: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -19,6 +20,7 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
+    CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

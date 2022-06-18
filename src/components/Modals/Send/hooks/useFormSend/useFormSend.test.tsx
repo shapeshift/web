@@ -1,14 +1,10 @@
 import { useToast } from '@chakra-ui/react'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import {
-  AssetDataSource,
-  chainAdapters,
-  ChainTypes,
-  NetworkTypes,
-  UtxoAccountType,
-} from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
+import { ethAssetId, ethChainId } from 'test/mocks/accounts'
 import { EthSend } from 'test/mocks/txs'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -38,55 +34,51 @@ jest.mock('hooks/useWallet/useWallet')
 
 jest.mock('lib/address/ens')
 
-const formData: SendInput = {
+const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',
   [SendFormFields.Address]: EthSend.address,
   [SendFormFields.VanityAddress]: '',
   [SendFormFields.Asset]: {
-    chainId: '',
-    assetId: '',
+    chainId: ethChainId,
+    assetId: ethAssetId,
     description: '',
-    chain: ChainTypes.Ethereum,
-    dataSource: AssetDataSource.CoinGecko,
-    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
-    slip44: 60,
     color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
-    sendSupport: true,
-    receiveSupport: true,
   },
   [SendFormFields.AmountFieldError]: '',
-  [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
+  [SendFormFields.FeeType]: FeeDataKey.Average,
   [SendFormFields.EstimatedFees]: {
-    [chainAdapters.FeeDataKey.Slow]: {
+    [FeeDataKey.Slow]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
         gasPrice: '10000000000',
-        satoshiPerByte: '5',
+        maxFeePerGas: '0x1b3dbe5200',
+        maxPriorityFeePerGas: '0x1b3dbe5200',
       },
     },
-    [chainAdapters.FeeDataKey.Average]: {
+    [FeeDataKey.Average]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
         gasPrice: '10000000000',
-        satoshiPerByte: '5',
+        maxFeePerGas: '0x1b3dbe5200',
+        maxPriorityFeePerGas: '0x1b3dbe5200',
       },
     },
-    [chainAdapters.FeeDataKey.Fast]: {
+    [FeeDataKey.Fast]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
         gasPrice: '10000000000',
-        satoshiPerByte: '5',
+        maxFeePerGas: '0x1b3dbe5200',
+        maxPriorityFeePerGas: '0x1b3dbe5200',
       },
     },
   },
@@ -98,13 +90,13 @@ const formData: SendInput = {
   [SendFormFields.AccountId]: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
 }
 
-const formDataEnsAddres = { ...formData, [SendFormFields.Address]: 'willywonka.eth' }
+const formDataEnsAddress = { ...formData, [SendFormFields.Address]: 'willywonka.eth' }
 
 const textTxToSign = {
   addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
   value: '0x0',
   to: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
-  chainId: 1,
+  chainId: ethChainId,
   data: '0xa9059cbb000000000000000000000000f293f9e575aec02d3da5952b5fd95353c53a134e0000000000000000000000000000000000000000000000000000000000000000',
   nonce: '136',
   gasPrice: '0x1b3dbe5200',
@@ -128,7 +120,7 @@ describe.each([
       state: {
         preferences: {
           accountTypes: {
-            [ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh,
+            [KnownChainIds.BitcoinMainnet]: UtxoAccountType.SegwitP2sh,
           },
         },
       },
@@ -150,14 +142,25 @@ describe.each([
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        buildSendTransaction: () => Promise.resolve(textTxToSign),
-        signTransaction: () => Promise.resolve(testSignedTx),
-        broadcastTransaction: () => Promise.resolve(expectedTx),
-        getType: () => ChainTypes.Ethereum,
-      }),
-    }))
+    const mockAdapter = {
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      signTransaction: () => Promise.resolve(testSignedTx),
+      broadcastTransaction: () => Promise.resolve(expectedTx),
+    }
+    const mockEthereumAdapter = {
+      ...mockAdapter,
+      getType: () => KnownChainIds.EthereumMainnet,
+      getChainId: () => KnownChainIds.EthereumMainnet,
+    }
+
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockAdapter],
+          [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
+        ]),
+    )
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
@@ -186,18 +189,30 @@ describe.each([
       error: false,
     }))
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        buildSendTransaction: () => Promise.resolve(textTxToSign),
-        signTransaction: () => Promise.resolve(testSignedTx),
-        broadcastTransaction: () => Promise.resolve(expectedTx),
-        getType: () => ChainTypes.Ethereum,
-      }),
-    }))
+    const mockAdapter = {
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      signTransaction: () => Promise.resolve(testSignedTx),
+      broadcastTransaction: () => Promise.resolve(expectedTx),
+    }
+
+    const mockEthereumAdapter = {
+      ...mockAdapter,
+      getType: () => KnownChainIds.EthereumMainnet,
+      getChainId: () => KnownChainIds.EthereumMainnet,
+    }
+
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockAdapter],
+          [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
+        ]),
+    )
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddres)
+    await result.current.handleSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -220,13 +235,25 @@ describe.each([
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        buildSendTransaction: () => Promise.resolve(textTxToSign),
-        signAndBroadcastTransaction,
-        getType: () => ChainTypes.Ethereum,
-      }),
-    }))
+    const mockAdapter = {
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      signAndBroadcastTransaction,
+    }
+
+    const mockEthereumAdapter = {
+      ...mockAdapter,
+      getType: () => KnownChainIds.EthereumMainnet,
+      getChainId: () => KnownChainIds.EthereumMainnet,
+    }
+
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockAdapter],
+          [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
+        ]),
+    )
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
@@ -258,17 +285,29 @@ describe.each([
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        buildSendTransaction: () => Promise.resolve(textTxToSign),
-        signAndBroadcastTransaction,
-        getType: () => ChainTypes.Ethereum,
-      }),
-    }))
+    const mockAdapter = {
+      buildSendTransaction: () => Promise.resolve(textTxToSign),
+      signAndBroadcastTransaction,
+    }
+
+    const mockEthereumAdapter = {
+      ...mockAdapter,
+      getType: () => KnownChainIds.EthereumMainnet,
+      getChainId: () => KnownChainIds.EthereumMainnet,
+    }
+
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockAdapter],
+          [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
+        ]),
+    )
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddres)
+    await result.current.handleSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -284,13 +323,27 @@ describe.each([
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-      byChain: () => ({
-        buildSendTransaction: () => Promise.reject('All these calls failed'),
-        signTransaction: () => Promise.reject('All these calls failed'),
-        broadcastTransaction: () => Promise.reject('All these calls failed'),
-      }),
-    }))
+
+    const mockAdapter = {
+      buildSendTransaction: () => Promise.reject('All these calls failed'),
+      signTransaction: () => Promise.reject('All these calls failed'),
+      broadcastTransaction: () => Promise.reject('All these calls failed'),
+    }
+
+    const mockEthereumAdapter = {
+      ...mockAdapter,
+      getType: () => KnownChainIds.EthereumMainnet,
+      getChainId: () => KnownChainIds.EthereumMainnet,
+    }
+
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+      () =>
+        new Map([
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockAdapter],
+          [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
+        ]),
+    )
 
     const { result } = renderHook(() => useFormSend())
     await result.current.handleSend(formData)

@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FiatRamp, supportedFiatRamps } from '../config'
 import { FiatRampAsset } from '../FiatRampsCommon'
+
+const moduleLogger = logger.child({
+  namespace: ['Modals', 'FiatRamps', 'hooks', 'useFiatRampCurrencyList'],
+})
 
 export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
@@ -21,30 +26,39 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
 
   const addSellPropertiesAndSort = useCallback(
     (assets: FiatRampAsset[]): FiatRampAsset[] => {
-      if (!wallet) return []
-      return assets
-        .filter(asset => Object.keys(balances).includes(asset.assetId))
-        .map(asset => {
-          const reduxAsset = reduxAssets[asset.assetId]
-          const fiatBalance = bnOrZero(balances?.[asset.assetId]?.fiat)
-          const minimumSellThreshold = bnOrZero(
-            supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0,
+      try {
+        if (!wallet) return []
+        return assets
+          .filter(asset => Object.keys(balances).includes(asset.assetId))
+          .map(asset => {
+            const reduxAsset = reduxAssets[asset.assetId]
+            const fiatBalance = bnOrZero(balances?.[asset.assetId]?.fiat)
+            const minimumSellThreshold = bnOrZero(
+              supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0,
+            )
+            return {
+              ...asset,
+              name: reduxAsset.name,
+              symbol: reduxAsset.symbol,
+              disabled: !isAssetSupportedByWallet(asset?.assetId ?? '', wallet),
+              cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
+              fiatBalance,
+              isBelowSellThreshold: fiatBalance.lt(minimumSellThreshold),
+            }
+          })
+          .sort((a, b) =>
+            a.fiatBalance.gt(0) || b.fiatBalance.gt(0)
+              ? b.fiatBalance.minus(a.fiatBalance).toNumber()
+              : a.name.localeCompare(b.name),
           )
-          return {
-            ...asset,
-            name: reduxAsset.name,
-            symbol: reduxAsset.symbol,
-            disabled: !isAssetSupportedByWallet(asset?.assetId ?? '', wallet),
-            cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
-            fiatBalance,
-            isBelowSellThreshold: fiatBalance.lt(minimumSellThreshold),
-          }
-        })
-        .sort((a, b) =>
-          a.fiatBalance.gt(0) || b.fiatBalance.gt(0)
-            ? b.fiatBalance.minus(a.fiatBalance).toNumber()
-            : a.name.localeCompare(b.name),
+      } catch (err) {
+        moduleLogger.error(
+          err,
+          { fn: 'addSellPropertiesAndSort' },
+          'An error happened sorting the fiat ramp sell assets',
         )
+        return []
+      }
     },
     [balances, fiatRampProvider, reduxAssets, wallet],
   )
@@ -52,17 +66,33 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   const addBuyPropertiesAndSort = useCallback(
     (assets: FiatRampAsset[]): FiatRampAsset[] => {
       if (!wallet) return []
-      return assets
-        .map(asset => {
-          const reduxAsset = reduxAssets[asset.assetId]
-          return {
-            ...asset,
-            name: reduxAsset.name,
-            symbol: reduxAsset.symbol,
-            disabled: !isAssetSupportedByWallet(asset.assetId, wallet),
-          }
-        })
-        .sort((a, b) => a.name.localeCompare(b.name))
+      try {
+        return assets
+          .map(asset => {
+            const reduxAsset = reduxAssets[asset.assetId]
+            if (!reduxAsset) {
+              return {
+                ...asset,
+                disabled: true,
+              }
+            }
+
+            return {
+              ...asset,
+              name: reduxAsset.name,
+              symbol: reduxAsset.symbol,
+              disabled: !isAssetSupportedByWallet(asset.assetId, wallet),
+            }
+          })
+          .sort((a, b) => a.name.localeCompare(b.name))
+      } catch (err) {
+        moduleLogger.error(
+          err,
+          { fn: 'addBuyPropertiesAndSort' },
+          'An error happened sorting the fiat ramp buy assets',
+        )
+        return []
+      }
     },
     [reduxAssets, wallet],
   )

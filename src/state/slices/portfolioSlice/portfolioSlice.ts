@@ -6,7 +6,6 @@ import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { chainIdToChainType } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
 
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -100,12 +99,11 @@ export const portfolioApi = createApi({
           ChainId,
           string,
         ]
-        // TODO(0xdef1cafe): chainAdapters.ChainId()
-        const chain = chainIdToChainType(chainId)
         try {
-          const chainAdaptersAccount = await chainAdapters
-            .byChain(chain)
-            .getAccount(accountSpecifier)
+          const adapter = chainAdapters.get(chainId)
+          if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
+
+          const chainAdaptersAccount = await adapter.getAccount(accountSpecifier)
 
           const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })

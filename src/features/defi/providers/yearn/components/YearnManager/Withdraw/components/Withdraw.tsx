@@ -24,7 +24,7 @@ export const Withdraw = () => {
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'
@@ -32,7 +32,7 @@ export const Withdraw = () => {
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: tokenId,
+    assetReference,
   })
   const assetId = toAssetId({
     chainId,
@@ -48,7 +48,7 @@ export const Withdraw = () => {
   if (!state || !dispatch) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!(state.userAddress && opportunity && tokenId)) return
+    if (!(state.userAddress && opportunity && assetReference)) return
     try {
       const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
         opportunity?.positionAsset.assetId,

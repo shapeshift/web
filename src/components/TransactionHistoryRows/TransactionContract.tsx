@@ -1,4 +1,4 @@
-import { chainAdapters } from '@shapeshiftoss/types/'
+import { TxType } from '@shapeshiftoss/chain-adapters'
 import { ContractMethod } from 'hooks/useTxDetails/useTxDetails'
 
 import { Amount } from './TransactionDetails/Amount'
@@ -24,9 +24,9 @@ export const TransactionContract = ({
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
   if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
-  const isReceive = txDetails.tradeTx?.type === chainAdapters.TxType.Receive
+  const isReceive = txDetails.tradeTx?.type === TxType.Receive
   const interactsWithWithdrawMethod = txDetails.tx.data?.method === ContractMethod.Withdraw
-  const isSend = txDetails.tradeTx?.type === chainAdapters.TxType.Send
+  const isSend = txDetails.tradeTx?.type === TxType.Send
   const i18n =
     isReceive && !txDetails.tx.data?.method ? txDetails.tradeTx?.type : txDetails.tx.data?.method
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend

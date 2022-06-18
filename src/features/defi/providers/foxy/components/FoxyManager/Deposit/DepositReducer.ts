@@ -1,5 +1,5 @@
 import { DefiType } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { FoxyDepositActions, FoxyDepositActionType, FoxyDepositState } from './DepositCommon'
@@ -10,7 +10,7 @@ export const initialState: FoxyDepositState = {
     contractAddress: '',
     stakingToken: '',
     provider: '',
-    chain: ChainTypes.Ethereum,
+    chain: KnownChainIds.EthereumMainnet,
     type: DefiType.TokenStaking,
     expired: false,
     version: '',

@@ -1,12 +1,12 @@
 import { Box, BoxProps, Button, ButtonGroup, Radio } from '@chakra-ui/react'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { Asset } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
 type FeePrice = {
-  [key in chainAdapters.FeeDataKey]: {
+  [key in FeeDataKey]: {
     fiatFee: string
     txFee: string
   }
@@ -22,38 +22,34 @@ export enum ConfirmFormFields {
 }
 
 export type ConfirmFormInput = {
-  [ConfirmFormFields.FeeType]: chainAdapters.FeeDataKey
+  [ConfirmFormFields.FeeType]: FeeDataKey
 }
 
-function getFeeColor(key: chainAdapters.FeeDataKey): string {
+function getFeeColor(key: FeeDataKey): string {
   switch (key) {
-    case chainAdapters.FeeDataKey.Slow:
+    case FeeDataKey.Slow:
       return 'yellow'
-    case chainAdapters.FeeDataKey.Fast:
+    case FeeDataKey.Fast:
       return 'green'
-    case chainAdapters.FeeDataKey.Average:
+    case FeeDataKey.Average:
     default:
       return 'blue'
   }
 }
 
-function getFeeTranslation(key: chainAdapters.FeeDataKey): string {
+function getFeeTranslation(key: FeeDataKey): string {
   switch (key) {
-    case chainAdapters.FeeDataKey.Slow:
+    case FeeDataKey.Slow:
       return 'modals.stake.txFees.low'
-    case chainAdapters.FeeDataKey.Fast:
+    case FeeDataKey.Fast:
       return 'modals.stake.txFees.high'
-    case chainAdapters.FeeDataKey.Average:
+    case FeeDataKey.Average:
     default:
       return 'modals.stake.txFees.medium'
   }
 }
 
-const feesOrder: chainAdapters.FeeDataKey[] = [
-  chainAdapters.FeeDataKey.Slow,
-  chainAdapters.FeeDataKey.Average,
-  chainAdapters.FeeDataKey.Fast,
-]
+const feesOrder: FeeDataKey[] = [FeeDataKey.Slow, FeeDataKey.Average, FeeDataKey.Fast]
 
 export const TxFeeRadioGroup = ({
   fees,
@@ -65,7 +61,7 @@ export const TxFeeRadioGroup = ({
     name: ConfirmFormFields.FeeType,
     control,
     rules: { required: true },
-    defaultValue: chainAdapters.FeeDataKey.Average,
+    defaultValue: FeeDataKey.Average,
   })
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -98,7 +94,7 @@ export const TxFeeRadioGroup = ({
       id='tx-fee'
       {...styleProps}
     >
-      {feesOrder.map((key: chainAdapters.FeeDataKey) => {
+      {feesOrder.map((key: FeeDataKey) => {
         const current = fees[key]
         const color = getFeeColor(key)
         const translation = getFeeTranslation(key)

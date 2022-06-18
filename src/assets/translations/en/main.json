@@ -100,6 +100,8 @@
     "banxa": "Banxa",
     "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
+    "coinbasePay": "Coinbase Pay",
+    "coinbasePayMessage": "Buy Crypto with Coinbase Pay",
     "buy": "Buy",
     "sell": "Sell",
     "assetToBuy": "Asset to Buy",
@@ -612,6 +614,7 @@
       "withdrawDelayedTime": "7 to 14 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
+      "notEnoughGas":  "Not enough %{assetSymbol} to cover gas",
       "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
@@ -917,6 +920,30 @@
       "testPhrase": {
         "header": "Verify Your Secret Recovery Phrase",
         "body": "Which of these is the",
+        "1st": "1st",
+        "2nd": "2nd",
+        "3rd": "3rd",
+        "4th": "4th",
+        "5th": "5th",
+        "6th": "6th",
+        "7th": "7th",
+        "8th": "8th",
+        "9th": "9th",
+        "10th": "10th",
+        "11th": "11th",
+        "12th": "12th",
+        "13th": "13th",
+        "14th": "14th",
+        "15th": "15th",
+        "16th": "16th",
+        "17th": "17th",
+        "18th": "18th",
+        "19th": "19th",
+        "20th": "20th",
+        "21th": "21th",
+        "22th": "22th",
+        "23th": "23th",
+        "24th": "24th",
         "body2": " word",
         "body3": "in your secret phrase.",
         "button": "Next"
@@ -1128,7 +1155,8 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized"
+      "centralized": "Centralized",
+      "purchaseFox": "Purchase the agile FOX token on Coinbase directly into your ShapeShift-compatible wallet."
     },
     "analytics": {
       "optInModal": {

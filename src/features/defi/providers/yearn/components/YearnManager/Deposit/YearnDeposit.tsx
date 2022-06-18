@@ -40,22 +40,22 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const chainAdapterManager = useChainAdapters()
-  const { chainId, contractAddress: vaultAddress, tokenId } = query
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference: tokenId })
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
-  const chainAdapter = chainAdapterManager.byChainId(chainId)
+  const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           yearnInvestor.findByOpportunityId(
@@ -81,7 +81,7 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
   }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && tokenId)) return
+    if (!(state.userAddress && state.opportunity && assetReference)) return
     try {
       const yearnOpportunity = await yearnInvestor.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',

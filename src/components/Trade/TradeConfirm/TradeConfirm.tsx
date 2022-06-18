@@ -1,7 +1,7 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
 import { TradeTxs } from '@shapeshiftoss/swapper'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -37,7 +37,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     getValues,
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TradeState<SupportedChainIds>>()
+  } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
@@ -47,7 +47,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     number: { toFiat },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
-    state: { wallet, isConnected },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const { chainId } = trade.sellAsset
@@ -65,7 +65,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     try {
-      if (!wallet) return
       if (!isConnected) {
         /**
          * call handleBack to reset current form state
@@ -76,7 +75,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         return
       }
 
-      const result = await executeQuote({ wallet })
+      const result = await executeQuote()
 
       // Poll until we have a "buy" txid
       // This means the trade is just about finished

@@ -1,6 +1,6 @@
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { Account } from '@shapeshiftoss/chain-adapters'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -15,7 +15,7 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 
-export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
+export type EarnVault = Partial<Account<ChainId>> &
   SerializableOpportunity & {
     vaultAssetId: AssetId
     tokenAssetId: AssetId

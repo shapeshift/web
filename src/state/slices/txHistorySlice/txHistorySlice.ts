@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { AssetId, ChainId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapter, Transaction } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
@@ -19,7 +19,7 @@ import { addToIndex, getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITE
 const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
 export type TxId = string
-export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
+export type Tx = Transaction<ChainId> & { accountType?: UtxoAccountType }
 
 export type TxHistoryById = {
   [k: TxId]: Tx
@@ -88,7 +88,7 @@ export type TxHistory = {
 
 export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
 export type TxsMessage = {
-  payload: { txs: chainAdapters.Transaction<ChainTypes>[]; accountSpecifier: string }
+  payload: { txs: Transaction<ChainId>[]; accountSpecifier: string }
 }
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
@@ -276,15 +276,15 @@ export const txHistoryApi = createApi({
 
         // setup chain adapters
         const adapters = getChainAdapters()
-        if (!adapters.getSupportedChains().includes(ChainTypes.Ethereum)) {
-          const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${ChainTypes.Ethereum}`
+        if (![...adapters.keys()].includes(KnownChainIds.EthereumMainnet)) {
+          const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${KnownChainIds.EthereumMainnet}`
           const status = 400
           const error = { data, status }
           return { error }
         }
 
         // setup foxy api
-        const adapter = adapters.byChainId(chainId) as ChainAdapter<ChainTypes.Ethereum>
+        const adapter = adapters.get(chainId) as ChainAdapter<KnownChainIds.EthereumMainnet>
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
@@ -307,7 +307,7 @@ export const txHistoryApi = createApi({
         return { data: [] }
       },
     }),
-    getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
+    getAllTxHistory: build.query<Transaction<ChainId>[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifiersList }, { dispatch }) => {
         if (!accountSpecifiersList.length) {
           return { error: { data: 'getAllTxHistory: no account specifiers provided', status: 400 } }
@@ -325,7 +325,14 @@ export const txHistoryApi = createApi({
           const txHistories = await Promise.allSettled(
             Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
               const accountSpecifier = toAccountId({ chainId, account: pubkey })
-              const adapter = getChainAdapters().byChainId(chainId)
+              const adapter = getChainAdapters().get(chainId)
+              if (!adapter)
+                return {
+                  error: {
+                    data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
+                    status: 400,
+                  },
+                }
 
               let currentCursor: string = ''
               try {

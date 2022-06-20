@@ -1,6 +1,7 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
@@ -56,8 +57,8 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !contractAddress || !isFoxyAprLoaded) return
-        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
+        const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+        if (!(walletState.wallet && contractAddress && isFoxyAprLoaded && chainAdapter)) return
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),

@@ -1,4 +1,4 @@
-import { ChainTypes } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
@@ -102,7 +102,7 @@ export const mockVaultWithBalance = (obj: { id: string; fiatAmount: string }): M
     balance: new BigNumber('0'),
     balanceUsdc: new BigNumber('0'),
   },
-  chain: ChainTypes.Ethereum,
+  chain: KnownChainIds.EthereumMainnet,
   name: '',
   symbol: '',
   underlyingTokenBalanceUsdc: '0',

@@ -1,5 +1,5 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
@@ -25,7 +25,7 @@ import { useAppSelector } from 'state/store'
 
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
-type TS = TradeState<SupportedChainIds>
+type TS = TradeState<KnownChainIds>
 
 const moduleLogger = logger.child({ namespace: ['Trade', 'TradeInput'] })
 
@@ -36,7 +36,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     getValues,
     setValue,
     formState: { errors, isDirty, isValid, isSubmitting },
-  } = useFormContext<TradeState<SupportedChainIds>>()
+  } = useFormContext<TradeState<KnownChainIds>>()
   const {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -80,7 +80,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     .gte(0)
 
   const onSubmit = async () => {
-    if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
 
     const minSellAmount = toBaseUnit(quote.minimum, quote.sellAsset.precision)
@@ -99,7 +98,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     }
 
     try {
-      const approvalNeeded = await checkApprovalNeeded(wallet)
+      const approvalNeeded = await checkApprovalNeeded()
       if (approvalNeeded) {
         history.push({
           pathname: TradeRoutePaths.Approval,
@@ -110,7 +109,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         return
       }
       await updateTrade({
-        wallet,
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
         amount: quote?.sellAmount,
@@ -122,7 +120,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const onSetMaxTrade = async () => {
-    if (!(wallet && sellTradeAsset?.asset && buyTradeAsset?.asset)) return
+    if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
     const fnLogger = moduleLogger.child({ namespace: ['onSwapMax'] })
 
     try {
@@ -137,7 +135,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         'Getting Send Max Amount...',
       )
       const maxSendAmount = await getSendMaxAmount({
-        wallet,
         sellAsset: sellTradeAsset.asset,
         buyAsset: buyTradeAsset.asset,
         feeAsset,
@@ -277,7 +274,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               </FormErrorMessage>
             </FormControl>
             <FormControl>
-              <TokenRow<TradeState<SupportedChainIds>>
+              <TokenRow<TradeState<KnownChainIds>>
                 control={control}
                 fieldName='sellAsset.amount'
                 disabled={isSendMaxLoading}
@@ -349,7 +346,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               </Box>
             </FormControl>
             <FormControl mb={6}>
-              <TokenRow<TradeState<SupportedChainIds>>
+              <TokenRow<TradeState<KnownChainIds>>
                 control={control}
                 fieldName='buyAsset.amount'
                 disabled={isSendMaxLoading}

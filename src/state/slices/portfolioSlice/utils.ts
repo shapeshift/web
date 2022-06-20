@@ -12,9 +12,9 @@ import {
   osmosisChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
@@ -148,7 +148,7 @@ export const findAccountsByAssetId = (
 }
 
 type PortfolioAccounts = {
-  [k: AccountId]: chainAdapters.Account<ChainTypes>
+  [k: AccountId]: Account<ChainId>
 }
 
 type AccountToPortfolioArgs = {
@@ -173,7 +173,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Ethereum: {
-        const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
+        const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
         const accountSpecifier = `${chainId}:${toLower(pubkey)}`
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
@@ -223,7 +223,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         break
       }
       case CHAIN_NAMESPACE.Bitcoin: {
-        const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
+        const btcAccount = account as Account<KnownChainIds.BitcoinMainnet>
         const { balance, chainId, assetId, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountSpecifier = `${chainId}:${pubkey}`
@@ -272,7 +272,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         break
       }
       case CHAIN_NAMESPACE.Cosmos: {
-        const cosmosAccount = account as chainAdapters.Account<ChainTypes.Cosmos>
+        const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
         const accountSpecifier = `${chainId}:${_xpubOrAccount}`
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
@@ -392,12 +392,12 @@ export const makeBalancesByChainBucketsFlattened = (
   accountBalances: string[],
   assets: { [k: AssetId]: Asset },
 ) => {
-  const initial = {} as Record<ChainTypes, AccountId[]>
-  const balancesByChainBuckets = accountBalances.reduce<Record<ChainTypes, AccountId[]>>(
-    (acc: Record<ChainTypes, AccountId[]>, accountId) => {
+  const initial = {} as Record<ChainId, AccountId[]>
+  const balancesByChainBuckets = accountBalances.reduce<Record<ChainId, AccountId[]>>(
+    (acc: Record<ChainId, AccountId[]>, accountId) => {
       const assetId = accountIdToFeeAssetId(accountId)
       const asset = assets[assetId]
-      acc[asset.chain] = [...(acc[asset.chain] ?? []), accountId]
+      acc[asset.chainId] = [...(acc[asset.chainId] ?? []), accountId]
       return acc
     },
     initial,

@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { TradeType, TxType } from '@shapeshiftoss/chain-adapters'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -36,13 +36,13 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
 
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
-    case chainAdapters.TxType.Send:
+    case TxType.Send:
     case Direction.Outbound:
       return <ArrowUpIcon />
-    case chainAdapters.TxType.Receive:
+    case TxType.Receive:
     case Direction.Inbound:
       return <ArrowDownIcon color='green.500' />
-    case chainAdapters.TradeType.Trade:
+    case TradeType.Trade:
       return <FaExchangeAlt />
     case Direction.InPlace:
       return <FaThumbsUp />

@@ -1,5 +1,6 @@
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { ChainId } from '@shapeshiftoss/caip'
+import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -30,8 +31,8 @@ export type SendInput = {
   [SendFormFields.AccountId]: AccountSpecifier
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
-  [SendFormFields.FeeType]: chainAdapters.FeeDataKey
-  [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
+  [SendFormFields.FeeType]: FeeDataKey
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<ChainId>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
@@ -57,7 +58,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
       address: '',
       memo: '',
       asset: initialAsset,
-      feeType: chainAdapters.FeeDataKey.Average,
+      feeType: FeeDataKey.Average,
       cryptoAmount: '',
       cryptoSymbol: initialAsset?.symbol,
       fiatAmount: '',

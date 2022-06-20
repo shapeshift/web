@@ -102,7 +102,7 @@ export const EnterPassword = () => {
                 maxWidth='260px'
                 lineHeight='1.2'
                 mb={1}
-                isTruncated
+                noOfLines={1}
                 data-test='native-saved-wallet-name'
               >
                 {getNativeLocalWalletName()}
@@ -145,7 +145,7 @@ export const EnterPassword = () => {
           <Button
             colorScheme='blue'
             size='lg'
-            isFullWidth
+            width='full'
             type='submit'
             isLoading={isSubmitting}
             data-test='wallet-password-submit-button'

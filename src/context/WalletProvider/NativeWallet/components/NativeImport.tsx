@@ -73,7 +73,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
           </FormControl>
           <Button
             colorScheme='blue'
-            isFullWidth
+            width='full'
             size='lg'
             type='submit'
             isLoading={isSubmitting}

@@ -46,7 +46,7 @@ export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {
           </Stack>
         </PopoverBody>
         <PopoverFooter border={0}>
-          <Button size='sm' isFullWidth as={Link} to={url}>
+          <Button size='sm' width='full' as={Link} to={url}>
             <Text translation='common.viewAsset' />
           </Button>
         </PopoverFooter>

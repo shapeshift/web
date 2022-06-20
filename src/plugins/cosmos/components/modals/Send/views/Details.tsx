@@ -235,7 +235,7 @@ export const Details = () => {
       <ModalFooter>
         <Stack flex={1}>
           <Button
-            isFullWidth
+            width='full'
             isDisabled={
               !(cryptoAmount ?? fiatAmount) ||
               !!amountFieldError ||
@@ -250,7 +250,7 @@ export const Details = () => {
           >
             <Text translation={amountFieldError || memoFieldError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button width='full' variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

@@ -153,7 +153,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
           <Button
             colorScheme='blue'
             size='lg'
-            isFullWidth
+            width='full'
             type='submit'
             isLoading={isSubmitting}
             isDisabled={errors.name || errors.password || errors.confirmPassword}

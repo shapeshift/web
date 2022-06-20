@@ -30,7 +30,7 @@ export const AccountCard = ({
   return (
     <Button
       onClick={onClick}
-      isFullWidth
+      width='full'
       justifyContent='flex-start'
       py={4}
       height='auto'

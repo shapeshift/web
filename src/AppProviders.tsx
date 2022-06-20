@@ -1,3 +1,4 @@
+import { createStandaloneToast } from '@chakra-ui/react'
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
@@ -23,6 +24,7 @@ type ProvidersProps = {
 }
 
 export function AppProviders({ children }: ProvidersProps) {
+  const { ToastContainer } = createStandaloneToast()
   return (
     <ReduxProvider store={store}>
       <PluginProvider>
@@ -39,6 +41,7 @@ export function AppProviders({ children }: ProvidersProps) {
                         <TransactionsProvider>
                           <AppProvider>
                             <MarketDataProvider>
+                              <ToastContainer />
                               <DefiManagerProvider>{children}</DefiManagerProvider>
                             </MarketDataProvider>
                           </AppProvider>

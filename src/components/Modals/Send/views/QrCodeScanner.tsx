@@ -74,7 +74,7 @@ export const QrCodeScanner = () => {
         </ModalBody>
         <ModalFooter>
           <Button
-            isFullWidth
+            width='full'
             variant='ghost'
             size='lg'
             onClick={() => history.push(SendRoutes.Address)}

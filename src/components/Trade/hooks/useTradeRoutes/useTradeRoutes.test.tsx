@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks'
+import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
@@ -54,7 +55,9 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
       return data[search]
     }),
   }))
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
   const { result, waitFor } = renderHook(() => useTradeRoutes(), { wrapper })
   return { result, waitFor, setValue, updateQuote }
 }

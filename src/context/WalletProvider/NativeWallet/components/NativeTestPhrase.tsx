@@ -165,7 +165,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
             </Checkbox>
             <Button
               colorScheme='blue'
-              isFullWidth
+              width='full'
               size='md'
               isDisabled={!hasAlreadySaved}
               onClick={() => history.push('/native/password', { vault })}

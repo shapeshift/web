@@ -159,7 +159,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                       maxWidth='260px'
                       lineHeight='1.2'
                       mb={1}
-                      isTruncated
+                      noOfLines={1}
                       data-test='native-saved-wallet-name'
                     >
                       {wallet.name}

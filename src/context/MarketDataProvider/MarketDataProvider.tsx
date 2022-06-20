@@ -1,5 +1,5 @@
 import { HistoryData } from '@shapeshiftoss/types'
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 
 export interface MarketContextProps {
   filteredDataState: {
@@ -16,7 +16,7 @@ export const MarketDataContext = React.createContext<MarketContextProps>({
 })
 
 // TODO(0xdef1cafe): remove this whole provider
-export const MarketDataProvider: React.FC = ({ children }) => {
+export const MarketDataProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [filteredData, setFilteredData] = React.useState<HistoryData[]>([])
 
   return (

@@ -1,6 +1,7 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook } from '@testing-library/react-hooks'
+import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TestProviders } from 'test/TestProviders'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -55,7 +56,9 @@ const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
   }))
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
 
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
 
   return renderHook(() => useSendFees(), { wrapper })
 }

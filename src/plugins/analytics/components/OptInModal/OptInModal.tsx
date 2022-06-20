@@ -113,10 +113,10 @@ export const OptInModal: React.FC<OptInModalProps> = ({ isOpen, close }) => {
         <Divider mb={4} />
 
         <ModalFooter flexDirection='column'>
-          <Button isFullWidth colorScheme={'blue'} size='md' onClick={() => true}>
+          <Button width='full' colorScheme={'blue'} size='md' onClick={() => true}>
             <Text translation={'common.continue'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='md' mt={3} onClick={() => true}>
+          <Button width='full' variant='ghost' size='md' mt={3} onClick={() => true}>
             <Text translation='plugins.analytics.optInModal.noThanks' />
           </Button>
         </ModalFooter>

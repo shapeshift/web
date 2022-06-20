@@ -2,6 +2,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { mocked } from 'jest-mock'
+import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
@@ -115,7 +116,9 @@ const setup = ({
     }),
   }))
 
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
   return renderHook(() => useSendDetails(), { wrapper })
 }
 

@@ -2,6 +2,7 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { act, renderHook } from '@testing-library/react-hooks'
+import { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -41,7 +42,7 @@ const setup = async () => {
   MetaMaskAdapter.useKeyring.mockImplementation(() => ({
     initialize: jest.fn(() => Promise.resolve()),
   }))
-  const wrapper: React.FC = ({ children }) => (
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>
       <WalletProvider>{children}</WalletProvider>
     </TestProviders>

@@ -1,7 +1,5 @@
-// @ts-ignore this will fail at 'file differs in casing' error
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
-import { BuildTxInput } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -10,14 +8,14 @@ import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/co
 type StakingInput =
   | {
       asset: Asset
-      chainSpecific: BuildTxInput
+      chainSpecific: chainAdapters.cosmos.BuildTxInput
       validator: string
       action: StakingAction.Claim
       value?: string
     }
   | {
       asset: Asset
-      chainSpecific: BuildTxInput
+      chainSpecific: chainAdapters.cosmos.BuildTxInput
       validator: string
       action: StakingAction.Stake | StakingAction.Unstake
       value: string
@@ -43,7 +41,9 @@ export const useStakingAction = () => {
         if (adapterType === ChainTypes.Cosmos) {
           switch (action) {
             case StakingAction.Claim: {
-              result = await (adapter as CosmosChainAdapter).buildClaimRewardsTransaction({
+              result = await (
+                adapter as cosmossdk.cosmos.ChainAdapter
+              ).buildClaimRewardsTransaction({
                 wallet,
                 validator,
                 chainSpecific,
@@ -52,7 +52,7 @@ export const useStakingAction = () => {
               break
             }
             case StakingAction.Stake: {
-              result = await (adapter as CosmosChainAdapter).buildDelegateTransaction({
+              result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildDelegateTransaction({
                 wallet,
                 validator,
                 value,
@@ -62,7 +62,7 @@ export const useStakingAction = () => {
               break
             }
             case StakingAction.Unstake: {
-              result = await (adapter as CosmosChainAdapter).buildUndelegateTransaction({
+              result = await (adapter as cosmossdk.cosmos.ChainAdapter).buildUndelegateTransaction({
                 wallet,
                 validator,
                 value,

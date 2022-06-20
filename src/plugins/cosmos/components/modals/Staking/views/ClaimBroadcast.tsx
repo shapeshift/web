@@ -22,13 +22,19 @@ type ClaimBroadcastProps = {
   assetId: AssetId
   validatorAddress: string
   onClose: () => void
+  onStepCompleted: () => void
 }
 
 export enum Field {
   FeeType = 'feeType',
 }
 
-export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroadcastProps) => {
+export const ClaimBroadcast = ({
+  assetId,
+  validatorAddress,
+  onClose,
+  onStepCompleted,
+}: ClaimBroadcastProps) => {
   const [loading, setLoading] = useState(true)
   const [txId, setTxId] = useState<string | null>(null)
 
@@ -62,6 +68,7 @@ export const ClaimBroadcast = ({ assetId, validatorAddress, onClose }: ClaimBroa
 
       setTxId(broadcastTx)
       setLoading(false)
+      onStepCompleted()
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

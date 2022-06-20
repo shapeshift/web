@@ -17,10 +17,10 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
-              title: 'ETH-FOX V2',
+              title: 'ETH-FOX UNI V2',
               isLoaded: isLpAprLoaded,
               apy: isLpAprLoaded ? lpApr : null,
-              link: 'https://app.uniswap.org/#/add/v2/ETH/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d?chain=mainnet',
+              link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/lp-add',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/fox@2x.png',
@@ -33,10 +33,10 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.farming',
           opportunities: [
             {
-              title: 'ETH-FOX V3',
+              title: 'ETH-FOX UNI V2 Farm',
               isLoaded: isFarmingAprLoaded,
               apy: isFarmingAprLoaded ? farmingApr : null,
-              link: 'https://app.uniswap.org/#/add/ETH/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/3000?chain=mainnet',
+              link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/staking/0x212ebf9FD3c10F371557b08E993eAaB385c3932b/get-started',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/fox@2x.png',

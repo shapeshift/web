@@ -4,8 +4,8 @@ import { AssetService } from '@shapeshiftoss/asset-service'
 import { AssetId, avalancheChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-
-import { FeatureFlags } from '../preferencesSlice/preferencesSlice'
+import { ReduxState } from 'state/reducer'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 let service: AssetService | undefined = undefined
 
@@ -53,8 +53,7 @@ export const assetApi = createApi({
     getAssets: build.query<AssetsState, void>({
       // all assets
       queryFn: async (_, { getState }) => {
-        // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
-        const { Avalanche, Osmosis } = (getState() as any).preferences.featureFlags as FeatureFlags
+        const { Avalanche, Osmosis } = selectFeatureFlags(getState() as ReduxState)
 
         const service = await getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(

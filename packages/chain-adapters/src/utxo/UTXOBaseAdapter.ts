@@ -147,8 +147,7 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainIds> implements IChainA
     return { valid: false, result: ValidAddressResultType.Invalid }
   }
 
-  /* protected / private methods */
-  protected async getPublicKey(
+  async getPublicKey(
     wallet: HDWallet,
     bip44Params: BIP44Params,
     accountType: UtxoAccountType

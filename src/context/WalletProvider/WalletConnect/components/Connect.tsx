@@ -1,4 +1,5 @@
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
+import { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import React, { useState } from 'react'
@@ -28,12 +29,6 @@ const moduleLogger = logger.child({
   namespace: ['WalletConnect', 'Components', 'Connect'],
 })
 
-type WalletConnectProviderConfig =
-  | {
-      infuraId: string
-    }
-  | { rpc: { [key: number]: string } }
-
 /**
  * WalletConnect Connect component
  *
@@ -55,10 +50,10 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     setLoading(true)
 
     try {
-      const rpcUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
       const config: WalletConnectProviderConfig = {
+        /** List of RPC URLs indexed by chain ID */
         rpc: {
-          1: rpcUrl,
+          1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
         },
       }
 
@@ -71,7 +66,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
         const wallet = (await state.adapters
           .get(KeyManager.WalletConnect)
-          ?.pairDevice(provider)) as WalletConnectHDWallet
+          ?.pairDevice()) as WalletConnectHDWallet
 
         if (!wallet) {
           throw new WalletNotFoundError()

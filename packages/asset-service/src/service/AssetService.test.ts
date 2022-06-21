@@ -9,22 +9,22 @@ jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
 const EthAsset: Asset = {
-  assetId: 'eip155:3/slip44:60',
-  chainId: 'eip155:3',
+  assetId: 'eip155:1/slip44:60',
+  chainId: 'eip155:1',
   symbol: 'ETH',
-  name: 'Ropsten Testnet Ethereum',
+  name: 'Ethereum',
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
-  explorer: 'https://ropsten.etherscan.io/',
-  explorerTxLink: 'https://ropsten.etherscan.io/tx/',
-  explorerAddressLink: 'https://ropsten.etherscan.io/address/'
+  explorer: 'https://etherscan.io/',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/'
 }
 
 jest.mock(
   './descriptions.json',
   () => ({
-    'eip155:3/slip44:60': 'overridden description'
+    'eip155:1/slip44:60': 'overridden description'
   }),
   { virtual: true }
 )
@@ -32,9 +32,9 @@ jest.mock(
 jest.mock(
   './generatedAssetData.json',
   () => ({
-    'eip155:3/slip44:60': {
-      assetId: 'eip155:3/slip44:60',
-      chainId: 'eip155:3'
+    'eip155:1/slip44:60': {
+      assetId: 'eip155:1/slip44:60',
+      chainId: 'eip155:1'
     }
   }),
   { virtual: true }
@@ -67,8 +67,8 @@ describe('AssetService', () => {
       const assetService = new AssetService()
       mockedAxios.get.mockRejectedValue({ data: null })
       const tokenData: Asset = {
-        assetId: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
-        chainId: 'eip155:3',
+        assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
+        chainId: 'eip155:1',
         explorer: 'https://etherscan.io',
         explorerTxLink: 'https://etherscan.io/tx/',
         explorerAddressLink: 'https://etherscan.io/address/',

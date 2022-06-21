@@ -1,23 +1,32 @@
 import 'dotenv/config'
 
-import { AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import fs from 'fs'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
 
 import { AssetsById } from '../service/AssetService'
+import * as avalanche from './avalanche'
 import { atom, bitcoin, tBitcoin } from './baseAssets'
 import blacklist from './blacklist.json'
-import { getOsmosisAssets } from './cosmos/getOsmosisAssets'
-import { addTokensToEth } from './ethTokens'
+import * as ethereum from './ethereum'
+import * as osmosis from './osmosis'
 
 const generateAssetData = async () => {
-  const ethAssets = await addTokensToEth()
-  const osmosisAssets = await getOsmosisAssets()
+  const ethAssets = await ethereum.getAssets()
+  const osmosisAssets = await osmosis.getAssets()
+  const avalancheAssets = await avalanche.getAssets()
 
   // all assets, included assets to be blacklisted
-  const unfilteredAssetData: Asset[] = [bitcoin, tBitcoin, ...ethAssets, atom, ...osmosisAssets]
+  const unfilteredAssetData: Asset[] = [
+    bitcoin,
+    tBitcoin,
+    atom,
+    ...ethAssets,
+    ...osmosisAssets,
+    ...avalancheAssets
+  ]
   // remove blacklisted assets
   const filteredAssetData = filter(
     unfilteredAssetData,
@@ -26,12 +35,19 @@ const generateAssetData = async () => {
 
   // deterministic order so diffs are readable
   const orderedAssetList = orderBy(filteredAssetData, 'assetId')
-  const initial: Record<AssetId, Asset> = {}
-  const generatedAssetData: AssetsById = orderedAssetList.reduce((acc, asset) => {
-    const { assetId } = asset
-    acc[assetId] = asset
+
+  const ethTokenNames = ethAssets.map((asset) => asset.name)
+  const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
+    const { chainReference } = fromAssetId(asset.assetId)
+
+    // mark any avalanche assets that also exist on ethereum
+    if (chainReference === CHAIN_REFERENCE.AvalancheCChain && ethTokenNames.includes(asset.name)) {
+      asset.name = `${asset.name} on Avalanche`
+    }
+
+    acc[asset.assetId] = asset
     return acc
-  }, initial)
+  }, {})
 
   await fs.promises.writeFile(
     `./src/service/generatedAssetData.json`,

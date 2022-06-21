@@ -1,8 +1,9 @@
+import * as caip from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 
 export const ethereum: Asset = {
-  assetId: 'eip155:1/slip44:60',
-  chainId: 'eip155:1',
+  assetId: caip.ethAssetId,
+  chainId: caip.ethChainId,
   symbol: 'ETH',
   name: 'Ethereum',
   precision: 18,
@@ -14,8 +15,8 @@ export const ethereum: Asset = {
 }
 
 export const bitcoin: Asset = {
-  assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-  chainId: 'bip122:000000000019d6689c085ae165831e93',
+  assetId: caip.btcAssetId,
+  chainId: caip.btcChainId,
   symbol: 'BTC',
   name: 'Bitcoin',
   precision: 8,
@@ -40,8 +41,8 @@ export const tBitcoin: Asset = {
 }
 
 export const atom: Asset = {
-  assetId: 'cosmos:cosmoshub-4/slip44:118',
-  chainId: 'cosmos:cosmoshub-4',
+  assetId: caip.cosmosAssetId,
+  chainId: caip.cosmosChainId,
   symbol: 'ATOM',
   name: 'Cosmos',
   precision: 6,
@@ -53,8 +54,8 @@ export const atom: Asset = {
 }
 
 export const osmosis: Asset = {
-  assetId: 'cosmos:osmosis-1/slip44:118',
-  chainId: 'cosmos:osmosis-1',
+  assetId: caip.osmosisAssetId,
+  chainId: caip.osmosisChainId,
   symbol: 'OSMO',
   name: 'Osmosis',
   precision: 6,
@@ -63,4 +64,17 @@ export const osmosis: Asset = {
   explorer: 'https://www.mintscan.io/osmosis',
   explorerAddressLink: 'https://www.mintscan.io/osmosis/account/',
   explorerTxLink: 'https://www.mintscan.io/osmosis/txs/'
+}
+
+export const avax: Asset = {
+  assetId: caip.avalancheAssetId,
+  chainId: caip.avalancheChainId,
+  name: 'Avalanche',
+  symbol: 'AVAX',
+  precision: 18,
+  color: '#FFFFFF', // this will get picked up by the color generation script,
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/avalanchec/info/logo.png',
+  explorer: 'https://snowtrace.io',
+  explorerAddressLink: 'https://snowtrace.io/address/',
+  explorerTxLink: 'https://snowtrace.io/tx/'
 }

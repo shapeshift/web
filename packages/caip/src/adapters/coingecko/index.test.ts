@@ -1,6 +1,17 @@
 import { toAssetId } from '../../assetId/assetId'
-import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
-import { assetIdToCoingecko, coingeckoToAssetId } from '.'
+import {
+  ASSET_REFERENCE,
+  btcChainId,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  ethChainId
+} from '../../constants'
+import {
+  assetIdToCoingecko,
+  chainIdToCoingeckoAssetPlatform,
+  CoingeckoAssetPlatform,
+  coingeckoToAssetId
+} from '.'
 
 describe('adapters:coingecko', () => {
   describe('coingeckoToAssetId', () => {
@@ -119,6 +130,20 @@ describe('adapters:coingecko', () => {
         assetReference: ASSET_REFERENCE.Osmosis
       })
       expect(assetIdToCoingecko(assetId)).toEqual('osmosis')
+    })
+  })
+
+  describe('chainIdToCoingeckoAssetPlatform', () => {
+    it('can get Coingecko asset platform from ChainId', () => {
+      const chainId = ethChainId
+      expect(chainIdToCoingeckoAssetPlatform(chainId)).toEqual(CoingeckoAssetPlatform.Ethereum)
+    })
+
+    it('throws on invalid ChainId', () => {
+      const chainId = btcChainId
+      expect(() => chainIdToCoingeckoAssetPlatform(chainId)).toThrow(
+        'chainNamespace bip122, chainReference 000000000019d6689c085ae165831e93 not supported.'
+      )
     })
   })
 })

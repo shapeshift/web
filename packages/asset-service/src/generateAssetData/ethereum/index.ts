@@ -1,3 +1,4 @@
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
@@ -7,8 +8,8 @@ import uniqBy from 'lodash/uniqBy'
 import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
 import { generateTrustWalletUrl } from '../../service/TrustWalletService'
 import { ethereum } from '../baseAssets'
-import { getFoxyToken } from './foxy'
-import { getUniswapTokens } from './uniswap'
+import * as coingecko from '../coingecko'
+import { overrideTokens } from './overrides'
 import { getUniswapV2Pools } from './uniswapV2Pools'
 import {
   getIronBankTokens,
@@ -17,32 +18,43 @@ import {
   getZapperTokens
 } from './yearnVaults'
 
-export const addTokensToEth = async (): Promise<Asset[]> => {
-  const [
-    ethTokens,
-    yearnVaults,
-    ironBankTokens,
-    zapperTokens,
-    underlyingTokens,
-    foxyToken,
-    uniV2Token
-  ] = await Promise.all([
-    getUniswapTokens(),
-    getYearnVaults(),
-    getIronBankTokens(),
-    getZapperTokens(),
-    getUnderlyingVaultTokens(),
-    getFoxyToken(),
-    getUniswapV2Pools()
-  ])
+const foxyToken: Asset = {
+  assetId: toAssetId({
+    chainId: ethChainId,
+    assetNamespace: 'erc20',
+    assetReference: '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
+  }),
+  chainId: ethChainId,
+  name: 'FOX Yieldy',
+  precision: 18,
+  color: '#CE3885',
+  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+  symbol: 'FOXy',
+  explorer: ethereum.explorer,
+  explorerAddressLink: ethereum.explorerAddressLink,
+  explorerTxLink: ethereum.explorerTxLink
+}
+
+export const getAssets = async (): Promise<Asset[]> => {
+  const [ethTokens, yearnVaults, ironBankTokens, zapperTokens, underlyingTokens, uniV2PoolTokens] =
+    await Promise.all([
+      coingecko.getAssets(ethChainId, overrideTokens),
+      getYearnVaults(),
+      getIronBankTokens(),
+      getZapperTokens(),
+      getUnderlyingVaultTokens(),
+      getUniswapV2Pools()
+    ])
+
   const ethAssets = [
+    ethereum,
+    foxyToken,
     ...ethTokens,
     ...yearnVaults,
     ...ironBankTokens,
     ...zapperTokens,
     ...underlyingTokens,
-    ...foxyToken,
-    ...uniV2Token
+    ...uniV2PoolTokens
   ]
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy

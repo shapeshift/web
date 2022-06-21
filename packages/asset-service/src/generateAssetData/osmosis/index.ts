@@ -1,9 +1,10 @@
-import { ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, osmosisChainId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
 import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
 import { osmosis } from '../baseAssets'
+import { colorMap } from '../colorMap'
 
 type OsmoAsset = {
   description: string
@@ -59,13 +60,15 @@ export const getAssets = async (): Promise<Asset[]> => {
     // if an asset has an ibc object, it's bridged, so label it as e.g. ATOM on Osmosis
     const getName = (a: OsmoAsset): string => (a.ibc ? `${a.name} on Osmosis` : a.name)
 
+    const assetId = `cosmos:osmosis-1/${assetNamespace}:${assetReference}`
+
     const assetDatum: Asset = {
-      assetId: toAssetId({ chainId: osmosisChainId, assetNamespace, assetReference }),
+      assetId,
       chainId: osmosisChainId,
       symbol: current.symbol,
       name: getName(current),
       precision,
-      color: '#FFFFFF',
+      color: colorMap[assetId] ?? '#FFFFFF',
       icon: current.logo_URIs.png,
       explorer: osmosis.explorer,
       explorerAddressLink: osmosis.explorerAddressLink,

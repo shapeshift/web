@@ -4,6 +4,7 @@ import axios from 'axios'
 import lodash from 'lodash'
 
 import { avax, ethereum } from './baseAssets'
+import { colorMap } from './colorMap'
 
 type Token = {
   chainId: number
@@ -64,7 +65,7 @@ export async function getAssets(
         chainId,
         name: token.name,
         precision: token.decimals,
-        color: '#FFFFFF', // TODO
+        color: colorMap[assetId] ?? '#FFFFFF',
         icon: token.logoURI,
         symbol: token.symbol,
         explorer,

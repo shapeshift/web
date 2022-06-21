@@ -9,7 +9,7 @@ export const overrideTokens: Array<Asset> = [
     chainId: 'eip155:1',
     name: 'Fox',
     precision: 18,
-    color: '#FFFFFF',
+    color: '#222E51',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
     symbol: 'FOX',
     explorer: ethereum.explorer,

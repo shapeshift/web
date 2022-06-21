@@ -1,11 +1,10 @@
 import 'dotenv/config'
 
-import { CHAIN_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 
-import { AssetsById } from '../service/AssetService'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, tBitcoin } from './baseAssets'
 import * as ethereum from './ethereum'
@@ -13,7 +12,9 @@ import * as osmosis from './osmosis'
 import { setColors } from './setColors'
 import { filterOutBlacklistedAssets } from './utils'
 
-const generateAssetData = async () => {
+// Getting the colors for ~6000 assets can take around 20 min from scratch. So we use this file to
+// generate a color map so the generate asset script itself won't take so long.
+const generateColorMap = async () => {
   const ethAssets = await ethereum.getAssets()
   const osmosisAssets = await osmosis.getAssets()
   const avalancheAssets = await avalanche.getAssets()
@@ -30,33 +31,27 @@ const generateAssetData = async () => {
   // remove blacklisted assets
   const filteredAssetData = filterOutBlacklistedAssets(unfilteredAssetData)
 
-  // For coins not currently in the color map, check to see if we can generate a color from the icon
   const filteredWithColors = await setColors(filteredAssetData)
 
   // deterministic order so diffs are readable
   const orderedAssetList = orderBy(filteredWithColors, 'assetId')
-
-  const ethTokenNames = ethAssets.map((asset) => asset.name)
-  const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
-    const { chainReference } = fromAssetId(asset.assetId)
-
-    // mark any avalanche assets that also exist on ethereum
-    if (chainReference === CHAIN_REFERENCE.AvalancheCChain && ethTokenNames.includes(asset.name)) {
-      asset.name = `${asset.name} on Avalanche`
-    }
-
-    acc[asset.assetId] = asset
+  const initial: Record<AssetId, string> = {}
+  const colorMap = orderedAssetList.reduce((acc, asset) => {
+    const { assetId, color } = asset
+    // Leave white out of the color map.
+    if (color === '#FFFFFF') return acc
+    acc[assetId] = color
     return acc
-  }, {})
+  }, initial)
 
   await fs.promises.writeFile(
-    `./src/service/generatedAssetData.json`,
+    `./src/generateAssetData/colorMap/color-map.json`,
     // beautify the file for github diff.
-    JSON.stringify(generatedAssetData, null, 2)
+    JSON.stringify(colorMap, null, 2)
   )
 }
 
-generateAssetData()
+generateColorMap()
   .then(() => {
     console.info('done')
   })

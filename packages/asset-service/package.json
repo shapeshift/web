@@ -24,6 +24,7 @@
     "compile": "tsc -p tsconfig.build.json",
     "dev": "tsc --watch",
     "generate": "yarn build && node ./dist/generateAssetData/generateAssetData.js",
+    "generate-color-map": "yarn build && node ./dist/generateAssetData/generateColorMap.js",
     "prepare": "yarn build",
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.build.json --noEmit"
@@ -43,6 +44,7 @@
     "@shapeshiftoss/caip": "^6.0.1",
     "@shapeshiftoss/types": "^6.1.0",
     "@yfi/sdk": "^1.0.30",
+    "colorthief": "^2.3.2",
     "dotenv": "^14.3.0",
     "web3": "^1.7.3"
   }

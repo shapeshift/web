@@ -16,6 +16,7 @@ export type ExternalOpportunity = {
   link: string
   icons: string[]
   isLoaded?: boolean
+  isDisabled?: boolean
 }
 
 export type OpportunitiesBucket = {

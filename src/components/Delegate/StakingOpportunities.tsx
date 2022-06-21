@@ -69,7 +69,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   )
 
   const rows = stakingOpportunitiesData
-
   const { cosmosStaking } = useModal()
 
   const handleClick = (values: Row<OpportunitiesDataFull>) => {

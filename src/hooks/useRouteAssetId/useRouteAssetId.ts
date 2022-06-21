@@ -1,8 +1,13 @@
-import { AssetId, ChainNamespace, ChainReference, toChainId } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  chainIdToFeeAssetId,
+  ChainNamespace,
+  ChainReference,
+  toChainId,
+} from '@shapeshiftoss/caip'
 import { getFoxPageRouteAssetId } from 'plugins/foxPage/utils/getFoxPageRouteAssetId'
 import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 
 const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx
@@ -36,7 +41,7 @@ const getRouteAssetId = (pathname: string) => {
     if (assetId) return assetId
 
     if (chainNamespace && chainReference)
-      return accountIdToFeeAssetId(toChainId({ chainNamespace, chainReference }))
+      return chainIdToFeeAssetId(toChainId({ chainNamespace, chainReference }))
 
     return ''
   }

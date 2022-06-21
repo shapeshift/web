@@ -71,7 +71,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               apy: null,
               link: 'https://elasticswap.org/#/liquidity',
               icons: [
-                'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+                'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethereum/icons/foxy-icon.png',
               ],
             },
           ],

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v6.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.0.4...@shapeshiftoss/asset-service-v6.1.0) (2022-06-21)
+
+
+### Features
+
+* avalanche assets ([#790](https://github.com/shapeshift/lib/issues/790)) ([ee13ac8](https://github.com/shapeshift/lib/commit/ee13ac8ab46c2bfa07d30be1dceeac13b13cb3b0))
+
 # [@shapeshiftoss/asset-service-v6.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.0.3...@shapeshiftoss/asset-service-v6.0.4) (2022-06-15)
 
 

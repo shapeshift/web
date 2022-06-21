@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.1.1...@shapeshiftoss/chain-adapters-v7.2.0) (2022-06-21)
+
+
+### Features
+
+* chainadapters signMessage method ([#837](https://github.com/shapeshift/lib/issues/837)) ([3607f48](https://github.com/shapeshift/lib/commit/3607f481012f8e99d639219d7f9dcbccde080447))
+
 # [@shapeshiftoss/chain-adapters-v7.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.1.0...@shapeshiftoss/chain-adapters-v7.1.1) (2022-06-21)
 
 # [@shapeshiftoss/chain-adapters-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.0.3...@shapeshiftoss/chain-adapters-v7.1.0) (2022-06-15)

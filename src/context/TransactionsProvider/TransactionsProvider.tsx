@@ -1,4 +1,4 @@
-import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import { TxStatus, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
@@ -96,7 +96,14 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
                       // refetch validator data on new txs in case TVL or APR has changed
                       if (msg.chainId === cosmosChainId) {
-                        dispatch(getValidatorData.initiate({ accountSpecifier: accountId }))
+                        dispatch(
+                          getValidatorData.initiate({ accountSpecifier: accountId, chainId }),
+                        )
+                      }
+                      if (msg.chainId === osmosisChainId) {
+                        dispatch(
+                          getValidatorData.initiate({ accountSpecifier: accountId, chainId }),
+                        )
                       }
 
                       // refetch account on non pending txs

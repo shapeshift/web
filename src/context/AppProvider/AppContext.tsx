@@ -219,9 +219,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
         switch (chainId) {
           case cosmosChainId:
-            const accountSpecifier = `${chainId}:${account}`
-            dispatch(getValidatorData.initiate({ accountSpecifier }, options))
+            const cosmosAccountSpecifier = `${chainId}:${account}`
+            dispatch(
+              getValidatorData.initiate(
+                { accountSpecifier: cosmosAccountSpecifier, chainId },
+                options,
+              ),
+            )
             break
+          case osmosisChainId:
+            const osmosisAccountSpecifier = `${chainId}:${account}`
+            dispatch(
+              getValidatorData.initiate(
+                { accountSpecifier: osmosisAccountSpecifier, chainId },
+                options,
+              ),
+            )
+            break
+
           case ethChainId:
             /**
              * fetch all rebase history for foxy

@@ -31,13 +31,15 @@ export const AllEarnOpportunities = () => {
   const { cosmosStakingOpportunities } = useCosmosStakingBalances({
     assetId: 'cosmos:cosmoshub-4/slip44:118',
   })
-
+  const { cosmosStakingOpportunities: osmosisStakingOpportunities } = useCosmosStakingBalances({
+    assetId: 'cosmos:osmosis-1/slip44:118',
+  })
   const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosStakingOpportunities,
+    cosmosStakingOpportunities: cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
   })
 
   const handleClick = useCallback(

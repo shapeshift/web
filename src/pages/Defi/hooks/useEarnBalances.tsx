@@ -1,3 +1,4 @@
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -26,19 +27,26 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
   const { cosmosStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
     useCosmosStakingBalances({
-      assetId: 'cosmos:cosmoshub-4/slip44:118',
+      assetId: cosmosAssetId,
     })
+  const {
+    cosmosStakingOpportunities: osmosisStakingOpportunities,
+    totalBalance: totalOsmosisStakingBalance,
+  } = useCosmosStakingBalances({
+    assetId: osmosisAssetId,
+  })
 
   // cosmosStakingOpportunities intentionally set to empty array => we do not need to display staking opportunities with no staking amount
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray,
-    cosmosStakingOpportunities,
+    cosmosStakingOpportunities: cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
     .plus(totalFoxyBalance)
     .plus(totalCosmosStakingBalance)
+    .plus(totalOsmosisStakingBalance)
     .toString()
   return { opportunities, totalEarningBalance, loading: vaultsLoading || foxyLoading }
 }

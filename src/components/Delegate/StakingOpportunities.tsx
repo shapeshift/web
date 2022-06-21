@@ -14,7 +14,6 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   OpportunitiesDataFull,
-  selectFeatureFlag,
   selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
   selectStakingOpportunitiesDataFull,
@@ -70,6 +69,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   )
 
   const rows = stakingOpportunitiesData
+
   const { cosmosStaking } = useModal()
 
   const handleClick = (values: Row<OpportunitiesDataFull>) => {
@@ -78,8 +78,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       validatorAddress: values.original.address,
     })
   }
-
-  const osmosisFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'Osmosis'))
 
   const columns = useMemo(
     () => [
@@ -108,7 +106,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         display: { base: 'table-cell' },
         Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
           const validator = row.original
-
           return (
             <Skeleton isLoaded={validator.isLoaded}>
               <AprTag percentage={validator?.apr} showAprSuffix />
@@ -198,8 +195,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     [accountSpecifier],
   )
 
-  // Special case for osmosis because we do yet support staking
-  return osmosisFeatureFlag && assetId === 'cosmos:osmosis-1/slip44:118' ? null : (
+  return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
         <HStack justify='space-between' flex={1}>

@@ -1,11 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { cosmosChainId } from '@shapeshiftoss/caip'
+import { ChainId, cosmosChainId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+} from 'state/slices/validatorDataSlice/constants'
 
 import { PortfolioAccounts } from '../portfolioSlice/portfolioSliceCommon'
 
@@ -13,7 +16,7 @@ const moduleLogger = logger.child({ namespace: ['validatorDataSlice'] })
 
 export type PubKey = string
 
-type SingleValidatorDataArgs = { accountSpecifier: string }
+type SingleValidatorDataArgs = { accountSpecifier: string; chainId: ChainId }
 
 export type Validators = {
   validators: cosmos.Validator[]
@@ -68,7 +71,7 @@ export const validatorDataApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getValidatorData: build.query<cosmos.Validator, SingleValidatorDataArgs>({
-      queryFn: async ({ accountSpecifier }, { dispatch, getState }) => {
+      queryFn: async ({ accountSpecifier, chainId }, { dispatch, getState }) => {
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId } = (getState() as any).portfolio.accounts as PortfolioAccounts
 
@@ -78,15 +81,20 @@ export const validatorDataApi = createApi({
           return { error: { data: `No portfolio data found for ${accountSpecifier}`, status: 404 } }
         }
 
+        const validatorAddress =
+          chainId === cosmosChainId
+            ? SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+            : SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+
         const validatorIds = portfolioAccount.validatorIds?.length
           ? portfolioAccount.validatorIds
-          : [SHAPESHIFT_VALIDATOR_ADDRESS]
+          : [validatorAddress]
 
         const chainAdapters = getChainAdapters()
-        const adapter = chainAdapters.get(cosmosChainId) as cosmos.ChainAdapter | undefined
+        const adapter = chainAdapters.get(chainId) as cosmos.ChainAdapter | undefined
         if (!adapter) {
           return {
-            error: { data: `No adapter available for chainId ${cosmosChainId}`, status: 404 },
+            error: { data: `No adapter available for chainId ${chainId}`, status: 404 },
           }
         }
 

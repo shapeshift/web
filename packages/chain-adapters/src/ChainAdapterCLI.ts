@@ -201,6 +201,19 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
   } catch (err) {
     console.log('ethereum: tx error:', err.message)
   }
+
+  try {
+    const signedMessage = await chainAdapter.signMessage({
+      wallet,
+      messageToSign: {
+        message: 'Hello world 222',
+        addressNList: [2147483692, 2147483708, 2147483648, 0, 0]
+      }
+    })
+    console.log('ethereum: signedMessage', signedMessage)
+  } catch (err) {
+    console.log('ethereum: signMessage error:', err.message)
+  }
 }
 
 // @ts-ignore:nextLine

@@ -8,6 +8,7 @@ import {
   fromChainId,
   toAssetId
 } from '@shapeshiftoss/caip'
+import { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -25,6 +26,7 @@ import {
   GasFeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
+  SignMessageInput,
   SignTxInput,
   SubscribeError,
   SubscribeTxsInput,
@@ -367,6 +369,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.EthereumMainnet
   async broadcastTransaction(hex: string) {
     const { data } = await this.providers.http.sendTx({ sendTxBody: { hex } })
     return data
+  }
+
+  async signMessage(signMessageInput: SignMessageInput<ETHSignMessage>): Promise<string> {
+    try {
+      const { messageToSign, wallet } = signMessageInput
+      const signedMessage = await (wallet as ETHWallet).ethSignMessage(messageToSign)
+
+      if (!signedMessage) throw new Error('EthereumChainAdapter: error signing message')
+
+      return signedMessage.signature
+    } catch (err) {
+      return ErrorHandler(err)
+    }
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {

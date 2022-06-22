@@ -219,22 +219,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
         switch (chainId) {
           case cosmosChainId:
-            const cosmosAccountSpecifier = `${chainId}:${account}`
-            dispatch(
-              getValidatorData.initiate(
-                { accountSpecifier: cosmosAccountSpecifier, chainId },
-                options,
-              ),
-            )
-            break
           case osmosisChainId:
-            const osmosisAccountSpecifier = `${chainId}:${account}`
-            dispatch(
-              getValidatorData.initiate(
-                { accountSpecifier: osmosisAccountSpecifier, chainId },
-                options,
-              ),
-            )
+            const accountSpecifier = `${chainId}:${account}`
+            dispatch(getValidatorData.initiate({ accountSpecifier, chainId }, options))
             break
 
           case ethChainId:

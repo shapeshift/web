@@ -95,12 +95,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                       const { getValidatorData } = validatorDataApi.endpoints
 
                       // refetch validator data on new txs in case TVL or APR has changed
-                      if (msg.chainId === cosmosChainId) {
-                        dispatch(
-                          getValidatorData.initiate({ accountSpecifier: accountId, chainId }),
-                        )
-                      }
-                      if (msg.chainId === osmosisChainId) {
+                      if (msg.chainId === cosmosChainId || msg.chainId === osmosisChainId) {
                         dispatch(
                           getValidatorData.initiate({ accountSpecifier: accountId, chainId }),
                         )

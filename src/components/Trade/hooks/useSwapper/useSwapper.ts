@@ -199,7 +199,7 @@ export const useSwapper = () => {
       }
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
-
+    console.log('result', result)
     setFees(result, sellAsset)
     setValue('trade', result)
   }

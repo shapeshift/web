@@ -48,10 +48,10 @@ export const useSwapper = () => {
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
-    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-    TradeAsset | undefined,
-    Trade<KnownChainIds>,
-  ]
+      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+      TradeAsset | undefined,
+      Trade<KnownChainIds>,
+    ]
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -66,29 +66,29 @@ export const useSwapper = () => {
     if (!adapterManager || !swapperManager) return
 
     const web3 = getWeb3Instance()
-    ;(async () => {
-      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl,
-      //   adapterManager,
-      //   web3,
-      // })
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+      ; (async () => {
+        // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+        // const thorSwapper = new ThorchainSwapper({
+        //   midgardUrl,
+        //   adapterManager,
+        //   web3,
+        // })
+        // await thorSwapper.initialize()
+        // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
-      if (wallet) {
-        const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet })
-        swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
-      }
+        if (wallet) {
+          const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet })
+          swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
+        }
 
-      const zrxSwapper = new ZrxSwapper({
-        web3,
-        adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
-      })
+        const zrxSwapper = new ZrxSwapper({
+          web3,
+          adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
+        })
 
-      await zrxSwapper.initialize()
-      swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
-    })()
+        await zrxSwapper.initialize()
+        swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
+      })()
   }, [adapterManager, swapperManager])
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
@@ -113,9 +113,9 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-            assetIds,
-            sellAssetId,
-          })
+          assetIds,
+          sellAssetId,
+        })
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
@@ -181,7 +181,7 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const result = await (async () => {
-      if (sellAsset.chainId === 'eip155:1') {
+      if (sellAsset.chainId === 'eip155:1' || sellAsset.chainId === 'cosmos:osmosis-1' || sellAsset.chainId === 'cosmos:cosmoshub-4') {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmount: amount,
@@ -249,9 +249,9 @@ export const useSwapper = () => {
         })
 
         const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-          if (sellAsset.chainId === 'eip155:1') {
+          if (sellAsset.chainId === 'eip155:1' || sellAsset.chainId === 'cosmos:osmosis-1' || sellAsset.chainId === 'cosmos:cosmoshub-4') {
             return swapper.getTradeQuote({
-              chainId: 'eip155:1',
+              chainId: sellAsset.chainId,
               sellAsset,
               buyAsset,
               sellAmount,
@@ -259,7 +259,7 @@ export const useSwapper = () => {
               sellAssetAccountNumber: 0,
               wallet,
             })
-          } else if ('bip122:000000000019d6689c085ae165831e93') {
+          } else if (sellAsset.chainId === 'bip122:000000000019d6689c085ae165831e93') {
             // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
             // They will need to have selected an accountType from a modal if bitcoin
             throw new Error('bitcoin unsupported')

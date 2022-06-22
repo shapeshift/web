@@ -36,7 +36,6 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
 
-  // cosmosStakingOpportunities intentionally set to empty array => we do not need to display staking opportunities with no staking amount
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray,

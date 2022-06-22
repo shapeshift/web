@@ -182,7 +182,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Text translation='trade.shapeshiftFee' />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>{toFiat(0)}</Row.Value>
+                <Row.Value>{toFiat(trade.feeData.tradeFee)}</Row.Value>
               </Row>
               {isFeeRatioOverThreshold && (
                 <Flex justifyContent='space-evenly' alignItems='center'>

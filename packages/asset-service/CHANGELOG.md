@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v6.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.1.1...@shapeshiftoss/asset-service-v6.1.2) (2022-06-22)
+
+
+### Bug Fixes
+
+* correct FOXy icon URL ([#838](https://github.com/shapeshift/lib/issues/838)) ([8daa430](https://github.com/shapeshift/lib/commit/8daa43083386963685afbb799fbdea1d18441c0c))
+
 # [@shapeshiftoss/asset-service-v6.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.1.0...@shapeshiftoss/asset-service-v6.1.1) (2022-06-21)
 
 # [@shapeshiftoss/asset-service-v6.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.0.4...@shapeshiftoss/asset-service-v6.1.0) (2022-06-21)

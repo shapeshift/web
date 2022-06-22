@@ -223,7 +223,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             const accountSpecifier = `${chainId}:${account}`
             dispatch(getValidatorData.initiate({ accountSpecifier, chainId }, options))
             break
-
           case ethChainId:
             /**
              * fetch all rebase history for foxy

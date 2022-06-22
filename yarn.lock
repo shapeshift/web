@@ -3845,7 +3845,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.21.1", "@shapeshiftoss/hdwallet-core@1.23.0", "@shapeshiftoss/hdwallet-core@1.23.1-alpha.3", "@shapeshiftoss/hdwallet-core@^1.23.0", "@shapeshiftoss/hdwallet-core@latest":
+"@shapeshiftoss/hdwallet-core@1.21.1", "@shapeshiftoss/hdwallet-core@1.23.0", "@shapeshiftoss/hdwallet-core@1.23.1-alpha.4", "@shapeshiftoss/hdwallet-core@^1.23.0", "@shapeshiftoss/hdwallet-core@latest":
   version "1.23.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.23.0.tgz#8e7552b684d9c4600381cf3131c9d304df4b169a"
   integrity sha512-CP0ysBeyRMtjx1OTSj+EmuhYWeh3YGxrbobj7HZDYYl8kHyUseJTTQ3s42ezS1AfXkDf/YidKDxa7p6+v7/0sw==
@@ -3973,12 +3973,12 @@
     lodash "^4.17.21"
     tallyho-onboarding "^1.0.2"
 
-"@shapeshiftoss/hdwallet-walletconnect@^1.23.1-alpha.3":
-  version "1.23.1-alpha.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-walletconnect/-/hdwallet-walletconnect-1.23.1-alpha.3.tgz#bdd6fe2ae9078128951bee5c04b721ddcb9c8584"
-  integrity sha512-l+sJpk0nGAWo6kYdkif0Ti+ZHY9uvraAOvkNc4eRSqRWGZuzKFr3EI1k99QcdN+xNwhZ9QpBK34lGKVoDXFbiQ==
+"@shapeshiftoss/hdwallet-walletconnect@^1.23.1-alpha.4":
+  version "1.23.1-alpha.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-walletconnect/-/hdwallet-walletconnect-1.23.1-alpha.4.tgz#907a6e550ffee15451d1f42e9f587150717929f3"
+  integrity sha512-j5wGYiEX6i7CEgMsnHwC3QTfdHrep2/oY2uS9DNfgyvPar2JG6NWApEM9o3oTFm+HWZVBL6e+mF3wlzfdmsdJg==
   dependencies:
-    "@shapeshiftoss/hdwallet-core" "1.23.1-alpha.3"
+    "@shapeshiftoss/hdwallet-core" "1.23.1-alpha.4"
     "@walletconnect/qrcode-modal" "^1.7.8"
     "@walletconnect/web3-provider" "^1.7.8"
     ethers "^5.6.5"

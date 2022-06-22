@@ -29,7 +29,8 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
         <Accordion mx={-6} defaultIndex={[0]} allowToggle allowMultiple>
           {opportunities.map(opportunitiesBucket => {
             const { opportunities } = opportunitiesBucket
-            if (!opportunities.length) return null
+            if (!opportunities.length || opportunities.every(opportunity => opportunity.isDisabled))
+              return null
 
             return (
               <FoxOtherOpportunityPanel

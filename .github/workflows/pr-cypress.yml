@@ -20,6 +20,7 @@ env:
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
   REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: FCMM7AFC0S6A8NUK
+  REACT_APP_MIDGARD_URL: https://midgard.thorchain.info/v2
 
   REACT_APP_GEM_ASSET_LOGO: https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/
   REACT_APP_GEM_API_KEY: bb4164a72246dae1e03010d664d6cdae4e19b2554de02e3bf6c3cd30aa7e359e

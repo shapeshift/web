@@ -27,7 +27,7 @@ export const FoxPageTabs: Story = () => (
           fiatAmount={'6000'}
           icons={[
             'https://assets.coincap.io/assets/icons/fox@2x.png',
-            'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+            'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethereum/icons/foxy-icon.png',
             'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x03352D267951E96c6F7235037C5DFD2AB1466232/logo.png',
           ]}
         />

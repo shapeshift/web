@@ -11,6 +11,7 @@ import * as webpack from 'webpack'
 import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity'
 
 import { cspMeta, headers, serializeCsp } from './headers'
+import { progressPlugin } from './progress'
 
 type DevServerConfigFunction = (
   proxy: unknown,
@@ -84,6 +85,7 @@ const reactAppRewireConfig = {
           Buffer: ['buffer/', 'Buffer'],
           process: ['process/browser.js'],
         }),
+        progressPlugin,
       ],
     })
 

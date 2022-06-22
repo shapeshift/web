@@ -34,6 +34,7 @@ const validators = {
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_WALLETCONNECT_WALLET: bool({ default: false }),
+  REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_COINBASE_RAMP: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
@@ -43,6 +44,9 @@ const validators = {
   }),
   REACT_APP_BOARDROOM_APP_BASE_URL: url({
     default: 'https://boardroom.io/shapeshift/',
+  }),
+  REACT_APP_MIDGARD_URL: url({
+    default: 'https://midgard.thorchain.info/v2',
   }),
 }
 

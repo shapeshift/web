@@ -58,6 +58,10 @@ export const useSwapper = () => {
     | ethereum.ChainAdapter
     | undefined
 
+  const {
+    state: { wallet },
+  } = useWallet()
+
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
     const web3 = getWeb3Instance()
@@ -68,9 +72,7 @@ export const useSwapper = () => {
     return manager
   })
 
-  const {
-    state: { wallet },
-  } = useWallet()
+
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(

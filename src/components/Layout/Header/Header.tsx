@@ -69,7 +69,8 @@ export const Header = () => {
           <Box
             bg='blue.500'
             width='full'
-            paddingTop='env(safe-area-inset-top)'
+            paddingTop='calc(1rem + env(safe-area-inset-top))'
+            paddingBottom={{ base: '1rem', md: 0 }}
             minHeight='2.5rem'
             fontSize={{ base: 'sm', md: 'md' }}
             as='button'

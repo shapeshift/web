@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { CSSProperties, useEffect, useRef } from 'react'
 import SimplexNoise from 'simplex-noise'
 
 const rayCount = 300
@@ -20,13 +20,13 @@ const yOff = 0.0015
 const zOff = 0.0015
 
 const { abs, round, random } = Math
-const rand = n => n * random()
-const fadeInOut = (t, m) => {
+const rand = (n: number) => n * random()
+const fadeInOut = (t: number, m: number) => {
   let hm = 0.5 * m
   return abs(((t + hm) % m) - hm) / hm
 }
 
-const canvasStyle = {
+const canvasStyle: CSSProperties = {
   position: 'fixed',
   top: 0,
   left: 0,
@@ -36,38 +36,37 @@ const canvasStyle = {
   zIndex: 1,
 }
 
-export const AuroraBackground = props => {
+export const AuroraBackground: React.FC<{}> = props => {
   const canvasRefB = useRef(null)
 
   useEffect(() => {
     let center = [0, 0]
-    let tick
-    let simplex
-    let rayProps
-    let animationFrameId
+    let tick: number
+    let simplex: SimplexNoise
+    let rayProps: Float32Array
+    let animationFrameId: number
     const canvasA = document.createElement('canvas')
-    const canvasB = canvasRefB.current
-    const ctxA = canvasA.getContext('2d')
-    const ctxB = canvasB.getContext('2d')
-    function setup() {
+    const canvasB: HTMLCanvasElement = canvasRefB.current as unknown as HTMLCanvasElement
+    const ctxA = canvasA.getContext('2d') as unknown as CanvasRenderingContext2D
+    const ctxB = canvasB.getContext('2d') as unknown as CanvasRenderingContext2D
+
+    const setup = () => {
       resize()
       initRays()
       draw()
     }
 
-    function initRays() {
+    const initRays = () => {
       tick = 0
       simplex = new SimplexNoise()
       rayProps = new Float32Array(rayPropsLength)
 
-      let i
-
-      for (i = 0; i < rayPropsLength; i += rayPropCount) {
+      for (let i = 0; i < rayPropsLength; i += rayPropCount) {
         initRay(i)
       }
     }
 
-    function initRay(i) {
+    const initRay = (i: number) => {
       let length, x, y1, y2, n, life, ttl, width, speed, hue
 
       length = baseLength + rand(rangeLength)
@@ -86,15 +85,13 @@ export const AuroraBackground = props => {
       rayProps.set([x, y1, y2, life, ttl, width, speed, hue], i)
     }
 
-    function drawRays() {
-      let i
-
-      for (i = 0; i < rayPropsLength; i += rayPropCount) {
+    const drawRays = () => {
+      for (let i = 0; i < rayPropsLength; i += rayPropCount) {
         updateRay(i)
       }
     }
 
-    function updateRay(i) {
+    const updateRay = (i: number) => {
       let i2 = 1 + i,
         i3 = 2 + i,
         i4 = 3 + i,
@@ -123,7 +120,15 @@ export const AuroraBackground = props => {
       ;(checkBounds(x) || life > ttl) && initRay(i)
     }
 
-    function drawRay(x, y1, y2, life, ttl, width, hue) {
+    const drawRay = (
+      x: number,
+      y1: number,
+      y2: number,
+      life: number,
+      ttl: number,
+      width: number,
+      hue: number,
+    ) => {
       let gradient
 
       gradient = ctxA.createLinearGradient(x, y1, x, y2)
@@ -142,7 +147,7 @@ export const AuroraBackground = props => {
       ctxA.restore()
     }
 
-    function checkBounds(x) {
+    const checkBounds = (x: number) => {
       return x < 0 || x > canvasA.width
     }
 
@@ -163,7 +168,7 @@ export const AuroraBackground = props => {
       center[1] = 0.5 * canvasA.height
     }
 
-    function renderCanvas() {
+    const renderCanvas = () => {
       ctxB.save()
       // ctxB.filter = "blur(12px)";
       ctxB.globalCompositeOperation = 'source-in'
@@ -171,11 +176,11 @@ export const AuroraBackground = props => {
       ctxB.restore()
     }
 
-    function draw() {
+    const draw = () => {
       tick++
       ctxA.clearRect(0, 0, canvasA.width, canvasA.height)
       ctxB.fillRect(0, 0, canvasB.width, canvasA.height)
-      ctxA.globalAlpha = '0.2'
+      ctxA.globalAlpha = 0.2
 
       drawRays()
       renderCanvas()
@@ -188,7 +193,7 @@ export const AuroraBackground = props => {
 
     return () => {
       window.cancelAnimationFrame(animationFrameId)
-      window.removeEventListener('resize')
+      window.removeEventListener('resize', resize)
     }
   }, [])
 

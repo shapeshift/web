@@ -10,7 +10,7 @@ import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import AuroraBg from 'assets/aurorabg.jpg'
-import { AuroraBackground } from 'components/AuoraBackground'
+import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
@@ -123,12 +123,13 @@ export const ConnectWallet = () => {
             >
               <RawText color='white' fontWeight='light' lineHeight='1'>
                 {translate('connectWalletPage.exploreThe')}{' '}
-                <RawText color='white' fontWeight='bold' as='span'>
+                <RawText color='white' fontWeight='bold' as='span' userSelect={'none'}>
                   {translate('connectWalletPage.defiUniverse')}
                 </RawText>
               </RawText>
             </Flex>
             <Text
+              userSelect={'none'}
               color='white'
               fontSize='lg'
               mb={12}

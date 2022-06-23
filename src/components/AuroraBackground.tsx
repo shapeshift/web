@@ -151,7 +151,7 @@ export const AuroraBackground: React.FC<{}> = props => {
       return x < 0 || x > canvasA.width
     }
 
-    function resize() {
+    const resize = () => {
       const { innerWidth, innerHeight } = window
 
       canvasA.width = innerWidth

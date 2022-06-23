@@ -21,7 +21,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getWeb3Instance } from 'lib/web3-instance'
+import { web3Instance } from 'lib/web3-instance'
 import {
   selectAssetIds,
   selectFeeAssetById,
@@ -59,9 +59,6 @@ export const useSwapper = () => {
 
   useEffect(() => {
     if (!adapterManager || !swapperManager) return
-
-    const web3 = getWeb3Instance()
-
     ;(async () => {
       // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       // const thorSwapper = new ThorchainSwapper({
@@ -73,7 +70,7 @@ export const useSwapper = () => {
       // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
       const zrxSwapper = new ZrxSwapper({
-        web3,
+        web3: web3Instance,
         adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
       })
 

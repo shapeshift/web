@@ -4,7 +4,7 @@ import { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import { BN, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getWeb3Instance } from 'lib/web3-instance'
+import { web3Instance } from 'lib/web3-instance'
 
 import { TRADING_FEE_RATE } from './const'
 
@@ -12,20 +12,18 @@ const moduleLogger = logger.child({
   namespace: ['Plugins', 'FoxPage', 'Utils'],
 })
 
-let maybeEthersProvider: providers.Web3Provider | undefined
-// The provider we get from getWeb3Instance is a web3.js Provider
+// The provider we get from web3Instance is a web3.js Provider
 // But uniswap SDK needs a Web3Provider from ethers.js
-export const getEthersProvider = () => {
-  if (maybeEthersProvider) return maybeEthersProvider
+export const ethersProvider = (() => {
+  const provider = web3Instance.currentProvider
 
-  const provider = getWeb3Instance().currentProvider
+  // For testing purposes - provider will always be defined at runtime
+  if (!provider) return
 
-  maybeEthersProvider = new providers.Web3Provider(
+  return new providers.Web3Provider(
     provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?
   )
-
-  return maybeEthersProvider
-}
+})()
 
 export const getToken0Volume24Hr = async ({
   blockNumber,

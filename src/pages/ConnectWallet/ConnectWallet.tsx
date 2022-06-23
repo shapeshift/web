@@ -121,14 +121,20 @@ export const ConnectWallet = () => {
               fontSize={{ base: '6xl', lg: '8xl' }}
               mb={6}
             >
-              <RawText color='whiteAlpha.400' fontWeight='medium' lineHeight='1'>
+              <RawText
+                color='whiteAlpha.400'
+                fontWeight='medium'
+                lineHeight='1'
+                userSelect={'none'}
+              >
                 {translate('connectWalletPage.exploreThe')}{' '}
-                <RawText color='white' fontWeight='bold' as='span'>
+                <RawText color='white' fontWeight='bold' as='span' userSelect={'none'}>
                   {translate('connectWalletPage.defiUniverse')}
                 </RawText>
               </RawText>
             </Flex>
             <Text
+              userSelect={'none'}
               color='white'
               fontSize='lg'
               mb={12}
@@ -152,6 +158,7 @@ export const ConnectWallet = () => {
               </Button>
               <Flex alignItems='center' justifyContent='center'>
                 <Text
+                  userSelect={'none'}
                   color='gray.500'
                   fontSize='lg'
                   fontWeight='bold'

@@ -1,15 +1,11 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import {
-  Avatar,
-  AvatarBadge,
   Button,
   Center,
   Flex,
   Grid,
   ModalBody,
   ModalHeader,
-  Stack,
-  Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'

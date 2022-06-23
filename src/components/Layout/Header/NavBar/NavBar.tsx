@@ -26,8 +26,8 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
               as={ReactRouterLink}
               key={idx}
               leftIcon={item.icon}
-              href={item.path}
-              to={item.path}
+              href={item.href ?? item.path}
+              to={item.href ?? item.path}
               label={translate(item.label)}
               aria-label={translate(item.label)}
               data-test={`navigation-${item.label.split('.')[1]}-button`}

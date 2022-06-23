@@ -13,6 +13,9 @@ import React from 'react'
  */
 
 export type Route = {
+  /** A react-router compliant URL to link to that route **/
+  href?: string
+  /** A path-to-regexp compliant path to be matched in router **/
   path: string
   label: string
   main: React.ElementType<{ route?: Route }> | null

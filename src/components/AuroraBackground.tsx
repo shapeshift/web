@@ -49,25 +49,24 @@ export const AuroraBackground: React.FC<{}> = props => {
     const canvasB: HTMLCanvasElement = canvasRefB.current as unknown as HTMLCanvasElement
     const ctxA = canvasA.getContext('2d') as unknown as CanvasRenderingContext2D
     const ctxB = canvasB.getContext('2d') as unknown as CanvasRenderingContext2D
-    function setup() {
+
+    const setup = () => {
       resize()
       initRays()
       draw()
     }
 
-    function initRays() {
+    const initRays = () => {
       tick = 0
       simplex = new SimplexNoise()
       rayProps = new Float32Array(rayPropsLength)
 
-      let i
-
-      for (i = 0; i < rayPropsLength; i += rayPropCount) {
+      for (let i = 0; i < rayPropsLength; i += rayPropCount) {
         initRay(i)
       }
     }
 
-    function initRay(i: number) {
+    const initRay = (i: number) => {
       let length, x, y1, y2, n, life, ttl, width, speed, hue
 
       length = baseLength + rand(rangeLength)
@@ -86,15 +85,13 @@ export const AuroraBackground: React.FC<{}> = props => {
       rayProps.set([x, y1, y2, life, ttl, width, speed, hue], i)
     }
 
-    function drawRays() {
-      let i
-
-      for (i = 0; i < rayPropsLength; i += rayPropCount) {
+    const drawRays = () => {
+      for (let i = 0; i < rayPropsLength; i += rayPropCount) {
         updateRay(i)
       }
     }
 
-    function updateRay(i: number) {
+    const updateRay = (i: number) => {
       let i2 = 1 + i,
         i3 = 2 + i,
         i4 = 3 + i,
@@ -123,7 +120,7 @@ export const AuroraBackground: React.FC<{}> = props => {
       ;(checkBounds(x) || life > ttl) && initRay(i)
     }
 
-    function drawRay(
+    const drawRay = (
       x: number,
       y1: number,
       y2: number,
@@ -131,7 +128,7 @@ export const AuroraBackground: React.FC<{}> = props => {
       ttl: number,
       width: number,
       hue: number,
-    ) {
+    ) => {
       let gradient
 
       gradient = ctxA.createLinearGradient(x, y1, x, y2)
@@ -150,7 +147,7 @@ export const AuroraBackground: React.FC<{}> = props => {
       ctxA.restore()
     }
 
-    function checkBounds(x: number) {
+    const checkBounds = (x: number) => {
       return x < 0 || x > canvasA.width
     }
 
@@ -171,7 +168,7 @@ export const AuroraBackground: React.FC<{}> = props => {
       center[1] = 0.5 * canvasA.height
     }
 
-    function renderCanvas() {
+    const renderCanvas = () => {
       ctxB.save()
       // ctxB.filter = "blur(12px)";
       ctxB.globalCompositeOperation = 'source-in'
@@ -179,7 +176,7 @@ export const AuroraBackground: React.FC<{}> = props => {
       ctxB.restore()
     }
 
-    function draw() {
+    const draw = () => {
       tick++
       ctxA.clearRect(0, 0, canvasA.width, canvasA.height)
       ctxB.fillRect(0, 0, canvasB.width, canvasA.height)

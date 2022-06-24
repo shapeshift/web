@@ -189,7 +189,6 @@
     "@storybook/react": "^6.4.19",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
-    "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.2.1",
     "@types/bignumber.js": "^5.0.0",
     "@types/circular-dependency-plugin": "^5.0.5",

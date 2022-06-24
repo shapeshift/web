@@ -18,8 +18,6 @@ const validators = {
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
-  REACT_APP_COSMOS_NODE: url(),
-  REACT_APP_OSMOSIS_NODE: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
@@ -47,6 +45,12 @@ const validators = {
   }),
   REACT_APP_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
+  }),
+  REACT_APP_COSMOS_NODE: url({
+    default: 'https://cosmos-mainnet-rpc.allthatnode.com:1317/',
+  }),
+  REACT_APP_OSMOSIS_NODE: url({
+    default: 'https://lcd-osmosis.blockapsis.com/',
   }),
 }
 

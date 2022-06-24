@@ -76,7 +76,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await executeQuote()
-
+      console.log("RESULT", result)
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
       const txs = await poll({

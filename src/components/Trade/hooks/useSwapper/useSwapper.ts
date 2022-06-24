@@ -31,6 +31,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+import { getConfig } from 'config'
 
 const debounceTime = 1000
 
@@ -77,7 +78,9 @@ export const useSwapper = () => {
         // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
         if (wallet) {
-          const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet })
+          const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE
+          const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE
+          const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet, osmoUrl, cosmosUrl })
           swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
         }
 
@@ -210,6 +213,7 @@ export const useSwapper = () => {
       sellAssetId: trade.sellAsset.assetId,
     })) as Swapper<ChainId>
     if (!swapper) throw new Error('no swapper available')
+    console.log('tradeResultweb', tradeResult)
     return swapper.getTradeTxs(tradeResult)
   }
 

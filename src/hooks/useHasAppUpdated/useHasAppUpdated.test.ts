@@ -56,12 +56,12 @@ describe('useHasAppUpdated', () => {
       await waitFor(() => expect(result.current).toBe(true))
     })
 
-    it('should return true when asset-manifest.json is updated', async () => {
+    fit('should return true when asset-manifest.json is updated', async () => {
       mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, waitForNextUpdate } = renderHook(() => useHasAppUpdated())
+      const { result } = renderHook(() => useHasAppUpdated())
 
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
@@ -72,8 +72,7 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await act(async () => waitForNextUpdate())
-      expect(result.current).toBe(true)
+      await waitFor(() => expect(result.current).toBe(true))
     })
   })
 

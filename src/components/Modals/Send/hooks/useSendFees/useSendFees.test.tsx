@@ -1,6 +1,7 @@
 import { AssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { renderHook, waitFor } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TestProviders } from 'test/TestProviders'
@@ -42,7 +43,9 @@ const fees = {
   },
 }
 
-const mockEthAsset = {
+type MockAsset = Record<string, string | number>
+
+const mockEthAsset: MockAsset = {
   name: 'Ethereum',
   network: 'ethereum',
   price: 3500,
@@ -50,7 +53,13 @@ const mockEthAsset = {
   precision: 18,
 }
 
-const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
+type SetupProps = {
+  asset: MockAsset
+  estimatedFees: Record<string, unknown>
+  wallet: HDWallet | null | undefined
+}
+
+const setup = ({ asset = {}, estimatedFees = {}, wallet }: SetupProps) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
     state: { wallet },
   }))
@@ -69,26 +78,22 @@ describe('useSendFees', () => {
   })
 
   it('returns the fees with market data', async () => {
-    return await act(async () => {
-      const { waitForValueToChange, result } = setup({
-        asset: mockEthAsset,
-        estimatedFees: fees,
-      })
-      await waitForValueToChange(() => result.current.fees)
-      expect(result.current.fees?.slow.fiatFee).toBe('0.000147')
-      expect(result.current.fees?.average.fiatFee).toBe('0.000147')
-      expect(result.current.fees?.fast.fiatFee).toBe('0.000147')
+    const { result } = setup({
+      asset: mockEthAsset,
+      estimatedFees: fees,
+      wallet: {} as HDWallet,
     })
+    await waitFor(() => expect(result.current.fees?.slow.fiatFee).toBe('0.000147'))
+    expect(result.current.fees?.average.fiatFee).toBe('0.000147')
+    expect(result.current.fees?.fast.fiatFee).toBe('0.000147')
   })
 
   it('returns null fees if no wallet is present', async () => {
-    return await act(async () => {
-      const { result } = setup({
-        asset: mockEthAsset,
-        estimatedFees: fees,
-        wallet: {},
-      })
-      expect(result.current.fees).toBe(null)
+    const { result } = setup({
+      asset: mockEthAsset,
+      estimatedFees: fees,
+      wallet: null,
     })
+    await waitFor(() => expect(result.current.fees).toBe(null))
   })
 })

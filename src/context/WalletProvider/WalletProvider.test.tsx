@@ -1,7 +1,7 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -47,11 +47,11 @@ const setup = async () => {
       <WalletProvider>{children}</WalletProvider>
     </TestProviders>
   )
-  const { result, waitForValueToChange } = renderHook(() => useWallet(), { wrapper })
+  const { result } = renderHook(() => useWallet(), { wrapper })
   // Since there is a dispatch doing async state changes
   // in a useEffect on mount we must wait for that state
   // to finish updating before doing anything else to avoid errors
-  await waitForValueToChange(() => result.current.state.adapters)
+  await act(async () => void 0)
   return result
 }
 

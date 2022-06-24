@@ -140,7 +140,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
   return (
-    <ButtonGroup>
+    <ButtonGroup isAttached width='full'>
       <WalletButton
         onConnect={handleConnect}
         walletInfo={walletInfo}

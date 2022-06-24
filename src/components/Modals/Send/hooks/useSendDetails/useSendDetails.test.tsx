@@ -1,6 +1,6 @@
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { mocked } from 'jest-mock'
 import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -152,51 +152,40 @@ describe('useSendDetails', () => {
   })
 
   it('returns the default useSendDetails state', async () => {
-    return await act(async () => {
-      const { result } = setup({
-        assetBalance: balances[ethAssetId],
-      })
-      expect(result.current.balancesLoading).toBe(false)
-      expect(result.current.fieldName).toBe('cryptoAmount')
-      expect(result.current.loading).toBe(false)
+    const { result } = setup({
+      assetBalance: balances[ethAssetId],
     })
+    expect(result.current.balancesLoading).toBe(false)
+    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.loading).toBe(false)
   })
 
   it('toggles the input field', async () => {
-    // eslint-disable-next-line testing-library/no-unnecessary-act
-    return await act(async () => {
-      const { waitForValueToChange, result } = setup({
-        assetBalance: balances[ethAssetId],
-      })
-      expect(result.current.fieldName).toBe('cryptoAmount')
-      act(() => {
-        result.current.toggleCurrency()
-      })
-      await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('fiatAmount')
+    const { result } = setup({
+      assetBalance: balances[ethAssetId],
     })
+    expect(result.current.fieldName).toBe('cryptoAmount')
+    act(() => {
+      result.current.toggleCurrency()
+    })
+    await waitFor(() => expect(result.current.fieldName).toBe('fiatAmount'))
   })
 
   it('toggles the amount input error to the fiatAmount/cryptoAmount field', async () => {
-    // eslint-disable-next-line testing-library/no-unnecessary-act
-    return await act(async () => {
-      let setError = jest.fn()
-      const { waitForValueToChange, result } = setup({
-        assetBalance: balances[ethAssetId],
-        formErrors: {
-          fiatAmount: { message: 'common.insufficientFunds' },
-        },
-        setError,
-      })
-
-      act(() => {
-        result.current.toggleCurrency()
-      })
-
-      await waitForValueToChange(() => result.current.fieldName)
-
-      expect(result.current.fieldName).toBe('fiatAmount')
+    let setError = jest.fn()
+    const { result } = setup({
+      assetBalance: balances[ethAssetId],
+      formErrors: {
+        fiatAmount: { message: 'common.insufficientFunds' },
+      },
+      setError,
     })
+
+    act(() => {
+      result.current.toggleCurrency()
+    })
+
+    await waitFor(() => expect(result.current.fieldName).toBe('fiatAmount'))
   })
 
   it('handles input change on fiatAmount', async () => {
@@ -228,29 +217,26 @@ describe('useSendDetails', () => {
   it('handles input change on cryptoAmount', async () => {
     jest.useFakeTimers()
     const setValue = jest.fn()
-    // eslint-disable-next-line testing-library/no-unnecessary-act
+    const { result } = setup({
+      assetBalance: balances[ethAssetId],
+      setValue,
+    })
+    // Field is set to fiatAmount
+    expect(result.current.fieldName).toBe('cryptoAmount')
+
+    // toggle field to cryptoAmount
+    act(() => {
+      result.current.toggleCurrency()
+    })
+    await waitFor(() => result.current.fieldName)
+    expect(result.current.fieldName).toBe('fiatAmount')
+
+    // Set crypto amount
     await act(async () => {
-      const { waitForValueToChange, result } = setup({
-        assetBalance: balances[ethAssetId],
-        setValue,
-      })
-      // Field is set to fiatAmount
-      expect(result.current.fieldName).toBe('cryptoAmount')
-
-      // toggle field to cryptoAmount
-      act(() => {
-        result.current.toggleCurrency()
-      })
-      await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('fiatAmount')
-
-      // Set crypto amount
-      await act(async () => {
-        result.current.handleInputChange('3500')
-        jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
-        setValue.mockClear()
-      })
+      result.current.handleInputChange('3500')
+      jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
+      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
+      setValue.mockClear()
     })
     jest.useRealTimers()
   })

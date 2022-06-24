@@ -1,5 +1,5 @@
 import { Stack, Tag } from '@chakra-ui/react'
-import { TxTransfer } from '@shapeshiftoss/types/dist/chain-adapters'
+import { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { Text } from 'components/Text'
 
 import { TransferColumn } from './TransferCol'

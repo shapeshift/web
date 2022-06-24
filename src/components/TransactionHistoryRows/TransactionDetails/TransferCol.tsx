@@ -1,5 +1,5 @@
 import { Stack, useColorModeValue } from '@chakra-ui/react'
-import { TxTransfer } from '@shapeshiftoss/types/dist/chain-adapters'
+import { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { AssetIcon } from 'components/AssetIcon'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'

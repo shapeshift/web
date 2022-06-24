@@ -1,4 +1,5 @@
-import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
+import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/chain-adapters'
+import { Asset, MarketData } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/address/ens'
 import { ReduxState } from 'state/reducer'
@@ -34,9 +35,9 @@ export enum Direction {
 
 export interface TxDetails {
   tx: Tx
-  buyTransfer?: chainAdapters.TxTransfer
-  sellTransfer?: chainAdapters.TxTransfer
-  tradeTx?: chainAdapters.TxTransfer
+  buyTransfer?: TxTransfer
+  sellTransfer?: TxTransfer
+  tradeTx?: TxTransfer
   feeAsset?: Asset
   buyAsset?: Asset
   sellAsset?: Asset
@@ -45,7 +46,7 @@ export interface TxDetails {
   ensTo?: string
   from: string
   ensFrom?: string
-  type: chainAdapters.TradeType | chainAdapters.TxType | ''
+  type: TradeType | TxType | ''
   symbol: string
   precision: number
   explorerTxLink: string
@@ -57,10 +58,10 @@ export interface TxDetails {
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getTransferByType = (tx: Tx, txType: chainAdapters.TxType) =>
+export const getTransferByType = (tx: Tx, txType: TxType) =>
   tx.transfers.find(t => t.type === txType)
-export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Receive)
-export const getSellTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Send)
+export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, TxType.Receive)
+export const getSellTransfer = (tx: Tx) => getTransferByType(tx, TxType.Send)
 export const getTransferByAsset = (tx: Tx, asset: Asset) =>
   tx.transfers.find(t => t.assetId === asset.assetId)
 
@@ -77,10 +78,7 @@ export const isSupportedContract = (tx: Tx) =>
  * @param sellTransfer transfer with TxType.Send
  * @returns boolean
  */
-export const isTradeContract = (
-  buyTransfer: chainAdapters.TxTransfer,
-  sellTransfer: chainAdapters.TxTransfer,
-): boolean => {
+export const isTradeContract = (buyTransfer: TxTransfer, sellTransfer: TxTransfer): boolean => {
   return sellTransfer.from === buyTransfer.to && sellTransfer.to !== buyTransfer.from
 }
 
@@ -89,8 +87,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const method = tx.data?.method
 
   const standardTx = getStandardTx(tx)
-  const buyTransfer = getTransferByType(tx, chainAdapters.TxType.Receive)
-  const sellTransfer = getTransferByType(tx, chainAdapters.TxType.Send)
+  const buyTransfer = getTransferByType(tx, TxType.Receive)
+  const sellTransfer = getTransferByType(tx, TxType.Send)
   const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
 
   const direction: Direction | undefined = (() => {
@@ -149,10 +147,10 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   }, [from, to])
   const tradeType =
     buyTransfer && sellTransfer && isTradeContract(buyTransfer, sellTransfer)
-      ? chainAdapters.TradeType.Trade
+      ? TradeType.Trade
       : undefined
   const type = isSupportedContract(tx)
-    ? chainAdapters.TxType.Contract
+    ? TxType.Contract
     : standardTx?.type ?? tx.tradeDetails?.type ?? tradeType ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18

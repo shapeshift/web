@@ -48,7 +48,8 @@
     "copied": "클립보드에 복사했습니다.",
     "copyFailed": "클립보드에 복사하지 못했습니다.",
     "copyFailedDescription": "클립보드에 복사하지 못했습니다. 직접 복사해주세요.",
-    "viewAsset": "자산 확인",
+    "viewAsset": "자산 보기",
+    "apy": "%{apy}% APY",
     "settings": "설정",
     "legalDated": "날짜: 2022년 1월",
     "approveOnWallet": "지갑에서 승인하기",
@@ -61,12 +62,7 @@
   },
   "updateToast": {
     "body": "새로운 버전의 앱이 출시되었습니다.",
-    "cta": "페이지 새로고침",
-    "keepKey": {
-      "title": "KeepKey 업데이트 가능",
-      "newUpdateAvailable": "KeepKey의 새로운 업데이트 항목이 있습니다.",
-      "downloadCta": "업데이트 다운로드"
-    }
+    "cta": "페이지 새로고침"
   },
   "dashboard": {
     "portfolio": {
@@ -203,8 +199,8 @@
     "transactionComplete": "거래 완료",
     "transactionFailed": "거래 실패",
     "notEnoughFundsInReserve": "유동성 준비금 계약에 자금이 부족합니다.",
-    "validator": "검증인",
-    "validatorMoniker": "%{moniker} 검증인",
+    "validator": "검증자 (Validator)",
+    "validatorMoniker": "%{moniker} 검증자 (Validator)",
     "stakedAmount": "스테이킹 금액",
     "unstakeFrom": "스테이크 해제",
     "gasFee": "가스비",
@@ -234,7 +230,7 @@
     "apr": "APR",
     "balance": "잔액",
     "defi": "디파이",
-    "defiBody": "성장하는 디파이 유니버스에서 각종 투자 기회를 창출해 보세요!",
+    "defiBody": "성장하는 디파이 유니버스에서 각종 기회를 창출해 보세요!",
     "netWorth": "순자산",
     "walletBalance": "보유 자산",
     "earnBalance": "평가손익",
@@ -244,7 +240,7 @@
     "overview": "개요",
     "liquidityPools": "유동성 자금 풀",
     "stakingVaults": "스테이킹 및 금고",
-    "farming": "이자 농사",
+    "farming": "코인 파밍",
     "totalEarningBalance": "총 평가손익",
     "stakingBalance": "스테이킹 자산",
     "farmingBalance": "파밍 자산",
@@ -281,9 +277,9 @@
     "dashboard": "대시보드",
     "assets": "자산 목록",
     "assetDetails": "자산 정보",
-    "accounts": "계좌",
-    "accountAsset": "계좌 자산",
-    "accountDetails": "계좌 세부정보",
+    "accounts": "계정",
+    "accountAsset": "계정 자산",
+    "accountDetails": "계정 세부정보",
     "earn": "자산 획득",
     "defi": "디파이",
     "transactionHistory": "거래 내역",
@@ -348,7 +344,7 @@
     "unknown": "거래"
   },
   "trade": {
-    "searchingRate": "최적 거래 비율을 찾는 중...",
+    "searchingRate": "최적의 거래를 찾는 중...",
     "previewTrade": "거래 미리보기",
     "rate": "가격",
     "minerFee": "마이너 수수료",
@@ -388,7 +384,7 @@
       "sellAssetRequired": "판매 가능한 자산이 없이는 견적을 책정할 수 없습니다.",
       "sellAmountRequired": "판매 가능한 보유량이 충분하지 않아 견적을 책정할 수 없습니다.",
       "depositAddressRequired": "DEX 주소가 없으면 ETH 견적을 책정할 수 없습니다.",
-      "sellAssetNetworkAndSymbolRequired": "견적을 책정하기 위해서는 자산 네트워크와 적합한 심볼이 필요합니다.",
+      "sellAssetNetworkAndSymbolRequired": "견적을 책정하려면 걸맞는 자산 네트워크와 알맞는 심볼이 필요합니다.",
       "hdwalletInvalidConfig": "하드웨어 지갑과 연결하는 동안 오류가 발생했습니다.",
       "allowanceRequiredFailed": "거래에 필요한 허용량을 승인하는 도중에 오류가 발생하였습니다.",
       "checkApprovalNeededFailed": "거래 승인 과정을 확인하는 도중에 오류가 발생하였습니다.",
@@ -457,11 +453,6 @@
       "recoverySettingUp": {
         "header": "장치 설정 중...",
         "body": "장치와 지갑 주소의 연동 작업이 완료될 때까지 기다려주세요."
-      },
-      "recoveryInvalid": {
-        "header": "올바르지 않은 복구 구문",
-        "body": "입력하신 복구 구문이 올바르지 않습니다.",
-        "button": "다시 시도"
       }
     },
     "shapeShift": {
@@ -921,6 +912,30 @@
       "testPhrase": {
         "header": "시드 구문 확인 / 시드 구문을 확인해 주세요.",
         "body": "이 중 어느 것이",
+        "1st": "1st",
+        "2nd": "2nd",
+        "3rd": "3rd",
+        "4th": "4th",
+        "5th": "5th",
+        "6th": "6th",
+        "7th": "7th",
+        "8th": "8th",
+        "9th": "9th",
+        "10th": "10th",
+        "11th": "11th",
+        "12th": "12th",
+        "13th": "13th",
+        "14th": "14th",
+        "15th": "15th",
+        "16th": "16th",
+        "17th": "17th",
+        "18th": "18th",
+        "19th": "19th",
+        "20th": "20th",
+        "21th": "21th",
+        "22th": "22th",
+        "23th": "23th",
+        "24th": "24th",
         "body2": "단어",
         "body3": "비밀 구문에",
         "button": "다음"

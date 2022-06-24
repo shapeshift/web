@@ -5,6 +5,7 @@ import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
+import { TradeRoutePaths } from './types'
 import { WithBackButton } from './WithBackButton'
 
 type SelectAssetProps = {
@@ -14,7 +15,7 @@ type SelectAssetProps = {
 
 export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history, filterBy }) => {
   const handleBack = () => {
-    history.push('/trade/input')
+    history.push(TradeRoutePaths.Input)
   }
 
   return (

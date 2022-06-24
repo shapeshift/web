@@ -1,4 +1,5 @@
-import { chainAdapters, UtxoAccountType } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/chain-adapters'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { map, reverse } from 'lodash'
 import { mockStore } from 'test/mocks/store'
 import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'
@@ -147,7 +148,7 @@ describe('txHistorySlice', () => {
     })
 
     it('should update existing transactions', async () => {
-      const EthReceivePending = { ...EthReceive, status: chainAdapters.TxStatus.Pending }
+      const EthReceivePending = { ...EthReceive, status: TxStatus.Pending }
       const ethAccountSpecifier = `${EthReceive.chainId}:0xdef1cafe`
       store.dispatch(
         txHistory.actions.onMessage({
@@ -160,7 +161,7 @@ describe('txHistorySlice', () => {
         store.getState().txHistory.txs.byId[
           serializeTxIndex(ethAccountSpecifier, EthReceivePending.txid, EthReceivePending.address)
         ].status,
-      ).toBe(chainAdapters.TxStatus.Pending)
+      ).toBe(TxStatus.Pending)
 
       store.dispatch(
         txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier }),
@@ -169,7 +170,7 @@ describe('txHistorySlice', () => {
         store.getState().txHistory.txs.byId[
           serializeTxIndex(ethAccountSpecifier, EthReceive.txid, EthReceive.address)
         ].status,
-      ).toBe(chainAdapters.TxStatus.Confirmed)
+      ).toBe(TxStatus.Confirmed)
     })
 
     it('should add txids by accountSpecifier', async () => {

@@ -26,6 +26,7 @@ type StakeProps = {
   validatorAddress: string
   onClose: () => void
   onCancel: () => void
+  onStepCompleted: () => void
 }
 
 // TODO: Make this a derived selector after this is wired up
@@ -33,7 +34,6 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-<<<<<<< HEAD
 export const StakeBroadcast = ({
   assetId,
   validatorAddress,
@@ -41,9 +41,7 @@ export const StakeBroadcast = ({
   onCancel,
   onStepCompleted,
 }: StakeProps) => {
-=======
-export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }: StakeProps) => {
->>>>>>> parent of da49e747 (Merge branch 'shapeshift:develop' into develop)
+  const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
@@ -52,15 +50,12 @@ export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }:
 
   const { handleStakingAction } = useStakingAction()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const validatorInfo = useAppSelector(state =>
-    selectValidatorByAddress(state, { validatorAddress }),
-  )
   const translate = useTranslate()
   const methods = useFormContext<StakingValues>()
   const { handleSubmit, control } = methods
   const { txFee, fiatFee, cryptoAmount, gasLimit } = useWatch({ control })
 
-  if (!txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
+  if (!validatorInfo || !txFee || !fiatFee || !cryptoAmount || !gasLimit) return null
 
   const onSubmit = async () => {
     if (broadcasted) {
@@ -87,6 +82,7 @@ export const StakeBroadcast = ({ assetId, validatorAddress, onClose, onCancel }:
 
     setTxId(broadcastTx)
     setBroadcasted(true)
+    onStepCompleted()
   }
 
   const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())

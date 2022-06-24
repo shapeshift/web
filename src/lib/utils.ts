@@ -1,15 +1,4 @@
-import {
-  ASSET_REFERENCE,
-  AssetReference,
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
-  ChainId,
-  ChainNamespace,
-  ChainReference,
-  fromChainId,
-  toChainId,
-} from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, AssetReference } from '@shapeshiftoss/caip'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 
@@ -55,82 +44,6 @@ export function partitionCompareWith<T>(
   result.remove.forEach(i => fns.remove(i))
 
   return result
-}
-
-// TODO: Remove: this is a temporary helper to allow web to support caip v5 before other lib packages are ready
-/**
- * Returns mainnet ChainId parts, ChainNamespace and ChainReference
- *
- * @param chainType - The chainType to destructure
- */
-export const chainTypeToMainnetChainParts = (
-  chainType: ChainTypes,
-): { chainNamespace: ChainNamespace; chainReference: ChainReference } => {
-  return (() => {
-    switch (chainType) {
-      case ChainTypes.Bitcoin:
-        return {
-          chainNamespace: CHAIN_NAMESPACE.Bitcoin,
-          chainReference: CHAIN_REFERENCE.BitcoinMainnet,
-        }
-      case ChainTypes.Ethereum:
-        return {
-          chainNamespace: CHAIN_NAMESPACE.Ethereum,
-          chainReference: CHAIN_REFERENCE.EthereumMainnet,
-        }
-      case ChainTypes.Cosmos:
-        return {
-          chainNamespace: CHAIN_NAMESPACE.Cosmos,
-          chainReference: CHAIN_REFERENCE.CosmosHubMainnet,
-        }
-      case ChainTypes.Osmosis:
-        return {
-          chainNamespace: CHAIN_NAMESPACE.Cosmos,
-          chainReference: CHAIN_REFERENCE.OsmosisMainnet,
-        }
-      default:
-        throw new Error(`Chain type ${chainType} not supported.`)
-    }
-  })()
-}
-
-// TODO: Remove: this is a temporary helper to allow web to support caip v5 before other lib packages are ready
-/**
- * Returns mainnet ChainId
- *
- * @param chainType - The chainType to parse as a mainnet ChainId
- */
-export const chainTypeToMainnetChainId = (chainType: ChainTypes): ChainId => {
-  return toChainId(chainTypeToMainnetChainParts(chainType))
-}
-
-// TODO: Remove: this is a temporary helper to allow web to support caip v5 before other lib packages are ready
-export const chainPartsToChainType = (
-  chainNamespace: ChainNamespace,
-  chainReference?: ChainReference,
-): ChainTypes => {
-  return (() => {
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Bitcoin:
-        return ChainTypes.Bitcoin
-      case CHAIN_NAMESPACE.Ethereum:
-        return ChainTypes.Ethereum
-      case CHAIN_NAMESPACE.Cosmos:
-        return chainReference === CHAIN_REFERENCE.CosmosHubMainnet
-          ? ChainTypes.Cosmos
-          : ChainTypes.Osmosis
-      default:
-        throw new Error(
-          `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-        )
-    }
-  })()
-}
-
-// TODO: Remove: this is a temporary helper to allow web to support caip v5 before other lib packages are ready
-export const chainIdToChainType = (chainId: ChainId): ChainTypes => {
-  const { chainNamespace, chainReference } = fromChainId(chainId)
-  return chainPartsToChainType(chainNamespace, chainReference)
 }
 
 export const isToken = (assetReference: AssetReference | string) =>

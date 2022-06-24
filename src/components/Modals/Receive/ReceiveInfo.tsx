@@ -18,7 +18,7 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'
@@ -46,10 +46,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
   const history = useHistory()
-  const { chain, name, symbol } = asset
+  const { chainId, name, symbol } = asset
 
   const { wallet } = state
-  const chainAdapter = chainAdapterManager.byChain(chain)
+  const chainAdapter = chainAdapterManager.get(chainId)
 
   const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
 
@@ -63,7 +63,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
         ...accountParams,
       })
       setReceiveAddress(selectedAccountAddress)
-      if (asset.chain === ChainTypes.Ethereum) {
+      if (asset.chainId === KnownChainIds.EthereumMainnet) {
         const reverseSelectedAccountAddressLookup = await ensReverseLookup(selectedAccountAddress)
         !reverseSelectedAccountAddressLookup.error &&
           setEnsReceiveAddress(reverseSelectedAccountAddressLookup.name)

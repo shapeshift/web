@@ -6,6 +6,7 @@ import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
@@ -26,6 +27,7 @@ type TestState = {
 }
 
 export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
+  const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
@@ -111,7 +113,11 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
             translation={'walletProvider.shapeShift.testPhrase.body'}
           />{' '}
           <Tag colorScheme='green'>
-            {`${testState.targetWordIndex + 1}${ordinalSuffix(testState.targetWordIndex + 1)}`}
+            {translate(
+              `walletProvider.shapeShift.testPhrase.${testState.targetWordIndex + 1}${ordinalSuffix(
+                testState.targetWordIndex + 1,
+              )}`,
+            )}
             <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
           </Tag>{' '}
           <Text

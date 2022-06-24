@@ -114,7 +114,9 @@ export type ValidateAddress = (args: ValidateAddressArgs) => Promise<ValidateAdd
 
 export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
   try {
-    return (await getChainAdapters().byChainId(chainId).validateAddress(value)).valid
+    const adapter = getChainAdapters().get(chainId)
+    if (!adapter) return false
+    return (await adapter.validateAddress(value)).valid
   } catch (e) {
     return false
   }

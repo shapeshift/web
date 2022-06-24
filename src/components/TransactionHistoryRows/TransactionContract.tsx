@@ -1,4 +1,4 @@
-import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { TxType } from '@shapeshiftoss/chain-adapters'
 import { ContractMethod } from 'hooks/useTxDetails/useTxDetails'
 
 import { Amount } from './TransactionDetails/Amount'

@@ -14,6 +14,7 @@ type ConfirmProps = {
   onConfirm(): Promise<void>
   headerText: string
   prefooter?: React.ReactNode
+  isDisabled: boolean
   loading: boolean
   loadingText?: string
   children?: React.ReactNode
@@ -24,6 +25,7 @@ export const Confirm = ({
   onCancel,
   children,
   prefooter,
+  isDisabled,
   loading,
   loadingText,
   headerText,
@@ -64,7 +66,9 @@ export const Confirm = ({
             <Button
               size='lg'
               colorScheme='blue'
+              data-test='defi-modal-confirm-button'
               onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+              isDisabled={isDisabled}
               isLoading={loading}
               loadingText={loadingText}
             >

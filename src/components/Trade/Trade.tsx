@@ -1,5 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { SupportedChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
@@ -11,7 +11,7 @@ export type TradeProps = {
 }
 
 export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
-  const methods = useForm<TradeState<SupportedChainIds>>({
+  const methods = useForm<TradeState<KnownChainIds>>({
     mode: 'onChange',
     defaultValues: {
       fiatSellAmount: undefined,

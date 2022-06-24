@@ -1,5 +1,5 @@
 import { AssetId, btcChainId, ethChainId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 
 import {
   accountIdToChainId,
@@ -95,22 +95,22 @@ describe('findAccountsByAssetId', () => {
   const ethAsset2Id = 'eip155:1/erc20:0xryankk'
 
   it('returns correct accountId for a given assetId', () => {
-    const portolioAccounts = {
-      [ethAccountId]: [ethAssetId],
-      [ethAccount2Id]: [ethAsset2Id],
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAssetId] },
+      [ethAccount2Id]: { assetIds: [ethAsset2Id] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAssetId)
     expect(result).toEqual([ethAccountId])
   })
 
   it('returns correct accountIds for a given assetId', () => {
-    const portolioAccounts = {
-      [ethAccountId]: [ethAssetId, ethAsset2Id],
-      [ethAccount2Id]: [ethAsset2Id],
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAssetId, ethAsset2Id] },
+      [ethAccount2Id]: { assetIds: [ethAsset2Id] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAsset2Id)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAsset2Id)
     expect(result).toEqual([ethAccountId, ethAccount2Id])
   })
 
@@ -118,16 +118,16 @@ describe('findAccountsByAssetId', () => {
     const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
     const btcAccountId = 'bip122:000000000019d6689c085ae165831e93:zpubfoobarbaz'
 
-    const portolioAccounts = {
-      [ethAccountId]: [ethAsset2Id],
-      [ethAccount2Id]: [],
-      [btcAccountId]: [],
+    const portfolioAccounts = {
+      [ethAccountId]: { assetIds: [ethAsset2Id] },
+      [ethAccount2Id]: { assetIds: [] },
+      [btcAccountId]: { assetIds: [] },
     }
 
-    const result = findAccountsByAssetId(portolioAccounts, ethAssetId)
+    const result = findAccountsByAssetId(portfolioAccounts, ethAssetId)
     expect(result).toEqual([ethAccountId, ethAccount2Id])
 
-    const result2 = findAccountsByAssetId(portolioAccounts, btcAssetId)
+    const result2 = findAccountsByAssetId(portfolioAccounts, btcAssetId)
     expect(result2).toEqual([btcAccountId])
   })
 })
@@ -156,16 +156,16 @@ describe('makeSortedAccountBalances', () => {
 describe('makeBalancesByChainBucketsFlattened', () => {
   const assets = {
     'cosmos:cosmoshub-4/slip44:118': {
-      chain: 'cosmos',
+      chainId: KnownChainIds.CosmosMainnet,
     },
     'bip122:000000000019d6689c085ae165831e93/slip44:0': {
-      chain: 'bitcoin',
+      chainId: KnownChainIds.BitcoinMainnet,
     },
     'bip122:000000000933ea01ad0ee984209779ba/slip44:0': {
-      chain: 'bitcoin',
+      chainId: KnownChainIds.BitcoinMainnet,
     },
     'eip155:1/slip44:60': {
-      chain: 'ethereum',
+      chainId: KnownChainIds.EthereumMainnet,
     },
   } as unknown as { [k: AssetId]: Asset }
 

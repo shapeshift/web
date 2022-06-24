@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import axios from 'axios'
 
 import { APP_UPDATE_CHECK_INTERVAL, useHasAppUpdated } from './useHasAppUpdated'
@@ -37,12 +37,12 @@ describe('useHasAppUpdated', () => {
       expect(result.current).toBe(false)
     })
 
-    it('should return true when env.json is updated', async () => {
+    fit('should return true when env.json is updated', async () => {
       mockAxios.get.mockImplementation(() => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, rerender } = renderHook(() => useHasAppUpdated())
+      const { result } = renderHook(() => useHasAppUpdated())
 
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
@@ -53,8 +53,7 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await act(async () => waitForNextUpdate())
-      expect(result.current).toBe(true)
+      await waitFor(() => expect(result.current).toBe(true))
     })
 
     it('should return true when asset-manifest.json is updated', async () => {

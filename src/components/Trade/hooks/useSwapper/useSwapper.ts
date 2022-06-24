@@ -12,6 +12,7 @@ import {
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
 import { Asset, KnownChainIds, SwapperType } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -31,7 +32,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
-import { getConfig } from 'config'
 
 const debounceTime = 1000
 
@@ -49,10 +49,10 @@ export const useSwapper = () => {
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
-      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-      TradeAsset | undefined,
-      Trade<KnownChainIds>,
-    ]
+    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+    TradeAsset | undefined,
+    Trade<KnownChainIds>,
+  ]
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -67,32 +67,32 @@ export const useSwapper = () => {
     if (!adapterManager || !swapperManager) return
 
     const web3 = getWeb3Instance()
-      ; (async () => {
-        // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-        // const thorSwapper = new ThorchainSwapper({
-        //   midgardUrl,
-        //   adapterManager,
-        //   web3,
-        // })
-        // await thorSwapper.initialize()
-        // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+    ;(async () => {
+      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      // const thorSwapper = new ThorchainSwapper({
+      //   midgardUrl,
+      //   adapterManager,
+      //   web3,
+      // })
+      // await thorSwapper.initialize()
+      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
-        if (wallet) {
-          const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE
-          const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE
-          const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet, osmoUrl, cosmosUrl })
-          swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
-        }
+      if (wallet) {
+        const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE
+        const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE
+        const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet, osmoUrl, cosmosUrl })
+        swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
+      }
 
-        const zrxSwapper = new ZrxSwapper({
-          web3,
-          adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
-        })
+      const zrxSwapper = new ZrxSwapper({
+        web3,
+        adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
+      })
 
-        await zrxSwapper.initialize()
-        swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
-      })()
-  }, [adapterManager, swapperManager])
+      await zrxSwapper.initialize()
+      swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
+    })()
+  }, [adapterManager, swapperManager, wallet])
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -116,9 +116,9 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-          assetIds,
-          sellAssetId,
-        })
+            assetIds,
+            sellAssetId,
+          })
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
@@ -184,7 +184,11 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const result = await (async () => {
-      if (sellAsset.chainId === 'eip155:1' || sellAsset.chainId === 'cosmos:osmosis-1' || sellAsset.chainId === 'cosmos:cosmoshub-4') {
+      if (
+        sellAsset.chainId === 'eip155:1' ||
+        sellAsset.chainId === 'cosmos:osmosis-1' ||
+        sellAsset.chainId === 'cosmos:cosmoshub-4'
+      ) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmount: amount,
@@ -202,7 +206,7 @@ export const useSwapper = () => {
       }
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
-    console.log('result', result)
+
     setFees(result, sellAsset)
     setValue('trade', result)
   }
@@ -213,7 +217,7 @@ export const useSwapper = () => {
       sellAssetId: trade.sellAsset.assetId,
     })) as Swapper<ChainId>
     if (!swapper) throw new Error('no swapper available')
-    console.log('tradeResultweb', tradeResult)
+
     return swapper.getTradeTxs(tradeResult)
   }
 
@@ -253,7 +257,11 @@ export const useSwapper = () => {
         })
 
         const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-          if (sellAsset.chainId === 'eip155:1' || sellAsset.chainId === 'cosmos:osmosis-1' || sellAsset.chainId === 'cosmos:cosmoshub-4') {
+          if (
+            sellAsset.chainId === 'eip155:1' ||
+            sellAsset.chainId === 'cosmos:osmosis-1' ||
+            sellAsset.chainId === 'cosmos:cosmoshub-4'
+          ) {
             return swapper.getTradeQuote({
               chainId: sellAsset.chainId,
               sellAsset,

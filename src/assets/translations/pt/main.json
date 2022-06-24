@@ -49,7 +49,6 @@
     "copyFailed": "Não foi possível copiar.",
     "copyFailedDescription": "Por favor, copie manualmente",
     "viewAsset": "Visualizar Ativo",
-    "apy": "%{apy}% APY",
     "settings": "Configurações",
     "legalDated": "Data: janeiro de 2022",
     "approveOnWallet": "Aprovar na Carteira",
@@ -61,7 +60,11 @@
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
-    "cta": "Recarregar Aplicativo"
+    "cta": "Recarregar Aplicativo",
+    "keepKey": {
+      "title": "Atualização KeepKey disponível",
+      "newUpdateAvailable": "Uma nova atualização da KeepKey está disponível."
+    }
   },
   "dashboard": {
     "portfolio": {
@@ -110,8 +113,7 @@
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
     "header": "Conecte sua carteira para iniciar",
-    "cta": "Conectar Carteira",
-    "orViewADemo": "ou experimente uma demonstração"
+    "cta": "Conectar Carteira"
   },
   "connectWallet": {
     "menu": {
@@ -232,6 +234,8 @@
     "walletBalance": "Saldo na Carteira",
     "earnBalance": "Saldo de Investimentos",
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
+    "clickHereToEarn": "Clique aqui para investir",
+    "byFarming": " APR* do farming de seus tokens na pool de liquidez ETH-FOX",
     "overview": "Visão Geral",
     "liquidityPools": "Pools de Liquidez",
     "stakingVaults": "Poupança e Cofres",
@@ -317,6 +321,7 @@
       },
       "uniV2": {
         "addLiquidityETH": "Adicionar liquidez",
+        "stake": "Stake",
         "removeLiquidityETH": "Remover liquidez"
       },
       "thor": {
@@ -327,6 +332,8 @@
         "unstake": "Remover Staking",
         "instantUnstake": "Stake instantâneo ",
         "claimWithdraw": "Reivindicar Retirada"
+      },
+      "erc20": {
       }
     },
     "unknown": "Transação"
@@ -337,6 +344,7 @@
     "rate": "Taxa",
     "minerFee": "Taxa de Mineração",
     "shapeshiftFee": "Taxa ShapeShift",
+    "gasFeeExceedsTradeAmountThreshold": "A taxa de gás excede %{percentage}% do valor da transação",
     "confirmDetails": "Confirmar Detalhes",
     "confirmAndTrade": "Confirmar e Trocar",
     "complete": "Troca efetivada com sucesso",
@@ -373,10 +381,12 @@
       "depositAddressRequired": "Não é possível executar uma cotação ETH sem um endereço DEX",
       "sellAssetNetworkAndSymbolRequired": "Informe a rede e o símbolo para executar a cotação",
       "hdwalletInvalidConfig": "Ocorreu um erro de comunicação com sua carteira de hardware",
+      "grantAllowanceFailed": "Ocorreu um erro ao conceder permissão.",
       "signing": {
         "failed": "Erro ao assinar a transação",
         "required": "É necessário assinar a transação"
-      }
+      },
+      "generalError": "Ocorreu um erro durante a troca."
     }
   },
   "modals": {
@@ -429,6 +439,8 @@
       "recoverySettingUp": {
         "header": "Configurando dispositivo...",
         "body": "Aguarde enquanto inicializamos seu dispositivo e sincronizamos seus endereços."
+      },
+      "recoveryInvalid": {
       }
     },
     "shapeShift": {
@@ -444,6 +456,11 @@
           "required": "É necessário inserir sua senha",
           "length": "Sua senha deve conter ao menos %{length} caracteres",
           "maxLength": "Apelido deve conter no máximo %{length} caracteres"
+        }
+      },
+      "confirmPassword": {
+        "walletName": "Nome da carteira (opcional)",
+        "error": {
         }
       }
     },
@@ -595,7 +612,10 @@
       "settings": "Configurações",
       "language": "Idioma",
       "balanceThreshold": "Limite de saldo",
-      "balanceThresholdTooltip": "Ocultar saldos abaixo deste valor"
+      "balanceThresholdTooltip": "Ocultar saldos abaixo deste valor",
+      "currencies": {
+        "BRL": "Real Brasileiro"
+      }
     }
   },
   "walletProvider": {
@@ -701,8 +721,9 @@
     },
     "keplr": {
       "errors": {
+        "connectFailure": "Não foi possível conectar sua carteira Keplr",
         "unknown": "Ocorreu um erro inesperado na comunicação com a Keplr",
-        "connectFailure": "Não foi possível conectar sua carteira Keplr"
+        "noProvider": "Extensão da carteira Keplr não encontrada"
       },
       "connect": {
         "header": "Emparelhar Keplr",
@@ -719,7 +740,8 @@
         "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
         "connectFailure": "Não foi possível conectar a carteira MetaMask",
         "network": "Selecione a rede Ethereum Mainnet em sua MetaMask",
-        "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?"
+        "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?",
+        "tallyInstalledAndSetToDefault": "Detectamos que você tem a Tally Ho instalado e definida como Padrão. Se você preferir usar a MetaMask, altere as configurações em Tally Ho e atualize a página."
       },
       "connect": {
         "header": "Emparelhar MetaMask",
@@ -736,6 +758,21 @@
         "button": "Abrir"
       }
     },
+    "tallyHo": {
+      "errors": {
+        "network": "Tally Ho não está definida para Ethereum Mainnet",
+        "multipleWallets": "O provedor de Ethereum detectado não é Tally Ho. Você possui várias carteiras instaladas?",
+        "tallyNotInstalledOrSetToDefault": "Detectamos que a Tally Ho não está instalada ou não está definida como padrão. Se você deseja usar a Tally Ho, instale-a ou defina-a como sua carteira padrão e atualize a página."
+      },
+      "connect": {
+        "header": "Emparelhar Tally",
+        "button": "Emparelhar\n"
+      },
+      "failure": {
+      },
+      "redirect": {
+      }
+    },
     "portis": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com a Portis",
@@ -749,6 +786,22 @@
       "failure": {
         "header": "Erro",
         "body": "Não foi possível conectar sua carteira Portis"
+      }
+    },
+    "xdefi": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com a XDEFI",
+        "network": "XDEFI não está definida para Ethereum Mainnet"
+      },
+      "connect": {
+        "header": "Emparelhar XDEFI",
+        "body": "Clique em Emparelhar e faça login na carteira XDEFI na janela pop-up",
+        "button": "Emparelhar"
+      },
+      "failure": {
+      },
+      "redirect": {
+        "body": "Clique para abrir o painel ShapeShift na XDEFI"
       }
     },
     "shapeShift": {
@@ -774,6 +827,7 @@
       "password": {
         "header": "Insira sua senha",
         "body": "Digite uma senha para criptografar sua carteira. É assim que você acessará sua carteira. Não esqueça esta senha.",
+        "warning": "Nota: Se você esquecer sua senha, a ShapeShift não poderá ajudar a recuperá-la.",
         "button": "Avançar",
         "connect": "Conecte-se a outra carteira"
       },
@@ -842,7 +896,7 @@
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
-      "create": "Crie um"
+      "create": "Crie uma carteira"
     }
   },
   "graph": {
@@ -973,5 +1027,36 @@
     "to": "Para",
     "for": "Por",
     "transfers": "Transferências"
+  },
+  "plugins": {
+    "foxPage": {
+      "totalFoxValue": "Valor total de FOX",
+      "trade": "Trocar",
+      "mainStakingDescription": "Coloque seus FOX para trabalhar em contratos de staking unilaterais e receba recompensas em FOX. (Seu FOX ainda pode ser usado como token governança, mesmo em staking. Porém, permanecerá bloqueado enquanto estiver trabalhando em seus rendimentos)",
+      "balance": "Portfólio",
+      "tradingUnavailable": "%{assetSymbol} ainda não é negociável na ShapeShift. Você pode negociar %{assetSymbol} na ElasticSwap.",
+      "tradeOnElasticSwap": "Negocie %{assetSymbol} na ElasticSwap",
+      "otherOpportunitiesTitle": {
+      },
+      "otherOpportunitiesDescription": {
+        "FOX": "Explore oportunidades de nossos programas de liquidez e estratégias de lending & borrowing. Clique em “Começar” abaixo para explorar —e colocar seus FOX para trabalharem.",
+        "FOXy": "Compre de forma rápida e fácil o FOXy, o primeiro token  rebase da DAO que oferece recompensas de rendimento."
+      },
+      "farming": "Farming",
+      "borrowingAndLending": "Borrowing & Lending",
+      "governanceDescription": "Como titular FOX, você pode ter voz no futuro da ShapeShift.  Confira abaixo a propostas ativas na DAO ou aprovadas recentemente  pelos detentores de FOX.",
+      "dex": "DEX",
+      "centralized": "Centralizada"
+    },
+    "analytics": {
+      "optInModal": {
+        "title": "Ajude-nos a melhorar a ShapeShift",
+        "actionsSentence": "A ShapeShift irá...",
+        "noThanks": "Não, leve-me para a versão privada",
+        "neverCollectPersonalInformations": "Nunca coletar chaves, endereços, transações, saldos ou qualquer informação pessoal",
+        "neverCollectIp": "Nunca coletar seu endereço IP completo",
+        "neverSellData": "Nunca vender dados com fins lucrativos"
+      }
+    }
   }
 }

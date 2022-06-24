@@ -1,7 +1,7 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
 import debounce from 'lodash/debounce'
 import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

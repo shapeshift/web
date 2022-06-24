@@ -1,5 +1,5 @@
 import { cosmosChainId } from '@shapeshiftoss/caip'
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'

@@ -1,8 +1,8 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
 import { TxType } from '@shapeshiftoss/chain-adapters'
 import dayjs from 'dayjs'
+import fileDownload from 'js-file-download'
 import { useState } from 'react'
-import { useJsonToCsv } from 'react-json-csv'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import {
@@ -33,12 +33,20 @@ type ReportRow = {
   outputAddress: string
 }
 
+const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string => {
+  const csvRows = [
+    Object.values(fields).join(','), // header
+    ...rows.map(row => Object.values(row).join(',')), // data
+  ].join('\r\n')
+
+  return `${csvRows}\r\n`
+}
+
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssetsByMarketCap)
-  const { saveAsCsv } = useJsonToCsv()
   const translate = useTranslate()
   const fields = {
     txid: translate('transactionHistory.csv.txid'),
@@ -107,13 +115,11 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       })
     }
     try {
-      saveAsCsv({
-        data: report,
-        fields,
-        filename: `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
-          'HH:mm A, MMMM DD, YYYY',
-        )}`,
-      })
+      const data = jsonToCsv(fields, report)
+      const filename = `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
+        'HH:mm A, MMMM DD, YYYY',
+      )}.csv`
+      fileDownload(data, filename)
     } catch (error) {
       console.error(error)
     } finally {

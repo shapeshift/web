@@ -47,7 +47,7 @@ jobs:
             ${{ runner.os }}-node-modules-${{ github.ref }}-
 
       - name: Install Cypress & Build Project
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v4
         with:
           # Disable running of tests within install job
           runTests: false

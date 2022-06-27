@@ -97,7 +97,7 @@ jobs:
       # closer reflect Github runner resources.
       # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
       - name: Cypress Run
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v4
         with:
           record: true
           start: yarn dev:silent

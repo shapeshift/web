@@ -115,7 +115,7 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explore The",
+    "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
@@ -614,7 +614,7 @@
       "withdrawDelayedTime": "7 to 14 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
-      "notEnoughGas":  "Not enough %{assetSymbol} to cover gas",
+      "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
       "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"

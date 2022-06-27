@@ -1,7 +1,7 @@
 import realFs from 'fs'
 
 import { makeBtcData, makeCosmosHubData, makeOsmosisData } from '../../utils'
-import { parseData, parseEthData, writeFiles } from './utils'
+import { parseData, writeFiles } from './utils'
 
 const makeEthMockCoingeckoResponse = () => ({
   id: 'ethereum',
@@ -16,6 +16,22 @@ const makeEthMockCoingeckoResponse = () => ({
     sora: '0x0200070000000000000000000000000000000000000000000000000000000000 ',
     'optimistic-ethereum': '0x4200000000000000000000000000000000000006',
     tomochain: '0x2eaa73bd0db20c64f53febea7b5f5e5bccc7fb8b'
+  }
+})
+
+const makeAvalancheMockCoingeckoResponse = () => ({
+  id: 'avalanche-2',
+  symbol: 'avax',
+  name: 'Avalanche',
+  platforms: {
+    avalanche: 'FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z',
+    'defi-kingdoms-blockchain': '0xb57b60debdb0b8172bb6316a9164bd3c695f133a',
+    'milkomeda-cardano': '0x65e66a61d0a8f1e686c2d6083ad611a10d84d97a',
+    'polygon-pos': '0x2c89bbc92bd86f8075d1decc58c7f4e0107f286b',
+    moonbeam: '0x4792c1ecb969b036eb51330c63bd27899a13d84e',
+    'harmony-shard-0': 'one14tvk6p8spdcch8k58cuahrnnmesua79he3xzld',
+    solana: '7JnHPPJBBKSTJ7iEmsiGSBcPJgbcKw28uCRXtQgimncp',
+    moonriver: '0x14a0243c333a5b238143068dc3a7323ba4c30ecb'
   }
 })
 
@@ -58,29 +74,20 @@ jest.mock('fs', () => ({
 }))
 
 describe('adapters:coingecko:utils', () => {
-  describe('parseEthData', () => {
-    it('can parse eth data', async () => {
-      const result = parseEthData([makeEthMockCoingeckoResponse(), makeFoxMockCoingeckoResponse()])
-      const expected = {
-        'eip155:1/slip44:60': 'ethereum',
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'shapeshift-fox-token'
-      }
-      expect(result).toEqual(expected)
-    })
-
-    it('can parse btc data', async () => {
+  describe('makeData', () => {
+    it('can make btc data', async () => {
       const result = makeBtcData()
       const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' }
       expect(result).toEqual(expected)
     })
 
-    it('can parse cosmos data', async () => {
+    it('can make cosmos data', async () => {
       const result = makeCosmosHubData()
       const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
       expect(result).toEqual(expected)
     })
 
-    it('can parse osmosis data', async () => {
+    it('can make osmosis data', async () => {
       const result = makeOsmosisData()
       const expected = { 'cosmos:osmosis-1/slip44:118': 'osmosis' }
       expect(result).toEqual(expected)
@@ -94,7 +101,8 @@ describe('adapters:coingecko:utils', () => {
         makeFoxMockCoingeckoResponse(),
         makeBtcMockCoingeckoResponse(),
         makeCosmosMockCoingeckoResponse(),
-        makeOsmosisMockCoingeckoResponse()
+        makeOsmosisMockCoingeckoResponse(),
+        makeAvalancheMockCoingeckoResponse()
       ])
       const expected = {
         'bip122:000000000019d6689c085ae165831e93': {
@@ -109,6 +117,10 @@ describe('adapters:coingecko:utils', () => {
         'eip155:1': {
           'eip155:1/slip44:60': 'ethereum',
           'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'shapeshift-fox-token'
+        },
+        'eip155:43114': {
+          'eip155:43114/slip44:9000': 'avalanche-2',
+          'eip155:43114/erc20:0xf20d962a6c8f70c731bd838a3a388d7d48fa6e15': 'ethereum'
         }
       }
       expect(result).toEqual(expected)
@@ -131,11 +143,13 @@ describe('adapters:coingecko:utils', () => {
       const barAssetIds = JSON.stringify(data.bar)
       console.info = jest.fn()
       await writeFiles(data)
-      expect(realFs.promises.writeFile).toBeCalledWith(
+      expect(realFs.promises.writeFile).toHaveBeenNthCalledWith(
+        1,
         './src/adapters/coingecko/generated/foo/adapter.json',
         fooAssetIds
       )
-      expect(realFs.promises.writeFile).toBeCalledWith(
+      expect(realFs.promises.writeFile).toHaveBeenNthCalledWith(
+        2,
         './src/adapters/coingecko/generated/bar/adapter.json',
         barAssetIds
       )

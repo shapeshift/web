@@ -1,13 +1,16 @@
 import axios from 'axios'
 import fs from 'fs'
 
-import { toAssetId } from '../../assetId/assetId'
+import { AssetId, toAssetId } from '../../assetId/assetId'
+import { ChainId } from '../../chainId/chainId'
 import {
-  ASSET_REFERENCE,
+  avalancheAssetId,
+  avalancheChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
+  ethAssetId,
   ethChainId,
   osmosisChainId
 } from '../../constants'
@@ -17,42 +20,64 @@ export type CoingeckoCoin = {
   id: string
   symbol: string
   name: string
-  platforms: {
-    [k: string]: string
-  }
+  platforms: Record<string, string>
 }
 
-export const writeFiles = async (data: Record<string, Record<string, string>>) => {
-  const path = './src/adapters/coingecko/generated/'
-  const file = '/adapter.json'
-  const writeFile = async ([k, v]: [string, unknown]) =>
-    await fs.promises.writeFile(`${path}${k}${file}`.replace(':', '_'), JSON.stringify(v))
-  await Promise.all(Object.entries(data).map(writeFile))
+type AssetMap = Record<ChainId, Record<AssetId, string>>
+
+export const writeFiles = async (data: AssetMap) => {
+  await Promise.all(
+    Object.entries(data).map(async ([chainId, assets]) => {
+      const path = `./src/adapters/coingecko/generated/${chainId}/adapter.json`.replace(':', '_')
+      await fs.promises.writeFile(path, JSON.stringify(assets))
+    })
+  )
   console.info('Generated CoinGecko AssetId adapter data.')
 }
 
 export const fetchData = async (URL: string) => (await axios.get<CoingeckoCoin[]>(URL)).data
 
-export const parseEthData = (data: CoingeckoCoin[]) => {
-  const ethCoins = data.filter(
-    ({ id, platforms }) => Boolean(platforms?.ethereum) || id === 'ethereum'
+export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
+  const assetMap = coins.reduce<AssetMap>(
+    (prev, { id, platforms }) => {
+      if (Object.keys(platforms).includes('ethereum')) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Ethereum,
+            chainReference: CHAIN_REFERENCE.EthereumMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms.ethereum
+          })
+          prev[ethChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes('avalanche')) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Ethereum,
+            chainReference: CHAIN_REFERENCE.AvalancheCChain,
+            assetNamespace: 'erc20',
+            assetReference: platforms.avalanche
+          })
+          prev[avalancheChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      return prev
+    },
+    {
+      [ethChainId]: { [ethAssetId]: 'ethereum' },
+      [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' }
+    }
   )
 
-  const chainNamespace = CHAIN_NAMESPACE.Ethereum
-  const chainReference = CHAIN_REFERENCE.EthereumMainnet
-
-  return ethCoins.reduce((acc, { id, platforms }) => {
-    const assetNamespace = id === 'ethereum' ? 'slip44' : 'erc20'
-    const assetReference = id === 'ethereum' ? ASSET_REFERENCE.Ethereum : platforms?.ethereum
-    const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
-    acc[assetId] = id
-    return acc
-  }, {} as Record<string, string>)
-}
-
-export const parseData = (d: CoingeckoCoin[]) => {
   return {
-    [ethChainId]: parseEthData(d),
+    ...assetMap,
     [btcChainId]: makeBtcData(),
     [cosmosChainId]: makeCosmosHubData(),
     [osmosisChainId]: makeOsmosisData()

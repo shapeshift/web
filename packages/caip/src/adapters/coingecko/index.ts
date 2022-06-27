@@ -13,8 +13,8 @@ export enum CoingeckoAssetPlatform {
   Avalanche = 'avalanche'
 }
 
-export const coingeckoBaseUrl = 'http://api.coingecko.com/api/v3'
-export const coingeckoProBaseUrl = 'http://pro-api.coingecko.com/api/v3'
+export const coingeckoBaseUrl = 'https://api.coingecko.com/api/v3'
+export const coingeckoProBaseUrl = 'https://pro-api.coingecko.com/api/v3'
 export const coingeckoUrl = 'https://api.coingecko.com/api/v3/coins/list?include_platform=true'
 
 const generatedAssetIdToCoingeckoMap = Object.values(adapters).reduce((acc, cur) => ({
@@ -70,12 +70,20 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
   }
 }
 
-export const makeCoingeckoAssetUrl = (assetId: string, apiKey?: string): string => {
-  const id = assetIdToCoingecko(assetId)
-  if (!id) throw new Error(`no coingecko asset for assetId: ${assetId}`)
-
+export const makeCoingeckoUrlParts = (
+  apiKey?: string
+): { baseUrl: string; maybeApiKeyQueryParam: string } => {
   const baseUrl = apiKey ? coingeckoProBaseUrl : coingeckoBaseUrl
-  const maybeApiKey = apiKey ? `&x_cg_pro_api_key=${apiKey}` : ''
+  const maybeApiKeyQueryParam = apiKey ? `&x_cg_pro_api_key=${apiKey}` : ''
+
+  return { baseUrl, maybeApiKeyQueryParam }
+}
+
+export const makeCoingeckoAssetUrl = (assetId: string, apiKey?: string): string | undefined => {
+  const id = assetIdToCoingecko(assetId)
+  if (!id) return
+
+  const { baseUrl, maybeApiKeyQueryParam } = makeCoingeckoUrlParts(apiKey)
 
   const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
 
@@ -84,8 +92,8 @@ export const makeCoingeckoAssetUrl = (assetId: string, apiKey?: string): string 
       toChainId({ chainNamespace, chainReference })
     )
 
-    return `${baseUrl}/coins/${assetPlatform}/contract/${assetReference}${maybeApiKey}`
+    return `${baseUrl}/coins/${assetPlatform}/contract/${assetReference}?${maybeApiKeyQueryParam}`
   }
 
-  return `${baseUrl}/coins/${id}${maybeApiKey}`
+  return `${baseUrl}/coins/${id}?${maybeApiKeyQueryParam}`
 }

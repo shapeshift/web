@@ -32,6 +32,8 @@ export class AssetService {
       type CoinData = { description: { en: string } }
 
       const url = adapters.makeCoingeckoAssetUrl(assetId)
+      if (!url) throw new Error()
+
       const { data } = await axios.get<CoinData>(url)
 
       return { description: data?.description?.en ?? '' }

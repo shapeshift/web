@@ -1,5 +1,4 @@
-import { AssetId } from '@shapeshiftoss/caip'
-
 import map from './color-map.json'
 
-export const colorMap: { [key: AssetId]: string } = map
+// Record<AssetId, string> but we can't use nominals as indexers, only primitives
+export const colorMap: Record<string, string> = map

@@ -370,9 +370,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               if (localMetaMaskWallet) {
                 const chainId = await localMetaMaskWallet.ethGetChainId?.()
                 if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
-                  await localMetaMaskWallet.ethSwitchChain?.(
-                    bn(CHAIN_REFERENCE.EthereumMainnet).toNumber(),
-                  )
+                  try {
+                    await localMetaMaskWallet.ethSwitchChain?.(
+                      bn(CHAIN_REFERENCE.EthereumMainnet).toNumber(),
+                    )
+                  } catch (e) {
+                    disconnect()
+                  }
                 }
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
                 try {

@@ -71,7 +71,11 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         // Switch to Mainnet if wallet is on any other chain
         const chainId = await wallet.ethGetChainId?.()
         if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
-          await wallet.ethSwitchChain?.(bn(CHAIN_REFERENCE.EthereumMainnet).toNumber())
+          try {
+            await wallet.ethSwitchChain?.(bn(CHAIN_REFERENCE.EthereumMainnet).toNumber())
+          } catch (e) {
+            throw new Error('walletProvider.metaMask.errors.network')
+          }
         }
 
         // Hack to handle MetaMask account changes

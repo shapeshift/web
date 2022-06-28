@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v6.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.3.0...@shapeshiftoss/market-service-v6.4.0) (2022-06-28)
+
+
+### Features
+
+* use FOX CoinGecko market data for FOXy ([#830](https://github.com/shapeshift/lib/issues/830)) ([b2b4b84](https://github.com/shapeshift/lib/commit/b2b4b84e23a1fa5357558fd3172df8deb2b17460))
+
 # [@shapeshiftoss/market-service-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.2.2...@shapeshiftoss/market-service-v6.3.0) (2022-06-27)
 
 

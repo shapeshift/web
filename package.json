@@ -65,7 +65,7 @@
     ]
   },
   "resolutions": {
-    "@shapeshiftoss/hdwallet-core": "1.23.0"
+    "@shapeshiftoss/hdwallet-core": "1.24.0"
   },
   "config-overrides-path": "react-app-rewired.config.js",
   "fork-ts-checker": {
@@ -90,16 +90,16 @@
     "@shapeshiftoss/caip": "^6.2.0",
     "@shapeshiftoss/chain-adapters": "^7.0.3",
     "@shapeshiftoss/errors": "^1.1.2",
-    "@shapeshiftoss/hdwallet-core": "^1.23.0",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.23.0",
-    "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.23.0",
-    "@shapeshiftoss/hdwallet-keplr": "^1.23.0",
-    "@shapeshiftoss/hdwallet-metamask": "^1.23.0",
-    "@shapeshiftoss/hdwallet-native": "^1.23.0",
-    "@shapeshiftoss/hdwallet-native-vault": "^1.23.0",
-    "@shapeshiftoss/hdwallet-portis": "^1.23.0",
+    "@shapeshiftoss/hdwallet-core": "^1.24.0",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.24.0",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.24.0",
+    "@shapeshiftoss/hdwallet-keplr": "^1.24.0",
+    "@shapeshiftoss/hdwallet-metamask": "^1.24.0",
+    "@shapeshiftoss/hdwallet-native": "^1.24.0",
+    "@shapeshiftoss/hdwallet-native-vault": "^1.24.0",
+    "@shapeshiftoss/hdwallet-portis": "^1.24.0",
     "@shapeshiftoss/hdwallet-tallyho": "^1.22.0",
-    "@shapeshiftoss/hdwallet-xdefi": "^1.23.0",
+    "@shapeshiftoss/hdwallet-xdefi": "^1.24.0",
     "@shapeshiftoss/investor-foxy": "^4.0.2",
     "@shapeshiftoss/investor-yearn": "^4.0.2",
     "@shapeshiftoss/logger": "^1.1.2",

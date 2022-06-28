@@ -1,4 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
@@ -6,6 +8,7 @@ import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -58,7 +61,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.TallyHo)) {
-      const wallet = await state.adapters.get(KeyManager.TallyHo)?.pairDevice()
+      const wallet = (await state.adapters.get(KeyManager.TallyHo)?.pairDevice()) as ETHWallet
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-tally::pairDevice returned null or undefined')
@@ -68,8 +71,10 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       try {
         const deviceId = await wallet.getDeviceID()
 
-        if (provider?.chainId !== '0x1') {
-          throw new Error('walletProvider.tallyHo.errors.network')
+        // Switch to Mainnet if wallet is on any other chain
+        const chainId = await wallet.ethGetChainId?.()
+        if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
+          await wallet.ethSwitchChain?.(bn(CHAIN_REFERENCE.EthereumMainnet).toNumber())
         }
 
         // Hack to handle Tally account changes

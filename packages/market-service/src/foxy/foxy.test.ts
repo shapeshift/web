@@ -6,9 +6,12 @@ import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
 
 const foxyMarketService = new FoxyMarketService({
-  jsonRpcProviderUrl: 'dummy',
-  unchainedEthereumHttpUrl: '',
-  unchainedEthereumWsUrl: ''
+  coinGeckoAPIKey: 'secret',
+  providerUrls: {
+    jsonRpcProviderUrl: 'dummy',
+    unchainedEthereumHttpUrl: '',
+    unchainedEthereumWsUrl: ''
+  }
 })
 
 jest.mock('axios')
@@ -28,7 +31,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>
 describe('foxy market service', () => {
   describe('getMarketCap', () => {
     it('can return fox market data', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { data: [fox] } })
+      mockedAxios.get.mockResolvedValue({ data: { data: [{ market_data: fox }] } })
       const result = await foxyMarketService.findAll()
       expect(Object.keys(result).length).toEqual(1)
     })
@@ -40,7 +43,7 @@ describe('foxy market service', () => {
     })
 
     it('can handle rate limiting', async () => {
-      mockedAxios.get.mockResolvedValue({ status: 429 })
+      mockedAxios.get.mockRejectedValue({ status: 429 })
       const result = await foxyMarketService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
@@ -52,7 +55,7 @@ describe('foxy market service', () => {
     }
 
     it('should return market data for FOXy', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { data: fox } })
+      mockedAxios.get.mockResolvedValue({ data: { market_data: fox } })
       expect(await foxyMarketService.findByAssetId(args)).toEqual(mockFoxyMarketData)
     })
 
@@ -72,12 +75,14 @@ describe('foxy market service', () => {
     }
 
     it('should return market data for FOXy', async () => {
-      const mockHistoryData = [
-        { time: 1631664000000, priceUsd: '0.480621954029937' },
-        { time: 1631577600000, priceUsd: '0.48541321175453755' },
-        { time: 1631491200000, priceUsd: '0.4860349080635926' },
-        { time: 1631404800000, priceUsd: '0.46897407484696146' }
-      ]
+      const mockHistoryData = {
+        prices: [
+          [1631664000000, 0.480621954029937],
+          [1631577600000, 0.48541321175453755],
+          [1631491200000, 0.4860349080635926],
+          [1631404800000, 0.46897407484696146]
+        ]
+      }
 
       const expected = [
         { date: new Date('2021-09-15T00:00:00.000Z').valueOf(), price: 0.480621954029937 },
@@ -85,7 +90,7 @@ describe('foxy market service', () => {
         { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 0.4860349080635926 },
         { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 0.46897407484696146 }
       ]
-      mockedAxios.get.mockResolvedValue({ data: { data: mockHistoryData } })
+      mockedAxios.get.mockResolvedValue({ data: mockHistoryData })
       expect(await foxyMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
 

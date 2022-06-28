@@ -16,7 +16,7 @@ import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import { rateLimitedAxios } from '../utils/rateLimiters'
-import { CoinGeckoMarketCap } from './coingecko-types'
+import { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
 
 const logger = new Logger({
   namespace: ['market-service', 'coingecko'],
@@ -28,17 +28,7 @@ const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINGECKO)
 // tons more params here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {
   chain: adapters.CoingeckoAssetPlatform
-  market_data: {
-    current_price: Record<string, number>
-    market_cap: Record<string, number>
-    total_volume: Record<string, number>
-    high_24h: Record<string, number>
-    low_24h: Record<string, number>
-    circulating_supply: number
-    total_supply: number
-    max_supply: number
-    price_change_percentage_24h: number
-  }
+  market_data: CoinGeckoMarketData
 }
 
 type CoinGeckoHistoryData = {
@@ -122,11 +112,11 @@ export class CoinGeckoMarketService implements MarketService {
       Also a lot of time when max_supply is null, total_supply is the maximum supply on coingecko
       We can reassess in the future the degree of precision we want on that field */
       return {
-        price: marketData.current_price?.[currency].toString(),
-        marketCap: marketData.market_cap?.[currency].toString(),
+        price: bnOrZero(marketData.current_price?.[currency]).toString(),
+        marketCap: bnOrZero(marketData.market_cap?.[currency]).toString(),
         changePercent24Hr: marketData.price_change_percentage_24h,
-        volume: marketData.total_volume?.[currency].toString(),
-        supply: marketData.circulating_supply.toString(),
+        volume: bnOrZero(marketData.total_volume?.[currency]).toString(),
+        supply: bnOrZero(marketData.circulating_supply).toString(),
         maxSupply:
           marketData.max_supply?.toString() ?? marketData.total_supply?.toString() ?? undefined
       }

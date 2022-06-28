@@ -25,9 +25,12 @@ const main = async (): Promise<void> => {
   // const yearnMarketService = new YearnTokenMarketCapService({ yearnSdk })
   // const osmosisMarketService = new OsmosisMarketService()
   const foxyMarketService = new FoxyMarketService({
-    jsonRpcProviderUrl: '', // REACT_APP_ETHEREUM_NODE_URL
-    unchainedEthereumHttpUrl: '', // REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
-    unchainedEthereumWsUrl: '' // REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+    coinGeckoAPIKey: '', // REACT_APP_COINGECKO_API_KEY
+    providerUrls: {
+      jsonRpcProviderUrl: '', // REACT_APP_ETHEREUM_NODE_URL
+      unchainedEthereumHttpUrl: '', // REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
+      unchainedEthereumWsUrl: '' // REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+    }
   })
   // const cgMarketService = new CoinGeckoMarketService()
   // const data = await yearnMarketService.findAll()

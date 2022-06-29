@@ -8,10 +8,10 @@ import { scaleLinear, scaleTime } from '@visx/scale'
 import { Bar, Line } from '@visx/shape'
 import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
 import { bisector, extent, max, min } from 'd3-array'
-import dayjs from 'dayjs'
 import numeral from 'numeral'
 import React, { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { useDate } from 'hooks/useDate/useDate'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { colors } from 'theme/colors'
 
@@ -40,6 +40,7 @@ export const PrimaryChart = ({
   color = 'green.500',
   margin = { top: 0, right: 0, bottom: 0, left: 0 },
 }: PrimaryChartProps) => {
+  const displayDate = useDate()
   const {
     showTooltip,
     hideTooltip,
@@ -225,7 +226,7 @@ export const PrimaryChart = ({
                 <Amount.Fiat fontWeight='bold' fontSize='lg' my={2} value={tooltipData.price} />
               </li>
               <li style={{ paddingBottom: '0.25rem', fontSize: '12px', color: colors.gray[500] }}>
-                {dayjs(getDate(tooltipData)).format('MMMM D, YYYY h:mm A')}
+                {displayDate(getDate(tooltipData), 'LLL')}
               </li>
             </ul>
           </TooltipWithBounds>

@@ -58,7 +58,9 @@
     }
   },
   "fiatRamps": {
-    "headerLabel": "Купить/Продать криптовалюту"
+    "headerLabel": "Купить/Продать криптовалюту",
+    "gemMessage": "Купить или продать криптовалюту на Gem",
+    "banxaMessage": "Купить или продать криптовалюту на Banxa"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

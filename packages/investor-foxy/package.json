@@ -31,21 +31,21 @@
     "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "lodash": "^4.17.21",
-    "web3": "^1.7.3",
-    "web3-core": "^1.7.3",
-    "web3-utils": "^1.7.3"
+    "web3": "1.7.4",
+    "web3-core": "1.7.4",
+    "web3-utils": "1.7.4"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^6.0.1",
-    "@shapeshiftoss/chain-adapters": "^6.0.0",
+    "@shapeshiftoss/caip": "^6.2.0",
+    "@shapeshiftoss/chain-adapters": "^7.2.0",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",
-    "@shapeshiftoss/types": "^5.0.0"
+    "@shapeshiftoss/types": "^6.2.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^6.0.1",
-    "@shapeshiftoss/chain-adapters": "^6.0.0",
+    "@shapeshiftoss/caip": "^6.2.0",
+    "@shapeshiftoss/chain-adapters": "^7.2.0",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",
-    "@shapeshiftoss/types": "^5.0.0",
-    "@shapeshiftoss/unchained-client": "^9.0.0"
+    "@shapeshiftoss/types": "^6.2.0",
+    "@shapeshiftoss/unchained-client": "^9.0.1"
   }
 }

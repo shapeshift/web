@@ -37,15 +37,15 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/types": "^6.1.0"
+    "@shapeshiftoss/types": "^6.2.0"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.5.3",
     "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/types": "^6.1.0",
+    "@shapeshiftoss/types": "^6.2.0",
     "@yfi/sdk": "^1.0.30",
     "colorthief": "^2.3.2",
     "dotenv": "^14.3.0",
-    "web3": "^1.7.3"
+    "web3": "1.7.4"
   }
 }

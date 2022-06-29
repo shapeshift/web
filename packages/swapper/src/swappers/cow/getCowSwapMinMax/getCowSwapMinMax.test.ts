@@ -12,13 +12,14 @@ jest.mock('../utils/helpers/helpers', () => ({
 const DEPS = {
   apiUrl: '',
   web3: <Web3>{},
-  adapter: <ethereum.ChainAdapter>{}
+  adapter: <ethereum.ChainAdapter>{},
+  feeAsset: WETH
 }
 
 describe('getCowSwapMinMax', () => {
   it('returns minimum and maximum', async () => {
     const minMax = await getCowSwapMinMax(DEPS, FOX, WETH)
-    expect(minMax.minimum).toBe('4')
+    expect(minMax.minimum).toBe('40')
     expect(minMax.maximum).toBe(MAX_COWSWAP_TRADE)
   })
 

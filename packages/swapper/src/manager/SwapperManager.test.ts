@@ -6,6 +6,7 @@ import { SwapperType } from '../api'
 import { ThorchainSwapper, ZrxSwapper, ZrxSwapperDeps } from '../swappers'
 import { CowSwapper, CowSwapperDeps } from '../swappers/cow/CowSwapper'
 import { ThorchainSwapperDeps } from '../swappers/thorchain/types'
+import { WETH } from '../swappers/utils/test-data/assets'
 import { SwapperManager } from './SwapperManager'
 
 describe('SwapperManager', () => {
@@ -16,7 +17,8 @@ describe('SwapperManager', () => {
   const cowSwapperDeps: CowSwapperDeps = {
     apiUrl: 'https://api.cow.fi/mainnet/api/',
     adapter: <ethereum.ChainAdapter>{},
-    web3: <Web3>{}
+    web3: <Web3>{},
+    feeAsset: WETH
   }
 
   const thorchainSwapperDeps: ThorchainSwapperDeps = {

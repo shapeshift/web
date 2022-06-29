@@ -24,7 +24,7 @@ Web3.mockImplementation(() => ({
 }))
 
 describe('CowApproveInfinite', () => {
-  const { web3, adapter } = setupDeps()
+  const { web3, adapter, feeAsset } = setupDeps()
   const { tradeQuote } = setupQuote()
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve('0xc770eefad204b5180df6a14ee197d99d808ee52d')),
@@ -32,7 +32,7 @@ describe('CowApproveInfinite', () => {
   } as unknown as HDWallet
 
   it('should return a txid', async () => {
-    const deps = { web3, adapter, apiUrl: '' }
+    const deps = { web3, adapter, apiUrl: '', feeAsset }
     const quote = { ...tradeQuote }
 
     expect(await CowApproveInfinite(deps, { quote, wallet })).toEqual('grantAllowanceTxId')

@@ -1,7 +1,7 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
-import { ETH, FOX, WBTC } from '../../../utils/test-data/assets'
+import { BTC, ETH, FOX, WBTC, WETH } from '../../../utils/test-data/assets'
 import { CowSwapperDeps } from '../../CowSwapper'
 import { cowService } from '../cowService'
 import { getUsdRate } from '../helpers/helpers'
@@ -12,7 +12,8 @@ describe('utils', () => {
   const cowSwapperDeps: CowSwapperDeps = {
     apiUrl: 'https://api.cow.fi/mainnet/api/',
     adapter: <ethereum.ChainAdapter>{},
-    web3: <Web3>{}
+    web3: <Web3>{},
+    feeAsset: WETH
   }
 
   describe('getUsdRate', () => {
@@ -48,8 +49,26 @@ describe('utils', () => {
       )
     })
 
+    it('should get the rate of WETH when called with ETH', async () => {
+      ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
+        Promise.resolve({
+          data: {
+            amount: '913757780947770826',
+            token: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+          }
+        })
+      )
+
+      const rate = await getUsdRate(cowSwapperDeps, ETH)
+      expect(parseFloat(rate)).toBeCloseTo(1094.381925769, 9)
+
+      expect(cowService.get).toHaveBeenCalledWith(
+        'https://api.cow.fi/mainnet/api//v1/markets/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48-0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2/buy/1000000000'
+      )
+    })
+
     it('should fail when called with non-erc20 asset', async () => {
-      await expect(getUsdRate(cowSwapperDeps, ETH)).rejects.toThrow(
+      await expect(getUsdRate(cowSwapperDeps, BTC)).rejects.toThrow(
         '[getUsdRate] - unsupported asset namespace'
       )
     })

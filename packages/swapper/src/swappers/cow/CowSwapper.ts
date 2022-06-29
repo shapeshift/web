@@ -20,13 +20,19 @@ import {
 } from '../../api'
 import { CowApprovalNeeded } from './CowApprovalNeeded/CowApprovalNeeded'
 import { CowApproveInfinite } from './CowApproveInfinite/CowApproveInfinite'
+import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 
+/**
+ * CowSwap only supports ERC-20 swaps, hence ETH is not supported
+ * In order to get rates correctly, we need WETH asset to be passed as feeAsset
+ */
 export type CowSwapperDeps = {
   apiUrl: string
   adapter: ethereum.ChainAdapter
   web3: Web3
+  feeAsset: Asset // should be WETH asset
 }
 
 export class CowSwapper implements Swapper<'eip155:1'> {
@@ -50,8 +56,7 @@ export class CowSwapper implements Swapper<'eip155:1'> {
   }
 
   async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<'eip155:1'>> {
-    console.info(input)
-    throw new Error('CowSwapper: getTradeQuote unimplemented')
+    return getCowSwapTradeQuote(this.deps, input)
   }
 
   async getUsdRate(input: Asset): Promise<string> {

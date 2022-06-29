@@ -1,4 +1,4 @@
-import { createStandaloneToast } from '@chakra-ui/react'
+import { createLocalStorageManager, createStandaloneToast } from '@chakra-ui/react'
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
@@ -23,13 +23,15 @@ type ProvidersProps = {
   children: React.ReactNode
 }
 
+const manager = createLocalStorageManager('ss-theme')
+
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   return (
     <ReduxProvider store={store}>
       <PluginProvider>
-        <ChakraProvider theme={theme}>
-          <ColorModeScript />
+        <ColorModeScript storageKey='ss-theme' />
+        <ChakraProvider theme={theme} colorModeManager={manager}>
           <PersistGate loading={<SplashScreen />} persistor={persistor}>
             <HashRouter basename='/'>
               <ScrollToTop />

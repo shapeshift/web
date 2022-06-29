@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.7.1...@shapeshiftoss/swapper-v7.8.0) (2022-06-29)
+
+
+### Features
+
+* **swapper:** cowswap get trade quote method implementation ([#796](https://github.com/shapeshift/lib/issues/796)) ([3d4c334](https://github.com/shapeshift/lib/commit/3d4c334fd0053b53db9d63593a862efe62c5f4c7))
+
 # [@shapeshiftoss/swapper-v7.7.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.7.0...@shapeshiftoss/swapper-v7.7.1) (2022-06-16)
 
 # [@shapeshiftoss/swapper-v7.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.6.0...@shapeshiftoss/swapper-v7.7.0) (2022-06-16)

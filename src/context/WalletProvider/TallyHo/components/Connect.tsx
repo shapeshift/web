@@ -1,6 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
@@ -61,7 +61,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.TallyHo)) {
-      const wallet = (await state.adapters.get(KeyManager.TallyHo)?.pairDevice()) as ETHWallet
+      const wallet = (await state.adapters.get(KeyManager.TallyHo)?.pairDevice()) as TallyHoHDWallet
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-tally::pairDevice returned null or undefined')

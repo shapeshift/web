@@ -1,6 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
@@ -58,7 +58,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
-      const wallet = (await state.adapters.get(KeyManager.MetaMask)?.pairDevice()) as ETHWallet
+      const wallet = (await state.adapters
+        .get(KeyManager.MetaMask)
+        ?.pairDevice()) as MetaMaskHDWallet
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-metamask::pairDevice returned null or undefined')

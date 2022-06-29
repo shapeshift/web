@@ -1,10 +1,12 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { ETHWallet, HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
+import { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
+import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import findIndex from 'lodash/findIndex'
@@ -366,7 +368,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               if (localWalletType === 'metamask' && (window as any)?.ethereum?.isTally) disconnect()
               const localMetaMaskWallet = (await state.adapters
                 .get(KeyManager.MetaMask)
-                ?.pairDevice()) as ETHWallet
+                ?.pairDevice()) as MetaMaskHDWallet
               if (localMetaMaskWallet) {
                 const chainId = await localMetaMaskWallet.ethGetChainId?.()
                 if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
@@ -404,7 +406,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             case KeyManager.TallyHo:
               //Handle refresh bug - when a user changes TallyHo from default, is connected to TallyHo and refreshs the page
               if (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask) disconnect()
-              const localTallyHoWallet = await state.adapters.get(KeyManager.TallyHo)?.pairDevice()
+              const localTallyHoWallet = (await state.adapters
+                .get(KeyManager.TallyHo)
+                ?.pairDevice()) as TallyHoHDWallet
               if (localTallyHoWallet) {
                 const chainId = await localTallyHoWallet.ethGetChainId?.()
                 if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
@@ -435,7 +439,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.XDefi:
-              const localXDEFIWallet = await state.adapters.get(KeyManager.XDefi)?.pairDevice()
+              const localXDEFIWallet = (await state.adapters
+                .get(KeyManager.XDefi)
+                ?.pairDevice()) as XDEFIHDWallet
               if (localXDEFIWallet) {
                 const chainId = await localXDEFIWallet.ethGetChainId?.()
                 if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {

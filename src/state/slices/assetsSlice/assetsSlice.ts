@@ -6,6 +6,7 @@ import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { selectSelectedLocale } from 'state/slices/selectors'
 
 let service: AssetService | undefined = undefined
 
@@ -81,10 +82,11 @@ export const assetApi = createApi({
       queryFn: async (assetId, { getState }) => {
         const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
-        const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
+        const { byId: byIdOriginal, ids } = (getState() as ReduxState).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)
+        const locale = selectSelectedLocale(getState() as ReduxState)
         try {
-          const { description, isTrusted } = await service.description(assetId)
+          const { description, isTrusted } = await service.description(assetId, locale)
           byId[assetId].description = description
           byId[assetId].isTrustedDescription = isTrusted
           const data = { byId, ids }

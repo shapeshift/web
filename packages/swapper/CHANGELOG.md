@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.8.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.8.1...@shapeshiftoss/swapper-v7.8.2) (2022-06-30)
+
+
+### Bug Fixes
+
+* **swapper:** use best practice naming conventions ([#848](https://github.com/shapeshift/lib/issues/848)) ([092255c](https://github.com/shapeshift/lib/commit/092255cbde52abab5e6a14ed82781eb70560dd09))
+
 # [@shapeshiftoss/swapper-v7.8.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.8.0...@shapeshiftoss/swapper-v7.8.1) (2022-06-29)
 
 # [@shapeshiftoss/swapper-v7.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.7.1...@shapeshiftoss/swapper-v7.8.0) (2022-06-29)

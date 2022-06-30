@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 import { ChainAdapter as BitcoinChainAdapter } from './bitcoin/BitcoinChainAdapter'
 import { ChainAdapter as CosmosChainAdapter } from './cosmossdk/cosmos'
 import { ChainAdapter as OsmosisChainAdapter } from './cosmossdk/osmosis'
-import { ChainAdapter as EthereumChainAdapter } from './ethereum/EthereumChainAdapter'
+import { ChainAdapter as EthereumChainAdapter } from './evm/ethereum'
 
 dotenv.config()
 

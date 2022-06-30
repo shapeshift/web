@@ -3,8 +3,6 @@ import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ChainId,
-  ChainNamespace,
-  ChainReference,
   fromChainId
 } from '@shapeshiftoss/caip'
 import { Status, TransferType } from '@shapeshiftoss/unchained-client'
@@ -35,27 +33,39 @@ export const getType = (type: TransferType): TxType => {
   return TxType.Unknown
 }
 
-export const chainPartsToChainLabel = (
-  chainNamespace: ChainNamespace,
-  chainReference?: ChainReference
-): string => {
-  return (() => {
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Bitcoin:
-        return 'bitcoin'
-      case CHAIN_NAMESPACE.Ethereum:
-        return 'ethereum'
-      case CHAIN_NAMESPACE.Cosmos:
-        return chainReference === CHAIN_REFERENCE.CosmosHubMainnet ? 'cosmos' : 'osmosis'
-      default:
-        throw new Error(
-          `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`
-        )
-    }
-  })()
-}
-
 export const chainIdToChainLabel = (chainId: ChainId): string => {
   const { chainNamespace, chainReference } = fromChainId(chainId)
-  return chainPartsToChainLabel(chainNamespace, chainReference)
+
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Bitcoin:
+      return 'bitcoin'
+    case CHAIN_NAMESPACE.Ethereum:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.EthereumMainnet:
+        case CHAIN_REFERENCE.EthereumRinkeby:
+        case CHAIN_REFERENCE.EthereumRopsten:
+          return 'ethereum'
+        case CHAIN_REFERENCE.AvalancheCChain:
+          return 'avalanche'
+        default:
+          throw new Error(
+            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`
+          )
+      }
+    case CHAIN_NAMESPACE.Cosmos:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.CosmosHubMainnet:
+        case CHAIN_REFERENCE.CosmosHubVega:
+          return 'cosmos'
+        case CHAIN_REFERENCE.OsmosisMainnet:
+        case CHAIN_REFERENCE.OsmosisTestnet:
+          return 'osmosis'
+        default:
+          throw new Error(
+            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`
+          )
+      }
+    default:
+      throw new Error(`chainNamespace ${chainNamespace} not supported.`)
+  }
 }

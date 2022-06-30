@@ -12,10 +12,7 @@ export type FeeData = {
   maxPriorityFeePerGas: string
 }
 
-export type BuildTxInput = {
-  gasLimit: string
-  erc20ContractAddress?: string
-} & (
+export type Fees =
   | {
       gasPrice: string
       maxFeePerGas?: never
@@ -26,7 +23,11 @@ export type BuildTxInput = {
       maxFeePerGas: string
       maxPriorityFeePerGas: string
     }
-)
+
+export type BuildTxInput = {
+  gasLimit: string
+  erc20ContractAddress?: string
+} & Fees
 
 export type GetFeeDataInput = {
   contractAddress?: string

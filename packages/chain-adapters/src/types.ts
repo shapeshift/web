@@ -11,12 +11,13 @@ import { BIP44Params, ChainSpecific, KnownChainIds, UtxoAccountType } from '@sha
 import * as bitcoin from './bitcoin'
 import * as cosmos from './cosmossdk/cosmos'
 import * as osmosis from './cosmossdk/osmosis'
-import * as ethereum from './ethereum'
+import * as evm from './evm/types'
 
 type ChainSpecificAccount<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: ethereum.Account
+    [KnownChainIds.EthereumMainnet]: evm.Account
+    [KnownChainIds.AvalancheMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: bitcoin.Account
     [KnownChainIds.CosmosMainnet]: cosmos.Account
     [KnownChainIds.OsmosisMainnet]: osmosis.Account
@@ -45,7 +46,8 @@ export enum FeeDataKey {
 type ChainSpecificFeeData<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: ethereum.FeeData
+    [KnownChainIds.EthereumMainnet]: evm.FeeData
+    [KnownChainIds.AvalancheMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: bitcoin.FeeData
     [KnownChainIds.CosmosMainnet]: cosmos.FeeData
     [KnownChainIds.OsmosisMainnet]: osmosis.FeeData
@@ -56,7 +58,7 @@ export type FeeData<T extends ChainId> = {
   txFee: string
 } & ChainSpecificFeeData<T>
 
-export type GasFeeData = Omit<ethereum.FeeData, 'gasLimit'>
+export type GasFeeData = Omit<evm.FeeData, 'gasLimit'>
 
 export type GasFeeDataEstimate = {
   [FeeDataKey.Fast]: GasFeeData
@@ -147,6 +149,7 @@ export type TxHistoryResponse<T extends ChainId> = {
 
 type ChainTxTypeInner = {
   [KnownChainIds.EthereumMainnet]: ETHSignTx
+  [KnownChainIds.AvalancheMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
   [KnownChainIds.OsmosisMainnet]: OsmosisSignTx
@@ -198,7 +201,8 @@ export type BuildSendTxInput<T extends ChainId> = {
 type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: ethereum.BuildTxInput
+    [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
+    [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: bitcoin.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmos.BuildTxInput
     [KnownChainIds.OsmosisMainnet]: cosmos.BuildTxInput
@@ -235,7 +239,8 @@ export type GetAddressInput = GetAddressInputBase | bitcoin.GetAddressInput
 type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: ethereum.GetFeeDataInput
+    [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: bitcoin.GetFeeDataInput
   }
 >

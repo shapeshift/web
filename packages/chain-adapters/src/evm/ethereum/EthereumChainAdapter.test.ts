@@ -11,8 +11,14 @@ import unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
-import { BuildSendTxInput, SignMessageInput, SignTxInput, ValidAddressResultType } from '../types'
-import { bn } from '../utils/bignumber'
+import {
+  BuildSendTxInput,
+  SignMessageInput,
+  SignTxInput,
+  ValidAddressResultType
+} from '../../types'
+import { bn } from '../../utils/bignumber'
+import { ChainAdapterArgs } from '../EVMBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -106,7 +112,7 @@ describe('EthereumChainAdapter', () => {
   const makeChainAdapterArgs = (overrideArgs?: {
     providers?: { http: unchained.ethereum.V1Api }
     chainId?: string
-  }): ethereum.ChainAdapterArgs =>
+  }): ChainAdapterArgs =>
     merge(
       {
         providers: {
@@ -127,19 +133,7 @@ describe('EthereumChainAdapter', () => {
     })
     it('should return chainAdapter with valid chainId if called with valid chainId', () => {
       const args = makeChainAdapterArgs({ chainId: 'eip155:3' })
-      const adapter = new ethereum.ChainAdapter(args)
-      const chainId = adapter.getChainId()
-      expect(chainId).toEqual('eip155:3')
-    })
-    it('should throw if called with invalid chainId', () => {
-      const args = makeChainAdapterArgs({ chainId: 'INVALID_CHAINID' })
-      expect(() => new ethereum.ChainAdapter(args)).toThrow(/The ChainID (.+) is not supported/)
-    })
-  })
-
-  describe('getBalance', () => {
-    it('is unimplemented', () => {
-      expect(true).toBeTruthy()
+      expect(() => new ethereum.ChainAdapter(args)).toThrow()
     })
   })
 
@@ -579,7 +573,7 @@ describe('EthereumChainAdapter', () => {
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
     it('sendMax: true without chainSpecific.erc20ContractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
@@ -614,7 +608,7 @@ describe('EthereumChainAdapter', () => {
           value: expectedValue
         }
       })
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
     it("should build a tx with value: '0' for ERC20 txs without sendMax", async () => {
       const httpProvider = {
@@ -680,7 +674,7 @@ describe('EthereumChainAdapter', () => {
           value: '0x0'
         }
       })
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
     it('sendmax: true with chainSpecific.erc20ContractAddress should throw if token balance is 0', async () => {
@@ -705,7 +699,7 @@ describe('EthereumChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -747,7 +741,7 @@ describe('EthereumChainAdapter', () => {
         }
       }
 
-      await expect(expectedOutput).toEqual(output)
+      expect(expectedOutput).toEqual(output)
     })
 
     it('should build an unsigned custom tx using maxFeePerGas & maxPriorityFeePerGas (eip1559)', async () => {
@@ -789,7 +783,7 @@ describe('EthereumChainAdapter', () => {
         }
       }
 
-      await expect(expectedOutput).toEqual(output)
+      expect(expectedOutput).toEqual(output)
     })
   })
 })

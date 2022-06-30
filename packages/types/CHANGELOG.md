@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v6.2.0...@shapeshiftoss/types-v6.3.0) (2022-06-30)
+
+
+### Features
+
+* abstract evm base chain adapter and add avalanche chain adapter ([#845](https://github.com/shapeshift/lib/issues/845)) ([b85b892](https://github.com/shapeshift/lib/commit/b85b892beaa9538c7990a5ee1990950a9b027c59))
+
 # [@shapeshiftoss/types-v6.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v6.1.0...@shapeshiftoss/types-v6.2.0) (2022-06-27)
 
 

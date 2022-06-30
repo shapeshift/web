@@ -1,8 +1,9 @@
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
+import Polyglot from 'node-polyglot'
 
-import assetsDescriptions from './descriptions.json'
+import assetsDescriptions from './descriptions'
 import { getRenderedIdenticonBase64, IdenticonOptions } from './GenerateAssetIcon'
 import localAssetData from './generatedAssetData.json'
 
@@ -21,22 +22,33 @@ export class AssetService {
     return this.assets
   }
 
-  async description(assetId: AssetId): Promise<DescriptionData> {
-    const descriptions: Record<string, string> = assetsDescriptions
-    const description = descriptions[assetId]
-
+  async description(assetId: AssetId, locale = 'en'): Promise<DescriptionData> {
+    const localeDescriptions = assetsDescriptions[locale]
     // Return overridden asset description if it exists and add isTrusted for description links
-    if (description) return { description, isTrusted: true }
+    if (localeDescriptions[assetId] || assetsDescriptions.en[assetId]) {
+      const polyglot = new Polyglot({
+        phrases: localeDescriptions,
+        allowMissing: true,
+        onMissingKey: (key) => assetsDescriptions.en[key] // fallback to English overriden description, which should always be added as a base translation
+      })
+      const overriddenDescription = polyglot.t(assetId)
+
+      return { description: overriddenDescription, isTrusted: true }
+    }
 
     try {
-      type CoinData = { description: { en: string } }
+      type CoinData = { description: { [locale: string]: string } }
 
       const url = adapters.makeCoingeckoAssetUrl(assetId)
       if (!url) throw new Error()
 
       const { data } = await axios.get<CoinData>(url)
 
-      return { description: data?.description?.en ?? '' }
+      if (!data?.description) return { description: '' }
+
+      const description = (data.description[locale] || data.description.en) ?? ''
+
+      return { description }
     } catch (e) {
       const errorMessage = `AssetService:description: no description available for ${assetId}`
       throw new Error(errorMessage)

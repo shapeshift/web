@@ -2,7 +2,7 @@ import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
 import { AssetService } from './AssetService'
-import descriptions from './descriptions.json'
+import descriptions from './descriptions'
 
 jest.mock('axios')
 
@@ -22,9 +22,32 @@ const EthAsset: Asset = {
 }
 
 jest.mock(
-  './descriptions.json',
+  './descriptions',
   () => ({
-    'eip155:1/slip44:60': 'overridden description'
+    en: {
+      'eip155:1/slip44:60': 'overridden en description'
+    },
+    es: {
+      'eip155:1/slip44:60': 'overridden es description'
+    },
+    fr: {
+      'eip155:1/slip44:60': 'overridden fr description'
+    },
+    id: {
+      'eip155:1/slip44:60': 'overridden id description'
+    },
+    ko: {
+      'eip155:1/slip44:60': 'overridden ko description'
+    },
+    pt: {
+      'eip155:1/slip44:60': 'overridden pt description'
+    },
+    ru: {
+      'eip155:1/slip44:60': 'overridden ru description'
+    },
+    zh: {
+      'eip155:1/slip44:60': 'overridden zh description'
+    }
   }),
   { virtual: true }
 )
@@ -42,17 +65,27 @@ jest.mock(
 
 describe('AssetService', () => {
   describe('description', () => {
-    it('should return the overridden description if it exists', async () => {
+    it('should return the overridden description if it exists - english default', async () => {
       const assetService = new AssetService()
 
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
-        description: 'overridden description',
+        description: 'overridden en description',
         isTrusted: true
       })
     })
 
-    it('should return a string if found', async () => {
-      const assetDescriptions = descriptions as Record<string, string>
+    it('should return the overridden description if it exists - locale', async () => {
+      const assetService = new AssetService()
+
+      await expect(assetService.description(EthAsset.assetId, 'es')).resolves.toEqual({
+        description: 'overridden es description',
+        isTrusted: true
+      })
+    })
+
+    it('should return an english string if found', async () => {
+      const locale = 'en'
+      const assetDescriptions = descriptions[locale]
       delete assetDescriptions[EthAsset.assetId]
 
       const assetService = new AssetService()
@@ -60,6 +93,19 @@ describe('AssetService', () => {
       mockedAxios.get.mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
         description: description.en
+      })
+    })
+
+    it('should return a localized string if found', async () => {
+      const locale = 'es'
+      const assetDescriptions = descriptions[locale]
+      delete assetDescriptions[EthAsset.assetId]
+
+      const assetService = new AssetService()
+      const description = { en: 'a blue fox', es: '¿Qué dice el zorro?' }
+      mockedAxios.get.mockResolvedValue({ data: { description } })
+      await expect(assetService.description(EthAsset.assetId, locale)).resolves.toEqual({
+        description: description.es
       })
     })
 

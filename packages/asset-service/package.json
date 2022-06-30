@@ -33,7 +33,8 @@
     "axios": "^0.26.1",
     "identicon.js": "^2.3.3",
     "js-pixel-fonts": "^1.5.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "node-polyglot": "^2.4.2"
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^6.2.0",
@@ -43,6 +44,7 @@
     "@ethersproject/providers": "^5.5.3",
     "@shapeshiftoss/caip": "^6.2.0",
     "@shapeshiftoss/types": "^6.2.0",
+    "@types/node-polyglot": "^2.4.2",
     "@yfi/sdk": "^1.0.30",
     "colorthief": "^2.3.2",
     "dotenv": "^14.3.0",

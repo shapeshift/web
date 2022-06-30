@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.2.2...@shapeshiftoss/asset-service-v6.3.0) (2022-06-30)
+
+
+### Features
+
+* **asset-service:** localized asset descriptions ([#849](https://github.com/shapeshift/lib/issues/849)) ([fff0adf](https://github.com/shapeshift/lib/commit/fff0adf7184c1d98fcc61f890b3b8d657938b4c7))
+
 # [@shapeshiftoss/asset-service-v6.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.2.1...@shapeshiftoss/asset-service-v6.2.2) (2022-06-29)
 
 # [@shapeshiftoss/asset-service-v6.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.2.0...@shapeshiftoss/asset-service-v6.2.1) (2022-06-28)

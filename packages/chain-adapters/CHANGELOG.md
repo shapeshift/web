@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.2.1...@shapeshiftoss/chain-adapters-v7.3.0) (2022-06-30)
+
+
+### Features
+
+* abstract evm base chain adapter and add avalanche chain adapter ([#845](https://github.com/shapeshift/lib/issues/845)) ([b85b892](https://github.com/shapeshift/lib/commit/b85b892beaa9538c7990a5ee1990950a9b027c59))
+
 # [@shapeshiftoss/chain-adapters-v7.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.2.0...@shapeshiftoss/chain-adapters-v7.2.1) (2022-06-29)
 
 # [@shapeshiftoss/chain-adapters-v7.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.1.1...@shapeshiftoss/chain-adapters-v7.2.0) (2022-06-21)

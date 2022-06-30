@@ -81,7 +81,7 @@ export const assetApi = createApi({
       queryFn: async ({ assetId, selectedLocale }, { getState }) => {
         const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
-        const { byId: byIdOriginal, ids } = (getState() as ReduxState).assets as AssetsState
+        const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)
         try {
           const { description, isTrusted } = await service.description(assetId, selectedLocale)

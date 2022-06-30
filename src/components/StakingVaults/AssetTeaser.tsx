@@ -17,13 +17,17 @@ import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { description, icon, name } = asset || {}
-  const { isLoading } = useGetAssetDescriptionQuery(assetId, { skip: !!description })
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const { isLoading } = useGetAssetDescriptionQuery(
+    { assetId, selectedLocale },
+    { skip: !!description },
+  )
   const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])
   return (
     <Portal>

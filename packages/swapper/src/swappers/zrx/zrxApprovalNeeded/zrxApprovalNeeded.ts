@@ -6,7 +6,7 @@ import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function ZrxApprovalNeeded(
+export async function zrxApprovalNeeded(
   { adapter, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApprovalNeededInput<'eip155:1'>
 ): Promise<ApprovalNeededOutput> {
@@ -16,7 +16,7 @@ export async function ZrxApprovalNeeded(
 
   try {
     if (sellAsset.chainId !== 'eip155:1') {
-      throw new SwapError('[ZrxApprovalNeeded] - sellAsset chainId is not supported', {
+      throw new SwapError('[zrxApprovalNeeded] - sellAsset chainId is not supported', {
         code: SwapErrorTypes.UNSUPPORTED_CHAIN,
         details: { chainId: sellAsset.chainId }
       })
@@ -33,7 +33,7 @@ export async function ZrxApprovalNeeded(
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 
     if (!quote.allowanceContract) {
-      throw new SwapError('[ZrxApprovalNeeded] - allowanceTarget is required', {
+      throw new SwapError('[zrxApprovalNeeded] - allowanceTarget is required', {
         code: SwapErrorTypes.VALIDATION_FAILED,
         details: { chainId: sellAsset.chainId }
       })
@@ -49,7 +49,7 @@ export async function ZrxApprovalNeeded(
     const allowanceOnChain = bnOrZero(allowanceResult)
 
     if (!quote.feeData.chainSpecific?.gasPrice)
-      throw new SwapError('[ZrxApprovalNeeded] - no gas price with quote', {
+      throw new SwapError('[zrxApprovalNeeded] - no gas price with quote', {
         code: SwapErrorTypes.RESPONSE_ERROR,
         details: { feeData: quote.feeData }
       })
@@ -58,7 +58,7 @@ export async function ZrxApprovalNeeded(
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[ZrxApprovalNeeded]', {
+    throw new SwapError('[zrxApprovalNeeded]', {
       cause: e,
       code: SwapErrorTypes.CHECK_APPROVAL_FAILED
     })

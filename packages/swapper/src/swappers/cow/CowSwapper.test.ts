@@ -5,20 +5,20 @@ import Web3 from 'web3'
 import { SwapperType } from '../../api'
 import { BTC, ETH, FOX, WBTC, WETH } from '../utils/test-data/assets'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
-import { CowApprovalNeeded } from './CowApprovalNeeded/CowApprovalNeeded'
-import { CowApproveInfinite } from './CowApproveInfinite/CowApproveInfinite'
+import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
+import { cowApproveInfinite } from './cowApproveInfinite/cowApproveInfinite'
 import { CowSwapper, CowSwapperDeps } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 
 jest.mock('./utils/helpers/helpers')
 
-jest.mock('./CowApprovalNeeded/CowApprovalNeeded', () => ({
-  CowApprovalNeeded: jest.fn()
+jest.mock('./cowApprovalNeeded/cowApprovalNeeded', () => ({
+  cowApprovalNeeded: jest.fn()
 }))
 
-jest.mock('./CowApproveInfinite/CowApproveInfinite', () => ({
-  CowApproveInfinite: jest.fn()
+jest.mock('./cowApproveInfinite/cowApproveInfinite', () => ({
+  cowApproveInfinite: jest.fn()
 }))
 
 const COW_SWAPPER_DEPS: CowSwapperDeps = {
@@ -142,23 +142,23 @@ describe('CowSwapper', () => {
     })
   })
 
-  describe('CowApprovalNeeded', () => {
-    it('calls CowApprovalNeeded on swapper.approvalNeeded', async () => {
+  describe('cowApprovalNeeded', () => {
+    it('calls cowApprovalNeeded on swapper.approvalNeeded', async () => {
       const { tradeQuote } = setupQuote()
       const args = { quote: tradeQuote, wallet }
       await swapper.approvalNeeded(args)
-      expect(CowApprovalNeeded).toHaveBeenCalledTimes(1)
-      expect(CowApprovalNeeded).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowApprovalNeeded).toHaveBeenCalledTimes(1)
+      expect(cowApprovalNeeded).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
     })
   })
 
-  describe('CowApproveInfinite', () => {
-    it('calls CowApproveInfinite on swapper.approveInfinite', async () => {
+  describe('cowApproveInfinite', () => {
+    it('calls cowApproveInfinite on swapper.approveInfinite', async () => {
       const { tradeQuote } = setupQuote()
       const args = { quote: tradeQuote, wallet }
       await swapper.approveInfinite(args)
-      expect(CowApproveInfinite).toHaveBeenCalledTimes(1)
-      expect(CowApproveInfinite).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowApproveInfinite).toHaveBeenCalledTimes(1)
+      expect(cowApproveInfinite).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
     })
   })
 })

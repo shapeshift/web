@@ -8,7 +8,7 @@ import { CowSwapperDeps } from '../CowSwapper'
 
 const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
 
-export async function CowApprovalNeeded(
+export async function cowApprovalNeeded(
   { adapter, web3 }: CowSwapperDeps,
   { quote, wallet }: ApprovalNeededInput<'eip155:1'>
 ): Promise<ApprovalNeededOutput> {
@@ -18,7 +18,7 @@ export async function CowApprovalNeeded(
 
   try {
     if (assetNamespace !== 'erc20') {
-      throw new SwapError('[CowApprovalNeeded] - unsupported asset namespace', {
+      throw new SwapError('[cowApprovalNeeded] - unsupported asset namespace', {
         code: SwapErrorTypes.UNSUPPORTED_NAMESPACE,
         details: { assetNamespace }
       })
@@ -41,7 +41,7 @@ export async function CowApprovalNeeded(
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[CowApprovalNeeded]', {
+    throw new SwapError('[cowApprovalNeeded]', {
       cause: e,
       code: SwapErrorTypes.CHECK_APPROVAL_FAILED
     })

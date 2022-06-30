@@ -18,8 +18,8 @@ import {
   TradeResult,
   TradeTxs
 } from '../../api'
-import { CowApprovalNeeded } from './CowApprovalNeeded/CowApprovalNeeded'
-import { CowApproveInfinite } from './CowApproveInfinite/CowApproveInfinite'
+import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
+import { cowApproveInfinite } from './cowApproveInfinite/cowApproveInfinite'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
@@ -69,11 +69,11 @@ export class CowSwapper implements Swapper<'eip155:1'> {
   }
 
   async approvalNeeded(args: ApprovalNeededInput<'eip155:1'>): Promise<ApprovalNeededOutput> {
-    return CowApprovalNeeded(this.deps, args)
+    return cowApprovalNeeded(this.deps, args)
   }
 
   async approveInfinite(args: ApproveInfiniteInput<'eip155:1'>): Promise<string> {
-    return CowApproveInfinite(this.deps, args)
+    return cowApproveInfinite(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

@@ -1,11 +1,11 @@
 import { ApproveInfiniteInput, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { grantAllowance } from '../../utils/helpers/helpers'
-import { CowSwapperDeps } from '../CowSwapper'
 import { MAX_ALLOWANCE } from '../utils/constants'
+import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function CowApproveInfinite(
-  { adapter, web3 }: CowSwapperDeps,
+export async function zrxApproveInfinite(
+  { adapter, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApproveInfiniteInput<'eip155:1'>
 ) {
   try {
@@ -23,7 +23,7 @@ export async function CowApproveInfinite(
     return allowanceGrantRequired
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[CowApproveInfinite]', {
+    throw new SwapError('[zrxApproveInfinite]', {
       cause: e,
       code: SwapErrorTypes.APPROVE_INFINITE_FAILED
     })

@@ -4,7 +4,7 @@ import Web3 from 'web3'
 import { BTC, ETH } from '../../utils/test-data/assets'
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { CowApprovalNeeded } from './CowApprovalNeeded'
+import { cowApprovalNeeded } from './cowApprovalNeeded'
 
 jest.mock('web3')
 
@@ -21,7 +21,7 @@ Web3.mockImplementation(() => ({
   }
 }))
 
-describe('CowApprovalNeeded', () => {
+describe('cowApprovalNeeded', () => {
   const { web3, adapter, feeAsset } = setupDeps()
   const args = { web3, adapter, apiUrl: '', feeAsset }
   ;(adapter.getAddress as jest.Mock).mockResolvedValue('0xc770eefad204b5180df6a14ee197d99d808ee52d')
@@ -38,11 +38,11 @@ describe('CowApprovalNeeded', () => {
       wallet: <HDWallet>{}
     }
 
-    await expect(CowApprovalNeeded(args, input1)).rejects.toThrow(
-      '[CowApprovalNeeded] - unsupported asset namespace'
+    await expect(cowApprovalNeeded(args, input1)).rejects.toThrow(
+      '[cowApprovalNeeded] - unsupported asset namespace'
     )
-    await expect(CowApprovalNeeded(args, input2)).rejects.toThrow(
-      '[CowApprovalNeeded] - unsupported asset namespace'
+    await expect(cowApprovalNeeded(args, input2)).rejects.toThrow(
+      '[cowApprovalNeeded] - unsupported asset namespace'
     )
   })
 
@@ -64,7 +64,7 @@ describe('CowApprovalNeeded', () => {
       }
     }))
 
-    expect(await CowApprovalNeeded(args, input)).toEqual({
+    expect(await cowApprovalNeeded(args, input)).toEqual({
       approvalNeeded: false
     })
     expect(mockedAllowance).toHaveBeenCalledTimes(1)
@@ -93,7 +93,7 @@ describe('CowApprovalNeeded', () => {
       }
     }))
 
-    expect(await CowApprovalNeeded(args, input)).toEqual({
+    expect(await cowApprovalNeeded(args, input)).toEqual({
       approvalNeeded: true
     })
     expect(mockedAllowance).toHaveBeenCalledTimes(1)

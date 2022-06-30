@@ -46,7 +46,7 @@ export const thorTradeApproveInfinite = async ({
     return allowanceGrantRequired
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[ZrxApproveInfinite]', {
+    throw new SwapError('[zrxApproveInfinite]', {
       cause: e,
       code: SwapErrorTypes.APPROVE_INFINITE_FAILED
     })

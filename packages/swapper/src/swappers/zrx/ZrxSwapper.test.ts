@@ -10,8 +10,8 @@ import { zrxBuildTrade } from '../zrx/zrxBuildTrade/zrxBuildTrade'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { setupBuildTrade, setupExecuteTrade } from './utils/test-data/setupZrxSwapQuote'
-import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
-import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
+import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
+import { zrxApproveInfinite } from './zrxApproveInfinite/zrxApproveInfinite'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
 jest.mock('./utils/helpers/helpers')
@@ -31,12 +31,12 @@ jest.mock('./getZrxMinMax/getZrxMinMax', () => ({
   getZrxMinMax: jest.fn()
 }))
 
-jest.mock('./ZrxApprovalNeeded/ZrxApprovalNeeded', () => ({
-  ZrxApprovalNeeded: jest.fn()
+jest.mock('./zrxApprovalNeeded/zrxApprovalNeeded', () => ({
+  zrxApprovalNeeded: jest.fn()
 }))
 
-jest.mock('./ZrxApproveInfinite/ZrxApproveInfinite', () => ({
-  ZrxApproveInfinite: jest.fn()
+jest.mock('./zrxApproveInfinite/zrxApproveInfinite', () => ({
+  zrxApproveInfinite: jest.fn()
 }))
 
 describe('ZrxSwapper', () => {
@@ -75,19 +75,19 @@ describe('ZrxSwapper', () => {
     expect(getUsdRate).toHaveBeenCalled()
   })
 
-  it('calls ZrxApprovalNeeded on swapper.approvalNeeded', async () => {
+  it('calls zrxApprovalNeeded on swapper.approvalNeeded', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     const { tradeQuote } = setupQuote()
     const args = { quote: tradeQuote, wallet }
     await swapper.approvalNeeded(args)
-    expect(ZrxApprovalNeeded).toHaveBeenCalled()
+    expect(zrxApprovalNeeded).toHaveBeenCalled()
   })
 
-  it('calls ZrxApproveInfinite on swapper.approveInfinite', async () => {
+  it('calls zrxApproveInfinite on swapper.approveInfinite', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     const { tradeQuote } = setupQuote()
     const args = { quote: tradeQuote, wallet }
     await swapper.approveInfinite(args)
-    expect(ZrxApproveInfinite).toHaveBeenCalled()
+    expect(zrxApproveInfinite).toHaveBeenCalled()
   })
 })

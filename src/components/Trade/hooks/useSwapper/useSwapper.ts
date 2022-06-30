@@ -1,4 +1,4 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ChainId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   QuoteFeeData,
@@ -250,7 +250,7 @@ export const useSwapper = () => {
               sellAssetAccountNumber: 0,
               wallet,
             })
-          } else if ('bip122:000000000019d6689c085ae165831e93') {
+          } else if (sellAsset.chainId === btcChainId) {
             // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
             // They will need to have selected an accountType from a modal if bitcoin
             throw new Error('bitcoin unsupported')

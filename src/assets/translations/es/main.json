@@ -49,7 +49,6 @@
     "copyFailed": "Error al copiar al portapapeles",
     "copyFailedDescription": "Por Favor copiar manualmente",
     "viewAsset": "Ver activo",
-    "apy": "%{apy}% APY",
     "settings": "Ajustes",
     "legalDated": "Fecha: enero de 2022",
     "approveOnWallet": "Aprobar en billetera",
@@ -57,11 +56,17 @@
     "login": "Iniciar sesión",
     "verify": "Verificar",
     "notRobot": "No soy un robot",
-    "skip": "Saltar"
+    "skip": "Saltar",
+    "generalError": "Se ha producido un error"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
-    "cta": "Recargar App"
+    "cta": "Recargar App",
+    "keepKey": {
+      "title": "Actualización de KeepKey disponible",
+      "newUpdateAvailable": "Hay una nueva actualización de KeepKey disponible.",
+      "downloadCta": "Descargar actualización"
+    }
   },
   "dashboard": {
     "portfolio": {
@@ -92,6 +97,8 @@
     "gem": "GEM",
     "gemMessage": "Compra o Vende criptomonedas con Gem",
     "onJuno": "OnJuno",
+    "banxa": "Banxa",
+    "banxaMessage": "Compra o vende cripto con Banxa",
     "comingSoon": "Próximamente ...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -111,7 +118,7 @@
     "body": "100% gratis. Código abierto. Propiedad de la comunidad. Sin custodia. Privado.",
     "header": "Conecte una billetera para comenzar",
     "cta": "Conectar Billetera",
-    "orViewADemo": "o ver una demostración"
+    "viewADemo": "Ver un Demo"
   },
   "connectWallet": {
     "menu": {
@@ -232,6 +239,8 @@
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
+    "clickHereToEarn": "Haga clic aquí para ganar",
+    "byFarming": " APR* al hacer farming con sus tokens ETH-FOX del pool de liquidez ",
     "overview": "Overview",
     "liquidityPools": "Pools de liquidez",
     "stakingVaults": "Staking & Bóvedas",
@@ -282,7 +291,9 @@
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
     "foxToken": "FOX Opportunities",
-    "featureFlags": "Indicadores de Funciones"
+    "featureFlags": "Indicadores de Funciones",
+    "demoMode": "Modo Demo",
+    "clickToConnect": "Haga clic para conectar una billetera"
   },
   "transactionRow": {
     "send": "Enviado %{symbol}",
@@ -317,6 +328,8 @@
       },
       "uniV2": {
         "addLiquidityETH": "Agregar liquidez",
+        "stake": "Stake",
+        "exit": "Retirar de Stake",
         "removeLiquidityETH": "Retirar liquidez"
       },
       "thor": {
@@ -327,6 +340,9 @@
         "unstake": "Retirar de Stake",
         "instantUnstake": "Retirar de Stake al instante",
         "claimWithdraw": "Retirar monto a reclamar"
+      },
+      "erc20": {
+        "approve": "Aprobar"
       }
     },
     "unknown": "Transacción"
@@ -337,6 +353,7 @@
     "rate": "Tasa",
     "minerFee": "Tarifa de minero",
     "shapeshiftFee": "Tarifa de ShapeShift",
+    "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
     "confirmAndTrade": "Confirmar e Intercambiar",
     "complete": "Intercambio Completado",
@@ -373,10 +390,20 @@
       "depositAddressRequired": "No se puede ejecutar una cotización ETH sin una dirección DEX",
       "sellAssetNetworkAndSymbolRequired": "Tanto la red de activos como el símbolo son necesarios para ejecutar una cotización",
       "hdwalletInvalidConfig": "Ocurrió un error al comunicarse con su billetera de hardware",
+      "allowanceRequiredFailed": "Ocurrió un error al aprobar la asignación requerida para operar.",
+      "checkApprovalNeededFailed": "Ocurrió un error al verificar la aprobación de su operación.",
+      "approveInfiniteFailed": "Ocurrió un error al aprobar su operación.",
+      "buildTradeFailed": "Ocurrió un error al construir su intercambio.",
+      "grantAllowanceFailed": "Ocurrió un error al otorgar la asignación.",
+      "minMaxError": "Se produjo un error al obtener el monto mínimo / máximo de la operación",
+      "executeTradeFailed": "Ocurrió un error al ejecutar su operación.",
+      "unsupportedPair": "Este par comercial no es compatible actualmente.",
+      "rateError": "Se produjo un error al obtener las tasas comerciales",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
-      }
+      },
+      "generalError": "Ha ocurrido un error comercial"
     }
   },
   "modals": {
@@ -430,6 +457,11 @@
       "recoverySettingUp": {
         "header": "Configurando dispositivo...",
         "body": "Espere mientras inicializamos su dispositivo y sincronizamos sus direcciones."
+      },
+      "recoveryInvalid": {
+        "header": "Frase de Recuperación no válida",
+        "body": "La Frase de Recuperación que ingresó no es válida.",
+        "button": "Intentar otra vez"
       }
     },
     "shapeShift": {
@@ -445,6 +477,20 @@
           "required": "Contraseña Requerida",
           "length": "Su contraseña debe ser al menos %{length} caracteres",
           "maxLength": "El apodo debe ser %{length} máximo de caracteres"
+        }
+      },
+      "confirmPassword": {
+        "header": "Confirme su Contraseña",
+        "walletName": "Apodo de billetera (opcional)",
+        "body": "Confirme su contraseña para descifrar su billetera",
+        "placeholder": "Confirmar Contraseña",
+        "show": "Mostrar Contraseña",
+        "hide": "Ocultar Contraseña",
+        "error": {
+          "invalid": "Contraseña debe coincidir",
+          "required": "Se requiere confirmación de contraseña",
+          "length": "Su contraseña debe tener al menos %{longitud} caracteres",
+          "maxLength": "El apodo debe tener %{longitud} caracteres como máximo"
         }
       }
     },
@@ -594,9 +640,32 @@
     },
     "settings": {
       "settings": "Ajustes",
+      "currency": "Divisa",
       "language": "Idioma",
       "balanceThreshold": "Umbral de saldo",
-      "balanceThresholdTooltip": "Ocultar saldos por debajo de este valor"
+      "balanceThresholdTooltip": "Ocultar saldos por debajo de este valor",
+      "currencies": {
+        "CNY": "Yuan Chino",
+        "USD": "Dólar estadounidense (predeterminado)",
+        "EUR": "Euro",
+        "JPY": "Yen Japonés",
+        "GBP": "Libra Esterlina",
+        "KRW": "Won Coreano",
+        "INR": "Rupia India",
+        "CAD": "Dolar Canadiense",
+        "HKD": "Dolar de Hong Kong",
+        "AUD": "Dólar Australiano",
+        "TWD": "Nuevo Dólar Taiwanés",
+        "BRL": "Real Brasileño",
+        "CHF": "Franco Suizo",
+        "THB": "Baht Tailandés",
+        "MXN": "Peso Mexicano",
+        "RUB": "Rublo Ruso",
+        "SAR": "Rial Saudita",
+        "SGD": "Dolar de Singapur",
+        "ILS": "Shekel Israelí",
+        "IDR": "Rupia Indonesia"
+      }
     }
   },
   "walletProvider": {
@@ -705,8 +774,9 @@
     },
     "keplr": {
       "errors": {
+        "connectFailure": "No se puede conectar la billetera Keplr",
         "unknown": "Ocurrió un error inesperado al comunicarse con Keplr",
-        "connectFailure": "No se puede conectar la billetera Keplr"
+        "noProvider": "Extensión de Billetera Keplr no encontrada"
       },
       "connect": {
         "header": "Emparejar Keplr",
@@ -723,7 +793,8 @@
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
         "connectFailure": "No se puede conectar la billetera MetaMask",
         "network": "MetaMask no está configurada para Ethereum Mainnet",
-        "multipleWallets": "El proveedor de Ethereum detectado no es MetaMask. ¿Tienes varias carteras instaladas?"
+        "multipleWallets": "El proveedor de Ethereum detectado no es MetaMask. ¿Tienes varias carteras instaladas?",
+        "tallyInstalledAndSetToDefault": "Hemos detectado que tiene Tally Ho instalado y configurado como Predeterminado. Si prefiere usar MetaMask en su lugar, cambie la configuración en Tally Ho y actualice la página."
       },
       "connect": {
         "header": "Emparejar MetaMask",
@@ -740,6 +811,29 @@
         "button": "Abrir"
       }
     },
+    "tallyHo": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con Tally Ho",
+        "connectFailure": "No se puede conectar la Billetera Tally Ho",
+        "network": "Tally Ho no está configurado para Ethereum Mainnet",
+        "multipleWallets": "El proveedor de Ethereum detectado no es Tally Ho. ¿Tienes varias carteras instaladas?",
+        "tallyNotInstalledOrSetToDefault": "Hemos detectado que Tally Ho no está instalado o no está configurado como predeterminado. Si desea utilizar Tally Ho, instálelo o configúrelo como su billetera predeterminada y actualice la página."
+      },
+      "connect": {
+        "header": "Emparejar Tally",
+        "body": "Haga clic en Emparejar e inicie sesión en Tally Ho desde la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera Tally Ho"
+      },
+      "redirect": {
+        "header": "Abrir en la aplicación Tally Ho",
+        "body": "Haga clic para abrir el panel ShapeShift en Tally Ho",
+        "button": "Abrir"
+      }
+    },
     "portis": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con Portis",
@@ -753,6 +847,28 @@
       "failure": {
         "header": "Error",
         "body": "No se puede conectar la billetera Portis"
+      }
+    },
+    "xdefi": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con XDEFI",
+        "connectFailure": "No se puede conectar la billetera XDEFI",
+        "network": "XDEFI no está configurado para Ethereum Mainnet",
+        "multipleWallets": "El proveedor de Ethereum detectado no es XDEFI. ¿Tienes varias carteras instaladas?"
+      },
+      "connect": {
+        "header": "Emparejar XDEFI",
+        "body": "Haga clic en Emparejar e inicie sesión en XDEFI desde la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera XDEFI"
+      },
+      "redirect": {
+        "header": "Abrir en la aplicación XDEFI",
+        "body": "Haga clic para abrir el panel de ShapeShift en XDEFI",
+        "button": "Abrir"
       }
     },
     "shapeShift": {
@@ -778,6 +894,7 @@
       "password": {
         "header": "Ingresa tu contraseña",
         "body": "Ingrese una contraseña para encriptar su billetera. Así es como accederá a su billetera. No olvides esta contraseña.",
+        "warning": "Nota: si olvida su contraseña, ShapeShift no puede ayudarlo a recuperarla.",
         "button": "Siguiente",
         "connect": "Conectarse a otra billetera"
       },
@@ -856,6 +973,7 @@
         "invalidEmail": "Correo Electrónico es invalido",
         "invalidCaptcha": "El Captcha no es válido",
         "captchaRequired": "Se requiere captcha",
+        "tooManyAttempts": "Demasiados intentos. Por favor intente mas tarde.",
         "invalidLogin": "Ingreso invalido",
         "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
         "decryptionError": "Algo salió mal al descifrar su billetera.",
@@ -898,7 +1016,9 @@
         "SegwitNativeTooltip": "Recomendado para la mayoría de los usuarios. Utilice las otras direcciones solo si sabe para qué sirven.",
         "btcFormat": "Formato BTC",
         "assetUnavailable": "Los datos de mercado para este activo aún no están disponibles. ¡Estamos trabajando en ello, espera!",
-        "loading": "Obteniendo historial de precios, espera..."
+        "loading": "Obteniendo historial de precios, espera...",
+        "maxTotalSupply": "Suministro Total Máx.",
+        "availableSupply": "Suministro Disponible"
       },
       "assetDescription": {
         "showMore": "Mostrar más",
@@ -1001,5 +1121,54 @@
     "to": "Para",
     "for": "Para",
     "transfers": "Transferencias"
+  },
+  "plugins": {
+    "foxPage": {
+      "totalFoxValue": "Valor total de Fox",
+      "foxToken": "Token ShapeShift %{assetSymbol} ",
+      "getAsset": "Obtener %{assetSymbol}",
+      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
+      "trade": "Intercambie",
+      "receive": "Recibir",
+      "mainStakingTitle": "%{assetSymbol} Staking de Token",
+      "mainStakingDescription": "Ponga su FOX a trabajar en contratos de participación unilateral para ganar recompensas FOX. (FOX todavía se puede usar en la gobernanza mientras se hace staking, pero de lo contrario está bloqueado en el contrato durante el staking).",
+      "tvl": "TVL",
+      "currentApy": "APY Actual",
+      "balance": "Balance",
+      "getStarted": "Iniciar",
+      "manage": "Administrar",
+      "currentPrice": "Precio Actual",
+      "tradingUnavailable": "%{assetSymbol} aún no se puede intercambiar en ShapeShift. Puede intercambiar %{assetSymbol} en ElasticSwap.",
+      "tradeOnElasticSwap": "Intercambie %{assetSymbol} en ElasticSwap",
+      "otherOpportunitiesTitle": {
+        "FOX": "Otras oportunidades",
+        "FOXy": "Oportunidades"
+      },
+      "otherOpportunitiesDescription": {
+        "FOX": "Explore las muchas oportunidades para proporcionar liquidez, agricultura para obtener rendimiento, prestar y obtener préstamos. Haga clic en los enlaces \"Comenzar\" a continuación para visitar los sitios externos de interés para obtener más información y poner su FOX a trabajar para usted.",
+        "FOXy": "Compre rápida y fácilmente FOXy, el primer token DAO de rebase en la industria que ofrece recompensas tanto de rendimiento como de ganancias."
+      },
+      "liquidityPools": "Pools de Liquidez",
+      "farming": "Farming",
+      "borrowingAndLending": "Prestar y Solicitar Préstamos",
+      "governanceTitle": "Gobernancia",
+      "governanceDescription": "Como titular de FOX, puede tener una voz en el futuro de ShapeShift. A continuación se encuentran las propuestas DAO activas o aprobadas recientemente votadas por los poseedores de tokens.",
+      "seeAllProposals": "Ver todas las Propuestas",
+      "availableToTradeOn": "Disponible para Intercambiar",
+      "dex": "DEX",
+      "centralized": "Centralizado"
+    },
+    "analytics": {
+      "optInModal": {
+        "title": "Ayúdanos a mejorar ShapeShift",
+        "description": "A ShapeShift le gustaría recopilar datos de uso para comprender mejor cómo interactúan nuestros usuarios con la aplicación. Estos datos se utilizarán para mejorar continuamente la usabilidad y la experiencia del usuario de nuestro producto.",
+        "actionsSentence": "ShapeShift...",
+        "noThanks": "No gracias, llévame a la versión privada",
+        "sendEvents": "Enviar eventos anónimos de clics y páginas vistas",
+        "neverCollectPersonalInformations": "Nunca recopila claves, direcciones, transacciones, saldos o cualquier información personal",
+        "neverCollectIp": "Nunca recopila su dirección IP completa",
+        "neverSellData": "Nunca vende datos con fines de lucro"
+      }
+    }
   }
 }

@@ -84,14 +84,14 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
             <Skeleton isLoaded={opportunity.isLoaded ? true : false} textAlign='center'>
               <Box>
                 <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
-                <CText
+                <Box
                   color={opportunity.apy ? 'green.400' : undefined}
                   fontSize={'xl'}
                   fontWeight='semibold'
                   lineHeight='1'
                 >
                   {opportunity.apy ? <Amount.Percent value={opportunity.apy} /> : '--'}
-                </CText>
+                </Box>
               </Box>
             </Skeleton>
             <Box alignSelf='center' display={{ base: 'none', sm: 'block' }}>

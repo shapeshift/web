@@ -52,14 +52,25 @@ export const Header = () => {
   }, [handleKeyPress])
 
   const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const isDemo = walletInfo?.deviceId === DemoConfig.name
 
   return (
     <>
-      <Flex direction='column' bg={bg} width='full' position='sticky' zIndex='banner' top={0}>
-        {walletInfo?.deviceId === DemoConfig.name && (
+      <Flex
+        direction='column'
+        bg={bg}
+        width='full'
+        position='sticky'
+        zIndex='banner'
+        top={0}
+        paddingTop={{ base: isDemo ? 0 : 'env(safe-area-inset-top)', md: 0 }}
+      >
+        {isDemo && (
           <Box
             bg='blue.500'
             width='full'
+            paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
+            paddingBottom={{ base: '0.5rem', md: 0 }}
             minHeight='2.5rem'
             fontSize={{ base: 'sm', md: 'md' }}
             as='button'

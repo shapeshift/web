@@ -130,7 +130,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     setRoutes(pluginRoutes)
     const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
       if (!featureFlags.Osmosis && chainId === KnownChainIds.OsmosisMainnet) return false
-      if (!featureFlags.Avalanche && chainId === KnownChainIds.AvalancheMainnet) return false
+      if (chainId === KnownChainIds.AvalancheMainnet) return false
       return true
     })
 

@@ -14,7 +14,7 @@ import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { StakingTable } from './StakingTable'
@@ -28,18 +28,21 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
-  const { cosmosStakingOpportunities } = useCosmosStakingBalances({
-    assetId: cosmosAssetId,
-  })
-  const { cosmosStakingOpportunities: osmosisStakingOpportunities } = useCosmosStakingBalances({
-    assetId: osmosisAssetId,
-  })
+  const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
+    {
+      assetId: cosmosAssetId,
+    },
+  )
+  const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
+    useCosmosSdkStakingBalances({
+      assetId: osmosisAssetId,
+    })
   const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosStakingOpportunities: useMemo(
+    cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),

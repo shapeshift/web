@@ -6,7 +6,7 @@ import {
 import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
 import { useFoxyBalances } from './useFoxyBalances'
 import { useVaultBalances } from './useVaultBalances'
@@ -25,21 +25,23 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
-  const { cosmosStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
-    useCosmosStakingBalances({
+  const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
+    useCosmosSdkStakingBalances({
       assetId: cosmosAssetId,
     })
   const {
-    cosmosStakingOpportunities: osmosisStakingOpportunities,
+    cosmosSdkStakingOpportunities: osmosisStakingOpportunities,
     totalBalance: totalOsmosisStakingBalance,
-  } = useCosmosStakingBalances({
+  } = useCosmosSdkStakingBalances({
     assetId: osmosisAssetId,
   })
 
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray,
-    cosmosStakingOpportunities: cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
+    cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
+      osmosisStakingOpportunities,
+    ),
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)

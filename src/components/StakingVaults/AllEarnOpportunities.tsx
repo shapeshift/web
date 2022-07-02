@@ -5,7 +5,7 @@ import {
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -39,7 +39,10 @@ export const AllEarnOpportunities = () => {
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosStakingOpportunities: cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
+    cosmosStakingOpportunities: useMemo(
+      () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
+      [cosmosStakingOpportunities, osmosisStakingOpportunities],
+    ),
   })
 
   const handleClick = useCallback(

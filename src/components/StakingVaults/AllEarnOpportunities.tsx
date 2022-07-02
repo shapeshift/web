@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -29,10 +29,10 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
   const { cosmosStakingOpportunities } = useCosmosStakingBalances({
-    assetId: 'cosmos:cosmoshub-4/slip44:118',
+    assetId: cosmosAssetId,
   })
   const { cosmosStakingOpportunities: osmosisStakingOpportunities } = useCosmosStakingBalances({
-    assetId: 'cosmos:osmosis-1/slip44:118',
+    assetId: osmosisAssetId,
   })
   const { cosmosStaking } = useModal()
 

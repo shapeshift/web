@@ -116,7 +116,6 @@ export const rewardRatePerToken = memoize(async (farmingRewardsContract: Contrac
       .toString()
   } catch (error) {
     const errorMsg = 'rewardRatePerToken error'
-    console.error(error, errorMsg)
     throw new Error(errorMsg)
   }
 })

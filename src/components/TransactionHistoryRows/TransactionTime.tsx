@@ -1,5 +1,7 @@
+import dayjs from 'dayjs'
 import { RawText } from 'components/Text'
-import { useDate } from 'hooks/useDate/useDate'
+import { selectSelectedLocale } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type TransactionTimeProps = {
   blockTime: number
@@ -7,11 +9,13 @@ type TransactionTimeProps = {
 }
 
 export const TransactionTime = ({ blockTime, format = 'hh:mm A' }: TransactionTimeProps) => {
-  const displayDate = useDate()
+  const selectedLocale = useAppSelector(selectSelectedLocale)
 
   return (
     <RawText color='gray.500' fontSize='sm'>
-      {displayDate(blockTime * 1000, format)}
+      {dayjs(blockTime * 1000)
+        .locale(selectedLocale)
+        .format(format)}
     </RawText>
   )
 }

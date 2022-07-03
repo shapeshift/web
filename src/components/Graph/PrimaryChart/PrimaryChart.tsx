@@ -8,11 +8,13 @@ import { scaleLinear, scaleTime } from '@visx/scale'
 import { Bar, Line } from '@visx/shape'
 import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
 import { bisector, extent, max, min } from 'd3-array'
+import dayjs from 'dayjs'
 import numeral from 'numeral'
 import React, { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
-import { useDate } from 'hooks/useDate/useDate'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectSelectedLocale } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 import { AreaChart } from '../AreaChart/AreaChart'
@@ -40,7 +42,7 @@ export const PrimaryChart = ({
   color = 'green.500',
   margin = { top: 0, right: 0, bottom: 0, left: 0 },
 }: PrimaryChartProps) => {
-  const displayDate = useDate()
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   const {
     showTooltip,
     hideTooltip,
@@ -226,7 +228,7 @@ export const PrimaryChart = ({
                 <Amount.Fiat fontWeight='bold' fontSize='lg' my={2} value={tooltipData.price} />
               </li>
               <li style={{ paddingBottom: '0.25rem', fontSize: '12px', color: colors.gray[500] }}>
-                {displayDate(getDate(tooltipData), 'LLL')}
+                {dayjs(getDate(tooltipData)).locale(selectedLocale).format('LLL')}
               </li>
             </ul>
           </TooltipWithBounds>

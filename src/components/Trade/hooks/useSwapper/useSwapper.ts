@@ -20,6 +20,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import {
@@ -30,6 +31,10 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+
+const moduleLogger = logger.child({
+  namespace: ['useSwapper'],
+})
 
 const debounceTime = 1000
 
@@ -52,34 +57,33 @@ export const useSwapper = () => {
     Trade<KnownChainIds>,
   ]
   const adapterManager = useChainAdapters()
-  const [swapperManager] = useState<SwapperManager>(() => {
-    const manager = new SwapperManager()
-    return manager
-  })
+  const [swapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   useEffect(() => {
     if (!adapterManager || !swapperManager) return
 
     const web3 = getWeb3Instance()
 
-    ;(async () => {
-      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl,
-      //   adapterManager,
-      //   web3,
-      // })
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+    // ;(async () => {
+    //   const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+    //   const thorSwapper = new ThorchainSwapper({
+    //     midgardUrl,
+    //     adapterManager,
+    //     web3,
+    //   })
+    //   await thorSwapper.initialize()
+    //   swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+    // })()
+    const zrxSwapper = new ZrxSwapper({
+      web3,
+      adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
+    })
 
-      const zrxSwapper = new ZrxSwapper({
-        web3,
-        adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
-      })
-
-      await zrxSwapper.initialize()
+    try {
       swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
-    })()
+    } catch (e) {
+      moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
+    }
   }, [adapterManager, swapperManager])
 
   const {
@@ -191,7 +195,7 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    setFees(result, sellAsset)
+    await setFees(result, sellAsset)
     setValue('trade', result)
   }
 
@@ -258,7 +262,7 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        setFees(tradeQuote, sellAsset)
+        await setFees(tradeQuote, sellAsset)
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)

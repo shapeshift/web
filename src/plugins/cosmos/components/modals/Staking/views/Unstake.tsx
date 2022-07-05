@@ -9,12 +9,13 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { AssetId } from '@shapeshiftoss/caip'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -32,7 +33,8 @@ import { useAppSelector } from 'state/store'
 import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 // TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
-const UNBONDING_DURATION = '21'
+const COSMOS_UNBONDING_DAYS = '21'
+const OSMOSIS_UNBONDING_DAYS = '14'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -47,6 +49,14 @@ type UnstakeProps = {
 }
 
 export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: UnstakeProps) => {
+  const unbondingDays = useMemo(() => {
+    if (assetId === cosmosAssetId) return COSMOS_UNBONDING_DAYS
+    if (assetId === osmosisAssetId) return OSMOSIS_UNBONDING_DAYS
+
+    // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
+    return ''
+  }, [assetId])
+
   const {
     control,
     formState: { isValid },
@@ -220,7 +230,7 @@ export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: Unstake
             {translate('staking.itWillTake')}
             <span> </span>
             <Box as='span' color='gray.100' fontWeight='bold'>
-              {`${UNBONDING_DURATION} ${translate('common.days')}`}
+              {`${unbondingDays} ${translate('common.days')}`}
             </Box>
             <span> </span>
             {translate('staking.toUnlock', { assetSymbol: asset.symbol })}

@@ -9,6 +9,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { AssetId } from '@shapeshiftoss/caip'
 import { cosmossdk, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
@@ -45,12 +46,24 @@ type StakeProps = {
   onCancel: () => void
 }
 
+// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
+const COSMOS_UNBONDING_DAYS = '21'
+const OSMOSIS_UNBONDING_DAYS = '14'
+
 // TODO: Make this a derived selector after this is wired up
 function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
 export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
+  const unbondingDays = useMemo(() => {
+    if (assetId === cosmosAssetId) return COSMOS_UNBONDING_DAYS
+    if (assetId === osmosisAssetId) return OSMOSIS_UNBONDING_DAYS
+
+    // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
+    return ''
+  }, [assetId])
+
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -189,7 +202,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
               textAlign='left'
               fontSize='sm'
               color='gray.500'
-              translation={['defi.unbondInfoItWillTake', { unbondingDays: '21' }]}
+              translation={['defi.unbondInfoItWillTake', { unbondingDays }]}
               mb='18px'
             />
             <Stack direction='row' width='full' justifyContent='space-between'>

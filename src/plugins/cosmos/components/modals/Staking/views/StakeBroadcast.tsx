@@ -1,10 +1,11 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalFooter, Stack, Text as CText, Tooltip } from '@chakra-ui/react'
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { AssetId } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -29,6 +30,10 @@ type StakeProps = {
   onStepCompleted: () => void
 }
 
+// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
+const COSMOS_UNBONDING_DAYS = '21'
+const OSMOSIS_UNBONDING_DAYS = '14'
+
 // TODO: Make this a derived selector after this is wired up
 function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
@@ -41,6 +46,14 @@ export const StakeBroadcast = ({
   onCancel,
   onStepCompleted,
 }: StakeProps) => {
+  const unbondingDays = useMemo(() => {
+    if (assetId === cosmosAssetId) return COSMOS_UNBONDING_DAYS
+    if (assetId === osmosisAssetId) return OSMOSIS_UNBONDING_DAYS
+
+    // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
+    return ''
+  }, [assetId])
+
   const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const [loading, setLoading] = useState(false)
   const [broadcasted, setBroadcasted] = useState(false)
@@ -176,7 +189,7 @@ export const StakeBroadcast = ({
             textAlign='left'
             fontSize='sm'
             color='gray.500'
-            translation={['defi.unbondInfoItWillTake', { unbondingDays: '21' }]}
+            translation={['defi.unbondInfoItWillTake', { unbondingDays }]}
             mb='18px'
           />
           <Stack direction='row' width='full' justifyContent='space-between'>

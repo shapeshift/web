@@ -1,5 +1,9 @@
-import { createLocalStorageManager, createStandaloneToast } from '@chakra-ui/react'
-import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
+import {
+  ChakraProvider,
+  ColorModeScript,
+  createLocalStorageManager,
+  createStandaloneToast,
+} from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
@@ -31,7 +35,7 @@ export function AppProviders({ children }: ProvidersProps) {
     <ReduxProvider store={store}>
       <PluginProvider>
         <ColorModeScript storageKey='ss-theme' />
-        <ChakraProvider theme={theme} colorModeManager={manager}>
+        <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
           <PersistGate loading={<SplashScreen />} persistor={persistor}>
             <HashRouter basename='/'>
               <ScrollToTop />

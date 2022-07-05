@@ -11,6 +11,7 @@ import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapper'
+import { Assets } from 'pages/Assets/Assets'
 
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,
@@ -20,7 +21,7 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
-  const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
+  const { updateQuote, getDefaultPair, getSupportedBuyAssetsFromSellAsset, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
   const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
@@ -54,7 +55,7 @@ export const useTradeRoutes = (
             await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
             return true
           }
-        } catch (e) {}
+        } catch (e) { }
         return false
       })()
 
@@ -97,6 +98,19 @@ export const useTradeRoutes = (
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', buyTradeAsset?.asset)
         }
+        // Make sure buy asset is valid
+        if (buyTradeAsset?.asset) {
+          const assetArray = Object.values(assets)
+          const buyAssets = getSupportedBuyAssetsFromSellAsset(assetArray)
+          if (buyAssets && !buyAssets?.includes(buyTradeAsset?.asset)) {
+            for (const asset of buyAssets) {
+              if (asset.assetId !== sellTradeAsset?.asset?.assetId) {
+                setValue('buyAsset.asset', asset)
+                break
+              }
+            }
+          }
+        }
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
           await updateQuote({
             forceQuote: true,
@@ -106,6 +120,7 @@ export const useTradeRoutes = (
             feeAsset,
             action: TradeAmountInputField.SELL,
           })
+
         }
       } catch (e) {
         console.warn(e)

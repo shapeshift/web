@@ -14,8 +14,8 @@ import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
-  isCosmosStaking,
-  isOsmosisStaking,
+  isCosmosChainId,
+  isOsmosisChainId,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
@@ -73,7 +73,7 @@ export const OpportunityCard = ({
 
   const handleClick = () => {
     if (isConnected) {
-      if (isCosmosStaking(chainId) || isOsmosisStaking(chainId)) {
+      if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
         cosmosStaking.open({
           assetId,
           validatorAddress: contractAddress,
@@ -122,10 +122,10 @@ export const OpportunityCard = ({
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosStaking(chainId) &&
-                  !isOsmosisStaking(chainId) &&
+                {!isCosmosChainId(chainId) &&
+                  !isOsmosisChainId(chainId) &&
                   `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {(isCosmosStaking(chainId) || isOsmosisStaking(chainId)) && `${moniker}`}
+                {(isCosmosChainId(chainId) || isOsmosisChainId(chainId)) && `${moniker}`}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

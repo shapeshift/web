@@ -1,6 +1,10 @@
 import { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { Asset } from '@shapeshiftoss/types'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+  StakingAction,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -47,7 +51,7 @@ export const useStakingAction = () => {
             : ''
 
         // this works because cosmos and osmosis staking interfaces are identical
-        if (chainId === KnownChainIds.CosmosMainnet || chainId === KnownChainIds.OsmosisMainnet) {
+        if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
           switch (action) {
             case StakingAction.Claim: {
               result = await (adapter as unknown as cosmossdk.cosmos.ChainAdapter) // TODO: fix types

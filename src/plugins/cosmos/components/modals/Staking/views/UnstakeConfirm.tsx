@@ -9,7 +9,6 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { AssetId } from '@shapeshiftoss/caip'
 import { cosmossdk, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import {
@@ -40,6 +39,8 @@ import { useAppSelector } from 'state/store'
 import {
   COSMOS_UNBONDING_DAYS,
   Field,
+  isCosmosAssetId,
+  isOsmosisAssetId,
   OSMOSIS_UNBONDING_DAYS,
   StakingValues,
   UnstakingPath,
@@ -53,8 +54,8 @@ type UnstakeProps = {
 
 export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeProps) => {
   const unbondingDays = useMemo(() => {
-    if (assetId === cosmosAssetId) return COSMOS_UNBONDING_DAYS
-    if (assetId === osmosisAssetId) return OSMOSIS_UNBONDING_DAYS
+    if (isCosmosAssetId(assetId)) return COSMOS_UNBONDING_DAYS
+    if (isOsmosisAssetId(assetId)) return OSMOSIS_UNBONDING_DAYS
 
     // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
     return ''

@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ChainId, cosmosChainId } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 // @ts-ignore this will fail at 'file differs in casing' error
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { logger } from 'lib/logger'
@@ -81,10 +85,14 @@ export const validatorDataApi = createApi({
           return { error: { data: `No portfolio data found for ${accountSpecifier}`, status: 404 } }
         }
 
-        const validatorAddress =
-          chainId === cosmosChainId
-            ? SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-            : SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+        let validatorAddress = ''
+
+        if (isCosmosChainId(chainId)) {
+          validatorAddress = SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+        }
+        if (isOsmosisChainId(chainId)) {
+          validatorAddress = SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+        }
 
         const validatorIds = portfolioAccount.validatorIds?.length
           ? portfolioAccount.validatorIds

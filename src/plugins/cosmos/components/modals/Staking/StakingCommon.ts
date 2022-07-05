@@ -1,4 +1,11 @@
-import { AssetId, ChainId, cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  ChainId,
+  cosmosAssetId,
+  cosmosChainId,
+  osmosisAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 
 export enum StakingAction {
@@ -95,5 +102,7 @@ export const claimSteps = [
 export const COSMOS_UNBONDING_DAYS = '21'
 export const OSMOSIS_UNBONDING_DAYS = '14'
 
-export const isCosmosStaking = (chainId: ChainId) => chainId === cosmosChainId
-export const isOsmosisStaking = (chainId: ChainId) => chainId === osmosisChainId
+export const isCosmosChainId = (chainId: ChainId) => chainId === cosmosChainId
+export const isOsmosisChainId = (chainId: ChainId) => chainId === osmosisChainId
+export const isCosmosAssetId = (assetId: AssetId) => assetId === cosmosAssetId
+export const isOsmosisAssetId = (assetId: AssetId) => assetId === osmosisAssetId

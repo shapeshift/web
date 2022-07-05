@@ -1,6 +1,10 @@
-import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -95,7 +99,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                       const { getValidatorData } = validatorDataApi.endpoints
 
                       // refetch validator data on new txs in case TVL or APR has changed
-                      if (msg.chainId === cosmosChainId || msg.chainId === osmosisChainId) {
+                      if (isCosmosChainId(msg.chainId) || isOsmosisChainId(msg.chainId)) {
                         dispatch(
                           getValidatorData.initiate({ accountSpecifier: accountId, chainId }),
                         )

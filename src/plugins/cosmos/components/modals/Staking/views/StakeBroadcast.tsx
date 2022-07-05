@@ -1,7 +1,6 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalFooter, Stack, Text as CText, Tooltip } from '@chakra-ui/react'
-import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { AssetId } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
@@ -22,6 +21,8 @@ import { useAppSelector } from 'state/store'
 
 import {
   COSMOS_UNBONDING_DAYS,
+  isCosmosAssetId,
+  isOsmosisAssetId,
   OSMOSIS_UNBONDING_DAYS,
   StakingAction,
   StakingValues,
@@ -48,8 +49,8 @@ export const StakeBroadcast = ({
   onStepCompleted,
 }: StakeProps) => {
   const unbondingDays = useMemo(() => {
-    if (assetId === cosmosAssetId) return COSMOS_UNBONDING_DAYS
-    if (assetId === osmosisAssetId) return OSMOSIS_UNBONDING_DAYS
+    if (isCosmosAssetId(assetId)) return COSMOS_UNBONDING_DAYS
+    if (isOsmosisAssetId(assetId)) return OSMOSIS_UNBONDING_DAYS
 
     // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
     return ''

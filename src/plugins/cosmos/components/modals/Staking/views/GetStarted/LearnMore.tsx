@@ -1,7 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, IconButton } from '@chakra-ui/react'
-import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
@@ -16,7 +15,12 @@ import { Text } from 'components/Text'
 import { selectAssetNameById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { COSMOS_UNBONDING_DAYS, OSMOSIS_UNBONDING_DAYS } from '../../StakingCommon'
+import {
+  COSMOS_UNBONDING_DAYS,
+  isCosmosAssetId,
+  isOsmosisAssetId,
+  OSMOSIS_UNBONDING_DAYS,
+} from '../../StakingCommon'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {
@@ -52,8 +56,8 @@ export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
   const history = useHistory()
   const assetName = useAppSelector(state => selectAssetNameById(state, assetId))
   const unbondingDays = useMemo(() => {
-    if (assetId === cosmosAssetId) return COSMOS_UNBONDING_DAYS
-    if (assetId === osmosisAssetId) return OSMOSIS_UNBONDING_DAYS
+    if (isCosmosAssetId(assetId)) return COSMOS_UNBONDING_DAYS
+    if (isOsmosisAssetId(assetId)) return OSMOSIS_UNBONDING_DAYS
 
     // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
     return ''

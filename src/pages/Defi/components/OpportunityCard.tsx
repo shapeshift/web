@@ -59,8 +59,6 @@ export const OpportunityCard = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
   const { assetReference } = fromAssetId(assetId)
-  const isCosmosStaking = chainId === cosmosChainId
-  const isOsmosisStaking = chainId === osmosisChainId
 
   const assets = useAppSelector(selectAssets)
 
@@ -71,7 +69,7 @@ export const OpportunityCard = ({
 
   const handleClick = () => {
     if (isConnected) {
-      if (isCosmosStaking) {
+      if (isCosmosStaking(chainId) || isOsmosisStaking(chainId)) {
         cosmosStaking.open({
           assetId,
           validatorAddress: contractAddress,
@@ -120,10 +118,10 @@ export const OpportunityCard = ({
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosStaking &&
-                  !isOsmosisStaking &&
+                {!isCosmosStaking(chainId) &&
+                  !isOsmosisStaking(chainId) &&
                   `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {(isCosmosStaking || isOsmosisStaking) && `${moniker}`}
+                {(isCosmosStaking(chainId) || isOsmosisStaking(chainId)) && `${moniker}`}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

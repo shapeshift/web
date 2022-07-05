@@ -1,7 +1,7 @@
 import { getConfig } from 'config'
 import Web3 from 'web3'
 
-let maybeWeb3Provider: InstanceType<any> | null
+let maybeWeb3Provider: InstanceType<typeof Web3.providers.HttpProvider> | null
 
 export const getWeb3Provider = () => {
   if (!maybeWeb3Provider) {

@@ -11,7 +11,6 @@ import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapper'
-import { Assets } from 'pages/Assets/Assets'
 
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,

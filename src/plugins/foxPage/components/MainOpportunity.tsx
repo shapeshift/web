@@ -57,9 +57,9 @@ export const MainOpportunity = ({
           <Box>
             <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
             <Skeleton isLoaded={Boolean(apy)}>
-              <CText color='green.400' fontSize={'xl'}>
+              <Box color='green.400' fontSize={'xl'}>
                 <Amount.Percent value={apy} />
-              </CText>
+              </Box>
             </Skeleton>
           </Box>
           <Box>

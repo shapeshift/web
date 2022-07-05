@@ -37,15 +37,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import {
-  COSMOS_UNBONDING_DAYS,
-  Field,
-  isCosmosAssetId,
-  isOsmosisAssetId,
-  OSMOSIS_UNBONDING_DAYS,
-  StakingPath,
-  StakingValues,
-} from '../StakingCommon'
+import { assetIdToUnbondingDays, Field, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   assetId: AssetId
@@ -59,13 +51,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
-  const unbondingDays = useMemo(() => {
-    if (isCosmosAssetId(assetId)) return COSMOS_UNBONDING_DAYS
-    if (isOsmosisAssetId(assetId)) return OSMOSIS_UNBONDING_DAYS
-
-    // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
-    return ''
-  }, [assetId])
+  const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
 
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({

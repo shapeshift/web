@@ -15,12 +15,7 @@ import { Text } from 'components/Text'
 import { selectAssetNameById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import {
-  COSMOS_UNBONDING_DAYS,
-  isCosmosAssetId,
-  isOsmosisAssetId,
-  OSMOSIS_UNBONDING_DAYS,
-} from '../../StakingCommon'
+import { assetIdToUnbondingDays } from '../../StakingCommon'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {
@@ -55,13 +50,7 @@ type LearnMoreProps = {
 export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
   const history = useHistory()
   const assetName = useAppSelector(state => selectAssetNameById(state, assetId))
-  const unbondingDays = useMemo(() => {
-    if (isCosmosAssetId(assetId)) return COSMOS_UNBONDING_DAYS
-    if (isOsmosisAssetId(assetId)) return OSMOSIS_UNBONDING_DAYS
-
-    // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
-    return ''
-  }, [assetId])
+  const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
 
   const { nextStep, prevStep, setStep, activeStep } = useSteps({
     initialStep: 1,

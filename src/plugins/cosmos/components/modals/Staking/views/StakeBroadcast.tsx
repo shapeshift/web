@@ -19,14 +19,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import {
-  COSMOS_UNBONDING_DAYS,
-  isCosmosAssetId,
-  isOsmosisAssetId,
-  OSMOSIS_UNBONDING_DAYS,
-  StakingAction,
-  StakingValues,
-} from '../StakingCommon'
+import { assetIdToUnbondingDays, StakingAction, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   assetId: AssetId
@@ -48,13 +41,7 @@ export const StakeBroadcast = ({
   onCancel,
   onStepCompleted,
 }: StakeProps) => {
-  const unbondingDays = useMemo(() => {
-    if (isCosmosAssetId(assetId)) return COSMOS_UNBONDING_DAYS
-    if (isOsmosisAssetId(assetId)) return OSMOSIS_UNBONDING_DAYS
-
-    // For exhaustiveness. We should never render <LearnMore /> with an unsupported assetId.
-    return ''
-  }, [assetId])
+  const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
 
   const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
   const [loading, setLoading] = useState(false)

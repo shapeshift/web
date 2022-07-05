@@ -106,3 +106,9 @@ export const isCosmosChainId = (chainId: ChainId) => chainId === cosmosChainId
 export const isOsmosisChainId = (chainId: ChainId) => chainId === osmosisChainId
 export const isCosmosAssetId = (assetId: AssetId) => assetId === cosmosAssetId
 export const isOsmosisAssetId = (assetId: AssetId) => assetId === osmosisAssetId
+
+export const assetIdToUnbondingDays = (assetId: AssetId) => {
+  if (assetId === cosmosAssetId) return COSMOS_UNBONDING_DAYS
+  else if (assetId === osmosisAssetId) return OSMOSIS_UNBONDING_DAYS
+  else return ''
+}

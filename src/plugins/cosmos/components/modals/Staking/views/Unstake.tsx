@@ -30,11 +30,13 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
-
-// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
-const COSMOS_UNBONDING_DAYS = '21'
-const OSMOSIS_UNBONDING_DAYS = '14'
+import {
+  COSMOS_UNBONDING_DAYS,
+  Field,
+  OSMOSIS_UNBONDING_DAYS,
+  StakingValues,
+  UnstakingPath,
+} from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',

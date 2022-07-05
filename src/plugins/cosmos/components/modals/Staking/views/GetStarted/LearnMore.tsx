@@ -16,11 +16,7 @@ import { Text } from 'components/Text'
 import { selectAssetNameById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-// UnbondingTime is an IBC-chain specific parameter
-// Hardcoded to CosmosHub and Osmosis staking for now, but in the future we should find a better home for this with the right unbonding days per protocol-level unbonding days
-// https://docs.cosmos.network/v0.44/modules/staking/08_params.html
-const COSMOS_UNBONDING_DAYS = '21'
-const OSMOSIS_UNBONDING_DAYS = '14'
+import { COSMOS_UNBONDING_DAYS, OSMOSIS_UNBONDING_DAYS } from '../../StakingCommon'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {

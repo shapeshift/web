@@ -37,17 +37,19 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
+import {
+  COSMOS_UNBONDING_DAYS,
+  Field,
+  OSMOSIS_UNBONDING_DAYS,
+  StakingValues,
+  UnstakingPath,
+} from '../StakingCommon'
 
 type UnstakeProps = {
   assetId: AssetId
   validatorAddress: string
   onCancel: () => void
 }
-
-// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
-const COSMOS_UNBONDING_DAYS = '21'
-const OSMOSIS_UNBONDING_DAYS = '14'
 
 export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeProps) => {
   const unbondingDays = useMemo(() => {

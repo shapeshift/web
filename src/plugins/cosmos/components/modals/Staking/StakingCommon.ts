@@ -87,3 +87,10 @@ export const claimSteps = [
   { step: 0, path: ClaimPath.Confirm, label: 'Confirm' },
   { step: 1, path: ClaimPath.Broadcast, label: 'Broadcast' },
 ]
+
+// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
+// UnbondingTime is an IBC-chain specific parameter
+// Hardcoded to CosmosHub and Osmosis staking for now, but in the future we should find a better home for this with the right unbonding days per protocol-level unbonding days
+// https://docs.cosmos.network/v0.44/modules/staking/08_params.html
+export const COSMOS_UNBONDING_DAYS = '21'
+export const OSMOSIS_UNBONDING_DAYS = '14'

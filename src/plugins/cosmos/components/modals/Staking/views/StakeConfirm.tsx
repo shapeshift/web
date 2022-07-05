@@ -38,17 +38,19 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Field, StakingPath, StakingValues } from '../StakingCommon'
+import {
+  COSMOS_UNBONDING_DAYS,
+  Field,
+  OSMOSIS_UNBONDING_DAYS,
+  StakingPath,
+  StakingValues,
+} from '../StakingCommon'
 
 type StakeProps = {
   assetId: AssetId
   validatorAddress: string
   onCancel: () => void
 }
-
-// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
-const COSMOS_UNBONDING_DAYS = '21'
-const OSMOSIS_UNBONDING_DAYS = '14'
 
 // TODO: Make this a derived selector after this is wired up
 function calculateYearlyYield(apy: string, amount: string = '') {

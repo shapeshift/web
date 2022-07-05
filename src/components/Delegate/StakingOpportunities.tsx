@@ -55,7 +55,7 @@ export const ValidatorName = ({
   return (
     <Box cursor='pointer'>
       <Flex alignItems='center' maxWidth='180px' mr={'-20px'}>
-        <AssetIcon src={assetIcon} boxSize='8' />
+        <AssetIcon mr={8} src={assetIcon} boxSize='8' />
         {isStaking ? (
           <Tag colorScheme='blue'>
             <TagLabel>{moniker}</TagLabel>

@@ -4,6 +4,10 @@ import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -57,7 +61,7 @@ export const AllEarnOpportunities = () => {
         return
       }
 
-      if (chainId === cosmosChainId) {
+      if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
         cosmosStaking.open({
           assetId,
           validatorAddress: contractAddress,

@@ -7,11 +7,11 @@ import {
   chainIdToFeeAssetId,
   cosmosChainId,
   ethChainId,
+  fromAccountId,
   fromAssetId,
   fromChainId,
   osmosisChainId,
   toAccountId,
-  fromAccountId,
 } from '@shapeshiftoss/caip'
 import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'

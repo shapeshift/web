@@ -425,9 +425,13 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
   }
 }
 
-export const getShapeshiftValidatorFromAccountSpecifier = (accountSpecifier: AccountSpecifier) => {
+export const getShapeshiftValidatorFromAccountSpecifier = (
+  accountSpecifier: AccountSpecifier,
+): string => {
   const { chainId } = fromAccountId(accountSpecifier)
-  if (chainId === osmosisChainId) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-  else if (chainId === cosmosChainId) return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-  else return ''
+  const chainIdToValidatorAddress: Record<ChainId, string> = {
+    [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+    [osmosisChainId]: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+  }
+  return chainIdToValidatorAddress[chainId]
 }

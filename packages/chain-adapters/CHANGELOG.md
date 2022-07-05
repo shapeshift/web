@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.3.0...@shapeshiftoss/chain-adapters-v7.4.0) (2022-07-05)
+
+
+### Features
+
+* **chain-adapters:** add getRpcUrl to EVMBaseAdapter ([#851](https://github.com/shapeshift/lib/issues/851)) ([fa2f73e](https://github.com/shapeshift/lib/commit/fa2f73ebd88005c507cbf3ba41a54436f4c2293b))
+
 # [@shapeshiftoss/chain-adapters-v7.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.2.1...@shapeshiftoss/chain-adapters-v7.3.0) (2022-06-30)
 
 

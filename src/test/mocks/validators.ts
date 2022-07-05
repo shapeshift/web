@@ -1,8 +1,8 @@
 import merge from 'lodash/merge'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
+import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/constants'
 
 export const SHAPESHIFT_OPPORTUNITY = {
-  address: SHAPESHIFT_VALIDATOR_ADDRESS,
+  address: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   moniker: 'Shapeshift DAO',
   tokens: '111111',
   apr: '0.24',

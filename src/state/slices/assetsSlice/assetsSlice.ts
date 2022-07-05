@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, avalancheChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
+import { ReduxState } from 'state/reducer'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 let service: AssetService | undefined = undefined
 
@@ -17,9 +19,7 @@ const getAssetService = async () => {
   return service
 }
 
-export type AssetsById = {
-  [key: AssetId]: Asset
-}
+export type AssetsById = Record<AssetId, Asset>
 
 export type AssetsState = {
   byId: AssetsById
@@ -52,13 +52,22 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: async () => {
-        // @ts-ignore
+      queryFn: async (_, { getState }) => {
+        const { Avalanche, Osmosis } = selectFeatureFlags(getState() as ReduxState)
+
         const service = await getAssetService()
-        const assetArray = service?.getAll()
+        const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
+          (prev, [assetId, asset]) => {
+            if (!Avalanche && asset.chainId === avalancheChainId) return prev
+            if (!Osmosis && asset.chainId === osmosisChainId) return prev
+            prev[assetId] = asset
+            return prev
+          },
+          {},
+        )
         const data = {
-          byId: assetArray ?? {},
-          ids: Object.keys(assetArray) ?? [],
+          byId: assets,
+          ids: Object.keys(assets) ?? [],
         }
         return { data }
       },
@@ -68,14 +77,14 @@ export const assetApi = createApi({
         data && dispatch(assets.actions.setAssets(data))
       },
     }),
-    getAssetDescription: build.query<AssetsState, AssetId>({
-      queryFn: async (assetId, { getState }) => {
+    getAssetDescription: build.query<AssetsState, { assetId: AssetId; selectedLocale: string }>({
+      queryFn: async ({ assetId, selectedLocale }, { getState }) => {
         const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)
         try {
-          const { description, isTrusted } = await service.description(assetId)
+          const { description, isTrusted } = await service.description(assetId, selectedLocale)
           byId[assetId].description = description
           byId[assetId].isTrustedDescription = isTrusted
           const data = { byId, ids }

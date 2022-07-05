@@ -10,7 +10,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId, cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
@@ -60,6 +60,7 @@ export const OpportunityCard = ({
   const { cosmosStaking } = useModal()
   const { assetReference } = fromAssetId(assetId)
   const isCosmosStaking = chainId === cosmosChainId
+  const isOsmosisStaking = chainId === osmosisChainId
 
   const assets = useAppSelector(selectAssets)
 
@@ -119,8 +120,10 @@ export const OpportunityCard = ({
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosStaking && `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {isCosmosStaking && `${moniker}`}
+                {!isCosmosStaking &&
+                  !isOsmosisStaking &&
+                  `${asset.symbol} ${type?.replace('_', ' ')}`}
+                {(isCosmosStaking || isOsmosisStaking) && `${moniker}`}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

@@ -31,7 +31,7 @@ import {
   selectTotalCryptoBalanceWithDelegations,
   selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/portfolioSlice/selectors'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -131,8 +131,13 @@ export const FoxPage = () => {
     selectedAsset?.assetId === FOX_ASSET_ID
       ? FOX_DESCRIPTION // FOX has a custom description, other assets can use the asset-service one
       : selectedAsset?.description
+
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   // TODO(gomes): Export a similar RTK select() query, consumed to determine wallet + staking balance loaded
-  const getAssetDescriptionQuery = useGetAssetDescriptionQuery(selectedAsset?.assetId)
+  const getAssetDescriptionQuery = useGetAssetDescriptionQuery({
+    assetId: selectedAsset?.assetId,
+    selectedLocale,
+  })
   const isAssetDescriptionLoaded = !getAssetDescriptionQuery.isLoading
 
   const handleTabClick = (assetId: AssetId) => {

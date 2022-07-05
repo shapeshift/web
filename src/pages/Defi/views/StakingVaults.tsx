@@ -64,6 +64,7 @@ const FoxFarmCTA = () => {
           <AssetIcon ml={-2} boxSize='40px' src={foxAssetIcon} />
           <CText ml='5' fontWeight='normal' fontSize={{ base: 'md', md: 'lg' }}>
             {translate('defi.clickHereToEarn')}
+            <span> </span>
             <Skeleton display='inline-block' isLoaded={isFarmingAprLoaded}>
               <Amount.Percent as='span' value={farmingApr ?? ''} />
             </Skeleton>

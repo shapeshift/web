@@ -1,5 +1,3 @@
-export type CoinGeckoMarketCapNoId = Omit<CoinGeckoMarketCap, 'id'>
-
 export type CoinGeckoMarketData = {
   current_price: Record<string, number>
   market_cap: Record<string, number>

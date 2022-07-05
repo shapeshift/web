@@ -141,11 +141,6 @@ export interface MinMaxOutput {
   maximum: string
 }
 
-export type GetMinMaxInput = {
-  sellAsset: Asset
-  buyAsset: Asset
-}
-
 export type ApprovalNeededOutput = {
   approvalNeeded: boolean
 }

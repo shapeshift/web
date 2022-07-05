@@ -46,11 +46,6 @@ export type TxInput = {
 
 export type TxInputWithoutAmount = Pick<TxInput, Exclude<keyof TxInput, 'amountDesired'>>
 
-export type TxInputWithoutAmountUnsigned = Pick<
-  TxInputWithoutAmount,
-  Exclude<keyof TxInputWithoutAmount, 'wallet' | 'dryRun'>
->
-
 export type TxInputWithoutAmountAndWallet = Pick<
   TxInputWithoutAmount,
   Exclude<keyof TxInputWithoutAmount, 'wallet'>
@@ -139,13 +134,6 @@ export type Recipient = {
   cycle: number
   wallet: string // address that's claiming.  Weird Tokemak naming convention
   amount: string
-}
-
-export type EstimateClaimFromTokemak = TxInputWithoutAmountAndWallet & {
-  recipient: Recipient
-  v: number
-  r: string
-  s: string
 }
 
 export type RebaseEvent = {

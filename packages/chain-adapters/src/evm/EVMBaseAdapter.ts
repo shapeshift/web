@@ -1,6 +1,10 @@
 import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
-import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import {
+  bip32ToAddressNList,
+  ETHSignMessage,
+  ETHSignTx,
+  ETHWallet
+} from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import WAValidator from 'multicoin-address-validator'
@@ -63,7 +67,7 @@ export abstract class EVMBaseAdapter<T extends EVMChainIds> implements IChainAda
 
   static defaultBIP44Params: BIP44Params
 
-  constructor(args: EVMBaseAdapterArgs) {
+  protected constructor(args: EVMBaseAdapterArgs) {
     EVMBaseAdapter.defaultBIP44Params = (<typeof EVMBaseAdapter>this.constructor).defaultBIP44Params
 
     this.supportedChainIds = args.supportedChainIds

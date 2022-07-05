@@ -5,6 +5,7 @@ import { QuoteFeeData, SwapError, SwapErrorTypes } from '../../../../../api'
 import { bn } from '../../../../utils/bignumber'
 import { ThorchainSwapperDeps } from '../../../types'
 import { estimateTradeFee } from '../../estimateTradeFee/estimateTradeFee'
+
 export const getBtcTxFees = async ({
   deps,
   opReturnData,
@@ -28,7 +29,7 @@ export const getBtcTxFees = async ({
       | undefined
     if (!adapter)
       throw new SwapError(
-        `[getBtcTxFees] - No chain adapter found for ${'bip122:000000000019d6689c085ae165831e93'}.`,
+        `[getBtcTxFees] - No chain adapter found for bip122:000000000019d6689c085ae165831e93.`,
         {
           code: SwapErrorTypes.UNSUPPORTED_CHAIN,
           details: { chainId: 'bip122:000000000019d6689c085ae165831e93' }

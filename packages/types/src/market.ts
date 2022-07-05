@@ -31,7 +31,6 @@ export type MarketDataArgs = {
 }
 
 export type FindAllMarketType = (args: FindAllMarketArgs) => Promise<MarketCapResult>
-export type FindByCaip19MarketType = (args: MarketDataArgs) => Promise<MarketData | null>
 
 export type PriceHistoryType = (args: PriceHistoryArgs) => Promise<HistoryData[]>
 

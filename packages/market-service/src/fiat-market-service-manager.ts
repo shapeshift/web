@@ -15,7 +15,6 @@ export const findByFiatSymbol = async ({ symbol }: FiatMarketDataArgs) => {
       result = await FiatMarketProviders[i].findByFiatSymbol({ symbol })
     } catch (e) {
       // Swallow error, not every fiat will be with every provider.
-      continue
     }
   }
   if (!result) return null
@@ -33,7 +32,6 @@ export const findPriceHistoryByFiatSymbol: FiatPriceHistoryType = async ({
       result = await FiatMarketProviders[i].findPriceHistoryByFiatSymbol({ symbol, timeframe })
     } catch (e) {
       // Swallow error, not every fiat will be with every provider.
-      continue
     }
   }
   if (!result) return []

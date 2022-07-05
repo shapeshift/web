@@ -10,9 +10,13 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import {
+  isCosmosStaking,
+  isOsmosisStaking,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'

@@ -1,7 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
+import {
+  isCosmosStaking,
+  isOsmosisStaking,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Row } from 'react-table'
@@ -26,15 +30,27 @@ type StakingOpportunitiesProps = {
 }
 
 type ValidatorNameProps = {
+  chainId: ChainId
   moniker: string
   isStaking: boolean
   validatorAddress: string
 }
 
-export const ValidatorName = ({ moniker, isStaking, validatorAddress }: ValidatorNameProps) => {
-  const assetIcon = isStaking
-    ? `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/cosmoshub/${validatorAddress}.png`
-    : 'https://assets.coincap.io/assets/icons/256/atom.png'
+export const ValidatorName = ({
+  moniker,
+  isStaking,
+  validatorAddress,
+  chainId,
+}: ValidatorNameProps) => {
+  const assetIcon = useMemo(() => {
+    if (!isStaking) return 'https://assets.coincap.io/assets/icons/256/atom.png'
+
+    let cosmostationChainName
+    if (isCosmosStaking(chainId)) cosmostationChainName = 'cosmoshub'
+    if (isOsmosisStaking(chainId)) cosmostationChainName = 'osmosis'
+
+    return `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`
+  }, [isStaking, validatorAddress, chainId])
 
   return (
     <Box cursor='pointer'>
@@ -93,6 +109,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
                 validatorAddress={validator?.address}
                 moniker={validator?.moniker}
                 isStaking={true}
+                chainId={asset?.chainId}
               />
             </Skeleton>
           )

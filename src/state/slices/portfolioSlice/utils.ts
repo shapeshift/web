@@ -11,6 +11,7 @@ import {
   fromChainId,
   osmosisChainId,
   toAccountId,
+  fromAccountId,
 } from '@shapeshiftoss/caip'
 import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -425,6 +426,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
 }
 
 export const getShapeshiftValidatorFromAccountSpecifier = (accountSpecifier: AccountSpecifier) => {
-  if (accountSpecifier.includes('osmosis')) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-  else return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+  const { chainId } = fromAccountId(accountSpecifier)
+  if (chainId === osmosisChainId) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+  else if (chainId === cosmosChainId) return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+  else return ''
 }

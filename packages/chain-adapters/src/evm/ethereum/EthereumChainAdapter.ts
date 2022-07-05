@@ -39,7 +39,7 @@ export class ChainAdapter extends EVMBaseAdapter<KnownChainIds.EthereumMainnet> 
     this.assetId = ethAssetId
     this.parser = new unchained.ethereum.TransactionParser({
       chainId: this.chainId,
-      rpcUrl: args.rpcUrl
+      rpcUrl: this.rpcUrl
     })
   }
 

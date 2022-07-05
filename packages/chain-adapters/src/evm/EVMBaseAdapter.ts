@@ -62,6 +62,7 @@ export abstract class EVMBaseAdapter<T extends EVMChainIds> implements IChainAda
     ws: unchained.ws.Client<unchained.ethereum.EthereumTx>
   }
 
+  protected rpcUrl: string
   protected assetId: AssetId
   protected parser: unchained.ethereum.TransactionParser
 
@@ -72,6 +73,7 @@ export abstract class EVMBaseAdapter<T extends EVMChainIds> implements IChainAda
 
     this.supportedChainIds = args.supportedChainIds
     this.chainId = args.chainId
+    this.rpcUrl = args.rpcUrl
     this.providers = args.providers
 
     if (!this.supportedChainIds.includes(this.chainId)) {
@@ -86,6 +88,10 @@ export abstract class EVMBaseAdapter<T extends EVMChainIds> implements IChainAda
 
   getChainId(): ChainId {
     return this.chainId
+  }
+
+  getRpcUrl(): string {
+    return this.rpcUrl
   }
 
   buildBIP44Params(params: Partial<BIP44Params>): BIP44Params {

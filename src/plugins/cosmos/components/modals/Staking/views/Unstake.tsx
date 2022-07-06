@@ -37,7 +37,6 @@ export enum InputType {
 }
 
 type UnstakeProps = {
-  apr: string
   assetId: AssetId
   accountSpecifier: string
   validatorAddress: string

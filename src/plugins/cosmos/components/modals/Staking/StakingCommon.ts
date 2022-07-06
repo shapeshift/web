@@ -7,6 +7,7 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export enum StakingAction {
   Stake = 'stake',
@@ -113,4 +114,8 @@ export const assetIdToUnbondingDays = (assetId: AssetId): string => {
     [osmosisAssetId]: OSMOSIS_UNBONDING_DAYS,
   }
   return assetIdToUnbondingDaysMap[assetId]
+}
+
+export function calculateYearlyYield(apy: string, amount: string = '') {
+  return bnOrZero(amount).times(apy).toString()
 }

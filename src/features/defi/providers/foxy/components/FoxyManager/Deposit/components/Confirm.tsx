@@ -36,7 +36,7 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference, rewardId } = query
+  const { chainId, contractAddress, assetReference } = query
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
@@ -49,12 +49,6 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-  const contractAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
-  const contractAsset = useAppSelector(state => selectAssetById(state, contractAssetId))
 
   // user info
   const { state: walletState } = useWallet()
@@ -128,20 +122,6 @@ export const Confirm = ({ api, apy }: FoxyConfirmProps) => {
       loadingText={translate('common.confirm')}
       isDisabled={!hasEnoughBalanceForGas}
       headerText='modals.confirm.deposit.header'
-      assets={[
-        {
-          ...asset,
-          color: '#FF0000',
-          cryptoAmount: state.deposit.cryptoAmount,
-          fiatAmount: state.deposit.fiatAmount,
-        },
-        {
-          ...contractAsset,
-          color: '#FFFFFF',
-          cryptoAmount: bnOrZero(state.deposit.cryptoAmount).div(bnOrZero(1).div(1)).toString(),
-          fiatAmount: state.deposit.fiatAmount,
-        },
-      ]}
     >
       <Stack spacing={4}>
         <Row>

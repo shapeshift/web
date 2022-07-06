@@ -26,6 +26,7 @@ Default.args = {
     <AssetInput
       assetName='FOX'
       assetIcon='https://assets.coincap.io/assets/icons/256/fox.png'
+      percentOptions={[0.25, 0.5, 0.75, 1]}
       fiatAmount='0'
     />
   ),

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.4.0...@shapeshiftoss/chain-adapters-v7.4.1) (2022-07-06)
+
+
+### Bug Fixes
+
+* bump osmosis gas limit ([#854](https://github.com/shapeshift/lib/issues/854)) ([92947ba](https://github.com/shapeshift/lib/commit/92947ba9ade44eb74c84f64873e1ecaed8f28f06))
+
 # [@shapeshiftoss/chain-adapters-v7.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.3.0...@shapeshiftoss/chain-adapters-v7.4.0) (2022-07-05)
 
 

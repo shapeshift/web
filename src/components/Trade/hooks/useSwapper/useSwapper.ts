@@ -4,13 +4,14 @@ import {
   QuoteFeeData,
   Swapper,
   SwapperManager,
+  SwapperType,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
-import { Asset, KnownChainIds, SwapperType } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

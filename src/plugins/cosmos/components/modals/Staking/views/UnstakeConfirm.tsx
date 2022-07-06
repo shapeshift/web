@@ -36,7 +36,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
+import { assetIdToUnbondingDays, Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 type UnstakeProps = {
   assetId: AssetId
@@ -45,6 +45,8 @@ type UnstakeProps = {
 }
 
 export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeProps) => {
+  const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
+
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -172,7 +174,7 @@ export const UnstakeConfirm = ({ assetId, validatorAddress, onCancel }: UnstakeP
               textAlign='left'
               fontSize='sm'
               color='gray.500'
-              translation={['defi.unbondInfoItWillTakeShort', { unbondingDays: '21' }]}
+              translation={['defi.unbondInfoItWillTakeShort', { unbondingDays }]}
               mb='18px'
             />
             <Stack direction='row' width='full' justifyContent='space-between'>

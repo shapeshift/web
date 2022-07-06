@@ -65,7 +65,7 @@
     ]
   },
   "resolutions": {
-    "@shapeshiftoss/hdwallet-core": "1.23.0"
+    "@shapeshiftoss/hdwallet-core": "1.24.0"
   },
   "config-overrides-path": "react-app-rewired.config.js",
   "fork-ts-checker": {

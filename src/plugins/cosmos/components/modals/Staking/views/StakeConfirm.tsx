@@ -37,7 +37,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Field, StakingPath, StakingValues } from '../StakingCommon'
+import { assetIdToUnbondingDays, Field, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   assetId: AssetId
@@ -51,6 +51,8 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {
+  const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
+
   const [feeData, setFeeData] = useState<FeePrice | null>(null)
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType,
@@ -189,7 +191,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
               textAlign='left'
               fontSize='sm'
               color='gray.500'
-              translation={['defi.unbondInfoItWillTake', { unbondingDays: '21' }]}
+              translation={['defi.unbondInfoItWillTake', { unbondingDays }]}
               mb='18px'
             />
             <Stack direction='row' width='full' justifyContent='space-between'>

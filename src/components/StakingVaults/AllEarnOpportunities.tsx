@@ -42,7 +42,7 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
+      const { provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference } = fromAssetId(assetId)
       if (!isConnected && walletInfo?.deviceId !== DemoConfig.name) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -59,12 +59,14 @@ export const AllEarnOpportunities = () => {
       }
 
       history.push({
-        pathname: `/defi/${type}/${provider}/overview`,
+        pathname: `/defi/earn`,
         search: qs.stringify({
+          provider,
           chainId,
           contractAddress,
           assetReference,
           rewardId: rewardAddress,
+          modal: 'deposit',
         }),
         state: { background: location },
       })

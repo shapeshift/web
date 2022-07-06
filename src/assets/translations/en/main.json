@@ -57,7 +57,9 @@
     "verify": "Verify",
     "notRobot": "I am not a Robot",
     "skip": "Skip",
-    "generalError": "An error has occurred"
+    "generalError": "An error has occurred",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -605,6 +607,7 @@
         "preFooter": "Rewards accrue automatically"
       },
       "withdrawTo": "Withdraw To",
+      "amountToDeposit": "Amount To Deposit",
       "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",

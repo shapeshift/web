@@ -46,6 +46,7 @@ export type AssetInputProps = {
   fiatAmount?: string
   balance?: string
   errors?: FieldError
+  percentOptions: number[]
 }
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -59,6 +60,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   fiatAmount,
   balance,
   errors,
+  percentOptions = [0.25, 0.5, 0.75, 1],
   children,
 }) => {
   const {
@@ -68,19 +70,19 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const [isFocused, setIsFocused] = useState(false)
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
-  const focusBg = useColorModeValue('gray.100', 'gray.900')
+  const focusBg = useColorModeValue('gray.50', 'gray.900')
   const focusBorder = useColorModeValue('blue.500', 'blue.400')
   return (
     <FormControl
-      pb={2}
       borderWidth={1}
       borderColor={isFocused ? focusBorder : borderColor}
       bg={isFocused ? focusBg : bgColor}
       borderRadius='xl'
       _hover={{ bg: isReadOnly ? bgColor : focusBg }}
       isInvalid={!!errors}
+      py={2}
     >
-      <Stack direction='row' alignItems='center' px={4} py={2}>
+      <Stack direction='row' alignItems='center' px={4}>
         <Button
           onClick={onAssetClick}
           variant={onAssetClick ? 'solid' : 'read-only'}
@@ -106,21 +108,24 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             onBlur={() => setIsFocused(false)}
             onFocus={() => setIsFocused(true)}
           />
-          {fiatAmount && (
-            <Button onClick={() => setIsFiat(!isFiat)} size='xs' variant='link' colorScheme='blue'>
-              {isFiat ? (
-                <Amount.Crypto value={cryptoAmount || ''} symbol={assetName} />
-              ) : (
-                <Amount.Fiat value={fiatAmount || ''} prefix='≈' />
-              )}
-            </Button>
-          )}
         </Stack>
       </Stack>
+
+      {fiatAmount && (
+        <Stack width='full' alignItems='flex-end' px={4} pb={2}>
+          <Button onClick={() => setIsFiat(!isFiat)} size='xs' variant='link' colorScheme='blue'>
+            {isFiat ? (
+              <Amount.Crypto value={cryptoAmount || ''} symbol={assetName} />
+            ) : (
+              <Amount.Fiat value={fiatAmount || ''} prefix='≈' />
+            )}
+          </Button>
+        </Stack>
+      )}
       {(onMaxClick || balance) && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          {balance && <Balance value={balance} symbol='FOX' label='Balance' />}
-          {onMaxClick && <MaxButtonGroup options={[0.25, 0.5, 0.75, 1]} onClick={onMaxClick} />}
+          {balance && <Balance value={balance} symbol={assetName} label='Balance' />}
+          {onMaxClick && <MaxButtonGroup options={percentOptions} onClick={onMaxClick} />}
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}

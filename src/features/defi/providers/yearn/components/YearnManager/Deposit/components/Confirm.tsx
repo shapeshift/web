@@ -1,16 +1,20 @@
-import { Alert, AlertIcon, Box, Stack, Tag, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { Summary } from 'features/defi/components/Summary'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiSteps,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -21,18 +25,21 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DepositPath, YearnDepositActionType } from '../DepositCommon'
+import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-export const Confirm = () => {
+type ConfirmProps = {
+  onNext: (arg: DefiSteps) => void
+}
+
+export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const history = useHistory()
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
   // TODO: Allow user to set fee priority
   const opportunity = state?.opportunity
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, assetReference } = query
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -42,16 +49,8 @@ export const Confirm = () => {
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-
-  const vaultAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const vaultAsset = useAppSelector(state => selectAssetById(state, vaultAssetId))
 
   // user info
   const { state: walletState } = useWallet()
@@ -94,7 +93,7 @@ export const Confirm = () => {
         feePriority: undefined,
       })
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
-      history.push(DepositPath.Status)
+      onNext(DefiSteps.Status)
     } catch (error) {
       console.error('YearnDeposit:handleDeposit error', error)
       toast({
@@ -109,12 +108,9 @@ export const Confirm = () => {
   }
 
   const handleCancel = () => {
-    browserHistory.goBack()
+    onNext(DefiSteps.Status)
   }
 
-  const apy = opportunity?.metadata?.apy?.net_apy
-  const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
-  const annualYieldFiat = annualYieldCrypto.times(marketData.price)
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
     .gte(0)
@@ -127,40 +123,23 @@ export const Confirm = () => {
       loading={state.loading}
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
-      assets={[
-        {
-          ...asset,
-          color: '#FF0000',
-          cryptoAmount: state.deposit.cryptoAmount,
-          fiatAmount: state.deposit.fiatAmount,
-        },
-        {
-          ...vaultAsset,
-          color: '#FFFFFF',
-          cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .div(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
-            .toString(),
-          fiatAmount: state.deposit.fiatAmount,
-        },
-      ]}
     >
-      <Stack spacing={4}>
-        <Row>
+      <Summary>
+        <Row variant='vertical' p={4}>
           <Row.Label>
-            <Text translation='modals.confirm.withdrawFrom' />
+            <Text translation='modals.confirm.amountToDeposit' />
           </Row.Label>
-          <Row.Value fontWeight='bold'>
-            <MiddleEllipsis address={state.userAddress || ''} />
-          </Row.Value>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={asset.icon} />
+              <RawText>{asset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+            </Row.Value>
+          </Row>
         </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.depositTo' />
-          </Row.Label>
-          <Row.Value fontWeight='bold'>Yearn Finance</Row.Value>
-        </Row>
-        <Row>
+        <Row p={4}>
           <Row.Label>
             <Text translation='modals.confirm.estimatedGas' />
           </Row.Label>
@@ -183,42 +162,13 @@ export const Confirm = () => {
             </Box>
           </Row.Value>
         </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.averageApy' />
-          </Row.Label>
-          <Row.Value>
-            <Tag colorScheme='green'>
-              <Amount.Percent value={String(apy)} />
-            </Tag>
-          </Row.Value>
-        </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.deposit.estimatedReturns' />
-          </Row.Label>
-          <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value={annualYieldFiat.toFixed(2)} />
-              <Amount.Crypto
-                color='gray.500'
-                value={annualYieldCrypto.toFixed(5)}
-                symbol={asset.symbol}
-              />
-            </Box>
-          </Row.Value>
-        </Row>
-        <Alert status='info' borderRadius='lg'>
+      </Summary>
+      {!hasEnoughBalanceForGas && (
+        <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation='modals.confirm.deposit.preFooter' />
+          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
         </Alert>
-        {!hasEnoughBalanceForGas && (
-          <Alert status='error' borderRadius='lg'>
-            <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
-          </Alert>
-        )}
-      </Stack>
+      )}
     </ReusableConfirm>
   )
 }

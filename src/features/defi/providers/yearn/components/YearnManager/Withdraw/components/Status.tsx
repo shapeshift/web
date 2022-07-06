@@ -85,24 +85,8 @@ export const Status = () => {
       onContinue={handleViewPosition}
       loading={state.loading}
       continueText='modals.status.position'
-      closeText='modals.status.close'
       statusText={statusText}
       statusIcon={statusIcon}
-      assets={[
-        {
-          ...asset,
-          cryptoAmount: state.withdraw.cryptoAmount,
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-        {
-          ...underlyingAsset,
-          cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-            .div(`1e+${asset.precision}`)
-            .times(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
-            .toString(),
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-      ]}
     >
       <Stack spacing={6}>
         <Row>

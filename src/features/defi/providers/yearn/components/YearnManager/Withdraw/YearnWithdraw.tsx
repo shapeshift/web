@@ -1,8 +1,8 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -27,11 +27,8 @@ import { routes, WithdrawPath, YearnWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
-type YearnWithdrawProps = {
-  yearnInvestor: YearnInvestor
-}
-
-export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
+export const YearnWithdraw = () => {
+  const { yearn: api } = useYearn()
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const translate = useTranslate()
@@ -63,10 +60,10 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && yearnInvestor && chainAdapter)) return
+        if (!(walletState.wallet && vaultAddress && api && chainAdapter)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          yearnInvestor.findByOpportunityId(
+          api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
         ])
@@ -85,7 +82,7 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
         console.error('YearnWithdraw error:', error)
       }
     })()
-  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     switch (route.path) {

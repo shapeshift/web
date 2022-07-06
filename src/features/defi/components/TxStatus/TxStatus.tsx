@@ -1,8 +1,18 @@
-import { Button, Divider, ModalBody, ModalFooter, ModalHeader, Stack } from '@chakra-ui/react'
+import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import {
+  Button,
+  Circle,
+  CircularProgressLabel,
+  Collapse,
+  Divider,
+  Stack,
+  useColorModeValue,
+  useDisclosure,
+} from '@chakra-ui/react'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetToAsset, AssetToAssetProps } from 'components/AssetToAsset/AssetToAsset'
-import { SlideTransition } from 'components/SlideTransition'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { Text } from 'components/Text'
 
 type Status =
   | 'modals.status.header.pending'
@@ -15,33 +25,33 @@ type TxStatusProps = {
   onContinue?(): void
   statusText: Status
   statusIcon: React.ReactNode
+  statusBg?: string
   continueText: string
-  closeText: string
   children?: React.ReactNode
-} & AssetToAssetProps
+}
 
 export const TxStatus = ({
-  onClose,
   onContinue,
   statusText,
+  statusIcon,
   continueText,
-  closeText,
+  statusBg,
   children,
-  ...rest
 }: TxStatusProps) => {
   const translate = useTranslate()
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const { isOpen, onToggle } = useDisclosure()
   return (
-    <SlideTransition>
-      <ModalHeader textAlign='center'>{translate(statusText)}</ModalHeader>
-      <ModalBody display='flex' py={6} flexDir={{ base: 'column', md: 'row' }}>
-        <Stack width='full' spacing={4} divider={<Divider />}>
-          <AssetToAsset {...rest} />
-          {children}
-        </Stack>
-      </ModalBody>
-      <ModalFooter flexDir='column' textAlign='center'>
-        <Stack width='full'>
-          {onContinue && (
+    <Stack width='full' spacing={0} borderColor={borderColor} divider={<Divider />}>
+      <Stack textAlign='center' spacing={6} p={6}>
+        <Circle bg={statusBg}>
+          <CircularProgress isIndeterminate={true}>
+            <CircularProgressLabel>{statusIcon}</CircularProgressLabel>
+          </CircularProgress>
+        </Circle>
+        <Text translation={statusText} fontSize='xl' />
+        {onContinue && (
+          <Stack width='full'>
             <Button
               size='lg'
               colorScheme='blue'
@@ -50,12 +60,25 @@ export const TxStatus = ({
             >
               {translate(continueText)}
             </Button>
-          )}
-          <Button size='lg' variant='ghost' data-test='defi-modal-status-close' onClick={onClose}>
-            {translate(closeText)}
-          </Button>
-        </Stack>
-      </ModalFooter>
-    </SlideTransition>
+          </Stack>
+        )}
+      </Stack>
+      <Stack spacing={0}>
+        <Button
+          justifyContent='space-between'
+          onClick={onToggle}
+          variant='ghost'
+          fontSize='md'
+          m={2}
+          py={6}
+          px={6}
+          rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
+        >
+          {translate(isOpen ? 'common.hideDetails' : 'common.showDetails')}
+        </Button>
+
+        <Collapse in={isOpen}>{children}</Collapse>
+      </Stack>
+    </Stack>
   )
 }

@@ -4,6 +4,7 @@ import {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import qs from 'qs'
 import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -15,20 +16,20 @@ type DefiActionButtonProps = {
 
 export const DefiActionButtons = ({ vaultExpired, showOverview }: DefiActionButtonProps) => {
   const translate = useTranslate()
-  const { location, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { location, history, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const match = matchPath<DefiParams>(location.pathname, {
     path: '/defi/:earnType/:provider/:action',
     exact: true,
   })
 
   const handleClick = (action: DefiAction) => {
-    if (match?.params) {
-      const { earnType, provider } = match.params
-      history.replace({
-        ...location,
-        pathname: `/defi/${earnType}/${provider}/${action}/`,
-      })
-    }
+    history.push({
+      pathname: `/defi/earn`,
+      search: qs.stringify({
+        ...query,
+        modal: action,
+      }),
+    })
   }
 
   return (

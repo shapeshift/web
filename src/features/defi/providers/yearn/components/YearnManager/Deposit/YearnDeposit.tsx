@@ -1,15 +1,22 @@
-import { Center, Flex, useToast } from '@chakra-ui/react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import { Center, Flex, IconButton, ModalCloseButton, ModalHeader, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { AnimatePresence } from 'framer-motion'
-import { useEffect, useReducer } from 'react'
+import {
+  DefiAction,
+  DefiParams,
+  DefiQueryParams,
+  DefiSteps,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import qs from 'qs'
+import { useEffect, useReducer, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useLocation } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RouteSteps } from 'components/RouteSteps/RouteSteps'
+import { StepRow } from 'components/DeFi/components/StepRow'
+import { Steps } from 'components/DeFi/components/Steps'
+import { RawText } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -25,20 +32,24 @@ import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { DepositPath, routes, YearnDepositActionType } from './DepositCommon'
+import { YearnDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
-type YearnDepositProps = {
-  yearnInvestor: YearnInvestor
+const StepList = {
+  [DefiSteps.Info]: 1,
+  [DefiSteps.Approve]: 2,
+  [DefiSteps.Confirm]: 3,
+  [DefiSteps.Status]: 4,
 }
 
-export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
+export const YearnDeposit = () => {
+  const { yearn: api } = useYearn()
+  const [step, setStep] = useState<number>(StepList[DefiSteps.Info])
   const [state, dispatch] = useReducer(reducer, initialState)
-  const location = useLocation()
   const translate = useTranslate()
   const toast = useToast()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const chainAdapterManager = useChainAdapters()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
@@ -55,10 +66,10 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter && api)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          yearnInvestor.findByOpportunityId(
+          api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
         ])
@@ -78,12 +89,12 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
         console.error('YearnDeposit error:', error)
       }
     })()
-  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference)) return
+    if (!(state.userAddress && state.opportunity && assetReference && api)) return
     try {
-      const yearnOpportunity = await yearnInvestor.findByOpportunityId(
+      const yearnOpportunity = await api.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
@@ -104,24 +115,21 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
     }
   }
 
-  const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    if (!state.opportunity) return null
-
-    switch (route.path) {
-      case DepositPath.Deposit:
-        return <Deposit getDepositGasEstimate={getDepositGasEstimate} />
-      case DepositPath.Approve:
-        return <Approve getDepositGasEstimate={getDepositGasEstimate} />
-      case DepositPath.Confirm:
-        return <Confirm />
-      case DepositPath.Status:
-        return <Status />
-      default:
-        throw new Error('Route does not exist')
-    }
+  const handleBack = () => {
+    history.push({
+      pathname: `/defi/earn`,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Overview,
+      }),
+    })
   }
 
-  if (loading || !asset || !marketData) {
+  const handleNext = (nextStep: DefiSteps) => {
+    setStep(StepList[nextStep])
+  }
+
+  if (loading || !asset || !marketData || !api) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -132,23 +140,43 @@ export const YearnDeposit = ({ yearnInvestor }: YearnDepositProps) => {
   return (
     <DepositContext.Provider value={{ state, dispatch }}>
       <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
-        <RouteSteps routes={routes} location={location} />
-        <Flex flexDir='column' width='full'>
-          <AnimatePresence exitBeforeEnter initial={false}>
-            <Switch location={location} key={location.key}>
-              {routes.map(route => {
-                return (
-                  <Route
-                    exact
-                    key={route.path}
-                    render={() => renderRoute(route)}
-                    path={route.path}
-                  />
-                )
-              })}
-            </Switch>
-          </AnimatePresence>
-        </Flex>
+        <ModalHeader py={2} display='flex' justifyContent='space-between' alignItems='center'>
+          <IconButton
+            fontSize='xl'
+            isRound
+            size='sm'
+            variant='ghost'
+            aria-label='Back'
+            onClick={handleBack}
+            icon={<ArrowBackIcon />}
+          />
+          <RawText fontSize='md'>Deposit</RawText>
+          <ModalCloseButton position='static' />
+        </ModalHeader>
+        <Steps isComplete={step === StepList[DefiSteps.Status]} statusComponent={<Status />}>
+          <StepRow
+            label='Deposit Info'
+            description='Enter the amount of FOX you would like to deposit.'
+            stepNumber='1'
+            isComplete={step > StepList[DefiSteps.Info]}
+            isActive={step === StepList[DefiSteps.Info]}
+          >
+            <Deposit onNext={handleNext} getDepositGasEstimate={getDepositGasEstimate} />
+          </StepRow>
+
+          <StepRow
+            label='Approval'
+            stepNumber='2'
+            isComplete={step > StepList[DefiSteps.Approve]}
+            isActive={step === StepList[DefiSteps.Approve]}
+          >
+            <Approve onNext={handleNext} getDepositGasEstimate={getDepositGasEstimate} />
+          </StepRow>
+
+          <StepRow label='Confirm' stepNumber='3' isActive={step === StepList[DefiSteps.Confirm]}>
+            <Confirm onNext={handleNext} />
+          </StepRow>
+        </Steps>
       </Flex>
     </DepositContext.Provider>
   )

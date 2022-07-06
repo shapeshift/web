@@ -116,23 +116,6 @@ export const Confirm = () => {
       loading={state.loading}
       loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}
-      assets={[
-        {
-          ...asset,
-          color: '#FFFFFF',
-          cryptoAmount: state.withdraw.cryptoAmount,
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-        {
-          ...underlyingAsset,
-          color: '#FF0000',
-          cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-            .div(`1e+${asset.precision}`)
-            .times(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
-            .toString(),
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-      ]}
     >
       <Stack spacing={6}>
         <Row>

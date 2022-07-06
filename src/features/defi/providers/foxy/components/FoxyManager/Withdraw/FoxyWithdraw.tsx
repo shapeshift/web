@@ -1,9 +1,9 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,11 +30,8 @@ import { FoxyWithdrawActionType, routes, WithdrawPath } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
-type FoxyWithdrawProps = {
-  api: FoxyApi
-}
-
-export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
+export const FoxyWithdraw = () => {
+  const { foxy: api } = useFoxy()
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const translate = useTranslate()
@@ -67,7 +64,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
+        if (!(walletState.wallet && contractAddress && chainAdapter && api)) return
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
@@ -97,7 +94,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }, [api, chainAdapter, contractAddress, walletState.wallet])
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!state.userAddress || !rewardId) return
+    if (!state.userAddress || !rewardId || !api) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateWithdrawGas({

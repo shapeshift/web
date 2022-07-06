@@ -1,9 +1,9 @@
 import { Center, Flex, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { AnimatePresence } from 'framer-motion'
 import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import { useEffect, useReducer } from 'react'
@@ -31,11 +31,8 @@ import { DepositPath, FoxyDepositActionType, routes } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
-type FoxyDepositProps = {
-  api: FoxyApi
-}
-
-export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
+export const FoxyDeposit = () => {
+  const { foxy: api } = useFoxy()
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const translate = useTranslate()
@@ -58,7 +55,8 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && isFoxyAprLoaded && chainAdapter)) return
+        if (!(walletState.wallet && contractAddress && isFoxyAprLoaded && chainAdapter && api))
+          return
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
@@ -76,7 +74,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }, [api, chainAdapterManager, contractAddress, walletState.wallet, foxyApr, isFoxyAprLoaded])
 
   const getDepositGasEstimate = async (deposit: DepositValues) => {
-    if (!state.userAddress || !assetReference) return
+    if (!state.userAddress || !assetReference || !api) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({

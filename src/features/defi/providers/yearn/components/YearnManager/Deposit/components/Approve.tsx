@@ -1,14 +1,16 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiSteps,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
-import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -16,20 +18,19 @@ import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DepositPath, YearnDepositActionType } from '../DepositCommon'
+import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApproveProps = {
   getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
+  onNext: (arg: DefiSteps) => void
 }
 
-export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
+export const Approve = ({ getDepositGasEstimate, onNext }: YearnApproveProps) => {
   const { state, dispatch } = useContext(DepositContext)
-  const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
-  const alertText = useColorModeValue('blue.800', 'white')
   const { yearn: yearnInvestor } = useYearn()
   const opportunity = state?.opportunity
 
@@ -95,7 +96,7 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
         payload: { estimatedGasCrypto },
       })
 
-      history.push(DepositPath.Confirm)
+      onNext(DefiSteps.Confirm)
     } catch (error) {
       console.error('YearnDeposit:handleApprove error:', error)
       toast({
@@ -123,16 +124,9 @@ export const Approve = ({ getDepositGasEstimate }: YearnApproveProps) => {
         .toFixed(2)}
       loading={state.loading}
       loadingText='Approve on Wallet'
+      providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.approve.depositFee')}
-          </AlertDescription>
-        </Alert>
-      }
-      onCancel={() => history.push('/')}
+      onCancel={() => onNext(DefiSteps.Info)}
       onConfirm={handleApprove}
     />
   )

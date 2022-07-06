@@ -129,18 +129,18 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     setRoutes(pluginRoutes)
 
-    const chainIdFilter: Array<string> = []
+    const omittedChainIds: Array<string> = []
 
     if (!featureFlags.Osmosis) {
-      chainIdFilter.push(KnownChainIds.OsmosisMainnet)
+      omittedChainIds.push(KnownChainIds.OsmosisMainnet)
     }
 
     if (!featureFlags.Avalanche) {
-      chainIdFilter.push(KnownChainIds.AvalancheMainnet)
+      omittedChainIds.push(KnownChainIds.AvalancheMainnet)
     }
 
     const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(
-      chainId => !chainIdFilter.includes(chainId),
+      chainId => !omittedChainIds.includes(chainId),
     )
 
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')

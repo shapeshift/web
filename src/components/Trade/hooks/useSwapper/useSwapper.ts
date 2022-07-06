@@ -191,9 +191,7 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    const tradeFeeSource = swapper.getType()
-
-    setFees({ trade: result, sellAsset, tradeFeeSource })
+    setFees({ trade: result, sellAsset })
     setValue('trade', result)
   }
 
@@ -260,9 +258,7 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        const tradeFeeSource = swapper.getType()
-
-        setFees({ trade: tradeQuote, sellAsset, tradeFeeSource })
+        setFees({ trade: tradeQuote, sellAsset })
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
@@ -302,11 +298,9 @@ export const useSwapper = () => {
   const setFees = async ({
     trade,
     sellAsset,
-    tradeFeeSource,
   }: {
     trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
     sellAsset: Asset
-    tradeFeeSource: string
   }) => {
     const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(
       bn(10).exponentiatedBy(feeAsset.precision),
@@ -333,7 +327,7 @@ export const useSwapper = () => {
               totalFee,
             },
             tradeFee: ethTrade.feeData.tradeFee,
-            tradeFeeSource,
+            tradeFeeSource: ethTrade.feeData.tradeFeeSource,
           }
           setValue('fees', fees)
         }

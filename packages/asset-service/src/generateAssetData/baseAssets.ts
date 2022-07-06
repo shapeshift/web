@@ -27,19 +27,6 @@ export const bitcoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/'
 }
 
-export const tBitcoin: Asset = {
-  assetId: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
-  chainId: 'bip122:000000000933ea01ad0ee984209779ba',
-  symbol: 'BTC',
-  name: 'Bitcoin',
-  precision: 8,
-  color: '#FF9800',
-  icon: 'https://assets.coincap.io/assets/icons/256/btc.png',
-  explorer: 'https://live.blockcypher.com/btc-testnet/',
-  explorerAddressLink: 'https://live.blockcypher.com/btc-testnet/address/',
-  explorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/'
-}
-
 export const atom: Asset = {
   assetId: caip.cosmosAssetId,
   chainId: caip.cosmosChainId,

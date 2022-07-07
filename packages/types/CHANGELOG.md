@@ -1,3 +1,43 @@
+# [@shapeshiftoss/types-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v6.3.0...@shapeshiftoss/types-v7.0.0) (2022-07-07)
+
+
+### Features
+
+* **swapper:** refactor + genericize 0x swapper to support any EVM ([#850](https://github.com/shapeshift/lib/issues/850)) ([094c684](https://github.com/shapeshift/lib/commit/094c684297666bc4b78e7eb1805dbeed6e6e69b1))
+
+
+### BREAKING CHANGES
+
+* **swapper:** SwapperType has been removed from @shapeshiftoss/types and will instead need to be imported from @shaperhiftoss/swapper.
+
+* fix: correct import
+
+* chore: remove redundant swapperType arg
+
+* chore: update tests for removed arg
+
+* fix: CLI tool and docs
+
+* feat: discriminate swapperType by chainId
+
+* chore: nest swapper-specific types
+
+* Revert "chore: remove deprecated getSwapper method"
+
+This reverts commit 5591f9e358a96b6524f395b17f893614b37e51d6.
+
+* fix: reversion issues
+
+* chore: improve types
+
+* chore: use EvmSupportedChainIds
+
+* chore: improve generics
+
+* propagate generics through and add extra types
+
+Co-authored-by: kaladinlight <35275952+kaladinlight@users.noreply.github.com>
+
 # [@shapeshiftoss/types-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v6.2.0...@shapeshiftoss/types-v6.3.0) (2022-06-30)
 
 

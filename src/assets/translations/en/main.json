@@ -97,6 +97,8 @@
     "gem": "GEM",
     "gemMessage": "Buy or Sell Crypto with Gem",
     "onJuno": "OnJuno",
+    "junoPay": "JunoPay",
+    "junoPayMessage": "Buy Crypto with Juno Pay",
     "banxa": "Banxa",
     "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",

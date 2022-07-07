@@ -30,6 +30,11 @@ env:
   REACT_APP_COINBASE_PAY_APP_ID: 1dbd2a0b94
   REACT_APP_GEM_ENV: production
 
+  REACT_APP_JUNOPAY_APP_ID: live_SYkQkrlyIQeuQf8AauSOaGTa
+  REACT_APP_JUNOPAY_ASSET_LOGO: https://cdn.juno.finance/
+  REACT_APP_JUNOPAY_BASE_URL: https://api.juno.finance
+  REACT_APP_JUNOPAY_SUPPORTED_COINS: https://api.juno.finance/crypto-wallet-partners?partner_key=live_SYkQkrlyIQeuQf8AauSOaGTa
+
 jobs:
   test-chrome:
     name: Run Cypress

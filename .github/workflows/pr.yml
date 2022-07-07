@@ -28,6 +28,11 @@ jobs:
       REACT_APP_GEM_ASSET_LOGO: https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/
       REACT_APP_GEM_API_KEY: bb4164a72246dae1e03010d664d6cdae4e19b2554de02e3bf6c3cd30aa7e359e
       REACT_APP_GEM_ENV: production
+
+      REACT_APP_ONJUNOPAY_APP_ID: live_SYkQkrlyIQeuQf8AauSOaGTa
+      REACT_APP_ONJUNOPAY_ASSET_LOGO_URL: https://cdn.juno.finance/
+      REACT_APP_ONJUNOPAY_BASE_API_URL: https://api.juno.finance
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3

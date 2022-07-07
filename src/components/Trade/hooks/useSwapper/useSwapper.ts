@@ -64,6 +64,7 @@ export const useSwapper = () => {
 
     const web3 = getWeb3Instance()
 
+    // TODO: Uncomment when we are ready for a Thorchain swapper
     // ;(async () => {
     //   const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
     //   const thorSwapper = new ThorchainSwapper({
@@ -195,7 +196,7 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    await setFees(result, sellAsset)
+    await setFormFees(result, sellAsset)
     setValue('trade', result)
   }
 
@@ -262,7 +263,7 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        await setFees(tradeQuote, sellAsset)
+        await setFormFees(tradeQuote, sellAsset)
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
@@ -295,7 +296,7 @@ export const useSwapper = () => {
     [setValue, wallet],
   )
 
-  const setFees = async (
+  const setFormFees = async (
     trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>,
     sellAsset: Asset,
   ) => {

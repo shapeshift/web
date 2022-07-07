@@ -41,7 +41,6 @@ export class SwapperManager {
    *
    * @param swapperType swapper type {SwapperType|string}
    * @returns {Swapper}
-   * @deprecated this will be removed, currently used in swapper tests
    */
   getSwapper(swapperType: SwapperType): Swapper<ChainId> {
     const swapper = this.swappers.get(swapperType)

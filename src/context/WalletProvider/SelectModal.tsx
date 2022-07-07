@@ -1,4 +1,13 @@
-import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakra-ui/react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import {
+  Button,
+  Center,
+  Flex,
+  Grid,
+  ModalBody,
+  ModalHeader,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
@@ -15,6 +24,8 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
+  const greenColor = useColorModeValue('green.500', 'green.200')
+  const activeBg = useColorModeValue('gray.200', 'gray.900')
 
   return (
     <>
@@ -23,13 +34,14 @@ export const SelectModal = () => {
       </ModalHeader>
       <ModalBody>
         <Text mb={6} color='gray.500' translation={'walletProvider.selectModal.body'} />
-        <Stack mb={6}>
+        <Grid mb={6} gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }} gridGap={4}>
           {adapters &&
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter
             wallets.map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
+              const activeWallet = walletInfo?.name === option.name
 
               // some wallets (e.g. tally ho) do not exist on mobile
               if (isMobile && !option.mobileEnabled) return false
@@ -38,27 +50,31 @@ export const SelectModal = () => {
                 <Button
                   key={key}
                   w='full'
-                  size='lg'
+                  size='md'
                   py={8}
+                  isActive={activeWallet}
+                  _active={{ bg: activeBg }}
                   justifyContent='space-between'
                   onClick={() => connect(key)}
                   data-test={`connect-wallet-${key}-button`}
                 >
-                  <Flex alignItems='center'>
+                  <Flex alignItems='flex-start' flexDir='column'>
                     <RawText fontWeight='semibold'>{option.name}</RawText>
-                    {walletInfo?.name === option.name && (
-                      <Tag colorScheme='green' ml={2}>
-                        <Text translation='common.connected' />
-                      </Tag>
+                    {activeWallet && (
+                      <Text fontSize='xs' color='gray.500' translation='common.connected' />
                     )}
                   </Flex>
-                  <Center>
-                    <Icon height='30px' w='auto' />
+                  <Center width='25%'>
+                    {walletInfo?.name === option.name ? (
+                      <CheckCircleIcon color={greenColor} />
+                    ) : (
+                      <Icon height='24px' w='auto' />
+                    )}
                   </Center>
                 </Button>
               )
             })}
-        </Stack>
+        </Grid>
         <Flex direction={['column', 'row']} mt={2} justifyContent='center' alignItems='center'>
           <Text
             mb={[3]}

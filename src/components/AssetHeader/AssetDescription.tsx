@@ -7,7 +7,7 @@ import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { markdownLinkToHTML } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetDescriptionProps = {
@@ -24,7 +24,8 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   const handleToggle = () => setShowDescription(!showDescription)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { name, description, isTrustedDescription } = asset || {}
-  const query = useGetAssetDescriptionQuery(assetId)
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const query = useGetAssetDescriptionQuery({ assetId, selectedLocale })
   const isLoaded = !query.isLoading
 
   // Collapse about section any time description changes

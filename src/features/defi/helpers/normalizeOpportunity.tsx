@@ -3,7 +3,7 @@ import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
@@ -149,17 +149,17 @@ const useTransformCosmosStaking = (
 type NormalizeOpportunitiesProps = {
   vaultArray: SerializableOpportunity[]
   foxyArray: MergedFoxyOpportunity[]
-  cosmosStakingOpportunities: MergedActiveStakingOpportunity[]
+  cosmosSdkStakingOpportunities: MergedActiveStakingOpportunity[]
 }
 
 export const useNormalizeOpportunities = ({
   vaultArray,
   foxyArray,
-  cosmosStakingOpportunities = [],
+  cosmosSdkStakingOpportunities = [],
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
     ...transformFoxy(foxyArray),
-    ...useTransformCosmosStaking(cosmosStakingOpportunities),
+    ...useTransformCosmosStaking(cosmosSdkStakingOpportunities),
     ...useTransformVault(vaultArray),
   ]
 }

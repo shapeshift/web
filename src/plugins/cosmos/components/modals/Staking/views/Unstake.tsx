@@ -14,7 +14,7 @@ import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToS
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -29,10 +29,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
-
-// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
-const UNBONDING_DURATION = '21'
+import { assetIdToUnbondingDays, Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -47,6 +44,7 @@ type UnstakeProps = {
 }
 
 export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: UnstakeProps) => {
+  const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
   const {
     control,
     formState: { isValid },
@@ -220,7 +218,7 @@ export const Unstake = ({ assetId, accountSpecifier, validatorAddress }: Unstake
             {translate('staking.itWillTake')}
             <span> </span>
             <Box as='span' color='gray.100' fontWeight='bold'>
-              {`${UNBONDING_DURATION} ${translate('common.days')}`}
+              {`${unbondingDays} ${translate('common.days')}`}
             </Box>
             <span> </span>
             {translate('staking.toUnlock', { assetSymbol: asset.symbol })}

@@ -1,18 +1,22 @@
 import { AssetId, chainIdToFeeAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { TradeAmountInputField, TradeAsset, TradeRoutePaths, TradeState } from 'components/Trade/types'
+import {
+  TradeAmountInputField,
+  TradeAsset,
+  TradeRoutePaths,
+  TradeState,
+} from 'components/Trade/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapper'
-import { AssetBalance } from 'pages/Assets/AssetCards/AssetBalance'
 
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,
@@ -22,17 +26,14 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
-  const { updateQuote, getDefaultPair, getSupportedBuyAssetsFromSellAsset, swapperManager } = useSwapper()
+  const { updateQuote, getDefaultPair, getSupportedBuyAssetsFromSellAsset, swapperManager } =
+    useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const [sellTradeAsset] = useWatch({
     name: ['sellAsset'],
-  }) as [
-      TradeAsset | undefined,
-    ]
-  console.log("WAT", sellTradeAsset?.asset)
+  }) as [TradeAsset | undefined]
   const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  console.log('FEEE', feeAsset)
   const assets = useSelector(selectAssets)
   const {
     state: { wallet },
@@ -65,7 +66,7 @@ export const useTradeRoutes = (
             await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
             return true
           }
-        } catch (e) { }
+        } catch (e) {}
         return false
       })()
 
@@ -92,7 +93,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, routeBuyAssetId, wallet])
+  }, [assets, routeBuyAssetId, wallet]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
@@ -145,6 +146,8 @@ export const useTradeRoutes = (
       }
     },
     [
+      assets,
+      getSupportedBuyAssetsFromSellAsset,
       getValues,
       sellTradeAsset?.asset,
       sellTradeAsset?.amount,
@@ -172,7 +175,6 @@ export const useTradeRoutes = (
         }
 
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-          console.log("UPDATER", sellTradeAsset.asset)
           await updateQuote({
             forceQuote: true,
             amount: bnOrZero(buyTradeAsset.amount).toString(),

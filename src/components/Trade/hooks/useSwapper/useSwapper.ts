@@ -89,20 +89,17 @@ export const useSwapper = () => {
       swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
     }
 
-
     const zrxSwapper = new ZrxSwapper({
       web3,
       adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
     })
-    
+
     try {
       swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
-
     } catch (e) {
       moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
     }
   }, [adapterManager, swapperManager, wallet])
-
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -317,7 +314,7 @@ export const useSwapper = () => {
         wallet,
       })
     },
-    [setValue, wallet, feeAsset],
+    [setValue, wallet],
   )
 
   const setFormFees = async (
@@ -353,9 +350,13 @@ export const useSwapper = () => {
           setValue('fees', fees)
         }
         break
-      default:
+      case 'cosmos:osmosis-1':
+      case 'cosmos:cosmoshub-4': {
+        // TODO: Add osmo related fees
         break
-        //throw new Error('Unsupported chain ' + sellAsset.chainId)
+      }
+      default:
+        throw new Error('Unsupported chain ' + sellAsset.chainId)
     }
   }
 

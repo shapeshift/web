@@ -39,13 +39,13 @@
     "@shapeshiftoss/caip": "^6.2.0",
     "@shapeshiftoss/chain-adapters": "^7.2.0",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",
-    "@shapeshiftoss/types": "^6.2.0"
+    "@shapeshiftoss/types": "^7.0.0"
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^6.2.0",
     "@shapeshiftoss/chain-adapters": "^7.2.0",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",
-    "@shapeshiftoss/types": "^6.2.0",
+    "@shapeshiftoss/types": "^7.0.0",
     "@shapeshiftoss/unchained-client": "^9.0.1"
   }
 }

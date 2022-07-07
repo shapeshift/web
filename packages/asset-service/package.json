@@ -38,12 +38,12 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/types": "^6.2.0"
+    "@shapeshiftoss/types": "^7.0.0"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.5.3",
     "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/types": "^6.2.0",
+    "@shapeshiftoss/types": "^7.0.0",
     "@types/node-polyglot": "^2.4.2",
     "@yfi/sdk": "^1.0.30",
     "colorthief": "^2.3.2",

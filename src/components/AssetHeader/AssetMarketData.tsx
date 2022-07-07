@@ -86,18 +86,16 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
             <StatLabel isLoaded={isLoaded}>
               <Text translation='assets.assetDetails.assetHeader.dayChange' />
             </StatLabel>
-            <StatRow>
-              <StatValue isLoaded={isLoaded}>
-                <Stat>
-                  <StatArrow
-                    fontSize='sm'
-                    mr={1}
-                    type={percentChange.gt(0) ? 'increase' : 'decrease'}
-                  />
-                </Stat>
-                <Amount.Percent value={percentChange.div(100).toNumber() ?? 0} />
-              </StatValue>
-            </StatRow>
+            <StatValue isLoaded={isLoaded}>
+              <Stat>
+                <StatArrow
+                  fontSize='sm'
+                  mr={1}
+                  type={percentChange.gt(0) ? 'increase' : 'decrease'}
+                />
+              </Stat>
+              <Amount.Percent value={percentChange.div(100).toNumber() ?? 0} />
+            </StatValue>
           </StatRow>
 
           {marketData?.maxSupply && (

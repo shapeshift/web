@@ -65,7 +65,7 @@
     ]
   },
   "resolutions": {
-    "@shapeshiftoss/hdwallet-core": "1.23.0"
+    "@shapeshiftoss/hdwallet-core": "1.24.0"
   },
   "config-overrides-path": "react-app-rewired.config.js",
   "fork-ts-checker": {
@@ -88,9 +88,9 @@
     "@formatjs/intl-pluralrules": "^5.0.2",
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.8.2",
-    "@shapeshiftoss/asset-service": "^6.3.0",
+    "@shapeshiftoss/asset-service": "^6.3.1",
     "@shapeshiftoss/caip": "^6.2.1",
-    "@shapeshiftoss/chain-adapters": "^7.2.1",
+    "@shapeshiftoss/chain-adapters": "^7.4.1",
     "@shapeshiftoss/errors": "^1.1.2",
     "@shapeshiftoss/hdwallet-core": "^1.24.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.24.0",
@@ -107,7 +107,7 @@
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^6.4.1",
     "@shapeshiftoss/swapper": "^7.8.1",
-    "@shapeshiftoss/types": "^6.2.0",
+    "@shapeshiftoss/types": "^6.3.0",
     "@shapeshiftoss/unchained-client": "^9.0.2",
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^7.1.4",
@@ -215,7 +215,7 @@
     "@types/redux-logger": "^3.0.9",
     "@types/ssri": "^7.1.1",
     "circular-dependency-plugin": "^5.2.2",
-    "cypress": "10.2.0",
+    "cypress": "10.3.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",

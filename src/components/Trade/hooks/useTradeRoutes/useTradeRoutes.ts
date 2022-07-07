@@ -6,6 +6,7 @@ import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -26,6 +27,9 @@ export const useTradeRoutes = (
   const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const setDefaultAssets = useCallback(async () => {
     // wait for assets to be loaded
@@ -81,7 +85,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, routeBuyAssetId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assets, routeBuyAssetId, wallet, setDefaultAssets])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

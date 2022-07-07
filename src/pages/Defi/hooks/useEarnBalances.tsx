@@ -1,3 +1,4 @@
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -5,7 +6,7 @@ import {
 import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
 import { useFoxyBalances } from './useFoxyBalances'
 import { useVaultBalances } from './useVaultBalances'
@@ -24,21 +25,29 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
-  const { cosmosStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
-    useCosmosStakingBalances({
-      assetId: 'cosmos:cosmoshub-4/slip44:118',
+  const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
+    useCosmosSdkStakingBalances({
+      assetId: cosmosAssetId,
     })
+  const {
+    cosmosSdkStakingOpportunities: osmosisStakingOpportunities,
+    totalBalance: totalOsmosisStakingBalance,
+  } = useCosmosSdkStakingBalances({
+    assetId: osmosisAssetId,
+  })
 
-  // cosmosStakingOpportunities intentionally set to empty array => we do not need to display staking opportunities with no staking amount
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray,
-    cosmosStakingOpportunities,
+    cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
+      osmosisStakingOpportunities,
+    ),
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
     .plus(totalFoxyBalance)
     .plus(totalCosmosStakingBalance)
+    .plus(totalOsmosisStakingBalance)
     .toString()
   return { opportunities, totalEarningBalance, loading: vaultsLoading || foxyLoading }
 }

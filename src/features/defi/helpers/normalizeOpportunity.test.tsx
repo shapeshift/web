@@ -2,7 +2,7 @@ import { cosmosChainId } from '@shapeshiftoss/caip'
 import { renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
 import { useNormalizeOpportunities } from './normalizeOpportunity'
@@ -56,7 +56,7 @@ function setup({
   const { result } = renderHook(
     () =>
       useNormalizeOpportunities({
-        cosmosStakingOpportunities: cosmosStakingOpportunities ?? [],
+        cosmosSdkStakingOpportunities: cosmosStakingOpportunities ?? [],
         foxyArray: [],
         vaultArray: [],
       }),

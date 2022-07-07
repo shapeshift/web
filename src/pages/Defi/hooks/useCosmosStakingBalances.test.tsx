@@ -10,6 +10,7 @@ import { mockMarketData } from 'test/mocks/marketData'
 import { mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { MOCK_VALIDATORS } from 'test/mocks/validators'
 import { TestProviders } from 'test/TestProviders'
+import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { ReduxState } from 'state/reducer'
 import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
@@ -17,8 +18,6 @@ import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/mark
 import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
 import { validatorData } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { store } from 'state/store'
-
-import { useCosmosStakingBalances } from './useCosmosStakingBalances'
 
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
@@ -54,7 +53,7 @@ function setup() {
   )
   const { result } = renderHook(
     () =>
-      useCosmosStakingBalances({
+      useCosmosSdkStakingBalances({
         assetId: 'cosmos:cosmoshub-4/slip44:118',
       }),
     { wrapper },
@@ -77,7 +76,7 @@ describe('useCosmosStakingBalances', () => {
     )
 
     const { result } = setup()
-    expect(result.current.cosmosStakingOpportunities).toMatchSnapshot()
+    expect(result.current.cosmosSdkStakingOpportunities).toMatchSnapshot()
     expect(result.current.totalBalance).toEqual('0')
   })
 
@@ -95,7 +94,7 @@ describe('useCosmosStakingBalances', () => {
     )
 
     const { result } = setup()
-    expect(result.current.cosmosStakingOpportunities).toMatchSnapshot()
+    expect(result.current.cosmosSdkStakingOpportunities).toMatchSnapshot()
     expect(result.current.totalBalance).toEqual('1.17')
   })
 })

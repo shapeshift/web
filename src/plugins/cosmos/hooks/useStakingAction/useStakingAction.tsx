@@ -1,9 +1,16 @@
 import { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { Asset } from '@shapeshiftoss/types'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+  StakingAction,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/const'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+} from 'state/slices/validatorDataSlice/constants'
 
 type StakingInput =
   | {
@@ -37,9 +44,14 @@ export const useStakingAction = () => {
         let result
 
         const { chainSpecific, validator, action, value } = data
-        const memo = validator === SHAPESHIFT_VALIDATOR_ADDRESS ? 'Delegated with ShapeShift' : ''
+        const memo =
+          validator === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS ||
+          validator === SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+            ? 'Delegated with ShapeShift'
+            : ''
 
-        if (chainId === KnownChainIds.CosmosMainnet) {
+        // this works because cosmos and osmosis staking interfaces are identical
+        if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
           switch (action) {
             case StakingAction.Claim: {
               result = await (adapter as unknown as cosmossdk.cosmos.ChainAdapter) // TODO: fix types
@@ -79,8 +91,6 @@ export const useStakingAction = () => {
               break
             }
           }
-        } else if (chainId === KnownChainIds.OsmosisMainnet) {
-          // TODO(gomes): implement this
         } else {
           throw new Error(`unsupported chainId ${chainId}`)
         }

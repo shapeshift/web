@@ -3,7 +3,9 @@ import { Box, Link, Stack, Tag } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect } from 'react'
+import { isNil } from 'lodash'
+import { useCallback, useContext, useEffect } from 'react'
+import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
@@ -11,7 +13,9 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import { poll } from 'lib/poll/poll'
+import { getWeb3Instance } from 'lib/web3-instance'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { YearnDepositActionType } from '../DepositCommon'
@@ -39,19 +43,31 @@ export const Status = () => {
   const vaultAssetId = state?.opportunity?.positionAsset.assetId || 'undefined'
   const vaultAsset = useAppSelector(state => selectAssetById(state, vaultAssetId))
 
-  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, state?.txid || 'undefined'))
+  const web3 = getWeb3Instance()
 
-  useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {
+  const checkTxStatus = useCallback(async () => {
+    if (dispatch && web3) {
+      const transactionReceipt = await poll({
+        fn: () => web3.eth.getTransactionReceipt(state?.txid || ''), // Typescript not recognizing null checks outside this function.
+        validate: (result: TransactionReceipt | null) => !isNil(result),
+        interval: 15000,
+        maxAttempts: 30,
+      })
       dispatch({
         type: YearnDepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: confirmedTransaction.status === 'confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee?.value,
+          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
+          usedGasFee: bnOrZero(transactionReceipt.gasUsed)
+            .times(transactionReceipt.effectiveGasPrice)
+            .toFixed(0),
         },
       })
     }
-  }, [confirmedTransaction, dispatch])
+  }, [dispatch, state?.txid, web3])
+
+  useEffect(() => {
+    void checkTxStatus()
+  }, [checkTxStatus])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

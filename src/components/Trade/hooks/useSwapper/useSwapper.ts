@@ -278,26 +278,22 @@ export const useSwapper = () => {
     }, debounceTime),
   )
 
-  const updateQuote = async ({
-    amount,
-    sellAsset,
-    buyAsset,
-    feeAsset,
-    action,
-    forceQuote,
-  }: GetQuoteInput) => {
-    if (!wallet) return
-    if (!forceQuote && bnOrZero(amount).isZero()) return
-    setValue('quote', undefined)
-    await updateQuoteDebounced.current({
-      amount,
-      feeAsset,
-      sellAsset,
-      action,
-      buyAsset,
-      wallet,
-    })
-  }
+  const updateQuote = useCallback(
+    async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
+      if (!wallet) return
+      if (!forceQuote && bnOrZero(amount).isZero()) return
+      setValue('quote', undefined)
+      await updateQuoteDebounced.current({
+        amount,
+        feeAsset,
+        sellAsset,
+        action,
+        buyAsset,
+        wallet,
+      })
+    },
+    [setValue, wallet],
+  )
 
   const setFees = async (
     trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>,

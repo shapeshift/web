@@ -1,4 +1,11 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  ChainId,
+  cosmosAssetId,
+  cosmosChainId,
+  osmosisAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 
 export enum StakingAction {
@@ -87,3 +94,23 @@ export const claimSteps = [
   { step: 0, path: ClaimPath.Confirm, label: 'Confirm' },
   { step: 1, path: ClaimPath.Broadcast, label: 'Broadcast' },
 ]
+
+// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
+// UnbondingTime is an IBC-chain specific parameter
+// Hardcoded to CosmosHub and Osmosis staking for now, but in the future we should find a better home for this with the right unbonding days per protocol-level unbonding days
+// https://docs.cosmos.network/v0.44/modules/staking/08_params.html
+export const COSMOS_UNBONDING_DAYS = '21'
+export const OSMOSIS_UNBONDING_DAYS = '14'
+
+export const isCosmosChainId = (chainId: ChainId) => chainId === cosmosChainId
+export const isOsmosisChainId = (chainId: ChainId) => chainId === osmosisChainId
+export const isCosmosAssetId = (assetId: AssetId) => assetId === cosmosAssetId
+export const isOsmosisAssetId = (assetId: AssetId) => assetId === osmosisAssetId
+
+export const assetIdToUnbondingDays = (assetId: AssetId): string => {
+  const assetIdToUnbondingDaysMap: Record<AssetId, string> = {
+    [cosmosAssetId]: COSMOS_UNBONDING_DAYS,
+    [osmosisAssetId]: OSMOSIS_UNBONDING_DAYS,
+  }
+  return assetIdToUnbondingDaysMap[assetId]
+}

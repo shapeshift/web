@@ -94,7 +94,7 @@ export const useSwapper = () => {
       web3,
       adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
     })
-
+    
     try {
       swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
 
@@ -149,7 +149,6 @@ export const useSwapper = () => {
   const feeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? 'eip155:1/slip44:60'),
   )
-
   const { showErrorToast } = useErrorHandler()
 
   const getSendMaxAmount = async ({
@@ -242,7 +241,7 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action, wallet }) => {
+    debounce(async ({ amount, sellAsset, feeAsset, buyAsset, action, wallet }) => {
       try {
         const swapper = await swapperManager.getBestSwapper({
           buyAssetId: buyAsset.assetId,
@@ -250,7 +249,6 @@ export const useSwapper = () => {
         })
 
         if (!swapper) throw new Error('no swapper available')
-
         const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
           swapper.getUsdRate({ ...sellAsset }),
           swapper.getUsdRate({ ...buyAsset }),
@@ -306,7 +304,7 @@ export const useSwapper = () => {
   )
 
   const updateQuote = useCallback(
-    async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
+    async ({ amount, sellAsset, feeAsset, buyAsset, action, forceQuote }: GetQuoteInput) => {
       if (!wallet) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)
@@ -319,7 +317,7 @@ export const useSwapper = () => {
         wallet,
       })
     },
-    [setValue, wallet],
+    [setValue, wallet, feeAsset],
   )
 
   const setFormFees = async (
@@ -356,7 +354,8 @@ export const useSwapper = () => {
         }
         break
       default:
-        throw new Error('Unsupported chain ' + sellAsset.chainId)
+        break
+        //throw new Error('Unsupported chain ' + sellAsset.chainId)
     }
   }
 

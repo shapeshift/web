@@ -1,17 +1,18 @@
 import { AssetId, chainIdToFeeAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
+import { TradeAmountInputField, TradeAsset, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapper'
+import { AssetBalance } from 'pages/Assets/AssetCards/AssetBalance'
 
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,
@@ -23,9 +24,15 @@ export const useTradeRoutes = (
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const { updateQuote, getDefaultPair, getSupportedBuyAssetsFromSellAsset, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
-  const sellTradeAsset = getValues('sellAsset')
+  const [sellTradeAsset] = useWatch({
+    name: ['sellAsset'],
+  }) as [
+      TradeAsset | undefined,
+    ]
+  console.log("WAT", sellTradeAsset?.asset)
   const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  console.log('FEEE', feeAsset)
   const assets = useSelector(selectAssets)
   const {
     state: { wallet },
@@ -85,7 +92,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, routeBuyAssetId, wallet, setDefaultAssets])
+  }, [assets, routeBuyAssetId, wallet])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
@@ -101,29 +108,35 @@ export const useTradeRoutes = (
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', buyTradeAsset?.asset)
         }
-        // Make sure buy asset is valid
-        if (buyTradeAsset?.asset) {
+
+        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
           const assetArray = Object.values(assets)
           const buyAssets = getSupportedBuyAssetsFromSellAsset(assetArray)
-          if (buyAssets && !buyAssets?.includes(buyTradeAsset?.asset)) {
+          let buyAsset = buyTradeAsset.asset
+          let updatedFeeAsset = feeAsset
+
+          // Make sure buy asset is valid
+          if (buyAssets && !buyAssets?.includes(buyAsset)) {
+            const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
             for (const asset of buyAssets) {
               if (asset.assetId !== sellTradeAsset?.asset?.assetId) {
                 setValue('buyAsset.asset', asset)
-                break
+                buyAsset = asset
+              }
+              if (asset.assetId === feeAssetId) {
+                updatedFeeAsset = asset
               }
             }
           }
-        }
-        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+
           await updateQuote({
             forceQuote: true,
             amount: bnOrZero(sellTradeAsset.amount).toString(),
             sellAsset: asset,
-            buyAsset: buyTradeAsset.asset,
-            feeAsset,
+            buyAsset,
+            feeAsset: updatedFeeAsset,
             action: TradeAmountInputField.SELL,
           })
-
         }
       } catch (e) {
         console.warn(e)
@@ -159,6 +172,7 @@ export const useTradeRoutes = (
         }
 
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+          console.log("UPDATER", sellTradeAsset.asset)
           await updateQuote({
             forceQuote: true,
             amount: bnOrZero(buyTradeAsset.amount).toString(),

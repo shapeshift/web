@@ -1,7 +1,6 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import {
-  QuoteFeeData,
   Swapper,
   SwapperManager,
   Trade,
@@ -15,7 +14,7 @@ import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -191,7 +190,9 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    setFees({ trade: result, sellAsset })
+    const tradeFeeSource = swapper.getType()
+
+    setFees({ trade: result, sellAsset, tradeFeeSource })
     setValue('trade', result)
   }
 
@@ -258,7 +259,9 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        setFees({ trade: tradeQuote, sellAsset })
+        const tradeFeeSource = swapper.getType()
+
+        setFees({ trade: tradeQuote, sellAsset, tradeFeeSource })
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
@@ -298,9 +301,11 @@ export const useSwapper = () => {
   const setFees = async ({
     trade,
     sellAsset,
+    tradeFeeSource,
   }: {
     trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
     sellAsset: Asset
+    tradeFeeSource: SwapperType
   }) => {
     const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(
       bn(10).exponentiatedBy(feeAsset.precision),
@@ -318,7 +323,7 @@ export const useSwapper = () => {
           const gasPrice = bnOrZero(ethTrade.feeData.chainSpecific.gasPrice).toString()
           const estimatedGas = bnOrZero(ethTrade.feeData.chainSpecific.estimatedGas).toString()
 
-          const fees: QuoteFeeData<'eip155:1'> = {
+          const fees: DisplayFeeData<'eip155:1'> = {
             fee,
             chainSpecific: {
               approvalFee,
@@ -327,7 +332,7 @@ export const useSwapper = () => {
               totalFee,
             },
             tradeFee: ethTrade.feeData.tradeFee,
-            tradeFeeSource: ethTrade.feeData.tradeFeeSource,
+            tradeFeeSource,
           }
           setValue('fees', fees)
         }

@@ -22,6 +22,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import {
@@ -32,6 +33,10 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+
+const moduleLogger = logger.child({
+  namespace: ['useSwapper'],
+})
 
 const debounceTime = 1000
 
@@ -54,10 +59,7 @@ export const useSwapper = () => {
     Trade<KnownChainIds>,
   ]
   const adapterManager = useChainAdapters()
-  const [swapperManager] = useState<SwapperManager>(() => {
-    const manager = new SwapperManager()
-    return manager
-  })
+  const [swapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   const {
     state: { wallet },
@@ -67,32 +69,40 @@ export const useSwapper = () => {
     if (!adapterManager || !swapperManager) return
 
     const web3 = getWeb3Instance()
-    ;(async () => {
-      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl,
-      //   adapterManager,
-      //   web3,
-      // })
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
 
-      if (wallet) {
-        const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE
-        const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE
-        const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet, osmoUrl, cosmosUrl })
-        swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
-      }
+    // TODO: Uncomment when we are ready for a Thorchain swapper
+    // ;(async () => {
+    //   const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+    //   const thorSwapper = new ThorchainSwapper({
+    //     midgardUrl,
+    //     adapterManager,
+    //     web3,
+    //   })
+    //   await thorSwapper.initialize()
+    //   swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+    // })()
 
-      const zrxSwapper = new ZrxSwapper({
-        web3,
-        adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
-      })
+    if (wallet) {
+      const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE
+      const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE
+      const osmoSwapper = new OsmosisSwapper({ adapterManager, wallet, osmoUrl, cosmosUrl })
+      swapperManager.addSwapper(SwapperType.Osmosis, osmoSwapper)
+    }
 
-      await zrxSwapper.initialize()
+
+    const zrxSwapper = new ZrxSwapper({
+      web3,
+      adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
+    })
+
+    try {
       swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
-    })()
+
+    } catch (e) {
+      moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
+    }
   }, [adapterManager, swapperManager, wallet])
+
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -207,7 +217,7 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    setFees(result, sellAsset)
+    await setFormFees(result, sellAsset)
     setValue('trade', result)
   }
 
@@ -279,7 +289,7 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        setFees(tradeQuote, sellAsset)
+        await setFormFees(tradeQuote, sellAsset)
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
@@ -295,28 +305,24 @@ export const useSwapper = () => {
     }, debounceTime),
   )
 
-  const updateQuote = async ({
-    amount,
-    sellAsset,
-    buyAsset,
-    feeAsset,
-    action,
-    forceQuote,
-  }: GetQuoteInput) => {
-    if (!wallet) return
-    if (!forceQuote && bnOrZero(amount).isZero()) return
-    setValue('quote', undefined)
-    await updateQuoteDebounced.current({
-      amount,
-      feeAsset,
-      sellAsset,
-      action,
-      buyAsset,
-      wallet,
-    })
-  }
+  const updateQuote = useCallback(
+    async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
+      if (!wallet) return
+      if (!forceQuote && bnOrZero(amount).isZero()) return
+      setValue('quote', undefined)
+      await updateQuoteDebounced.current({
+        amount,
+        feeAsset,
+        sellAsset,
+        action,
+        buyAsset,
+        wallet,
+      })
+    },
+    [setValue, wallet],
+  )
 
-  const setFees = async (
+  const setFormFees = async (
     trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>,
     sellAsset: Asset,
   ) => {

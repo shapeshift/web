@@ -7,6 +7,7 @@ import {
   chainIdToFeeAssetId,
   cosmosChainId,
   ethChainId,
+  fromAccountId,
   fromAssetId,
   fromChainId,
   osmosisChainId,
@@ -22,6 +23,10 @@ import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+} from '../validatorDataSlice/constants'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import {
   initialState,
@@ -418,4 +423,15 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     default:
       return false
   }
+}
+
+export const getShapeshiftValidatorFromAccountSpecifier = (
+  accountSpecifier: AccountSpecifier,
+): string => {
+  const { chainId } = fromAccountId(accountSpecifier)
+  const chainIdToValidatorAddress: Record<ChainId, string> = {
+    [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+    [osmosisChainId]: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+  }
+  return chainIdToValidatorAddress[chainId]
 }

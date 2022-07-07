@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v7.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.8.2...@shapeshiftoss/swapper-v7.9.0) (2022-07-07)
+
+
+### Features
+
+* **swapper:** make initialize swapper method optional ([#859](https://github.com/shapeshift/lib/issues/859)) ([026ba86](https://github.com/shapeshift/lib/commit/026ba866e71dc95352338d85fe712942413856b7))
+
 # [@shapeshiftoss/swapper-v7.8.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v7.8.1...@shapeshiftoss/swapper-v7.8.2) (2022-06-30)
 
 

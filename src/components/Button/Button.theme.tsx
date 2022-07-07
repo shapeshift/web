@@ -49,7 +49,7 @@ export const ButtonStyle: ComponentStyleConfig = {
       const darkActiveBg = transparentize(`${c}.200`, 1)(theme)
       const darkBg = transparentize(`${c}.200`, 0.2)(theme)
       return {
-        color: mode(`${c}.200`, `${c}.500`)(props),
+        color: mode(`${c}.500`, `${c}.200`)(props),
         bg: mode(`${c}.50`, darkBg)(props),
         _hover: {
           bg: mode(`${c}.100`, darkHoverBg)(props),

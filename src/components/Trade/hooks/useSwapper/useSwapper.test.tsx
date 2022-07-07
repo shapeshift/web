@@ -1,5 +1,5 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { SwapperManager } from '@shapeshiftoss/swapper'
+import { SwapperManager, SwapperType } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import debounce from 'lodash/debounce'
@@ -45,6 +45,7 @@ function setup({
   }
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
     getBestSwapper: () => ({
+      getType: () => SwapperType.Zrx,
       getDefaultPair: () => [FOX, WETH],
       getUsdRate: () => '1',
       approvalNeeded: () => ({ approvalNeeded: approvalNeededBoolean }),

@@ -39,10 +39,6 @@ export class ZrxSwapper implements Swapper<'eip155:1'> {
     this.deps = deps
   }
 
-  // noop for zrx
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async initialize() {}
-
   getType() {
     return SwapperType.Zrx
   }

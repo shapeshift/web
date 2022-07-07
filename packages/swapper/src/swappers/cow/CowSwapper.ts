@@ -43,9 +43,6 @@ export class CowSwapper implements Swapper<'eip155:1'> {
     this.deps = deps
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async initialize() {}
-
   getType() {
     return SwapperType.CowSwap
   }

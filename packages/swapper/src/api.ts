@@ -183,7 +183,7 @@ export enum SwapErrorTypes {
 
 export interface Swapper<T extends ChainId> {
   /** perform any necessary async initialization */
-  initialize(): Promise<void>
+  initialize?(): Promise<void>
 
   /** Returns the swapper type */
   getType(): SwapperType

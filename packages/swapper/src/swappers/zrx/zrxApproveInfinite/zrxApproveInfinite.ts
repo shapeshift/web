@@ -1,15 +1,15 @@
-import { ApproveInfiniteInput, SwapError, SwapErrorTypes } from '../../../api'
+import { ApproveInfiniteInput, EvmSupportedChainIds, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { grantAllowance } from '../../utils/helpers/helpers'
+import { ZrxSwapperDeps } from '../types'
 import { MAX_ALLOWANCE } from '../utils/constants'
-import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function zrxApproveInfinite(
+export async function zrxApproveInfinite<T extends EvmSupportedChainIds>(
   { adapter, web3 }: ZrxSwapperDeps,
-  { quote, wallet }: ApproveInfiniteInput<'eip155:1'>
+  { quote, wallet }: ApproveInfiniteInput<T>
 ) {
   try {
-    const allowanceGrantRequired = await grantAllowance({
+    const allowanceGrantRequired = await grantAllowance<T>({
       quote: {
         ...quote,
         sellAmount: MAX_ALLOWANCE

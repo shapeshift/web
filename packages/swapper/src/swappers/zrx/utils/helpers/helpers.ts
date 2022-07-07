@@ -1,19 +1,61 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { AssetId, avalancheAssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
 import { ZrxPriceResponse } from '../../types'
-import { zrxService } from '../zrxService'
+import { zrxServiceFactory } from '../zrxService'
+
+export const baseUrlFromChainId = (chainId: string): string => {
+  switch (chainId) {
+    case KnownChainIds.EthereumMainnet: {
+      return 'https://api.0x.org/'
+    }
+    case KnownChainIds.AvalancheMainnet:
+      return 'https://avalanche.api.0x.org/'
+    default:
+      throw new SwapError(`baseUrlFromChainId] - Unsupported chainId: ${chainId}`, {
+        code: SwapErrorTypes.UNSUPPORTED_CHAIN
+      })
+  }
+}
+
+export const usdcContractFromChainId = (chainId: string): string => {
+  switch (chainId) {
+    case KnownChainIds.EthereumMainnet: {
+      return '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+    }
+    case KnownChainIds.AvalancheMainnet:
+      return '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
+    default:
+      throw new SwapError(`usdcContractFromChainId] - Unsupported chainId: ${chainId}`, {
+        code: SwapErrorTypes.UNSUPPORTED_CHAIN
+      })
+  }
+}
+
+export const isNativeEvmAsset = (assetId: AssetId): boolean => {
+  const { chainId } = fromAssetId(assetId)
+  switch (chainId) {
+    case KnownChainIds.EthereumMainnet:
+      return assetId === ethAssetId
+    case KnownChainIds.AvalancheMainnet:
+      return assetId === avalancheAssetId
+    default:
+      return false
+  }
+}
 
 export const getUsdRate = async (asset: Asset): Promise<string> => {
   const { assetReference: erc20Address, assetNamespace } = fromAssetId(asset.assetId)
   const { symbol } = asset
 
   try {
-    const USDC_CONTRACT_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+    const USDC_CONTRACT_ADDRESS = usdcContractFromChainId(asset.chainId)
     if (erc20Address?.toLowerCase() === USDC_CONTRACT_ADDRESS) return '1' // Will break if comparing against usdc
+    const baseUrl = baseUrlFromChainId(asset.chainId)
+    const zrxService = zrxServiceFactory(baseUrl)
     const rateResponse: AxiosResponse<ZrxPriceResponse> = await zrxService.get<ZrxPriceResponse>(
       '/swap/v1/price',
       {
@@ -26,7 +68,6 @@ export const getUsdRate = async (asset: Asset): Promise<string> => {
     )
 
     const price = bnOrZero(rateResponse.data.price)
-
     if (!price.gt(0))
       throw new SwapError('[getUsdRate] - Failed to get price data', {
         code: SwapErrorTypes.RESPONSE_ERROR

@@ -3,8 +3,10 @@ import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { zrxService } from '../utils/zrxService'
+import { zrxServiceFactory } from '../utils/zrxService'
 import { zrxApproveInfinite } from './/zrxApproveInfinite'
+
+const zrxService = zrxServiceFactory('https://api.0x.org/')
 
 jest.mock('web3')
 jest.mock('../../utils/helpers/helpers', () => ({

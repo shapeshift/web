@@ -1,10 +1,13 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { zrxService } from '../utils/zrxService'
+import { zrxServiceFactory } from '../utils/zrxService'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded'
+
+const zrxService = zrxServiceFactory('https://api.0x.org/')
 
 jest.mock('web3')
 jest.mock('axios', () => ({
@@ -32,6 +35,7 @@ describe('zrxApprovalNeeded', () => {
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
   } as unknown as HDWallet
+  ;(deps.adapter.getChainId as jest.Mock).mockReturnValue(KnownChainIds.EthereumMainnet)
 
   const { tradeQuote, sellAsset } = setupQuote()
 

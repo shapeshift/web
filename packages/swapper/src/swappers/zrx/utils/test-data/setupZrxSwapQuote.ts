@@ -1,5 +1,5 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 
 import { BuildTradeInput } from '../../../../api'
 import { FOX, WETH } from '../../../utils/test-data/assets'
@@ -26,7 +26,7 @@ export const setupBuildTrade = () => {
   const sellAsset: Asset = { ...FOX }
   const buyAsset: Asset = { ...WETH }
   const buildTradeInput: BuildTradeInput = {
-    chainId: 'eip155:1',
+    chainId: KnownChainIds.EthereumMainnet,
     sellAmount: '1000000000000000000',
     buyAsset,
     sendMax: false,

@@ -1,13 +1,13 @@
 import { AssetService } from '@shapeshiftoss/asset-service'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import dotenv from 'dotenv'
 import readline from 'readline-sync'
 import Web3 from 'web3'
 
-import { SwapperType } from './api'
 import { SwapperManager } from './manager/SwapperManager'
 import { ZrxSwapper } from './swappers/zrx/ZrxSwapper'
 
@@ -95,7 +95,7 @@ const main = async (): Promise<void> => {
 
   const manager = new SwapperManager()
   const zrxSwapper = new ZrxSwapper(zrxSwapperDeps)
-  manager.addSwapper(SwapperType.Zrx, zrxSwapper)
+  manager.addSwapper(zrxSwapper)
   const swapper = await manager.getBestSwapper({
     sellAssetId: 'eip155:1/slip44:60',
     buyAssetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -107,7 +107,7 @@ const main = async (): Promise<void> => {
   let quote
   try {
     quote = await swapper.getTradeQuote({
-      chainId: 'eip155:1',
+      chainId: KnownChainIds.EthereumMainnet,
       sellAsset,
       buyAsset,
       sellAmount: sellAmountBase,
@@ -133,7 +133,7 @@ const main = async (): Promise<void> => {
   )
   if (answer === 'y') {
     const trade = await swapper.buildTrade({
-      chainId: 'eip155:1',
+      chainId: KnownChainIds.EthereumMainnet,
       wallet,
       buyAsset,
       sendMax: false,

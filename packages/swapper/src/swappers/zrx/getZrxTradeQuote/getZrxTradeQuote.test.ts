@@ -1,26 +1,39 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
 import { ZrxSwapper } from '../..'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { zrxService } from '../utils/zrxService'
+import { baseUrlFromChainId } from '../utils/helpers/helpers'
+import { zrxServiceFactory } from '../utils/zrxService'
 
-const axios = jest.createMockFromModule('axios')
-//@ts-ignore
+const axios: AxiosStatic = jest.createMockFromModule('axios')
 axios.create = jest.fn(() => axios)
+
+jest.mock('../utils/zrxService', () => ({
+  zrxServiceFactory: () => axios.create()
+}))
+
+const zrxService = zrxServiceFactory('https://api.0x.org/')
+
 jest.mock('../utils/helpers/helpers')
 jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 
 describe('getZrxTradeQuote', () => {
   const sellAmount = '1000000000000000000'
-  ;(normalizeAmount as jest.Mock<unknown>).mockReturnValue(sellAmount)
+  ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
+  ;(baseUrlFromChainId as jest.Mock<string>).mockReturnValue('https://api.0x.org/')
   const zrxSwapperDeps = {
     web3: <Web3>{},
-    adapter: <ethereum.ChainAdapter>{}
+    adapter: <ethereum.ChainAdapter>{
+      getChainId: () => KnownChainIds.EthereumMainnet
+    }
   }
+
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
@@ -41,6 +54,7 @@ describe('getZrxTradeQuote', () => {
     })
     expect(quote.rate).toBe('100')
   })
+
   it('quote fails with a bad zrx response with no error indicated', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
@@ -51,6 +65,7 @@ describe('getZrxTradeQuote', () => {
       })
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
+
   it('quote fails with on errored zrx response', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
@@ -64,6 +79,7 @@ describe('getZrxTradeQuote', () => {
       })
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
+
   it('returns quote without fee data', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
@@ -83,6 +99,7 @@ describe('getZrxTradeQuote', () => {
       tradeFee: '0'
     })
   })
+
   it('fails on non ethereum chain for buyAsset', async () => {
     const { quoteInput, buyAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
@@ -94,6 +111,7 @@ describe('getZrxTradeQuote', () => {
       })
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
+
   it('fails on non ethereum chain for sellAsset', async () => {
     const { quoteInput, sellAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
@@ -105,6 +123,7 @@ describe('getZrxTradeQuote', () => {
       })
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
+
   it('use minQuoteSellAmount when sellAmount is 0', async () => {
     const { quoteInput, sellAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)

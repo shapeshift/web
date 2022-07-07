@@ -8,6 +8,7 @@ import { setupDeps } from '../test-data/setupDeps'
 import { setupQuote } from '../test-data/setupSwapQuote'
 import {
   getAllowanceRequired,
+  GetAllowanceRequiredArgs,
   grantAllowance,
   normalizeAmount,
   normalizeIntegerAmount
@@ -33,7 +34,8 @@ describe('utils', () => {
   const { web3, adapter } = setupDeps()
 
   describe('getAllowanceRequired', () => {
-    const getAllowanceInput = {
+    const getAllowanceInput: GetAllowanceRequiredArgs = {
+      adapter,
       receiveAddress: '0x0',
       web3,
       erc20AllowanceAbi,

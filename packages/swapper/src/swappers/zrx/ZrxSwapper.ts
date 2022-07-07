@@ -1,7 +1,5 @@
-import { AssetId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
-import Web3 from 'web3'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 
 import {
   ApprovalNeededInput,
@@ -9,16 +7,18 @@ import {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
-  ExecuteTradeInput,
-  GetTradeQuoteInput,
+  EvmSupportedChainIds,
+  GetEvmTradeQuoteInput,
+  SwapError,
+  SwapErrorTypes,
   Swapper,
   SwapperType,
   TradeQuote,
   TradeResult,
-  TradeTxs,
-  ZrxTrade
+  TradeTxs
 } from '../../api'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
+import { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from './types'
 import { UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
@@ -26,59 +26,65 @@ import { zrxApproveInfinite } from './zrxApproveInfinite/zrxApproveInfinite'
 import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
-export type ZrxSwapperDeps = {
-  adapter: ethereum.ChainAdapter
-  web3: Web3
-}
-
-export class ZrxSwapper implements Swapper<'eip155:1'> {
+export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
   public static swapperName = 'ZrxSwapper'
   deps: ZrxSwapperDeps
+  chainId: ChainId
 
   constructor(deps: ZrxSwapperDeps) {
     this.deps = deps
+    this.chainId = deps.adapter.getChainId()
   }
 
   getType() {
-    return SwapperType.Zrx
+    switch (this.chainId) {
+      case KnownChainIds.EthereumMainnet:
+        return SwapperType.ZrxEthereum
+      case KnownChainIds.AvalancheMainnet:
+        return SwapperType.ZrxAvalanche
+      default:
+        throw new SwapError('[getType]', {
+          code: SwapErrorTypes.UNSUPPORTED_CHAIN
+        })
+    }
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<ZrxTrade> {
-    return zrxBuildTrade(this.deps, args)
+  async buildTrade(args: BuildTradeInput): Promise<ZrxTrade<T>> {
+    return zrxBuildTrade<T>(this.deps, args)
   }
 
-  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<'eip155:1'>> {
-    return getZrxTradeQuote(input)
+  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
+    return getZrxTradeQuote<T>(input)
   }
 
   async getUsdRate(input: Asset): Promise<string> {
     return getUsdRate(input)
   }
 
-  async executeTrade(args: ExecuteTradeInput<'eip155:1'>): Promise<TradeResult> {
-    return zrxExecuteTrade(this.deps, args)
+  async executeTrade(args: ZrxExecuteTradeInput<T>): Promise<TradeResult> {
+    return zrxExecuteTrade<T>(this.deps, args)
   }
 
-  async approvalNeeded(args: ApprovalNeededInput<'eip155:1'>): Promise<ApprovalNeededOutput> {
-    return zrxApprovalNeeded(this.deps, args)
+  async approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
+    return zrxApprovalNeeded<T>(this.deps, args)
   }
 
-  async approveInfinite(args: ApproveInfiniteInput<'eip155:1'>): Promise<string> {
-    return zrxApproveInfinite(this.deps, args)
+  async approveInfinite(args: ApproveInfiniteInput<T>): Promise<string> {
+    return zrxApproveInfinite<T>(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
     return assetIds.filter(
       (id) =>
-        id.startsWith('eip155:1') &&
-        sellAssetId?.startsWith('eip155:1') &&
+        id.startsWith(this.chainId) &&
+        sellAssetId?.startsWith(this.chainId) &&
         !UNSUPPORTED_ASSETS.includes(id)
     )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
-    return assetIds.filter((id) => id.startsWith('eip155:1') && !UNSUPPORTED_ASSETS.includes(id))
+    return assetIds.filter((id) => id.startsWith(this.chainId) && !UNSUPPORTED_ASSETS.includes(id))
   }
 
   async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {

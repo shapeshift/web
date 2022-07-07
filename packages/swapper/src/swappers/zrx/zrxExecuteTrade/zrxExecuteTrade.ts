@@ -1,17 +1,18 @@
 import { numberToHex } from 'web3-utils'
 
-import { ExecuteTradeInput, SwapError, SwapErrorTypes, TradeResult, ZrxTrade } from '../../../api'
-import { ZrxSwapperDeps } from '../ZrxSwapper'
+import { EvmSupportedChainIds, SwapError, SwapErrorTypes, TradeResult } from '../../../api'
+import { ZrxExecuteTradeInput, ZrxSwapperDeps } from '../types'
+import { isNativeEvmAsset } from '../utils/helpers/helpers'
 
-export async function zrxExecuteTrade(
+export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
   { adapter }: ZrxSwapperDeps,
-  { trade, wallet }: ExecuteTradeInput<'eip155:1'>
+  { trade, wallet }: ZrxExecuteTradeInput<T>
 ): Promise<TradeResult> {
-  const zrxTrade = trade as ZrxTrade
-  const { sellAsset } = zrxTrade
+  const { sellAsset } = trade
+
   try {
     // value is 0 for erc20s
-    const value = sellAsset.assetId === 'eip155:1/slip44:60' ? trade.sellAmount : '0'
+    const value = isNativeEvmAsset(sellAsset.assetId) ? trade.sellAmount : '0'
     const bip44Params = adapter.buildBIP44Params({
       accountNumber: trade.sellAssetAccountNumber
     })
@@ -19,7 +20,7 @@ export async function zrxExecuteTrade(
     const buildTxResponse = await adapter.buildSendTransaction({
       value,
       wallet,
-      to: zrxTrade.depositAddress,
+      to: trade.depositAddress,
       chainSpecific: {
         gasPrice: numberToHex(trade.feeData?.chainSpecific?.gasPrice || 0),
         gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGas || 0)
@@ -29,7 +30,7 @@ export async function zrxExecuteTrade(
 
     const { txToSign } = buildTxResponse
 
-    const txWithQuoteData = { ...txToSign, data: zrxTrade.txData ?? '' }
+    const txWithQuoteData = { ...txToSign, data: trade.txData ?? '' }
 
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })

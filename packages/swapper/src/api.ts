@@ -1,6 +1,7 @@
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
-import { BTCSignTx, ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   Asset,
   BIP44Params,
@@ -14,13 +15,19 @@ export const SwapError = createErrorClass('SwapError')
 type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   T,
   {
-    'eip155:1': {
+    [KnownChainIds.EthereumMainnet]: {
       estimatedGas?: string
       gasPrice?: string
       approvalFee?: string
       totalFee?: string
     }
-    'bip122:000000000019d6689c085ae165831e93': {
+    [KnownChainIds.AvalancheMainnet]: {
+      estimatedGas?: string
+      gasPrice?: string
+      approvalFee?: string
+      totalFee?: string
+    }
+    [KnownChainIds.BitcoinMainnet]: {
       byteCount: string
       satsPerByte: string
     }
@@ -46,7 +53,7 @@ export type SupportedSellAssetsInput = {
   assetIds: AssetId[]
 }
 
-export type CommonTradeInput = {
+type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmount: string
@@ -55,18 +62,22 @@ export type CommonTradeInput = {
   wallet?: HDWallet // TODO remove this in a followup PR
 }
 
-export type GetEthTradeQuoteInput = CommonTradeInput & {
-  chainId: 'eip155:1'
+export type EvmSupportedChainIds = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+
+export type EvmSupportedChainAdapters = ethereum.ChainAdapter | avalanche.ChainAdapter
+
+export type GetEvmTradeQuoteInput = CommonTradeInput & {
+  chainId: EvmSupportedChainIds
 }
 
-export type GetBtcTradeQuoteInput = CommonTradeInput & {
-  chainId: 'bip122:000000000019d6689c085ae165831e93'
+type GetBtcTradeQuoteInput = CommonTradeInput & {
+  chainId: KnownChainIds.BitcoinMainnet
   accountType: UtxoAccountType
   bip44Params: BIP44Params
   wallet: HDWallet
 }
 
-export type GetTradeQuoteInput = GetEthTradeQuoteInput | GetBtcTradeQuoteInput
+export type GetTradeQuoteInput = GetBtcTradeQuoteInput | GetEvmTradeQuoteInput
 
 export type BuildTradeInput = GetTradeQuoteInput & {
   buyAssetAccountNumber: number
@@ -94,23 +105,6 @@ export interface TradeQuote<C extends ChainId> extends TradeBase<C> {
 export interface Trade<C extends ChainId> extends TradeBase<C> {
   receiveAddress: string
 }
-
-export interface ZrxTrade extends Trade<'eip155:1'> {
-  txData: string
-  depositAddress: string
-}
-
-export interface BtcThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: KnownChainIds.BitcoinMainnet
-  txData: BTCSignTx
-}
-
-export interface EthThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: KnownChainIds.EthereumMainnet
-  txData: ETHSignTx
-}
-
-export type ThorTrade<C extends ChainId> = BtcThorTrade<C> | EthThorTrade<C>
 
 export type ExecuteTradeInput<C extends ChainId> = {
   trade: Trade<C>
@@ -146,7 +140,8 @@ export type ApprovalNeededOutput = {
 }
 
 export enum SwapperType {
-  Zrx = '0x',
+  ZrxEthereum = '0xEthereum',
+  ZrxAvalanche = '0xAvalanche',
   Thorchain = 'Thorchain',
   CowSwap = 'CowSwap',
   Test = 'Test'

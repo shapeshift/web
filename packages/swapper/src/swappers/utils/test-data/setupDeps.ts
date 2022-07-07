@@ -1,3 +1,4 @@
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import Web3 from 'web3'
@@ -21,6 +22,8 @@ export const setupDeps = () => {
     },
     rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57'
   })
+
+  ethChainAdapter.getFeeAssetId = () => ethAssetId
 
   const ethNodeUrl = 'http://localhost:1000'
   const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)

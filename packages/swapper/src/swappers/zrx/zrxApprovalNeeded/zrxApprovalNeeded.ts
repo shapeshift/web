@@ -1,21 +1,27 @@
 import { fromAssetId, getFeeAssetIdFromAssetId } from '@shapeshiftoss/caip'
 
-import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorTypes } from '../../../api'
+import {
+  ApprovalNeededInput,
+  ApprovalNeededOutput,
+  EvmSupportedChainIds,
+  SwapError,
+  SwapErrorTypes
+} from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
-import { ZrxSwapperDeps } from '../ZrxSwapper'
+import { ZrxSwapperDeps } from '../types'
 
-export async function zrxApprovalNeeded(
+export async function zrxApprovalNeeded<T extends EvmSupportedChainIds>(
   { adapter, web3 }: ZrxSwapperDeps,
-  { quote, wallet }: ApprovalNeededInput<'eip155:1'>
+  { quote, wallet }: ApprovalNeededInput<T>
 ): Promise<ApprovalNeededOutput> {
   const { sellAsset } = quote
 
   const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
 
   try {
-    if (sellAsset.chainId !== 'eip155:1') {
+    if (sellAsset.chainId !== adapter.getChainId()) {
       throw new SwapError('[zrxApprovalNeeded] - sellAsset chainId is not supported', {
         code: SwapErrorTypes.UNSUPPORTED_CHAIN,
         details: { chainId: sellAsset.chainId }

@@ -1,12 +1,17 @@
+import { AxiosStatic } from 'axios'
+
 import { FOX, WETH } from '../../../utils/test-data/assets'
 import { getUsdRate } from '../helpers/helpers'
-import { zrxService } from '../zrxService'
+import { zrxServiceFactory } from '../zrxService'
 
-const axios = jest.createMockFromModule('axios')
-
-//@ts-ignore
+const axios: AxiosStatic = jest.createMockFromModule('axios')
 axios.create = jest.fn(() => axios)
-jest.mock('../zrxService')
+
+jest.mock('../zrxService', () => ({
+  zrxServiceFactory: () => axios.create()
+}))
+
+const zrxService = zrxServiceFactory('https://api.0x.org/')
 
 describe('utils', () => {
   describe('getUsdRate', () => {

@@ -26,7 +26,7 @@ export const getEthTxFees = async ({
   sellAssetReference: AssetReference | string
   adapterManager: ChainAdapterManager
   receiveAddress: string
-}): Promise<QuoteFeeData<'eip155:1'>> => {
+}): Promise<QuoteFeeData<KnownChainIds.EthereumMainnet>> => {
   try {
     const adapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
       | ethereum.ChainAdapter

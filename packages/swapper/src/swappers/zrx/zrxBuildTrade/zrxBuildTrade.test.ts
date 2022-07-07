@@ -1,30 +1,25 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
 import { BuildTradeInput } from '../../../api'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
-import { zrxService } from '../utils/zrxService'
+import { zrxServiceFactory } from '../utils/zrxService'
 import { zrxBuildTrade } from './zrxBuildTrade'
 
 jest.mock('web3')
 
-jest.mock('axios', () => {
-  return {
-    create: () => {
-      return {
-        interceptors: {
-          request: { eject: jest.fn(), use: jest.fn() },
-          response: { eject: jest.fn(), use: jest.fn() }
-        },
-        get: jest.fn()
-      }
-    }
-  }
-})
+const axios: AxiosStatic = jest.createMockFromModule('axios')
+axios.create = jest.fn(() => axios)
+
+jest.mock('../utils/zrxService', () => ({
+  zrxServiceFactory: () => axios.create()
+}))
 
 // @ts-ignore
 Web3.mockImplementation(() => ({
@@ -54,13 +49,14 @@ const setup = () => {
     },
     rpcUrl: ethNodeUrl
   })
+  const zrxService = zrxServiceFactory('https://api.0x.org/')
 
-  return { web3Instance, adapter }
+  return { web3Instance, adapter, zrxService }
 }
 
 describe('zrxBuildTrade', () => {
   const { quoteResponse, sellAsset, buyAsset } = setupZrxTradeQuoteResponse()
-  const { web3Instance, adapter } = setup()
+  const { web3Instance, adapter, zrxService } = setup()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
@@ -71,7 +67,7 @@ describe('zrxBuildTrade', () => {
   }
 
   const buildTradeInput: BuildTradeInput = {
-    chainId: 'eip155:1',
+    chainId: KnownChainIds.EthereumMainnet,
     sendMax: false,
     sellAsset,
     buyAsset,

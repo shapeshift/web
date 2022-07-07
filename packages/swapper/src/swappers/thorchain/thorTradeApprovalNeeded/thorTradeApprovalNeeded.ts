@@ -1,7 +1,7 @@
 import { fromAssetId, fromChainId, getFeeAssetIdFromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApprovalNeededInput, ApprovalNeededOutput } from '../../../api'
-import { SwapError, SwapErrorTypes } from '../../../api'
+import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
@@ -12,7 +12,7 @@ export const thorTradeApprovalNeeded = async ({
   input
 }: {
   deps: ThorchainSwapperDeps
-  input: ApprovalNeededInput<'eip155:1'>
+  input: ApprovalNeededInput<KnownChainIds.EthereumMainnet>
 }): Promise<ApprovalNeededOutput> => {
   try {
     const { quote, wallet } = input

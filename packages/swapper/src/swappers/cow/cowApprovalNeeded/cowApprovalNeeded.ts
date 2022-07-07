@@ -1,4 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
@@ -10,7 +11,7 @@ const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe01
 
 export async function cowApprovalNeeded(
   { adapter, web3 }: CowSwapperDeps,
-  { quote, wallet }: ApprovalNeededInput<'eip155:1'>
+  { quote, wallet }: ApprovalNeededInput<KnownChainIds.EthereumMainnet>
 ): Promise<ApprovalNeededOutput> {
   const { sellAsset } = quote
 

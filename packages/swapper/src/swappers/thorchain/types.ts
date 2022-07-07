@@ -1,5 +1,10 @@
+import { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import { BTCSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type Web3 from 'web3'
+
+import { Trade } from '../../api'
 
 export type PoolResponse = {
   asset: string
@@ -30,3 +35,15 @@ export type ThorchainSwapperDeps = {
   adapterManager: ChainAdapterManager
   web3: Web3
 }
+
+export interface BtcThorTrade<C extends ChainId> extends Trade<C> {
+  chainId: KnownChainIds.BitcoinMainnet
+  txData: BTCSignTx
+}
+
+export interface EthThorTrade<C extends ChainId> extends Trade<C> {
+  chainId: KnownChainIds.EthereumMainnet
+  txData: ETHSignTx
+}
+
+export type ThorTrade<C extends ChainId> = BtcThorTrade<C> | EthThorTrade<C>

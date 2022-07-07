@@ -12,7 +12,7 @@ export const thorTradeApproveInfinite = async ({
   input
 }: {
   deps: ThorchainSwapperDeps
-  input: ApproveInfiniteInput<'eip155:1'>
+  input: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>
 }): Promise<string> => {
   try {
     const { adapterManager, web3 } = deps
@@ -32,7 +32,7 @@ export const thorTradeApproveInfinite = async ({
         }
       )
 
-    const allowanceGrantRequired = await grantAllowance({
+    const allowanceGrantRequired = await grantAllowance<KnownChainIds.EthereumMainnet>({
       quote: {
         ...quote,
         sellAmount: MAX_ALLOWANCE

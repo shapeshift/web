@@ -1,4 +1,5 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { TradeQuote } from '../../../api'
@@ -28,7 +29,7 @@ Web3.mockImplementation(() => ({
 
 const mockedAxios = jest.mocked(thorService, true)
 
-const quoteResponse: TradeQuote<'eip155:1'> = {
+const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimum: '2.202188',
   maximum: '100000000000000000000000000',
   sellAmount: '10000000000000000000', // 1000 FOX

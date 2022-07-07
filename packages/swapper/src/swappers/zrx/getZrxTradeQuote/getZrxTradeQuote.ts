@@ -1,21 +1,31 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { AxiosResponse } from 'axios'
 
-import { GetTradeQuoteInput, SwapError, SwapErrorTypes, SwapSource, TradeQuote } from '../../../api'
+import {
+  EvmSupportedChainIds,
+  GetEvmTradeQuoteInput,
+  SwapError,
+  SwapErrorTypes,
+  SwapSource,
+  TradeQuote
+} from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { getZrxMinMax } from '../getZrxMinMax/getZrxMinMax'
 import { ZrxPriceResponse } from '../types'
 import { DEFAULT_SOURCE } from '../utils/constants'
-import { zrxService } from '../utils/zrxService'
+import { baseUrlFromChainId } from '../utils/helpers/helpers'
+import { zrxServiceFactory } from '../utils/zrxService'
 
-export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<'eip155:1'>> {
+export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
+  input: GetEvmTradeQuoteInput
+): Promise<TradeQuote<T>> {
   try {
     const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber } = input
-    if (buyAsset.chainId !== 'eip155:1' || sellAsset.chainId !== 'eip155:1') {
+    if (buyAsset.chainId !== input.chainId || sellAsset.chainId !== input.chainId) {
       throw new SwapError(
-        '[getZrxTradeQuote] - Both assets need to be on the Ethereum chain to use Zrx',
+        '[getZrxTradeQuote] - Both assets need to be on the same supported EVM chain to use Zrx',
         {
           code: SwapErrorTypes.UNSUPPORTED_PAIR,
           details: { buyAssetChainId: buyAsset.chainId, sellAssetChainId: sellAsset.chainId }
@@ -32,14 +42,14 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
     const useSellAmount = !!sellAmount
     const buyToken = buyAssetNamespace === 'erc20' ? buyAssetErc20Address : buyAsset.symbol
     const sellToken = sellAssetNamespace === 'erc20' ? sellAssetErc20Address : sellAsset.symbol
-
     const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
-
     const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
 
     const normalizedSellAmount = normalizeAmount(
       bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount : sellAmount
     )
+    const baseUrl = baseUrlFromChainId(buyAsset.chainId)
+    const zrxService = zrxServiceFactory(baseUrl)
 
     /**
      * /swap/v1/price
@@ -47,7 +57,7 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
      *   sellToken: contract address (or symbol) of token to sell
      *   buyToken: contractAddress (or symbol) of token to buy
      *   sellAmount?: integer string value of the smallest increment of the sell token
-     *   buyAmount?: integer string value of the smallest incremtent of the buy token
+     *   buyAmount?: integer string value of the smallest increment of the buy token
      * }
      */
     const quoteResponse: AxiosResponse<ZrxPriceResponse> = await zrxService.get<ZrxPriceResponse>(
@@ -89,7 +99,7 @@ export async function getZrxTradeQuote(input: GetTradeQuoteInput): Promise<Trade
       buyAsset,
       sellAsset,
       sellAssetAccountNumber
-    }
+    } as TradeQuote<T>
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getZrxTradeQuote]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })

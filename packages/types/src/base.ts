@@ -10,10 +10,10 @@ export type BIP44Params = {
 
 export enum KnownChainIds {
   EthereumMainnet = 'eip155:1',
+  AvalancheMainnet = 'eip155:43114',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   CosmosMainnet = 'cosmos:cosmoshub-4',
-  OsmosisMainnet = 'cosmos:osmosis-1',
-  AvalancheMainnet = 'eip155:43114'
+  OsmosisMainnet = 'cosmos:osmosis-1'
 }
 
 export enum WithdrawType {
@@ -41,12 +41,4 @@ export type Asset = {
   explorer: string
   explorerTxLink: string
   explorerAddressLink: string
-}
-
-// swapper
-// TODO remove this once web is using the type from swapper
-export enum SwapperType {
-  Zrx = '0x',
-  Thorchain = 'Thorchain',
-  Test = 'Test'
 }

@@ -1,15 +1,21 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 import { AbiItem, numberToHex } from 'web3-utils'
 
-import { SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
+import {
+  EvmSupportedChainAdapters,
+  EvmSupportedChainIds,
+  SwapError,
+  SwapErrorTypes,
+  TradeQuote
+} from '../../../api'
 import { BN, bn, bnOrZero } from '../bignumber'
 
 export type GetAllowanceRequiredArgs = {
+  adapter: EvmSupportedChainAdapters
   receiveAddress: string
   allowanceContract: string
   sellAsset: Asset
@@ -26,10 +32,10 @@ export type GetERC20AllowanceArgs = {
   spenderAddress: string
 }
 
-type GrantAllowanceArgs = {
-  quote: TradeQuote<'eip155:1'>
+type GrantAllowanceArgs<T extends EvmSupportedChainIds> = {
+  quote: TradeQuote<T>
   wallet: HDWallet
-  adapter: ethereum.ChainAdapter
+  adapter: EvmSupportedChainAdapters
   erc20Abi: AbiItem[]
   web3: Web3
 }
@@ -46,6 +52,7 @@ export const getERC20Allowance = async ({
 }
 
 export const getAllowanceRequired = async ({
+  adapter,
   receiveAddress,
   allowanceContract,
   sellAsset,
@@ -54,7 +61,7 @@ export const getAllowanceRequired = async ({
   erc20AllowanceAbi
 }: GetAllowanceRequiredArgs): Promise<BigNumber> => {
   try {
-    if (sellAsset.assetId === 'eip155:1/slip44:60') {
+    if (sellAsset.assetId === adapter.getFeeAssetId()) {
       return bn(0)
     }
 
@@ -88,13 +95,13 @@ export const getAllowanceRequired = async ({
   }
 }
 
-export const grantAllowance = async ({
+export const grantAllowance = async <T extends EvmSupportedChainIds>({
   quote,
   wallet,
   adapter,
   erc20Abi,
   web3
-}: GrantAllowanceArgs): Promise<string> => {
+}: GrantAllowanceArgs<T>): Promise<string> => {
   try {
     const { assetReference: sellAssetErc20Address } = fromAssetId(quote.sellAsset.assetId)
 
@@ -113,12 +120,8 @@ export const grantAllowance = async ({
       value: '0',
       chainSpecific: {
         erc20ContractAddress: sellAssetErc20Address,
-        gasPrice: numberToHex(
-          (quote as TradeQuote<'eip155:1'>).feeData?.chainSpecific?.gasPrice || 0
-        ),
-        gasLimit: numberToHex(
-          (quote as TradeQuote<'eip155:1'>).feeData?.chainSpecific?.estimatedGas || 0
-        )
+        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
+        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0)
       }
     })
 

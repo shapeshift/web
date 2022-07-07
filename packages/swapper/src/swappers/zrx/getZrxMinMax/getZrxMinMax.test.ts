@@ -3,11 +3,8 @@ jest.mock('../utils/helpers/helpers')
 
 import { BTC, FOX, WETH } from '../../utils/test-data/assets'
 import { MAX_ZRX_TRADE } from '../utils/constants'
-import { zrxService as mockZrxService } from '../utils/zrxService'
 import { getZrxMinMax } from './getZrxMinMax'
-;(<jest.Mock<unknown>>mockZrxService.get).mockImplementation(() => ({
-  data: { price: '100' }
-}))
+
 jest.mock('../utils/helpers/helpers', () => ({
   getUsdRate: () => '1',
   normalizeAmount: () => '1'

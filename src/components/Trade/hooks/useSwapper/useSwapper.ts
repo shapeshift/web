@@ -175,7 +175,7 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
-    const result = await (async () => {
+    const tradeQuote = await (async () => {
       if (sellAsset.chainId === 'eip155:1') {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
@@ -197,8 +197,8 @@ export const useSwapper = () => {
 
     const tradeFeeSource = swapper.getType()
 
-    await setFormFees({ trade: result, sellAsset, tradeFeeSource })
-    setValue('trade', result)
+    await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource })
+    setValue('trade', tradeQuote)
   }
 
   const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {

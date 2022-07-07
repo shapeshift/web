@@ -2,7 +2,6 @@ import { Box, useColorModeValue } from '@chakra-ui/react'
 import { TradeType, TxType } from '@shapeshiftoss/chain-adapters'
 import { Asset } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
-import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
 import { TransactionContract } from 'components/TransactionHistoryRows/TransactionContract'
@@ -13,7 +12,6 @@ import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTra
 import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
 dayjs.extend(relativeTime)
-dayjs.extend(localizedFormat)
 
 export type TransactionRowProps = {
   txDetails: TxDetails

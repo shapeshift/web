@@ -42,6 +42,7 @@
       "addAsset": "Добавить актив",
       "yourAssets": "Ваши активы",
       "asset": "Актив",
+      "priceChange": "Изменение цены",
       "portfolioBalance": "Баланс аккаунта",
       "balance": "Баланс",
       "price": "Курс",
@@ -55,6 +56,11 @@
     "recentTransactions": {
       "recentTransactions": "Последние транзакции"
     }
+  },
+  "fiatRamps": {
+    "headerLabel": "Купить/Продать криптовалюту",
+    "gemMessage": "Купить или продать криптовалюту на Gem",
+    "banxaMessage": "Купить или продать криптовалюту на Banxa"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -118,6 +124,7 @@
     "earn": "Заработки",
     "defi": "DeFi",
     "tradeHistory": "История торгов",
+    "transactionHistory": "История транзакций",
     "foxToken": "FOX возможности"
   },
   "transactionRow": {
@@ -566,5 +573,8 @@
   "accounts": {
     "accounts": "Счета"
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "История транзакций"
+  }
 }

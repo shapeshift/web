@@ -19,7 +19,7 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
   const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
   const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
   let columns = '1fr'
-  let dateFormat = 'MM/DD/YYYY hh:mm A'
+  let dateFormat = 'L LT'
 
   if (isLargerThanSm) {
     columns = '1fr 2fr'

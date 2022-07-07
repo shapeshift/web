@@ -182,7 +182,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Text
                       translation={[
                         'trade.tradeFeeSource',
-                        { tradeFeeSource: fees?.tradeFeeSource },
+                        { tradeFeeSource: fees?.tradeFeeSource ?? 'Trade' },
                       ]}
                     />
                   </Row.Label>

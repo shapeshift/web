@@ -6,10 +6,10 @@ import { logger } from 'lib/logger'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'JunoPay'],
+  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnJuno'],
 })
 
-type OnJunoPayResponse = {
+type OnJunoResponse = {
   data: {
     settings: {
       buy: {
@@ -29,17 +29,17 @@ type OnJunoPayResponse = {
   }
 }
 
-export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
+export async function getOnJunoAssets(): Promise<FiatRampAsset[]> {
   const data = await (async () => {
     try {
-      const baseUrl = getConfig().REACT_APP_ONJUNOPAY_BASE_API_URL
-      const apiKey = getConfig().REACT_APP_ONJUNOPAY_APP_ID
-      const { data } = await axios.get<OnJunoPayResponse>(
+      const baseUrl = getConfig().REACT_APP_ONJUNO_BASE_API_URL
+      const apiKey = getConfig().REACT_APP_ONJUNO_APP_ID
+      const { data } = await axios.get<OnJunoResponse>(
         `${baseUrl}crypto-wallet-partners?partner_key=${apiKey}`,
       )
       return data.data
     } catch (e) {
-      moduleLogger.error(e, 'Failed to fetch JunoPay assets')
+      moduleLogger.error(e, 'Failed to fetch assets')
     }
   })()
 
@@ -54,7 +54,7 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
 
   const assets = onjunoAssets.reduce<FiatRampAsset[]>((acc, asset) => {
     const { short_name, long_name: name, logo_url: imageUrl } = asset
-    const assetId = adapters.junopayTickerToAssetId(short_name)
+    const assetId = adapters.onJunoTickerToAssetId(short_name)
     if (!assetId) return acc
     const symbol = short_name.toUpperCase()
     const mapped = { assetId, symbol, name, imageUrl }
@@ -65,12 +65,8 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
   return assets
 }
 
-export const createJunoPayUrl = (
-  action: FiatRampAction,
-  asset: string,
-  address: string,
-): string => {
-  const baseUrl = new URL(getConfig().REACT_APP_ONJUNOPAY_BASE_APP_URL)
+export const createOnJunoUrl = (action: FiatRampAction, asset: string, address: string): string => {
+  const baseUrl = new URL(getConfig().REACT_APP_ONJUNO_BASE_APP_URL)
   const params = new URLSearchParams()
 
   params.set('action', action === FiatRampAction.Sell ? 'sell' : 'buy')

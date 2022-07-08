@@ -5,7 +5,7 @@ import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import coinbaseLogo from 'assets/coinbase-pay/cb-pay-icon.png'
 import gemLogo from 'assets/gem-mark.png'
-import junoPayLogo from 'assets/junoPay.svg'
+import onJunoLogo from 'assets/onjuno.svg'
 import { logger } from 'lib/logger'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
@@ -17,7 +17,7 @@ import {
   parseGemBuyAssets,
   parseGemSellAssets,
 } from './fiatRampProviders/gem'
-import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/onjuno'
+import { createOnJunoUrl, getOnJunoAssets } from './fiatRampProviders/onjuno'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -38,7 +38,7 @@ export interface SupportedFiatRampConfig {
   supportsSell: boolean
 }
 
-export type FiatRamp = 'Gem' | 'Banxa' | 'CoinbasePay' | 'JunoPay'
+export type FiatRamp = 'Gem' | 'Banxa' | 'CoinbasePay' | 'OnJuno'
 
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 export const supportedFiatRamps: SupportedFiatRamp = {
@@ -125,25 +125,25 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       }
     },
   },
-  JunoPay: {
-    label: 'fiatRamps.junoPay',
-    info: 'fiatRamps.junoPayMessage',
-    logo: junoPayLogo,
+  OnJuno: {
+    label: 'fiatRamps.onJuno',
+    info: 'fiatRamps.onJunoMessage',
+    logo: onJunoLogo,
     isImplemented: true,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {
-      const buyAssets = await getJunoPayAssets()
+      const buyAssets = await getOnJunoAssets()
       return [buyAssets, []]
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
       try {
-        const ticker = adapters.assetIdToJunopayTicker(assetId)
-        if (!ticker) throw new Error('Asset not supported by JunoPay')
-        const junoPayCheckoutUrl = createJunoPayUrl(action, ticker, address)
-        window.open(junoPayCheckoutUrl, '_blank')?.focus()
+        const ticker = adapters.assetIdToOnJunoTicker(assetId)
+        if (!ticker) throw new Error('Asset not supported by OnJuno')
+        const onJunoCheckoutUrl = createOnJunoUrl(action, ticker, address)
+        window.open(onJunoCheckoutUrl, '_blank')?.focus()
       } catch (err) {
-        moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
+        moduleLogger.error(err, { fn: 'OnJuno onSubmit' }, 'Asset not supported by OnJuno')
       }
     },
   },

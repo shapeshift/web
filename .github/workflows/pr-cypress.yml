@@ -30,9 +30,9 @@ env:
   REACT_APP_COINBASE_PAY_APP_ID: 1dbd2a0b94
   REACT_APP_GEM_ENV: production
 
-  REACT_APP_ONJUNOPAY_APP_ID: live_SYkQkrlyIQeuQf8AauSOaGTa
-  REACT_APP_ONJUNOPAY_ASSET_LOGO_URL: https://cdn.juno.finance/
-  REACT_APP_ONJUNOPAY_BASE_API_URL: https://api.juno.finance
+  REACT_APP_ONJUNO_APP_ID: live_SYkQkrlyIQeuQf8AauSOaGTa
+  REACT_APP_ONJUNO_ASSET_LOGO_URL: https://cdn.juno.finance/
+  REACT_APP_ONJUNO_BASE_API_URL: https://api.juno.finance
 
 jobs:
   test-chrome:

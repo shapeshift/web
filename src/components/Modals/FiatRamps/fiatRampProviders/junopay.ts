@@ -35,7 +35,7 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
       const baseUrl = getConfig().REACT_APP_JUNOPAY_BASE_API_URL
       const apiKey = getConfig().REACT_APP_JUNOPAY_APP_ID
       const { data } = await axios.get<JunoPayResponse>(
-        `${baseUrl}/crypto-wallet-partners?partner_key=${apiKey}`,
+        `${baseUrl}crypto-wallet-partners?partner_key=${apiKey}`,
       )
       return data.data
     } catch (e) {

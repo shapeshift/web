@@ -3,9 +3,8 @@ import { Box, Link, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { isNil } from 'lodash'
-import { useCallback, useContext, useEffect } from 'react'
-import { TransactionReceipt } from 'web3-core/types'
+import toLower from 'lodash/toLower'
+import { useContext, useEffect, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
@@ -13,9 +12,8 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
-import { getWeb3Instance } from 'lib/web3-instance'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { YearnWithdrawActionType } from '../WithdrawCommon'
@@ -48,31 +46,23 @@ export const Status = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const web3 = getWeb3Instance()
+  const serilizedTxIndex = useMemo(() => {
+    if (!(state?.txid && state?.userAddress)) return ''
+    return serializeTxIndex(`eip155:1:${toLower(state.userAddress)}`, state.txid, state.userAddress)
+  }, [state?.txid, state?.userAddress])
+  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serilizedTxIndex))
 
-  const checkTxStatus = useCallback(async () => {
-    if (dispatch && web3) {
-      const transactionReceipt = await poll({
-        fn: () => web3.eth.getTransactionReceipt(state?.txid || ''), // Typescript not recognizing null checks outside this function.
-        validate: (result: TransactionReceipt | null) => !isNil(result),
-        interval: 15000,
-        maxAttempts: 30,
-      })
+  useEffect(() => {
+    if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {
       dispatch({
         type: YearnWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(transactionReceipt.gasUsed)
-            .times(transactionReceipt.effectiveGasPrice)
-            .toFixed(0),
+          txStatus: confirmedTransaction.status === 'confirmed' ? 'success' : 'failed',
+          usedGasFee: confirmedTransaction.fee?.value,
         },
       })
     }
-  }, [dispatch, state?.txid, web3])
-
-  useEffect(() => {
-    void checkTxStatus()
-  }, [checkTxStatus])
+  }, [confirmedTransaction, dispatch])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

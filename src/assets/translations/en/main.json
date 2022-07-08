@@ -155,7 +155,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake your %{assetName} to earn up to %{maxApr}% APR*",
+        "header": "Stake your %{assetName} to earn %{apr}% APR*",
         "body": "Staking is the process of holding funds in a cryptocurrency wallet to support the operations of a blockchain network and, in return, holders are rewarded for their contribution.",
         "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
         "cta": {

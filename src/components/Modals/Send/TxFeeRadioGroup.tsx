@@ -70,7 +70,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
 
   return (
     <ButtonGroup
-      variant='ghost-filled'
+      variant='ghost'
       width='full'
       bg={bg}
       borderWidth={1}

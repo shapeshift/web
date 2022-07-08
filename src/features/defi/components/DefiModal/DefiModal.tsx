@@ -18,7 +18,7 @@ export const DefiModal = ({ children, isOpen = false }: EarnModalProps) => {
     })
   }
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} variant='fluid-footer'>
+    <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav'>
       <ModalOverlay />
       <ModalContent>{children}</ModalContent>
     </Modal>

@@ -84,10 +84,7 @@ export const Approve = ({
             {translate('modals.approve.learnMore')}
           </Link>
         </Stack>
-        <Stack direction='row' justifyContent='space-between'>
-          <Button onClick={onCancel} size='lg' width='full' colorScheme='gray' isDisabled={loading}>
-            {translate('modals.approve.reject')}
-          </Button>
+        <Stack justifyContent='space-between'>
           <Button
             onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
             size='lg'
@@ -98,6 +95,9 @@ export const Approve = ({
             loadingText={loadingText}
           >
             {translate('modals.approve.confirm')}
+          </Button>
+          <Button onClick={onCancel} size='lg' width='full' colorScheme='gray' isDisabled={loading}>
+            {translate('modals.approve.reject')}
           </Button>
         </Stack>
       </Stack>

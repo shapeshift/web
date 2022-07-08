@@ -13,6 +13,7 @@ import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -28,11 +29,7 @@ import { useAppSelector } from 'state/store'
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type ConfirmProps = {
-  onNext: (arg: DefiSteps) => void
-}
-
-export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
+export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -108,7 +105,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
   }
 
   const handleCancel = () => {
-    onNext(DefiSteps.Status)
+    onNext(DefiSteps.Info)
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)

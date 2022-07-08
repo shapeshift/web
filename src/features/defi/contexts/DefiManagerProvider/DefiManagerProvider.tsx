@@ -39,7 +39,7 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
             Modules.map(module => {
               const Module = DefiModules[module as DefiProvider]
               return (
-                <DefiModal isOpen={provider === module}>
+                <DefiModal key={module} isOpen={provider === module}>
                   <Module />
                 </DefiModal>
               )

@@ -62,15 +62,21 @@ export const Status = () => {
 
   if (!state) return null
 
-  let statusIcon: React.ReactElement = <AssetIcon size='xs' src={asset.icon} />
+  let statusIcon: React.ReactElement = <AssetIcon size='xs' src={asset?.icon} />
   let statusText = StatusTextEnum.pending
+  let statusBody = translate('modals.deposit.status.pending')
+  let statusBg = 'transparent'
   if (state.deposit.txStatus === 'success') {
     statusText = StatusTextEnum.success
-    statusIcon = <CheckIcon color='green' />
+    statusIcon = <CheckIcon color='white' />
+    statusBody = translate('modals.deposit.status.success', { opportunity: `${asset.name} Vault` })
+    statusBg = 'green.500'
   }
   if (state.deposit.txStatus === 'failed') {
     statusText = StatusTextEnum.failed
-    statusIcon = <CloseIcon color='red' />
+    statusIcon = <CloseIcon color='white' />
+    statusBody = translate('modals.deposit.status.failed')
+    statusBg = 'red.500'
   }
 
   return (
@@ -80,6 +86,8 @@ export const Status = () => {
       loading={state.loading}
       statusText={statusText}
       statusIcon={statusIcon}
+      statusBody={statusBody}
+      statusBg={statusBg}
       continueText='modals.status.position'
     >
       <Summary spacing={0} mx={6} mb={4}>
@@ -142,7 +150,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            hrer={`${asset.explorerTxLink}/${state.txid}`}
+            href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

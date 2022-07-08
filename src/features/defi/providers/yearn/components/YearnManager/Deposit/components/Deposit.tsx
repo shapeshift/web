@@ -12,6 +12,7 @@ import qs from 'qs'
 import { useContext, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -24,12 +25,7 @@ import { useAppSelector } from 'state/store'
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type YearnDepositProps = {
-  getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
-  onNext: (arg: DefiSteps) => void
-}
-
-export const Deposit = ({ getDepositGasEstimate, onNext }: YearnDepositProps) => {
+export const Deposit = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(DepositContext)
   const [isLoading, setIsLoading] = useState(false)
   const history = useHistory()
@@ -51,6 +47,30 @@ export const Deposit = ({ getDepositGasEstimate, onNext }: YearnDepositProps) =>
   const toast = useToast()
 
   if (!state || !dispatch) return null
+
+  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
+    if (!(state.userAddress && state.opportunity && assetReference && yearnInvestor)) return
+    try {
+      const yearnOpportunity = await yearnInvestor.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedTx = await yearnOpportunity.prepareDeposit({
+        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        address: state.userAddress,
+      })
+      // TODO(theobold): Figure out a better way for the safety factor
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
+    } catch (error) {
+      console.error('YearnDeposit:getDepositGasEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error',
+      })
+    }
+  }
 
   const getApproveGasEstimate = async (): Promise<string | undefined> => {
     if (!(state.userAddress && assetReference && opportunity)) return

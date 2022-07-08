@@ -66,7 +66,7 @@ export const AllEarnOpportunities = () => {
           contractAddress,
           assetReference,
           rewardId: rewardAddress,
-          modal: 'deposit',
+          modal: 'overview',
         }),
         state: { background: location },
       })

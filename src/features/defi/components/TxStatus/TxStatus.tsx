@@ -12,7 +12,7 @@ import {
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 
 type Status =
   | 'modals.status.header.pending'
@@ -26,14 +26,17 @@ type TxStatusProps = {
   statusText: Status
   statusIcon: React.ReactNode
   statusBg?: string
+  statusBody?: string
   continueText: string
   children?: React.ReactNode
 }
 
 export const TxStatus = ({
   onContinue,
+  loading,
   statusText,
   statusIcon,
+  statusBody,
   continueText,
   statusBg,
   children,
@@ -43,13 +46,17 @@ export const TxStatus = ({
   const { isOpen, onToggle } = useDisclosure()
   return (
     <Stack width='full' spacing={0} borderColor={borderColor} divider={<Divider />}>
-      <Stack textAlign='center' spacing={6} p={6}>
+      <Stack textAlign='center' spacing={6} p={6} alignItems='center'>
         <Circle bg={statusBg}>
-          <CircularProgress isIndeterminate={true}>
+          <CircularProgress isIndeterminate={loading}>
             <CircularProgressLabel>{statusIcon}</CircularProgressLabel>
           </CircularProgress>
         </Circle>
-        <Text translation={statusText} fontSize='xl' />
+        <Stack>
+          <Text translation={statusText} fontSize='xl' />
+          {statusBody && <RawText color='gray.500'>{statusBody}</RawText>}
+          <RawText>{loading ? 'yes' : 'no'}</RawText>
+        </Stack>
         {onContinue && (
           <Stack width='full'>
             <Button

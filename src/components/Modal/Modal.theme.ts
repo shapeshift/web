@@ -10,9 +10,6 @@ export const ModalStyle = {
       borderWidth: 1,
     },
     header: {
-      borderBottom: '1px solid',
-      bg: mode('gray.50', 'rgba(255,255,255,.01)')(props),
-      borderColor: mode('gray.100', 'rgba(255,255,255,.05)')(props),
       borderTopRadius: 'xl',
     },
     closeButton: {
@@ -29,6 +26,19 @@ export const ModalStyle = {
         width: 'auto',
       },
     },
+    'header-nav': (props: Record<string, any>) => ({
+      dialog: {
+        maxWidth: '100%',
+        width: 'auto',
+      },
+      header: {
+        borderBottom: '1px solid',
+        bg: mode('gray.50', 'rgba(255,255,255,.01)')(props),
+        borderColor: mode('gray.100', 'rgba(255,255,255,.05)')(props),
+        borderTopRadius: 'xl',
+        fontSize: 'md',
+      },
+    }),
     'fluid-footer': (props: Record<string, any>) => ({
       dialog: {
         maxWidth: '100%',

@@ -1,4 +1,3 @@
-import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import {
   DefiAction,
   DefiParams,
@@ -9,6 +8,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { YearnDeposit } from './Deposit/YearnDeposit'
+import { YearnOverview } from './Overview/YearnOverview'
 import { YearnWithdraw } from './Withdraw/YearnWithdraw'
 
 export const YearnManager = () => {
@@ -19,7 +19,7 @@ export const YearnManager = () => {
     <AnimatePresence exitBeforeEnter initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <DefiActionButtons />
+          <YearnOverview />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (

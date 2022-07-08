@@ -125,7 +125,9 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       {(onMaxClick || balance) && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
           {balance && <Balance value={balance} symbol={assetName} label='Balance' />}
-          {onMaxClick && <MaxButtonGroup options={percentOptions} onClick={onMaxClick} />}
+          {onMaxClick && (
+            <MaxButtonGroup options={percentOptions} isDisabled={isReadOnly} onClick={onMaxClick} />
+          )}
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}

@@ -2,15 +2,20 @@ import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { Summary } from 'features/defi/components/Summary'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiSteps,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { AssetIcon } from 'components/AssetIcon'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -21,14 +26,13 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { WithdrawPath, YearnWithdrawActionType } from '../WithdrawCommon'
+import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-export const Confirm = () => {
+export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const history = useHistory()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
@@ -92,7 +96,7 @@ export const Confirm = () => {
         feePriority: undefined,
       })
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
-      history.push(WithdrawPath.Status)
+      onNext(DefiSteps.Status)
     } catch (error) {
       console.error('YearnWithdraw:handleConfirm error', error)
     } finally {
@@ -101,7 +105,7 @@ export const Confirm = () => {
   }
 
   const handleCancel = () => {
-    browserHistory.goBack()
+    onNext(DefiSteps.Status)
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
@@ -117,24 +121,22 @@ export const Confirm = () => {
       loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}
     >
-      <Stack spacing={6}>
-        <Row>
+      <Summary>
+        <Row variant='vertical' p={4}>
           <Row.Label>
-            <Text translation='modals.confirm.withdrawFrom' />
+            <Text translation='modals.confirm.amountToWithdraw' />
           </Row.Label>
-          <Row.Value fontWeight='bold'>
-            <Text translation='defi.yearn' />
-          </Row.Value>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={underlyingAsset.icon} />
+              <RawText>{underlyingAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+            </Row.Value>
+          </Row>
         </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.withdrawTo' />
-          </Row.Label>
-          <Row.Value>
-            <MiddleEllipsis address={state.userAddress || ''} />
-          </Row.Value>
-        </Row>
-        <Row>
+        <Row p={4}>
           <Row.Label>
             <Text translation='modals.confirm.estimatedGas' />
           </Row.Label>
@@ -163,7 +165,7 @@ export const Confirm = () => {
             <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
           </Alert>
         )}
-      </Stack>
+      </Summary>
     </ReusableConfirm>
   )
 }

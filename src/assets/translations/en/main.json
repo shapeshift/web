@@ -561,14 +561,21 @@
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",
+      "depositInto": "Deposit Into %{opportunity}",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
       "footerDisclaimer": "By continuing you agree to our ",
       "footerDisclaimerLink": "terms of service.",
-      "slippageSettings": "Slippage Settings"
+      "slippageSettings": "Slippage Settings",
+      "status": {
+        "pending": "Your transaction has been broadcast and is pending confirmation.",
+        "success": "You have successfully deposited into %{opportunity}.",
+        "failed": "There was an issue with your deposit."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
+      "withdrawFrom": "Withdraw From %{opportunity}",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
       "slippageSettings": "Slippage Settings",
       "withdrawType": "Withdraw Type",
@@ -580,6 +587,11 @@
       "withdrawFee": "There will be separate gas fee to withdraw.",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
       "withDrawalFee": "Withdrawal Fee",
+      "status": {
+        "pending": "Your transaction has been broadcast and is pending confirmation.",
+        "success": "You have successfully withdrawn from %{opportunity}.",
+        "failed": "There was an issue with your deposit."
+      },
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",
         "delayedOne": "Request the withdrawal",
@@ -608,6 +620,7 @@
       },
       "withdrawTo": "Withdraw To",
       "amountToDeposit": "Amount To Deposit",
+      "amountToWithdraw": "Amount To Withdraw",
       "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",

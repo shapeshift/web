@@ -1,7 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Center, Flex, IconButton, ModalCloseButton, ModalHeader, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import {
   DefiAction,
   DefiParams,
@@ -10,17 +9,15 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { StepRow } from 'components/DeFi/components/StepRow'
-import { Steps } from 'components/DeFi/components/Steps'
-import { RawText } from 'components/Text'
+import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -36,16 +33,8 @@ import { YearnDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
-const StepList = {
-  [DefiSteps.Info]: 1,
-  [DefiSteps.Approve]: 2,
-  [DefiSteps.Confirm]: 3,
-  [DefiSteps.Status]: 4,
-}
-
 export const YearnDeposit = () => {
   const { yearn: api } = useYearn()
-  const [step, setStep] = useState<number>(StepList[DefiSteps.Info])
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -91,30 +80,6 @@ export const YearnDeposit = () => {
     })()
   }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
-  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference && api)) return
-    try {
-      const yearnOpportunity = await api.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedTx = await yearnOpportunity.prepareDeposit({
-        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
-      })
-      // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      console.error('YearnDeposit:getDepositGasEstimate error:', error)
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
   const handleBack = () => {
     history.push({
       pathname: `/defi/earn`,
@@ -125,8 +90,24 @@ export const YearnDeposit = () => {
     })
   }
 
-  const handleNext = (nextStep: DefiSteps) => {
-    setStep(StepList[nextStep])
+  const StepConfig: DefiStepProps = {
+    [DefiSteps.Info]: {
+      label: 'Deposit Info',
+      description: 'Enter the amount of FOX you would like to deposit.',
+      component: Deposit,
+    },
+    [DefiSteps.Approve]: {
+      label: 'Approve',
+      component: Approve,
+    },
+    [DefiSteps.Confirm]: {
+      label: 'Confirm',
+      component: Confirm,
+    },
+    [DefiSteps.Status]: {
+      label: 'Status',
+      component: Status,
+    },
   }
 
   if (loading || !asset || !marketData || !api) {
@@ -150,33 +131,12 @@ export const YearnDeposit = () => {
             onClick={handleBack}
             icon={<ArrowBackIcon />}
           />
-          <RawText fontSize='md'>Deposit</RawText>
+          <Text
+            translation={['modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` }]}
+          />
           <ModalCloseButton position='static' />
         </ModalHeader>
-        <Steps isComplete={step === StepList[DefiSteps.Status]} statusComponent={<Status />}>
-          <StepRow
-            label='Deposit Info'
-            description='Enter the amount of FOX you would like to deposit.'
-            stepNumber='1'
-            isComplete={step > StepList[DefiSteps.Info]}
-            isActive={step === StepList[DefiSteps.Info]}
-          >
-            <Deposit onNext={handleNext} getDepositGasEstimate={getDepositGasEstimate} />
-          </StepRow>
-
-          <StepRow
-            label='Approval'
-            stepNumber='2'
-            isComplete={step > StepList[DefiSteps.Approve]}
-            isActive={step === StepList[DefiSteps.Approve]}
-          >
-            <Approve onNext={handleNext} getDepositGasEstimate={getDepositGasEstimate} />
-          </StepRow>
-
-          <StepRow label='Confirm' stepNumber='3' isActive={step === StepList[DefiSteps.Confirm]}>
-            <Confirm onNext={handleNext} />
-          </StepRow>
-        </Steps>
+        <Steps steps={StepConfig} />
       </Flex>
     </DepositContext.Provider>
   )

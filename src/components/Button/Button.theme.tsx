@@ -21,6 +21,7 @@ export const ButtonStyle: ComponentStyleConfig = {
           bg,
           _hover: {
             bg: mode('gray.200', 'gray.600')(props),
+            textDecoration: 'none',
             _disabled: {
               bg,
             },

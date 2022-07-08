@@ -85,7 +85,10 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, routeBuyAssetId, wallet, setDefaultAssets])
+    // We exclude setDefaultAssets from the dependency array here intentionally
+    // We dont want the default assets to be automaticaly set every time a new setDefaultAssets functon is instantiated
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assets, routeBuyAssetId, wallet])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

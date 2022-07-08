@@ -6,10 +6,10 @@ import { logger } from 'lib/logger'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnJuno'],
+  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'JunoPay'],
 })
 
-type OnJunoResponse = {
+type JunoPayResponse = {
   data: {
     settings: {
       buy: {
@@ -29,12 +29,12 @@ type OnJunoResponse = {
   }
 }
 
-export async function getOnJunoAssets(): Promise<FiatRampAsset[]> {
+export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
   const data = await (async () => {
     try {
-      const baseUrl = getConfig().REACT_APP_ONJUNO_BASE_API_URL
-      const apiKey = getConfig().REACT_APP_ONJUNO_APP_ID
-      const { data } = await axios.get<OnJunoResponse>(
+      const baseUrl = getConfig().REACT_APP_JUNOPAY_BASE_API_URL
+      const apiKey = getConfig().REACT_APP_JUNOPAY_APP_ID
+      const { data } = await axios.get<JunoPayResponse>(
         `${baseUrl}crypto-wallet-partners?partner_key=${apiKey}`,
       )
       return data.data
@@ -45,16 +45,16 @@ export async function getOnJunoAssets(): Promise<FiatRampAsset[]> {
 
   if (!data) return []
 
-  const onjunoToCurrencyList = data.settings.buy.to_currency
+  const junoPayToCurrencyList = data.settings.buy.to_currency
   const allCurrencyList = data.settings.metadata
 
-  const onjunoAssets = allCurrencyList.filter(({ short_name }) =>
-    onjunoToCurrencyList.includes(short_name.toUpperCase()),
+  const junoPayAssets = allCurrencyList.filter(({ short_name }) =>
+    junoPayToCurrencyList.includes(short_name.toUpperCase()),
   )
 
-  const assets = onjunoAssets.reduce<FiatRampAsset[]>((acc, asset) => {
+  const assets = junoPayAssets.reduce<FiatRampAsset[]>((acc, asset) => {
     const { short_name, long_name: name, logo_url: imageUrl } = asset
-    const assetId = adapters.onJunoTickerToAssetId(short_name)
+    const assetId = adapters.junoPayTickerToAssetId(short_name)
     if (!assetId) return acc
     const symbol = short_name.toUpperCase()
     const mapped = { assetId, symbol, name, imageUrl }
@@ -65,8 +65,12 @@ export async function getOnJunoAssets(): Promise<FiatRampAsset[]> {
   return assets
 }
 
-export const createOnJunoUrl = (action: FiatRampAction, asset: string, address: string): string => {
-  const baseUrl = new URL(getConfig().REACT_APP_ONJUNO_BASE_APP_URL)
+export const createJunoPayUrl = (
+  action: FiatRampAction,
+  asset: string,
+  address: string,
+): string => {
+  const baseUrl = new URL(getConfig().REACT_APP_JUNOPAY_BASE_APP_URL)
   const params = new URLSearchParams()
 
   params.set('action', action === FiatRampAction.Sell ? 'sell' : 'buy')

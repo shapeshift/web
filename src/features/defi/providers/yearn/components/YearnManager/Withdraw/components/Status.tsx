@@ -3,7 +3,6 @@ import { Box, Link, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import toLower from 'lodash/toLower'
 import { useContext, useEffect, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -12,7 +11,12 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountSpecifierByChainId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -46,11 +50,15 @@ export const Status = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const serilizedTxIndex = useMemo(() => {
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
+
+  const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && state?.userAddress)) return ''
-    return serializeTxIndex(`eip155:1:${toLower(state.userAddress)}`, state.txid, state.userAddress)
-  }, [state?.txid, state?.userAddress])
-  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serilizedTxIndex))
+    return serializeTxIndex(accountSpecifier, state.txid, state.userAddress)
+  }, [state?.txid, state?.userAddress, accountSpecifier])
+  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
     if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {

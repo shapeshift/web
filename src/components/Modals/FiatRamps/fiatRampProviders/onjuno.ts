@@ -10,8 +10,6 @@ const moduleLogger = logger.child({
 })
 
 type OnJunoPayResponse = {
-  status: string
-  message: string
   data: {
     settings: {
       buy: {
@@ -47,14 +45,14 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
 
   if (!data) return []
 
-  const junoPayToCurrencyList = data.settings.buy.to_currency
+  const onjunoToCurrencyList = data.settings.buy.to_currency
   const allCurrencyList = data.settings.metadata
 
-  const junoPayAssets = allCurrencyList.filter((item: { short_name: string }) =>
-    junoPayToCurrencyList.includes(item.short_name.toUpperCase()),
+  const onjunoAssets = allCurrencyList.filter(({ short_name }) =>
+    onjunoToCurrencyList.includes(short_name.toUpperCase()),
   )
 
-  const assets = junoPayAssets.reduce<FiatRampAsset[]>((acc, asset) => {
+  const assets = onjunoAssets.reduce<FiatRampAsset[]>((acc, asset) => {
     const { short_name, long_name: name, logo_url: imageUrl } = asset
     const assetId = adapters.junopayTickerToAssetId(short_name)
     if (!assetId) return acc

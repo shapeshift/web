@@ -54,14 +54,15 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
     junoPayToCurrencyList.includes(item.short_name.toUpperCase()),
   )
 
-  const assets: FiatRampAsset[] = junoPayAssets.map(
-    (asset: { long_name: string; short_name: string; logo_url: string }) => ({
-      assetId: adapters.junopayTickerToAssetId(asset.short_name),
-      symbol: asset.short_name.toUpperCase(),
-      name: asset.long_name,
-      imageUrl: asset.logo_url,
-    }),
-  )
+  const assets = junoPayAssets.reduce<FiatRampAsset[]>((acc, asset) => {
+    const { short_name, long_name: name, logo_url: imageUrl } = asset
+    const assetId = adapters.junopayTickerToAssetId(short_name)
+    if (!assetId) return acc
+    const symbol = short_name.toUpperCase()
+    const mapped = { assetId, symbol, name, imageUrl }
+    acc.push(mapped)
+    return acc
+  }, [])
 
   return assets
 }

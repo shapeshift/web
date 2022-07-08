@@ -5,7 +5,7 @@ import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import coinbaseLogo from 'assets/coinbase-pay/cb-pay-icon.png'
 import gemLogo from 'assets/gem-mark.png'
-import { junoPayLogo } from 'assets/junoPay.svg'
+import junoPayLogo from 'assets/junoPay.svg'
 import { logger } from 'lib/logger'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
@@ -17,7 +17,7 @@ import {
   parseGemBuyAssets,
   parseGemSellAssets,
 } from './fiatRampProviders/gem'
-import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/onjuno-pay'
+import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/onjuno'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({

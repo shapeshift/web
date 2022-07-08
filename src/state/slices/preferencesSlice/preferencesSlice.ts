@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import { getConfig } from 'config'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
+
+dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
@@ -40,6 +44,8 @@ export const preferences = createSlice({
       state.featureFlags[payload.flag] = payload.value
     },
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
+      require(`dayjs/locale/${payload.locale}.js`)
+
       state.selectedLocale = payload.locale
     },
     setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {

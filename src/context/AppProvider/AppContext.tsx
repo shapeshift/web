@@ -123,7 +123,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         for (const chainId of supportedChains) {
           const adapter = chainAdapterManager.get(chainId)
-          if (!adapter) return
+          if (!adapter) continue
 
           switch (chainId) {
             case ethChainId: {

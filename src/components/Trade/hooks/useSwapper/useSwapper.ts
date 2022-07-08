@@ -1,5 +1,5 @@
 import { btcChainId, ChainId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   QuoteFeeData,
   Swapper,
@@ -11,12 +11,13 @@ import {
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -47,6 +48,61 @@ type GetQuoteInput = {
   forceQuote?: boolean
 }
 
+// singleton - do not export me, use getSwapperManager
+let _swapperManager: SwapperManager | null = null
+
+const getSwapperManager = (): SwapperManager => {
+  if (_swapperManager) return _swapperManager
+
+  // instantiate if it doesn't already exist
+  _swapperManager = new SwapperManager()
+
+  const adapterManager = getChainAdapters()
+  const web3 = getWeb3Instance()
+
+  // TODO: Uncomment when we are ready for a Thorchain swapper
+  // ;(async () => {
+  //   const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+  //   const thorSwapper = new ThorchainSwapper({
+  //     midgardUrl,
+  //     adapterManager,
+  //     web3,
+  //   })
+  //   await thorSwapper.initialize()
+  //   swapperManager.addSwapper(thorSwapper)
+  // })()
+
+  const ethereumChainAdapter = adapterManager.get(
+    KnownChainIds.EthereumMainnet,
+  ) as unknown as ethereum.ChainAdapter
+
+  const zrxEthereumSwapper = new ZrxSwapper({
+    web3,
+    adapter: ethereumChainAdapter,
+  })
+
+  try {
+    _swapperManager.addSwapper(zrxEthereumSwapper)
+
+    if (getConfig().REACT_APP_FEATURE_AVALANCHE) {
+      const avalancheChainAdapter = adapterManager.get(
+        KnownChainIds.AvalancheMainnet,
+      ) as unknown as avalanche.ChainAdapter
+
+      const zrxAvalancheSwapper = new ZrxSwapper({
+        web3,
+        adapter: avalancheChainAdapter,
+      })
+
+      _swapperManager.addSwapper(zrxAvalancheSwapper)
+    }
+  } catch (e) {
+    moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
+  }
+
+  return _swapperManager
+}
+
 export const useSwapper = () => {
   const { setValue } = useFormContext()
   const [quote, sellTradeAsset, trade] = useWatch({
@@ -56,51 +112,7 @@ export const useSwapper = () => {
     TradeAsset | undefined,
     Trade<KnownChainIds>,
   ]
-  const adapterManager = useChainAdapters()
-  const [swapperManager] = useState<SwapperManager>(() => new SwapperManager())
-
-  useEffect(() => {
-    if (!adapterManager || !swapperManager) return
-
-    const web3 = getWeb3Instance()
-
-    // TODO: Uncomment when we are ready for a Thorchain swapper
-    // ;(async () => {
-    //   const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-    //   const thorSwapper = new ThorchainSwapper({
-    //     midgardUrl,
-    //     adapterManager,
-    //     web3,
-    //   })
-    //   await thorSwapper.initialize()
-    //   swapperManager.addSwapper(thorSwapper)
-    // })()
-
-    const ethereumChainAdapter = adapterManager.get(
-      KnownChainIds.EthereumMainnet,
-    ) as unknown as ethereum.ChainAdapter
-
-    const zrxEthereumSwapper = new ZrxSwapper({
-      web3,
-      adapter: ethereumChainAdapter,
-    })
-
-    const avalancheChainAdapter = adapterManager.get(
-      KnownChainIds.EthereumMainnet,
-    ) as unknown as ethereum.ChainAdapter
-
-    const zrxAvalancheSwapper = new ZrxSwapper({
-      web3,
-      adapter: avalancheChainAdapter,
-    })
-
-    try {
-      swapperManager.addSwapper(zrxEthereumSwapper)
-      swapperManager.addSwapper(zrxAvalancheSwapper)
-    } catch (e) {
-      moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
-    }
-  }, [adapterManager, swapperManager])
+  const [swapperManager] = useState<SwapperManager>(getSwapperManager())
 
   const {
     state: { wallet },

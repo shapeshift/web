@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.2.2...@shapeshiftoss/caip-v6.3.0) (2022-07-08)
+
+
+### Features
+
+* **caip:** add JunoPay ticker/asset mapping ([#863](https://github.com/shapeshift/lib/issues/863)) ([5fade1f](https://github.com/shapeshift/lib/commit/5fade1f998cc6224dd2cb5d076f26a4c485b649a))
+
 # [@shapeshiftoss/caip-v6.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.2.1...@shapeshiftoss/caip-v6.2.2) (2022-07-07)
 
 # [@shapeshiftoss/caip-v6.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.2.0...@shapeshiftoss/caip-v6.2.1) (2022-06-29)

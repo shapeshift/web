@@ -10,7 +10,7 @@ import {
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
-import { Asset, KnownChainIds, SwapperType } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -73,15 +73,30 @@ export const useSwapper = () => {
     //     web3,
     //   })
     //   await thorSwapper.initialize()
-    //   swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
+    //   swapperManager.addSwapper(thorSwapper)
     // })()
-    const zrxSwapper = new ZrxSwapper({
+
+    const ethereumChainAdapter = adapterManager.get(
+      KnownChainIds.EthereumMainnet,
+    ) as unknown as ethereum.ChainAdapter
+
+    const zrxEthereumSwapper = new ZrxSwapper({
       web3,
-      adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
+      adapter: ethereumChainAdapter,
+    })
+
+    const avalancheChainAdapter = adapterManager.get(
+      KnownChainIds.EthereumMainnet,
+    ) as unknown as ethereum.ChainAdapter
+
+    const zrxAvalancheSwapper = new ZrxSwapper({
+      web3,
+      adapter: avalancheChainAdapter,
     })
 
     try {
-      swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
+      swapperManager.addSwapper(zrxEthereumSwapper)
+      swapperManager.addSwapper(zrxAvalancheSwapper)
     } catch (e) {
       moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
     }
@@ -177,7 +192,7 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const result = await (async () => {
-      if (sellAsset.chainId === 'eip155:1') {
+      if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmount: amount,
@@ -188,7 +203,7 @@ export const useSwapper = () => {
           wallet,
           sendMax: true,
         })
-      } else if (sellAsset.chainId === 'bip122:000000000019d6689c085ae165831e93') {
+      } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
         // They will need to have selected an accountType from a modal if bitcoin
         throw new Error('bitcoin unsupported')
@@ -245,9 +260,9 @@ export const useSwapper = () => {
         })
 
         const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-          if (sellAsset.chainId === 'eip155:1') {
+          if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
             return swapper.getTradeQuote({
-              chainId: 'eip155:1',
+              chainId: KnownChainIds.EthereumMainnet,
               sellAsset,
               buyAsset,
               sellAmount,
@@ -306,9 +321,9 @@ export const useSwapper = () => {
     const fee = feeBN.toString()
 
     switch (sellAsset.chainId) {
-      case 'eip155:1':
+      case KnownChainIds.EthereumMainnet:
         {
-          const ethTrade = trade as Trade<'eip155:1'>
+          const ethTrade = trade as Trade<KnownChainIds.EthereumMainnet>
           const approvalFee = bnOrZero(ethTrade.feeData.chainSpecific.approvalFee)
             .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
@@ -316,7 +331,7 @@ export const useSwapper = () => {
           const gasPrice = bnOrZero(ethTrade.feeData.chainSpecific.gasPrice).toString()
           const estimatedGas = bnOrZero(ethTrade.feeData.chainSpecific.estimatedGas).toString()
 
-          const fees: QuoteFeeData<'eip155:1'> = {
+          const fees: QuoteFeeData<KnownChainIds.EthereumMainnet> = {
             fee,
             chainSpecific: {
               approvalFee,

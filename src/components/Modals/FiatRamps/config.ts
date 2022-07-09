@@ -39,8 +39,8 @@ export interface SupportedFiatRampConfig {
 }
 
 export type FiatRamp = 'Gem' | 'Banxa' | 'CoinbasePay' | 'JunoPay'
-
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
+
 export const supportedFiatRamps: SupportedFiatRamp = {
   Gem: {
     label: 'fiatRamps.gem',
@@ -129,7 +129,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     label: 'fiatRamps.junoPay',
     info: 'fiatRamps.junoPayMessage',
     logo: junoPayLogo,
-    isImplemented: true,
+    isImplemented: getConfig().REACT_APP_FEATURE_JUNOPAY,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {

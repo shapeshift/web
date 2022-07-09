@@ -147,7 +147,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{maxApr}% APR*",
+        "header": "Stake %{assetName} Anda untuk mendapatkan %{apr}% APR*",
         "body": "Staking adalah proses menyimpan dana di dompet cryptocurrency untuk mendukung operasi jaringan blockchain dan, sebagai imbalannya, pemegang diberi imbalan atas kontribusi mereka.",
         "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
         "cta": {
@@ -263,7 +263,7 @@
     },
     "viewOnChain": "Lihat di rantai",
     "getStarted": {
-      "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{maxApr}% APR*",
+      "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{apr}% APR*",
       "body": "Staking adalah proses menyimpan dana di dompet cryptocurrency untuk mendukung operasi jaringan blockchain dan, sebagai imbalannya, pemegang diberi imbalan atas kontribusi mereka..",
       "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
       "cta": {

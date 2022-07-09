@@ -148,7 +148,7 @@
         }
       },
       "getStarted": {
-        "header": "%{assetName} 스테이킹하여 최대 %{maxApr}% APR*을 받으세요.",
+        "header": "%{assetName} 스테이킹하여 최대 %{apr}% APR*을 받으세요.",
         "body": "스테이킹은 블록체인 네트워크 운영을 지원하기 위해 암호화폐 지갑에 자금을 보유하는 과정이며, 그 대가로 보유자는 기여에 대한 보상을 받습니다.",
         "userProtectionInfo": "*수익은 추정된 것으로 시장 상황에 따라 변동됩니다.",
         "cta": {

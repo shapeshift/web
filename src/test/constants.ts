@@ -1,5 +1,5 @@
 import { SwapperType } from '@shapeshiftoss/swapper'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 
 import { DisplayFeeData } from '../components/Trade/types'
 
@@ -93,7 +93,7 @@ export const ETHCHAIN_QUOTE = {
   ],
 }
 
-export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<'eip155:1'> = {
+export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
   chainSpecific: {
     approvalFee: '0',
     estimatedGas: '424500',
@@ -101,6 +101,6 @@ export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<'eip155:1'> = {
     totalFee: '0.1532445',
   },
   tradeFee: '0',
-  tradeFeeSource: SwapperType.Zrx,
+  tradeFeeSource: SwapperType.ZrxEthereum,
   fee: '0.1532445',
 }

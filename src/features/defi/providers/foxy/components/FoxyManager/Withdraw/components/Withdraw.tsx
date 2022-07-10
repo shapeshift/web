@@ -38,7 +38,7 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
+  const { chainId, contractAddress, rewardId, assetReference } = query
   const toast = useToast()
 
   const methods = useForm<FoxyWithdrawValues>({ mode: 'onChange' })
@@ -47,7 +47,7 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
   const withdrawTypeValue = watch(Field.WithdrawType)
 
   const assetNamespace = 'erc20'
-  // Asset info
+  // Reward Asset info
   const assetId = toAssetId({
     chainId,
     assetNamespace,
@@ -55,6 +55,14 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
+  // Staking Asset Info
+  const stakingAssetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
@@ -215,7 +223,7 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
-        asset={asset}
+        asset={stakingAsset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,
@@ -235,7 +243,7 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
         percentOptions={[0.25, 0.5, 0.75, 1]}
       >
         <WithdrawTypeField
-          asset={asset}
+          asset={stakingAsset}
           handlePercentClick={handlePercentClick}
           feePercentage={bnOrZero(state.foxyFeePercentage).toString()}
         />

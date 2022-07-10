@@ -78,7 +78,7 @@ export const FoxyOverview = () => {
   return (
     <Overview
       asset={rewardAsset}
-      name='Fox Yield Token'
+      name='FOX Yieldy'
       balance={fiatAmountAvailable.toFixed(2)}
       underlyingAssets={[
         {

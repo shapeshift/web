@@ -7,7 +7,7 @@ import {
   DefiSteps,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -26,7 +26,6 @@ import { DepositContext } from '../DepositContext'
 export const Deposit = ({ onNext }: StepComponentProps) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
-  const [isLoading, setIsLoading] = useState(false)
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -98,8 +97,8 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
   const handleContinue = async (formValues: DepositValues) => {
     if (!state.userAddress || !api) return
     // set deposit state for future use
-    setIsLoading(true)
     dispatch({ type: FoxyDepositActionType.SET_DEPOSIT, payload: formValues })
+    dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
@@ -118,7 +117,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           payload: { estimatedGasCrypto },
         })
         onNext(DefiSteps.Confirm)
-        setIsLoading(false)
+        dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
@@ -127,7 +126,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           payload: { estimatedGasCrypto },
         })
         onNext(DefiSteps.Approve)
-        setIsLoading(false)
+        dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
       }
     } catch (error) {
       console.error('FoxyDeposit:handleContinue error:', error)
@@ -137,6 +136,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
         title: translate('common.somethingWentWrong'),
         status: 'error',
       })
+      dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }
 
@@ -165,7 +165,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
   return (
     <ReusableDeposit
       asset={asset}
-      isLoading={isLoading}
+      isLoading={state.loading}
       apy={String(opportunity?.apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{

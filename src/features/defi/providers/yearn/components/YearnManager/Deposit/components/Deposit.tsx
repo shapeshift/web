@@ -9,7 +9,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -27,7 +27,6 @@ import { DepositContext } from '../DepositContext'
 
 export const Deposit = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(DepositContext)
-  const [isLoading, setIsLoading] = useState(false)
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -98,8 +97,8 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
   const handleContinue = async (formValues: DepositValues) => {
     if (!(state.userAddress && opportunity)) return
     // set deposit state for future use
-    setIsLoading(true)
     dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
+    dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
     try {
       // Check is approval is required for user address
       const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
@@ -118,8 +117,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           payload: { estimatedGasCrypto },
         })
         onNext(DefiSteps.Confirm)
-        setIsLoading(false)
-        //history.push(DepositPath.Confirm)
+        dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
@@ -128,8 +126,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           payload: { estimatedGasCrypto },
         })
         onNext(DefiSteps.Approve)
-        setIsLoading(false)
-        //history.push(DepositPath.Approve)
+        dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
       }
     } catch (error) {
       console.error('YearnDeposit:handleContinue error:', error)
@@ -139,6 +136,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
         title: translate('common.somethingWentWrong'),
         status: 'error',
       })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
   }
 
@@ -196,7 +194,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}
       enableSlippage={false}
-      isLoading={isLoading}
+      isLoading={state.loading}
     />
   )
 }

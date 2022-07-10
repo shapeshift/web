@@ -147,7 +147,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
           <Row.Label>
             <Text translation='modals.confirm.withdrawFee' />
           </Row.Label>
-          <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
+          <Row.Value fontWeight='bold'>{`${withdrawalFee} ${underlyingAsset.symbol}`}</Row.Value>
         </Row>
         <Row variant='gutter'>
           <Row.Label>

@@ -19,6 +19,7 @@
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
+    "claim": "Claim",
     "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",

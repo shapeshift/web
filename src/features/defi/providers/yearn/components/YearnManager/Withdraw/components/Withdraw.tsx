@@ -1,8 +1,6 @@
-import { Button, ButtonGroup, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { Asset, WithdrawType } from '@shapeshiftoss/types'
 import {
-  FlexFieldProps,
+  Field,
   Withdraw as ReusableWithdraw,
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
@@ -12,12 +10,9 @@ import {
   DefiSteps,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useContext, useState } from 'react'
-import { useController } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
-import { FormField } from 'components/DeFi/components/FormField'
+import { useContext } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
-import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -30,83 +25,15 @@ import { useAppSelector } from 'state/store'
 import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type TestFieldProps = {
-  asset: Asset
-} & FlexFieldProps
-
-const TestField: React.FC<TestFieldProps> = ({
-  control,
-  handlePercentClick,
-  asset,
-  setDisableInput,
-}) => {
-  const translate = useTranslate()
-  const { field: fakeInput } = useController({
-    name: 'fakeInput',
-    control,
-    defaultValue: WithdrawType.DELAYED,
-  })
-  const feePercentage = 0.25
-
-  const handleClick = (value: WithdrawType) => {
-    if (value === WithdrawType.INSTANT) {
-      fakeInput.onChange(WithdrawType.INSTANT)
-      handlePercentClick(1)
-      setDisableInput(true)
-    } else {
-      fakeInput.onChange(WithdrawType.DELAYED)
-      setDisableInput(false)
-    }
-  }
-  return (
-    <FormField label={translate('modals.withdraw.withdrawType')}>
-      <ButtonGroup colorScheme='blue' width='full' variant='input'>
-        <Button
-          isFullWidth
-          flexDir='column'
-          height='auto'
-          py={4}
-          onClick={() => handleClick(WithdrawType.INSTANT)}
-          isActive={fakeInput.value === WithdrawType.INSTANT}
-        >
-          <Stack alignItems='center' spacing={1}>
-            <RawText>{translate('modals.withdraw.instant')}</RawText>
-            <RawText color='gray.500' fontSize='sm'>
-              {translate('modals.withdraw.fee', {
-                fee: feePercentage ?? '0',
-                symbol: asset.symbol,
-              })}
-            </RawText>
-          </Stack>
-        </Button>
-        <Button
-          isFullWidth
-          flexDir='column'
-          height='auto'
-          onClick={() => handleClick(WithdrawType.DELAYED)}
-          isActive={fakeInput.value === WithdrawType.DELAYED}
-        >
-          <Stack alignItems='center' spacing={1}>
-            <RawText>{translate('modals.withdraw.delayed')}</RawText>
-            <RawText color='gray.500' fontSize='sm'>
-              {translate('modals.withdraw.noFee', {
-                symbol: asset.symbol,
-              })}
-            </RawText>
-          </Stack>
-        </Button>
-      </ButtonGroup>
-    </FormField>
-  )
-}
-
 export const Withdraw = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const [loading, setLoading] = useState(false)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
+
+  const methods = useForm<WithdrawValues>({ mode: 'onChange' })
+  const { setValue } = methods
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -149,10 +76,9 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
 
   const handleContinue = async (formValues: WithdrawValues) => {
     if (!(state.userAddress && opportunity)) return
-    setLoading(true)
     // set withdraw state for future use
     dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
-
+    dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
     const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
     if (!estimatedGasCrypto) return
     dispatch({
@@ -160,12 +86,22 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
       payload: { estimatedGasCrypto },
     })
     onNext(DefiSteps.Confirm)
-    setLoading(false)
+    dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     //history.push(WithdrawPath.Confirm)
   }
 
   const handleCancel = () => {
     browserHistory.goBack()
+  }
+
+  const handlePercentClick = (_percent: number) => {
+    const amount = bnOrZero(cryptoAmountAvailable).times(_percent)
+    setValue(Field.CryptoAmount, amount.toString(), {
+      shouldValidate: true,
+    })
+    setValue(Field.FiatAmount, amount.times(marketData.price).toFixed(4).toString(), {
+      shouldValidate: true,
+    })
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -193,32 +129,34 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 
   return (
-    <ReusableWithdraw
-      asset={underlyingAsset}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
-      cryptoInputValidation={{
-        required: true,
-        validate: { validateCryptoAmount },
-      }}
-      fiatAmountAvailable={fiatAmountAvailable.toString()}
-      fiatInputValidation={{
-        required: true,
-        validate: { validateFiatAmount },
-      }}
-      marketData={{
-        // The vault asset doesnt have market data.
-        // We're making our own market data object for the withdraw view
-        price: vaultTokenPrice.toString(),
-        marketCap: '0',
-        volume: '0',
-        changePercent24Hr: 0,
-      }}
-      onCancel={handleCancel}
-      onContinue={handleContinue}
-      isLoading={loading}
-      percentOptions={[0.25, 0.5, 0.75, 1]}
-      enableSlippage={false}
-      flexFields={props => <TestField asset={underlyingAsset} {...props} />}
-    />
+    <FormProvider {...methods}>
+      <ReusableWithdraw
+        asset={underlyingAsset}
+        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoInputValidation={{
+          required: true,
+          validate: { validateCryptoAmount },
+        }}
+        fiatAmountAvailable={fiatAmountAvailable.toString()}
+        fiatInputValidation={{
+          required: true,
+          validate: { validateFiatAmount },
+        }}
+        marketData={{
+          // The vault asset doesnt have market data.
+          // We're making our own market data object for the withdraw view
+          price: vaultTokenPrice.toString(),
+          marketCap: '0',
+          volume: '0',
+          changePercent24Hr: 0,
+        }}
+        onCancel={handleCancel}
+        onContinue={handleContinue}
+        isLoading={state.loading}
+        percentOptions={[0.25, 0.5, 0.75, 1]}
+        enableSlippage={false}
+        handlePercentClick={handlePercentClick}
+      />
+    </FormProvider>
   )
 }

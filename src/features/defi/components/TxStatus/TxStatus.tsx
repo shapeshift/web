@@ -55,7 +55,6 @@ export const TxStatus = ({
         <Stack>
           <Text translation={statusText} fontSize='xl' />
           {statusBody && <RawText color='gray.500'>{statusBody}</RawText>}
-          <RawText>{loading ? 'yes' : 'no'}</RawText>
         </Stack>
         {onContinue && (
           <Stack width='full'>

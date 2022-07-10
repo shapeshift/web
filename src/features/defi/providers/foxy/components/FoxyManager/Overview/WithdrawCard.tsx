@@ -40,55 +40,58 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   }
 
   return (
-    <Button
-      variant='input'
-      isFullWidth
-      maxHeight='auto'
-      height='auto'
-      alignItems='center'
-      justifyContent='flex-start'
-      textAlign='left'
-      isDisabled={!isAvailable}
-      onClick={() => (isConnected ? handleClick() : handleWalletModalOpen())}
-      py={4}
-      leftIcon={
-        <IconCircle>
-          <FaArrowDown />
-        </IconCircle>
-      }
-    >
-      <Stack spacing={0}>
-        <Text color={textColor} translation='common.withdrawal' />
-        <Text
-          color={isAvailable ? successColor : 'yellow.200'}
-          fontWeight='normal'
-          lineHeight='shorter'
-          translation={isAvailable ? 'common.available' : 'common.pending'}
-        />
-      </Stack>
-      <Stack spacing={0} ml='auto' textAlign='right'>
-        <Amount.Crypto
-          color={textColor}
-          value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
-          symbol={asset.symbol}
-          maximumFractionDigits={4}
-        />
-        {isAvailable ? (
-          <Stack direction='row' alignItems='center' color='blue.500'>
-            <Text translation='defi.modals.claim.claimNow' />
-            <FaArrowRight />
-          </Stack>
-        ) : (
+    <Stack px={8} py={6}>
+      <Text fontWeight='medium' translation='defi.modals.foxyOverview.withdrawals' />
+      <Button
+        variant='input'
+        isFullWidth
+        maxHeight='auto'
+        height='auto'
+        alignItems='center'
+        justifyContent='flex-start'
+        textAlign='left'
+        isDisabled={!isAvailable}
+        py={2}
+        onClick={() => (isConnected ? handleClick() : handleWalletModalOpen())}
+        leftIcon={
+          <IconCircle>
+            <FaArrowDown />
+          </IconCircle>
+        }
+      >
+        <Stack spacing={0}>
+          <Text color={textColor} translation='common.withdrawal' />
           <Text
+            color={isAvailable ? successColor : 'yellow.200'}
             fontWeight='normal'
             lineHeight='shorter'
-            translation={[
-              'defi.modals.foxyOverview.availableDate',
-              { date: dayjs(releaseTime).fromNow() },
-            ]}
+            translation={isAvailable ? 'common.available' : 'common.pending'}
           />
-        )}
-      </Stack>
-    </Button>
+        </Stack>
+        <Stack spacing={0} ml='auto' textAlign='right'>
+          <Amount.Crypto
+            color={textColor}
+            value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
+            symbol={asset.symbol}
+            maximumFractionDigits={4}
+          />
+          {isAvailable ? (
+            <Stack direction='row' alignItems='center' color='blue.500'>
+              <Text translation='defi.modals.claim.claimNow' />
+              <FaArrowRight />
+            </Stack>
+          ) : (
+            <Text
+              fontWeight='normal'
+              lineHeight='shorter'
+              translation={[
+                'defi.modals.foxyOverview.availableDate',
+                { date: dayjs(releaseTime).fromNow() },
+              ]}
+            />
+          )}
+        </Stack>
+      </Button>
+    </Stack>
   )
 }

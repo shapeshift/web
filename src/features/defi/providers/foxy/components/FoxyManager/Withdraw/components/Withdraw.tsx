@@ -1,18 +1,21 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { WithdrawType } from '@shapeshiftoss/types'
 import {
+  Field,
   Withdraw as ReusableWithdraw,
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useMemo } from 'react'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiSteps,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { useContext } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
-import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -22,21 +25,26 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
+import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+import { WithdrawTypeField } from './WithdrawType'
 
-type FoxyWithdrawProps = {
-  api: FoxyApi
-  getWithdrawGasEstimate: (withdraw: WithdrawValues) => Promise<string | undefined>
-}
+export type FoxyWithdrawValues = {
+  [Field.WithdrawType]: WithdrawType
+} & WithdrawValues
 
-export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => {
+export const Withdraw = ({ onNext }: StepComponentProps) => {
+  const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
-  const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
   const toast = useToast()
+
+  const methods = useForm<FoxyWithdrawValues>({ mode: 'onChange' })
+  const { setValue, watch } = methods
+
+  const withdrawTypeValue = watch(Field.WithdrawType)
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -51,20 +59,50 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
 
-  const withdrawalFee = useMemo(() => {
-    return state?.withdraw.withdrawType === WithdrawType.INSTANT
-      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
-      : '0'
-  }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
-
   if (!state || !dispatch) return null
 
-  const handleContinue = async (formValues: WithdrawValues) => {
-    if (!state.userAddress) return
+  const getWithdrawGasEstimate = async (withdraw: FoxyWithdrawValues) => {
+    if (!state.userAddress || !rewardId || !api) return
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.estimateWithdrawGas({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          amountDesired: bnOrZero(
+            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+          ).decimalPlaces(0),
+          userAddress: state.userAddress,
+          type: withdraw.withdrawType,
+        }),
+        api.getGasPrice(),
+      ])
+      const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+      return returVal
+    } catch (error) {
+      console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
+      const fundsError =
+        error instanceof Error && error.message.includes('Not enough funds in reserve')
+      toast({
+        position: 'top-right',
+        description: fundsError
+          ? translate('defi.notEnoughFundsInReserve')
+          : translate('common.somethingWentWrong'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error',
+      })
+    }
+  }
+
+  const handleContinue = async (formValues: FoxyWithdrawValues) => {
+    if (!state.userAddress || !api) return
     // set withdraw state for future use
     dispatch({
       type: FoxyWithdrawActionType.SET_WITHDRAW,
       payload: formValues,
+    })
+    dispatch({
+      type: FoxyWithdrawActionType.SET_LOADING,
+      payload: true,
     })
     try {
       // Check is approval is required for user address
@@ -84,7 +122,11 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
           type: FoxyWithdrawActionType.SET_WITHDRAW,
           payload: { estimatedGasCrypto },
         })
-        history.push(WithdrawPath.Confirm)
+        onNext(DefiSteps.Confirm)
+        dispatch({
+          type: FoxyWithdrawActionType.SET_LOADING,
+          payload: false,
+        })
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
@@ -92,10 +134,18 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
           type: FoxyWithdrawActionType.SET_APPROVE,
           payload: { estimatedGasCrypto },
         })
-        history.push(WithdrawPath.Approve)
+        onNext(DefiSteps.Approve)
+        dispatch({
+          type: FoxyWithdrawActionType.SET_LOADING,
+          payload: false,
+        })
       }
     } catch (error) {
       console.error('FoxyWithdraw:handleContinue error:', error)
+      dispatch({
+        type: FoxyWithdrawActionType.SET_LOADING,
+        payload: false,
+      })
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -106,7 +156,7 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   }
 
   const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !rewardId) return
+    if (!state.userAddress || !rewardId || !api) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateApproveGas({
@@ -132,6 +182,16 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
     browserHistory.goBack()
   }
 
+  const handlePercentClick = (_percent: number) => {
+    const amount = bnOrZero(cryptoAmountAvailable).times(_percent)
+    setValue(Field.CryptoAmount, amount.toString(), {
+      shouldValidate: true,
+    })
+    setValue(Field.FiatAmount, amount.times(marketData.price).toFixed(4).toString(), {
+      shouldValidate: true,
+    })
+  }
+
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const _value = bnOrZero(value)
@@ -153,39 +213,33 @@ export const Withdraw = ({ api, getWithdrawGasEstimate }: FoxyWithdrawProps) => 
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
 
   return (
-    <ReusableWithdraw
-      asset={asset}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
-      cryptoInputValidation={{
-        required: true,
-        validate: { validateCryptoAmount },
-      }}
-      fiatAmountAvailable={fiatAmountAvailable.toString()}
-      fiatInputValidation={{
-        required: true,
-        validate: { validateFiatAmount },
-      }}
-      marketData={marketData}
-      onCancel={handleCancel}
-      onContinue={handleContinue}
-      updateWithdraw={({ withdrawType, cryptoAmount }) => {
-        return dispatch({
-          type: FoxyWithdrawActionType.SET_WITHDRAW,
-          payload: { withdrawType, cryptoAmount },
-        })
-      }}
-      percentOptions={[0.25, 0.5, 0.75, 1]}
-      enableSlippage={false}
-      enableWithdrawType
-      feePercentage={bnOrZero(state.foxyFeePercentage).times(100).toString()}
-    >
-      <Row>
-        <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>
-        <Row.Value>
-          <Amount.Crypto value={withdrawalFee} symbol={asset.symbol} />
-        </Row.Value>
-      </Row>
-      <Text fontSize='sm' color='gray.500' translation='modals.withdraw.disclaimer' />
-    </ReusableWithdraw>
+    <FormProvider {...methods}>
+      <ReusableWithdraw
+        asset={asset}
+        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoInputValidation={{
+          required: true,
+          validate: { validateCryptoAmount },
+        }}
+        fiatAmountAvailable={fiatAmountAvailable.toString()}
+        fiatInputValidation={{
+          required: true,
+          validate: { validateFiatAmount },
+        }}
+        marketData={marketData}
+        onCancel={handleCancel}
+        onContinue={handleContinue}
+        isLoading={state.loading}
+        handlePercentClick={handlePercentClick}
+        disableInput={withdrawTypeValue === WithdrawType.INSTANT}
+        percentOptions={[0.25, 0.5, 0.75, 1]}
+      >
+        <WithdrawTypeField
+          asset={asset}
+          handlePercentClick={handlePercentClick}
+          feePercentage={bnOrZero(state.foxyFeePercentage).toString()}
+        />
+      </ReusableWithdraw>
+    </FormProvider>
   )
 }

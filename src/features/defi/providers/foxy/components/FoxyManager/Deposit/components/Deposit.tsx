@@ -1,11 +1,16 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext } from 'react'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiSteps,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { useContext, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -15,21 +20,18 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DepositPath, FoxyDepositActionType } from '../DepositCommon'
+import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type FoxyDepositProps = {
-  api: FoxyApi
-  apy: string
-  getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
-}
-
-export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) => {
+export const Deposit = ({ onNext }: StepComponentProps) => {
+  const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
+  const [isLoading, setIsLoading] = useState(false)
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+  const opportunity = state?.foxyOpportunity
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
@@ -44,8 +46,34 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
 
   if (!state || !dispatch) return null
 
+  const getDepositGasEstimate = async (deposit: DepositValues) => {
+    if (!state.userAddress || !assetReference || !api) return
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.estimateDepositGas({
+          tokenContractAddress: assetReference,
+          contractAddress,
+          amountDesired: bnOrZero(deposit.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0),
+          userAddress: state.userAddress,
+        }),
+        api.getGasPrice(),
+      ])
+      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+    } catch (error) {
+      console.error('FoxyDeposit:getDepositGasEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error',
+      })
+    }
+  }
+
   const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !assetReference) return
+    if (!state.userAddress || !assetReference || !api) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateApproveGas({
@@ -68,8 +96,9 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   }
 
   const handleContinue = async (formValues: DepositValues) => {
-    if (!state.userAddress) return
+    if (!state.userAddress || !api) return
     // set deposit state for future use
+    setIsLoading(true)
     dispatch({ type: FoxyDepositActionType.SET_DEPOSIT, payload: formValues })
     try {
       // Check is approval is required for user address
@@ -88,7 +117,8 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
           type: FoxyDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto },
         })
-        history.push(DepositPath.Confirm)
+        onNext(DefiSteps.Confirm)
+        setIsLoading(false)
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
@@ -96,7 +126,8 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
           type: FoxyDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto },
         })
-        history.push(DepositPath.Approve)
+        onNext(DefiSteps.Approve)
+        setIsLoading(false)
       }
     } catch (error) {
       console.error('FoxyDeposit:handleContinue error:', error)
@@ -134,7 +165,8 @@ export const Deposit = ({ api, apy, getDepositGasEstimate }: FoxyDepositProps) =
   return (
     <ReusableDeposit
       asset={asset}
-      apy={String(apy)}
+      isLoading={isLoading}
+      apy={String(opportunity?.apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

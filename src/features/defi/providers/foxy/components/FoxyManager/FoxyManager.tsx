@@ -8,6 +8,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
+import { Claim } from './Overview/Claim/Claim'
 import { FoxyOverview } from './Overview/FoxyOverview'
 import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
 
@@ -30,6 +31,11 @@ export const FoxyManager = () => {
       {modal === DefiAction.Withdraw && (
         <SlideTransition key={DefiAction.Withdraw}>
           <FoxyWithdraw />
+        </SlideTransition>
+      )}
+      {modal === DefiAction.Claim && (
+        <SlideTransition key={DefiAction.Claim}>
+          <Claim />
         </SlideTransition>
       )}
     </AnimatePresence>

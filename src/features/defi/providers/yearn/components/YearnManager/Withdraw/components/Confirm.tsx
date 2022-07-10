@@ -105,7 +105,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }
 
   const handleCancel = () => {
-    onNext(DefiSteps.Status)
+    onNext(DefiSteps.Info)
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)

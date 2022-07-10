@@ -48,6 +48,7 @@ export const Overview: React.FC<OverviewProps> = ({
   apy,
   description,
   menu,
+  children,
 }) => {
   return (
     <Flex
@@ -60,68 +61,72 @@ export const Overview: React.FC<OverviewProps> = ({
         <RawText fontSize='md'>Overview</RawText>
         <ModalCloseButton position='static' />
       </ModalHeader>
-      <Stack spacing={0}>
-        <Stack p={8} spacing={6}>
-          <Stack direction='row' alignItems='center' justifyContent='space-between'>
-            <Stack direction='row' alignItems='center' spacing={2}>
-              <AssetIcon src={asset.icon} size='md' />
-              <Stack spacing={0}>
-                <RawText fontSize='lg' lineHeight='shorter'>
-                  {name}
-                </RawText>
-                <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
-                  {provider}
-                </RawText>
+      <Stack spacing={0} divider={<Divider />}>
+        <Stack spacing={0}>
+          <Stack p={8} spacing={6}>
+            <Stack direction='row' alignItems='center' justifyContent='space-between'>
+              <Stack direction='row' alignItems='center' spacing={2}>
+                <AssetIcon src={asset.icon} size='md' />
+                <Stack spacing={0}>
+                  <RawText fontSize='lg' lineHeight='shorter'>
+                    {name}
+                  </RawText>
+                  <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
+                    {provider}
+                  </RawText>
+                </Stack>
               </Stack>
+              <Amount.Fiat fontSize='xl' value={balance} />
             </Stack>
-            <Amount.Fiat fontSize='xl' value={balance} />
+            <DefiActionButtons menu={menu} />
           </Stack>
-          <DefiActionButtons menu={menu} />
-        </Stack>
-        <Flex px={8} pb={8} columnGap={6}>
-          <Stack flex={1} spacing={4}>
-            <RawText fontWeight='medium'>Underlying Tokens</RawText>
-            <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-              {underlyingAssets.map(asset => {
-                return (
-                  <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
-                    <AssetIcon src={asset.icon} size='2xs' />
-                    <Amount.Crypto fontSize='sm' value={asset.balance} symbol={asset.symbol} />
-                    {asset.allocationPercentage && (
-                      <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-                    )}
-                  </Tag>
-                )
-              })}
-            </Flex>
-          </Stack>
-          {rewardAssets && (
+          <Flex px={8} pb={8} columnGap={6}>
             <Stack flex={1} spacing={4}>
-              <RawText fontWeight='medium'>Available Rewards</RawText>
+              <RawText fontWeight='medium'>Underlying Tokens</RawText>
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {rewardAssets.map(asset => (
-                  <Tag variant='xs-subtle' columnGap={2} size='sm'>
-                    <AssetIcon src={asset.icon} size='2xs' />
-                    <Amount.Crypto fontSize='sm' value={asset.balance} symbol={asset.symbol} />
-                  </Tag>
-                ))}
+                {underlyingAssets.map(asset => {
+                  return (
+                    <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
+                      <AssetIcon src={asset.icon} size='2xs' />
+                      <Amount.Crypto fontSize='sm' value={asset.balance} symbol={asset.symbol} />
+                      {asset.allocationPercentage && (
+                        <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
+                      )}
+                    </Tag>
+                  )
+                })}
               </Flex>
             </Stack>
-          )}
-        </Flex>
+            {rewardAssets && (
+              <Stack flex={1} spacing={4}>
+                <RawText fontWeight='medium'>Available Rewards</RawText>
+                <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
+                  {rewardAssets.map(asset => (
+                    <Tag variant='xs-subtle' columnGap={2} size='sm'>
+                      <AssetIcon src={asset.icon} size='2xs' />
+                      <Amount.Crypto fontSize='sm' value={asset.balance} symbol={asset.symbol} />
+                    </Tag>
+                  ))}
+                </Flex>
+              </Stack>
+            )}
+          </Flex>
+        </Stack>
+        {children}
         {(description || tvl || apy) && (
           <>
-            <Divider />
             <Stack p={8} spacing={4}>
               <Stack spacing={0}>
                 <RawText fontSize='lg' fontWeight='medium'>
                   About
                 </RawText>
-                <AssetDescriptionTeaser
-                  description={description?.description}
-                  isLoaded={description?.isLoaded}
-                  isTrustedDescription={description?.isTrustedDescription}
-                />
+                {description && (
+                  <AssetDescriptionTeaser
+                    description={description?.description}
+                    isLoaded={description?.isLoaded}
+                    isTrustedDescription={description?.isTrustedDescription}
+                  />
+                )}
               </Stack>
               {(tvl || apy) && (
                 <StatGroup>

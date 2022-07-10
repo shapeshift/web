@@ -11,13 +11,14 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
-import { Asset, MarketData, WithdrawType } from '@shapeshiftoss/types'
-import React, { useState } from 'react'
+import { Asset, MarketData } from '@shapeshiftoss/types'
+import React from 'react'
 import {
   ControllerProps,
   ControllerRenderProps,
+  FieldValues,
   useController,
-  useForm,
+  useFormContext,
   useWatch,
 } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -56,11 +57,11 @@ type WithdrawProps = {
   percentOptions: number[]
   // Show withdraw types
   enableWithdrawType?: boolean
+  disableInput?: boolean
   feePercentage?: string
   isLoading?: boolean
-  flexFields?: (args: FlexFieldProps) => JSX.Element
-  onContinue(values: WithdrawValues): void
-  updateWithdraw?(values: Pick<WithdrawValues, Field.WithdrawType | Field.CryptoAmount>): void
+  handlePercentClick: (arg: number) => void
+  onContinue(values: FieldValues): void
   onCancel(): void
 }
 
@@ -75,7 +76,6 @@ export type WithdrawValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
   [Field.Slippage]: string
-  [Field.WithdrawType]: WithdrawType
 }
 
 const DEFAULT_SLIPPAGE = '0.5'
@@ -85,31 +85,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   marketData,
   cryptoAmountAvailable,
   cryptoInputValidation,
-  enableSlippage = true,
+  disableInput,
+  enableSlippage = false,
   fiatInputValidation,
+  handlePercentClick,
   onContinue,
   isLoading,
   percentOptions,
-  flexFields,
   children,
 }) => {
   const translate = useTranslate()
-  const [disableInput, setDisableInput] = useState(false)
-
   const {
     control,
     formState: { errors, isValid },
     handleSubmit,
     setValue,
-  } = useForm<WithdrawValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FiatAmount]: '',
-      [Field.CryptoAmount]: '',
-      [Field.Slippage]: DEFAULT_SLIPPAGE,
-      [Field.WithdrawType]: WithdrawType.DELAYED,
-    },
-  })
+  } = useFormContext()
 
   const values = useWatch({ control })
 
@@ -117,11 +108,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     name: 'cryptoAmount',
     control,
     rules: cryptoInputValidation,
+    defaultValue: '',
   })
   const { field: fiatAmount } = useController({
     name: 'fiatAmount',
     control,
     rules: fiatInputValidation,
+    defaultValue: '',
   })
 
   const {
@@ -143,17 +136,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     }
   }
 
-  const handlePercentClick = (_percent: number) => {
-    const amount = bnOrZero(cryptoAmountAvailable).times(_percent)
-    fiatAmount.onChange(amount.times(marketData.price).toFixed(4).toString())
-    cryptoAmount.onChange(amount.toString())
-  }
-
   const handleSlippageChange = (value: string | number) => {
     setValue(Field.Slippage, String(value))
   }
 
-  const onSubmit = (values: WithdrawValues) => {
+  const onSubmit = (values: FieldValues) => {
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
@@ -176,8 +163,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           isReadOnly={disableInput}
         />
       </FormField>
-      {flexFields &&
-        flexFields({ control, handlePercentClick, cryptoAmount, fiatAmount, setDisableInput })}
+      {children}
       {enableSlippage && (
         <InputRightElement>
           <Popover>
@@ -205,7 +191,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           </Popover>
         </InputRightElement>
       )}
-      {children}
+
       <Button
         colorScheme={fieldError ? 'red' : 'blue'}
         isDisabled={!isValid}

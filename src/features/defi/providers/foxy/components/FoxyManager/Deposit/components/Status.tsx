@@ -1,16 +1,17 @@
-import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Link, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
+import { ArrowForwardIcon, CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Box, Button, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
+import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -18,16 +19,12 @@ import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
 
-type FoxyStatusProps = {
-  api: FoxyApi
-  apy: string
-}
-
-export const Status = ({ apy }: FoxyStatusProps) => {
+export const Status = () => {
+  const translate = useTranslate()
   const { state } = useContext(DepositContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, rewardId } = query
+  const { chainId, assetReference } = query
   const assetNamespace = 'erc20'
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -38,15 +35,8 @@ export const Status = ({ apy }: FoxyStatusProps) => {
   })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-  const contractAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
-  const contractAsset = useAppSelector(state => selectAssetById(state, contractAssetId))
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')
@@ -73,9 +63,6 @@ export const Status = ({ apy }: FoxyStatusProps) => {
     return { statusIcon, statusText, statusBg }
   })()
 
-  const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
-  const annualYieldFiat = annualYieldCrypto.times(marketData.price)
-
   return (
     <TxStatus
       onClose={handleCancel}
@@ -83,45 +70,25 @@ export const Status = ({ apy }: FoxyStatusProps) => {
       loading={state.loading}
       statusText={statusText}
       statusIcon={statusIcon}
-      bg={statusBg}
+      statusBg={statusBg}
       continueText='modals.status.position'
-      closeText='modals.status.close'
-      assets={[
-        {
-          ...asset,
-          cryptoAmount: state.deposit.cryptoAmount,
-          fiatAmount: state.deposit.fiatAmount,
-        },
-        {
-          ...contractAsset,
-          cryptoAmount: bnOrZero(state.deposit.cryptoAmount).div(bnOrZero(1).div(1)).toString(),
-          fiatAmount: state.deposit.fiatAmount,
-        },
-      ]}
     >
-      <Stack spacing={4}>
-        <Row>
+      <Summary>
+        <Row variant='vertical' p={4}>
           <Row.Label>
-            <Text translation='modals.status.transactionId' />
+            <Text translation='modals.confirm.amountToDeposit' />
           </Row.Label>
-          <Row.Value>
-            <Link
-              href={`${asset.explorerTxLink}/${state.txid}`}
-              isExternal
-              color='blue.500'
-              fontWeight='bold'
-            >
-              <MiddleEllipsis address={state.txid || ''} />
-            </Link>
-          </Row.Value>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={asset.icon} />
+              <RawText>{asset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+            </Row.Value>
+          </Row>
         </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.depositTo' />
-          </Row.Label>
-          <Row.Value fontWeight='bold'>Foxy</Row.Value>
-        </Row>
-        <Row>
+        <Row variant='gutter'>
           <Row.Label>
             <Text
               translation={
@@ -158,30 +125,20 @@ export const Status = ({ apy }: FoxyStatusProps) => {
             </Box>
           </Row.Value>
         </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.deposit.averageApr' />
-          </Row.Label>
-          <Tag colorScheme='green'>
-            <Amount.Percent value={String(apy)} />
-          </Tag>
+        <Row variant='gutter'>
+          <Button
+            as={Link}
+            width='full'
+            isExternal
+            variant='ghost-filled'
+            colorScheme='green'
+            rightIcon={<ExternalLinkIcon />}
+            href={`${asset.explorerTxLink}/${state.txid}`}
+          >
+            {translate('defi.viewOnChain')}
+          </Button>
         </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.deposit.estimatedReturns' />
-          </Row.Label>
-          <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value={annualYieldFiat.toFixed(2)} />
-              <Amount.Crypto
-                color='gray.500'
-                value={annualYieldCrypto.toFixed(5)}
-                symbol={asset.symbol}
-              />
-            </Box>
-          </Row.Value>
-        </Row>
-      </Stack>
+      </Summary>
     </TxStatus>
   )
 }

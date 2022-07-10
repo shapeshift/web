@@ -18,6 +18,7 @@ export enum DefiAction {
   Deposit = 'deposit',
   Withdraw = 'withdraw',
   GetStarted = 'get-started',
+  Claim = 'claim',
 }
 
 export enum DefiSteps {

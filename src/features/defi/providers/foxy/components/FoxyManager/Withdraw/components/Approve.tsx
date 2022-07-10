@@ -1,13 +1,17 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiSteps,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useContext } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -15,17 +19,12 @@ import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
+import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type FoxyApproveProps = {
-  api: FoxyApi
-  getWithdrawGasEstimate: (withdraw: WithdrawValues) => Promise<string | undefined>
-}
-
-export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
+export const Approve = ({ onNext }: StepComponentProps) => {
+  const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
-  const history = useHistory()
   const translate = useTranslate()
   const alertText = useColorModeValue('blue.800', 'white')
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -53,8 +52,40 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
 
   if (!state || !dispatch) return null
 
+  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
+    if (!state.userAddress || !rewardId || !api) return
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.estimateWithdrawGas({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          amountDesired: bnOrZero(
+            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+          ).decimalPlaces(0),
+          userAddress: state.userAddress,
+          type: state.withdraw.withdrawType,
+        }),
+        api.getGasPrice(),
+      ])
+      const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+      return returVal
+    } catch (error) {
+      console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
+      const fundsError =
+        error instanceof Error && error.message.includes('Not enough funds in reserve')
+      toast({
+        position: 'top-right',
+        description: fundsError
+          ? translate('defi.notEnoughFundsInReserve')
+          : translate('common.somethingWentWrong'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error',
+      })
+    }
+  }
+
   const handleApprove = async () => {
-    if (!rewardId || !state.userAddress || !walletState.wallet) return
+    if (!rewardId || !state.userAddress || !walletState.wallet || !api) return
     try {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       await api.approve({
@@ -84,8 +115,7 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCrypto },
       })
-
-      history.push(WithdrawPath.Confirm)
+      onNext(DefiSteps.Confirm)
     } catch (error) {
       console.error('FoxyWithdraw:handleApprove error:', error)
       toast({
@@ -122,7 +152,7 @@ export const Approve = ({ api, getWithdrawGasEstimate }: FoxyApproveProps) => {
           </AlertDescription>
         </Alert>
       }
-      onCancel={() => history.push('/')}
+      onCancel={() => onNext(DefiSteps.Info)}
       onConfirm={handleApprove}
     />
   )

@@ -8,26 +8,35 @@ import {
   FOX_TOKEN_CONTRACT_ADDRESS,
   UNISWAP_V2_WETH_FOX_FARMING_REWARDS_ADDRESS,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+  UNISWAP_V4_WETH_FOX_FARMING_REWARDS_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from '../const'
 import farmingAbi from '../farmingAbi.json'
-import { getEthersProvider, rewardRatePerToken } from '../utils'
+import { getEthersProvider, makeLpApr, rewardRatePerToken } from '../utils'
 import { useCurrentBlockNumber } from './useCurrentBlockNumber'
 
 const ethersProvider = getEthersProvider()
 
 export const useFarmingApr = () => {
-  const [farmingApr, setFarmingApr] = useState<string | null>(null)
-  const [loaded, setLoaded] = useState(false)
+  const [farmingAprV2, setFarmingAprV2] = useState<string | null>(null)
+  const [farmingAprV4, setfarmingAprV4] = useState<string | null>(null)
+  const [isFarmingAprV2Loaded, setIsFarmingAprV2Loaded] = useState(false)
+  const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState(false)
   const blockNumber = useCurrentBlockNumber()
 
-  const liquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
-  const uniswapLPContract = useMemo(
-    () => new Contract(liquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
-    [liquidityContractAddress],
+  const uniV2LiquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
+
+  const uniV2LPContract = useMemo(
+    () => new Contract(uniV2LiquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
+    [uniV2LiquidityContractAddress],
   )
-  const farmingRewardsContract = useMemo(
+
+  const farmingRewardsV2Contract = useMemo(
     () => new Contract(UNISWAP_V2_WETH_FOX_FARMING_REWARDS_ADDRESS, farmingAbi, ethersProvider),
+    [],
+  )
+  const farmingRewardsContractV4 = useMemo(
+    () => new Contract(UNISWAP_V4_WETH_FOX_FARMING_REWARDS_ADDRESS, farmingAbi, ethersProvider),
     [],
   )
 
@@ -36,41 +45,40 @@ export const useFarmingApr = () => {
       !ethersProvider ||
       !Fetcher ||
       !blockNumber ||
-      !uniswapLPContract ||
-      !farmingRewardsContract
+      !uniV2LPContract ||
+      !farmingRewardsV2Contract
     )
       return
     ;(async () => {
-      const foxRewardRatePerToken = await rewardRatePerToken(farmingRewardsContract)
+      const foxRewardRatePerTokenV2 = await rewardRatePerToken(farmingRewardsV2Contract)
+      const foxRewardRatePerTokenV4 = await rewardRatePerToken(farmingRewardsContractV4)
+
       const pair = await Fetcher.fetchPairData(
         new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, 18),
         new Token(0, FOX_TOKEN_CONTRACT_ADDRESS, 18),
         ethersProvider,
       )
 
-      const totalSupply = await uniswapLPContract.totalSupply()
+      const totalSupplyV2 = await uniV2LPContract.totalSupply()
 
       const token1PoolReservesEquivalent = bnOrZero(pair.reserve1.toFixed())
         .times(2) // Double to get equivalent of both sides of pool
         .times(`1e+${pair.token1.decimals}`) // convert to base unit value
 
       const foxEquivalentPerLPToken = token1PoolReservesEquivalent
-        .div(bnOrZero(totalSupply.toString()))
+        .div(bnOrZero(totalSupplyV2.toString()))
         .times(`1e+${pair.token1.decimals}`) // convert to base unit value
-
-      const apr = bnOrZero(foxRewardRatePerToken) // Fox Rewards per second for 1 staked LP token
-        .div(foxEquivalentPerLPToken) // Equivalent FOX value for 1 LP token
-        .times(100) // Decimal to percentage
-        .times(3600) // 3600 seconds per hour
-        .times(24) // 24 hours per day
-        .times(365.25) // 365.25 days per year
-        .decimalPlaces(4) // Arbitrary decimal cutoff
         .toString()
 
-      setFarmingApr(bnOrZero(apr).div(100).toString())
-      setLoaded(true)
-    })()
-  }, [blockNumber, uniswapLPContract, farmingRewardsContract])
+      const aprV2 = makeLpApr(foxRewardRatePerTokenV2, foxEquivalentPerLPToken) // Fox Rewards per second for 1 staked LP token
+      const aprV4 = makeLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken) // Fox Rewards per second for 1 staked LP token
 
-  return { loaded, farmingApr }
+      setFarmingAprV2(bnOrZero(aprV2).div(100).toString())
+      setfarmingAprV4(bnOrZero(aprV4).div(100).toString())
+      setIsFarmingAprV2Loaded(true)
+      setIsFarmingAprV4Loaded(true)
+    })()
+  }, [blockNumber, uniV2LPContract, farmingRewardsV2Contract, farmingRewardsContractV4])
+
+  return { isFarmingAprV2Loaded, isFarmingAprV4Loaded, farmingAprV2, farmingAprV4 }
 }

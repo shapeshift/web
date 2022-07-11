@@ -31,7 +31,7 @@ export const useFarmingApr = () => {
     [uniV2LiquidityContractAddress],
   )
 
-  const farmingRewardsV2Contract = useMemo(
+  const farmingRewardsContractV2 = useMemo(
     () => new Contract(UNISWAP_V2_WETH_FOX_FARMING_REWARDS_ADDRESS, farmingAbi, ethersProvider),
     [],
   )
@@ -46,11 +46,12 @@ export const useFarmingApr = () => {
       !Fetcher ||
       !blockNumber ||
       !uniV2LPContract ||
-      !farmingRewardsV2Contract
+      !farmingRewardsContractV2 ||
+      !farmingRewardsContractV4
     )
       return
     ;(async () => {
-      const foxRewardRatePerTokenV2 = await rewardRatePerToken(farmingRewardsV2Contract)
+      const foxRewardRatePerTokenV2 = await rewardRatePerToken(farmingRewardsContractV2)
       const foxRewardRatePerTokenV4 = await rewardRatePerToken(farmingRewardsContractV4)
 
       const pair = await Fetcher.fetchPairData(
@@ -78,7 +79,7 @@ export const useFarmingApr = () => {
       setIsFarmingAprV2Loaded(true)
       setIsFarmingAprV4Loaded(true)
     })()
-  }, [blockNumber, uniV2LPContract, farmingRewardsV2Contract, farmingRewardsContractV4])
+  }, [blockNumber, uniV2LPContract, farmingRewardsContractV2, farmingRewardsContractV4])
 
   return { isFarmingAprV2Loaded, isFarmingAprV4Loaded, farmingAprV2, farmingAprV4 }
 }

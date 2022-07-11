@@ -121,7 +121,7 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
             <ModalCloseButton borderRadius='full' />
             <Switch location={location}>
               <Route exact key={StakeRoutes.Stake} path={StakeRoutes.Stake}>
-                <Stake assetId={assetId} apr='0.12' validatorAddress={validatorAddress} />
+                <Stake assetId={assetId} validatorAddress={validatorAddress} />
               </Route>
               <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
                 <StakeConfirm
@@ -157,7 +157,6 @@ const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) =
               <Route exact key={StakeRoutes.Unstake} path={StakeRoutes.Unstake}>
                 <Unstake
                   assetId={assetId}
-                  apr='0.12'
                   accountSpecifier={accountSpecifier}
                   validatorAddress={validatorAddress}
                 />

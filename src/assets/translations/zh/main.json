@@ -147,7 +147,7 @@
         }
       },
       "getStarted": {
-        "header": "质押您的 %{assetName} 最高可赚取 %{maxApr}% 年利率*",
+        "header": "质押您的 %{assetName} 最高可赚取 %{apr}% 年利率*",
         "body": "质押是在加密货币钱包中持有资金以支持区块链网络运营的过程，作为回报，质押者的贡献会得到回报。",
         "userProtectionInfo": "*回报率是预估的，会随着市场情况而波动。",
         "cta": {

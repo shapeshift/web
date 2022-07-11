@@ -123,7 +123,7 @@ export const rewardRatePerToken = memoize(async (farmingRewardsContract: Contrac
   }
 })
 
-export const makeLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
+export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
   bnOrZero(foxRewardRatePerToken) // Fox Rewards per second for 1 staked LP token
     .div(foxEquivalentPerLPToken) // Equivalent FOX value for 1 LP token
     .times(100) // Decimal to percentage

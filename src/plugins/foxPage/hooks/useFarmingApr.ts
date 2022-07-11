@@ -12,7 +12,7 @@ import {
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from '../const'
 import farmingAbi from '../farmingAbi.json'
-import { getEthersProvider, makeLpApr, rewardRatePerToken } from '../utils'
+import { getEthersProvider, makeTotalLpApr, rewardRatePerToken } from '../utils'
 import { useCurrentBlockNumber } from './useCurrentBlockNumber'
 
 const ethersProvider = getEthersProvider()
@@ -70,8 +70,8 @@ export const useFarmingApr = () => {
         .times(`1e+${pair.token1.decimals}`) // convert to base unit value
         .toString()
 
-      const aprV2 = makeLpApr(foxRewardRatePerTokenV2, foxEquivalentPerLPToken) // Fox Rewards per second for 1 staked LP token
-      const aprV4 = makeLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken) // Fox Rewards per second for 1 staked LP token
+      const aprV2 = makeTotalLpApr(foxRewardRatePerTokenV2, foxEquivalentPerLPToken) // Fox Rewards per second for 1 staked LP token
+      const aprV4 = makeTotalLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken) // Fox Rewards per second for 1 staked LP token
 
       setFarmingAprV2(bnOrZero(aprV2).div(100).toString())
       setfarmingAprV4(bnOrZero(aprV4).div(100).toString())

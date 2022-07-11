@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.1.0...@shapeshiftoss/unchained-client-v9.1.1) (2022-07-11)
+
+
+### Bug Fixes
+
+* **unchained-client:** assign this.provider in BaseTransactionParser ([#866](https://github.com/shapeshift/lib/issues/866)) ([af1d52f](https://github.com/shapeshift/lib/commit/af1d52fa5cb9da707c7077219617cd26d068302b))
+
 # [@shapeshiftoss/unchained-client-v9.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.0.3...@shapeshiftoss/unchained-client-v9.1.0) (2022-07-11)
 
 

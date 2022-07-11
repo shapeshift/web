@@ -12,6 +12,8 @@ import {
   SwapErrorTypes,
   TradeQuote
 } from '../../../api'
+import { MAX_ALLOWANCE } from '../../cow/utils/constants'
+import { erc20Abi as erc20AbiImported } from '../abi/erc20-abi'
 import { BN, bn, bnOrZero } from '../bignumber'
 
 export type GetAllowanceRequiredArgs = {
@@ -30,6 +32,12 @@ export type GetERC20AllowanceArgs = {
   sellAssetErc20Address: string
   ownerAddress: string
   spenderAddress: string
+}
+
+export type GetApproveContractDataArgs = {
+  web3: Web3
+  spenderAddress: string
+  contractAddress: string
 }
 
 type GrantAllowanceArgs<T extends EvmSupportedChainIds> = {
@@ -170,4 +178,13 @@ export const normalizeIntegerAmount = (amount: string | number | BN): string => 
     .integerValue()
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false })
+}
+
+export const getApproveContractData = ({
+  web3,
+  spenderAddress,
+  contractAddress
+}: GetApproveContractDataArgs): string => {
+  const contract = new web3.eth.Contract(erc20AbiImported, contractAddress)
+  return contract.methods.approve(spenderAddress, MAX_ALLOWANCE).encodeABI()
 }

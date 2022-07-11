@@ -6,8 +6,7 @@ import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
 import { CowSwapperDeps } from '../CowSwapper'
-
-const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '../utils/constants'
 
 export async function cowApprovalNeeded(
   { adapter, web3 }: CowSwapperDeps,

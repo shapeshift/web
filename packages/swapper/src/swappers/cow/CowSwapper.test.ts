@@ -4,9 +4,10 @@ import Web3 from 'web3'
 
 import { SwapperType } from '../../api'
 import { BTC, ETH, FOX, WBTC, WETH } from '../utils/test-data/assets'
-import { setupQuote } from '../utils/test-data/setupSwapQuote'
+import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
 import { cowApproveInfinite } from './cowApproveInfinite/cowApproveInfinite'
+import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { CowSwapper, CowSwapperDeps } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
@@ -23,13 +24,17 @@ jest.mock('./cowApproveInfinite/cowApproveInfinite', () => ({
 
 const COW_SWAPPER_DEPS: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api/',
-  adapter: <ethereum.ChainAdapter>{},
-  web3: <Web3>{},
+  adapter: {} as ethereum.ChainAdapter,
+  web3: {} as Web3,
   feeAsset: WETH
 }
 
 jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn()
+}))
+
+jest.mock('./cowBuildTrade/cowBuildTrade', () => ({
+  cowBuildTrade: jest.fn()
 }))
 
 const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId]
@@ -139,6 +144,16 @@ describe('CowSwapper', () => {
       await swapper.getTradeQuote(quoteInput)
       expect(getCowSwapTradeQuote).toHaveBeenCalledTimes(1)
       expect(getCowSwapTradeQuote).toHaveBeenCalledWith(COW_SWAPPER_DEPS, quoteInput)
+    })
+  })
+
+  describe('buildTrade', () => {
+    it('calls cowBuildTrade on swapper.buildTrade', async () => {
+      const { buildTradeInput } = setupBuildTrade()
+      const args = { ...buildTradeInput, wallet }
+      await swapper.buildTrade(args)
+      expect(cowBuildTrade).toHaveBeenCalledTimes(1)
+      expect(cowBuildTrade).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
     })
   })
 

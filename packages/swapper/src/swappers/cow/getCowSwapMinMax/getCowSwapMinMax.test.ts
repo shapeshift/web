@@ -11,8 +11,8 @@ jest.mock('../utils/helpers/helpers', () => ({
 
 const DEPS = {
   apiUrl: '',
-  web3: <Web3>{},
-  adapter: <ethereum.ChainAdapter>{},
+  web3: {} as Web3,
+  adapter: {} as ethereum.ChainAdapter,
   feeAsset: WETH
 }
 

@@ -20,6 +20,7 @@ import {
 } from '../../api'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
 import { cowApproveInfinite } from './cowApproveInfinite/cowApproveInfinite'
+import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
@@ -48,8 +49,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   }
 
   async buildTrade(args: BuildTradeInput): Promise<Trade<KnownChainIds.EthereumMainnet>> {
-    console.info(args)
-    throw new Error('CowSwapper: buildTrade unimplemented')
+    return cowBuildTrade(this.deps, args)
   }
 
   async getTradeQuote(

@@ -1,18 +1,18 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
-import { BTC, ETH, FOX, WBTC, WETH } from '../../../utils/test-data/assets'
+import { BTC, ETH, FOX, USDC, WBTC, WETH } from '../../../utils/test-data/assets'
 import { CowSwapperDeps } from '../../CowSwapper'
 import { cowService } from '../cowService'
-import { getUsdRate } from '../helpers/helpers'
+import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../helpers/helpers'
 
 jest.mock('../cowService')
 
 describe('utils', () => {
   const cowSwapperDeps: CowSwapperDeps = {
     apiUrl: 'https://api.cow.fi/mainnet/api/',
-    adapter: <ethereum.ChainAdapter>{},
-    web3: <Web3>{},
+    adapter: {} as ethereum.ChainAdapter,
+    web3: {} as Web3,
     feeAsset: WETH
   }
 
@@ -67,6 +67,12 @@ describe('utils', () => {
       )
     })
 
+    it('gets the usd rate of USDC without calling api', async () => {
+      const rate = await getUsdRate(cowSwapperDeps, USDC)
+      expect(rate).toEqual('1')
+      expect(cowService.get).not.toHaveBeenCalled()
+    })
+
     it('should fail when called with non-erc20 asset', async () => {
       await expect(getUsdRate(cowSwapperDeps, BTC)).rejects.toThrow(
         '[getUsdRate] - unsupported asset namespace'
@@ -92,6 +98,23 @@ describe('utils', () => {
         throw new Error('unexpected error')
       })
       await expect(getUsdRate(cowSwapperDeps, FOX)).rejects.toThrow('[getUsdRate]')
+    })
+  })
+
+  describe('getNowPlusThirtyMinutesTimestamp', () => {
+    const mockDay = '2020-12-31'
+    const mockTime = 'T23:59:59.000Z'
+    const mockDate = `${mockDay}${mockTime}`
+    beforeEach(() => jest.useFakeTimers().setSystemTime(new Date(mockDate)))
+    afterEach(() => {
+      jest.restoreAllMocks()
+      jest.useRealTimers()
+    })
+
+    it('should return the timestamp corresponding to current time + 30 minutes (UTC)', () => {
+      const timestamp = getNowPlusThirtyMinutesTimestamp()
+      expect(timestamp).toEqual(1609460999)
+      expect(new Date(timestamp * 1000).toUTCString()).toEqual('Fri, 01 Jan 2021 00:29:59 GMT')
     })
   })
 })

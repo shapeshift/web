@@ -77,3 +77,16 @@ export const UNSUPPORTED: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/'
 }
+
+export const USDC: Asset = {
+  assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  chainId: 'eip155:1',
+  symbol: 'USDC',
+  name: 'USD Coin',
+  precision: 6,
+  color: '#2373CB',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  explorer: 'https://etherscan.io',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerTxLink: 'https://etherscan.io/tx/'
+}

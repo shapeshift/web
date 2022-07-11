@@ -11,6 +11,18 @@ import { cowService } from '../cowService'
 const USDC_CONTRACT_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const USDC_ASSET_PRECISION = 6
 
+export type CowSwapQuoteApiInput = {
+  appData: string
+  buyToken: string
+  from: string
+  kind: string
+  partiallyFillable: boolean
+  receiver: string
+  sellAmountBeforeFee: string
+  sellToken: string
+  validTo: number
+}
+
 export const getUsdRate = async (
   { apiUrl, feeAsset }: CowSwapperDeps,
   input: Asset
@@ -24,6 +36,10 @@ export const getUsdRate = async (
       code: SwapErrorTypes.USD_RATE_FAILED,
       details: { assetNamespace }
     })
+  }
+
+  if (erc20Address === USDC_CONTRACT_ADDRESS) {
+    return '1'
   }
 
   const buyAmountInDollars = 1000
@@ -56,4 +72,10 @@ export const getUsdRate = async (
       code: SwapErrorTypes.USD_RATE_FAILED
     })
   }
+}
+
+export const getNowPlusThirtyMinutesTimestamp = (): number => {
+  const ts = new Date()
+  ts.setMinutes(ts.getMinutes() + 30)
+  return Math.round(ts.getTime() / 1000)
 }

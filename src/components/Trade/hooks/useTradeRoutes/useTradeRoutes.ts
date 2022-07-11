@@ -37,9 +37,12 @@ export const useTradeRoutes = (
   const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
 
   const setDefaultAssets = useCallback(async () => {
-    // wait for assets to be loaded
-    if (isEmpty(assets) || !defaultFeeAsset) return
-
+    const bestSwapper = await swapperManager.getBestSwapper({
+      sellAssetId: defaultSellAssetId,
+      buyAssetId: defaultBuyAssetId,
+    })
+    // wait for assets to be loaded and swappers to be initialized
+    if (isEmpty(assets) || !defaultFeeAsset || !bestSwapper) return
     try {
       const sellAsset = assets[defaultSellAssetId]
 
@@ -98,7 +101,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, routeBuyAssetId, wallet, setDefaultAssets])
+  }, [assets, routeBuyAssetId, wallet, setDefaultAssets, swapperManager, defaultFeeAsset])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

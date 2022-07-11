@@ -11,6 +11,7 @@ export type FeatureFlags = {
   Osmosis: boolean
   Avalanche: boolean
   CoinbasePay: boolean
+  Thor: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -27,6 +28,7 @@ const initialState: Preferences = {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
+    Thor: getConfig().REACT_APP_FEATURE_THOR,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

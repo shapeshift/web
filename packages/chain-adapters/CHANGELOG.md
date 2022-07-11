@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.4.2...@shapeshiftoss/chain-adapters-v7.5.0) (2022-07-11)
+
+
+### Features
+
+* base evm tx parser + avalanche support ([#855](https://github.com/shapeshift/lib/issues/855)) ([153f251](https://github.com/shapeshift/lib/commit/153f251109e56089e80379df485d19a7b33c105d)), closes [#862](https://github.com/shapeshift/lib/issues/862)
+
 # [@shapeshiftoss/chain-adapters-v7.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.4.1...@shapeshiftoss/chain-adapters-v7.4.2) (2022-07-07)
 
 # [@shapeshiftoss/chain-adapters-v7.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.4.0...@shapeshiftoss/chain-adapters-v7.4.1) (2022-07-06)

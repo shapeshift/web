@@ -5,6 +5,7 @@ import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import coinbaseLogo from 'assets/coinbase-pay/cb-pay-icon.png'
 import gemLogo from 'assets/gem-mark.png'
+import junoPayLogo from 'assets/junoPay.svg'
 import { logger } from 'lib/logger'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
@@ -16,6 +17,7 @@ import {
   parseGemBuyAssets,
   parseGemSellAssets,
 } from './fiatRampProviders/gem'
+import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -36,9 +38,9 @@ export interface SupportedFiatRampConfig {
   supportsSell: boolean
 }
 
-export type FiatRamp = 'Gem' | 'Banxa' | 'CoinbasePay'
-
+export type FiatRamp = 'Gem' | 'Banxa' | 'CoinbasePay' | 'JunoPay'
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
+
 export const supportedFiatRamps: SupportedFiatRamp = {
   Gem: {
     label: 'fiatRamps.gem',
@@ -120,6 +122,28 @@ export const supportedFiatRamps: SupportedFiatRamp = {
           { fn: 'CoinbasePay onSubmit' },
           'Asset not supported by Coinbase Pay',
         )
+      }
+    },
+  },
+  JunoPay: {
+    label: 'fiatRamps.junoPay',
+    info: 'fiatRamps.junoPayMessage',
+    logo: junoPayLogo,
+    isImplemented: getConfig().REACT_APP_FEATURE_JUNOPAY,
+    supportsBuy: true,
+    supportsSell: false,
+    getBuyAndSellList: async () => {
+      const buyAssets = await getJunoPayAssets()
+      return [buyAssets, []]
+    },
+    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+      try {
+        const ticker = adapters.assetIdToJunoPayTicker(assetId)
+        if (!ticker) throw new Error('Asset not supported by JunoPay')
+        const junoPayCheckoutUrl = createJunoPayUrl(action, ticker, address)
+        window.open(junoPayCheckoutUrl, '_blank')?.focus()
+      } catch (err) {
+        moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
       }
     },
   },

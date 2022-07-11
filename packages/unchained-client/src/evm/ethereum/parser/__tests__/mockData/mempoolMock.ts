@@ -1,4 +1,4 @@
-import { EthereumTx } from '../../../../generated/ethereum'
+import { EthereumTx } from '../../../../../generated/ethereum'
 
 export const mempoolMock = (tx: EthereumTx, tokenTransfers = false) => {
   const mempoolSpecific = {

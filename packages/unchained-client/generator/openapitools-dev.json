@@ -44,6 +44,16 @@
           "supportsES6": "true",
           "useSingleRequestParameter": true
         }
+      },
+      "avalanche": {
+        "inputSpec": "https://dev-api.avalanche.shapeshift.com/swagger.json",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/avalanche",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
       }
     }
   }

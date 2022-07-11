@@ -1,12 +1,11 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../generated/ethereum'
-import { Dex, TradeType, TxParser } from '../../types'
-import { SubParser, TxSpecific } from '../types'
+import { EthereumTx } from '../../../generated/ethereum'
+import { Dex, TradeType, TxParser } from '../../../types'
+import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import THOR_ABI from './abi/thor'
 import { THOR_ROUTER_CONTRACT_MAINNET, THOR_ROUTER_CONTRACT_ROPSTEN } from './constants'
-import { getSigHash, txInteractsWithContract } from './utils'
 
 const SWAP_TYPES = ['SWAP', '=', 's']
 
@@ -15,7 +14,7 @@ export interface ParserArgs {
   rpcUrl: string
 }
 
-export class Parser implements SubParser {
+export class Parser implements SubParser<EthereumTx> {
   readonly routerContract: string
   readonly abiInterface = new ethers.utils.Interface(THOR_ABI)
 

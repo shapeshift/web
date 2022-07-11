@@ -36,9 +36,19 @@
         }
       },
       "osmosis": {
-        "inputSpec": "https://api.osmosis.localhost/swagger",
+        "inputSpec": "http://api.osmosis.localhost/swagger",
         "generatorName": "typescript-axios",
         "output": "#{cwd}/src/generated/osmosis",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "avalanche": {
+        "inputSpec": "http://api.avalanche.localhost/swagger.json",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/avalanche",
         "reservedWordsMappings": { "in": "in" },
         "additionalProperties": {
           "supportsES6": "true",

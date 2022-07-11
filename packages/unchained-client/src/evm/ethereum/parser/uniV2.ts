@@ -1,10 +1,10 @@
 import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../generated/ethereum'
-import { TransferType, TxParser } from '../../types'
-import { SubParser, TxSpecific } from '../types'
-import ERC20_ABI from './abi/erc20'
+import { EthereumTx } from '../../../generated/ethereum'
+import { TransferType, TxParser } from '../../../types'
+import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
+import ERC20_ABI from '../../parser/abi/erc20'
 import UNIV2_ABI from './abi/uniV2'
 import UNIV2_STAKING_REWARDS_ABI from './abi/uniV2StakingRewards'
 import {
@@ -13,14 +13,13 @@ import {
   WETH_CONTRACT_MAINNET,
   WETH_CONTRACT_ROPSTEN
 } from './constants'
-import { getSigHash, txInteractsWithContract } from './utils'
 
 export interface ParserArgs {
   chainId: ChainId
   provider: ethers.providers.JsonRpcProvider
 }
 
-export class Parser implements SubParser {
+export class Parser implements SubParser<EthereumTx> {
   provider: ethers.providers.JsonRpcProvider
 
   readonly chainId: ChainId

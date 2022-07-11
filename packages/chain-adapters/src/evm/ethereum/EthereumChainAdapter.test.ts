@@ -18,7 +18,7 @@ import {
   ValidAddressResultType
 } from '../../types'
 import { bn } from '../../utils/bignumber'
-import { ChainAdapterArgs } from '../EVMBaseAdapter'
+import { ChainAdapterArgs } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -447,7 +447,7 @@ describe('EthereumChainAdapter', () => {
       }
 
       await expect(adapter.signMessage(message)).rejects.toThrow(
-        /EthereumChainAdapter: error signing message/
+        /EvmChainAdapter: error signing message/
       )
     })
   })

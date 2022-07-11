@@ -1,19 +1,18 @@
 import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../generated/ethereum'
-import { TransferType, TxParser } from '../../types'
-import { SubParser, TxSpecific } from '../types'
+import { EthereumTx } from '../../../generated/ethereum'
+import { TransferType, TxParser } from '../../../types'
+import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import WETH_ABI from './abi/weth'
 import { WETH_CONTRACT_MAINNET, WETH_CONTRACT_ROPSTEN } from './constants'
-import { getSigHash, txInteractsWithContract } from './utils'
 
 export interface ParserArgs {
   chainId: ChainId
   provider: ethers.providers.JsonRpcProvider
 }
 
-export class Parser implements SubParser {
+export class Parser implements SubParser<EthereumTx> {
   provider: ethers.providers.JsonRpcProvider
 
   readonly chainId: ChainId

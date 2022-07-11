@@ -15,14 +15,14 @@ import { ErrorHandler } from '../../error/ErrorHandler'
 import { BuildSendTxInput, FeeDataEstimate, GasFeeDataEstimate, GetFeeDataInput } from '../../types'
 import { toPath } from '../../utils'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import { ChainAdapterArgs, EVMBaseAdapter } from '../EVMBaseAdapter'
+import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
 import { Fees } from '../types'
 import { getErc20Data } from '../utils'
 
 const SUPPORTED_CHAIN_IDS = [avalancheChainId]
 const DEFAULT_CHAIN_ID = avalancheChainId
 
-export class ChainAdapter extends EVMBaseAdapter<KnownChainIds.AvalancheMainnet> {
+export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.AvalancheC),
@@ -33,7 +33,7 @@ export class ChainAdapter extends EVMBaseAdapter<KnownChainIds.AvalancheMainnet>
     super({ chainId: DEFAULT_CHAIN_ID, supportedChainIds: SUPPORTED_CHAIN_IDS, ...args })
 
     this.assetId = avalancheAssetId
-    this.parser = new unchained.ethereum.TransactionParser({
+    this.parser = new unchained.avalanche.TransactionParser({
       chainId: this.chainId,
       rpcUrl: this.rpcUrl
     })

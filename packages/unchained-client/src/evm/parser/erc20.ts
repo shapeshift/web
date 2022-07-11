@@ -1,9 +1,8 @@
 import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../generated/ethereum'
-import { SubParser, TxParser, TxSpecific } from '../types'
 import erc20 from './abi/erc20'
+import { SubParser, Tx, TxParser, TxSpecific } from './types'
 import { getSigHash } from './utils'
 
 interface ParserArgs {
@@ -11,7 +10,7 @@ interface ParserArgs {
   provider: ethers.providers.JsonRpcProvider
 }
 
-export class Parser implements SubParser {
+export class Parser<T extends Tx> implements SubParser<T> {
   provider: ethers.providers.JsonRpcProvider
 
   readonly chainId: ChainId
@@ -26,7 +25,7 @@ export class Parser implements SubParser {
     this.chainId = args.chainId
   }
 
-  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
+  async parse(tx: T): Promise<TxSpecific | undefined> {
     if (!tx.inputData) return
 
     const txSigHash = getSigHash(tx.inputData)

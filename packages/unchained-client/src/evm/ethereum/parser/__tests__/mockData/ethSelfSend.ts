@@ -1,4 +1,4 @@
-import { EthereumTx } from '../../../../generated/ethereum'
+import { EthereumTx } from '../../../../../generated/ethereum'
 import { mempoolMock } from './mempoolMock'
 
 const ethSelfSend: EthereumTx = {

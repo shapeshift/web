@@ -2,20 +2,19 @@ import { ChainId } from '@shapeshiftoss/caip'
 import { ChainId as YearnChainId, Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../generated/ethereum'
-import { TxParser } from '../../types'
-import { SubParser, TxSpecific } from '../types'
+import { EthereumTx } from '../../../generated/ethereum'
+import { TxParser } from '../../../types'
+import { getSigHash, SubParser, TxSpecific } from '../../parser'
 import shapeShiftRouter from './abi/shapeShiftRouter'
 import yearnVault from './abi/yearnVault'
 import { SHAPE_SHIFT_ROUTER_CONTRACT } from './constants'
-import { getSigHash } from './utils'
 
 interface ParserArgs {
   chainId: ChainId
   provider: ethers.providers.JsonRpcProvider
 }
 
-export class Parser implements SubParser {
+export class Parser implements SubParser<EthereumTx> {
   provider: ethers.providers.JsonRpcProvider
   yearnSdk: Yearn<YearnChainId> | undefined
   yearnTokenVaultAddresses: string[] | undefined

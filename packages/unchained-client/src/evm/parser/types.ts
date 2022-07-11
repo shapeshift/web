@@ -1,5 +1,8 @@
-import { EthereumTx } from '../generated/ethereum'
-import { BaseTxMetadata, StandardTx, StandardTxMetadata } from '../types'
+import { AvalancheTx } from '../../generated/avalanche'
+import { EthereumTx } from '../../generated/ethereum'
+import { BaseTxMetadata, StandardTx, StandardTxMetadata } from '../../types'
+
+export type Tx = EthereumTx | AvalancheTx
 
 export enum TxParser {
   ERC20 = 'erc20'
@@ -18,6 +21,6 @@ export interface ParsedTx extends StandardTx {
 
 export type TxSpecific = Partial<Pick<ParsedTx, 'trade' | 'transfers' | 'data'>>
 
-export interface SubParser {
-  parse(tx: EthereumTx): Promise<TxSpecific | undefined>
+export interface SubParser<T extends Tx, U = TxSpecific> {
+  parse(tx: T): Promise<U | undefined>
 }

@@ -18,7 +18,7 @@ import {
 } from '../../types'
 import { toPath } from '../../utils'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import { ChainAdapterArgs, EVMBaseAdapter } from '../EVMBaseAdapter'
+import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
 import { Fees } from '../types'
 import { getErc20Data } from '../utils'
 import { BuildCustomTxInput } from './types'
@@ -26,7 +26,7 @@ import { BuildCustomTxInput } from './types'
 const SUPPORTED_CHAIN_IDS = [ethChainId]
 const DEFAULT_CHAIN_ID = ethChainId
 
-export class ChainAdapter extends EVMBaseAdapter<KnownChainIds.EthereumMainnet> {
+export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> {
   static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Ethereum),

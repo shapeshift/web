@@ -373,8 +373,8 @@ export const useSwapper = () => {
           setValue('fees', fees)
         }
         break
-      case 'cosmos:osmosis-1':
-      case 'cosmos:cosmoshub-4': {
+      case KnownChainIds.OsmosisMainnet:
+      case KnownChainIds.CosmosMainnet: {
         // TODO: Add osmo related fees
         break
       }

@@ -115,6 +115,8 @@ export const useSwapper = () => {
     Trade<KnownChainIds>,
   ]
 
+  // This will instantiate a manager with no swappers
+  // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   useEffect(() => {

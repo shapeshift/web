@@ -217,8 +217,8 @@ export const useSwapper = () => {
     const result = await (async () => {
       if (
         sellAsset.chainId === KnownChainIds.EthereumMainnet ||
-        sellAsset.chainId === 'cosmos:osmosis-1' ||
-        sellAsset.chainId === 'cosmos:cosmoshub-4'
+        sellAsset.chainId === KnownChainIds.OsmosisMainnet ||
+        sellAsset.chainId === KnownChainIds.CosmosMainnet
       ) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
@@ -289,11 +289,11 @@ export const useSwapper = () => {
         const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
           if (
             sellAsset.chainId === KnownChainIds.EthereumMainnet ||
-            sellAsset.chainId === 'cosmos:osmosis-1' ||
-            sellAsset.chainId === 'cosmos:cosmoshub-4'
+            sellAsset.chainId === KnownChainIds.CosmosMainnet ||
+            sellAsset.chainId === KnownChainIds.OsmosisMainnet
           ) {
             return swapper.getTradeQuote({
-              chainId: KnownChainIds.EthereumMainnet,
+              chainId: sellAsset.chainId,
               sellAsset,
               buyAsset,
               sellAmount,

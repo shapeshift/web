@@ -32,7 +32,7 @@ const initialState: Preferences = {
     CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     JunoPay: getConfig().REACT_APP_FEATURE_JUNOPAY,
-    Pendo: Boolean(getConfig().REACT_APP_PENDO_API_KEY),
+    Pendo: getConfig().REACT_APP_FEATURE_PENDO,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

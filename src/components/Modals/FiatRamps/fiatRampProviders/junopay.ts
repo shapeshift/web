@@ -73,6 +73,7 @@ export const createJunoPayUrl = (
   const baseUrl = new URL(getConfig().REACT_APP_JUNOPAY_BASE_APP_URL)
   const params = new URLSearchParams()
 
+  // currently, only buy is supported by JunoPay
   params.set('action', action === FiatRampAction.Sell ? 'sell' : 'buy')
   params.set('currency', asset && asset.toLowerCase())
   params.set('partnerKey', 'live_SYkQkrlyIQeuQf8AauSOaGTa')

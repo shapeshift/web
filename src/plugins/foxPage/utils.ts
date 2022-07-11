@@ -122,3 +122,13 @@ export const rewardRatePerToken = memoize(async (farmingRewardsContract: Contrac
     throw new Error(errorMsg)
   }
 })
+
+export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
+  bnOrZero(foxRewardRatePerToken) // Fox Rewards per second for 1 staked LP token
+    .div(foxEquivalentPerLPToken) // Equivalent FOX value for 1 LP token
+    .times(100) // Decimal to percentage
+    .times(3600) // 3600 seconds per hour
+    .times(24) // 24 hours per day
+    .times(365.25) // 365.25 days per year
+    .decimalPlaces(4) // Arbitrary decimal cutoff
+    .toString()

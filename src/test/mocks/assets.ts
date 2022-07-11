@@ -86,7 +86,7 @@ export const foxy: Asset = {
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
   explorerTxLink: 'https://etherscan.io/tx/',
-  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
+  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethereum/icons/foxy-icon.png',
   name: 'FOX Yieldy',
   precision: 18,
   symbol: 'FOXy',

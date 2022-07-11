@@ -1,7 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Row } from 'react-table'
@@ -14,7 +18,6 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   OpportunitiesDataFull,
-  selectFeatureFlag,
   selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
   selectStakingOpportunitiesDataFull,
@@ -27,20 +30,32 @@ type StakingOpportunitiesProps = {
 }
 
 type ValidatorNameProps = {
+  chainId: ChainId
   moniker: string
   isStaking: boolean
   validatorAddress: string
 }
 
-export const ValidatorName = ({ moniker, isStaking, validatorAddress }: ValidatorNameProps) => {
-  const assetIcon = isStaking
-    ? `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/cosmoshub/${validatorAddress}.png`
-    : 'https://assets.coincap.io/assets/icons/256/atom.png'
+export const ValidatorName = ({
+  moniker,
+  isStaking,
+  validatorAddress,
+  chainId,
+}: ValidatorNameProps) => {
+  const assetIcon = useMemo(() => {
+    if (!isStaking) return 'https://assets.coincap.io/assets/icons/256/atom.png'
+
+    let cosmostationChainName = ''
+    if (isCosmosChainId(chainId)) cosmostationChainName = 'cosmoshub'
+    if (isOsmosisChainId(chainId)) cosmostationChainName = 'osmosis'
+
+    return `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`
+  }, [isStaking, validatorAddress, chainId])
 
   return (
     <Box cursor='pointer'>
       <Flex alignItems='center' maxWidth='180px' mr={'-20px'}>
-        <AssetIcon src={assetIcon} boxSize='8' />
+        <AssetIcon mr={8} src={assetIcon} boxSize='8' />
         {isStaking ? (
           <Tag colorScheme='blue'>
             <TagLabel>{moniker}</TagLabel>
@@ -79,8 +94,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })
   }
 
-  const osmosisFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'Osmosis'))
-
   const columns = useMemo(
     () => [
       {
@@ -96,6 +109,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
                 validatorAddress={validator?.address}
                 moniker={validator?.moniker}
                 isStaking={true}
+                chainId={asset?.chainId}
               />
             </Skeleton>
           )
@@ -108,7 +122,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         display: { base: 'table-cell' },
         Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
           const validator = row.original
-
           return (
             <Skeleton isLoaded={validator.isLoaded}>
               <AprTag percentage={validator?.apr} showAprSuffix />
@@ -198,8 +211,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     [accountSpecifier],
   )
 
-  // Special case for osmosis because we do yet support staking
-  return osmosisFeatureFlag && assetId === 'cosmos:osmosis-1/slip44:118' ? null : (
+  return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
         <HStack justify='space-between' flex={1}>

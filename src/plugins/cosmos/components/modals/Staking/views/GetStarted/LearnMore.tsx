@@ -4,6 +4,7 @@ import { Button, IconButton } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
+import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import rewards from 'assets/rewards.svg'
 import risk from 'assets/risk.svg'
@@ -14,10 +15,7 @@ import { Text } from 'components/Text'
 import { selectAssetNameById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-// This is IBC-chain specific
-// Hardcoded to CosmosHub staking for now, but in the future we should compose this with the right unbonding days per protocol-level unbonding days
-// https://docs.cosmos.network/v0.44/modules/staking/08_params.html
-const COSMOS_UNBONDING_DAYS = '21'
+import { assetIdToUnbondingDays } from '../../StakingCommon'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {
@@ -52,7 +50,7 @@ type LearnMoreProps = {
 export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
   const history = useHistory()
   const assetName = useAppSelector(state => selectAssetNameById(state, assetId))
-  const unbondingDays = COSMOS_UNBONDING_DAYS
+  const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
 
   const { nextStep, prevStep, setStep, activeStep } = useSteps({
     initialStep: 1,

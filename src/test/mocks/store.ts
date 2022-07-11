@@ -49,7 +49,10 @@ export const mockStore: ReduxState = {
     featureFlags: {
       Osmosis: false,
       MultiCurrency: false,
+      Avalanche: false,
       CoinbasePay: false,
+      Thor: false,
+      JunoPay: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

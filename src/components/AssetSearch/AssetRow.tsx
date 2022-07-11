@@ -1,13 +1,16 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { useParams } from 'react-router-dom'
+import { useMemo } from 'react'
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'
-import { MatchParams } from 'pages/Accounts/Account'
+import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
-  const { assetId: searchedAssetId } = useParams<MatchParams>()
-  const parsedAssetId = searchedAssetId ? decodeURIComponent(searchedAssetId) : undefined
+  const assetId = useRouteAssetId()
+  const parsedAssetId = useMemo(
+    () => (assetId ? decodeURIComponent(assetId) : undefined),
+    [assetId],
+  )
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')
   const asset: Asset = data.items[index]
   if (!asset) return null

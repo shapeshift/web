@@ -93,6 +93,7 @@ describe('useSwapper', () => {
   beforeEach(() => {
     ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
       getBestSwapper: () => ({
+        name: '0x',
         getDefaultPair: () => [FOX, WETH],
         getUsdRate: () => '1',
         approvalNeeded,

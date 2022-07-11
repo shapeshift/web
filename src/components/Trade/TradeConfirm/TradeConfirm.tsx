@@ -5,7 +5,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -21,7 +20,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
-  selectAssetsByMarketCap,
+  selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectTxStatusById,
 } from 'state/slices/selectors'
@@ -44,7 +43,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     formState: { isSubmitting },
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
-  const assets = useSelector(selectAssetsByMarketCap)
+  const osmosisAsset = useAppSelector(state => selectAssetById(state, KnownChainIds.OsmosisMainnet))
   const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
@@ -124,8 +123,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const txLink = (() => {
     if (trade.sellAsset.chainId === KnownChainIds.OsmosisMainnet || KnownChainIds.CosmosMainnet) {
-      const explorerAsset = assets.find(asset => asset.chainId === KnownChainIds.OsmosisMainnet)
-      return `${explorerAsset?.explorerTxLink}${txid}`
+      return `${osmosisAsset?.explorerTxLink}${txid}`
     } else {
       return `${trade.sellAsset?.explorerTxLink}${txid}`
     }

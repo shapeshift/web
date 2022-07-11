@@ -15,7 +15,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyEmpty } from './FoxyEmpty'
@@ -46,7 +46,8 @@ export const FoxyOverview = () => {
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
   const claimAvailable = dayjs().isAfter(dayjs(opportunity?.withdrawInfo.releaseTime))
 
-  const descriptionQuery = useGetAssetDescriptionQuery(stakingAssetId)
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
   const apy = opportunity?.apy
   if (loading || !opportunity) {
@@ -105,7 +106,7 @@ export const FoxyOverview = () => {
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
-          isDisabled: !claimAvailable,
+          isDisabled: !!claimAvailable,
         },
       ]}
       description={{

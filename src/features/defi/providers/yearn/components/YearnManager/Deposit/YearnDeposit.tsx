@@ -1,6 +1,7 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Center, Flex, IconButton, ModalCloseButton, ModalHeader, useToast } from '@chakra-ui/react'
+import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
+import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import {
   DefiAction,
   DefiParams,
@@ -14,7 +15,6 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -38,7 +38,7 @@ export const YearnDeposit = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
-  const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const chainAdapterManager = useChainAdapters()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
@@ -82,7 +82,7 @@ export const YearnDeposit = () => {
 
   const handleBack = () => {
     history.push({
-      pathname: `/defi/earn`,
+      pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
@@ -120,24 +120,13 @@ export const YearnDeposit = () => {
 
   return (
     <DepositContext.Provider value={{ state, dispatch }}>
-      <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
-        <ModalHeader py={2} display='flex' justifyContent='space-between' alignItems='center'>
-          <IconButton
-            fontSize='xl'
-            isRound
-            size='sm'
-            variant='ghost'
-            aria-label='Back'
-            onClick={handleBack}
-            icon={<ArrowBackIcon />}
-          />
-          <Text
-            translation={['modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` }]}
-          />
-          <ModalCloseButton position='static' />
-        </ModalHeader>
+      <DefiModalContent>
+        <DefiModalHeader
+          title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}
+          onBack={handleBack}
+        />
         <Steps steps={StepConfig} />
-      </Flex>
+      </DefiModalContent>
     </DepositContext.Provider>
   )
 }

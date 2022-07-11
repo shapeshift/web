@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import React from 'react'
-import { useHistory } from 'react-router-dom'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 type EarnModalProps = {
   children: React.ReactNode
@@ -11,10 +11,10 @@ type EarnModalProps = {
  * Earn modal is linked to the router. When closed we return to the previous/background route
  */
 export const DefiModal = ({ children, isOpen = false }: EarnModalProps) => {
-  const history = useHistory()
+  const { history, location } = useBrowserRouter()
   const handleClose = () => {
     history.replace({
-      pathname: `/defi/earn`,
+      pathname: location.pathname,
     })
   }
   return (

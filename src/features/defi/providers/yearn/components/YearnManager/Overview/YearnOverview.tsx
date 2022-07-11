@@ -19,6 +19,7 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
+  selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -48,7 +49,8 @@ export const YearnOverview = () => {
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
-  const descriptionQuery = useGetAssetDescriptionQuery(assetId)
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const descriptionQuery = useGetAssetDescriptionQuery({ assetId, selectedLocale })
 
   useEffect(() => {
     ;(async () => {

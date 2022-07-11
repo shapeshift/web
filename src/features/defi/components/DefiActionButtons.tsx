@@ -19,11 +19,11 @@ export type DefiActionButtonProps = {
 
 export const DefiActionButtons = ({ menu }: DefiActionButtonProps) => {
   const translate = useTranslate()
-  const { history, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { history, query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleClick = (action: DefiAction) => {
     history.push({
-      pathname: `/defi/earn`,
+      pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: action,

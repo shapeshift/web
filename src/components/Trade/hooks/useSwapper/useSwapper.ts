@@ -116,16 +116,15 @@ export const useSwapper = () => {
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
-      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-      TradeAsset | undefined,
-      Trade<KnownChainIds>,
-    ]
+    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+    TradeAsset | undefined,
+    Trade<KnownChainIds>,
+  ]
   const [swapperManager] = useState<SwapperManager>(getSwapperManager())
 
   const {
     state: { wallet },
   } = useWallet()
-
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -149,9 +148,9 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-          assetIds,
-          sellAssetId,
-        })
+            assetIds,
+            sellAssetId,
+          })
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
@@ -216,9 +215,11 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const result = await (async () => {
-      if (sellAsset.chainId === KnownChainIds.EthereumMainnet ||
+      if (
+        sellAsset.chainId === KnownChainIds.EthereumMainnet ||
         sellAsset.chainId === 'cosmos:osmosis-1' ||
-        sellAsset.chainId === 'cosmos:cosmoshub-4') {
+        sellAsset.chainId === 'cosmos:cosmoshub-4'
+      ) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmount: amount,
@@ -286,9 +287,11 @@ export const useSwapper = () => {
         })
 
         const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-          if (sellAsset.chainId === KnownChainIds.EthereumMainnet ||
+          if (
+            sellAsset.chainId === KnownChainIds.EthereumMainnet ||
             sellAsset.chainId === 'cosmos:osmosis-1' ||
-            sellAsset.chainId === 'cosmos:cosmoshub-4') {
+            sellAsset.chainId === 'cosmos:cosmoshub-4'
+          ) {
             return swapper.getTradeQuote({
               chainId: KnownChainIds.EthereumMainnet,
               sellAsset,

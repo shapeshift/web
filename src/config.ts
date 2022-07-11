@@ -25,6 +25,10 @@ const validators = {
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),
   REACT_APP_COINBASE_SUPPORTED_COINS: url(),
   REACT_APP_COINBASE_PAY_APP_ID: str({ devDefault: '1dbd2a0b94' }), // Default is coinbase Testing App.
+  REACT_APP_JUNOPAY_BASE_API_URL: url(),
+  REACT_APP_JUNOPAY_BASE_APP_URL: url(),
+  REACT_APP_JUNOPAY_ASSET_LOGO_URL: url(),
+  REACT_APP_JUNOPAY_APP_ID: str(),
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
   REACT_APP_GEM_WYRE_SUPPORTED_COINS: url(),
   REACT_APP_GEM_ASSET_LOGO: url(),
@@ -35,6 +39,7 @@ const validators = {
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_COINBASE_RAMP: bool({ default: false }),
+  REACT_APP_FEATURE_JUNOPAY: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_BOARDROOM_API_BASE_URL: url({

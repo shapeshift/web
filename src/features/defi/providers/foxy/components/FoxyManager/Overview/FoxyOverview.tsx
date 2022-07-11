@@ -84,7 +84,7 @@ export const FoxyOverview = () => {
       underlyingAssets={[
         {
           ...stakingAsset,
-          balance: cryptoAmountAvailable.toPrecision(),
+          balance: cryptoAmountAvailable.toFixed(4),
           allocationPercentage: '1',
         },
       ]}
@@ -106,7 +106,7 @@ export const FoxyOverview = () => {
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
-          isDisabled: !!claimAvailable,
+          isDisabled: !claimAvailable,
         },
       ]}
       description={{

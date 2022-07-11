@@ -1,11 +1,15 @@
 import { Box } from '@chakra-ui/react'
-import { cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -14,7 +18,7 @@ import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useCosmosStakingBalances } from 'pages/Defi/hooks/useCosmosStakingBalances'
+import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { StakingTable } from './StakingTable'
@@ -28,16 +32,24 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
-  const { cosmosStakingOpportunities } = useCosmosStakingBalances({
-    assetId: 'cosmos:cosmoshub-4/slip44:118',
-  })
-
+  const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
+    {
+      assetId: cosmosAssetId,
+    },
+  )
+  const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
+    useCosmosSdkStakingBalances({
+      assetId: osmosisAssetId,
+    })
   const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
-    cosmosStakingOpportunities,
+    cosmosSdkStakingOpportunities: useMemo(
+      () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
+      [cosmosStakingOpportunities, osmosisStakingOpportunities],
+    ),
   })
 
   const handleClick = useCallback(
@@ -49,7 +61,7 @@ export const AllEarnOpportunities = () => {
         return
       }
 
-      if (chainId === cosmosChainId) {
+      if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
         cosmosStaking.open({
           assetId,
           validatorAddress: contractAddress,

@@ -90,7 +90,8 @@
     "title": "Beli atau Jual Crypto",
     "titleMessage": "ShapeShift telah bermitra dengan beberapa penyedia jalan fiat untuk membeli dan menjual cryptocurrency.",
     "gem": "PERMATA",
-    "gemMessage": "Beli atau Jual Crypto dengan Permata",
+    "gemMessage": "Beli atau Jual Crypto dengan Gem",
+    "banxaMessage": "Beli atau Jual Crypto dengan Banxa",
     "onJuno": "Di Juno",
     "comingSoon": "Segera hadir ...",
     "buy": "Beli",
@@ -146,7 +147,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{maxApr}% APR*",
+        "header": "Stake %{assetName} Anda untuk mendapatkan %{apr}% APR*",
         "body": "Staking adalah proses menyimpan dana di dompet cryptocurrency untuk mendukung operasi jaringan blockchain dan, sebagai imbalannya, pemegang diberi imbalan atas kontribusi mereka.",
         "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
         "cta": {
@@ -262,7 +263,7 @@
     },
     "viewOnChain": "Lihat di rantai",
     "getStarted": {
-      "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{maxApr}% APR*",
+      "header": "Stake %{assetName} Anda untuk mendapatkan hingga %{apr}% APR*",
       "body": "Staking adalah proses menyimpan dana di dompet cryptocurrency untuk mendukung operasi jaringan blockchain dan, sebagai imbalannya, pemegang diberi imbalan atas kontribusi mereka..",
       "userProtectionInfo": "*Pengembalian diperkirakan dan berfluktuasi dengan kondisi pasar.",
       "cta": {

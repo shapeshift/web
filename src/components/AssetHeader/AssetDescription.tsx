@@ -4,7 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { Card } from 'components/Card/Card'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetDescriptionProps = {
@@ -15,7 +15,8 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { name, description, isTrustedDescription } = asset || {}
-  const query = useGetAssetDescriptionQuery(assetId)
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const query = useGetAssetDescriptionQuery({ assetId, selectedLocale })
   const isLoaded = !query.isLoading
 
   if (!description || !isLoaded) return null

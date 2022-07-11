@@ -15,6 +15,11 @@ jest.mock('react-router-dom', () => ({
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
+jest.mock('hooks/useWallet/useWallet', () => ({
+  useWallet: () => ({
+    state: { wallet: {} },
+  }),
+}))
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('state/slices/selectors', () => ({
   selectAssets: () => ({

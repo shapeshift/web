@@ -153,7 +153,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake su %{assetName} para ganar hasta %{maxApr}% APR*",
+        "header": "Stake su %{assetName} para ganar %{apr}% APR*",
         "body": "El staking es el proceso de mantener fondos en una billetera de criptomonedas para respaldar las operaciones de una blockchain, a cambio, los titulares son recompensados por su contribución.",
         "userProtectionInfo": "*Los rendimientos son estimados y fluctúan con las condiciones del mercado.",
         "cta": {

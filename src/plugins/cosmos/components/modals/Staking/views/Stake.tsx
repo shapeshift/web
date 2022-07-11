@@ -17,7 +17,7 @@ import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/A
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -29,23 +29,24 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
+  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Field, InputType, StakingPath, StakingValues } from '../StakingCommon'
+import {
+  calculateYearlyYield,
+  Field,
+  InputType,
+  StakingPath,
+  StakingValues,
+} from '../StakingCommon'
 
 type StakeProps = {
-  apr: string
   assetId: AssetId
   validatorAddress: string
 }
 
-// TODO: Make this a derived selector after this is wired up
-function calculateYearlyYield(apy: string, amount: string = '') {
-  return bnOrZero(amount).times(apy).div(100).toString()
-}
-
-export const Stake = ({ assetId, apr }: StakeProps) => {
+export const Stake = ({ assetId, validatorAddress }: StakeProps) => {
   const {
     control,
     formState: { isValid },
@@ -53,6 +54,8 @@ export const Stake = ({ assetId, apr }: StakeProps) => {
     setValue,
   } = useFormContext<StakingValues>()
 
+  const validatorData = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
+  const apr = useMemo(() => validatorData?.apr ?? '0', [validatorData])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

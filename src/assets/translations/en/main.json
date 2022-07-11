@@ -158,7 +158,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake your %{assetName} to earn up to %{maxApr}% APR*",
+        "header": "Stake your %{assetName} to earn %{apr}% APR*",
         "body": "Staking is the process of holding funds in a cryptocurrency wallet to support the operations of a blockchain network and, in return, holders are rewarded for their contribution.",
         "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
         "cta": {
@@ -251,7 +251,7 @@
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
-    "clickHereToEarn": "Click here to Earn ",
+    "clickHereToEarn": "Click here to Earn",
     "byFarming": " APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
@@ -1149,6 +1149,7 @@
     "foxPage": {
       "totalFoxValue": "Total Fox Value",
       "foxToken": "ShapeShift %{assetSymbol} Token",
+      "foxDescription": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.",
       "getAsset": "Get %{assetSymbol}",
       "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "trade": "Trade",

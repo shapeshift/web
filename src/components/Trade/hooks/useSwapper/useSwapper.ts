@@ -4,6 +4,7 @@ import {
   QuoteFeeData,
   Swapper,
   SwapperManager,
+  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
@@ -13,7 +14,7 @@ import {
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
@@ -51,7 +52,7 @@ type GetQuoteInput = {
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
 
-const getSwapperManager = (): SwapperManager => {
+const getSwapperManager = async (): Promise<SwapperManager> => {
   if (_swapperManager) return _swapperManager
 
   // instantiate if it doesn't already exist
@@ -60,17 +61,18 @@ const getSwapperManager = (): SwapperManager => {
   const adapterManager = getChainAdapters()
   const web3 = getWeb3Instance()
 
-  // TODO: Uncomment when we are ready for a Thorchain swapper
-  // ;(async () => {
-  //   const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-  //   const thorSwapper = new ThorchainSwapper({
-  //     midgardUrl,
-  //     adapterManager,
-  //     web3,
-  //   })
-  //   await thorSwapper.initialize()
-  //   swapperManager.addSwapper(thorSwapper)
-  // })()
+  if (getConfig().REACT_APP_FEATURE_THOR) {
+    await (async () => {
+      const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      const thorSwapper = new ThorchainSwapper({
+        midgardUrl,
+        adapterManager,
+        web3,
+      })
+      await thorSwapper.initialize()
+      _swapperManager.addSwapper(thorSwapper)
+    })()
+  }
 
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
@@ -112,7 +114,16 @@ export const useSwapper = () => {
     TradeAsset | undefined,
     Trade<KnownChainIds>,
   ]
-  const [swapperManager] = useState<SwapperManager>(getSwapperManager())
+
+  // This will instantiate a manager with no swappers
+  // Swappers will be added in the useEffect below
+  const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
+
+  useEffect(() => {
+    ;(async () => {
+      setSwapperManager(await getSwapperManager())
+    })()
+  }, [])
 
   const {
     state: { wallet },
@@ -247,7 +258,7 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action, wallet }) => {
+    debounce(async ({ amount, sellAsset, buyAsset, action, wallet, swapperManager }) => {
       try {
         const swapper = await swapperManager.getBestSwapper({
           buyAssetId: buyAsset.assetId,
@@ -318,9 +329,10 @@ export const useSwapper = () => {
         action,
         buyAsset,
         wallet,
+        swapperManager,
       })
     },
-    [setValue, wallet],
+    [setValue, swapperManager, wallet],
   )
 
   const setFormFees = async (

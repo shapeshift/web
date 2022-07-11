@@ -54,6 +54,10 @@ describe('ZrxSwapper', () => {
     await swapper.getTradeQuote(quoteInput)
     expect(getZrxTradeQuote).toHaveBeenCalled()
   })
+  it('returns 0x name', () => {
+    const swapper = new ZrxSwapper(zrxEthereumSwapperDeps)
+    expect(swapper.name).toBe('0x')
+  })
   it('returns Zrx type', () => {
     const swapper = new ZrxSwapper(zrxEthereumSwapperDeps)
     const type = swapper.getType()

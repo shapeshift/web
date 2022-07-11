@@ -38,9 +38,9 @@ describe('CowSwapper', () => {
   const wallet = <HDWallet>{}
   const swapper = new CowSwapper(COW_SWAPPER_DEPS)
 
-  describe('static properties', () => {
-    it('returns the correct swapper name', () => {
-      expect(CowSwapper.swapperName).toEqual('CowSwapper')
+  describe('name', () => {
+    it('returns the correct human readable swapper name', () => {
+      expect(swapper.name).toEqual('CowSwap')
     })
   })
 

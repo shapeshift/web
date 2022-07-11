@@ -177,6 +177,9 @@ export enum SwapErrorTypes {
 }
 
 export interface Swapper<T extends ChainId> {
+  /** Human readable swapper name */
+  readonly name: string
+
   /** perform any necessary async initialization */
   initialize?(): Promise<void>
 

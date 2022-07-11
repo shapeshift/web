@@ -36,7 +36,7 @@ export type CowSwapperDeps = {
 }
 
 export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
-  public static swapperName = 'CowSwapper'
+  readonly name = 'CowSwap'
   deps: CowSwapperDeps
 
   constructor(deps: CowSwapperDeps) {

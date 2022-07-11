@@ -17,6 +17,7 @@ import {
  * Meant for local testing only
  */
 export class TestSwapper implements Swapper<ChainId> {
+  readonly name = 'Test'
   supportAssets: string[]
 
   // noop for test

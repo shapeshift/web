@@ -13,6 +13,7 @@ export type FeatureFlags = {
   CoinbasePay: boolean
   Thor: boolean
   JunoPay: boolean
+  Pendo: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -31,6 +32,7 @@ const initialState: Preferences = {
     CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     JunoPay: getConfig().REACT_APP_FEATURE_JUNOPAY,
+    Pendo: Boolean(getConfig().REACT_APP_PENDO_API_KEY),
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

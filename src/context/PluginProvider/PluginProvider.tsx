@@ -21,7 +21,7 @@ type PluginProviderContextProps = {
   routes: Route[]
 }
 
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis']
+const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis', 'pendo']
 
 // don't export me, access me through the getter
 let _chainAdapterManager: ChainAdapterManager | undefined
@@ -91,7 +91,9 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       // Ignore plugins that have their feature flag disabled
       // If no featureFlag is present, then we assume it's enabled
       if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
-        // routes providers
+        // Call the optional `onLoad` callback
+        plugin.onLoad?.()
+        // Add optional routes
         if (plugin.routes) {
           pluginRoutes = pluginRoutes.concat(plugin.routes)
           fnLogger.trace({ plugin: plugin.name }, 'Added Routes')

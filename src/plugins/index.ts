@@ -13,6 +13,7 @@ export interface Plugin {
   name: string
   icon?: JSX.Element
   featureFlag?: keyof FeatureFlags
+  onLoad?: () => void
   providers?: {
     chainAdapters?: Array<[ChainId, () => ChainAdapter<ChainId>]>
   }

@@ -62,7 +62,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   const web3 = getWeb3Instance()
 
   if (getConfig().REACT_APP_FEATURE_THOR) {
-    ;(async () => {
+    await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const thorSwapper = new ThorchainSwapper({
         midgardUrl,

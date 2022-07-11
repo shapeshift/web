@@ -30,7 +30,7 @@ const DefiHeader = () => {
 
 const FoxFarmCTA = () => {
   const translate = useTranslate()
-  const { farmingApr, loaded: isFarmingAprLoaded } = useFarmingApr()
+  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
   const ethAsset = useAppSelector(state => selectAssetById(state, 'eip155:1/slip44:60'))
   const foxAsset = useAppSelector(state =>
     selectAssetById(state, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'),
@@ -65,8 +65,8 @@ const FoxFarmCTA = () => {
           <CText ml='5' fontWeight='normal' fontSize={{ base: 'md', md: 'lg' }}>
             {translate('defi.clickHereToEarn')}
             <span> </span>
-            <Skeleton display='inline-block' isLoaded={isFarmingAprLoaded}>
-              <Amount.Percent as='span' value={farmingApr ?? ''} />
+            <Skeleton display='inline-block' isLoaded={isFarmingAprV4Loaded}>
+              <Amount.Percent as='span' value={farmingAprV4 ?? ''} />
             </Skeleton>
             {translate('defi.byFarming')}
           </CText>

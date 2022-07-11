@@ -96,7 +96,7 @@
     "titleMessage": "A ShapeShift possui parceria com provedores de moeda fiduciária para compra e venda de criptomoedas.",
     "gem": "GEM",
     "gemMessage": "Comprar ou Vender criptomoedas com GEM",
-    "onJuno": "OnJuno",
+    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "banxaMessage": "Compre ou venda criptomoedas com o Banxa",
     "comingSoon": "Em breve...",
@@ -153,7 +153,7 @@
         }
       },
       "getStarted": {
-        "header": "Deposite seu %{assetName} para ganhar até %{maxApr}% APR*",
+        "header": "Deposite seu %{assetName} para ganhar %{apr}% APR*",
         "body": "Staking é o processo de manter fundos em uma carteira de criptomoedas para apoiar as operações de uma rede blockchain e, em troca, os detentores são recompensados por sua contribuição.",
         "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
         "cta": {

@@ -37,17 +37,18 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { assetIdToUnbondingDays, Field, StakingPath, StakingValues } from '../StakingCommon'
+import {
+  assetIdToUnbondingDays,
+  calculateYearlyYield,
+  Field,
+  StakingPath,
+  StakingValues,
+} from '../StakingCommon'
 
 type StakeProps = {
   assetId: AssetId
   validatorAddress: string
   onCancel: () => void
-}
-
-// TODO: Make this a derived selector after this is wired up
-function calculateYearlyYield(apy: string, amount: string = '') {
-  return bnOrZero(amount).times(apy).toString()
 }
 
 export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps) => {

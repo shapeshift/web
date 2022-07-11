@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useSwapper } from './useSwapper'
@@ -25,6 +25,18 @@ jest.mock('react-redux', () => ({
   useSelector: jest.fn(),
 }))
 
+const setValue = jest.fn()
+const setError = jest.fn()
+const clearErrors = jest.fn()
+const getBestSwapper = jest.fn()
+const getQuote = () => ETHCHAIN_QUOTE
+const approvalNeeded = jest.fn()
+const wallet = {} as HDWallet
+const sellAsset: TradeAsset = {
+  amount: '20',
+  asset: WETH,
+}
+
 function setup({
   action = TradeAmountInputField.SELL,
   approvalNeededBoolean = false,
@@ -34,28 +46,7 @@ function setup({
     sellAsset: WETH,
   },
 } = {}) {
-  const setValue = jest.fn()
-  const setError = jest.fn()
-  const clearErrors = jest.fn()
-  const getBestSwapper = jest.fn()
-  const getQuote = jest.fn(() => ETHCHAIN_QUOTE)
-  const wallet = {} as HDWallet
-  const sellAsset: TradeAsset = {
-    amount: '20',
-    asset: WETH,
-  }
-  ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
-    getBestSwapper: () => ({
-      getDefaultPair: () => [FOX, WETH],
-      getUsdRate: () => '1',
-      approvalNeeded: () => ({ approvalNeeded: approvalNeededBoolean }),
-      approveInfinite: () => '0x023423093248420937',
-      getQuote,
-      getTradeQuote: getQuote,
-    }),
-    addSwapper: jest.fn(),
-  }))
-  ;(debounce as jest.Mock<unknown>).mockImplementation(fn => fn)
+  approvalNeeded.mockReturnValue({ approvalNeeded: approvalNeededBoolean })
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [quote, sellAsset, action])
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
@@ -103,7 +94,19 @@ function setup({
 
 describe('useSwapper', () => {
   beforeEach(() => {
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
+      getBestSwapper: () => ({
+        name: '0x',
+        getDefaultPair: () => [FOX, WETH],
+        getUsdRate: () => '1',
+        approvalNeeded,
+        approveInfinite: () => '0x023423093248420937',
+        getQuote,
+        getTradeQuote: getQuote,
+      }),
+      addSwapper: jest.fn(),
+    }))
+    ;(getChainAdapters as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, {}],
@@ -116,6 +119,7 @@ describe('useSwapper', () => {
         wallet: {},
       },
     }))
+    ;(debounce as jest.Mock<unknown>).mockImplementation(fn => fn)
   })
   it('approves infinite', async () => {
     const { result } = setup()

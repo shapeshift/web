@@ -50,6 +50,7 @@ export const mockStore: ReduxState = {
       Osmosis: false,
       Avalanche: false,
       CoinbasePay: false,
+      JunoPay: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

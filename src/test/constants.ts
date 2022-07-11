@@ -1,4 +1,3 @@
-import { SwapperType } from '@shapeshiftoss/swapper'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 
 import { DisplayFeeData } from '../components/Trade/types'

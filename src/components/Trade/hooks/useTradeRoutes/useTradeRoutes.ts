@@ -1,4 +1,4 @@
-import { AssetId, chainIdToFeeAssetId } from '@shapeshiftoss/caip'
+import { AssetId, chainIdToFeeAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -31,12 +31,16 @@ export const useTradeRoutes = (
     state: { wallet },
   } = useWallet()
 
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
+  const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
+  const defaultFeeAssetId = chainIdToFeeAssetId(defaultSellChainId)
+  const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
+
   const setDefaultAssets = useCallback(async () => {
     // wait for assets to be loaded
-    if (isEmpty(assets) || !feeAsset) return
+    if (isEmpty(assets) || !defaultFeeAsset) return
 
     try {
-      const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
       const sellAsset = assets[defaultSellAssetId]
 
       const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
@@ -74,14 +78,23 @@ export const useTradeRoutes = (
           amount: '0',
           sellAsset,
           buyAsset,
-          feeAsset,
+          feeAsset: defaultFeeAsset,
           action: TradeAmountInputField.SELL,
         })
       }
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, feeAsset, getDefaultPair, routeBuyAssetId, setValue, swapperManager, updateQuote])
+  }, [
+    assets,
+    defaultBuyAssetId,
+    defaultFeeAsset,
+    defaultSellAssetId,
+    routeBuyAssetId,
+    setValue,
+    swapperManager,
+    updateQuote,
+  ])
 
   useEffect(() => {
     setDefaultAssets()

@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,

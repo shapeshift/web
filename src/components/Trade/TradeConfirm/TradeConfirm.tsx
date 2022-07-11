@@ -5,6 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -19,7 +20,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
-import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
+import {
+  selectAssetsByMarketCap,
+  selectFirstAccountSpecifierByChainId,
+  selectTxStatusById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -39,6 +44,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     formState: { isSubmitting },
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
+  const assets = useSelector(selectAssetsByMarketCap)
   const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
@@ -116,6 +122,15 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const isFeeRatioOverThreshold =
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
+  const txLink = (() => {
+    if (trade.sellAsset.chainId === KnownChainIds.OsmosisMainnet || KnownChainIds.CosmosMainnet) {
+      const explorerAsset = assets.find(asset => asset.chainId === KnownChainIds.OsmosisMainnet)
+      return `${explorerAsset?.explorerTxLink}${txid}`
+    } else {
+      return `${trade.sellAsset?.explorerTxLink}${txid}`
+    }
+  })()
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -143,11 +158,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <RawText>Tx ID</RawText>
                   </Row.Label>
                   <Box textAlign='right'>
-                    <Link
-                      isExternal
-                      color='blue.500'
-                      href={`${trade.sellAsset?.explorerTxLink}${txid}`}
-                    >
+                    <Link isExternal color='blue.500' href={txLink}>
                       <Text translation='trade.viewTransaction' />
                     </Link>
                   </Box>

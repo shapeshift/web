@@ -54,7 +54,6 @@ let _swapperManager: SwapperManager | null = null
 
 const getSwapperManager = (): SwapperManager => {
   if (_swapperManager) return _swapperManager
-
   // instantiate if it doesn't already exist
   _swapperManager = new SwapperManager()
 
@@ -96,13 +95,12 @@ const getSwapperManager = (): SwapperManager => {
       })
 
       _swapperManager.addSwapper(zrxAvalancheSwapper)
-
-      if (getConfig().REACT_APP_FEATURE_OSMOSIS) {
-        const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE
-        const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE
-        const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
-        _swapperManager.addSwapper(osmoSwapper)
-      }
+    }
+    if (getConfig().REACT_APP_FEATURE_OSMOSIS) {
+      const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE
+      const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE
+      const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
+      _swapperManager.addSwapper(osmoSwapper)
     }
   } catch (e) {
     moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')

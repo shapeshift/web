@@ -25,10 +25,9 @@ export class BaseTransactionParser<T extends Tx> {
 
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
+    this.provider = new ethers.providers.JsonRpcProvider(args.rpcUrl)
 
-    const provider = new ethers.providers.JsonRpcProvider(args.rpcUrl)
-
-    this.registerParser(new erc20.Parser({ chainId: this.chainId, provider }))
+    this.registerParser(new erc20.Parser({ chainId: this.chainId, provider: this.provider }))
   }
 
   /**

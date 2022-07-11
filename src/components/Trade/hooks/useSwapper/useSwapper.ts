@@ -3,7 +3,6 @@ import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   Swapper,
   SwapperManager,
-  SwapperType,
   Trade,
   TradeQuote,
   TradeResult,
@@ -223,9 +222,7 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    const tradeFeeSource = swapper.getType()
-
-    await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource })
+    await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
     setValue('trade', tradeQuote)
   }
 
@@ -292,9 +289,7 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        const tradeFeeSource = swapper.getType()
-
-        await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource })
+        await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
@@ -334,7 +329,7 @@ export const useSwapper = () => {
   }: {
     trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
     sellAsset: Asset
-    tradeFeeSource: SwapperType
+    tradeFeeSource: string
   }) => {
     const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(
       bn(10).exponentiatedBy(feeAsset.precision),

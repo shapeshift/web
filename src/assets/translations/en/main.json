@@ -368,7 +368,7 @@
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
-      "shapeshiftFee": "ShapeShift DOES NOT add fees on trades 🎉"
+      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
     "errors": {
       "title": "Something went wrong",

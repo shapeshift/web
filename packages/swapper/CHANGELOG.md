@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.1.0...@shapeshiftoss/swapper-v8.2.0) (2022-07-11)
+
+
+### Features
+
+* cowswap buildTrade ([#846](https://github.com/shapeshift/lib/issues/846)) ([a57520c](https://github.com/shapeshift/lib/commit/a57520cb415358240c71164197651e67e1a05ab6))
+
 # [@shapeshiftoss/swapper-v8.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.0.1...@shapeshiftoss/swapper-v8.1.0) (2022-07-11)
 
 

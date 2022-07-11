@@ -46,27 +46,22 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   }).filter(row => row.assetId.toLowerCase() === asset.assetId.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
+    const { provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
     const { assetReference } = fromAssetId(assetId)
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
 
-    // TODO remove this condition once staking modals are unified
-    // Currently vault staking modals do not have overview tab
-    const pathname =
-      type === DefiType.TokenStaking
-        ? `/defi/${type}/${provider}/overview`
-        : `/defi/${type}/${provider}/deposit`
-
     history.push({
-      pathname,
+      pathname: location.pathname,
       search: qs.stringify({
         chainId,
         contractAddress,
         assetReference,
         rewardId: rewardAddress,
+        provider,
+        modal: 'overview',
       }),
       state: { background: location },
     })

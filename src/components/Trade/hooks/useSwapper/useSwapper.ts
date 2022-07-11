@@ -119,8 +119,7 @@ export const useSwapper = () => {
 
   useEffect(() => {
     ;(async () => {
-      const sm = await getSwapperManager()
-      setSwapperManager(sm)
+      setSwapperManager(await getSwapperManager())
     })()
   }, [])
 

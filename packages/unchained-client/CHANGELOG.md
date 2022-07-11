@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.0.3...@shapeshiftoss/unchained-client-v9.1.0) (2022-07-11)
+
+
+### Features
+
+* base evm tx parser + avalanche support ([#855](https://github.com/shapeshift/lib/issues/855)) ([153f251](https://github.com/shapeshift/lib/commit/153f251109e56089e80379df485d19a7b33c105d)), closes [#862](https://github.com/shapeshift/lib/issues/862)
+
 # [@shapeshiftoss/unchained-client-v9.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.0.2...@shapeshiftoss/unchained-client-v9.0.3) (2022-07-07)
 
 # [@shapeshiftoss/unchained-client-v9.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.0.1...@shapeshiftoss/unchained-client-v9.0.2) (2022-06-29)

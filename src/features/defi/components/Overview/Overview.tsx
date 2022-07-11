@@ -16,7 +16,7 @@ import {
   AssetDescriptionTeaserProps,
 } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 
 import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
 
@@ -82,7 +82,7 @@ export const Overview: React.FC<OverviewProps> = ({
           </Stack>
           <Flex px={8} pb={8} columnGap={6}>
             <Stack flex={1} spacing={4}>
-              <RawText fontWeight='medium'>Underlying Tokens</RawText>
+              <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
                 {underlyingAssets.map(asset => {
                   return (
@@ -99,7 +99,7 @@ export const Overview: React.FC<OverviewProps> = ({
             </Stack>
             {rewardAssets && (
               <Stack flex={1} spacing={4}>
-                <RawText fontWeight='medium'>Available Rewards</RawText>
+                <Text fontWeight='medium' translation='defi.modals.overview.availableRewards' />
                 <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
                   {rewardAssets.map(asset => (
                     <Tag variant='xs-subtle' columnGap={2} size='sm'>
@@ -117,9 +117,7 @@ export const Overview: React.FC<OverviewProps> = ({
           <>
             <Stack p={8} spacing={4}>
               <Stack spacing={0}>
-                <RawText fontSize='lg' fontWeight='medium'>
-                  About
-                </RawText>
+                <Text fontSize='lg' fontWeight='medium' translation='defi.modals.overview.about' />
                 {description && (
                   <AssetDescriptionTeaser
                     description={description?.description}

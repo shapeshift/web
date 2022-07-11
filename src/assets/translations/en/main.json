@@ -189,6 +189,13 @@
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}"
       },
+      "overview": {
+        "underlyingTokens": "Underlying Tokens",
+        "availableRewards": "Available Rewards",
+        "about": "About",
+        "tvl": "TVL",
+        "apy": "APY"
+      },
       "claim": {
         "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
         "title": "Claim Staking Rewards",

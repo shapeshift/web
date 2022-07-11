@@ -212,6 +212,32 @@ export const selectAllStakingDelegationCrypto = createDeepEqualOutputSelector(
     return allStakingDelegationCrypto
   },
 )
+
+export const selectAllStakingUndelegationCrypto = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  portfolioAccounts => {
+    const allStakingData = Object.entries(portfolioAccounts)
+    const allStakingDelegationCrypto = reduce(
+      allStakingData,
+      (acc, [accountSpecifier, portfolioData]) => {
+        if (!portfolioData.stakingDataByValidatorId) return acc
+        const undelegations = Object.values(portfolioData.stakingDataByValidatorId)
+          .flatMap(stakingDataByValidator => Object.values(stakingDataByValidator))
+          .flatMap(({ undelegations }) => undelegations)
+        const delegationSum = reduce(
+          undelegations,
+          (acc, undelegation) => acc.plus(bnOrZero(undelegation.amount)),
+          bn(0),
+        )
+        return { ...acc, [accountSpecifier]: delegationSum }
+      },
+      {},
+    )
+
+    return allStakingDelegationCrypto
+  },
+)
+
 export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
   selectAllStakingDelegationCrypto,
   selectMarketData,
@@ -233,11 +259,38 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
     return totalStakingDelegationFiat
   },
 )
-export const selectPortfolioTotalFiatBalanceWithDelegations = createSelector(
+
+export const selectTotalStakingUndelegationFiat = createDeepEqualOutputSelector(
+  selectAllStakingUndelegationCrypto,
+  selectMarketData,
+  (state: ReduxState) => state.assets.byId,
+  (allStaked: { [k: string]: string }, marketData, assetsById) => {
+    const allStakingData = Object.entries(allStaked)
+
+    const totalStakingDelegationFiat = reduce(
+      allStakingData,
+      (acc, [accountSpecifier, baseUnitAmount]) => {
+        const assetId = accountIdToFeeAssetId(accountSpecifier)
+        const price = marketData[assetId]?.price ?? 0
+        const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId].precision ?? 0)
+        return bnOrZero(amount).times(price).plus(acc)
+      },
+      bn(0),
+    )
+
+    return totalStakingDelegationFiat
+  },
+)
+
+export const selectPortfolioTotalFiatBalanceWithStakingData = createSelector(
   selectPortfolioTotalFiatBalance,
   selectTotalStakingDelegationFiat,
-  (portfolioFiatBalance, delegationFiatBalance): string => {
-    return bnOrZero(portfolioFiatBalance).plus(delegationFiatBalance).toString()
+  selectTotalStakingUndelegationFiat,
+  (portfolioFiatBalance, delegationFiatBalance, undelegationFiatBalance): string => {
+    return bnOrZero(portfolioFiatBalance)
+      .plus(delegationFiatBalance)
+      .plus(undelegationFiatBalance)
+      .toString()
   },
 )
 

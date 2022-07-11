@@ -1,12 +1,22 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { History } from 'history'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
-import { StakeRoutes } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import {
+  isCosmosAssetId,
+  isOsmosisAssetId,
+  StakeRoutes,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectValidatorByAddress } from 'state/slices/selectors'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+} from 'state/slices/validatorDataSlice/constants'
 import { useAppSelector } from 'state/store'
 
 import { GetStartedManagerRoutes } from './GetStartedCommon'
@@ -14,12 +24,6 @@ import { GetStartedManagerRoutes } from './GetStartedCommon'
 type GetStartedProps = {
   assetId: AssetId
   stakingRouterHistory: History
-}
-
-// TODO: Abstract me in a service when I start to get too big
-const ASSET_ID_TO_MAX_APR: Record<AssetId, string> = {
-  'cosmos:cosmoshub-4/slip44:118': '12',
-  'cosmos:osmosis-1/slip44:118': '35',
 }
 
 export const GetStarted = ({ assetId, stakingRouterHistory }: GetStartedProps) => {
@@ -40,7 +44,19 @@ export const GetStarted = ({ assetId, stakingRouterHistory }: GetStartedProps) =
   }
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const maxApr = ASSET_ID_TO_MAX_APR[assetId]
+  const defaultValidatorAddress = useMemo(() => {
+    if (isCosmosAssetId(assetId)) return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+    if (isOsmosisAssetId(assetId)) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+
+    return ''
+  }, [assetId])
+  const validatorData = useAppSelector(state =>
+    selectValidatorByAddress(state, defaultValidatorAddress),
+  )
+  const apr = useMemo(
+    () => bnOrZero(validatorData?.apr).times(100).toFixed(2).toString(),
+    [validatorData],
+  )
 
   return (
     <Box pt='51px' pb='20px' px='24px'>
@@ -49,7 +65,7 @@ export const GetStarted = ({ assetId, stakingRouterHistory }: GetStartedProps) =
         <DefiModalHeader
           headerImageSrc={asset.icon}
           headerImageMaxWidth={68}
-          headerText={['defi.modals.getStarted.header', { assetName: asset.name, maxApr }]}
+          headerText={['defi.modals.getStarted.header', { assetName: asset.name, apr }]}
         />
         <Box textAlign='center'>
           <Text translation='defi.modals.getStarted.body' color='gray.500' fontWeight='semibold' />

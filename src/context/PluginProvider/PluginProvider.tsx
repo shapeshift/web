@@ -162,6 +162,10 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 }
 
 export const usePlugins = () => useContext(PluginContext)
+
+/**
+ * @deprecated - use getChainAdapters() singleton instead
+ */
 export const useChainAdapters = () => {
   const context = useContext(PluginContext)
   if (!context) {

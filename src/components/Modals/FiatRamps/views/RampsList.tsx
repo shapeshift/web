@@ -26,16 +26,18 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
     const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce(
       (acc, supportedFiatRamp) => {
         const [fiatRamp, fiatRampConfig] = supportedFiatRamp
-        if (fiatRamp === 'CoinbasePay') {
-          // Since isImplemented is set in a config file where we can't use hooks,
+        fiatRampConfig.isImplemented = (() => {
+          // since isImplemented is set in a config file where we can't use hooks,
           // we reassign isImplemented here based on the feature flag.
-          fiatRampConfig.isImplemented = coinbasePayFeatureFlag
-        }
-        if (fiatRamp === 'JunoPay') {
-          // Since isImplemented is set in a config file where we can't use hooks,
-          // we reassign isImplemented here based on the feature flag.
-          fiatRampConfig.isImplemented = junoPayFeatureFlag
-        }
+          switch (fiatRamp) {
+            case 'CoinbasePay':
+              return coinbasePayFeatureFlag
+            case 'JunoPay':
+              return junoPayFeatureFlag
+            default:
+              return true
+          }
+        })()
         if (fiatRampConfig.isImplemented) {
           acc.unshift(
             <Button

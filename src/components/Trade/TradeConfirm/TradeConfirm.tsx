@@ -1,5 +1,6 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
+import { osmosisAssetId } from '@shapeshiftoss/caip'
 import { TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
@@ -43,7 +44,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     formState: { isSubmitting },
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
-  const osmosisAsset = useAppSelector(state => selectAssetById(state, KnownChainIds.OsmosisMainnet))
+  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()

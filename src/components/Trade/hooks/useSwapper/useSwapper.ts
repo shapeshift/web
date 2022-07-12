@@ -1,5 +1,6 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   Swapper,
   SwapperManager,
@@ -48,6 +49,16 @@ type GetQuoteInput = {
   feeAsset: Asset
   action: TradeAmountInputField
   forceQuote?: boolean
+}
+
+type DebouncedQuoteInput = {
+  amount: string
+  sellAsset: Asset
+  buyAsset: Asset
+  action: TradeAmountInputField
+  wallet: HDWallet
+  swapperManager: SwapperManager
+  btcAccountSpecifier: string
 }
 
 // singleton - do not export me, use getSwapperManager
@@ -231,6 +242,7 @@ export const useSwapper = () => {
           buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
           sendMax: true,
+          receiveAddress: '0x123',
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
@@ -273,7 +285,7 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         btcAccountSpecifier,
-      }) => {
+      }: DebouncedQuoteInput) => {
         try {
           const swapper = await swapperManager.getBestSwapper({
             buyAssetId: buyAsset.assetId,
@@ -306,6 +318,7 @@ export const useSwapper = () => {
                 sendMax: false,
                 sellAssetAccountNumber: 0,
                 wallet,
+                receiveAddress: '0x123',
               })
             } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
               // TODO btcAccountSpecifier must come from the btc account selection modal
@@ -322,6 +335,7 @@ export const useSwapper = () => {
                 wallet,
                 bip44Params: utxoParams.bip44Params,
                 accountType,
+                receiveAddress: '0x123'
               })
             }
             throw new Error(`unsupported chain id ${sellAsset.chainId}`)

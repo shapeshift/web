@@ -39,7 +39,7 @@ export const FoxyWithdraw = () => {
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
+  const { chainId, contractAddress, rewardId, assetReference } = query
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -48,7 +48,13 @@ export const FoxyWithdraw = () => {
     assetNamespace,
     assetReference: rewardId,
   })
+  const underlyingAssetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
@@ -97,16 +103,18 @@ export const FoxyWithdraw = () => {
 
   const StepConfig: DefiStepProps = {
     [DefiSteps.Info]: {
-      label: 'Withdraw Info',
-      description: 'Enter the amount of FOX you would like to withdraw.',
+      label: translate('defi.steps.withdraw.info.title'),
+      description: translate('defi.steps.withdraw.info.yieldyDescription', {
+        asset: underlyingAsset.symbol,
+      }),
       component: Withdraw,
     },
     [DefiSteps.Approve]: {
-      label: 'Approve',
+      label: translate('defi.steps.approve.title'),
       component: Approve,
     },
     [DefiSteps.Confirm]: {
-      label: 'Confirm',
+      label: translate('defi.steps.confirm.title'),
       component: Confirm,
     },
     [DefiSteps.Status]: {
@@ -138,7 +146,7 @@ export const FoxyWithdraw = () => {
         <DefiModalHeader
           onBack={handleBack}
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: `${asset.symbol} Yieldy`,
+            opportunity: `${underlyingAsset.symbol} Yieldy`,
           })}
         />
         <Steps steps={StepConfig} />

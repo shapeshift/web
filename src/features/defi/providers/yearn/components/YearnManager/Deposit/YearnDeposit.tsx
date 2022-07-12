@@ -92,16 +92,16 @@ export const YearnDeposit = () => {
 
   const StepConfig: DefiStepProps = {
     [DefiSteps.Info]: {
-      label: 'Deposit Info',
-      description: 'Enter the amount of FOX you would like to deposit.',
+      label: translate('defi.steps.deposit.info.title'),
+      description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
       component: Deposit,
     },
     [DefiSteps.Approve]: {
-      label: 'Approve',
+      label: translate('defi.steps.approve.title'),
       component: Approve,
     },
     [DefiSteps.Confirm]: {
-      label: 'Confirm',
+      label: translate('defi.steps.confirm.title'),
       component: Confirm,
     },
     [DefiSteps.Status]: {

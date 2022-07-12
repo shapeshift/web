@@ -281,7 +281,28 @@
         "cta": "View Opportunities"
       }
     },
-    "viewOnChain": "View on chain"
+    "viewOnChain": "View on chain",
+    "steps": {
+      "deposit": {
+        "info": {
+          "title": "Deposit Info",
+          "description": "Enter the amount of %{asset} you would like to deposit."
+        }
+      },
+      "withdraw": {
+        "info": {
+          "title": "Withdraw Info",
+          "description": "Enter the amount of %{asset} you would like to withdraw.",
+          "yieldyDescription": "Enter the amount of %{asset} you would like to withdraw. Subsequent withdrawals will be combined and reset the withdrawal time."
+        }
+      },
+      "approve": {
+        "title": "Approve"
+      },
+      "confirm": {
+        "title": "Confirm"
+      }
+    }
   },
   "staking": {
     "staking": "Staking",

@@ -102,12 +102,14 @@ export const YearnWithdraw = () => {
 
   const StepConfig: DefiStepProps = {
     [DefiSteps.Info]: {
-      label: 'Withdraw Info',
-      description: 'Enter the amount of FOX you would like to withdraw.',
+      label: translate('defi.steps.withdraw.info.title'),
+      description: translate('defi.steps.withdraw.info.description', {
+        asset: underlyingAsset.symbol,
+      }),
       component: Withdraw,
     },
     [DefiSteps.Confirm]: {
-      label: 'Confirm',
+      label: translate('defi.steps.confirm.title'),
       component: Confirm,
     },
     [DefiSteps.Status]: {

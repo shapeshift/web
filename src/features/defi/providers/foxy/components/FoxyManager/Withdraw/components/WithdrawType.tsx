@@ -93,7 +93,6 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
           <Amount.Crypto value={withdrawalFee} symbol={asset.symbol} />
         </Row.Value>
       </Row>
-      <Text fontSize='sm' color='gray.500' translation='modals.withdraw.disclaimer' />
     </>
   )
 }

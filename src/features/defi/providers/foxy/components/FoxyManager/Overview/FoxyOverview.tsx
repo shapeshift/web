@@ -23,7 +23,7 @@ import { WithdrawCard } from './WithdrawCard'
 
 export const FoxyOverview = () => {
   const { opportunities, loading } = useFoxyBalances()
-  const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
@@ -65,7 +65,7 @@ export const FoxyOverview = () => {
         apy={apy ?? ''}
         onClick={() =>
           history.push({
-            pathname: `/defi/earn`,
+            pathname: location.pathname,
             search: qs.stringify({
               ...query,
               modal: DefiAction.Deposit,

@@ -163,8 +163,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     return () => {
       debouncedEstimateFormFees.cancel()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [debouncedEstimateFormFees])
 
   const handleNextClick = async () => {
     history.push(SendRoutes.Confirm)

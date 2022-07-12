@@ -7,10 +7,12 @@ const logger = new Logger({
   level: process.env.LOG_LEVEL
 })
 
+const NORMAL_CLOSURE_CODE = 1000
+
 export interface Connection {
-  ws: WebSocket
+  ws?: WebSocket
   pingTimeout?: NodeJS.Timeout
-  interval: NodeJS.Timeout
+  interval?: NodeJS.Timeout
 }
 
 export interface TransactionMessage<T> {
@@ -20,7 +22,7 @@ export interface TransactionMessage<T> {
 }
 
 export interface TxsParams<T> {
-  data: TxsTopicData | undefined
+  data: TxsTopicData
   onMessage: (message: TransactionMessage<T>) => void
   onError?: (err: ErrorResponse) => void
 }
@@ -31,7 +33,9 @@ export class Client<T> {
   private readonly url: string
   private readonly connections: Record<Topics, Connection | undefined>
   private readonly pingInterval = 10000
+  private readonly retryAttempts = 5
 
+  private retryCount = 0
   private txs: Record<SubscriptionId, TxsParams<T>> = {}
 
   constructor(url: string) {
@@ -42,6 +46,121 @@ export class Client<T> {
     }
   }
 
+  private async initialize(): Promise<void> {
+    const ws = new WebSocket(this.url)
+
+    this.connections.txs = { ws }
+
+    // wait for connection to open with handshake timeout
+    await new Promise<boolean>((resolve, reject) => {
+      setTimeout(() => reject(new Error('timeout while trying to connect')), 5000)
+
+      ws.onopen = ({ target }) => this.onOpen(target, resolve, reject)
+      ws.onclose = (event) => this.onClose(event, resolve, reject)
+      ws.onerror = (event) => this.onError(event)
+      ws.onmessage = (event) => this.onMessage(event)
+    })
+  }
+
+  private onOpen(
+    ws: WebSocket,
+    resolve: (value: boolean) => void,
+    reject: (reason?: unknown) => void
+  ): void {
+    this.retryCount = 0
+
+    const interval = setInterval(() => {
+      // browsers do not support ping/pong frame, send ping payload instead
+      const payload: RequestPayload = { subscriptionId: '', method: 'ping' }
+      ws.send(JSON.stringify(payload))
+    }, this.pingInterval)
+
+    this.heartbeat('txs')
+
+    if (this.connections.txs) {
+      this.connections.txs.interval = interval
+    } else {
+      this.connections.txs = { ws, interval }
+    }
+
+    try {
+      // subscribe to all subscriptions
+      Object.entries(this.txs).forEach(([id, { data }]) => {
+        const payload: RequestPayload = { subscriptionId: id, method: 'subscribe', data }
+        ws.send(JSON.stringify(payload))
+      })
+
+      resolve(true)
+    } catch (err) {
+      reject(err)
+    }
+  }
+
+  private onClose(
+    event: WebSocket.CloseEvent,
+    resolve: (value: boolean) => void,
+    reject: (reason?: unknown) => void
+  ): void {
+    logger.warn(
+      { fn: 'onClose', code: event.code, reason: event.reason, type: event.type },
+      'websocket closed'
+    )
+
+    this.connections.txs?.pingTimeout && clearTimeout(this.connections.txs.pingTimeout)
+    this.connections.txs?.interval && clearInterval(this.connections.txs.interval)
+
+    // attempt reconnect logic on non standard exit codes
+    if (event.code !== NORMAL_CLOSURE_CODE) {
+      if (++this.retryCount >= this.retryAttempts) {
+        reject(new Error('failed to reconnect, connection closed'))
+        return
+      }
+
+      setTimeout(() => this.initialize(), 500 * this.retryCount ** 2)
+    }
+
+    resolve(false)
+  }
+
+  private onError(event: WebSocket.ErrorEvent): void {
+    if (!event.message) return
+
+    logger.error(
+      { fn: 'onError', err: event.error, message: event.message, type: event.type },
+      'websocket error'
+    )
+
+    // send connection errors to all subscription onError handlers
+    Object.entries(this.txs).forEach(([id, sub]) => {
+      sub.onError?.({ subscriptionId: id, type: 'error', message: event.message })
+    })
+  }
+
+  private onMessage(event: WebSocket.MessageEvent): void {
+    if (event.type !== 'message') return
+
+    // trigger heartbeat keep alive on pong response
+    if (event.data === 'pong') {
+      this.heartbeat('txs')
+      return
+    }
+
+    try {
+      const message = JSON.parse(event.data.toString()) as TransactionMessage<T> | ErrorResponse
+      const subscriptionId = this.getDefaultSubscriptionId()
+
+      // narrow type to ErrorResponse if key `type` exists and forward to correct onError handler
+      if ('type' in message) {
+        return this.txs[message.subscriptionId || subscriptionId]?.onError?.(message)
+      }
+
+      // forward the transaction message to the correct onMessage handler
+      this.txs[message.subscriptionId || subscriptionId]?.onMessage?.(message)
+    } catch (err) {
+      logger.warn(`failed to handle onmessage event: ${JSON.stringify(event)}: ${err}`)
+    }
+  }
+
   private heartbeat(topic: Topics): void {
     const connection = this.connections[topic]
     if (!connection) return
@@ -49,8 +168,13 @@ export class Client<T> {
     connection.pingTimeout && clearTimeout(connection.pingTimeout)
     connection.pingTimeout = setTimeout(() => {
       logger.warn({ fn: 'pingTimeout' }, `${topic} heartbeat failed`)
-      connection?.ws.close()
+      connection.ws?.close()
     }, this.pingInterval + 5000)
+  }
+
+  // for websocket connections that do not return the subscriptionId on the message, use the initial subscriptionId as the default
+  private getDefaultSubscriptionId(): string {
+    return Object.keys(this.txs)[0]
   }
 
   /**
@@ -71,106 +195,24 @@ export class Client<T> {
     onMessage: (message: TransactionMessage<T>) => void,
     onError?: (err: ErrorResponse) => void
   ): Promise<void> {
-    // keep track of the onMessage and onError handlers associated with each subscriptionId
-    this.txs[subscriptionId] = { onMessage, onError, data: undefined }
+    const addresses = [
+      ...new Set([...(this.txs[subscriptionId]?.data?.addresses ?? []), ...data.addresses])
+    ]
 
-    if (this.connections.txs) {
-      if (this.connections.txs.ws.readyState === 1) {
-        // subscribe if connection exists and is ready
-        this.connections.txs.ws.send(
-          JSON.stringify({ subscriptionId, method: 'subscribe', data } as RequestPayload)
-        )
-      } else {
-        // queue up unique addresses for subscriptions if connection exists, but is not ready yet
-        const txsData = this.txs[subscriptionId].data
-        this.txs[subscriptionId].data = txsData
-          ? { ...txsData, addresses: [...new Set(...txsData.addresses, ...data.addresses)] }
-          : data
-      }
-      return
+    // keep track of all subscribed addresses and onMessage/onError handlers associated with each subscriptionId
+    this.txs[subscriptionId] = { onMessage, onError, data: { topic: 'txs', addresses } }
+
+    // initialize websocket connection if one does not already exist
+    if (!this.connections.txs?.ws) {
+      return this.initialize()
     }
 
-    const ws = new WebSocket(this.url)
-
-    const interval = setInterval(() => {
-      // browsers do not support ping/pong frame, send ping payload instead
-      const payload: RequestPayload = { subscriptionId: '', method: 'ping' }
-      ws.send(JSON.stringify(payload))
-    }, this.pingInterval)
-
-    this.connections.txs = { ws, interval }
-
-    // send connection errors to all subscription onError handlers
-    ws.onerror = (event) => {
-      Object.entries(this.txs).forEach(([id, sub]) => {
-        sub.onError && sub.onError({ subscriptionId: id, type: 'error', message: event.message })
-      })
+    // subscribe if connection exists and is ready
+    if (this.connections.txs.ws.readyState === WebSocket.OPEN) {
+      this.connections.txs.ws.send(
+        JSON.stringify({ subscriptionId, method: 'subscribe', data } as RequestPayload)
+      )
     }
-
-    // clear heartbeat timeout on close
-    ws.onclose = () => {
-      this.connections.txs?.pingTimeout && clearTimeout(this.connections.txs.pingTimeout)
-      this.connections.txs?.interval && clearInterval(this.connections.txs.interval)
-    }
-
-    ws.onmessage = (event) => {
-      if (!event) return
-      if (event.type !== 'message') return
-
-      if (event.data === 'pong') {
-        // trigger heartbeat keep alive on pong response
-        this.heartbeat('txs')
-        return
-      }
-
-      try {
-        const message = JSON.parse(event.data.toString()) as TransactionMessage<T> | ErrorResponse
-
-        // narrow type to ErrorResponse if key `type` exists and forward to correct onError handler
-        if ('type' in message) {
-          const onErrorHandler = this.txs[message.subscriptionId || subscriptionId]?.onError
-          onErrorHandler && onErrorHandler(message)
-          return
-        }
-
-        // forward the transaction message to the correct onMessage handler
-        const onMessageHandler = this.txs[message.subscriptionId || subscriptionId]?.onMessage
-        onMessageHandler && onMessageHandler(message)
-      } catch (err) {
-        logger.warn(`failed to handle onmessage event: ${JSON.stringify(event)}: ${err}`)
-      }
-    }
-
-    // wait for the connection to open
-    const openConnection = new Promise((resolve, reject) => {
-      ws.onopen = () => {
-        this.heartbeat('txs')
-
-        try {
-          // subscribe to all queued subscriptions
-          Object.values(this.txs).forEach((tx) => {
-            if (!tx.data) return
-            const payload: RequestPayload = { subscriptionId, method: 'subscribe', data: tx.data }
-            ws.send(JSON.stringify(payload))
-            delete this.txs[subscriptionId].data
-          })
-
-          // subscribe to initial subscription
-          const payload: RequestPayload = { subscriptionId, method: 'subscribe', data }
-          ws.send(JSON.stringify(payload))
-
-          resolve(true)
-        } catch (err) {
-          reject(err)
-        }
-      }
-    })
-
-    const connectionTimeout = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('timeout while trying to connect')), 5000)
-    })
-
-    await Promise.race([openConnection, connectionTimeout])
   }
 
   /**
@@ -187,9 +229,21 @@ export class Client<T> {
    * @param data.addresses list of addresses to unsubscribe from
    */
   unsubscribeTxs(subscriptionId?: string, data?: TxsTopicData): void {
-    if (this.connections.txs?.ws.readyState !== WebSocket.OPEN) return
+    if (this.connections.txs?.ws?.readyState !== WebSocket.OPEN) return
+
     if (!subscriptionId) this.txs = {}
-    if (subscriptionId && !data?.addresses.length) delete this.txs[subscriptionId]
+
+    if (subscriptionId && this.txs[subscriptionId]) {
+      // unsubscribe addresses from the current subscribed address set if addresses provided
+      if (data?.addresses?.length) {
+        this.txs[subscriptionId].data.addresses = this.txs[subscriptionId].data.addresses.filter(
+          (address) => !data.addresses.includes(address)
+        )
+      } else {
+        // delete subscription if no addresses provided
+        delete this.txs[subscriptionId]
+      }
+    }
 
     const payload: RequestPayload = {
       subscriptionId: subscriptionId ?? '',
@@ -210,7 +264,7 @@ export class Client<T> {
   close(topic?: Topics): void {
     const closeTxs = () => {
       this.unsubscribeTxs()
-      this.connections.txs?.ws.close()
+      this.connections.txs?.ws?.close(NORMAL_CLOSURE_CODE)
     }
 
     // close all connections if no topic is provided

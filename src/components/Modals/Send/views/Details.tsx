@@ -141,7 +141,11 @@ export const Details = () => {
                   {cryptoSymbol}
                 </Button>
               }
-              inputRightElement={!(wallet?.getVendor() === 'WalletConnect') ? (<SendMaxButton onClick={handleSendMax} />) : undefined}
+              inputRightElement={
+                !(wallet?.getVendor() === 'WalletConnect') ? (
+                  <SendMaxButton onClick={handleSendMax} />
+                ) : undefined
+              }
               rules={{
                 required: true,
               }}

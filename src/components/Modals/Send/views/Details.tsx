@@ -24,6 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
@@ -52,6 +53,10 @@ export const Details = () => {
     loading,
     toggleCurrency,
   } = useSendDetails()
+
+  const {
+    state: { wallet },
+  } = useWallet()
 
   if (
     !(
@@ -136,7 +141,7 @@ export const Details = () => {
                   {cryptoSymbol}
                 </Button>
               }
-              inputRightElement={<SendMaxButton onClick={handleSendMax} />}
+              inputRightElement={!(wallet?.getVendor() === 'WalletConnect') ? (<SendMaxButton onClick={handleSendMax} />) : undefined}
               rules={{
                 required: true,
               }}

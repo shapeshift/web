@@ -30,9 +30,8 @@ const ChainMenuItem: React.FC<{
   handleEvmChainClick: any
 }> = ({ chainId, chainName, handleEvmChainClick }) => {
   const chainAdapters = getChainAdapters()
-  console.log({ chainAdapters })
   const { chainReference: evmChainId } = fromChainId(chainId)
-  const nativeAssetId = chainAdapters.get(KnownChainIds.AvalancheMainnet)?.getFeeAssetId()
+  const nativeAssetId = chainAdapters.get(chainId)?.getFeeAssetId()
   const nativeAsset = useAppSelector(state => selectAssetById(state, nativeAssetId ?? ''))
 
   if (!nativeAsset) return null

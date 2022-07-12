@@ -180,7 +180,6 @@ export const useSwapper = () => {
     selectFirstAccountSpecifierByChainId(state, 'bip122:000000000019d6689c085ae165831e93'),
   )
 
-  console.log('btcAccountSpecifier', btcAccountSpecifier)
   const getSendMaxAmount = async ({
     sellAsset,
     feeAsset,
@@ -276,7 +275,6 @@ export const useSwapper = () => {
         swapperManager,
         btcAccountSpecifier,
       }) => {
-        console.log('getting quote deboundced')
         try {
           const swapper = await swapperManager.getBestSwapper({
             buyAssetId: buyAsset.assetId,
@@ -284,13 +282,11 @@ export const useSwapper = () => {
           })
 
           if (!swapper) throw new Error('no swapper available')
-          console.log('getting usd rates')
           const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
             swapper.getUsdRate({ ...sellAsset }),
             swapper.getUsdRate({ ...buyAsset }),
             swapper.getUsdRate({ ...feeAsset }),
           ])
-          console.log('got usd rates')
 
           const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
             amount,
@@ -315,7 +311,6 @@ export const useSwapper = () => {
             } else if (sellAsset.chainId === btcChainId) {
               // TODO btcAccountSpecifier must come from the btc account selection modal
               // We are defaulting temporarily for development
-              console.log('CALLING QUOTE btcAccountSpecifier', btcAccountSpecifier)
               const { accountType, utxoParams } = accountIdToUtxoParams(btcAccountSpecifier, 0)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
@@ -344,7 +339,6 @@ export const useSwapper = () => {
           setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
           setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
         } catch (e) {
-          console.log('its all fucked', e)
           showErrorToast(e)
         }
       },
@@ -354,7 +348,6 @@ export const useSwapper = () => {
 
   const updateQuote = useCallback(
     async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
-      console.log('btcAccountSpecifier', btcAccountSpecifier)
       if (!wallet || !btcAccountSpecifier) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)

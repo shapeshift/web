@@ -5,7 +5,7 @@ import {
   DefiAction,
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
@@ -15,6 +15,7 @@ import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -25,7 +26,9 @@ import { useAppSelector } from 'state/store'
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-export const Deposit = ({ onNext }: StepComponentProps) => {
+const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
+
+export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -61,7 +64,10 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
       // TODO(theobold): Figure out a better way for the safety factor
       return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
     } catch (error) {
-      console.error('YearnDeposit:getDepositGasEstimate error:', error)
+      moduleLogger.error(
+        { fn: 'getDepositGasEstimate', error },
+        'Error getting deposit gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -84,7 +90,10 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
         .integerValue()
         .toString()
     } catch (error) {
-      console.error('YearnDeposit:getApproveEstimate error:', error)
+      moduleLogger.error(
+        { fn: 'getApproveEstimate', error },
+        'Error getting deposit approval gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -116,7 +125,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           type: YearnDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto },
         })
-        onNext(DefiSteps.Confirm)
+        onNext(DefiStep.Confirm)
         dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
@@ -125,11 +134,11 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           type: YearnDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto },
         })
-        onNext(DefiSteps.Approve)
+        onNext(DefiStep.Approve)
         dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
       }
     } catch (error) {
-      console.error('YearnDeposit:handleContinue error:', error)
+      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),

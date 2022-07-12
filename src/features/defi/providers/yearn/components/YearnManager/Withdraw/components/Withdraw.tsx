@@ -7,7 +7,7 @@ import {
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
@@ -25,7 +25,7 @@ import { useAppSelector } from 'state/store'
 import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-export const Withdraw = ({ onNext }: StepComponentProps) => {
+export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
@@ -85,17 +85,16 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
       type: YearnWithdrawActionType.SET_WITHDRAW,
       payload: { estimatedGasCrypto },
     })
-    onNext(DefiSteps.Confirm)
+    onNext(DefiStep.Confirm)
     dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
-    //history.push(WithdrawPath.Confirm)
   }
 
   const handleCancel = () => {
     browserHistory.goBack()
   }
 
-  const handlePercentClick = (_percent: number) => {
-    const amount = bnOrZero(cryptoAmountAvailable).times(_percent)
+  const handlePercentClick = (percent: number) => {
+    const amount = bnOrZero(cryptoAmountAvailable).times(percent)
     setValue(Field.CryptoAmount, amount.toString(), {
       shouldValidate: true,
     })

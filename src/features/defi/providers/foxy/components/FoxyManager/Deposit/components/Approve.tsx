@@ -5,7 +5,7 @@ import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useContext } from 'react'
@@ -16,6 +16,7 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -23,7 +24,9 @@ import { useAppSelector } from 'state/store'
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-export const Approve = ({ onNext }: StepComponentProps) => {
+const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
+
+export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
@@ -65,7 +68,10 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
-      console.error('FoxyDeposit:getDepositGasEstimate error:', error)
+      moduleLogger.error(
+        { fn: 'getDepositGasEstimate', error },
+        'Error getting deposit gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -107,9 +113,9 @@ export const Approve = ({ onNext }: StepComponentProps) => {
         payload: { estimatedGasCrypto },
       })
 
-      onNext(DefiSteps.Confirm)
+      onNext(DefiStep.Confirm)
     } catch (error) {
-      console.error('FoxyDeposit:handleApprove error:', error)
+      moduleLogger.error({ fn: 'handleApprove', error }, 'Error on approval')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

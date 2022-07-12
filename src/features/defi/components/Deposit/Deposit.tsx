@@ -129,8 +129,9 @@ export const Deposit = ({
             cryptoAmount={cryptoAmount?.value}
             onChange={(value, isFiat) => handleInputChange(value, isFiat)}
             fiatAmount={fiatAmount?.value}
+            showFiatAmount={true}
             assetIcon={asset.icon}
-            assetName={asset.symbol}
+            assetSymbol={asset.symbol}
             balance={cryptoAmountAvailable}
             onMaxClick={value => handlePercentClick(value)}
             percentOptions={percentOptions}

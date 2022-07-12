@@ -129,10 +129,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
       fiatAmount.onChange(value)
-      cryptoAmount.onChange(bnOrZero(value).div(marketData.price).toFixed(4).toString())
+      cryptoAmount.onChange(bnOrZero(value).div(marketData.price).toString())
     } else {
       cryptoAmount.onChange(value)
-      fiatAmount.onChange(bnOrZero(value).times(marketData.price).toFixed(4).toString())
+      fiatAmount.onChange(bnOrZero(value).times(marketData.price).toFixed(4))
     }
   }
 
@@ -155,8 +155,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           cryptoAmount={cryptoAmount?.value}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
           fiatAmount={fiatAmount?.value}
+          showFiatAmount={true}
           assetIcon={asset.icon}
-          assetName={asset.symbol}
+          assetSymbol={asset.symbol}
           balance={cryptoAmountAvailable}
           onMaxClick={value => handlePercentClick(value)}
           percentOptions={percentOptions}

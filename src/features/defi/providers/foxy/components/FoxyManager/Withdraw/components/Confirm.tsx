@@ -6,7 +6,7 @@ import { Summary } from 'features/defi/components/Summary'
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
@@ -94,7 +94,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         api.getGasPrice(),
       ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
-      onNext(DefiSteps.Status)
+      onNext(DefiStep.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -121,7 +121,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   return (
     <ReusableConfirm
-      onCancel={() => onNext(DefiSteps.Info)}
+      onCancel={() => onNext(DefiStep.Info)}
       headerText='modals.confirm.withdraw.header'
       onConfirm={handleConfirm}
       isDisabled={!hasEnoughBalanceForGas}

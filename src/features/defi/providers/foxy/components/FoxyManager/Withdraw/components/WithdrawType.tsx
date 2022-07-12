@@ -33,11 +33,9 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
   const handleClick = (value: WithdrawType) => {
     if (value === WithdrawType.INSTANT) {
       withdrawType.onChange(WithdrawType.INSTANT)
-      handlePercentClick(0.75)
-      //setDisableInput(true)
+      handlePercentClick(1)
     } else {
       withdrawType.onChange(WithdrawType.DELAYED)
-      //setDisableInput(false)
     }
   }
 

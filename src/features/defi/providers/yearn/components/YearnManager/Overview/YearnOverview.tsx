@@ -89,11 +89,11 @@ export const YearnOverview = () => {
     <Overview
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
-      balance={fiatAmountAvailable.toFixed(2)}
+      opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssets={[
         {
           ...underlyingToken,
-          balance: cryptoAmountAvailable.toPrecision(),
+          cryptoBalance: cryptoAmountAvailable.toPrecision(),
           allocationPercentage: '1',
         },
       ]}

@@ -1,11 +1,11 @@
 import { Stack, StackDivider, StackProps, useColorModeValue } from '@chakra-ui/react'
-import { DefiSteps } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useState } from 'react'
 
 import { StepRow } from './StepRow'
 
 export type StepComponentProps = {
-  onNext: (arg: DefiSteps) => void
+  onNext: (arg: DefiStep) => void
 }
 
 type StepConfig = {
@@ -14,38 +14,35 @@ type StepConfig = {
   description?: string
 }
 
-export type DefiStepProps = { [key in DefiSteps]?: StepConfig }
+export type DefiStepProps = { [key in DefiStep]?: StepConfig }
 
 type StepsProps = {
   steps: DefiStepProps
-  initialStep?: DefiSteps
+  initialStep?: DefiStep
 } & StackProps
 
 export const Steps: React.FC<StepsProps> = ({
   steps,
   children,
-  initialStep = DefiSteps.Info,
+  initialStep = DefiStep.Info,
   ...rest
 }) => {
-  const array = Object.keys(steps).filter(e => e !== DefiSteps.Status)
-  const [currentStep, setCurrentStep] = useState<number>(array.indexOf(initialStep))
+  const otherSteps = Object.keys(steps).filter(e => e !== DefiStep.Status)
+  const [currentStep, setCurrentStep] = useState<number>(otherSteps.indexOf(initialStep))
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const Status = steps[DefiSteps.Status as DefiSteps]?.component ?? null
-  const StatusIndex = array.indexOf(DefiSteps.Status)
+  const Status = steps[DefiStep.Status]?.component ?? null
+  const statusIndex = otherSteps.indexOf(DefiStep.Status)
 
-  const handleNext = (nextStep: DefiSteps) => {
-    const index = array.indexOf(nextStep)
-    setCurrentStep(index)
-  }
+  const handleNext = (nextStep: DefiStep) => setCurrentStep(otherSteps.indexOf(nextStep))
 
   return (
     <Stack width='full' borderColor={borderColor} divider={<StackDivider />} {...rest}>
-      {currentStep === StatusIndex && Status ? (
+      {currentStep === statusIndex && Status ? (
         <Status onNext={handleNext} />
       ) : (
         <Stack spacing={0} borderColor={borderColor} divider={<StackDivider />}>
-          {array.map((step, index) => {
-            const Step = steps[step as DefiSteps]
+          {otherSteps.map((step, index) => {
+            const Step = steps[step as DefiStep]
             if (!Step) return null
             const Component = Step.component
             return (

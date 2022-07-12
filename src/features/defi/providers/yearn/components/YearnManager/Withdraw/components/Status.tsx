@@ -64,7 +64,6 @@ export const Status = () => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    console.info('tx', confirmedTransaction)
     if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {
       dispatch({
         type: YearnWithdrawActionType.SET_WITHDRAW,
@@ -86,24 +85,27 @@ export const Status = () => {
 
   if (!state) return null
 
-  let statusIcon: React.ReactElement = <AssetIcon size='xs' src={asset?.icon} />
-  let statusText = StatusTextEnum.pending
-  let statusBg = 'transparent'
-  let statusBody = translate('modals.withdraw.status.pending')
-  if (state.withdraw.txStatus === 'success') {
-    statusText = StatusTextEnum.success
-    statusIcon = <CheckIcon color='white' />
-    statusBg = 'green.500'
-    statusBody = translate('modals.withdraw.status.success', {
-      opportunity: `${underlyingAsset.symbol} Vault`,
-    })
-  }
-  if (state.withdraw.txStatus === 'failed') {
-    statusText = StatusTextEnum.failed
-    statusIcon = <CloseIcon color='white' />
-    statusBg = 'red.500'
-    statusBody = translate('modals.withdraw.status.failed')
-  }
+  const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    let statusIcon: React.ReactElement = <AssetIcon size='xs' src={asset?.icon} />
+    let statusText = StatusTextEnum.pending
+    let statusBg = 'transparent'
+    let statusBody = translate('modals.withdraw.status.pending')
+    if (state.withdraw.txStatus === 'success') {
+      statusText = StatusTextEnum.success
+      statusIcon = <CheckIcon color='white' />
+      statusBg = 'green.500'
+      statusBody = translate('modals.withdraw.status.success', {
+        opportunity: `${underlyingAsset.symbol} Vault`,
+      })
+    }
+    if (state.withdraw.txStatus === 'failed') {
+      statusText = StatusTextEnum.failed
+      statusIcon = <CloseIcon color='white' />
+      statusBg = 'red.500'
+      statusBody = translate('modals.withdraw.status.failed')
+    }
+    return { statusIcon, statusText, statusBg, statusBody }
+  })()
 
   return (
     <TxStatus

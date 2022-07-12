@@ -6,7 +6,7 @@ import { Summary } from 'features/defi/components/Summary'
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
@@ -96,7 +96,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         feePriority: undefined,
       })
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
-      onNext(DefiSteps.Status)
+      onNext(DefiStep.Status)
     } catch (error) {
       console.error('YearnWithdraw:handleConfirm error', error)
     } finally {
@@ -105,7 +105,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }
 
   const handleCancel = () => {
-    onNext(DefiSteps.Info)
+    onNext(DefiStep.Info)
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)

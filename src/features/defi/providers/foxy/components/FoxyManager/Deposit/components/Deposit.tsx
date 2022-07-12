@@ -4,15 +4,16 @@ import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/compone
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -23,19 +24,22 @@ import { useAppSelector } from 'state/store'
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-export const Deposit = ({ onNext }: StepComponentProps) => {
+const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Deposit'] })
+
+export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  const opportunity = state?.foxyOpportunity
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
@@ -61,7 +65,10 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
-      console.error('FoxyDeposit:getDepositGasEstimate error:', error)
+      moduleLogger.error(
+        { fn: 'getDepositGasEstimate', error },
+        'Error getting deposit gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -84,7 +91,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
-      console.error('FoxyDeposit:getApproveEstimate error:', error)
+      moduleLogger.error({ fn: 'getApproveEstimate', error }, 'Error getting approval gas estimate')
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -116,7 +123,7 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           type: FoxyDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto },
         })
-        onNext(DefiSteps.Confirm)
+        onNext(DefiStep.Confirm)
         dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
@@ -125,11 +132,11 @@ export const Deposit = ({ onNext }: StepComponentProps) => {
           type: FoxyDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto },
         })
-        onNext(DefiSteps.Approve)
+        onNext(DefiStep.Approve)
         dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
       }
     } catch (error) {
-      console.error('FoxyDeposit:handleContinue error:', error)
+      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),

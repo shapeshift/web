@@ -5,7 +5,7 @@ import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useContext } from 'react'
@@ -115,7 +115,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCrypto },
       })
-      onNext(DefiSteps.Confirm)
+      onNext(DefiStep.Confirm)
     } catch (error) {
       console.error('FoxyWithdraw:handleApprove error:', error)
       toast({
@@ -152,7 +152,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
           </AlertDescription>
         </Alert>
       }
-      onCancel={() => onNext(DefiSteps.Info)}
+      onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
     />
   )

@@ -6,7 +6,7 @@ import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
@@ -14,6 +14,7 @@ import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -22,10 +23,12 @@ import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApproveProps = {
-  onNext: (arg: DefiSteps) => void
+  onNext: (arg: DefiStep) => void
 }
 
-export const Approve = ({ onNext }: YearnApproveProps) => {
+const moduleLogger = logger.child({ namespace: ['YearnDeposit:Approve'] })
+
+export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -66,7 +69,10 @@ export const Approve = ({ onNext }: YearnApproveProps) => {
       // TODO(theobold): Figure out a better way for the safety factor
       return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
     } catch (error) {
-      console.error('YearnDeposit:getDepositGasEstimate error:', error)
+      moduleLogger.error(
+        { fn: 'getDepositGasEstimate', error },
+        'Error getting deposit gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -119,9 +125,9 @@ export const Approve = ({ onNext }: YearnApproveProps) => {
         payload: { estimatedGasCrypto },
       })
 
-      onNext(DefiSteps.Confirm)
+      onNext(DefiStep.Confirm)
     } catch (error) {
-      console.error('YearnDeposit:handleApprove error:', error)
+      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -146,10 +152,10 @@ export const Approve = ({ onNext }: YearnApproveProps) => {
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText='Approve on Wallet'
+      loadingText={translate('common.approveOnWallet')}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiSteps.Info)}
+      onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
     />
   )

@@ -7,12 +7,12 @@ import {
   DefiAction,
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import qs from 'qs'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -85,25 +85,28 @@ export const FoxyDeposit = () => {
     })
   }
 
-  const StepConfig: DefiStepProps = {
-    [DefiSteps.Info]: {
-      label: translate('defi.steps.deposit.info.title'),
-      description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-      component: Deposit,
-    },
-    [DefiSteps.Approve]: {
-      label: translate('defi.steps.approve.title'),
-      component: Approve,
-    },
-    [DefiSteps.Confirm]: {
-      label: translate('defi.steps.confirm.title'),
-      component: Confirm,
-    },
-    [DefiSteps.Status]: {
-      label: 'Status',
-      component: Status,
-    },
-  }
+  const StepConfig: DefiStepProps = useMemo(() => {
+    return {
+      [DefiStep.Info]: {
+        label: translate('defi.steps.deposit.info.title'),
+        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
+        component: Deposit,
+      },
+      [DefiStep.Approve]: {
+        label: translate('defi.steps.approve.title'),
+        component: Approve,
+      },
+      [DefiStep.Confirm]: {
+        label: translate('defi.steps.confirm.title'),
+        component: Confirm,
+      },
+      [DefiStep.Status]: {
+        label: 'Status',
+        component: Status,
+      },
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [asset.symbol])
 
   if (loading || !asset || !marketData) {
     return (

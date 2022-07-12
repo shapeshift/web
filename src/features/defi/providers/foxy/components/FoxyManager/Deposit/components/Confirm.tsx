@@ -5,10 +5,10 @@ import { Summary } from 'features/defi/components/Summary'
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { isNil } from 'lodash'
+import isNil from 'lodash/isNil'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { TransactionReceipt } from 'web3-core/types'
@@ -78,7 +78,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         api.getGasPrice(),
       ])
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
-      onNext(DefiSteps.Status)
+      onNext(DefiStep.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -112,7 +112,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   return (
     <ReusableConfirm
-      onCancel={() => onNext(DefiSteps.Info)}
+      onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleDeposit}
       loading={state.loading}
       loadingText={translate('common.confirm')}

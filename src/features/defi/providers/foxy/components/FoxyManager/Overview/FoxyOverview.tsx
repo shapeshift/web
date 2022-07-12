@@ -3,6 +3,7 @@ import { Center } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import dayjs from 'dayjs'
+import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import {
   DefiAction,
@@ -10,7 +11,9 @@ import {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
+import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
@@ -23,9 +26,13 @@ import { WithdrawCard } from './WithdrawCard'
 
 export const FoxyOverview = () => {
   const { opportunities, loading } = useFoxyBalances()
+  const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query
-  const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
+  const opportunity = useMemo(
+    () => opportunities.find(e => e.contractAddress === contractAddress),
+    [opportunities, contractAddress],
+  )
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
   const assetNamespace = 'erc20'
@@ -46,6 +53,7 @@ export const FoxyOverview = () => {
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
   const claimAvailable = dayjs().isAfter(dayjs(opportunity?.withdrawInfo.releaseTime))
   const hasClaim = bnOrZero(opportunity?.withdrawInfo.amount).gt(0)
+  const claimDisabled = !claimAvailable || !hasClaim
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -53,9 +61,11 @@ export const FoxyOverview = () => {
   const apy = opportunity?.apy
   if (loading || !opportunity) {
     return (
-      <Center minW='350px' minH='350px'>
-        <CircularProgress isIndeterminate />
-      </Center>
+      <DefiModalContent>
+        <Center minW='350px' minH='350px'>
+          <CircularProgress isIndeterminate />
+        </Center>
+      </DefiModalContent>
     )
   }
 
@@ -81,11 +91,11 @@ export const FoxyOverview = () => {
     <Overview
       asset={rewardAsset}
       name='FOX Yieldy'
-      balance={fiatAmountAvailable.toFixed(2)}
+      opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssets={[
         {
           ...stakingAsset,
-          balance: cryptoAmountAvailable.toFixed(4),
+          cryptoBalance: cryptoAmountAvailable.toFixed(4),
           allocationPercentage: '1',
         },
       ]}
@@ -107,7 +117,8 @@ export const FoxyOverview = () => {
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
-          isDisabled: !claimAvailable || !hasClaim,
+          isDisabled: claimDisabled,
+          toolTip: translate('defi.modals.overview.noWithdrawals'),
         },
       ]}
       description={{

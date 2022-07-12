@@ -1,5 +1,5 @@
-import { ArrowForwardIcon, CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Button, Link, Stack, useColorModeValue } from '@chakra-ui/react'
+import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -26,7 +26,6 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const assetNamespace = 'erc20'
-  const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
@@ -46,21 +45,26 @@ export const Status = () => {
 
   if (!state) return null
 
-  const { statusIcon, statusText, statusBg } = (() => {
-    let statusIcon: React.ReactElement = <ArrowForwardIcon />
+  const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    let statusIcon: React.ReactElement = <AssetIcon size='xs' src={asset?.icon} />
     let statusText = StatusTextEnum.pending
-    let statusBg = defaultStatusBg
+    let statusBody = translate('modals.deposit.status.pending')
+    let statusBg = 'transparent'
     if (state.deposit.txStatus === 'success') {
       statusText = StatusTextEnum.success
       statusIcon = <CheckIcon color='white' />
+      statusBody = translate('modals.deposit.status.success', {
+        opportunity: `${asset.name} Vault`,
+      })
       statusBg = 'green.500'
     }
     if (state.deposit.txStatus === 'failed') {
       statusText = StatusTextEnum.failed
       statusIcon = <CloseIcon color='white' />
+      statusBody = translate('modals.deposit.status.failed')
       statusBg = 'red.500'
     }
-    return { statusIcon, statusText, statusBg }
+    return { statusIcon, statusText, statusBg, statusBody }
   })()
 
   return (
@@ -71,6 +75,7 @@ export const Status = () => {
       statusText={statusText}
       statusIcon={statusIcon}
       statusBg={statusBg}
+      statusBody={statusBody}
       continueText='modals.status.position'
     >
       <Summary>

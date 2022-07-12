@@ -10,6 +10,7 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import {
   AssetDescriptionTeaser,
@@ -21,7 +22,7 @@ import { RawText, Text } from 'components/Text'
 import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
 
 type AssetWithBalance = {
-  balance: string
+  cryptoBalance: string
   allocationPercentage?: string
 } & Asset
 
@@ -31,7 +32,7 @@ type OverviewProps = {
   name: string
   description?: AssetDescriptionTeaserProps
   asset: Asset
-  balance: string
+  opportunityFiatBalance: string
   provider: string
   tvl?: string
   apy?: string
@@ -42,7 +43,7 @@ export const Overview: React.FC<OverviewProps> = ({
   rewardAssets,
   asset,
   name,
-  balance,
+  opportunityFiatBalance,
   provider,
   tvl,
   apy,
@@ -50,6 +51,30 @@ export const Overview: React.FC<OverviewProps> = ({
   menu,
   children,
 }) => {
+  const renderUnderlyingAssets = useMemo(() => {
+    return underlyingAssets.map(asset => {
+      return (
+        <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
+          <AssetIcon src={asset.icon} size='2xs' />
+          <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
+          {asset.allocationPercentage && (
+            <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
+          )}
+        </Tag>
+      )
+    })
+  }, [underlyingAssets])
+
+  const renderRewardAssets = useMemo(() => {
+    if (!rewardAssets) return null
+    return rewardAssets.map(asset => (
+      <Tag variant='xs-subtle' columnGap={2} size='sm'>
+        <AssetIcon src={asset.icon} size='2xs' />
+        <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
+      </Tag>
+    ))
+  }, [rewardAssets])
+
   return (
     <Flex
       width='full'
@@ -58,7 +83,7 @@ export const Overview: React.FC<OverviewProps> = ({
       flexDir='column'
     >
       <ModalHeader py={2} display='flex' justifyContent='space-between' alignItems='center'>
-        <RawText fontSize='md'>Overview</RawText>
+        <Text fontSize='md' translation='defi.overview' />
         <ModalCloseButton position='static' />
       </ModalHeader>
       <Stack spacing={0} divider={<Divider />}>
@@ -76,7 +101,7 @@ export const Overview: React.FC<OverviewProps> = ({
                   </RawText>
                 </Stack>
               </Stack>
-              <Amount.Fiat fontSize='xl' value={balance} />
+              <Amount.Fiat fontSize='xl' value={opportunityFiatBalance} />
             </Stack>
             <DefiActionButtons menu={menu} />
           </Stack>
@@ -84,29 +109,14 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {underlyingAssets.map(asset => {
-                  return (
-                    <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
-                      <AssetIcon src={asset.icon} size='2xs' />
-                      <Amount.Crypto fontSize='sm' value={asset.balance} symbol={asset.symbol} />
-                      {asset.allocationPercentage && (
-                        <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-                      )}
-                    </Tag>
-                  )
-                })}
+                {renderUnderlyingAssets}
               </Flex>
             </Stack>
             {rewardAssets && (
               <Stack flex={1} spacing={4}>
                 <Text fontWeight='medium' translation='defi.modals.overview.availableRewards' />
                 <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                  {rewardAssets.map(asset => (
-                    <Tag variant='xs-subtle' columnGap={2} size='sm'>
-                      <AssetIcon src={asset.icon} size='2xs' />
-                      <Amount.Crypto fontSize='sm' value={asset.balance} symbol={asset.symbol} />
-                    </Tag>
-                  ))}
+                  {renderRewardAssets}
                 </Flex>
               </Stack>
             )}
@@ -118,13 +128,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack p={8} spacing={4}>
               <Stack spacing={0}>
                 <Text fontSize='lg' fontWeight='medium' translation='defi.modals.overview.about' />
-                {description && (
-                  <AssetDescriptionTeaser
-                    description={description?.description}
-                    isLoaded={description?.isLoaded}
-                    isTrustedDescription={description?.isTrustedDescription}
-                  />
-                )}
+                {description && <AssetDescriptionTeaser {...description} />}
               </Stack>
               {(tvl || apy) && (
                 <StatGroup>

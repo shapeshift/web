@@ -9,7 +9,7 @@ import {
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useContext } from 'react'
@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -33,7 +34,9 @@ export type FoxyWithdrawValues = {
   [Field.WithdrawType]: WithdrawType
 } & WithdrawValues
 
-export const Withdraw = ({ onNext }: StepComponentProps) => {
+const moduleLogger = logger.child({ namespace: ['FoxyWithdraw:Withdraw'] })
+
+export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -84,10 +87,12 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
         }),
         api.getGasPrice(),
       ])
-      const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
-      return returVal
+      return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
     } catch (error) {
-      console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
+      moduleLogger.error(
+        { fn: 'getWithdrawGasEstimate', error },
+        'Error getting deposit gas estimate',
+      )
       const fundsError =
         error instanceof Error && error.message.includes('Not enough funds in reserve')
       toast({
@@ -130,7 +135,7 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
           type: FoxyWithdrawActionType.SET_WITHDRAW,
           payload: { estimatedGasCrypto },
         })
-        onNext(DefiSteps.Confirm)
+        onNext(DefiStep.Confirm)
         dispatch({
           type: FoxyWithdrawActionType.SET_LOADING,
           payload: false,
@@ -142,14 +147,14 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
           type: FoxyWithdrawActionType.SET_APPROVE,
           payload: { estimatedGasCrypto },
         })
-        onNext(DefiSteps.Approve)
+        onNext(DefiStep.Approve)
         dispatch({
           type: FoxyWithdrawActionType.SET_LOADING,
           payload: false,
         })
       }
     } catch (error) {
-      console.error('FoxyWithdraw:handleContinue error:', error)
+      moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
       dispatch({
         type: FoxyWithdrawActionType.SET_LOADING,
         payload: false,
@@ -177,6 +182,7 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
       return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
     } catch (error) {
       console.error('FoxyWithdraw:getApproveEstimate error:', error)
+      moduleLogger.error({ fn: 'getApproveEstimate', error }, 'Error getting gas approval estimate')
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -190,8 +196,8 @@ export const Withdraw = ({ onNext }: StepComponentProps) => {
     browserHistory.goBack()
   }
 
-  const handlePercentClick = (_percent: number) => {
-    const amount = bnOrZero(cryptoAmountAvailable).times(_percent)
+  const handlePercentClick = (percent: number) => {
+    const amount = bnOrZero(cryptoAmountAvailable).times(percent)
     setValue(Field.CryptoAmount, amount.toString(), {
       shouldValidate: true,
     })

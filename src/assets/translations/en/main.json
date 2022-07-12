@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Back",
+    "balance": "Balance",
     "next": "Next",
     "error": "Error",
     "cancel": "Cancel",
@@ -194,7 +195,8 @@
         "availableRewards": "Available Rewards",
         "about": "About",
         "tvl": "TVL",
-        "apy": "APY"
+        "apy": "APY",
+        "noWithdrawals": "You don't have any withdrawals to claim."
       },
       "claim": {
         "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",

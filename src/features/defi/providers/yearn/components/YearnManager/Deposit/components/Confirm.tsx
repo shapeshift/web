@@ -6,10 +6,10 @@ import { Summary } from 'features/defi/components/Summary'
 import {
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -19,6 +19,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -29,13 +30,15 @@ import { useAppSelector } from 'state/store'
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+const moduleLogger = logger.child({ namespace: ['YearnDeposit:Confirm'] })
+
+export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
   // TODO: Allow user to set fee priority
-  const opportunity = state?.opportunity
+  const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference } = query
 
   const assetNamespace = 'erc20'
@@ -90,9 +93,9 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         feePriority: undefined,
       })
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
-      onNext(DefiSteps.Status)
+      onNext(DefiStep.Status)
     } catch (error) {
-      console.error('YearnDeposit:handleDeposit error', error)
+      moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -105,7 +108,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }
 
   const handleCancel = () => {
-    onNext(DefiSteps.Info)
+    onNext(DefiStep.Info)
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)

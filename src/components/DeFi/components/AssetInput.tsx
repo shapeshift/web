@@ -11,6 +11,7 @@ import {
 import { useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -36,7 +37,7 @@ const CryptoInput = (props: InputProps) => (
 )
 
 export type AssetInputProps = {
-  assetName: string
+  assetSymbol: string
   assetIcon: string
   onChange?: (arg0: string, arg1?: boolean) => void
   onAssetClick?: () => void
@@ -44,13 +45,14 @@ export type AssetInputProps = {
   isReadOnly?: boolean
   cryptoAmount?: string
   fiatAmount?: string
+  showFiatAmount?: boolean
   balance?: string
   errors?: FieldError
   percentOptions: number[]
 }
 
 export const AssetInput: React.FC<AssetInputProps> = ({
-  assetName,
+  assetSymbol,
   assetIcon,
   onChange = () => {},
   onAssetClick,
@@ -58,6 +60,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   cryptoAmount,
   isReadOnly,
   fiatAmount,
+  showFiatAmount = '0',
   balance,
   errors,
   percentOptions = [0.25, 0.5, 0.75, 1],
@@ -66,6 +69,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const {
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const translate = useTranslate()
   const [isFiat, setIsFiat] = useState<boolean>(false)
   const [isFocused, setIsFocused] = useState(false)
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -89,7 +93,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           leftIcon={<AssetIcon src={assetIcon} size='xs' />}
           rightIcon={onAssetClick && <ChevronDownIcon />}
         >
-          {assetName}
+          {assetSymbol}
         </Button>
         <Stack spacing={0} flex={1} alignItems='flex-end'>
           <NumberFormat
@@ -111,20 +115,22 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       </Stack>
 
-      {fiatAmount && (
+      {showFiatAmount && (
         <Stack width='full' alignItems='flex-end' px={4} pb={2}>
           <Button onClick={() => setIsFiat(!isFiat)} size='xs' variant='link' colorScheme='blue'>
             {isFiat ? (
-              <Amount.Crypto value={cryptoAmount || ''} symbol={assetName} />
+              <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
             ) : (
-              <Amount.Fiat value={fiatAmount || ''} prefix='≈' />
+              <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
             )}
           </Button>
         </Stack>
       )}
       {(onMaxClick || balance) && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          {balance && <Balance value={balance} symbol={assetName} label='Balance' />}
+          {balance && (
+            <Balance value={balance} symbol={assetSymbol} label={translate('common.balance')} />
+          )}
           {onMaxClick && (
             <MaxButtonGroup options={percentOptions} isDisabled={isReadOnly} onClick={onMaxClick} />
           )}

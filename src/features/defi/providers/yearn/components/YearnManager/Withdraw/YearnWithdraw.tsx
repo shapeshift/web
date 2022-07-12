@@ -7,11 +7,11 @@ import {
   DefiAction,
   DefiParams,
   DefiQueryParams,
-  DefiSteps,
+  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -100,23 +100,26 @@ export const YearnWithdraw = () => {
     })
   }
 
-  const StepConfig: DefiStepProps = {
-    [DefiSteps.Info]: {
-      label: translate('defi.steps.withdraw.info.title'),
-      description: translate('defi.steps.withdraw.info.description', {
-        asset: underlyingAsset.symbol,
-      }),
-      component: Withdraw,
-    },
-    [DefiSteps.Confirm]: {
-      label: translate('defi.steps.confirm.title'),
-      component: Confirm,
-    },
-    [DefiSteps.Status]: {
-      label: 'Status',
-      component: Status,
-    },
-  }
+  const StepConfig: DefiStepProps = useMemo(() => {
+    return {
+      [DefiStep.Info]: {
+        label: translate('defi.steps.withdraw.info.title'),
+        description: translate('defi.steps.withdraw.info.description', {
+          asset: underlyingAsset.symbol,
+        }),
+        component: Withdraw,
+      },
+      [DefiStep.Confirm]: {
+        label: translate('defi.steps.confirm.title'),
+        component: Confirm,
+      },
+      [DefiStep.Status]: {
+        label: 'Status',
+        component: Status,
+      },
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [underlyingAsset.symbol])
 
   if (loading || !asset || !marketData)
     return (

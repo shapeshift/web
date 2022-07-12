@@ -21,7 +21,7 @@ export enum DefiAction {
   Claim = 'claim',
 }
 
-export enum DefiSteps {
+export enum DefiStep {
   Info = 'info',
   Approve = 'approve',
   Confirm = 'confirm',

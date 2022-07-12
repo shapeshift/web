@@ -1,4 +1,6 @@
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+
+import { DisplayFeeData } from '../components/Trade/types'
 
 export const BTC: Asset = {
   chainId: 'bip122:000000000019d6689c085ae165831e93',
@@ -90,7 +92,7 @@ export const ETHCHAIN_QUOTE = {
   ],
 }
 
-export const ETHCHAIN_QUOTE_FEES = {
+export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
   chainSpecific: {
     approvalFee: '0',
     estimatedGas: '424500',
@@ -98,5 +100,6 @@ export const ETHCHAIN_QUOTE_FEES = {
     totalFee: '0.1532445',
   },
   tradeFee: '0',
+  tradeFeeSource: '0x',
   fee: '0.1532445',
 }

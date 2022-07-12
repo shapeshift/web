@@ -45,6 +45,7 @@ export const FoxyOverview = () => {
   const cryptoAmountAvailable = bnOrZero(foxyBalance).div(`1e${stakingAsset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
   const claimAvailable = dayjs().isAfter(dayjs(opportunity?.withdrawInfo.releaseTime))
+  const hasClaim = bnOrZero(opportunity?.withdrawInfo.amount).gt(0)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -106,7 +107,7 @@ export const FoxyOverview = () => {
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
-          isDisabled: !claimAvailable,
+          isDisabled: !claimAvailable || !hasClaim,
         },
       ]}
       description={{

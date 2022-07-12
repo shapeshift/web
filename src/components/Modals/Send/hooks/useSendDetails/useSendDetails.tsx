@@ -155,7 +155,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [accountSpecifier, chainAdapterManager, contractAddress, getValues, wallet])
 
   const debouncedEstimateFormFees = useMemo(() => {
-    return debounce(estimateFormFees, 1000)
+    return debounce(estimateFormFees, 1000, { leading: true })
   }, [estimateFormFees])
 
   // Stop calls to debouncedEstimateFormFees on unmount

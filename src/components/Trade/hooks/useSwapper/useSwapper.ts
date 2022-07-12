@@ -2,7 +2,6 @@ import { btcChainId, ChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   OsmosisSwapper,
-  QuoteFeeData,
   Swapper,
   SwapperManager,
   ThorchainSwapper,
@@ -18,7 +17,7 @@ import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -232,7 +231,7 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
-    const result = await (async () => {
+    const tradeQuote = await (async () => {
       if (
         sellAsset.chainId === KnownChainIds.EthereumMainnet ||
         sellAsset.chainId === KnownChainIds.OsmosisMainnet ||
@@ -256,8 +255,8 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    await setFormFees(result, sellAsset)
-    setValue('trade', result)
+    await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
+    setValue('trade', tradeQuote)
   }
 
   const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {
@@ -328,7 +327,7 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        await setFormFees(tradeQuote, sellAsset)
+        await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
@@ -363,10 +362,15 @@ export const useSwapper = () => {
     [setValue, swapperManager, wallet],
   )
 
-  const setFormFees = async (
-    trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>,
-    sellAsset: Asset,
-  ) => {
+  const setFormFees = async ({
+    trade,
+    sellAsset,
+    tradeFeeSource,
+  }: {
+    trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
+    sellAsset: Asset
+    tradeFeeSource: string
+  }) => {
     const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(
       bn(10).exponentiatedBy(feeAsset.precision),
     )
@@ -383,7 +387,7 @@ export const useSwapper = () => {
           const gasPrice = bnOrZero(ethTrade.feeData.chainSpecific.gasPrice).toString()
           const estimatedGas = bnOrZero(ethTrade.feeData.chainSpecific.estimatedGas).toString()
 
-          const fees: QuoteFeeData<KnownChainIds.EthereumMainnet> = {
+          const fees: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
             fee,
             chainSpecific: {
               approvalFee,
@@ -392,6 +396,7 @@ export const useSwapper = () => {
               totalFee,
             },
             tradeFee: ethTrade.feeData.tradeFee,
+            tradeFeeSource,
           }
           setValue('fees', fees)
         }

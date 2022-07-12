@@ -51,6 +51,9 @@ export async function getAssets(
 
   return data.tokens.reduce<Array<Asset>>((prev, token) => {
     try {
+      // blacklist wormhole assets - users can't hold a balance and we don't support wormholes
+      if (token.name.toLowerCase().includes('wormhole')) return prev
+
       const assetId = toAssetId({ chainId, assetNamespace: 'erc20', assetReference: token.address })
 
       const overrideAsset = lodash.find(overrideAssets, (override) => override.assetId == assetId)

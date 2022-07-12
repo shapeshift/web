@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawTypeProps = {

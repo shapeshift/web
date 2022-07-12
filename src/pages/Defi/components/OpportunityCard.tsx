@@ -10,9 +10,13 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId, cosmosChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import {
+  isCosmosChainId,
+  isOsmosisChainId,
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -59,7 +63,6 @@ export const OpportunityCard = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
   const { assetReference } = fromAssetId(assetId)
-  const isCosmosStaking = chainId === cosmosChainId
 
   const assets = useAppSelector(selectAssets)
 
@@ -70,7 +73,7 @@ export const OpportunityCard = ({
 
   const handleClick = () => {
     if (isConnected) {
-      if (isCosmosStaking) {
+      if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
         cosmosStaking.open({
           assetId,
           validatorAddress: contractAddress,
@@ -119,8 +122,10 @@ export const OpportunityCard = ({
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosStaking && `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {isCosmosStaking && `${moniker}`}
+                {!isCosmosChainId(chainId) &&
+                  !isOsmosisChainId(chainId) &&
+                  `${asset.symbol} ${type?.replace('_', ' ')}`}
+                {(isCosmosChainId(chainId) || isOsmosisChainId(chainId)) && `${moniker}`}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

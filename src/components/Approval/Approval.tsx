@@ -1,4 +1,5 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
@@ -37,7 +38,7 @@ export const Approval = () => {
     getValues,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useFormContext<TradeState<'eip155:1'>>()
+  } = useFormContext<TradeState<KnownChainIds.EthereumMainnet>>()
   const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },

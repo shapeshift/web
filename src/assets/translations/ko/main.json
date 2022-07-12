@@ -49,7 +49,6 @@
     "copyFailed": "클립보드에 복사하지 못했습니다.",
     "copyFailedDescription": "클립보드에 복사하지 못했습니다. 직접 복사해주세요.",
     "viewAsset": "자산 보기",
-    "apy": "%{apy}% APY",
     "settings": "설정",
     "legalDated": "날짜: 2022년 1월",
     "approveOnWallet": "지갑에서 승인하기",
@@ -57,7 +56,8 @@
     "login": "로그인",
     "verify": "확인",
     "notRobot": "저는 로봇이 아닙니다",
-    "skip": "넘기기"
+    "skip": "넘기기",
+    "generalError": "오류가 발생하였습니다."
   },
   "updateToast": {
     "body": "새로운 버전의 앱이 출시되었습니다.",
@@ -91,7 +91,9 @@
     "titleMessage": "ShapeShift에서는 암호화폐의 원활한 매매를 위해 여러 fiat-on-ramp 서비스 제공 업체들과 제휴 중입니다.",
     "gem": "GEM",
     "gemMessage": "Gem으로 암호화폐 거래하기",
-    "onJuno": "OnJuno",
+    "junoPay": "JunoPay",
+    "banxa": "Banxa",
+    "banxaMessage": "Banxa를 이용해 암호화폐 거래하기",
     "comingSoon": "개발 중입니다 - 나중에 확인해주세요",
     "buy": "구매",
     "sell": "판매",
@@ -111,7 +113,7 @@
     "body": "100% 무료인, 중개인이 없는 비 수탁형(Non-custodial) 오픈소스 플랫폼입니다.",
     "header": "지갑을 연결하여 시작하세요",
     "cta": "지갑 연결하기",
-    "orViewADemo": "테스트 화면으로 연결하기"
+    "viewADemo": "테스트 모드로 이용하기"
   },
   "connectWallet": {
     "menu": {
@@ -146,7 +148,7 @@
         }
       },
       "getStarted": {
-        "header": "%{assetName} 스테이킹하여 최대 %{maxApr}% APR*을 받으세요.",
+        "header": "%{assetName} 스테이킹하여 최대 %{apr}% APR*을 받으세요.",
         "body": "스테이킹은 블록체인 네트워크 운영을 지원하기 위해 암호화폐 지갑에 자금을 보유하는 과정이며, 그 대가로 보유자는 기여에 대한 보상을 받습니다.",
         "userProtectionInfo": "*수익은 추정된 것으로 시장 상황에 따라 변동됩니다.",
         "cta": {
@@ -231,7 +233,9 @@
     "netWorth": "순자산",
     "walletBalance": "보유 자산",
     "earnBalance": "평가손익",
-    "earnBody": "자산 예치(스테이킹)을 통하여 패시브 인컴(Passive income, 수동적 수입)을 얻을 수도 있고, 또한 DeFi에 예치하여 추가 보상을 얻을 수 있습니다.",
+    "earnBody": "자산 예치(스테이킹)을 통하여 패시브 인컴(Passive income, 수동적 수입)을 얻을 수도 있고, 또한 DeFi 전략을 활용해 추가적인 보상을 얻을 수 있습니다.",
+    "clickHereToEarn": "여기를 눌러 이윤 얻기",
+    "byFarming": "ETH-FOX 유동성 풀 토큰을 파밍해서 얻을 수 있는 연 수익(APR*)",
     "overview": "개요",
     "liquidityPools": "유동성 자금 풀",
     "stakingVaults": "스테이킹 및 금고",
@@ -282,7 +286,9 @@
     "transactions": "트랜잭션 기록",
     "tradeHistory": "거래 내역",
     "foxToken": "FOX 토큰",
-    "featureFlags": "Feature Flags"
+    "featureFlags": "Feature Flags",
+    "demoMode": "테스트 모드",
+    "clickToConnect": "여기를 눌러 지갑 연결하기"
   },
   "transactionRow": {
     "send": "%{symbol} 송신",
@@ -317,6 +323,8 @@
       },
       "uniV2": {
         "addLiquidityETH": "유동성 추가",
+        "stake": "스테이크",
+        "exit": "언스테이크",
         "removeLiquidityETH": "유동성 제거"
       },
       "thor": {
@@ -327,6 +335,9 @@
         "unstake": "언스테이크",
         "instantUnstake": "즉시 언스테이크",
         "claimWithdraw": "출금 요청"
+      },
+      "erc20": {
+        "approve": "승인"
       }
     },
     "unknown": "거래"
@@ -337,6 +348,7 @@
     "rate": "가격",
     "minerFee": "마이너 수수료",
     "shapeshiftFee": "셰이프시프트 수수료",
+    "gasFeeExceedsTradeAmountThreshold": "거래량에 대해 %{percentage}%만큼 가스 비용이 초과되었습니다",
     "confirmDetails": "세부 정보 확인",
     "confirmAndTrade": "확인 및 거래",
     "complete": "거래 완료",
@@ -373,10 +385,20 @@
       "depositAddressRequired": "DEX 주소가 없으면 ETH 견적을 책정할 수 없습니다.",
       "sellAssetNetworkAndSymbolRequired": "견적을 책정하려면 걸맞는 자산 네트워크와 알맞는 심볼이 필요합니다.",
       "hdwalletInvalidConfig": "하드웨어 지갑과 연결하는 동안 오류가 발생했습니다.",
+      "allowanceRequiredFailed": "거래에 필요한 허용량을 승인하는 도중에 오류가 발생하였습니다.",
+      "checkApprovalNeededFailed": "거래 승인 과정을 확인하는 도중에 오류가 발생하였습니다.",
+      "approveInfiniteFailed": "거래 승인 중에 오류가 발생하였습니다.",
+      "buildTradeFailed": "거래를 구축하는 도중에 오류가 발생하였습니다.",
+      "grantAllowanceFailed": "허용량을 부여하는 과정에서 오류가 발생하였습니다.",
+      "minMaxError": "최소 / 최대 거래량을 확인하는 도중에 오류가 발생하였습니다.",
+      "executeTradeFailed": "거래를 실행하는 도중에 오류가 발생하였습니다.",
+      "unsupportedPair": "해당 거래 페어는 현재 지원하고 있지 않습니다.",
+      "rateError": "거래 비율값을 가져오는 중에 오류가 발생하였습니다",
       "signing": {
         "failed": "거래에 서명하는 도중 오류가 발생했습니다.",
         "required": "거래에 서명이 필요합니다."
-      }
+      },
+      "generalError": "거래 과정에서 오류가 발생하였습니다."
     }
   },
   "modals": {
@@ -445,6 +467,20 @@
           "required": "비밀번호가 필요합니다.",
           "length": "비밀번호는 반드시 %{length}자 이상이어야 합니다.",
           "maxLength": "닉네임은 최대 %{length}자 이내로 작성해주세요."
+        }
+      },
+      "confirmPassword": {
+        "header": "비밀번호를 확인해주세요",
+        "walletName": "지갑 닉네임(선택사항)",
+        "body": "지갑을 복호화하려면 비밀번호를 확인하세요 ",
+        "placeholder": "비밀번호 확인",
+        "show": "비밀번호 보기",
+        "hide": "비밀번호 숨김",
+        "error": {
+          "invalid": "비밀번호가 일치해야 합니다",
+          "required": "비밀번호 확인이 필요합니다",
+          "length": "비밀번호는 최소 %{length}자 이상이어야 합니다.",
+          "maxLength": "닉네임은 최대 %{length}자까지 입력할 수 있습니다"
         }
       }
     },
@@ -594,9 +630,32 @@
     },
     "settings": {
       "settings": "설정하기",
+      "currency": "화폐",
       "language": "언어 설정",
       "balanceThreshold": "표기 금액 제한 설정",
-      "balanceThresholdTooltip": "해당 금액보다 적은 자산은 목록에 표기하지 않습니다."
+      "balanceThresholdTooltip": "해당 금액보다 적은 자산은 목록에 표기하지 않습니다.",
+      "currencies": {
+        "CNY": "중국 위안",
+        "USD": "미국 달러(기본값)",
+        "EUR": "유로화",
+        "JPY": "일본 엔화",
+        "GBP": "영국 파운드",
+        "KRW": "한국 원",
+        "INR": "인도 루피",
+        "CAD": "캐나다 달러",
+        "HKD": "홍콩 달러",
+        "AUD": "호주 달러",
+        "TWD": "대만 달러",
+        "BRL": "브라질 헤알",
+        "CHF": "스위스 프랑",
+        "THB": "태국 바트",
+        "MXN": "멕시코 페소",
+        "RUB": "러시아 루블",
+        "SAR": "사우디 리얄",
+        "SGD": "싱가포르 달러",
+        "ILS": "이스라엘 셰켈",
+        "IDR": "인도네시아 루피아"
+      }
     }
   },
   "walletProvider": {
@@ -705,8 +764,9 @@
     },
     "keplr": {
       "errors": {
+        "connectFailure": "Keplr 지갑을 연결할 수 없습니다.",
         "unknown": "Keplr와 연동하는 도중에 예기치 못한 오류가 발생했습니다.",
-        "connectFailure": "Keplr 지갑을 연결할 수 없습니다."
+        "noProvider": "Keplr 지갑 확장 프로그램을 찾을 수 없습니다"
       },
       "connect": {
         "header": "Keplr 지갑 연동하기",
@@ -723,7 +783,8 @@
         "unknown": "Metamask 연동 중 예기치 못한 오류가 발생했습니다.",
         "connectFailure": "Metamask 지갑에 연결할 수 없습니다.",
         "network": "Metamask 지갑이 이더리움 메인넷으로 설정되지 않았습니다.",
-        "multipleWallets": "확인된 이더리움 프로바이더가 Metamask가 아닙니다. 혹시 여러개의 지갑이 설치되어있나요?"
+        "multipleWallets": "확인된 이더리움 프로바이더가 Metamask가 아닙니다. 혹시 여러개의 지갑이 설치되어있나요?",
+        "tallyInstalledAndSetToDefault": "Tally Ho가 설치되어 있고 기본값으로 설정되어 있음을 감지했습니다. MetaMask를 대신 사용하고 싶다면 Tally Ho에서 설정을 변경하고 페이지를 새로고침하세요."
       },
       "connect": {
         "header": "Metamask에 연결",
@@ -740,6 +801,29 @@
         "button": "열기"
       }
     },
+    "tallyHo": {
+      "errors": {
+        "unknown": "Tally Ho와의 통신 도중에 확인되지 않은 오류가 발생하였습니다",
+        "connectFailure": "Tally Ho 지갑과 연결할 수 없습니다",
+        "network": "Tally Ho 지갑이 이더리움 메인넷으로 설정되어야 합니다",
+        "multipleWallets": "탐지된 이더리움 프로바이더가 Tally Ho가 아닙니다. 혹시, 여러개의 지갑을 설치해두셨나요?",
+        "tallyNotInstalledOrSetToDefault": "Tally Ho가 설치되지 않았거나 기본값으로 설정되어 있지 않습니다. Tally Ho를 사용하려면 설치 혹은 기본 지갑으로 설정한 후 페이지를 새로고침하세요."
+      },
+      "connect": {
+        "header": "Tally 페어",
+        "body": "팝업 창을 통해 Tally Ho에 페어 및 로그인하기",
+        "button": "페어"
+      },
+      "failure": {
+        "header": "오류",
+        "body": "Tally Ho 지갑에 연결할 수 없습니다"
+      },
+      "redirect": {
+        "header": "Tally Ho 앱에서 열기",
+        "body": "여기를 눌러 Tally Ho에서 ShapeShift 대시보드 열기",
+        "button": "열기"
+      }
+    },
     "portis": {
       "errors": {
         "unknown": "Portis와 연동하는 도중에 예기치 못한 오류가 발생했습니다.",
@@ -753,6 +837,28 @@
       "failure": {
         "header": "오류 발생",
         "body": "Portis 지갑을 연결할 수 없습니다."
+      }
+    },
+    "xdefi": {
+      "errors": {
+        "unknown": "XDEFI와의 통신 도중에 오류가 발생하였습니다",
+        "connectFailure": "XDEFI 지갑과 연결할 수 없습니다",
+        "network": "XDEFI 지갑이 이더리움 메인넷으로 설정되어야 합니다",
+        "multipleWallets": "탐지된 이더리움 공급자가 XDEFI가 아닙니다. 혹시, 여러개의 지갑을 설치하셨나요?"
+      },
+      "connect": {
+        "header": "XDEFI에 페어",
+        "body": "팝업 창을 통해 XDEFI에 페어 및 로그인 하기",
+        "button": "페어"
+      },
+      "failure": {
+        "header": "오류",
+        "body": "XDEFI 지갑에 연결할 수 없습니다"
+      },
+      "redirect": {
+        "header": "XDEFI 앱에서 열기",
+        "body": "여기를 눌러 XDEFI에서 ShapeShift 대시보드 열기",
+        "button": "열기"
       }
     },
     "shapeShift": {
@@ -778,6 +884,7 @@
       "password": {
         "header": "비밀번호를 입력하세요.",
         "body": "지갑을 암호화할 비밀번호를 입력하세요. 비밀번호를 입력하여 보유한 지갑에 접근 가능합니다. 이 비밀번호는 절대 잊어버리지 않도록 주의하세요.",
+        "warning": "주의: 비밀번호를 잃어버리셨다면, ShapeShift에서는 복구 과정을 도와드릴 수 없습니다.",
         "button": "다음",
         "connect": "다른 지갑에 연결하기"
       },
@@ -856,6 +963,7 @@
         "invalidEmail": "올바른 이메일이 아닙니다",
         "invalidCaptcha": "올바른 Captcha가 아닙니다",
         "captchaRequired": "보안문자가 필요합니다",
+        "tooManyAttempts": "시도 횟수가 너무 많습니다. 나중에 다시 시도해주세요.",
         "invalidLogin": "로그인 실패",
         "noWallet": "로그인을 하기 위한 ShapeShift 기본 지갑을 찾을 수 없습니다. 이 안내에 오류가 있다고 생각하시면 ShapeShift 고객 지원 센터에 문의해주세요.",
         "decryptionError": "지갑을 복호화하는 중에 오류가 발생하였습니다.",
@@ -898,7 +1006,9 @@
         "SegwitNativeTooltip": "대부분의 사용자에게 추천합니다. 반드시 정확한 용도를 알고 있을 때에 한해서 다른 주소를 이용하세요.",
         "btcFormat": "BTC 형식",
         "assetUnavailable": "해당 자산에 대한 시장 데이터가 아직 준비되지 않았습니다. 작업 중이니 조금만 기다려주세요!",
-        "loading": "가격 히스토리를 확인합니다... 조금만 기다려주세요. 열심히 작업하고 있습니다."
+        "loading": "가격 히스토리를 확인합니다... 조금만 기다려주세요. 열심히 작업하고 있습니다.",
+        "maxTotalSupply": "최대 공급량",
+        "availableSupply": "사용 가능한 공급량"
       },
       "assetDescription": {
         "showMore": "상세보기",
@@ -1001,5 +1111,54 @@
     "to": "받은 주소",
     "for": "종류",
     "transfers": "전송 내역"
+  },
+  "plugins": {
+    "foxPage": {
+      "totalFoxValue": "총 Fox 가치",
+      "foxToken": "ShapeShift %{assetSymbol} 토큰",
+      "getAsset": "%{assetSymbol} 가져오기",
+      "buyAssetOnCoinbase": "Coinbase에서 %{assetSymbol} 구입하기",
+      "trade": "거래",
+      "receive": "수신",
+      "mainStakingTitle": "%{assetSymbol} 토큰 스테이킹",
+      "mainStakingDescription": "FOX 보상을 받으려면 FOX를 일방적인 스테이킹 계약으로 사용하십시오. (FOX는 스테이킹되는 동안 거버넌스에서 계속 사용할 수 있지만, 스테이킹하는 중에는 컨트랙트에 묶인 상태가 됩니다.)",
+      "tvl": "TVL",
+      "currentApy": "현재 연 수익률",
+      "balance": "자산 요약",
+      "getStarted": "시작하기",
+      "manage": "관리",
+      "currentPrice": "현재 가격",
+      "tradingUnavailable": "아직 ShapeShift에서는 %{assetSymbol} 거래가 불가능합니다. 대신 Elastic Swap에서 %{assetSymbol} 거래가 가능합니다.",
+      "tradeOnElasticSwap": "ElasticSwap에서 %{assetSymbol} 거래하기",
+      "otherOpportunitiesTitle": {
+        "FOX": "다른 수익 기회",
+        "FOXy": "수익 기회"
+      },
+      "otherOpportunitiesDescription": {
+        "FOX": "유동성 공급, 이자 농사, 대출 및 차입 등의 다양한 기회를 확인하세요. 아래의 시작하기 링크를 클릭하여 관심있는 외부 사이트를 방문하여 자세히 알아보시고, FOX를 사용해보세요.",
+        "FOXy": "이자 농사와 비용 수익을 제공하는, 업계 첫 DAO 리베이스 토큰인 FOXy를 빠르고 쉽게 구매해보세요!"
+      },
+      "liquidityPools": "유동성 풀",
+      "farming": "이자 농사",
+      "borrowingAndLending": "대출 및 차입",
+      "governanceTitle": "거버넌스",
+      "governanceDescription": "FOX 홀더라면 ShapeShift의 미래를 위해 목소리를 내실 수 있습니다. 다음은 토큰 홀더가 투표한 활성 중이거나 최근 통과된 DAO 제안 목록입니다.",
+      "seeAllProposals": "전체 제안 확인하기",
+      "availableToTradeOn": "거래 가능",
+      "dex": "DEX",
+      "centralized": "중앙화됨"
+    },
+    "analytics": {
+      "optInModal": {
+        "title": "ShapeShift의 발전을 도와주세요",
+        "description": "ShapeShift는 이용자의 앱 경험을 잘 이해하기 위해서 이용자 데이터를 수집하고자 합니다. 이 데이터는 제품의 사용성과 사용자 경험을 지속적으로 개선하는 데에 사용됩니다.",
+        "actionsSentence": "ShapeShift는...",
+        "noThanks": "괜찮습니다. 비공개 버전으로 옮겨주세요.",
+        "sendEvents": "익명으로 처리된 클릭 및 페이지뷰 이벤트 보내기",
+        "neverCollectPersonalInformations": "키, 주소, 거래, 잔액 그 외의 어떠한 개인 정보도 절대 수집하지 않습니다.",
+        "neverCollectIp": "전체 IP 주소를 수집하지 않습니다",
+        "neverSellData": "이익을 위해 데이터를 판매하지 않습니다"
+      }
+    }
   }
 }

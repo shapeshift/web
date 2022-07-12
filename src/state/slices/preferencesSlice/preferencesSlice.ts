@@ -1,11 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import { getConfig } from 'config'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
+
+dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
+  Avalanche: boolean
   CoinbasePay: boolean
+  JunoPay: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -20,7 +26,9 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
+    Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
+    JunoPay: getConfig().REACT_APP_FEATURE_JUNOPAY,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
@@ -38,6 +46,8 @@ export const preferences = createSlice({
       state.featureFlags[payload.flag] = payload.value
     },
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
+      require(`dayjs/locale/${payload.locale}.js`)
+
       state.selectedLocale = payload.locale
     },
     setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {

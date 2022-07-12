@@ -96,7 +96,8 @@
     "titleMessage": "ShapeShift has partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
     "gem": "GEM",
     "gemMessage": "Buy or Sell Crypto with Gem",
-    "onJuno": "OnJuno",
+    "junoPay": "JunoPay",
+    "junoPayMessage": "Buy Crypto with JunoPay",
     "banxa": "Banxa",
     "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
@@ -115,7 +116,7 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explore The",
+    "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
@@ -155,7 +156,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake your %{assetName} to earn up to %{maxApr}% APR*",
+        "header": "Stake your %{assetName} to earn %{apr}% APR*",
         "body": "Staking is the process of holding funds in a cryptocurrency wallet to support the operations of a blockchain network and, in return, holders are rewarded for their contribution.",
         "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
         "cta": {
@@ -241,7 +242,7 @@
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
-    "clickHereToEarn": "Click here to Earn ",
+    "clickHereToEarn": "Click here to Earn",
     "byFarming": " APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
@@ -614,7 +615,7 @@
       "withdrawDelayedTime": "7 to 14 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
-      "notEnoughGas":  "Not enough %{assetSymbol} to cover gas",
+      "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
       "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
@@ -1125,6 +1126,7 @@
     "foxPage": {
       "totalFoxValue": "Total Fox Value",
       "foxToken": "ShapeShift %{assetSymbol} Token",
+      "foxDescription": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.",
       "getAsset": "Get %{assetSymbol}",
       "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "trade": "Trade",

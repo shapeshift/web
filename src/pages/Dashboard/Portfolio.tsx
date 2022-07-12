@@ -10,7 +10,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'context/AppProvider/AppContext'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceWithDelegations,
+  selectPortfolioTotalFiatBalanceWithStakingData,
 } from 'state/slices/selectors'
 
 import { AccountTable } from './components/AccountList/AccountTable'
@@ -20,7 +20,7 @@ export const Portfolio = () => {
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useSelector(selectPortfolioAssetIds)
-  const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithDelegations)
+  const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
 
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading

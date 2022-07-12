@@ -1,25 +1,27 @@
 import { btcChainId, ChainId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import {
-  QuoteFeeData,
   Swapper,
   SwapperManager,
+  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
-import { Asset, KnownChainIds, SwapperType } from '@shapeshiftoss/types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import {
@@ -30,6 +32,10 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+
+const moduleLogger = logger.child({
+  namespace: ['useSwapper'],
+})
 
 const debounceTime = 1000
 
@@ -42,6 +48,62 @@ type GetQuoteInput = {
   forceQuote?: boolean
 }
 
+// singleton - do not export me, use getSwapperManager
+let _swapperManager: SwapperManager | null = null
+
+const getSwapperManager = async (): Promise<SwapperManager> => {
+  if (_swapperManager) return _swapperManager
+
+  // instantiate if it doesn't already exist
+  _swapperManager = new SwapperManager()
+
+  const adapterManager = getChainAdapters()
+  const web3 = getWeb3Instance()
+
+  if (getConfig().REACT_APP_FEATURE_THOR) {
+    await (async () => {
+      const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      const thorSwapper = new ThorchainSwapper({
+        midgardUrl,
+        adapterManager,
+        web3,
+      })
+      await thorSwapper.initialize()
+      _swapperManager.addSwapper(thorSwapper)
+    })()
+  }
+
+  const ethereumChainAdapter = adapterManager.get(
+    KnownChainIds.EthereumMainnet,
+  ) as unknown as ethereum.ChainAdapter
+
+  const zrxEthereumSwapper = new ZrxSwapper({
+    web3,
+    adapter: ethereumChainAdapter,
+  })
+
+  try {
+    _swapperManager.addSwapper(zrxEthereumSwapper)
+
+    if (getConfig().REACT_APP_FEATURE_AVALANCHE) {
+      const avalancheChainAdapter = adapterManager.get(
+        KnownChainIds.AvalancheMainnet,
+      ) as unknown as avalanche.ChainAdapter
+
+      const zrxAvalancheSwapper = new ZrxSwapper({
+        web3,
+        adapter: avalancheChainAdapter,
+      })
+
+      _swapperManager.addSwapper(zrxAvalancheSwapper)
+    }
+  } catch (e) {
+    moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
+  }
+
+  return _swapperManager
+}
+
 export const useSwapper = () => {
   const { setValue } = useFormContext()
   const [quote, sellTradeAsset, trade] = useWatch({
@@ -51,36 +113,16 @@ export const useSwapper = () => {
     TradeAsset | undefined,
     Trade<KnownChainIds>,
   ]
-  const adapterManager = useChainAdapters()
-  const [swapperManager] = useState<SwapperManager>(() => {
-    const manager = new SwapperManager()
-    return manager
-  })
+
+  // This will instantiate a manager with no swappers
+  // Swappers will be added in the useEffect below
+  const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   useEffect(() => {
-    if (!adapterManager || !swapperManager) return
-
-    const web3 = getWeb3Instance()
-
     ;(async () => {
-      // const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      // const thorSwapper = new ThorchainSwapper({
-      //   midgardUrl,
-      //   adapterManager,
-      //   web3,
-      // })
-      // await thorSwapper.initialize()
-      // swapperManager.addSwapper(SwapperType.Thorchain, thorSwapper)
-
-      const zrxSwapper = new ZrxSwapper({
-        web3,
-        adapter: adapterManager.get('eip155:1') as unknown as ethereum.ChainAdapter,
-      })
-
-      await zrxSwapper.initialize()
-      swapperManager.addSwapper(SwapperType.Zrx, zrxSwapper)
+      setSwapperManager(await getSwapperManager())
     })()
-  }, [adapterManager, swapperManager])
+  }, [])
 
   const {
     state: { wallet },
@@ -171,8 +213,8 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
-    const result = await (async () => {
-      if (sellAsset.chainId === 'eip155:1') {
+    const tradeQuote = await (async () => {
+      if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmount: amount,
@@ -183,7 +225,7 @@ export const useSwapper = () => {
           wallet,
           sendMax: true,
         })
-      } else if (sellAsset.chainId === 'bip122:000000000019d6689c085ae165831e93') {
+      } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
         // They will need to have selected an accountType from a modal if bitcoin
         throw new Error('bitcoin unsupported')
@@ -191,8 +233,8 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    setFees(result, sellAsset)
-    setValue('trade', result)
+    await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
+    setValue('trade', tradeQuote)
   }
 
   const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {
@@ -215,7 +257,7 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action, wallet }) => {
+    debounce(async ({ amount, sellAsset, buyAsset, action, wallet, swapperManager }) => {
       try {
         const swapper = await swapperManager.getBestSwapper({
           buyAssetId: buyAsset.assetId,
@@ -240,9 +282,9 @@ export const useSwapper = () => {
         })
 
         const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-          if (sellAsset.chainId === 'eip155:1') {
+          if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
             return swapper.getTradeQuote({
-              chainId: 'eip155:1',
+              chainId: KnownChainIds.EthereumMainnet,
               sellAsset,
               buyAsset,
               sellAmount,
@@ -258,7 +300,7 @@ export const useSwapper = () => {
           throw new Error(`unsupported chain id ${sellAsset.chainId}`)
         })()
 
-        setFees(tradeQuote, sellAsset)
+        await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
@@ -274,40 +316,42 @@ export const useSwapper = () => {
     }, debounceTime),
   )
 
-  const updateQuote = async ({
-    amount,
-    sellAsset,
-    buyAsset,
-    feeAsset,
-    action,
-    forceQuote,
-  }: GetQuoteInput) => {
-    if (!wallet) return
-    if (!forceQuote && bnOrZero(amount).isZero()) return
-    setValue('quote', undefined)
-    await updateQuoteDebounced.current({
-      amount,
-      feeAsset,
-      sellAsset,
-      action,
-      buyAsset,
-      wallet,
-    })
-  }
+  const updateQuote = useCallback(
+    async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
+      if (!wallet) return
+      if (!forceQuote && bnOrZero(amount).isZero()) return
+      setValue('quote', undefined)
+      await updateQuoteDebounced.current({
+        amount,
+        feeAsset,
+        sellAsset,
+        action,
+        buyAsset,
+        wallet,
+        swapperManager,
+      })
+    },
+    [setValue, swapperManager, wallet],
+  )
 
-  const setFees = async (
-    trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>,
-    sellAsset: Asset,
-  ) => {
+  const setFormFees = async ({
+    trade,
+    sellAsset,
+    tradeFeeSource,
+  }: {
+    trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
+    sellAsset: Asset
+    tradeFeeSource: string
+  }) => {
     const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(
       bn(10).exponentiatedBy(feeAsset.precision),
     )
     const fee = feeBN.toString()
 
     switch (sellAsset.chainId) {
-      case 'eip155:1':
+      case KnownChainIds.EthereumMainnet:
         {
-          const ethTrade = trade as Trade<'eip155:1'>
+          const ethTrade = trade as Trade<KnownChainIds.EthereumMainnet>
           const approvalFee = bnOrZero(ethTrade.feeData.chainSpecific.approvalFee)
             .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
             .toString()
@@ -315,7 +359,7 @@ export const useSwapper = () => {
           const gasPrice = bnOrZero(ethTrade.feeData.chainSpecific.gasPrice).toString()
           const estimatedGas = bnOrZero(ethTrade.feeData.chainSpecific.estimatedGas).toString()
 
-          const fees: QuoteFeeData<'eip155:1'> = {
+          const fees: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
             fee,
             chainSpecific: {
               approvalFee,
@@ -324,6 +368,7 @@ export const useSwapper = () => {
               totalFee,
             },
             tradeFee: ethTrade.feeData.tradeFee,
+            tradeFeeSource,
           }
           setValue('fees', fees)
         }

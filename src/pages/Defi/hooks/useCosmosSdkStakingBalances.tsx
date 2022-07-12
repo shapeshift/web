@@ -16,7 +16,7 @@ type UseCosmosStakingBalancesProps = {
 }
 
 export type UseCosmosStakingBalancesReturn = {
-  cosmosStakingOpportunities: MergedActiveStakingOpportunity[]
+  cosmosSdkStakingOpportunities: MergedActiveStakingOpportunity[]
   totalBalance: string
 }
 
@@ -35,7 +35,7 @@ export type MergedStakingOpportunity = cosmos.Validator & {
   tvl: string
 }
 
-export function useCosmosStakingBalances({
+export function useCosmosSdkStakingBalances({
   assetId,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -89,7 +89,7 @@ export function useCosmosStakingBalances({
   )
 
   return {
-    cosmosStakingOpportunities: mergedActiveStakingOpportunities,
+    cosmosSdkStakingOpportunities: mergedActiveStakingOpportunities,
     totalBalance: totalBalance.toString(),
   }
 }

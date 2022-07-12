@@ -96,7 +96,7 @@
     "titleMessage": "ShapeShift s'est associé à plusieurs fournisseurs de rampes de paiement pour l'achat et la vente de crypto-monnaies.",
     "gem": "GEM",
     "gemMessage": "Acheter ou Vendre des cryptos avec Gem",
-    "onJuno": "OnJuno",
+    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "banxaMessage": "Achetez ou vendez des cryptos avec Banxa",
     "comingSoon": "Bientôt disponible ...",
@@ -153,7 +153,7 @@
         }
       },
       "getStarted": {
-        "header": "Misez votre %{assetName} pour gagner jusqu'à %{maxApr}% d'APR*",
+        "header": "Misez votre %{assetName} pour gagner %{apr}% d'APR*",
         "body": "La mise est le processus consistant à détenir des fonds dans un porte-monnaie de crypto-monnaies pour soutenir les opérations d'un réseau blockchain et, en retour, les détenteurs sont récompensés pour leur contribution.",
         "userProtectionInfo": "*Les rendements sont estimés et fluctuent en fonction des conditions du marché.",
         "cta": {

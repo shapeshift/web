@@ -24,11 +24,17 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import {
+  accountIdToFeeAssetId,
+  getShapeshiftValidatorFromAccountSpecifier,
+} from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { SHAPESHIFT_VALIDATOR_ADDRESS } from '../validatorDataSlice/const'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+} from '../validatorDataSlice/constants'
 import { selectValidators } from '../validatorDataSlice/selectors'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
@@ -206,6 +212,32 @@ export const selectAllStakingDelegationCrypto = createDeepEqualOutputSelector(
     return allStakingDelegationCrypto
   },
 )
+
+export const selectAllStakingUndelegationCrypto = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  portfolioAccounts => {
+    const allStakingData = Object.entries(portfolioAccounts)
+    const allStakingDelegationCrypto = reduce(
+      allStakingData,
+      (acc, [accountSpecifier, portfolioData]) => {
+        if (!portfolioData.stakingDataByValidatorId) return acc
+        const undelegations = Object.values(portfolioData.stakingDataByValidatorId)
+          .flatMap(stakingDataByValidator => Object.values(stakingDataByValidator))
+          .flatMap(({ undelegations }) => undelegations)
+        const delegationSum = reduce(
+          undelegations,
+          (acc, undelegation) => acc.plus(bnOrZero(undelegation.amount)),
+          bn(0),
+        )
+        return { ...acc, [accountSpecifier]: delegationSum }
+      },
+      {},
+    )
+
+    return allStakingDelegationCrypto
+  },
+)
+
 export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
   selectAllStakingDelegationCrypto,
   selectMarketData,
@@ -227,11 +259,38 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
     return totalStakingDelegationFiat
   },
 )
-export const selectPortfolioTotalFiatBalanceWithDelegations = createSelector(
+
+export const selectTotalStakingUndelegationFiat = createDeepEqualOutputSelector(
+  selectAllStakingUndelegationCrypto,
+  selectMarketData,
+  (state: ReduxState) => state.assets.byId,
+  (allStaked: { [k: string]: string }, marketData, assetsById) => {
+    const allStakingData = Object.entries(allStaked)
+
+    const totalStakingDelegationFiat = reduce(
+      allStakingData,
+      (acc, [accountSpecifier, baseUnitAmount]) => {
+        const assetId = accountIdToFeeAssetId(accountSpecifier)
+        const price = marketData[assetId]?.price ?? 0
+        const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId].precision ?? 0)
+        return bnOrZero(amount).times(price).plus(acc)
+      },
+      bn(0),
+    )
+
+    return totalStakingDelegationFiat
+  },
+)
+
+export const selectPortfolioTotalFiatBalanceWithStakingData = createSelector(
   selectPortfolioTotalFiatBalance,
   selectTotalStakingDelegationFiat,
-  (portfolioFiatBalance, delegationFiatBalance): string => {
-    return bnOrZero(portfolioFiatBalance).plus(delegationFiatBalance).toString()
+  selectTotalStakingUndelegationFiat,
+  (portfolioFiatBalance, delegationFiatBalance, undelegationFiatBalance): string => {
+    return bnOrZero(portfolioFiatBalance)
+      .plus(delegationFiatBalance)
+      .plus(undelegationFiatBalance)
+      .toString()
   },
 )
 
@@ -829,7 +888,8 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
   (portfolioAccounts, accountSpecifier): PubKey[] => {
     const portfolioAccount = portfolioAccounts?.[accountSpecifier]
     if (!portfolioAccount) return []
-    if (!portfolioAccount?.validatorIds?.length) return [SHAPESHIFT_VALIDATOR_ADDRESS]
+    if (!portfolioAccount?.validatorIds?.length)
+      return [getShapeshiftValidatorFromAccountSpecifier(accountSpecifier)]
 
     return portfolioAccount.validatorIds
   },
@@ -872,7 +932,8 @@ export const selectHasActiveStakingOpportunity = createSelector(
     // More than one opportunity data means we have more than the default opportunity
     size(stakingOpportunitiesData) > 1 ||
     // If there's only one staking but it isn't the default opportunity, then it's an active staking
-    stakingOpportunitiesData[0]?.address !== SHAPESHIFT_VALIDATOR_ADDRESS ||
+    (stakingOpportunitiesData[0]?.address !== SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS &&
+      stakingOpportunitiesData[0]?.address !== SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS) ||
     bnOrZero(stakingOpportunitiesData[0]?.rewards).gt(0) ||
     bnOrZero(stakingOpportunitiesData[0]?.totalDelegations).gt(0),
 )

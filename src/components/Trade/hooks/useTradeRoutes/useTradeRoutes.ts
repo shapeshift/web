@@ -1,4 +1,4 @@
-import { AssetId, chainIdToFeeAssetId } from '@shapeshiftoss/caip'
+import { AssetId, chainIdToFeeAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -6,7 +6,7 @@ import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,13 +26,23 @@ export const useTradeRoutes = (
   const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
+  const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
+  const defaultFeeAssetId = chainIdToFeeAssetId(defaultSellChainId)
+  const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
 
   const setDefaultAssets = useCallback(async () => {
-    // wait for assets to be loaded
-    if (isEmpty(assets) || !feeAsset) return
-
+    const bestSwapper = await swapperManager.getBestSwapper({
+      sellAssetId: defaultSellAssetId,
+      buyAssetId: defaultBuyAssetId,
+    })
+    // wait for assets to be loaded and swappers to be initialized
+    if (isEmpty(assets) || !defaultFeeAsset || !bestSwapper) return
     try {
-      const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
       const sellAsset = assets[defaultSellAssetId]
 
       const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
@@ -70,18 +80,27 @@ export const useTradeRoutes = (
           amount: '0',
           sellAsset,
           buyAsset,
-          feeAsset,
+          feeAsset: defaultFeeAsset,
           action: TradeAmountInputField.SELL,
         })
       }
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, feeAsset, getDefaultPair, routeBuyAssetId, setValue, swapperManager, updateQuote])
+  }, [
+    assets,
+    defaultBuyAssetId,
+    defaultFeeAsset,
+    defaultSellAssetId,
+    routeBuyAssetId,
+    setValue,
+    swapperManager,
+    updateQuote,
+  ])
 
   useEffect(() => {
     setDefaultAssets()
-  }, [assets, routeBuyAssetId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assets, routeBuyAssetId, wallet, setDefaultAssets, swapperManager, defaultFeeAsset])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
@@ -98,13 +117,14 @@ export const useTradeRoutes = (
           setValue('buyAsset.asset', buyTradeAsset?.asset)
         }
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+          const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
           await updateQuote({
             forceQuote: true,
-            amount: bnOrZero(sellTradeAsset.amount).toString(),
+            amount: fiatSellAmount,
             sellAsset: asset,
             buyAsset: buyTradeAsset.asset,
             feeAsset,
-            action: TradeAmountInputField.SELL,
+            action: TradeAmountInputField.FIAT,
           })
         }
       } catch (e) {
@@ -113,16 +133,7 @@ export const useTradeRoutes = (
         history.push(TradeRoutePaths.Input)
       }
     },
-    [
-      getValues,
-      sellTradeAsset?.asset,
-      sellTradeAsset?.amount,
-      buyTradeAsset?.asset,
-      setValue,
-      updateQuote,
-      feeAsset,
-      history,
-    ],
+    [getValues, sellTradeAsset, buyTradeAsset, setValue, updateQuote, feeAsset, history],
   )
 
   const handleBuyClick = useCallback(
@@ -141,13 +152,14 @@ export const useTradeRoutes = (
         }
 
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+          const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
           await updateQuote({
             forceQuote: true,
-            amount: bnOrZero(buyTradeAsset.amount).toString(),
+            amount: fiatSellAmount,
             sellAsset: sellTradeAsset.asset,
             buyAsset: asset,
             feeAsset,
-            action: TradeAmountInputField.SELL,
+            action: TradeAmountInputField.FIAT,
           })
         }
       } catch (e) {

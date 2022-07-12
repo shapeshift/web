@@ -31,7 +31,7 @@ import {
   selectTotalCryptoBalanceWithDelegations,
   selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/portfolioSlice/selectors'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -69,8 +69,6 @@ const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[
   [FOXY_ASSET_ID]: foxyTradeOpportunitiesBuckets,
 }
 
-const FOX_DESCRIPTION =
-  'Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.'
 export const FoxPage = () => {
   const translate = useTranslate()
   const history = useHistory()
@@ -129,10 +127,15 @@ export const FoxPage = () => {
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
   const description =
     selectedAsset?.assetId === FOX_ASSET_ID
-      ? FOX_DESCRIPTION // FOX has a custom description, other assets can use the asset-service one
+      ? translate('plugins.foxPage.foxDescription') // FOX has a custom description, other assets can use the asset-service one
       : selectedAsset?.description
+
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   // TODO(gomes): Export a similar RTK select() query, consumed to determine wallet + staking balance loaded
-  const getAssetDescriptionQuery = useGetAssetDescriptionQuery(selectedAsset?.assetId)
+  const getAssetDescriptionQuery = useGetAssetDescriptionQuery({
+    assetId: selectedAsset?.assetId,
+    selectedLocale,
+  })
   const isAssetDescriptionLoaded = !getAssetDescriptionQuery.isLoading
 
   const handleTabClick = (assetId: AssetId) => {

@@ -60,7 +60,7 @@ export const Details = () => {
     fiatBalance,
     handleNextClick,
     handleSendMax,
-    inputHandler,
+    handleInputChange,
     loading,
     toggleCurrency,
   } = useSendDetails()
@@ -135,7 +135,7 @@ export const Details = () => {
             <TokenRow
               control={control}
               fieldName={SendFormFields.CryptoAmount}
-              onInputChange={inputHandler}
+              onInputChange={handleInputChange}
               inputLeftElement={
                 <Button
                   ml={1}
@@ -159,7 +159,7 @@ export const Details = () => {
             <TokenRow
               control={control}
               fieldName={SendFormFields.FiatAmount}
-              onInputChange={inputHandler}
+              onInputChange={handleInputChange}
               inputLeftElement={
                 <Button
                   ml={1}

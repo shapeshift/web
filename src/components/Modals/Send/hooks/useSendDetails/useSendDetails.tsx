@@ -27,9 +27,9 @@ type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 type UseSendDetailsReturnType = {
   balancesLoading: boolean
   fieldName: AmountFieldName
+  handleInputChange(inputValue: string): Promise<void>
   handleNextClick(): void
   handleSendMax(): Promise<void>
-  inputHandler(inputValue: string): Promise<void>
   loading: boolean
   toggleCurrency(): void
   cryptoHumanBalance: BigNumber
@@ -296,7 +296,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   /**
-   * inputHandler
+   * handleInputChange
    *
    * Determines the form's state from input by onChange event.
    * Valid inputs:
@@ -306,7 +306,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    * - Empty amount - input = ''
    * - Not enough native token - gas > have
    */
-  const inputHandler = useCallback(
+  const handleInputChange = useCallback(
     async (inputValue: string) => {
       setValue(SendFormFields.SendMax, false)
 
@@ -409,7 +409,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     fiatBalance,
     handleNextClick,
     handleSendMax,
-    inputHandler,
+    handleInputChange,
     loading,
     toggleCurrency,
   }

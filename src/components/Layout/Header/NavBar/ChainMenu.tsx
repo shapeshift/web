@@ -11,6 +11,7 @@ import {
   fromChainId,
 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -28,11 +29,10 @@ const ChainMenuItem: React.FC<{
   chainName: string
   handleEvmChainClick: any
 }> = ({ chainId, chainName, handleEvmChainClick }) => {
+  const chainAdapters = getChainAdapters()
+  console.log({ chainAdapters })
   const { chainReference: evmChainId } = fromChainId(chainId)
-  console.log({ chainId })
-  const nativeAssetId = getChainAdapters().get(chainId)?.getFeeAssetId()
-  console.log({ chainAdapters: getChainAdapters() })
-  console.log({ nativeAssetId })
+  const nativeAssetId = chainAdapters.get(KnownChainIds.AvalancheMainnet)?.getFeeAssetId()
   const nativeAsset = useAppSelector(state => selectAssetById(state, nativeAssetId ?? ''))
 
   if (!nativeAsset) return null

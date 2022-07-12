@@ -142,6 +142,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(
       chainId => !omittedChainIds.includes(chainId),
     )
+    console.log({ _supportedChains })
 
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
     setSupportedChains(_supportedChains)

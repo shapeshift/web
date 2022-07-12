@@ -1,4 +1,4 @@
-import { btcChainId, ChainId } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   Swapper,
@@ -307,13 +307,14 @@ export const useSwapper = () => {
                 sellAssetAccountNumber: 0,
                 wallet,
               })
-            } else if (sellAsset.chainId === btcChainId) {
+            } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
               // TODO btcAccountSpecifier must come from the btc account selection modal
               // We are defaulting temporarily for development
               const { accountType, utxoParams } = accountIdToUtxoParams(btcAccountSpecifier, 0)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+              console.log('about to get the btc quote')
               return swapper.getTradeQuote({
-                chainId: 'bip122:000000000019d6689c085ae165831e93',
+                chainId: KnownChainIds.BitcoinMainnet,
                 sellAsset,
                 buyAsset,
                 sellAmount,

@@ -64,8 +64,7 @@ export const useTradeRoutes = (
             await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
             return true
           }
-        } catch (e) {
-        }
+        } catch (e) {}
         return false
       })()
 

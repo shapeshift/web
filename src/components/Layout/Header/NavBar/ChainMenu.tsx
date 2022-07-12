@@ -19,7 +19,6 @@ const feeAssetId = getChainAdapters().get(KnownChainIds.EthereumMainnet)?.getFee
 export const ChainMenu = () => {
   const { state } = useWallet()
   const [chainId, setChainId] = useState<string | null>(null)
-  console.log({ feeAssetId })
 
   useEffect(() => {
     ;(async () => {
@@ -48,6 +47,7 @@ export const ChainMenu = () => {
       <MenuList>
         {Object.entries(CHAIN_ID_TO_CHAIN_NAME).map(([chainId, chainName]) => (
           <MenuItem minH='48px' onClick={() => handleEvmChainClick(chainId)}>
+            <Image src={feeAssetId?.icon} />
             <span>{chainName}</span>
           </MenuItem>
         ))}

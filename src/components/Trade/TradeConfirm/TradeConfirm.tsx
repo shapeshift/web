@@ -45,7 +45,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
   const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-  const { trade, fees, sellAssetFiatRate } = getValues()
+  const { trade, fees, sellAssetFiatRate, buyAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -129,7 +129,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       return `${trade.sellAsset?.explorerTxLink}${txid}`
     }
   })()
-
+  console.log('trade', trade)
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -197,7 +197,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>{toFiat(trade.feeData.tradeFee)}</Row.Value>
+                <Row.Value>
+                  {bnOrZero(fees?.tradeFee).toNumber()} ≃{' '}
+                  {toFiat(bnOrZero(fees?.tradeFee).times(buyAssetFiatRate).toNumber())}
+                </Row.Value>
               </Row>
               {isFeeRatioOverThreshold && (
                 <Flex justifyContent='space-evenly' alignItems='center'>

@@ -40,6 +40,7 @@ export const AssetToAsset = ({
   const gray = useColorModeValue('white', 'gray.750')
   const red = useColorModeValue('white', 'red.500')
   const green = useColorModeValue('white', 'green.500')
+  const buyAmount = bnOrZero(trade?.buyAmount).minus(bnOrZero(trade?.tradeFee)).toString()
 
   const renderIcon = () => {
     switch (status) {
@@ -115,7 +116,7 @@ export const AssetToAsset = ({
         >
           <Text fontWeight='medium'>
             {toCrypto(
-              Number(fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0)),
+              Number(fromBaseUnit(bnOrZero(buyAmount), trade?.buyAsset?.precision ?? 0)),
               trade?.buyAsset.symbol,
             )}
           </Text>

@@ -116,17 +116,17 @@ export const useSwapper = () => {
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
-    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-    TradeAsset | undefined,
-    Trade<KnownChainIds>,
-  ]
+      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+      TradeAsset | undefined,
+      Trade<KnownChainIds>,
+    ]
 
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       setSwapperManager(await getSwapperManager())
     })()
   }, [])
@@ -157,9 +157,9 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-            assetIds,
-            sellAssetId,
-          })
+          assetIds,
+          sellAssetId,
+        })
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
@@ -331,6 +331,7 @@ export const useSwapper = () => {
 
         setValue('quote', tradeQuote)
         setValue('sellAssetFiatRate', sellAssetUsdRate)
+        setValue('buyAssetFiatRate', buyAssetUsdRate)
         setValue('feeAssetFiatRate', feeAssetUsdRate)
 
         // Update trade input form fields to new calculated amount
@@ -403,6 +404,13 @@ export const useSwapper = () => {
         break
       case KnownChainIds.OsmosisMainnet:
       case KnownChainIds.CosmosMainnet: {
+        const fees: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
+          fee,
+          chainSpecific: {},
+          tradeFee: trade.feeData.tradeFee,
+          tradeFeeSource: 'Osmosis',
+        }
+        setValue('fees', fees)
         break
       }
       default:

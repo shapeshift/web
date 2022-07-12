@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.1.1...@shapeshiftoss/unchained-client-v9.2.0) (2022-07-12)
+
+
+### Features
+
+* **unchained-client:** add websocket reconnect logic ([#870](https://github.com/shapeshift/lib/issues/870)) ([fcf5c32](https://github.com/shapeshift/lib/commit/fcf5c32f2584f95d9c09ce4e34dbcab5bb8e79af))
+
 # [@shapeshiftoss/unchained-client-v9.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.1.0...@shapeshiftoss/unchained-client-v9.1.1) (2022-07-11)
 
 

@@ -19,6 +19,7 @@ import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
+import { ChainMenu } from './NavBar/ChainMenu'
 import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
@@ -118,6 +119,10 @@ export const Header = () => {
               mb={{ base: 4, md: 0 }}
             >
               <FiatRamps />
+            </Box>
+
+            <Box display={{ base: 'none', md: 'block' }}>
+              <ChainMenu />
             </Box>
             <Box display={{ base: 'none', md: 'block' }}>
               <UserMenu />

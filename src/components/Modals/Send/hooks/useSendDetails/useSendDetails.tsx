@@ -338,6 +338,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         let hasEnoughNativeTokenForGas = false
         let hasValidBalance = false
 
+        const { cryptoAmount } = getValues()
+        hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
+
+        if (!hasValidBalance) {
+          throw new Error('common.insufficientFunds')
+        }
+
         try {
           setLoading(true)
           estimatedFees = await debouncedEstimateFormFees()
@@ -355,14 +362,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           throw estimatedFees.message
         }
 
-        hasEnoughNativeTokenForGas = nativeAssetBalance.minus(estimatedFees.fast.txFee).isPositive()
-
-        const { cryptoAmount } = getValues()
-        hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
-
-        if (!hasValidBalance) {
-          throw new Error('common.insufficientFunds')
+        // If sending native fee asset, ensure amount entered plus fees is less than balance.
+        if (feeAsset.assetId === asset.assetId) {
+          const canCoverFees = nativeAssetBalance
+            .minus(bnOrZero(cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0))
+            .minus(estimatedFees.fast.txFee)
+            .isPositive()
+          if (!canCoverFees) {
+            throw new Error('common.insufficientFunds')
+          }
         }
+
+        hasEnoughNativeTokenForGas = nativeAssetBalance.minus(estimatedFees.fast.txFee).isPositive()
 
         if (!hasEnoughNativeTokenForGas) {
           setValue(SendFormFields.AmountFieldError, [

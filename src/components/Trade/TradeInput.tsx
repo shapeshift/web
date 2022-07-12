@@ -288,8 +288,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                     data-test='token-row-sell-token-button'
                   />
                 }
-                inputRightElement={
-                  <Button
+                inputRightElement= {!(wallet?.getVendor() === 'WalletConnect') ? 
+                  (<Button
                     h='1.75rem'
                     size='sm'
                     variant='ghost'
@@ -299,8 +299,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                     data-test='token-row-sell-max-button'
                   >
                     Max
-                  </Button>
-                }
+                  </Button>)
+                 : undefined }
                 data-test='trade-form-token-input-row-sell'
               />
             </FormControl>

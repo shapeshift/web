@@ -312,7 +312,6 @@ export const useSwapper = () => {
               // We are defaulting temporarily for development
               const { accountType, utxoParams } = accountIdToUtxoParams(btcAccountSpecifier, 0)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
-              console.log('about to get the btc quote')
               return swapper.getTradeQuote({
                 chainId: KnownChainIds.BitcoinMainnet,
                 sellAsset,
@@ -399,6 +398,19 @@ export const useSwapper = () => {
               totalFee,
             },
             tradeFee: ethTrade.feeData.tradeFee,
+            tradeFeeSource,
+          }
+          setValue('fees', fees)
+        }
+        break
+      case KnownChainIds.BitcoinMainnet:
+        {
+          const btcTrade = trade as Trade<KnownChainIds.BitcoinMainnet>
+
+          const fees: DisplayFeeData<KnownChainIds.BitcoinMainnet> = {
+            fee,
+            chainSpecific: btcTrade.feeData.chainSpecific,
+            tradeFee: btcTrade.feeData.tradeFee,
             tradeFeeSource,
           }
           setValue('fees', fees)

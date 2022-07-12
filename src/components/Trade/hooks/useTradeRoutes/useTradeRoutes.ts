@@ -25,8 +25,7 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
-  const { updateQuote, getDefaultPair, getSupportedBuyAssetsFromSellAsset, swapperManager } =
-    useSwapper()
+  const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const [sellTradeAsset] = useWatch({
     name: ['sellAsset'],
@@ -126,24 +125,8 @@ export const useTradeRoutes = (
         }
 
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-          const assetArray = Object.values(assets)
-          const buyAssets = getSupportedBuyAssetsFromSellAsset(assetArray)
           let buyAsset = buyTradeAsset.asset
           let updatedFeeAsset = feeAsset
-
-          // Make sure buy asset is valid
-          if (buyAssets && !buyAssets?.includes(buyAsset)) {
-            const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
-            for (const asset of buyAssets) {
-              if (asset.assetId !== sellTradeAsset?.asset?.assetId) {
-                setValue('buyAsset.asset', asset)
-                buyAsset = asset
-              }
-              if (asset.assetId === feeAssetId) {
-                updatedFeeAsset = asset
-              }
-            }
-          }
 
           const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
           await updateQuote({
@@ -162,17 +145,7 @@ export const useTradeRoutes = (
         history.push(TradeRoutePaths.Input)
       }
     },
-    [
-      assets,
-      getValues,
-      sellTradeAsset,
-      buyTradeAsset,
-      setValue,
-      updateQuote,
-      getSupportedBuyAssetsFromSellAsset,
-      feeAsset,
-      history,
-    ],
+    [assets, getValues, sellTradeAsset, buyTradeAsset, setValue, updateQuote, feeAsset, history],
   )
 
   const handleBuyClick = useCallback(

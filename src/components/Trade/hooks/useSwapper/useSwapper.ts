@@ -1,4 +1,4 @@
-import { btcChainId, ChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   OsmosisSwapper,
@@ -27,6 +27,7 @@ import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import {
+  selectAssetById,
   selectAssetIds,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
@@ -177,9 +178,17 @@ export const useSwapper = () => {
     }),
   )
 
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? 'eip155:1/slip44:60'),
-  )
+  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
+  const feeAsset = useAppSelector(state => {
+    if (!sellTradeAsset?.asset) {
+      return selectFeeAssetById(state, 'eip155:1/slip44:60')
+    } else if (
+      sellTradeAsset.asset.chainId === KnownChainIds.OsmosisMainnet ||
+      sellTradeAsset.asset.chainId === KnownChainIds.CosmosMainnet
+    ) {
+      return selectFeeAssetById(state, osmosisAsset?.assetId)
+    } else return selectFeeAssetById(state, sellTradeAsset.asset.assetId)
+  })
   const { showErrorToast } = useErrorHandler()
 
   const getSendMaxAmount = async ({
@@ -308,6 +317,7 @@ export const useSwapper = () => {
               sellAmount,
               sendMax: false,
               sellAssetAccountNumber: 0,
+              buyAssetAccountNumber: 0,
               wallet,
             })
           } else if (sellAsset.chainId === btcChainId) {
@@ -339,6 +349,7 @@ export const useSwapper = () => {
       if (!wallet) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)
+      console.log('feeAsset', feeAsset)
       await updateQuoteDebounced.current({
         amount,
         feeAsset,
@@ -387,7 +398,6 @@ export const useSwapper = () => {
         break
       case KnownChainIds.OsmosisMainnet:
       case KnownChainIds.CosmosMainnet: {
-        // TODO: Add osmo related fees
         break
       }
       default:

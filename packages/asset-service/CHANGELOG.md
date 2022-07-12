@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v6.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.3.2...@shapeshiftoss/asset-service-v6.3.3) (2022-07-12)
+
+
+### Bug Fixes
+
+* blacklist usdc wormholes ([#873](https://github.com/shapeshift/lib/issues/873)) ([90b0cd7](https://github.com/shapeshift/lib/commit/90b0cd7e95153ff58209f245e85e777169e27a9b))
+
 # [@shapeshiftoss/asset-service-v6.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.3.1...@shapeshiftoss/asset-service-v6.3.2) (2022-07-07)
 
 # [@shapeshiftoss/asset-service-v6.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.3.0...@shapeshiftoss/asset-service-v6.3.1) (2022-07-06)

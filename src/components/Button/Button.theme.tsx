@@ -92,7 +92,8 @@ export const ButtonStyle: ComponentStyleConfig = {
           color: mode('white', `${c}.200`)(props),
         },
         _checked: {
-          bg: mode('gray.200', 'gray.700')(props),
+          bg: mode(`${c}.200`, 'gray.700')(props),
+          color: mode('white', `${c}.200`)(props),
         },
       }
     },

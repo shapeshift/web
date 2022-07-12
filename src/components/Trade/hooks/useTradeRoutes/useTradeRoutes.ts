@@ -61,10 +61,13 @@ export const useTradeRoutes = (
       const isSupportedPair = await (async () => {
         try {
           if (bestSwapper) {
+            console.log('checking is supported pair', buyAssetToCheckId)
             await bestSwapper.getUsdRate({ ...assets[buyAssetToCheckId] })
             return true
           }
-        } catch (e) {}
+        } catch (e) {
+          console.log('SHIT IS FUCKED', e)
+        }
         return false
       })()
 

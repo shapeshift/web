@@ -28,11 +28,13 @@ import { getWeb3Instance } from 'lib/web3-instance'
 import {
   selectAssetIds,
   selectFeeAssetById,
+  selectFirstAccountSpecifierByChainId,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 const moduleLogger = logger.child({
   namespace: ['useSwapper'],
@@ -173,6 +175,12 @@ export const useSwapper = () => {
 
   const { showErrorToast } = useErrorHandler()
 
+  // TODO get this from user input
+  const btcAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, 'bip122:000000000019d6689c085ae165831e93'),
+  )
+
+  console.log('btcAccountSpecifier', btcAccountSpecifier)
   const getSendMaxAmount = async ({
     sellAsset,
     feeAsset,
@@ -258,68 +266,96 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action, wallet, swapperManager }) => {
-      try {
-        const swapper = await swapperManager.getBestSwapper({
-          buyAssetId: buyAsset.assetId,
-          sellAssetId: sellAsset.assetId,
-        })
+    debounce(
+      async ({
+        amount,
+        sellAsset,
+        buyAsset,
+        action,
+        wallet,
+        swapperManager,
+        btcAccountSpecifier,
+      }) => {
+        console.log('getting quote deboundced')
+        try {
+          const swapper = await swapperManager.getBestSwapper({
+            buyAssetId: buyAsset.assetId,
+            sellAssetId: sellAsset.assetId,
+          })
 
-        if (!swapper) throw new Error('no swapper available')
+          if (!swapper) throw new Error('no swapper available')
+          console.log('getting usd rates')
+          const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
+            swapper.getUsdRate({ ...sellAsset }),
+            swapper.getUsdRate({ ...buyAsset }),
+            swapper.getUsdRate({ ...feeAsset }),
+          ])
+          console.log('got usd rates')
 
-        const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
-          swapper.getUsdRate({ ...sellAsset }),
-          swapper.getUsdRate({ ...buyAsset }),
-          swapper.getUsdRate({ ...feeAsset }),
-        ])
+          const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
+            amount,
+            buyAsset,
+            sellAsset,
+            buyAssetUsdRate,
+            sellAssetUsdRate,
+            action,
+          })
 
-        const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
-          amount,
-          buyAsset,
-          sellAsset,
-          buyAssetUsdRate,
-          sellAssetUsdRate,
-          action,
-        })
+          const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
+            if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
+              return swapper.getTradeQuote({
+                chainId: KnownChainIds.EthereumMainnet,
+                sellAsset,
+                buyAsset,
+                sellAmount,
+                sendMax: false,
+                sellAssetAccountNumber: 0,
+                wallet,
+              })
+            } else if (sellAsset.chainId === btcChainId) {
+              // TODO btcAccountSpecifier must come from the btc account selection modal
+              // We are defaulting temporarily for development
+              console.log('CALLING QUOTE btcAccountSpecifier', btcAccountSpecifier)
+              const { accountType, utxoParams } = accountIdToUtxoParams(btcAccountSpecifier, 0)
+              if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+              return swapper.getTradeQuote({
+                chainId: 'bip122:000000000019d6689c085ae165831e93',
+                sellAsset,
+                buyAsset,
+                sellAmount,
+                sendMax: false,
+                sellAssetAccountNumber: 0,
+                wallet,
+                bip44Params: utxoParams.bip44Params,
+                accountType,
+              })
+            }
+            throw new Error(`unsupported chain id ${sellAsset.chainId}`)
+          })()
 
-        const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-          if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
-            return swapper.getTradeQuote({
-              chainId: KnownChainIds.EthereumMainnet,
-              sellAsset,
-              buyAsset,
-              sellAmount,
-              sendMax: false,
-              sellAssetAccountNumber: 0,
-              wallet,
-            })
-          } else if (sellAsset.chainId === btcChainId) {
-            // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
-            // They will need to have selected an accountType from a modal if bitcoin
-            throw new Error('bitcoin unsupported')
-          }
-          throw new Error(`unsupported chain id ${sellAsset.chainId}`)
-        })()
+          await setFormFees(tradeQuote, sellAsset)
 
-        await setFormFees(tradeQuote, sellAsset)
+          setValue('quote', tradeQuote)
+          setValue('sellAssetFiatRate', sellAssetUsdRate)
+          setValue('feeAssetFiatRate', feeAssetUsdRate)
 
-        setValue('quote', tradeQuote)
-        setValue('sellAssetFiatRate', sellAssetUsdRate)
-        setValue('feeAssetFiatRate', feeAssetUsdRate)
-
-        // Update trade input form fields to new calculated amount
-        setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
-        setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
-        setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
-      } catch (e) {
-        showErrorToast(e)
-      }
-    }, debounceTime),
+          // Update trade input form fields to new calculated amount
+          setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
+          setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
+          setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
+        } catch (e) {
+          console.log('its all fucked', e)
+          showErrorToast(e)
+        }
+      },
+      debounceTime,
+    ),
   )
 
   const updateQuote = useCallback(
     async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
-      if (!wallet) return
+      console.log('btcAccountSpecifier', btcAccountSpecifier)
+      if (!wallet || !btcAccountSpecifier) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)
       await updateQuoteDebounced.current({
@@ -330,9 +366,10 @@ export const useSwapper = () => {
         buyAsset,
         wallet,
         swapperManager,
+        btcAccountSpecifier,
       })
     },
-    [setValue, swapperManager, wallet],
+    [btcAccountSpecifier, setValue, swapperManager, wallet],
   )
 
   const setFormFees = async (

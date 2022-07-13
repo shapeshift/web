@@ -371,7 +371,7 @@ export const useSwapper = () => {
                 wallet,
                 bip44Params: utxoParams.bip44Params,
                 accountType,
-                receiveAddress: '0x123',
+                receiveAddress,
               })
             }
             throw new Error(`unsupported chain id ${sellAsset.chainId}`)
@@ -409,7 +409,7 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         accountSpecifiersList,
-        chainAdapterManager
+        chainAdapterManager,
       })
     },
     [accountSpecifiersList, chainAdapterManager, setValue, swapperManager, wallet],

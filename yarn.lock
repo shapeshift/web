@@ -3737,10 +3737,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^6.3.0":
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-6.3.0.tgz#3c6d04b87fcdd36d628d83cb2db3093f3fb3ed50"
-  integrity sha512-tL4oThqnRVqox2ZRdtoreVf1C4f4AAOkRWfZfZwF31EBDN3brIkI52RjzNb6RViKwVSuIMe2tEFgXVQkKfXdwA==
+"@shapeshiftoss/asset-service@^6.3.1":
+  version "6.3.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-6.3.1.tgz#303c6a09d8e52d79da510575d9541eb4e0dcf754"
+  integrity sha512-BWH+ruCCqqCeG7qHFySpJa2jWDandHCKhG1Rx/rQO2eHR2WKBmPirfa2ibOx0AWfgmr0AF7jCsmlxdJhb8NwUQ==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -3775,15 +3775,15 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-6.2.1.tgz#16e8e0d016c986dfa0f34c88254b803cc16009d7"
-  integrity sha512-37R2TJVIOc3NZcgfZQn62ORzAvTzQhaxUrLjlGkPxDzNISk5YbmbOdMR+XvxOS11XrBjRhvtaV7vp1qz/t6z7g==
+"@shapeshiftoss/caip@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-6.3.0.tgz#8cec4f69767c190086e4f523be44ab65d93be829"
+  integrity sha512-yeUUrBZSaIGrGad6K1uDABJDhUofkLpmGogRfD9+xxBbJi2a0Cs+o3bxi3cBaBTkC/Yk13T6g+k6fnD1iPJS8Q==
 
-"@shapeshiftoss/chain-adapters@^7.3.0":
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-7.3.0.tgz#6c5f2ba365b0d2383b0b240545ee735fc347a56e"
-  integrity sha512-VZY0FsJykwDCxglaEcjsfAJFNge38jrolzKr3VbrfVK1QWQMsIoY9WNC70rW+ljgzK/Ic3BTiDzdPxwpA2VPzg==
+"@shapeshiftoss/chain-adapters@^7.5.0":
+  version "7.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-7.5.0.tgz#134b196362276ef4fd471463c3dc1bcde728d35e"
+  integrity sha512-uTXDQQtzM0W+EEXDcTGcVlCKIDYai18bHQ/9cn9x/thrxA3ImTu24/nhUbX0dlAcUSUv+wx3X0DHtRHSbnB5Dg==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -3831,17 +3831,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.23.0", "@shapeshiftoss/hdwallet-core@latest":
-  version "1.23.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.23.0.tgz#8e7552b684d9c4600381cf3131c9d304df4b169a"
-  integrity sha512-CP0ysBeyRMtjx1OTSj+EmuhYWeh3YGxrbobj7HZDYYl8kHyUseJTTQ3s42ezS1AfXkDf/YidKDxa7p6+v7/0sw==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
-"@shapeshiftoss/hdwallet-core@1.24.0", "@shapeshiftoss/hdwallet-core@^1.24.0":
+"@shapeshiftoss/hdwallet-core@1.24.0", "@shapeshiftoss/hdwallet-core@^1.24.0", "@shapeshiftoss/hdwallet-core@latest":
   version "1.24.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.24.0.tgz#3a3c1b527d885b062f55cc4802da8e5c2600236a"
   integrity sha512-2uL8hA9sQlNHNzZ73VjVskSjwI+YzyZ5w+wDqiftu1R7p7OEw7t0A375miLA0+tYQTMShGmzMosbErCBCPwYqg==
@@ -4033,10 +4023,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^7.8.1":
-  version "7.8.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-7.8.1.tgz#ef453b7956125f70d24514440314a983c7c2a794"
-  integrity sha512-Ze3BX2EMqW//qdrccplCUUq+5FH9hqc0whkFd1h4IItJKIRFmCEsKjd8jVdnBTXEyfUQNnF1/Tqq9VpmIKV+0w==
+"@shapeshiftoss/swapper@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-8.1.0.tgz#6b1990a969ce8fd5ca4bf4b3a27e7f0d4e91d983"
+  integrity sha512-p4uiHdP5vk++siT68zlBsDo6xO8E+eWKCVfBPFiEB0huAUN6mRC1ZxeCnp4cfUaqM0BPrVHap9CinhJQuKU54g==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -4049,15 +4039,15 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.1.3.tgz#26b1d626d2b342b107e2ea538b5aedb0bee896ab"
   integrity sha512-Nhrs8gQelmsFAQQHTEq8TS3wueBKqjBf0pX6VxOiIQyasordSHQT4Di6WQOL1NWhciYptJ2nHPbarmhKOD63Eg==
 
-"@shapeshiftoss/types@^6.3.0":
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-6.3.0.tgz#4328ae23af12ad34e2dba7ea2f2f7b91426a218c"
-  integrity sha512-1P38a4MWA3r5ueR3szTN8Z3b/VjhZfPl8ha/kzeaU03yWR5PCn4nj/xThFB/v53ruQYLyQZcqokz6VHLCOmnDw==
+"@shapeshiftoss/types@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-7.0.0.tgz#8d09b1dda5d68839cdfe5d1588295eb0ac6cb163"
+  integrity sha512-hUUfjQwWX82XRClDvPm0VNgJfSsN5d5yAU9WR5RChfvN76G0N6DcU1VYqpXK8oGW9C0z/1fqgK4XBKLRmIQNFg==
 
-"@shapeshiftoss/unchained-client@^9.0.2":
-  version "9.0.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.0.2.tgz#32f3816cf711db23ea37cb5b7f26887581902c47"
-  integrity sha512-1FySRMMYDExGq2wL2YZwQjddwFta68cEiSIymC08QN4V34oZTr5+pM/KttRHOXKHPHdYLCE5XaxZzA8oqU6DjQ==
+"@shapeshiftoss/unchained-client@^9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.2.0.tgz#6f1e69edd67fddcf81a624b2cc4bb353e72dde69"
+  integrity sha512-bvuoCygMOa4EINVK8FRW3CE9a0bbB1PsytI6HUNrtgtr7mOdO98aPGvrlTwathqdQzbdpPfJM08j86QXKvyBpg==
   dependencies:
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"
@@ -9519,10 +9509,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress@10.2.0:
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-10.2.0.tgz#ca078abfceb13be2a33cbba6e0e80ded770f542a"
-  integrity sha512-+i9lY5ENlfi2mJwsggzR+XASOIgMd7S/Gd3/13NCpv596n3YSplMAueBTIxNLcxDpTcIksp+9pM3UaDrJDpFqA==
+cypress@10.3.0:
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-10.3.0.tgz#fae8d32f0822fcfb938e79c7c31ef344794336ae"
+  integrity sha512-txkQWKzvBVnWdCuKs5Xc08gjpO89W2Dom2wpZgT9zWZT5jXxqPIxqP/NC1YArtkpmp3fN5HW8aDjYBizHLUFvg==
   dependencies:
     "@cypress/request" "^2.88.10"
     "@cypress/xvfb" "^1.2.4"

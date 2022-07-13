@@ -42,7 +42,7 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
     foxyArray: foxyRows,
-    cosmosStakingOpportunities: [],
+    cosmosSdkStakingOpportunities: [],
   }).filter(row => row.assetId.toLowerCase() === asset.assetId.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {

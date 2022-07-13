@@ -1,4 +1,4 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -18,7 +18,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapters, usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -55,10 +55,12 @@ type DebouncedQuoteInput = {
   amount: string
   sellAsset: Asset
   buyAsset: Asset
+  feeAsset: Asset
   action: TradeAmountInputField
   wallet: HDWallet
   swapperManager: SwapperManager
   btcAccountSpecifier: string
+  receiveAddressAccountSpecifier: string
 }
 
 // singleton - do not export me, use getSwapperManager
@@ -119,10 +121,11 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
 
 export const useSwapper = () => {
   const { setValue } = useFormContext()
-  const [quote, sellTradeAsset, trade] = useWatch({
-    name: ['quote', 'sellAsset', 'trade'],
+  const [quote, sellTradeAsset, buyTradeAsset, trade] = useWatch({
+    name: ['quote', 'sellAsset', 'buyAsset', 'trade'],
   }) as [
     TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+    TradeAsset | undefined,
     TradeAsset | undefined,
     Trade<KnownChainIds>,
   ]
@@ -189,6 +192,23 @@ export const useSwapper = () => {
   const btcAccountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, 'bip122:000000000019d6689c085ae165831e93'),
   )
+
+  console.log('buyTradeAsset?.asset?.assetId', buyTradeAsset?.asset?.assetId)
+  const { chainId: receiveAddressChainId } = fromAssetId(
+    buyTradeAsset?.asset?.assetId ?? getDefaultPair()[1],
+  )
+
+  // TODO this will need to change based on what btc account they select
+  const receiveAddressAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, receiveAddressChainId),
+  )
+
+  console.log('receiveAddressChainId!!', receiveAddressChainId)
+  console.log('receiveAddressAccountSpecifier!!', receiveAddressAccountSpecifier)
+åå
+  szdzsdfdf
+  // TODO get all account specifiers and map them by chain id. use the mapping below to get receiveAddressAccountSpecifier instead of calculating it here with hook
+  const { chainAdapterManager } = usePlugins()
 
   const getSendMaxAmount = async ({
     sellAsset,
@@ -285,6 +305,7 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         btcAccountSpecifier,
+        receiveAddressAccountSpecifier,
       }: DebouncedQuoteInput) => {
         try {
           const swapper = await swapperManager.getBestSwapper({
@@ -307,6 +328,21 @@ export const useSwapper = () => {
             sellAssetUsdRate,
             action,
           })
+
+          const chainAdapter = chainAdapterManager.get(receiveAddressChainId)
+
+          if (!chainAdapter)
+            throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
+
+          console.log('trying to get receive address for', receiveAddressAccountSpecifier)
+          const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
+            accountIdToUtxoParams(receiveAddressAccountSpecifier, 0)
+          const receiveAddress = await chainAdapter.getAddress({
+            wallet,
+            accountType: receiveAddressAccountType,
+            ...receiveAddressUtxoParams,
+          })
+          console.log('the receive address is', receiveAddress)
 
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
             if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
@@ -335,7 +371,7 @@ export const useSwapper = () => {
                 wallet,
                 bip44Params: utxoParams.bip44Params,
                 accountType,
-                receiveAddress: '0x123'
+                receiveAddress: '0x123',
               })
             }
             throw new Error(`unsupported chain id ${sellAsset.chainId}`)
@@ -373,9 +409,10 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         btcAccountSpecifier,
+        receiveAddressAccountSpecifier,
       })
     },
-    [btcAccountSpecifier, setValue, swapperManager, wallet],
+    [btcAccountSpecifier, receiveAddressAccountSpecifier, setValue, swapperManager, wallet],
   )
 
   const setFormFees = async ({

@@ -17,7 +17,7 @@ export function register(): Plugins {
             [
               KnownChainIds.AvalancheMainnet,
               () => {
-                const http = new unchained.ethereum.V1Api(
+                const http = new unchained.avalanche.V1Api(
                   new unchained.avalanche.Configuration({
                     basePath: getConfig().REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL,
                   }),

@@ -129,7 +129,6 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     setRoutes(pluginRoutes)
 
-<<<<<<< HEAD
     const omittedChainIds: Array<string> = []
 
     if (!featureFlags.Osmosis) {

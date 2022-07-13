@@ -4044,10 +4044,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-7.0.0.tgz#8d09b1dda5d68839cdfe5d1588295eb0ac6cb163"
   integrity sha512-hUUfjQwWX82XRClDvPm0VNgJfSsN5d5yAU9WR5RChfvN76G0N6DcU1VYqpXK8oGW9C0z/1fqgK4XBKLRmIQNFg==
 
-"@shapeshiftoss/unchained-client@^9.1.1":
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.1.1.tgz#06e0ab1e2a0ce65628fac5feceade6f420650297"
-  integrity sha512-Y8gLv+zKJN9B5otaEUi9LmXtSXq5ILfZTilH8Z2x+fQIxUp1tmL5ger5dgXbRgquGaBvyXBsJhOXRO9Mr6S8Hw==
+"@shapeshiftoss/unchained-client@^9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.2.0.tgz#6f1e69edd67fddcf81a624b2cc4bb353e72dde69"
+  integrity sha512-bvuoCygMOa4EINVK8FRW3CE9a0bbB1PsytI6HUNrtgtr7mOdO98aPGvrlTwathqdQzbdpPfJM08j86QXKvyBpg==
   dependencies:
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"

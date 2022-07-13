@@ -28,11 +28,14 @@ export const QrCodeScanner = () => {
     field: { onChange },
   } = useController({ name: SendFormFields.Input })
 
-  const handleError = (error: DOMException) => {
-    setError(error)
-  }
+  const handleError = (error: DOMException) => {}
 
-  const handleScan = async (value: string | null) => {
+  const handleScan = async (value: string | null, error) => {
+    if (error) {
+      setError(error)
+      return
+    }
+
     if (value) {
       onChange(value.trim())
 
@@ -67,7 +70,7 @@ export const QrCodeScanner = () => {
           <QrReader
             delay={100}
             onError={handleError}
-            onScan={handleScan}
+            onResult={handleScan}
             style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
           />
         )}

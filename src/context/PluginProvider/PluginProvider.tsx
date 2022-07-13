@@ -21,7 +21,7 @@ type PluginProviderContextProps = {
   routes: Route[]
 }
 
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis']
+const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis', 'avalanche']
 
 // don't export me, access me through the getter
 let _chainAdapterManager: ChainAdapterManager | undefined
@@ -129,6 +129,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     setRoutes(pluginRoutes)
 
+<<<<<<< HEAD
     const omittedChainIds: Array<string> = []
 
     if (!featureFlags.Osmosis) {
@@ -139,10 +140,11 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       omittedChainIds.push(KnownChainIds.AvalancheMainnet)
     }
 
-    const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(
-      chainId => !omittedChainIds.includes(chainId),
-    )
-    console.log({ _supportedChains })
+    const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(chainId => {
+      if (!featureFlags.Osmosis && chainId === KnownChainIds.OsmosisMainnet) return false
+      if (!featureFlags.Avalanche && chainId === KnownChainIds.AvalancheMainnet) return false
+      return true
+    })
 
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
     setSupportedChains(_supportedChains)

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { AssetId, chainIdToFeeAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
@@ -44,7 +43,6 @@ export const useTradeRoutes = (
     // wait for assets to be loaded and swappers to be initialized
     if (isEmpty(assets) || !defaultFeeAsset || !bestSwapper) return
     try {
-      console.log('setting default assets!!!')
       const sellAsset = assets[defaultSellAssetId]
 
       const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
@@ -101,18 +99,7 @@ export const useTradeRoutes = (
   ])
 
   useEffect(() => {
-    console.log('updateQuote changed')
-  }, [updateQuote])
-
-  useEffect(() => {
-    console.log('buyTradeAsset', buyTradeAsset)
-    console.log('sellTradeAsset', sellTradeAsset)
     if (!buyTradeAsset?.amount || !sellTradeAsset?.amount) {
-      console.log('setting defaults!')
-      console.log('setting defaults!')
-      console.log('setting defaults!')
-      console.log('setting defaults!')
-      console.log('setting defaults!')
       setDefaultAssets()
     }
   }, [

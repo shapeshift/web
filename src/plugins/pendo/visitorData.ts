@@ -1,9 +1,7 @@
-import merge from 'lodash/merge'
+import forEach from 'lodash/forEach'
 import { logger } from 'lib/logger'
 
-import { deferred } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['Plugin', 'Pendo'] })
+const moduleLogger = logger.child({ namespace: ['Plugin', 'Pendo', 'VisitorDataManager'] })
 
 export type VisitorId = {
   id: string
@@ -16,36 +14,51 @@ export type VisitorData = {
 }
 
 export class VisitorDataManager {
-  static readonly #consentMap = new Map<
-    string,
-    [Promise<void>, () => void, (e?: unknown) => void]
-  >()
+  static readonly #consentMap = new Map<string, boolean>()
+  static #visitorId: VisitorId = { id: '', expiry: 0 }
 
-  static #get(): Readonly<Partial<VisitorData>> {
-    const raw = window.localStorage.getItem('visitorData') ?? '{}'
+  static load(): void {
+    const raw = window.localStorage.getItem('visitorData') ?? '{"consent":{}}'
+    moduleLogger.trace({ fn: 'load', raw }, 'get visitorData')
     try {
-      return Object.freeze(JSON.parse(raw))
+      const data: VisitorData = JSON.parse(raw)
+      VisitorDataManager.#visitorId.id = data.visitorId?.id
+      VisitorDataManager.#visitorId.expiry = data.visitorId?.expiry
+      VisitorDataManager.#consentMap.clear()
+      forEach(data.consent, (v, k) => VisitorDataManager.#consentMap.set(k, v))
+
+      // Create a new ID if there isn't a stored ID or if it has expired
+      VisitorDataManager.getId().catch(e =>
+        moduleLogger.error(e, { fn: 'load' }, 'Error updating visitorId'),
+      )
     } catch (e) {
-      moduleLogger.error(e, { fn: 'VisitorDataManager.#get', raw }, 'parse error')
+      moduleLogger.error(e, { fn: 'load', raw }, 'parse error')
       window.localStorage.removeItem('visitorData')
-      return Object.freeze({})
     }
   }
 
-  static #update(updates: Partial<VisitorData>) {
+  static #save() {
     try {
-      const data = merge({}, VisitorDataManager.#get(), updates)
-      moduleLogger.trace({ fn: 'VisitorDataManager.#update', data }, 'setting new visitor data')
+      const data = {
+        consent: Object.fromEntries(VisitorDataManager.#consentMap),
+        visitorId: VisitorDataManager.#visitorId,
+      }
+      moduleLogger.trace({ fn: '#save', data }, 'setting new visitor data')
       window.localStorage.setItem('visitorData', JSON.stringify(data))
     } catch (e) {
-      moduleLogger.error(e, { fn: 'VisitorDataManager.#update', updates }, 'update error')
+      moduleLogger.error(e, { fn: '#update' }, 'update error')
       window.localStorage.removeItem('visitorData')
     }
   }
 
+  /**
+   * Get the current visitorId
+   *
+   * Set the ID to expire after a maximum of two weeks so that tracking of a user is limited
+   */
   static async getId(): Promise<string> {
-    const currentVisitorId = VisitorDataManager.#get().visitorId
-    if (currentVisitorId && currentVisitorId.expiry < Date.now()) {
+    const currentVisitorId = VisitorDataManager.#visitorId
+    if (currentVisitorId && currentVisitorId.expiry > Date.now()) {
       return currentVisitorId.id
     }
     const newVisitorId = {
@@ -53,64 +66,35 @@ export class VisitorDataManager {
       // random 1-2 week timeout
       expiry: Math.floor(Date.now() + (1 + Math.random()) * 7 * 24 * 60 * 60 * 1000),
     }
-    moduleLogger.info(
-      { fn: 'VisitorDataManager.getId', visitorId: newVisitorId },
-      'setting new visitor ID',
-    )
-    VisitorDataManager.#update({
-      visitorId: newVisitorId,
-    })
+    moduleLogger.debug({ fn: 'getId', visitorId: newVisitorId }, 'setting new visitor ID')
+    VisitorDataManager.#visitorId.id = newVisitorId.id
+    VisitorDataManager.#visitorId.expiry = newVisitorId.expiry
+    VisitorDataManager.#save()
     return newVisitorId.id
   }
 
   static reset() {
-    moduleLogger.info({ fn: 'VisitorDataManager.reset' }, 'resetting visitor data')
+    moduleLogger.trace({ fn: 'reset' }, 'resetting visitor data')
     window.localStorage.removeItem('visitorData')
-    for (const [, , rejector] of VisitorDataManager.#consentMap.values()) {
-      rejector()
-    }
+    VisitorDataManager.#visitorId.id = ''
+    VisitorDataManager.#visitorId.expiry = 0
     VisitorDataManager.#consentMap.clear()
     // reload to force agent to randomize its tab/session IDs as well
     window.location.reload()
   }
 
-  static #getConsentDeferred(consentType: string) {
-    return (
-      VisitorDataManager.#consentMap.get(consentType) ??
-      (() => {
-        const out = deferred<void>()
-        VisitorDataManager.#consentMap.set(consentType, out)
-        return out
-      })()
-    )
+  static checkConsent(consentType: string): boolean | undefined {
+    const consent = VisitorDataManager.#consentMap.get(consentType)
+    moduleLogger.trace({ fn: 'checkConsent', consent }, 'check consent')
+    return consent
   }
 
-  static consent(
-    consentType: string,
-    prompt: () => Promise<void> = async () => undefined,
-  ): Promise<void> {
-    const [out, resolver] = VisitorDataManager.#getConsentDeferred(consentType)
-    if (VisitorDataManager.#get().consent?.[consentType] === true) {
-      resolver()
-      return out
-    } else {
-      const promptRejected = new Promise<void>((_resolve, reject) => prompt().catch(reject))
-      return Promise.race([out, promptRejected])
-    }
-  }
-
-  static recordConsent(consentType: string) {
-    moduleLogger.info(
-      { fn: 'VisitorDataManager.recordConsent', consentType },
-      'recording user consent',
-    )
-    VisitorDataManager.#update({
-      consent: {
-        [consentType]: true,
-      },
-    })
-    VisitorDataManager.#getConsentDeferred(consentType)[1]()
+  static recordConsent(consentType: string, consentGiven: boolean) {
+    moduleLogger.debug({ fn: 'recordConsent', consentType, consentGiven }, 'recording user consent')
+    VisitorDataManager.#consentMap.set(consentType, consentGiven)
+    VisitorDataManager.#save()
   }
 }
+
 Object.freeze(VisitorDataManager)
 Object.freeze(VisitorDataManager.prototype)

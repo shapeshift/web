@@ -10,4 +10,4 @@ export default {
   component: OptInModal,
 }
 
-export const AnalyticsModal: Story = () => <OptInModal isOpen={true} close={() => {}} />
+export const AnalyticsModal: Story = () => <OptInModal />

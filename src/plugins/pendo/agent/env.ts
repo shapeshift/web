@@ -1,3 +1,4 @@
+import memoize from 'lodash/memoize'
 import { logger } from 'lib/logger'
 
 import { expectedResponseKeys } from './filters'
@@ -66,11 +67,17 @@ export function makePendoEnv(pendoConfig: PendoConfig): PendoEnv {
     get sealed() {
       return !unsealed
     },
-    unseal() {
-      const warning = `The Pendo agent environment has been unsealed. Many security protections are now disabled. Reload the page if you didn't expect this message.`
-      moduleLogger.warn(warning)
+    unseal: memoize(() => {
+      // This warning is help make sure we don't accidentally remove security
+      // protections in production
+      const warning = `**PENDO WARNING**
+      
+      Many security protections are now disabled.
+      
+      If this is a production environment, please fix the environment variables IMMEDIATELY`
+      moduleLogger.warn(new Error(warning), 'Warning')
       alert(warning)
       unsealed = true
-    },
+    }),
   }
 }

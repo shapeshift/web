@@ -8,9 +8,10 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@chakra-ui/react'
-import { lazy, Suspense, useState } from 'react'
+import { useState } from 'react'
 import { useController } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { QrReader } from 'react-qr-reader'
 import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -18,8 +19,6 @@ import { Text } from 'components/Text'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 const PERMISSION_ERROR = 'Permission denied'
-
-const QrReader = lazy(() => import('react-qr-reader'))
 
 export const QrCodeScanner = () => {
   const history = useHistory()
@@ -42,49 +41,47 @@ export const QrCodeScanner = () => {
   }
 
   return (
-    <Suspense fallback={null}>
-      <SlideTransition>
-        <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
-        <ModalCloseButton borderRadius='full' />
-        <ModalBody>
-          {error ? (
-            <Flex justifyContent='center' alignItems='center' flexDirection='column'>
-              <Alert status='error' borderRadius='xl'>
-                <AlertIcon />
-                <Text
-                  translation={
-                    error.message === PERMISSION_ERROR
-                      ? 'modals.send.errors.qrPermissions'
-                      : 'modals.send.errors.generic'
-                  }
-                />
-              </Alert>
-              {error.message === PERMISSION_ERROR && (
-                <Button colorScheme='blue' mt='5' onClick={() => setError(null)}>
-                  {translate('modals.send.permissionsButton')}
-                </Button>
-              )}
-            </Flex>
-          ) : (
-            <QrReader
-              delay={100}
-              onError={handleError}
-              onScan={handleScan}
-              style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
-            />
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            width='full'
-            variant='ghost'
-            size='lg'
-            onClick={() => history.push(SendRoutes.Address)}
-          >
-            <Text translation='common.back' />
-          </Button>
-        </ModalFooter>
-      </SlideTransition>
-    </Suspense>
+    <SlideTransition>
+      <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
+      <ModalCloseButton borderRadius='full' />
+      <ModalBody>
+        {error ? (
+          <Flex justifyContent='center' alignItems='center' flexDirection='column'>
+            <Alert status='error' borderRadius='xl'>
+              <AlertIcon />
+              <Text
+                translation={
+                  error.message === PERMISSION_ERROR
+                    ? 'modals.send.errors.qrPermissions'
+                    : 'modals.send.errors.generic'
+                }
+              />
+            </Alert>
+            {error.message === PERMISSION_ERROR && (
+              <Button colorScheme='blue' mt='5' onClick={() => setError(null)}>
+                {translate('modals.send.permissionsButton')}
+              </Button>
+            )}
+          </Flex>
+        ) : (
+          <QrReader
+            delay={100}
+            onError={handleError}
+            onScan={handleScan}
+            style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
+          />
+        )}
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          width='full'
+          variant='ghost'
+          size='lg'
+          onClick={() => history.push(SendRoutes.Address)}
+        >
+          <Text translation='common.back' />
+        </Button>
+      </ModalFooter>
+    </SlideTransition>
   )
 }

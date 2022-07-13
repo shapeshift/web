@@ -1,6 +1,13 @@
-import { AssetId, avalancheAssetId, btcChainId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  avalancheAssetId,
+  btcAssetId,
+  btcChainId,
+  cosmosAssetId,
+  ethAssetId,
+  ethChainId,
+} from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 import {
   accountIdToChainId,
@@ -13,11 +20,19 @@ import {
   trimWithEndEllipsis,
 } from './utils'
 
-jest.mock('context/PluginProvider/PluginProvider')
-
 const mockChainAdapters = new Map([
-  [KnownChainIds.BitcoinMainnet, {}],
-  [KnownChainIds.CosmosMainnet, {}],
+  [
+    KnownChainIds.BitcoinMainnet,
+    {
+      getFeeAssetId: () => btcAssetId,
+    },
+  ],
+  [
+    KnownChainIds.CosmosMainnet,
+    {
+      getFeeAssetId: () => cosmosAssetId,
+    },
+  ],
   [
     KnownChainIds.EthereumMainnet,
     {
@@ -32,11 +47,11 @@ const mockChainAdapters = new Map([
   ],
 ])
 
-describe('accountIdToChainId', () => {
-  beforeEach(() => {
-    ;(getChainAdapters as jest.Mock<unknown>).mockReturnValueOnce(mockChainAdapters)
-  })
+jest.mock('context/PluginProvider/PluginProvider', () => ({
+  getChainAdapters: () => mockChainAdapters,
+}))
 
+describe('accountIdToChainId', () => {
   it('can get eth chainId from accountId', () => {
     const accountId = 'eip155:1:0xdef1cafe'
     const chainId = accountIdToChainId(accountId)

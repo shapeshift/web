@@ -1,3 +1,5 @@
+import { avalancheAssetId, btcAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import {
   assetIds,
@@ -47,6 +49,37 @@ import {
   selectPortfolioTotalFiatBalanceByAccount,
   selectTotalFiatBalanceWithDelegations,
 } from './selectors'
+
+const mockChainAdapters = new Map([
+  [
+    KnownChainIds.BitcoinMainnet,
+    {
+      getFeeAssetId: () => btcAssetId,
+    },
+  ],
+  [
+    KnownChainIds.CosmosMainnet,
+    {
+      getFeeAssetId: () => cosmosAssetId,
+    },
+  ],
+  [
+    KnownChainIds.EthereumMainnet,
+    {
+      getFeeAssetId: () => ethAssetId,
+    },
+  ],
+  [
+    KnownChainIds.AvalancheMainnet,
+    {
+      getFeeAssetId: () => avalancheAssetId,
+    },
+  ],
+])
+
+jest.mock('context/PluginProvider/PluginProvider', () => ({
+  getChainAdapters: () => mockChainAdapters,
+}))
 
 describe('portfolioSlice', () => {
   const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)

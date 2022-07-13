@@ -175,6 +175,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       { asset: asset.assetId, feeAsset: feeAsset.assetId, cryptoHumanBalance, fiatBalance },
       'Send Max',
     )
+    // Clear existing amount errors.
+    setValue(SendFormFields.AmountFieldError, '')
 
     if (feeAsset.assetId !== asset.assetId) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
@@ -316,7 +318,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       try {
         if (inputValue === '') {
-          // TODO: use isDirty instead
           // Cancel any pending requests
           debouncedEstimateFormFees.cancel()
           // Don't show an error message when the input is empty

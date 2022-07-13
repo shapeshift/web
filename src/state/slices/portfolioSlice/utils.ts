@@ -4,7 +4,6 @@ import {
   btcChainId,
   CHAIN_NAMESPACE,
   ChainId,
-  chainIdToFeeAssetId,
   cosmosChainId,
   ethChainId,
   fromAccountId,
@@ -20,6 +19,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -111,8 +111,10 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
 }
 
 // note - this is not really a selector, more of a util
-export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
-  chainIdToFeeAssetId(accountIdToChainId(accountId))
+export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId => {
+  const chainId = accountIdToChainId(accountId)
+  return getChainAdapters().get(chainId)?.getFeeAssetId() as AssetId
+}
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))

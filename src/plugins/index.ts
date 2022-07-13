@@ -4,7 +4,7 @@ import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { Route } from '../Routes/helpers'
 
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'osmosis']
+const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'osmosis', 'avalanche']
 
 export type Plugins = [chainId: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }

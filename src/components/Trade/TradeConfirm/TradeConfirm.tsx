@@ -198,7 +198,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </Row.Label>
                 </HelperTooltip>
                 <Row.Value>
-                  {bnOrZero(fees?.tradeFee).toNumber()} ≃{' '}
                   {toFiat(bnOrZero(fees?.tradeFee).times(buyAssetFiatRate).toNumber())}
                 </Row.Value>
               </Row>

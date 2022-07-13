@@ -47,6 +47,7 @@ export type AssetInputProps = {
   fiatAmount?: string
   showFiatAmount?: boolean
   balance?: string
+  fiatBalance?: string
   errors?: FieldError
   percentOptions: number[]
 }
@@ -62,6 +63,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   fiatAmount,
   showFiatAmount = '0',
   balance,
+  fiatBalance,
   errors,
   percentOptions = [0.25, 0.5, 0.75, 1],
   children,
@@ -104,6 +106,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             prefix={isFiat ? localeParts.prefix : ''}
             decimalSeparator={localeParts.decimal}
             inputMode='decimal'
+            decimalScale={isFiat ? 2 : 8}
             thousandSeparator={localeParts.group}
             value={isFiat ? fiatAmount : cryptoAmount}
             onValueChange={values => {
@@ -134,6 +137,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           {onMaxClick && (
             <MaxButtonGroup options={percentOptions} isDisabled={isReadOnly} onClick={onMaxClick} />
           )}
+          {fiatBalance && <Amount.Fiat value={fiatBalance} />}
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}

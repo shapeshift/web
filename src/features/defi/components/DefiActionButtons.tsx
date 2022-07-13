@@ -39,11 +39,10 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
 
   const renderMenu = useMemo(() => {
     return menu.map(({ action, icon, label, toolTip, isDisabled, ...rest }) => (
-      <Tooltip label={toolTip} isDisabled={!isDisabled} hasArrow>
+      <Tooltip key={action} label={toolTip} isDisabled={!isDisabled} hasArrow>
         <Box width='full'>
           <Button
             width='full'
-            key={action}
             onClick={() => handleClick(action)}
             leftIcon={icon}
             isDisabled={isDisabled}

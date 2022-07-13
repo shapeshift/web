@@ -9,7 +9,7 @@ import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 type DepositProps = {
   asset: Asset
@@ -58,6 +58,7 @@ export const Deposit = ({
   asset,
   marketData,
   cryptoAmountAvailable,
+  fiatAmountAvailable,
   cryptoInputValidation,
   fiatInputValidation,
   isLoading,
@@ -68,6 +69,7 @@ export const Deposit = ({
 
   const {
     control,
+    setValue,
     formState: { errors, isValid },
     handleSubmit,
   } = useForm<DepositValues>({
@@ -96,18 +98,32 @@ export const Deposit = ({
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
-      fiatAmount.onChange(value)
-      cryptoAmount.onChange(bnOrZero(value).div(marketData.price).toFixed(4).toString())
+      setValue(Field.FiatAmount, value, { shouldValidate: true })
+      setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
+        shouldValidate: true,
+      })
     } else {
-      cryptoAmount.onChange(value)
-      fiatAmount.onChange(bnOrZero(value).times(marketData.price).toFixed(4).toString())
+      setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
+        shouldValidate: true,
+      })
+      setValue(Field.CryptoAmount, value, {
+        shouldValidate: true,
+      })
     }
   }
 
-  const handlePercentClick = (_percent: number) => {
-    const amount = bnOrZero(cryptoAmountAvailable).times(_percent)
-    fiatAmount.onChange(amount.times(marketData.price).toFixed(4).toString())
-    cryptoAmount.onChange(amount.toString())
+  const handlePercentClick = (percent: number) => {
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable)
+      .times(percent)
+      .dp(asset.precision, BigNumber.ROUND_DOWN)
+    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+    console.info('percent', cryptoAmount.toString(), fiatAmount.toString())
+    setValue(Field.FiatAmount, fiatAmount.toFixed(2, BigNumber.ROUND_DOWN), {
+      shouldValidate: true,
+    })
+    setValue(Field.CryptoAmount, cryptoAmount.toFixed(8, BigNumber.ROUND_DOWN), {
+      shouldValidate: true,
+    })
   }
 
   // const handleSlippageChange = (value: string | number) => {
@@ -133,6 +149,7 @@ export const Deposit = ({
             assetIcon={asset.icon}
             assetSymbol={asset.symbol}
             balance={cryptoAmountAvailable}
+            fiatBalance={fiatAmountAvailable}
             onMaxClick={value => handlePercentClick(value)}
             percentOptions={percentOptions}
           />

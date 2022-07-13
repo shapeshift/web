@@ -17,7 +17,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
@@ -197,11 +197,15 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const handlePercentClick = (percent: number) => {
-    const amount = bnOrZero(cryptoAmountAvailable).times(percent)
-    setValue(Field.CryptoAmount, amount.toString(), {
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable)
+      .times(percent)
+      .dp(asset.precision, BigNumber.ROUND_DOWN)
+    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+    console.info('percent', cryptoAmount.toString(), fiatAmount.toString())
+    setValue(Field.FiatAmount, fiatAmount.toFixed(2, BigNumber.ROUND_DOWN), {
       shouldValidate: true,
     })
-    setValue(Field.FiatAmount, amount.times(marketData.price).toFixed(4).toString(), {
+    setValue(Field.CryptoAmount, cryptoAmount.toFixed(8, BigNumber.ROUND_DOWN), {
       shouldValidate: true,
     })
   }
@@ -210,6 +214,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    console.info('crypto valid', crypto.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -219,6 +224,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+    console.info('fiat valid', crypto.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }

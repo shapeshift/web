@@ -12,7 +12,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
@@ -153,6 +153,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    console.info('crypto valid', crypto.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -162,6 +163,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     const fiat = crypto.times(marketData.price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+    console.info('fiat valid', fiat.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -179,7 +181,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
         required: true,
         validate: { validateCryptoAmount },
       }}
-      fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
+      fiatAmountAvailable={fiatAmountAvailable.toFixed(2, BigNumber.ROUND_DOWN)}
       fiatInputValidation={{
         required: true,
         validate: { validateFiatAmount },

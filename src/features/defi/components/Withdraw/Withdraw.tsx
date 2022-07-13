@@ -84,6 +84,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   asset,
   marketData,
   cryptoAmountAvailable,
+  fiatAmountAvailable,
   cryptoInputValidation,
   disableInput,
   enableSlippage = false,
@@ -128,11 +129,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
-      fiatAmount.onChange(value)
-      cryptoAmount.onChange(bnOrZero(value).div(marketData.price).toString())
+      setValue(Field.FiatAmount, value, { shouldValidate: true })
+      setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
+        shouldValidate: true,
+      })
     } else {
-      cryptoAmount.onChange(value)
-      fiatAmount.onChange(bnOrZero(value).times(marketData.price).toFixed(4))
+      setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
+        shouldValidate: true,
+      })
+      setValue(Field.CryptoAmount, value, {
+        shouldValidate: true,
+      })
     }
   }
 
@@ -159,6 +166,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assetIcon={asset.icon}
           assetSymbol={asset.symbol}
           balance={cryptoAmountAvailable}
+          fiatBalance={fiatAmountAvailable}
           onMaxClick={value => handlePercentClick(value)}
           percentOptions={percentOptions}
           isReadOnly={disableInput}

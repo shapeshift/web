@@ -394,9 +394,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         if (e instanceof Error) {
           setValue(SendFormFields.AmountFieldError, e.message)
         }
-        // setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-        // TODO: useForm::setError instead of setValue
-        // setError(SendFormFields[key], { type: 'custom', message: 'Insufficient Funds' })
       } finally {
         setLoading(false)
       }

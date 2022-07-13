@@ -57,11 +57,13 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
       const accountParams = utxoParams
+      console.log('getting the receive address for', accountType, accountParams)
       const selectedAccountAddress = await chainAdapter.getAddress({
         wallet,
         accountType,
         ...accountParams,
       })
+      console.log('got the receive address', selectedAccountAddress)
       setReceiveAddress(selectedAccountAddress)
       if (asset.chainId === KnownChainIds.EthereumMainnet) {
         const reverseSelectedAccountAddressLookup = await ensReverseLookup(selectedAccountAddress)

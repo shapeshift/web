@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -27,6 +28,7 @@ import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAccountSpecifiers,
   selectAssetIds,
   selectFeeAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -60,7 +62,7 @@ type DebouncedQuoteInput = {
   wallet: HDWallet
   swapperManager: SwapperManager
   btcAccountSpecifier: string
-  receiveAddressAccountSpecifier: string
+  accountSpecifiersList: Record<string, string>[]
 }
 
 // singleton - do not export me, use getSwapperManager
@@ -198,16 +200,9 @@ export const useSwapper = () => {
     buyTradeAsset?.asset?.assetId ?? getDefaultPair()[1],
   )
 
-  // TODO this will need to change based on what btc account they select
-  const receiveAddressAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, receiveAddressChainId),
-  )
+  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
-  console.log('receiveAddressChainId!!', receiveAddressChainId)
-  console.log('receiveAddressAccountSpecifier!!', receiveAddressAccountSpecifier)
-åå
-  szdzsdfdf
-  // TODO get all account specifiers and map them by chain id. use the mapping below to get receiveAddressAccountSpecifier instead of calculating it here with hook
+  console.log('accountSpecifiersList', accountSpecifiersList)
   const { chainAdapterManager } = usePlugins()
 
   const getSendMaxAmount = async ({
@@ -262,7 +257,7 @@ export const useSwapper = () => {
           buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
           sendMax: true,
-          receiveAddress: '0x123',
+          receiveAddress: '', // TODO add this later with the buildTrade PR
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
@@ -305,7 +300,7 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         btcAccountSpecifier,
-        receiveAddressAccountSpecifier,
+        accountSpecifiersList,
       }: DebouncedQuoteInput) => {
         try {
           const swapper = await swapperManager.getBestSwapper({
@@ -334,9 +329,17 @@ export const useSwapper = () => {
           if (!chainAdapter)
             throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
 
+          // Get first specifier for receive asset chain id
+          // Eventually we may want to customize which account they want to receive trades into
+          const receiveAddressAccountSpecifier = accountSpecifiersList.find(
+            specifiers => specifiers[buyAsset.chainId],
+          )
+          if (!receiveAddressAccountSpecifier) throw new Error('no receiveAddressAccountSpecifier')
           console.log('trying to get receive address for', receiveAddressAccountSpecifier)
           const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
-            accountIdToUtxoParams(receiveAddressAccountSpecifier, 0)
+            accountIdToUtxoParams(receiveAddressAccountSpecifier[buyAsset.chainId], 0)
+          console.log('receiveAddressAccountType', receiveAddressAccountType)
+          console.log('receiveAddressUtxoParams', receiveAddressUtxoParams)
           const receiveAddress = await chainAdapter.getAddress({
             wallet,
             accountType: receiveAddressAccountType,
@@ -409,10 +412,10 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         btcAccountSpecifier,
-        receiveAddressAccountSpecifier,
+        accountSpecifiersList,
       })
     },
-    [btcAccountSpecifier, receiveAddressAccountSpecifier, setValue, swapperManager, wallet],
+    [btcAccountSpecifier, accountSpecifiersList, setValue, swapperManager, wallet],
   )
 
   const setFormFees = async ({

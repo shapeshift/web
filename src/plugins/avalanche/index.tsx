@@ -15,15 +15,15 @@ export function register(): Plugins {
         providers: {
           chainAdapters: [
             [
-              KnownChainIds.EthereumMainnet,
+              KnownChainIds.AvalancheMainnet,
               () => {
                 const http = new unchained.ethereum.V1Api(
-                  new unchained.ethereum.Configuration({
+                  new unchained.avalanche.Configuration({
                     basePath: getConfig().REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL,
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.ethereum.EthereumTx>(
+                const ws = new unchained.ws.Client<unchained.avalanche.AvalancheTx>(
                   getConfig().REACT_APP_UNCHAINED_AVALANCHE_WS_URL,
                 )
 

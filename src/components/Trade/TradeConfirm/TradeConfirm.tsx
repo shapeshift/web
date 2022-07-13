@@ -129,7 +129,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       return `${trade.sellAsset?.explorerTxLink}${txid}`
     }
   })()
-  console.log('trade', trade)
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>

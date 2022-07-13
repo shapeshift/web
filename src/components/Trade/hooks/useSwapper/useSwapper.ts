@@ -352,7 +352,6 @@ export const useSwapper = () => {
             } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
               // TODO btcAccountSpecifier must come from the btc account selection modal
               // We are defaulting temporarily for development
-
               const btcAccountSpecifiers = accountSpecifiersList.find(
                 specifiers => specifiers[KnownChainIds.BitcoinMainnet],
               )

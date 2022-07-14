@@ -74,7 +74,8 @@ export const ChainMenu = () => {
       await (state.wallet as any).ethSwitchChain?.(Number(chainId))
       setEvmChainId(chainId)
     } catch (e) {
-      // TODO: handle me
+      // TODO: Handle user rejection, this is optimistic. MetaMask calls currently don't properly throw on the ethSwitchChain(), despite error-handling being implemented there.
+      // We only get an injected MM web3 provider error that we can't react to.
     }
   }
 

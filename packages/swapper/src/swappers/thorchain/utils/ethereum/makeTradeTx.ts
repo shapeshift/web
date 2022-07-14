@@ -57,8 +57,7 @@ export const makeTradeTx = async ({
       buyAsset,
       sellAmount,
       slippageTolerance,
-      destinationAddress,
-      isErc20Trade
+      destinationAddress
     })
 
     return adapter.buildCustomTx({

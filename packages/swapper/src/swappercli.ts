@@ -112,7 +112,9 @@ const main = async (): Promise<void> => {
       buyAsset,
       sellAmount: sellAmountBase,
       sellAssetAccountNumber: 0,
-      sendMax: false
+      sendMax: false,
+      receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      wallet
     })
   } catch (e) {
     console.error(e)
@@ -140,7 +142,8 @@ const main = async (): Promise<void> => {
       sellAmount: sellAmountBase,
       sellAsset,
       sellAssetAccountNumber: 0,
-      buyAssetAccountNumber: 0
+      buyAssetAccountNumber: 0,
+      receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
     })
     const txid = await swapper.executeTrade({ trade, wallet })
     console.info('broadcast tx with id: ', txid)

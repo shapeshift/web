@@ -1,5 +1,7 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { btcChainId } from '@shapeshiftoss/caip'
+import { bitcoin } from '@shapeshiftoss/chain-adapters'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { Asset, BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
 import { SwapError, SwapErrorTypes } from '../../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../../utils/bignumber'
@@ -7,7 +9,6 @@ import { InboundResponse, ThorchainSwapperDeps } from '../../../types'
 import { getPriceRatio } from '../../getPriceRatio/getPriceRatio'
 import { makeSwapMemo } from '../../makeSwapMemo/makeSwapMemo'
 import { thorService } from '../../thorService'
-import { deposit } from '../routerCalldata'
 
 type GetBtcThorTxInfoArgs = {
   deps: ThorchainSwapperDeps
@@ -16,11 +17,14 @@ type GetBtcThorTxInfoArgs = {
   sellAmount: string
   slippageTolerance: string
   destinationAddress: string
+  wallet: HDWallet
+  bip44Params: BIP44Params
+  accountType: UtxoAccountType
 }
 type GetBtcThorTxInfoReturn = Promise<{
-  data: string
-  memo: string
-  router: string
+  opReturnData: string
+  vault: string
+  pubkey: string
 }>
 type GetBtcThorTxInfo = (args: GetBtcThorTxInfoArgs) => GetBtcThorTxInfoReturn
 
@@ -30,23 +34,22 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   buyAsset,
   sellAmount,
   slippageTolerance,
-  destinationAddress
+  destinationAddress,
+  wallet,
+  bip44Params,
+  accountType
 }) => {
   try {
-    const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
-
-    const isErc20Trade = assetNamespace === 'erc20'
     const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
       `${deps.midgardUrl}/thorchain/inbound_addresses`
     )
 
-    const ethInboundAddresses = inboundAddresses.find((inbound) => inbound.chain === 'ETH')
+    const btcInboundAddresses = inboundAddresses.find((inbound) => inbound.chain === 'BTC')
 
-    const vault = ethInboundAddresses?.address
-    const router = ethInboundAddresses?.router
+    const vault = btcInboundAddresses?.address
 
-    if (!vault || !router)
-      throw new SwapError(`[getPriceRatio]: router or vault found for ETH`, {
+    if (!vault)
+      throw new SwapError(`[getThorTxInfo]: vault not found for BTC`, {
         code: SwapErrorTypes.RESPONSE_ERROR,
         details: { inboundAddresses }
       })
@@ -64,7 +67,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     const isValidSlippageRange =
       bnOrZero(slippageTolerance).gte(0) && bnOrZero(slippageTolerance).lte(1)
     if (bnOrZero(expectedBuyAmount).lt(0) || !isValidSlippageRange)
-      throw new SwapError('[makeTradeTx]: bad expected buy amount or bad slippage tolerance', {
+      throw new SwapError('[getThorTxInfo]: bad expected buy amount or bad slippage tolerance', {
         code: SwapErrorTypes.BUILD_TRADE_FAILED,
         details: { expectedBuyAmount, slippageTolerance }
       })
@@ -80,18 +83,18 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       limit
     })
 
-    const data = await deposit(
-      router,
-      vault,
-      isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',
-      sellAmount,
-      memo
+    const adapter = deps.adapterManager.get(btcChainId)
+
+    const pubkey = await (adapter as unknown as bitcoin.ChainAdapter).getPublicKey(
+      wallet,
+      bip44Params,
+      accountType
     )
 
     return {
-      data,
-      memo,
-      router
+      opReturnData: memo,
+      vault,
+      pubkey: pubkey.xpub
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

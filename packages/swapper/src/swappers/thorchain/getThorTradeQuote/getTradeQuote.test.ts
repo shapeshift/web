@@ -59,20 +59,8 @@ describe('getTradeQuote', () => {
     supportsOfflineSigning: jest.fn(() => true)
   } as unknown as HDWallet
 
-  it('should throw if no wallet is provided', async () => {
-    const input = {
-      ...quoteInput,
-      buyAsset: ETH,
-      sellAsset: FOX
-    }
-
-    await expect(getThorTradeQuote({ deps, input })).rejects.toThrow(
-      '[getTradeQuote] - wallet is required'
-    )
-  })
-
   it('should get a thorchain quote for a thorchain trade', async () => {
-    const data = [
+    const addressData = [
       {
         router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         address: '0x084b1c3C81545d370f3634392De611CaaBFf8148',
@@ -89,12 +77,11 @@ describe('getTradeQuote', () => {
     }
 
     // Mock midgard api calls in 'getThorTxInfo' and 'getPriceRatio'
-    mockedAxios.get
-      .mockImplementationOnce(() => Promise.resolve({ data })) // getThorTxInfo
-      .mockImplementationOnce(() => Promise.resolve({ data: [ethMidgardPool, foxMidgardPool] })) // getPriceRatio
-      .mockImplementationOnce(() => Promise.resolve({ data })) // getThorTxInfo
-      .mockImplementationOnce(() => Promise.resolve({ data: [ethMidgardPool, foxMidgardPool] })) // getPriceRatio
-      .mockImplementationOnce(() => Promise.resolve({ data: [ethMidgardPool, foxMidgardPool] })) // getPriceRatio
+    mockedAxios.get.mockImplementation((url) => {
+      const isPoolResponse = url.includes('pools')
+      const data = isPoolResponse ? [ethMidgardPool, foxMidgardPool] : addressData
+      return Promise.resolve({ data })
+    })
 
     const tradeQuote = await getThorTradeQuote({ deps, input })
     expect(tradeQuote).toEqual(quoteResponse)

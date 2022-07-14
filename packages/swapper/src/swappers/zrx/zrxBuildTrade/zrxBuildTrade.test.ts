@@ -74,7 +74,8 @@ describe('zrxBuildTrade', () => {
     sellAmount: '1000000000000000000',
     sellAssetAccountNumber: 0,
     buyAssetAccountNumber: 0,
-    wallet
+    wallet,
+    receiveAddress: ''
   }
 
   const buildTradeResponse = {

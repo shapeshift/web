@@ -1,9 +1,17 @@
-import { btcChainId, ChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheChainId,
+  btcChainId,
+  ChainId,
+  cosmosChainId,
+  ethChainId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import {
   HDWallet,
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 
@@ -25,6 +33,9 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     }
     case osmosisChainId: {
       return supportsOsmosis(wallet)
+    }
+    case avalancheChainId: {
+      return supportsEthSwitchChain(wallet)
     }
     default: {
       console.error(`useWalletSupportsChain: unknown chain id ${chainId}`)

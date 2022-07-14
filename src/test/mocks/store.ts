@@ -52,6 +52,7 @@ export const mockStore: ReduxState = {
       Avalanche: false,
       CoinbasePay: false,
       Thor: false,
+      CowSwap: false,
       JunoPay: false,
     },
     selectedLocale: 'en',

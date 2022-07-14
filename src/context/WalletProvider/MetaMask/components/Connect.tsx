@@ -67,12 +67,16 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       }
 
       const { name, icon } = MetaMaskConfig
+      const supportedEvmChainReferences = new Set<string>([
+        CHAIN_REFERENCE.EthereumMainnet,
+        CHAIN_REFERENCE.AvalancheCChain,
+      ])
       try {
         const deviceId = await wallet.getDeviceID()
 
-        // Switch to Mainnet if wallet is on any other chain
+        // Switch to Mainnet if wallet is on an unsupported EVM
         const chainId = await wallet.ethGetChainId?.()
-        if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
+        if (!supportedEvmChainReferences.has(bnOrZero(chainId).toString())) {
           try {
             await wallet.ethSwitchChain?.(bn(CHAIN_REFERENCE.EthereumMainnet).toNumber())
           } catch (e) {

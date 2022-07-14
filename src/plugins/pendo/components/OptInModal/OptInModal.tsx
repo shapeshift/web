@@ -134,7 +134,13 @@ export const OptInModal: React.FC = () => {
       <Divider mb={4} />
 
       <ModalFooter flexDirection='column'>
-        <Button isFullWidth colorScheme={'blue'} size='md' onClick={handleConfirm}>
+        <Button
+          isFullWidth
+          colorScheme={'blue'}
+          size='md'
+          onClick={handleConfirm}
+          data-test='consent-optin-continue-button'
+        >
           <Text translation={'common.continue'} />
         </Button>
         <Button
@@ -143,6 +149,7 @@ export const OptInModal: React.FC = () => {
           size='md'
           mt={3}
           onClick={() => (window.location.href = 'https://private.shapeshift.com')}
+          data-test='consent-optout-button'
         >
           <Text translation='plugins.analytics.optInModal.noThanks' />
         </Button>

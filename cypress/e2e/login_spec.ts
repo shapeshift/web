@@ -15,8 +15,10 @@ describe('The Dashboard', () => {
   it('supports log in via an imported Native wallet', () => {
     cy.visit('')
 
+    cy.clearLocalStorage()
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
+    cy.getBySel('consent-optin-continue-button').click()
     cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-import-button').click()
 
@@ -58,7 +60,9 @@ describe('The Dashboard', () => {
   it('supports login via locally stored Native wallet', () => {
     // This will use the wallet created in `supports log in via an imported Native wallet`
     cy.visit('')
+    cy.clearLocalStorage()
     cy.getBySel('connect-wallet-button').click()
+    cy.getBySel('consent-optin-continue-button').click()
     cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-load-button').click()
     cy.getBySel('native-saved-wallet').should('have.length', 1)
@@ -72,7 +76,9 @@ describe('The Dashboard', () => {
   it('cannot login natively when no local Native wallets', () => {
     cy.clearIndexedDB().then(() => {
       cy.visit('')
+      cy.clearLocalStorage()
       cy.getBySel('connect-wallet-button').click()
+      cy.getBySel('consent-optin-continue-button').click()
       cy.getBySel('connect-wallet-native-button').click()
       cy.getBySel('wallet-native-load-button').should('be.disabled')
     })

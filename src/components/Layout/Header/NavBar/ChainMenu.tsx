@@ -36,12 +36,13 @@ const ChainMenuItem: React.FC<{
     <MenuItem
       icon={<AssetIcon src={nativeAsset.icon ?? ''} width='6' height='auto' />}
       onClick={() => handleEvmChainClick(evmChainId)}
+      borderRadius='lg'
     >
       <Flex justifyContent={'space-between'}>
         <Box>
           <span>{chainName}</span>
         </Box>
-        <Box>{isConnected && <CircleIcon color={connectedColor} />}</Box>
+        <Box>{isConnected && <CircleIcon color={connectedColor} width='3' height='auto' />}</Box>
       </Flex>
     </MenuItem>
   )
@@ -77,15 +78,25 @@ export const ChainMenu = () => {
     }
   }
 
+  const currentChainNativeAssetId = getChainAdapters()
+    .get(currentChainIndex ?? '')
+    ?.getFeeAssetId()
+  const currentChainNativeAsset = useAppSelector(state =>
+    selectAssetById(state, currentChainNativeAssetId ?? ''),
+  )
+
   // TODO: check for supportsEthSwitchChain() here and don't make this clickable if wallet doesn't _supportsEthSwitchChain
   if (!evmChainId) return null
 
   return (
     <Menu>
       <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-        {CHAIN_ID_TO_CHAIN_NAME[currentChainIndex ?? ''] ?? null}
+        <Flex alignItems='center'>
+          <AssetIcon src={currentChainNativeAsset.icon ?? ''} width='5' height='auto' mr='8px' />
+          {CHAIN_ID_TO_CHAIN_NAME[currentChainIndex ?? ''] ?? null}
+        </Flex>
       </MenuButton>
-      <MenuList>
+      <MenuList p='10px'>
         <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
           {Object.entries(CHAIN_ID_TO_CHAIN_NAME).map(([chainId, chainName]) => (
             <ChainMenuItem

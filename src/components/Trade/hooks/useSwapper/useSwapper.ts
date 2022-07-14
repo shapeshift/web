@@ -85,13 +85,10 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   try {
     _swapperManager.addSwapper(zrxEthereumSwapper)
 
-    console.log({ AVALANCHE_FEATURE: getConfig().REACT_APP_FEATURE_AVALANCHE })
-
     if (getConfig().REACT_APP_FEATURE_AVALANCHE) {
       const avalancheChainAdapter = adapterManager.get(
         KnownChainIds.AvalancheMainnet,
       ) as unknown as avalanche.ChainAdapter
-      console.log({ avalancheChainAdapter })
 
       const zrxAvalancheSwapper = new ZrxSwapper({
         web3,

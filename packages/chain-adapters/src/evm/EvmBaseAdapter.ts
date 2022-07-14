@@ -85,6 +85,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainIds> implements IChainAda
   abstract getFeeAssetId(): AssetId
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
   abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: ChainTxType<T> }>
+  abstract getDisplayName(): string
 
   getChainId(): ChainId {
     return this.chainId

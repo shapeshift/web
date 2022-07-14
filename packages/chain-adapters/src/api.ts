@@ -23,6 +23,10 @@ import {
 export type ChainAdapterManager = Map<ChainId, ChainAdapter<ChainId>>
 
 export type ChainAdapter<T extends ChainId> = {
+  /**
+   * A user-friendly name for the chain.
+   */
+  getDisplayName(): string
   getChainId(): ChainId
 
   /**

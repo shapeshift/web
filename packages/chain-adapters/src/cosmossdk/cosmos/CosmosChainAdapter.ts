@@ -54,6 +54,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     this.parser = new unchained.cosmos.TransactionParser({ chainId: this.chainId })
   }
 
+  getDisplayName() {
+    return 'Cosmos'
+  }
+
   getType(): KnownChainIds.CosmosMainnet {
     return KnownChainIds.CosmosMainnet
   }

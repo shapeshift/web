@@ -43,6 +43,10 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     })
   }
 
+  getDisplayName() {
+    return 'Ethereum'
+  }
+
   getType(): KnownChainIds.EthereumMainnet {
     return KnownChainIds.EthereumMainnet
   }

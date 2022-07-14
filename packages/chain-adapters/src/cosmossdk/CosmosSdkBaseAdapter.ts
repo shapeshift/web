@@ -76,6 +76,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainIds> implements 
   }
 
   abstract getType(): T
+  abstract getDisplayName(): string
 
   getChainId(): ChainId {
     return this.chainId

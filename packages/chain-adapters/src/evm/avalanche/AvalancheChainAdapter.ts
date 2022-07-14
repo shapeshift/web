@@ -39,6 +39,10 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     })
   }
 
+  getDisplayName() {
+    return 'Avalanche'
+  }
+
   getType(): KnownChainIds.AvalancheMainnet {
     return KnownChainIds.AvalancheMainnet
   }

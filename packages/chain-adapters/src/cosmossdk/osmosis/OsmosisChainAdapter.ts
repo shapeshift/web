@@ -61,6 +61,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   getFeeAssetId(): AssetId {
     return 'cosmos:osmosis-1/slip44:118'
   }
+
+  getDisplayName() {
+    return 'Osmosis'
+  }
+
   getType(): KnownChainIds.OsmosisMainnet {
     return KnownChainIds.OsmosisMainnet
   }

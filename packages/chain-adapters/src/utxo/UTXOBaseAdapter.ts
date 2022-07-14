@@ -91,6 +91,8 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainIds> implements IChainA
 
   abstract signTransaction(signTxInput: SignTxInput<ChainTxType<T>>): Promise<string>
 
+  abstract getDisplayName(): string
+
   /* public methods */
 
   getChainId(): ChainId {

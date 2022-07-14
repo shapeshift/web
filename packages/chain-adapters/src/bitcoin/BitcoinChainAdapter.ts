@@ -83,6 +83,10 @@ export class ChainAdapter
     this.parser = new unchained.bitcoin.TransactionParser({ chainId: this.chainId })
   }
 
+  getDisplayName() {
+    return 'Bitcoin'
+  }
+
   getType(): KnownChainIds.BitcoinMainnet {
     return KnownChainIds.BitcoinMainnet
   }

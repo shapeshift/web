@@ -1,4 +1,3 @@
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
@@ -6,7 +5,6 @@ import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { LocationState } from '../../NativeWallet/types'
@@ -58,10 +56,8 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
           throw new Error('walletProvider.xdefi.errors.multipleWallets')
         }
 
-        // Switch to Mainnet if wallet is on any other chain
-        const chainId = await wallet.ethGetChainId?.()
-        if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
-          await wallet.ethSwitchChain?.(bn(CHAIN_REFERENCE.EthereumMainnet).toNumber())
+        if (provider?.chainId !== 1) {
+          throw new Error('walletProvider.xdefi.errors.network')
         }
 
         // Hack to handle XDEFI account changes

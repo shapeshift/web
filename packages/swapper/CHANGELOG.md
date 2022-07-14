@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v8.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.2.0...@shapeshiftoss/swapper-v8.3.0) (2022-07-14)
+
+
+### Features
+
+* thor btcquote ([#840](https://github.com/shapeshift/lib/issues/840)) ([b127077](https://github.com/shapeshift/lib/commit/b1270772b5e7ff9442761d1afeffc028e7e23105))
+
 # [@shapeshiftoss/swapper-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.1.0...@shapeshiftoss/swapper-v8.2.0) (2022-07-11)
 
 

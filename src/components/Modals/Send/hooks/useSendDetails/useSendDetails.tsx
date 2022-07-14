@@ -334,15 +334,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         setValue(key, amount)
 
-        // TODO: work toward a constistent way o fhandling tx fees and minimum amounts
+        // TODO: work toward a constistent way of handling tx fees and minimum amounts
         // see, https://github.com/shapeshift/web/issues/1966
-
-        const { cryptoAmount } = getValues()
-        const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
-
-        if (!hasValidBalance) {
-          throw new Error('common.insufficientFunds')
-        }
 
         const estimatedFees = await (async () => {
           try {
@@ -354,6 +347,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             setLoading(false)
           }
         })()
+
+        const { cryptoAmount } = getValues()
+        const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
+
+        if (!hasValidBalance) {
+          throw new Error('common.insufficientFunds')
+        }
 
         if (estimatedFees === undefined) {
           throw new Error('common.generalError')

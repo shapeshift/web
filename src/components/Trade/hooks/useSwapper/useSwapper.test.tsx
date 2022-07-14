@@ -79,6 +79,9 @@ function setup({
         },
       },
     },
+    accountSpecifiers: {
+      accountSpecifiers: [{ 'eip155:1': '0x8a65ac0e23f31979db06ec62af62b132a6df4741' }],
+    },
   }
   return {
     result,
@@ -111,7 +114,10 @@ describe('useSwapper', () => {
         new Map([
           [KnownChainIds.BitcoinMainnet, {}],
           [KnownChainIds.CosmosMainnet, {}],
-          [KnownChainIds.EthereumMainnet, {}],
+          [
+            KnownChainIds.EthereumMainnet,
+            { getAddress: () => '0x8a65ac0e23f31979db06ec62af62b132a6df4741' },
+          ],
         ]),
     )
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({

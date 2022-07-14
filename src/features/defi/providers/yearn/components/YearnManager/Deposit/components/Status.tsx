@@ -102,7 +102,7 @@ export const Status = () => {
     <TxStatus
       onClose={handleCancel}
       onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={state.loading}
+      loading={state.deposit.txStatus !== ('success' || 'failed ')}
       statusText={statusText}
       statusIcon={statusIcon}
       statusBody={statusBody}

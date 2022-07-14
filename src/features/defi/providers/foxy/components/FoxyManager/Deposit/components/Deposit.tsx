@@ -153,7 +153,6 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    console.info('crypto valid', crypto.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -163,7 +162,6 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     const fiat = crypto.times(marketData.price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-    console.info('fiat valid', fiat.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }

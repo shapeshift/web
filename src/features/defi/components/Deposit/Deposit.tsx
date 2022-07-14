@@ -97,7 +97,6 @@ export const Deposit = ({
   const fieldError = cryptoError || fiatError
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
-    console.info('VALUE', value)
     if (isFiat) {
       setValue(Field.FiatAmount, value, { shouldValidate: true })
       setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {

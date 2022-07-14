@@ -112,15 +112,10 @@ export const Header = () => {
           >
             <AutoCompleteSearch />
           </HStack>
-          <Flex justifyContent='flex-end' flex={1}>
-            <Box
-              display={{ base: 'none', md: 'block' }}
-              mr={{ base: 0, md: 4 }}
-              mb={{ base: 4, md: 0 }}
-            >
+          <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
+            <Box display={{ base: 'none', md: 'block' }}>
               <FiatRamps />
             </Box>
-
             <Box display={{ base: 'none', md: 'block' }}>
               <ChainMenu />
             </Box>

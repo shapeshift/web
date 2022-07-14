@@ -8,6 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@chakra-ui/react'
+import { Result } from '@zxing/library'
 import { useState } from 'react'
 import { useController } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -23,22 +24,19 @@ const PERMISSION_ERROR = 'Permission denied'
 export const QrCodeScanner = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const [error, setError] = useState<DOMException | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const {
     field: { onChange },
   } = useController({ name: SendFormFields.Input })
 
-  const handleError = (error: DOMException) => {}
-
-  const handleScan = async (value: string | null, error) => {
+  const handleScan = (result: Result | undefined | null, error?: Error | undefined | null) => {
     if (error) {
       setError(error)
       return
     }
 
-    if (value) {
-      onChange(value.trim())
-
+    if (result) {
+      onChange(result.getText().trim())
       history.push(SendRoutes.Address)
     }
   }
@@ -69,7 +67,6 @@ export const QrCodeScanner = () => {
         ) : (
           <QrReader
             delay={100}
-            onError={handleError}
             onResult={handleScan}
             style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
           />

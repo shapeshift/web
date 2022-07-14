@@ -8,7 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -73,6 +73,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     number: { localeParts },
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
+  const amountRef = useRef<string | null>(null)
   const [isFiat, setIsFiat] = useState<boolean>(false)
   const [isFocused, setIsFocused] = useState(false)
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -110,7 +111,10 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             thousandSeparator={localeParts.group}
             value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
             onValueChange={values => {
-              onChange(values.value, isFiat)
+              amountRef.current = values.value
+            }}
+            onChange={() => {
+              onChange(amountRef.current ?? '', isFiat)
             }}
             onBlur={() => setIsFocused(false)}
             onFocus={() => setIsFocused(true)}

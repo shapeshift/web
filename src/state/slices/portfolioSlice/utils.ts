@@ -111,9 +111,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
 }
 
 // note - this is not really a selector, more of a util
-export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId | undefined => {
+export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId => {
   const chainId = accountIdToChainId(accountId)
-  return getChainAdapters().get(chainId)?.getFeeAssetId()
+  return getChainAdapters().get(chainId)?.getFeeAssetId() as AssetId
 }
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
@@ -403,7 +403,6 @@ export const makeBalancesByChainBucketsFlattened = (
   const balancesByChainBuckets = accountBalances.reduce<Record<ChainId, AccountId[]>>(
     (acc: Record<ChainId, AccountId[]>, accountId) => {
       const assetId = accountIdToFeeAssetId(accountId)
-      if (!assetId) return acc
       const asset = assets[assetId]
       acc[asset.chainId] = [...(acc[asset.chainId] ?? []), accountId]
       return acc

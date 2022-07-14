@@ -26,8 +26,8 @@ export const useTradeRoutes = (
   const sellTradeAsset = getValues('sellAsset')
   const feeAssetId = getChainAdapters()
     .get(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
-    ?.getFeeAssetId()
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+    ?.getFeeAssetId() as AssetId
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
   const {
     state: { wallet },
@@ -35,8 +35,8 @@ export const useTradeRoutes = (
 
   const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
-  const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)?.getFeeAssetId()
-  const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId ?? ''))
+  const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)?.getFeeAssetId() as AssetId
+  const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
 
   const setDefaultAssets = useCallback(async () => {
     const bestSwapper = await swapperManager.getBestSwapper({

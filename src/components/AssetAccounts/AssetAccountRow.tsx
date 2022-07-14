@@ -48,9 +48,9 @@ export const AssetAccountRow = ({
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const feeAssetId = accountIdToFeeAssetId(accountId)
-  const rowAssetId = assetId ? assetId : feeAssetId ?? ''
+  const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )

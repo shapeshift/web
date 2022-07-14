@@ -1,5 +1,5 @@
 import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { avalanche, ChainAdapterManager, ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   Swapper,
@@ -18,7 +18,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { getChainAdapters, usePlugins } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -59,7 +59,6 @@ type DebouncedQuoteInput = {
   action: TradeAmountInputField
   wallet: HDWallet
   swapperManager: SwapperManager
-  chainAdapterManager: ChainAdapterManager
   accountSpecifiersList: Record<string, string>[]
 }
 
@@ -189,8 +188,6 @@ export const useSwapper = () => {
 
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
-  const { chainAdapterManager } = usePlugins()
-
   const getSendMaxAmount = async ({
     sellAsset,
     feeAsset,
@@ -286,7 +283,6 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         accountSpecifiersList,
-        chainAdapterManager,
       }: DebouncedQuoteInput) => {
         try {
           const swapper = await swapperManager.getBestSwapper({
@@ -312,7 +308,7 @@ export const useSwapper = () => {
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
 
-          const chainAdapter = chainAdapterManager.get(receiveAddressChainId)
+          const chainAdapter = getChainAdapters().get(receiveAddressChainId)
 
           if (!chainAdapter)
             throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
@@ -409,10 +405,9 @@ export const useSwapper = () => {
         wallet,
         swapperManager,
         accountSpecifiersList,
-        chainAdapterManager,
       })
     },
-    [accountSpecifiersList, chainAdapterManager, setValue, swapperManager, wallet],
+    [accountSpecifiersList, setValue, swapperManager, wallet],
   )
 
   const setFormFees = async ({

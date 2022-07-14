@@ -1,4 +1,10 @@
-import { btcChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheChainId,
+  btcChainId,
+  cosmosChainId,
+  ethChainId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
@@ -10,6 +16,7 @@ import {
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -128,6 +135,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           switch (chainId) {
             case ethChainId: {
               if (!supportsETH(wallet)) continue
+              const pubkey = await adapter.getAddress({ wallet })
+              if (!pubkey) continue
+              acc.push({ [chainId]: pubkey.toLowerCase() })
+              break
+            }
+            case avalancheChainId: {
+              if (!supportsEthSwitchChain(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey.toLowerCase() })

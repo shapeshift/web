@@ -86,9 +86,10 @@ describe('The Dashboard', () => {
 
   it('support Portis log in', () => {
     cy.visit('')
-
+    cy.clearLocalStorage()
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
+    cy.getBySel('consent-optin-continue-button').click()
     cy.getBySel('connect-wallet-portis-button').click()
 
     // This would open an external page to log in with Portis, which is outside the scope of Cypress

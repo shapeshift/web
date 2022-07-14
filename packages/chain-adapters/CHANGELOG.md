@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.5.0...@shapeshiftoss/chain-adapters-v7.5.1) (2022-07-14)
+
+
+### Bug Fixes
+
+* **chain-adapters:** fix showOnDevice in EvmBaseAdapter.ts ([#877](https://github.com/shapeshift/lib/issues/877)) ([dd5ef8b](https://github.com/shapeshift/lib/commit/dd5ef8be414a37a60649841e6b82f97b04df8e2f))
+
 # [@shapeshiftoss/chain-adapters-v7.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.4.2...@shapeshiftoss/chain-adapters-v7.5.0) (2022-07-11)
 
 

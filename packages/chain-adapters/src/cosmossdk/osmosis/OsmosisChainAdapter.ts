@@ -66,7 +66,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
+    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params, showOnDevice = false } = input
     const path = toPath(bip44Params)
     const addressNList = bip32ToAddressNList(path)
 
@@ -74,7 +74,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       if (supportsOsmosis(wallet)) {
         const osmosisAddress = await wallet.osmosisGetAddress({
           addressNList,
-          showDisplay: Boolean(input.showOnDevice)
+          showDisplay: showOnDevice
         })
         if (!osmosisAddress) {
           throw new Error('Unable to generate Osmosis address.')

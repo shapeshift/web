@@ -6,7 +6,7 @@
  * @group unit
  */
 
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { BTCWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
@@ -532,6 +532,31 @@ describe('BitcoinChainAdapter', () => {
         accountType: UtxoAccountType.SegwitNative
       })
       expect(addr).toStrictEqual('bc1qgawuludfvrdxfq0x55k26ydtg2hrx64jp3u6am')
+    })
+
+    it('should not show address on device by default', async () => {
+      const wallet = (await getWallet()) as BTCWallet
+      wallet.btcGetAddress = jest
+        .fn()
+        .mockResolvedValue('bc1qgawuludfvrdxfq0x55k26ydtg2hrx64jp3u6am')
+
+      const adapter = new bitcoin.ChainAdapter(args)
+      const bip44Params: BIP44Params = {
+        coinType: 0,
+        purpose: 84,
+        accountNumber: 1,
+        index: 0,
+        isChange: false
+      }
+
+      await adapter.getAddress({ bip44Params, wallet, accountType: UtxoAccountType.SegwitNative })
+
+      expect(wallet.btcGetAddress).toHaveBeenCalledWith({
+        addressNList: [2147483732, 2147483648, 2147483649, 0, 0],
+        coin: 'Bitcoin',
+        scriptType: 'p2wpkh',
+        showDisplay: false
+      })
     })
   })
 

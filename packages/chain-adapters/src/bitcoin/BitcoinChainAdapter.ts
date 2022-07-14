@@ -383,7 +383,7 @@ export class ChainAdapter
       addressNList,
       coin: this.coinName,
       scriptType: accountTypeToScriptType[accountType],
-      showDisplay: Boolean(showOnDevice)
+      showDisplay: showOnDevice
     })
     if (!btcAddress) throw new Error('BitcoinChainAdapter: no btcAddress available from wallet')
     return btcAddress

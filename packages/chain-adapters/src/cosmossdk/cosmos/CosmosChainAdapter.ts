@@ -63,7 +63,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
+    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params, showOnDevice = false } = input
     const path = toPath(bip44Params)
     const addressNList = bip32ToAddressNList(path)
 
@@ -71,7 +71,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       if (supportsCosmos(wallet)) {
         const cosmosAddress = await wallet.cosmosGetAddress({
           addressNList,
-          showDisplay: Boolean(input.showOnDevice)
+          showDisplay: showOnDevice
         })
         if (!cosmosAddress) {
           throw new Error('Unable to generate Cosmos address.')

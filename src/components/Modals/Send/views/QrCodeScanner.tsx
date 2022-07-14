@@ -9,7 +9,7 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import { Result } from '@zxing/library'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useController } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { QrReader } from 'react-qr-reader'
@@ -29,26 +29,17 @@ export const QrCodeScanner = () => {
     field: { onChange },
   } = useController({ name: SendFormFields.Input })
 
-  const Scanner = useMemo(() => {
-    const handleScan = (result: Result | undefined | null, error?: Error | undefined | null) => {
-      if (error) {
-        // setError(error)
-        return
-      }
-
-      if (result) {
-        onChange(result.getText().trim())
-        history.push(SendRoutes.Address)
-      }
+  const handleScan = (result: Result | undefined | null, error?: Error | undefined | null) => {
+    if (error) {
+      setError(error)
+      return
     }
-    return (
-      <QrReader
-        delay={100}
-        onResult={handleScan}
-        style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
-      />
-    )
-  }, [history, onChange])
+
+    if (result) {
+      onChange(result.getText().trim())
+      history.push(SendRoutes.Address)
+    }
+  }
 
   return (
     <SlideTransition>
@@ -74,7 +65,11 @@ export const QrCodeScanner = () => {
             )}
           </Flex>
         ) : (
-          Scanner
+          <QrReader
+            delay={100}
+            onResult={handleScan}
+            style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
+          />
         )}
       </ModalBody>
       <ModalFooter>

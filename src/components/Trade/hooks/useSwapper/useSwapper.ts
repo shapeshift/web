@@ -25,6 +25,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
+import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
@@ -59,7 +60,7 @@ type DebouncedQuoteInput = {
   action: TradeAmountInputField
   wallet: HDWallet
   swapperManager: SwapperManager
-  accountSpecifiersList: Record<string, string>[]
+  accountSpecifiersList: AccountSpecifierMap[]
 }
 
 // singleton - do not export me, use getSwapperManager

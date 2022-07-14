@@ -171,7 +171,9 @@ export const Details = () => {
                 </Button>
               }
               inputRightElement={
-                <SendMaxButton onClick={handleSendMax} data-test='send-max-button' />
+                !(wallet?.getVendor() === 'WalletConnect') ? (
+                  <SendMaxButton onClick={handleSendMax} />
+                ) : undefined
               }
               rules={{
                 required: true,

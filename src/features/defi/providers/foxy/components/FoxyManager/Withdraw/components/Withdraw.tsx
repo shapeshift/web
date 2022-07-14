@@ -202,10 +202,10 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
     console.info('percent', cryptoAmount.toString(), fiatAmount.toString())
-    setValue(Field.FiatAmount, fiatAmount.toFixed(2, BigNumber.ROUND_DOWN), {
+    setValue(Field.FiatAmount, fiatAmount.toString(), {
       shouldValidate: true,
     })
-    setValue(Field.CryptoAmount, cryptoAmount.toFixed(8, BigNumber.ROUND_DOWN), {
+    setValue(Field.CryptoAmount, cryptoAmount.toString(), {
       shouldValidate: true,
     })
   }

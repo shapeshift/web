@@ -53,6 +53,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   if (!state || !dispatch) return null
 
@@ -94,13 +95,10 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const handlePercentClick = (percent: number) => {
-    const amount = bnOrZero(cryptoAmountAvailable).times(percent)
-    setValue(Field.CryptoAmount, amount.toString(), {
-      shouldValidate: true,
-    })
-    setValue(Field.FiatAmount, amount.times(marketData.price).toString(), {
-      shouldValidate: true,
-    })
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+    setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+    setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -122,7 +120,6 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
   const pricePerShare = bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
     `1e+${asset?.precision}`,
   )

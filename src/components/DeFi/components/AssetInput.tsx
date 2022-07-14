@@ -15,6 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
 import { Balance } from './Balance'
@@ -106,9 +107,8 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             prefix={isFiat ? localeParts.prefix : ''}
             decimalSeparator={localeParts.decimal}
             inputMode='decimal'
-            decimalScale={isFiat ? 2 : 8}
             thousandSeparator={localeParts.group}
-            value={isFiat ? fiatAmount : cryptoAmount}
+            value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
             onValueChange={values => {
               onChange(values.value, isFiat)
             }}

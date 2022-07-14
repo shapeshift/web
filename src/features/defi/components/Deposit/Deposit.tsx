@@ -97,6 +97,7 @@ export const Deposit = ({
   const fieldError = cryptoError || fiatError
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
+    console.info('VALUE', value)
     if (isFiat) {
       setValue(Field.FiatAmount, value, { shouldValidate: true })
       setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
@@ -113,15 +114,13 @@ export const Deposit = ({
   }
 
   const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable)
-      .times(percent)
-      .dp(asset.precision, BigNumber.ROUND_DOWN)
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
     console.info('percent', cryptoAmount.toString(), fiatAmount.toString())
-    setValue(Field.FiatAmount, fiatAmount.toFixed(2, BigNumber.ROUND_DOWN), {
+    setValue(Field.FiatAmount, fiatAmount.toString(), {
       shouldValidate: true,
     })
-    setValue(Field.CryptoAmount, cryptoAmount.toFixed(8, BigNumber.ROUND_DOWN), {
+    setValue(Field.CryptoAmount, cryptoAmount.toString(), {
       shouldValidate: true,
     })
   }

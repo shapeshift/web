@@ -111,9 +111,14 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             thousandSeparator={localeParts.group}
             value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
             onValueChange={values => {
+              // This fires anytime value changes including setting it on max click
+              // Store the value in a ref to send when we actually want the onChange to fire
               amountRef.current = values.value
             }}
             onChange={() => {
+              // onChange will send us the formatted value
+              // To get around this we need to get the value from the onChange using a ref
+              // Now when the max buttons are clicked the onChange will not fire
               onChange(amountRef.current ?? '', isFiat)
             }}
             onBlur={() => setIsFocused(false)}
@@ -136,12 +141,17 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       {(onMaxClick || balance) && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
           {balance && (
-            <Balance value={balance} symbol={assetSymbol} label={translate('common.balance')} />
+            <Balance
+              cryptoBalance={balance}
+              fiatBalance={fiatBalance ?? ''}
+              symbol={assetSymbol}
+              isFiat={isFiat}
+              label={translate('common.balance')}
+            />
           )}
           {onMaxClick && (
             <MaxButtonGroup options={percentOptions} isDisabled={isReadOnly} onClick={onMaxClick} />
           )}
-          {fiatBalance && <Amount.Fiat value={fiatBalance} />}
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}

@@ -116,7 +116,6 @@ export const Deposit = ({
   const handlePercentClick = (percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    console.info('percent', cryptoAmount.toString(), fiatAmount.toString())
     setValue(Field.FiatAmount, fiatAmount.toString(), {
       shouldValidate: true,
     })

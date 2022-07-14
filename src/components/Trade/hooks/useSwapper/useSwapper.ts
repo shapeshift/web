@@ -1,4 +1,5 @@
 import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { useToast } from '@chakra-ui/react'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -16,6 +17,7 @@ import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -120,6 +122,8 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
 }
 
 export const useSwapper = () => {
+  const toast = useToast()
+  const translate = useTranslate()
   const { setValue } = useFormContext()
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
@@ -291,7 +295,21 @@ export const useSwapper = () => {
             sellAssetId: sellAsset.assetId,
           })
 
-          if (!swapper) throw new Error('no swapper available')
+          // we assume that if we do not have a swapper returned, it is not a valid trade pair
+          if (!swapper) {
+            return toast({
+              title: translate('trade.errors.title'),
+              description: translate('trade.errors.invalidTradePair', {
+                sellAssetName: sellAsset.name,
+                buyAssetName: buyAsset.name,
+              }),
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+              position: 'top-right',
+            })
+          }
+
           const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
             swapper.getUsdRate({ ...sellAsset }),
             swapper.getUsdRate({ ...buyAsset }),
@@ -308,7 +326,6 @@ export const useSwapper = () => {
           })
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-
           const chainAdapter = getChainAdapters().get(receiveAddressChainId)
 
           if (!chainAdapter)

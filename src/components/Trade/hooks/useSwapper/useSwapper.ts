@@ -1,5 +1,5 @@
-import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { useToast } from '@chakra-ui/react'
+import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -55,13 +55,13 @@ type GetQuoteInput = {
 }
 
 type DebouncedQuoteInput = {
+  swapper: Swapper<ChainId>
   amount: string
   sellAsset: Asset
   buyAsset: Asset
   feeAsset: Asset
   action: TradeAmountInputField
   wallet: HDWallet
-  swapperManager: SwapperManager
   accountSpecifiersList: AccountSpecifierMap[]
 }
 
@@ -124,7 +124,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
 export const useSwapper = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const { setValue } = useFormContext()
+  const { setValue, setError, clearErrors } = useFormContext()
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
@@ -282,34 +282,14 @@ export const useSwapper = () => {
     debounce(
       async ({
         amount,
+        swapper,
         sellAsset,
         buyAsset,
         action,
         wallet,
-        swapperManager,
         accountSpecifiersList,
       }: DebouncedQuoteInput) => {
         try {
-          const swapper = await swapperManager.getBestSwapper({
-            buyAssetId: buyAsset.assetId,
-            sellAssetId: sellAsset.assetId,
-          })
-
-          // we assume that if we do not have a swapper returned, it is not a valid trade pair
-          if (!swapper) {
-            return toast({
-              title: translate('trade.errors.title'),
-              description: translate('trade.errors.invalidTradePair', {
-                sellAssetName: sellAsset.name,
-                buyAssetName: buyAsset.name,
-              }),
-              status: 'error',
-              duration: 9000,
-              isClosable: true,
-              position: 'top-right',
-            })
-          }
-
           const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
             swapper.getUsdRate({ ...sellAsset }),
             swapper.getUsdRate({ ...buyAsset }),
@@ -414,18 +394,50 @@ export const useSwapper = () => {
       if (!wallet || !accountSpecifiersList) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)
-      await updateQuoteDebounced.current({
-        amount,
-        feeAsset,
-        sellAsset,
-        action,
-        buyAsset,
-        wallet,
-        swapperManager,
-        accountSpecifiersList,
+      clearErrors('quote')
+
+      const swapper = await swapperManager.getBestSwapper({
+        buyAssetId: buyAsset.assetId,
+        sellAssetId: sellAsset.assetId,
       })
+
+      if (!swapper) {
+        // we assume that if we do not have a swapper returned, it is not a valid trade pair
+        setError('quote', { message: 'trade.errors.invalidTradePairBtnText' })
+        return toast({
+          title: translate('trade.errors.title'),
+          description: translate('trade.errors.invalidTradePair', {
+            sellAssetName: sellAsset.name,
+            buyAssetName: buyAsset.name,
+          }),
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+          position: 'top-right',
+        })
+      } else {
+        await updateQuoteDebounced.current({
+          swapper,
+          amount,
+          feeAsset,
+          sellAsset,
+          action,
+          buyAsset,
+          wallet,
+          accountSpecifiersList,
+        })
+      }
     },
-    [accountSpecifiersList, setValue, swapperManager, wallet],
+    [
+      wallet,
+      accountSpecifiersList,
+      setValue,
+      clearErrors,
+      swapperManager,
+      setError,
+      toast,
+      translate,
+    ],
   )
 
   const setFormFees = async ({

@@ -383,6 +383,7 @@
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
       "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
+      "invalidTradePairBtnText": "Invalid Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",

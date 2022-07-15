@@ -394,7 +394,7 @@ export const useSwapper = () => {
 
   const updateQuote = useCallback(
     async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
-      if (!wallet || !accountSpecifiersList) return
+      if (!wallet || !accountSpecifiersList.length) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)
       await updateQuoteDebounced.current({

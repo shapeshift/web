@@ -65,10 +65,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       try {
         const deviceId = await wallet.getDeviceID()
 
-        if (provider?.chainId !== '0x1') {
-          throw new Error('walletProvider.metaMask.errors.network')
-        }
-
         // Hack to handle MetaMask account changes
         //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })

@@ -19,9 +19,9 @@ const getSupportedEvmChains = () =>
 
 const ChainMenuItem: React.FC<{
   chainId: string
-  handleEvmChainClick: any
+  onClick: (chainId: string) => void
   isConnected: boolean
-}> = ({ chainId, handleEvmChainClick, isConnected }) => {
+}> = ({ chainId, onClick, isConnected }) => {
   const chainName = getChainAdapters().get(chainId)?.getDisplayName()
   const { chainReference: evmChainId } = fromChainId(chainId)
   const nativeAssetId = getChainAdapters().get(chainId)?.getFeeAssetId()
@@ -36,7 +36,7 @@ const ChainMenuItem: React.FC<{
     <MenuItem
       icon={<AssetIcon src={nativeAsset.icon ?? ''} width='6' height='auto' />}
       backgroundColor={isConnected ? connectedChainBgColor : undefined}
-      onClick={() => handleEvmChainClick(evmChainId)}
+      onClick={() => onClick(evmChainId)}
       borderRadius='lg'
     >
       <Flex justifyContent={'space-between'}>
@@ -55,19 +55,17 @@ export const ChainMenu = () => {
   useEffect(() => {
     ;(async () => {
       const chainId = await (state.wallet as any)?.ethGetChainId?.()
-      // If this method is undefined or an error happens with the JSON-RPC call, meaning the wallet doesn't implement this method
-      // Set chainId to the result of awaiting this expression (undefined/null), which will make this component not render anything
       if (chainId) setEvmChainId(bnOrZero(chainId).toString())
     })()
   }, [state])
 
-  const currentChainIndex = useMemo(
+  const connectedChainId = useMemo(
     () =>
       getSupportedEvmChains().find(chainId => fromChainId(chainId).chainReference === evmChainId),
     [evmChainId],
   )
 
-  const handleEvmChainClick = async (chainId: any) => {
+  const handleChainClick = async (chainId: string) => {
     try {
       await (state.wallet as any).ethSwitchChain?.(Number(chainId))
       setEvmChainId(chainId)
@@ -76,11 +74,13 @@ export const ChainMenu = () => {
     }
   }
 
-  const currentChainNativeAssetId = useMemo(() => {
-    return getChainAdapters()
-      .get(currentChainIndex ?? '')
-      ?.getFeeAssetId()
-  }, [currentChainIndex])
+  const currentChainNativeAssetId = useMemo(
+    () =>
+      getChainAdapters()
+        .get(connectedChainId ?? '')
+        ?.getFeeAssetId(),
+    [connectedChainId],
+  )
   const currentChainNativeAsset = useAppSelector(state =>
     selectAssetById(state, currentChainNativeAssetId ?? ''),
   )
@@ -98,7 +98,7 @@ export const ChainMenu = () => {
         <Flex alignItems='center'>
           <AssetIcon src={currentChainNativeAsset.icon ?? ''} size='xs' mr='8px' />
           {getChainAdapters()
-            .get(getSupportedEvmChains().find(chainId => chainId === currentChainIndex) ?? '')
+            .get(getSupportedEvmChains().find(chainId => chainId === connectedChainId) ?? '')
             ?.getDisplayName() ?? ''}
         </Flex>
       </MenuButton>
@@ -107,10 +107,10 @@ export const ChainMenu = () => {
           <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
             {getSupportedEvmChains().map(chainId => (
               <ChainMenuItem
-                isConnected={chainId === currentChainIndex}
+                isConnected={chainId === connectedChainId}
                 key={chainId}
                 chainId={chainId}
-                handleEvmChainClick={handleEvmChainClick}
+                onClick={handleChainClick}
               />
             ))}
           </MenuGroup>

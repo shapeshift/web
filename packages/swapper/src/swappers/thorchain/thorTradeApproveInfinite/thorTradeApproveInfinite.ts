@@ -3,6 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { ApproveInfiniteInput, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
+import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { grantAllowance } from '../../utils/helpers/helpers'
 import { ThorchainSwapperDeps } from '../types'
 import { MAX_ALLOWANCE } from '../utils/constants'
@@ -18,7 +19,21 @@ export const thorTradeApproveInfinite = async ({
     const { adapterManager, web3 } = deps
     const { quote, wallet } = input
 
-    const sellAssetChainId = quote.sellAsset.chainId
+    const approvalQuote = {
+      ...quote,
+      sellAmount: MAX_ALLOWANCE,
+      feeData: {
+        ...quote.feeData,
+        chainSpecific: {
+          ...quote.feeData.chainSpecific,
+          // Thor approvals are cheaper than trades, but we don't have dynamic quote data for them.
+          // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the Thor quote response.
+          estimatedGas: APPROVAL_GAS_LIMIT
+        }
+      }
+    }
+
+    const sellAssetChainId = approvalQuote.sellAsset.chainId
     const adapter = adapterManager.get(KnownChainIds.EthereumMainnet) as unknown as
       | ethereum.ChainAdapter
       | undefined
@@ -33,10 +48,7 @@ export const thorTradeApproveInfinite = async ({
       )
 
     const allowanceGrantRequired = await grantAllowance<KnownChainIds.EthereumMainnet>({
-      quote: {
-        ...quote,
-        sellAmount: MAX_ALLOWANCE
-      },
+      quote: approvalQuote,
       wallet,
       adapter,
       erc20Abi,

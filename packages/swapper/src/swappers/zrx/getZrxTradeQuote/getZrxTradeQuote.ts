@@ -71,31 +71,45 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       }
     )
 
-    const { data } = quoteResponse
+    const {
+      data: {
+        estimatedGas: estimatedGasResponse,
+        gasPrice,
+        price,
+        sellAmount: sellAmountResponse,
+        buyAmount,
+        sources,
+        allowanceTarget
+      }
+    } = quoteResponse
 
-    const estimatedGas = bnOrZero(data.estimatedGas).times(1.5)
-    const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
+    const estimatedGas = bnOrZero(estimatedGasResponse).times(1.5)
+    const rate = useSellAmount ? price : bn(1).div(price).toString()
+
+    const fee = bnOrZero(estimatedGas).multipliedBy(bnOrZero(gasPrice)).toString()
+    // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
+    // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
+    const approvalFee =
+      sellAssetErc20Address &&
+      bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(gasPrice)).toString()
 
     return {
       rate,
       minimum,
       maximum,
       feeData: {
-        fee: bnOrZero(estimatedGas).multipliedBy(bnOrZero(data.gasPrice)).toString(),
+        fee,
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
-          gasPrice: data.gasPrice,
-          approvalFee:
-            sellAssetErc20Address &&
-            bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(data.gasPrice)).toString()
+          gasPrice,
+          approvalFee
         },
         tradeFee: '0'
       },
-      sellAmount: data.sellAmount,
-      buyAmount: data.buyAmount,
-      sources:
-        data.sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
-      allowanceContract: data.allowanceTarget,
+      sellAmount: sellAmountResponse,
+      buyAmount,
+      sources: sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+      allowanceContract: allowanceTarget,
       buyAsset,
       sellAsset,
       sellAssetAccountNumber

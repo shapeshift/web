@@ -1,7 +1,7 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
-import { mockInboundAdresses } from '../test-data/midgardResponse'
+import { ethMidgardPool, foxMidgardPool, mockInboundAdresses } from '../test-data/midgardResponse'
 import { thorService } from '../thorService'
 import { estimateTradeFee } from './estimateTradeFee'
 
@@ -35,15 +35,15 @@ describe('estimateTradeFee', () => {
     expect(estimatedTradeFee).toEqual(expectedResult)
   })
   it('should correctly estimate a trade fee for an ethereum erc20 asset', async () => {
-    ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: mockInboundAdresses })
-    )
+    ;(thorService.get as jest.Mock<unknown>)
+      .mockReturnValueOnce(Promise.resolve({ data: mockInboundAdresses }))
+      .mockReturnValueOnce(Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }))
     const estimatedTradeFee = await estimateTradeFee(
       deps,
       'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     )
 
-    const expectedResult = '59636640000000000'
+    const expectedResult = '760354594956692487365'
     expect(estimatedTradeFee).toEqual(expectedResult)
   })
   it('should throw if trying to get fee data for an unsupprted asset', async () => {

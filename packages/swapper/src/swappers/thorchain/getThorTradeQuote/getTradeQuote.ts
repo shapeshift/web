@@ -60,16 +60,19 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         details: { buyAssetId }
       })
 
-    const feeAssetRatio = await getPriceRatio(deps, { sellAssetId, buyAssetId: feeAssetId })
     const priceRatio = await getPriceRatio(deps, { sellAssetId, buyAssetId })
     const rate = bnOrZero(1).div(priceRatio).toString()
     const buyAmount = normalizeAmount(bnOrZero(sellAmount).times(rate))
 
     const tradeFee = await estimateTradeFee(deps, buyAsset.assetId)
-    const sellAssetTradeFee = bnOrZero(tradeFee).times(bnOrZero(feeAssetRatio))
-    // padding minimum by 1.5 the trade fee to avoid thorchain "not enough to cover fee" errors.
-    const minimum = fromBaseUnit(sellAssetTradeFee.times(1.5).toString(), sellAsset.precision)
 
+    const sellAssetTradeFee = fromBaseUnit(
+      bnOrZero(tradeFee).times(bnOrZero(priceRatio)),
+      buyAsset.precision
+    )
+
+    // padding minimum by 1.5 the trade fee to avoid thorchain "not enough to cover fee" errors.
+    const minimum = bnOrZero(sellAssetTradeFee).times(1.5).toString()
     const commonQuoteFields: CommonQuoteFields = {
       rate,
       maximum: MAX_THORCHAIN_TRADE,

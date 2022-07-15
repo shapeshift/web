@@ -1,8 +1,9 @@
-import { adapters, AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { adapters, AssetId, fromAssetId, getFeeAssetIdFromAssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
 import { InboundResponse, ThorchainSwapperDeps } from '../../types'
+import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { thorService } from '../thorService'
 
 const gweiGasPrecision = 9
@@ -49,15 +50,30 @@ export const estimateTradeFee = async (
   const gasRate = inboundInfo.gas_rate
   const { chainId, assetNamespace } = fromAssetId(buyAssetId)
 
+  const feeAssetId = getFeeAssetIdFromAssetId(buyAssetId)
+  if (!feeAssetId)
+    throw new SwapError('[estimateTradeFee] - no fee assetId', {
+      code: SwapErrorTypes.VALIDATION_FAILED,
+      details: { buyAssetId }
+    })
+
+  const feeAssetRatio =
+    buyAssetId !== feeAssetId
+      ? await getPriceRatio(deps, {
+          sellAssetId: buyAssetId,
+          buyAssetId: feeAssetId
+        })
+      : '1'
+
   switch (chainId) {
     case 'bip122:000000000019d6689c085ae165831e93':
-      return btcEstimate(gasRate)
+      return bnOrZero(btcEstimate(gasRate)).times(feeAssetRatio).dp(0).toString()
     case 'eip155:1':
       switch (assetNamespace) {
         case 'slip44':
-          return ethEstimate(gasRate)
+          return bnOrZero(ethEstimate(gasRate)).times(feeAssetRatio).dp(0).toString()
         case 'erc20':
-          return erc20Estimate(gasRate)
+          return bnOrZero(erc20Estimate(gasRate)).times(feeAssetRatio).dp(0).toString()
         default:
           throw new SwapError('[estimateTradeFee] - unsupported asset namespace', {
             code: SwapErrorTypes.VALIDATION_FAILED,

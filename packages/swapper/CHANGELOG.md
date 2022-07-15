@@ -1,3 +1,11 @@
+# [@shapeshiftoss/swapper-v8.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.3.0...@shapeshiftoss/swapper-v8.3.1) (2022-07-15)
+
+
+### Bug Fixes
+
+* trade fee and minimum ([#881](https://github.com/shapeshift/lib/issues/881)) ([b94d41d](https://github.com/shapeshift/lib/commit/b94d41d45032d0280dda201b0e04840ff35540ab))
+* **swapper:** fix filterBuyAssetsBySellAssetId for thorchain ([#879](https://github.com/shapeshift/lib/issues/879)) ([83cdead](https://github.com/shapeshift/lib/commit/83cdead80c2ab03bb154a240e4d03227f9be5246))
+
 # [@shapeshiftoss/swapper-v8.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.2.0...@shapeshiftoss/swapper-v8.3.0) (2022-07-14)
 
 

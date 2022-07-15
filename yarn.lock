@@ -2860,6 +2860,16 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
+"@shapeshiftoss/hdwallet-core@1.26.0", "@shapeshiftoss/hdwallet-core@^1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.26.0.tgz#c42e526fc4c5d4aea1c8df676a415df763bf18bd"
+  integrity sha512-CIm1eJVSOREsi0KNyBibAlEooAIEfLem7Bufe6I/6awNoUr8UdyjcrJni4A1hA+oWl9pgILCwNCzuH9W/N74SA==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.19.0.tgz#7eeae9be9f90fff53887611c6ac02c334781baa3"
@@ -2878,6 +2888,33 @@
     "@shapeshiftoss/bitcoinjs-lib" "5.2.0-shapeshift.2"
     "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.6"
     "@shapeshiftoss/hdwallet-core" "1.23.0"
+    "@shapeshiftoss/proto-tx-builder" "^0.2.1"
+    "@zxing/text-encoding" "^0.9.0"
+    bchaddrjs "^0.4.9"
+    bignumber.js "^9.0.1"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    bnb-javascript-sdk-nobroadcast "^2.16.14"
+    crypto-js "^4.0.0"
+    ethers "5.6.5"
+    eventemitter2 "^5.0.1"
+    funtypes "^3.0.1"
+    lodash "^4.17.21"
+    node-fetch "^2.6.1"
+    p-lazy "^3.1.0"
+    scrypt-js "^3.0.1"
+    tendermint-tx-builder "^1.0.9"
+    tiny-secp256k1 "^1.1.6"
+    web-encoding "^1.1.0"
+
+"@shapeshiftoss/hdwallet-native@^1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.26.0.tgz#a6e85751feccb2c528a6e5570a7482b0958f4adc"
+  integrity sha512-PXR2W5RX6MsHLgj6BiN7M0aSJN59p1OXUyXqwjlQXm3frNDLd03WTdtjA1fiwRg43C812DoWLSUZ3k8LE5aGxg==
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib" "5.2.0-shapeshift.2"
+    "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.6"
+    "@shapeshiftoss/hdwallet-core" "1.26.0"
     "@shapeshiftoss/proto-tx-builder" "^0.2.1"
     "@zxing/text-encoding" "^0.9.0"
     bchaddrjs "^0.4.9"

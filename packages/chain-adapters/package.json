@@ -38,16 +38,16 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/hdwallet-core": "^1.23.0",
-    "@shapeshiftoss/hdwallet-native": "^1.23.0",
+    "@shapeshiftoss/hdwallet-core": "^1.26.0",
+    "@shapeshiftoss/hdwallet-native": "^1.26.0",
     "@shapeshiftoss/types": "^7.0.0",
     "@shapeshiftoss/unchained-client": "^9.0.1",
     "bs58check": "^2.0.2"
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/hdwallet-core": "^1.23.0",
-    "@shapeshiftoss/hdwallet-native": "^1.23.0",
+    "@shapeshiftoss/hdwallet-core": "^1.26.0",
+    "@shapeshiftoss/hdwallet-native": "^1.26.0",
     "@shapeshiftoss/types": "^7.0.0",
     "@shapeshiftoss/unchained-client": "^9.0.1",
     "@types/bs58check": "^2.1.0",

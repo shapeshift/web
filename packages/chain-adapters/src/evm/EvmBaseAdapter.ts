@@ -1,13 +1,15 @@
-import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, fromAssetId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   ETHSignMessage,
   ETHSignTx,
-  ETHWallet
+  ETHWallet,
+  supportsEthSwitchChain
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import WAValidator from 'multicoin-address-validator'
+import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
@@ -37,6 +39,8 @@ import {
   toRootDerivationPath
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { Fees } from './types'
+import { getErc20Data } from './utils'
 
 export type EvmChainIds = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
 
@@ -84,8 +88,79 @@ export abstract class EvmBaseAdapter<T extends EvmChainIds> implements IChainAda
   abstract getType(): T
   abstract getFeeAssetId(): AssetId
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
-  abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: ChainTxType<T> }>
   abstract getDisplayName(): string
+
+  async buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{
+    txToSign: ChainTxType<T>
+  }> {
+    try {
+      const { to, wallet, bip44Params = EvmBaseAdapter.defaultBIP44Params, sendMax = false } = tx
+      // If there is a mismatch between the current wallet's EVM chain ID and the adapter's chainId?
+      // Switch the chain on wallet before building/sending the Tx
+      if (supportsEthSwitchChain(wallet)) {
+        const walletEvmChainId = await (wallet as ETHWallet).ethGetChainId?.()
+        const adapterEvmChainId = fromChainId(this.chainId).chainReference
+        if (!bnOrZero(walletEvmChainId).isEqualTo(adapterEvmChainId)) {
+          await (wallet as ETHWallet).ethSwitchChain?.(bnOrZero(adapterEvmChainId).toNumber())
+        }
+      }
+      const { erc20ContractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
+        tx.chainSpecific
+
+      if (!tx.to) throw new Error(`${this.getDisplayName()}ChainAdapter: to is required`)
+      if (!tx.value) throw new Error(`${this.getDisplayName()}ChainAdapter: value is required`)
+
+      const destAddress = erc20ContractAddress ?? to
+
+      const from = await this.getAddress({ bip44Params, wallet })
+      const account = await this.getAccount(from)
+
+      const isErc20Send = !!erc20ContractAddress
+
+      if (sendMax) {
+        if (isErc20Send) {
+          const erc20Balance = account.chainSpecific.tokens?.find((token) => {
+            return fromAssetId(token.assetId).assetReference === erc20ContractAddress.toLowerCase()
+          })?.balance
+          if (!erc20Balance) throw new Error('no balance')
+          tx.value = erc20Balance
+        } else {
+          if (bnOrZero(account.balance).isZero()) throw new Error('no balance')
+
+          // (The type system guarantees that either maxFeePerGas or gasPrice will be undefined, but not both)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const fee = bnOrZero((maxFeePerGas ?? gasPrice)!).times(bnOrZero(gasLimit))
+          tx.value = bnOrZero(account.balance).minus(fee).toString()
+        }
+      }
+      const data = await getErc20Data(to, tx.value, erc20ContractAddress)
+
+      const fees = ((): Fees => {
+        if (maxFeePerGas && maxPriorityFeePerGas) {
+          return {
+            maxFeePerGas: numberToHex(maxFeePerGas),
+            maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas)
+          }
+        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return { gasPrice: numberToHex(tx.chainSpecific.gasPrice!) }
+      })()
+
+      const txToSign = {
+        addressNList: bip32ToAddressNList(toPath(bip44Params)),
+        value: numberToHex(isErc20Send ? '0' : tx.value),
+        to: destAddress,
+        chainId: Number(fromChainId(this.chainId).chainReference),
+        data,
+        nonce: numberToHex(account.chainSpecific.nonce),
+        gasLimit: numberToHex(gasLimit),
+        ...fees
+      } as ChainTxType<T>
+      return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
 
   getChainId(): ChainId {
     return this.chainId

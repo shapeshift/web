@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useEffect, useMemo, useState } from 'react'
@@ -13,8 +13,8 @@ import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const ChainMenuItem: React.FC<{
-  chainId: string
-  onClick: (chainId: string) => void
+  chainId: ChainId
+  onClick: (chainId: ChainId) => void
   isConnected: boolean
 }> = ({ chainId, onClick, isConnected }) => {
   const chainName = getChainAdapters().get(chainId)?.getDisplayName()
@@ -68,7 +68,7 @@ export const ChainMenu = () => {
     [evmChainId, supportedEvmChainIds],
   )
 
-  const handleChainClick = async (chainId: string) => {
+  const handleChainClick = async (chainId: ChainId) => {
     try {
       await (state.wallet as any).ethSwitchChain?.(Number(chainId))
       setEvmChainId(chainId)

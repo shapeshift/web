@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v8.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.3.1...@shapeshiftoss/swapper-v8.4.0) (2022-07-15)
+
+
+### Features
+
+* **swapper:** use hardcoded gas limit in grantAllowance ([#874](https://github.com/shapeshift/lib/issues/874)) ([b311d5b](https://github.com/shapeshift/lib/commit/b311d5be9268ec47d2f6aebbc158827b385b406f))
+
 # [@shapeshiftoss/swapper-v8.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.3.0...@shapeshiftoss/swapper-v8.3.1) (2022-07-15)
 
 

@@ -58,9 +58,9 @@ export const Details = () => {
     fieldName,
     cryptoHumanBalance,
     fiatBalance,
-    handleInputChange,
     handleNextClick,
     handleSendMax,
+    handleInputChange,
     loading,
     toggleCurrency,
   } = useSendDetails()

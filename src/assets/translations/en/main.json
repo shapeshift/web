@@ -792,7 +792,6 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
-        "network": "MetaMask isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
         "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
       },
@@ -853,7 +852,6 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with XDEFI",
         "connectFailure": "Unable to connect XDEFI wallet",
-        "network": "XDEFI isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed?"
       },
       "connect": {

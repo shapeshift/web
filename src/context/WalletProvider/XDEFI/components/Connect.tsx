@@ -56,10 +56,6 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
           throw new Error('walletProvider.xdefi.errors.multipleWallets')
         }
 
-        if (provider?.chainId !== 1) {
-          throw new Error('walletProvider.xdefi.errors.network')
-        }
-
         // Hack to handle XDEFI account changes
         //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })

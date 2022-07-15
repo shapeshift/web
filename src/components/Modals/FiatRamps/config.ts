@@ -81,10 +81,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsSell: true,
     getBuyAndSellList: async () => {
       const buyAssets = getBanxaAssets()
-      /**
-       * https://discord.com/channels/554694662431178782/972197500305948803/973110904382169118
-       * banxa only supports btc sells for now
-       */
       const sellAssets = buyAssets.filter(a =>
         [btcAssetId, usdcAssetId, usdtAssetId].includes(a.assetId),
       )

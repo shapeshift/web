@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.6.0...@shapeshiftoss/chain-adapters-v7.7.0) (2022-07-15)
+
+
+### Features
+
+* switch EVM chains on buildSendTransaction ([#883](https://github.com/shapeshift/lib/issues/883)) ([360fac0](https://github.com/shapeshift/lib/commit/360fac0d4c384ad1e382566b5f532ae1ec62aa72))
+
 # [@shapeshiftoss/chain-adapters-v7.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.5.1...@shapeshiftoss/chain-adapters-v7.6.0) (2022-07-14)
 
 

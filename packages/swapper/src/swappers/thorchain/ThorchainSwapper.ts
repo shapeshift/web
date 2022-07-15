@@ -84,6 +84,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
+    if (!this.supportedAssetIds.includes(sellAssetId)) return []
     return assetIds.filter(
       (assetId) => this.supportedAssetIds.includes(assetId) && assetId !== sellAssetId
     )

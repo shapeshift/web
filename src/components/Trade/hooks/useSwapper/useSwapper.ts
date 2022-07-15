@@ -401,8 +401,8 @@ export const useSwapper = () => {
         sellAssetId: sellAsset.assetId,
       })
 
+      // we assume that if we do not have a swapper returned, it is not a valid trade pair
       if (!swapper) {
-        // we assume that if we do not have a swapper returned, it is not a valid trade pair
         setError('quote', { message: 'trade.errors.invalidTradePairBtnText' })
         return toast({
           title: translate('trade.errors.title'),

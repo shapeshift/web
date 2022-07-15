@@ -12,7 +12,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const getSupportedEvmChains = () =>
+const getSupportedEvmChainIds = () =>
   Array.from(getChainAdapters().keys()).filter(
     chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
   )
@@ -61,7 +61,7 @@ export const ChainMenu = () => {
 
   const connectedChainId = useMemo(
     () =>
-      getSupportedEvmChains().find(chainId => fromChainId(chainId).chainReference === evmChainId),
+      getSupportedEvmChainIds().find(chainId => fromChainId(chainId).chainReference === evmChainId),
     [evmChainId],
   )
 
@@ -92,20 +92,20 @@ export const ChainMenu = () => {
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
-        rightIcon={getSupportedEvmChains().length > 1 ? <ChevronDownIcon /> : null}
+        rightIcon={getSupportedEvmChainIds().length > 1 ? <ChevronDownIcon /> : null}
         width={{ base: 'full', md: 'auto' }}
       >
         <Flex alignItems='center'>
           <AssetIcon src={currentChainNativeAsset.icon ?? ''} size='xs' mr='8px' />
           {getChainAdapters()
-            .get(getSupportedEvmChains().find(chainId => chainId === connectedChainId) ?? '')
+            .get(getSupportedEvmChainIds().find(chainId => chainId === connectedChainId) ?? '')
             ?.getDisplayName() ?? ''}
         </Flex>
       </MenuButton>
-      {getSupportedEvmChains().length > 1 ? (
+      {getSupportedEvmChainIds().length > 1 ? (
         <MenuList p='10px' zIndex={2}>
           <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
-            {getSupportedEvmChains().map(chainId => (
+            {getSupportedEvmChainIds().map(chainId => (
               <ChainMenuItem
                 isConnected={chainId === connectedChainId}
                 key={chainId}

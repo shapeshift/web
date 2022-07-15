@@ -1,5 +1,6 @@
-import { btcChainId, ChainId } from '@shapeshiftoss/caip'
+import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   Swapper,
   SwapperManager,
@@ -24,7 +25,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
+import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAccountSpecifiers,
   selectAssetIds,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
@@ -46,6 +50,17 @@ type GetQuoteInput = {
   feeAsset: Asset
   action: TradeAmountInputField
   forceQuote?: boolean
+}
+
+type DebouncedQuoteInput = {
+  amount: string
+  sellAsset: Asset
+  buyAsset: Asset
+  feeAsset: Asset
+  action: TradeAmountInputField
+  wallet: HDWallet
+  swapperManager: SwapperManager
+  accountSpecifiersList: AccountSpecifierMap[]
 }
 
 // singleton - do not export me, use getSwapperManager
@@ -172,6 +187,8 @@ export const useSwapper = () => {
 
   const { showErrorToast } = useErrorHandler()
 
+  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
+
   const getSendMaxAmount = async ({
     sellAsset,
     feeAsset,
@@ -224,6 +241,7 @@ export const useSwapper = () => {
           buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
           sendMax: true,
+          receiveAddress: '', // TODO add this later with the buildTrade PR
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
@@ -257,68 +275,126 @@ export const useSwapper = () => {
   }
 
   const updateQuoteDebounced = useRef(
-    debounce(async ({ amount, sellAsset, buyAsset, action, wallet, swapperManager }) => {
-      try {
-        const swapper = await swapperManager.getBestSwapper({
-          buyAssetId: buyAsset.assetId,
-          sellAssetId: sellAsset.assetId,
-        })
+    debounce(
+      async ({
+        amount,
+        sellAsset,
+        buyAsset,
+        action,
+        wallet,
+        swapperManager,
+        accountSpecifiersList,
+      }: DebouncedQuoteInput) => {
+        try {
+          const swapper = await swapperManager.getBestSwapper({
+            buyAssetId: buyAsset.assetId,
+            sellAssetId: sellAsset.assetId,
+          })
 
-        if (!swapper) throw new Error('no swapper available')
+          if (!swapper) throw new Error('no swapper available')
+          const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
+            swapper.getUsdRate({ ...sellAsset }),
+            swapper.getUsdRate({ ...buyAsset }),
+            swapper.getUsdRate({ ...feeAsset }),
+          ])
 
-        const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
-          swapper.getUsdRate({ ...sellAsset }),
-          swapper.getUsdRate({ ...buyAsset }),
-          swapper.getUsdRate({ ...feeAsset }),
-        ])
+          const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
+            amount,
+            buyAsset,
+            sellAsset,
+            buyAssetUsdRate,
+            sellAssetUsdRate,
+            action,
+          })
 
-        const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
-          amount,
-          buyAsset,
-          sellAsset,
-          buyAssetUsdRate,
-          sellAssetUsdRate,
-          action,
-        })
+          const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
 
-        const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-          if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
-            return swapper.getTradeQuote({
-              chainId: KnownChainIds.EthereumMainnet,
-              sellAsset,
-              buyAsset,
-              sellAmount,
-              sendMax: false,
-              sellAssetAccountNumber: 0,
-              wallet,
-            })
-          } else if (sellAsset.chainId === btcChainId) {
-            // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
-            // They will need to have selected an accountType from a modal if bitcoin
-            throw new Error('bitcoin unsupported')
-          }
-          throw new Error(`unsupported chain id ${sellAsset.chainId}`)
-        })()
+          const chainAdapter = getChainAdapters().get(receiveAddressChainId)
 
-        await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
+          if (!chainAdapter)
+            throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
 
-        setValue('quote', tradeQuote)
-        setValue('sellAssetFiatRate', sellAssetUsdRate)
-        setValue('feeAssetFiatRate', feeAssetUsdRate)
+          // Get first specifier for receive asset chain id
+          // Eventually we may want to customize which account they want to receive trades into
+          const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
+            specifiers => specifiers[buyAsset.chainId],
+          )
 
-        // Update trade input form fields to new calculated amount
-        setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
-        setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
-        setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
-      } catch (e) {
-        showErrorToast(e)
-      }
-    }, debounceTime),
+          if (!receiveAddressAccountSpecifiers)
+            throw new Error('no receiveAddressAccountSpecifiers')
+          const receiveAddressAccountSpecifier = receiveAddressAccountSpecifiers[buyAsset.chainId]
+          if (!receiveAddressAccountSpecifier) throw new Error('no receiveAddressAccountSpecifier')
+
+          const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
+            accountIdToUtxoParams(receiveAddressAccountSpecifiers[buyAsset.chainId], 0)
+
+          const receiveAddress = await chainAdapter.getAddress({
+            wallet,
+            accountType: receiveAddressAccountType,
+            ...receiveAddressUtxoParams,
+          })
+
+          const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
+            if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
+              return swapper.getTradeQuote({
+                chainId: KnownChainIds.EthereumMainnet,
+                sellAsset,
+                buyAsset,
+                sellAmount,
+                sendMax: false,
+                sellAssetAccountNumber: 0,
+                wallet,
+                receiveAddress,
+              })
+            } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
+              // TODO btcAccountSpecifier must come from the btc account selection modal
+              // We are defaulting temporarily for development
+              const btcAccountSpecifiers = accountSpecifiersList.find(
+                specifiers => specifiers[KnownChainIds.BitcoinMainnet],
+              )
+              if (!btcAccountSpecifiers) throw new Error('no btc account specifiers')
+              const btcAccountSpecifier = btcAccountSpecifiers[KnownChainIds.BitcoinMainnet]
+              if (!btcAccountSpecifier) throw new Error('no btc account specifier')
+
+              const { accountType, utxoParams } = accountIdToUtxoParams(btcAccountSpecifier, 0)
+              if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+              return swapper.getTradeQuote({
+                chainId: KnownChainIds.BitcoinMainnet,
+                sellAsset,
+                buyAsset,
+                sellAmount,
+                sendMax: false,
+                sellAssetAccountNumber: 0,
+                wallet,
+                bip44Params: utxoParams.bip44Params,
+                accountType,
+                receiveAddress,
+              })
+            }
+            throw new Error(`unsupported chain id ${sellAsset.chainId}`)
+          })()
+
+          await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
+
+          setValue('quote', tradeQuote)
+          setValue('sellAssetFiatRate', sellAssetUsdRate)
+          setValue('feeAssetFiatRate', feeAssetUsdRate)
+
+          // Update trade input form fields to new calculated amount
+          setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
+          setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
+          setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
+        } catch (e) {
+          showErrorToast(e)
+        }
+      },
+      debounceTime,
+    ),
   )
 
   const updateQuote = useCallback(
     async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
-      if (!wallet) return
+      if (!wallet || !accountSpecifiersList.length) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)
       await updateQuoteDebounced.current({
@@ -329,9 +405,10 @@ export const useSwapper = () => {
         buyAsset,
         wallet,
         swapperManager,
+        accountSpecifiersList,
       })
     },
-    [setValue, swapperManager, wallet],
+    [accountSpecifiersList, setValue, swapperManager, wallet],
   )
 
   const setFormFees = async ({
@@ -368,6 +445,19 @@ export const useSwapper = () => {
               totalFee,
             },
             tradeFee: ethTrade.feeData.tradeFee,
+            tradeFeeSource,
+          }
+          setValue('fees', fees)
+        }
+        break
+      case KnownChainIds.BitcoinMainnet:
+        {
+          const btcTrade = trade as Trade<KnownChainIds.BitcoinMainnet>
+
+          const fees: DisplayFeeData<KnownChainIds.BitcoinMainnet> = {
+            fee,
+            chainSpecific: btcTrade.feeData.chainSpecific,
+            tradeFee: btcTrade.feeData.tradeFee,
             tradeFeeSource,
           }
           setValue('fees', fees)

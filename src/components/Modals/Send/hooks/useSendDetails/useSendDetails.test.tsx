@@ -260,12 +260,13 @@ describe('useSendDetails', () => {
     })
     await act(async () => {
       await result.current.handleSendMax()
-      expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
-      expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
+      expect(setValue).toHaveBeenNthCalledWith(1, 'amountFieldError', '')
+      expect(setValue).toHaveBeenNthCalledWith(2, 'sendMax', true)
+      expect(setValue).toHaveBeenNthCalledWith(3, 'estimatedFees', {
         fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' },
       })
-      expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '17500.00')
-      expect(setValue).toHaveBeenNthCalledWith(4, 'cryptoAmount', '5')
+      expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '17500.00')
+      expect(setValue).toHaveBeenNthCalledWith(5, 'cryptoAmount', '5')
     })
   })
 
@@ -278,8 +279,9 @@ describe('useSendDetails', () => {
     })
     await act(async () => {
       await result.current.handleSendMax()
-      expect(setValue).toHaveBeenNthCalledWith(1, 'cryptoAmount', '21')
-      expect(setValue).toHaveBeenNthCalledWith(2, 'fiatAmount', runeFiatAmount)
+      expect(setValue).toHaveBeenNthCalledWith(1, 'amountFieldError', '')
+      expect(setValue).toHaveBeenNthCalledWith(2, 'cryptoAmount', '21')
+      expect(setValue).toHaveBeenNthCalledWith(3, 'fiatAmount', runeFiatAmount)
     })
   })
 })

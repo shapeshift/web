@@ -434,6 +434,7 @@
       "minMaxError": "An error occurred getting min / max trade amount",
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
+      "unsupportedChain": "This chain is not currently supported.",
       "rateError": "An error occurred getting trade rates",
       "signing": {
         "failed": "An error occurred signing the transaction",

@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
@@ -9,13 +9,8 @@ import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const getSupportedEvmChainIds = () =>
-  Array.from(getChainAdapters().keys()).filter(
-    chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
-  )
 
 const ChainMenuItem: React.FC<{
   chainId: string
@@ -40,9 +35,7 @@ const ChainMenuItem: React.FC<{
       borderRadius='lg'
     >
       <Flex justifyContent={'space-between'}>
-        <Box>
-          <span>{chainName}</span>
-        </Box>
+        <Text>{chainName}</Text>
         <Box>{isConnected && <CircleIcon color={connectedIconColor} w={2} />}</Box>
       </Flex>
     </MenuItem>
@@ -51,6 +44,17 @@ const ChainMenuItem: React.FC<{
 export const ChainMenu = () => {
   const { state } = useWallet()
   const [evmChainId, setEvmChainId] = useState<string | null>(null)
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
+  const supportedEvmChainIds = useMemo(
+    () =>
+      Array.from(getChainAdapters().keys()).filter(
+        chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
+      ),
+    // We want to explicitly react on featureFlags to get a new reference here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [featureFlags],
+  )
 
   useEffect(() => {
     ;(async () => {
@@ -60,9 +64,8 @@ export const ChainMenu = () => {
   }, [state])
 
   const connectedChainId = useMemo(
-    () =>
-      getSupportedEvmChainIds().find(chainId => fromChainId(chainId).chainReference === evmChainId),
-    [evmChainId],
+    () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === evmChainId),
+    [evmChainId, supportedEvmChainIds],
   )
 
   const handleChainClick = async (chainId: string) => {
@@ -92,20 +95,20 @@ export const ChainMenu = () => {
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
-        rightIcon={getSupportedEvmChainIds().length > 1 ? <ChevronDownIcon /> : null}
+        rightIcon={supportedEvmChainIds.length > 1 ? <ChevronDownIcon /> : null}
         width={{ base: 'full', md: 'auto' }}
       >
         <Flex alignItems='center'>
           <AssetIcon src={currentChainNativeAsset.icon ?? ''} size='xs' mr='8px' />
           {getChainAdapters()
-            .get(getSupportedEvmChainIds().find(chainId => chainId === connectedChainId) ?? '')
+            .get(supportedEvmChainIds.find(chainId => chainId === connectedChainId) ?? '')
             ?.getDisplayName() ?? ''}
         </Flex>
       </MenuButton>
-      {getSupportedEvmChainIds().length > 1 ? (
+      {supportedEvmChainIds.length > 1 ? (
         <MenuList p='10px' zIndex={2}>
           <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
-            {getSupportedEvmChainIds().map(chainId => (
+            {supportedEvmChainIds.map(chainId => (
               <ChainMenuItem
                 isConnected={chainId === connectedChainId}
                 key={chainId}

@@ -91,6 +91,9 @@ export const ChainMenu = () => {
   if (!state.wallet || !evmChainId || !currentChainNativeAsset) return null
   if (!supportsEthSwitchChain(state.wallet)) return null
 
+  // don't show the menu if there is only one chain
+  if (supportedEvmChainIds.length < 2) return null
+
   return (
     <Menu autoSelect={false}>
       <MenuButton
@@ -105,20 +108,18 @@ export const ChainMenu = () => {
             ?.getDisplayName() ?? ''}
         </Flex>
       </MenuButton>
-      {supportedEvmChainIds.length > 1 ? (
-        <MenuList p='10px' zIndex={2}>
-          <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
-            {supportedEvmChainIds.map(chainId => (
-              <ChainMenuItem
-                isConnected={chainId === connectedChainId}
-                key={chainId}
-                chainId={chainId}
-                onClick={handleChainClick}
-              />
-            ))}
-          </MenuGroup>
-        </MenuList>
-      ) : null}
+      <MenuList p='10px' zIndex={2}>
+        <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
+          {supportedEvmChainIds.map(chainId => (
+            <ChainMenuItem
+              isConnected={chainId === connectedChainId}
+              key={chainId}
+              chainId={chainId}
+              onClick={handleChainClick}
+            />
+          ))}
+        </MenuGroup>
+      </MenuList>
     </Menu>
   )
 }

@@ -2,12 +2,11 @@
 /* eslint-disable import/no-default-export */
 
 import { Story } from '@storybook/react'
-
-import { OptInModal } from './OptInModal'
+import { OptInModalBody } from 'plugins/pendo/components/OptInModal/OptInModalBody'
 
 export default {
-  title: 'Plugins/Analytics/OptInModal',
-  component: OptInModal,
+  title: 'Plugins/Analytics/OptInModalBody',
+  component: OptInModalBody,
 }
 
-export const AnalyticsModal: Story = () => <OptInModal />
+export const AnalyticsModal: Story = () => <OptInModalBody onContinue={() => {}} />

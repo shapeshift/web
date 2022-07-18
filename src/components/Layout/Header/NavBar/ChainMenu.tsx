@@ -29,7 +29,7 @@ const ChainMenuItem: React.FC<{
 
   return (
     <MenuItem
-      icon={<AssetIcon src={nativeAsset.icon ?? ''} width='6' height='auto' />}
+      icon={<AssetIcon src={nativeAsset.icon} width='6' height='auto' />}
       backgroundColor={isConnected ? connectedChainBgColor : undefined}
       onClick={() => onClick(evmChainId)}
       borderRadius='lg'
@@ -102,7 +102,7 @@ export const ChainMenu = () => {
         width={{ base: 'full', md: 'auto' }}
       >
         <Flex alignItems='center'>
-          <AssetIcon src={currentChainNativeAsset.icon ?? ''} size='xs' mr='8px' />
+          <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
           {getChainAdapters()
             .get(supportedEvmChainIds.find(chainId => chainId === connectedChainId) ?? '')
             ?.getDisplayName() ?? ''}

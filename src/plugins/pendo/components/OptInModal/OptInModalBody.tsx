@@ -11,7 +11,7 @@ import {
 import { getConfig } from 'config'
 import { launch } from 'plugins/pendo'
 import { VisitorDataManager } from 'plugins/pendo/visitorData'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -44,12 +44,15 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
     }
   }, [consent, enabled, onContinue])
 
-  const handleConfirm = async () => {
-    moduleLogger.trace({ fn: 'handleConfirm' }, 'Confirmed')
-    VisitorDataManager.recordConsent(CONSENT_TAG, true)
-    launch()
-    onContinue()
-  }
+  const handleConfirm = useCallback(
+    () => async () => {
+      moduleLogger.trace({ fn: 'handleConfirm' }, 'Confirmed')
+      VisitorDataManager.recordConsent(CONSENT_TAG, true)
+      launch()
+      onContinue()
+    },
+    [CONSENT_TAG, onContinue],
+  )
 
   // If the user has already consented, we don't need to ask them again
   if (typeof consent === 'boolean') {

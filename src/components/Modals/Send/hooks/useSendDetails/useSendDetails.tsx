@@ -268,6 +268,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
+            case KnownChainIds.DogecoinMainnet: {
+              const dogeAdapter = (await chainAdapterManager.get(KnownChainIds.DogecoinMainnet)) as
+                | dogecoin.ChainAdapter
+                | undefined
+              if (!dogeAdapter)
+                throw new Error(`No adapter available for ${KnownChainIds.DogecoinMainnet}`)
+              const value = assetBalance
+              const adapterFees = await dogeAdapter.getFeeData({
+                to,
+                value,
+                chainSpecific: { pubkey: account },
+                sendMax: true,
+              })
+              const fastFee = adapterFees.fast.txFee // this is actually average fee for doge
+              return { adapterFees, fastFee }
+            }
             default: {
               throw new Error(
                 `useSendDetails(handleSendMax): no adapter available for chainId ${chainId}`,

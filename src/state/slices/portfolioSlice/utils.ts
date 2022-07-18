@@ -119,6 +119,7 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
   if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
   if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
+  if (pubkeyVariant?.startsWith('dgub')) return UtxoAccountType.P2pkh // doge
   return null
 }
 

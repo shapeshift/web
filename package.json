@@ -155,7 +155,6 @@
     "react-infinite-scroller": "^1.2.6",
     "react-number-format": "^4.9.3",
     "react-polyglot": "^0.7.2",
-    "react-qr-reader": "^3.0.0-beta-1",
     "react-redux": "^7.2.8",
     "react-router": "^5.3.3",
     "react-router-breadcrumbs-hoc": "^4.1.0",

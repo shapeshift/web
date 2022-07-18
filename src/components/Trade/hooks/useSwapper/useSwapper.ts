@@ -135,17 +135,17 @@ export const useSwapper = () => {
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
-      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-      TradeAsset | undefined,
-      Trade<KnownChainIds>,
-    ]
+    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+    TradeAsset | undefined,
+    Trade<KnownChainIds>,
+  ]
 
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       setSwapperManager(await getSwapperManager())
     })()
   }, [])
@@ -176,9 +176,9 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-          assetIds,
-          sellAssetId,
-        })
+            assetIds,
+            sellAssetId,
+          })
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
@@ -236,9 +236,11 @@ export const useSwapper = () => {
   }
 
   const supportedSwappingChain = (chainId: string) => {
-    return chainId === KnownChainIds.EthereumMainnet ||
+    return (
+      chainId === KnownChainIds.EthereumMainnet ||
       chainId === KnownChainIds.OsmosisMainnet ||
       chainId === KnownChainIds.CosmosMainnet
+    )
   }
 
   const updateTrade = async ({
@@ -259,11 +261,12 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const tradeQuote = await (async () => {
-      if (
-        supportedSwappingChain(sellAsset.chainId)
-      ) {
+      if (supportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
-          chainId: sellAsset.chainId as KnownChainIds.EthereumMainnet | KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet,
+          chainId: sellAsset.chainId as
+            | KnownChainIds.EthereumMainnet
+            | KnownChainIds.CosmosMainnet
+            | KnownChainIds.OsmosisMainnet,
           sellAmount: amount,
           sellAsset,
           buyAsset,

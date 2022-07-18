@@ -2,7 +2,7 @@ import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, ChainId, fromChainId } from '@shapeshiftoss/caip'
-import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
+import { ETHWallet, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useEffect, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
@@ -58,7 +58,7 @@ export const ChainMenu = () => {
 
   useEffect(() => {
     ;(async () => {
-      const chainId = await (state.wallet as any)?.ethGetChainId?.()
+      const chainId = await (state.wallet as ETHWallet)?.ethGetChainId?.()
       if (chainId) setEvmChainId(bnOrZero(chainId).toString())
     })()
   }, [state])
@@ -70,7 +70,7 @@ export const ChainMenu = () => {
 
   const handleChainClick = async (chainId: ChainId) => {
     try {
-      await (state.wallet as any).ethSwitchChain?.(Number(chainId))
+      await (state.wallet as ETHWallet).ethSwitchChain?.(Number(chainId))
       setEvmChainId(chainId)
     } catch (e) {
       // TODO: Handle me after https://github.com/shapeshift/hdwallet/pull/551 is published

@@ -122,7 +122,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const isFeeRatioOverThreshold =
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
-  const txLink = (() => {
+  const txLink = useMemo(() => {
     if (
       trade.sellAsset.chainId === KnownChainIds.OsmosisMainnet ||
       trade.sellAsset.chainId === KnownChainIds.CosmosMainnet
@@ -131,7 +131,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     } else {
       return `${trade.sellAsset?.explorerTxLink}${txid}`
     }
-  })()
+  }, [trade, osmosisAsset, txid])
 
   return (
     <SlideTransition>

@@ -59,6 +59,10 @@ export const WalletViewsSwitch = () => {
     await cancelWalletRequests()
   }
 
+  const onContinue = useCallback(() => {
+    history.push('/select')
+  }, [history])
+
   useEffect(() => {
     if (initialRoute) {
       history.push(initialRoute)
@@ -107,10 +111,7 @@ export const WalletViewsSwitch = () => {
                   })}
 
                 <Route path={'/select'} children={() => <SelectModal />} />
-                <Route
-                  path={'/'}
-                  children={() => <OptInModalBody onContinue={() => history.push('/select')} />}
-                />
+                <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

@@ -31,8 +31,8 @@ import { getWeb3Instance } from 'lib/web3-instance'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssetById,
   selectAccountSpecifiers,
+  selectAssetById,
   selectAssetIds,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
@@ -135,17 +135,17 @@ export const useSwapper = () => {
   const [quote, sellTradeAsset, trade] = useWatch({
     name: ['quote', 'sellAsset', 'trade'],
   }) as [
-      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-      TradeAsset | undefined,
-      Trade<KnownChainIds>,
-    ]
+    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+    TradeAsset | undefined,
+    Trade<KnownChainIds>,
+  ]
 
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       setSwapperManager(await getSwapperManager())
     })()
   }, [])
@@ -176,9 +176,9 @@ export const useSwapper = () => {
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-          assetIds,
-          sellAssetId,
-        })
+            assetIds,
+            sellAssetId,
+          })
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },

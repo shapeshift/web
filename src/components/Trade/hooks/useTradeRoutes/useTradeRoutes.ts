@@ -156,7 +156,7 @@ export const useTradeRoutes = (
         history.push(TradeRoutePaths.Input)
       }
     },
-    [assets, getValues, sellTradeAsset, buyTradeAsset, setValue, updateQuote, feeAsset, history],
+    [getValues, sellTradeAsset, buyTradeAsset, setValue, updateQuote, feeAsset, history],
   )
 
   const handleBuyClick = useCallback(

@@ -123,7 +123,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
   const txLink = (() => {
-    if (trade.sellAsset.chainId === KnownChainIds.OsmosisMainnet || KnownChainIds.CosmosMainnet) {
+    if (
+      trade.sellAsset.chainId === KnownChainIds.OsmosisMainnet ||
+      trade.sellAsset.chainId === KnownChainIds.CosmosMainnet
+    ) {
       return `${osmosisAsset?.explorerTxLink}${txid}`
     } else {
       return `${trade.sellAsset?.explorerTxLink}${txid}`

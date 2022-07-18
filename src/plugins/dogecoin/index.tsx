@@ -12,6 +12,7 @@ export function register(): Plugins {
       'dogecoinChainAdapter',
       {
         name: 'dogecoinChainAdapter',
+        featureFlag: 'Dogecoin',
         providers: {
           chainAdapters: [
             [

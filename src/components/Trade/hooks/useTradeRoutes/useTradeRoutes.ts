@@ -2,15 +2,10 @@ import { AssetId, chainIdToFeeAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import {
-  TradeAmountInputField,
-  TradeAsset,
-  TradeRoutePaths,
-  TradeState,
-} from 'components/Trade/types'
+import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -27,9 +22,7 @@ export const useTradeRoutes = (
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
-  const [sellTradeAsset] = useWatch({
-    name: ['sellAsset'],
-  }) as [TradeAsset | undefined]
+  const sellTradeAsset = getValues('sellAsset')
   const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
@@ -134,19 +127,14 @@ export const useTradeRoutes = (
           setValue('sellAsset.asset', asset)
           setValue('buyAsset.asset', buyTradeAsset?.asset)
         }
-
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-          let buyAsset = buyTradeAsset.asset
-          let updatedFeeAsset = feeAsset
-
           const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
           await updateQuote({
             forceQuote: true,
             amount: fiatSellAmount,
             sellAsset: asset,
-
-            buyAsset,
-            feeAsset: updatedFeeAsset,
+            buyAsset: buyTradeAsset.asset,
+            feeAsset,
             action: TradeAmountInputField.FIAT,
           })
         }

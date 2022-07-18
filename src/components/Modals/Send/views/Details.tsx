@@ -142,7 +142,7 @@ export const Details = () => {
                 </Button>
               }
               inputRightElement={
-                wallet?.getVendor() !== 'WalletConnect' ? null : (
+                wallet?.getVendor() === 'WalletConnect' ? null : (
                   <SendMaxButton onClick={handleSendMax} />
                 )
               }
@@ -171,7 +171,7 @@ export const Details = () => {
                 </Button>
               }
               inputRightElement={
-                wallet?.getVendor() !== 'WalletConnect' ? null : (
+                wallet?.getVendor() === 'WalletConnect' ? null : (
                   <SendMaxButton onClick={handleSendMax} />
                 )
               }

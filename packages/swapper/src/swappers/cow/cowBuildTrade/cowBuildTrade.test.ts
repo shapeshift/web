@@ -178,7 +178,7 @@ describe('cowBuildTrade', () => {
       sellAmount: '1000000000000000000',
       sendMax: true,
       sellAssetAccountNumber: 0,
-      buyAssetAccountNumber: 1,
+      buyAssetAccountNumber: 0,
       wallet: <HDWallet>{},
       receiveAddress: ''
     }
@@ -226,7 +226,7 @@ describe('cowBuildTrade', () => {
       sellAmount: '100000000',
       sendMax: true,
       sellAssetAccountNumber: 0,
-      buyAssetAccountNumber: 1,
+      buyAssetAccountNumber: 0,
       wallet: <HDWallet>{},
       receiveAddress: ''
     }

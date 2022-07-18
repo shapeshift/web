@@ -164,7 +164,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     bnOrZero(trade?.rate),
                   )} ${trade?.buyAsset?.symbol}`}</RawText>
                   {!!fees?.tradeFeeSource && (
-                    <RawText color="gray.500">@{fees?.tradeFeeSource}</RawText>
+                    <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
                   )}
                 </Box>
               </Row>

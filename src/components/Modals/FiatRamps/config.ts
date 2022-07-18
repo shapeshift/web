@@ -24,6 +24,9 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
 })
 
+export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+
 export interface SupportedFiatRampConfig {
   // key of translation jsons, will be used to show the provider name in the list
   label: string
@@ -78,11 +81,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsSell: true,
     getBuyAndSellList: async () => {
       const buyAssets = getBanxaAssets()
-      /**
-       * https://discord.com/channels/554694662431178782/972197500305948803/973110904382169118
-       * banxa only supports btc sells for now
-       */
-      const sellAssets = buyAssets.filter(a => a.assetId === btcAssetId)
+      const sellAssets = buyAssets.filter(a =>
+        [btcAssetId, usdcAssetId, usdtAssetId].includes(a.assetId),
+      )
       return [buyAssets, sellAssets]
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {

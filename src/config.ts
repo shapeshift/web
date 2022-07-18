@@ -12,6 +12,8 @@ const validators = {
   REACT_APP_LOG_LEVEL: str({ default: 'info' }),
   REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: url(),
   REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url(),
+  REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_AVALANCHE_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: url(),
@@ -19,6 +21,7 @@ const validators = {
   REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
+  REACT_APP_AVALANCHE_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_WALLET_MIGRATION_URL: url(),
@@ -39,6 +42,7 @@ const validators = {
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
+  REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_COINBASE_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_JUNOPAY: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
@@ -58,6 +62,12 @@ const validators = {
   REACT_APP_OSMOSIS_NODE: url({
     default: 'https://lcd-osmosis.blockapsis.com/',
   }),
+  REACT_APP_FEATURE_PENDO: bool({ default: false }),
+  REACT_APP_PENDO_API_KEY: envalid.str({ default: '67c2f326-a6c2-4aa2-4559-08a53b679e93' }),
+  REACT_APP_PENDO_CONSENT_VERSION: envalid.str({ default: 'v1' }),
+  REACT_APP_PENDO_SUB_ID: envalid.str({ default: '6047664892149760' }),
+  REACT_APP_PENDO_UNSAFE_DESIGNER_MODE: envalid.bool({ default: false }),
+  REACT_APP_PENDO_VISITOR_ID_PREFIX: envalid.str({ default: 'test_visitor' }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

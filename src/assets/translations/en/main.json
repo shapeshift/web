@@ -382,6 +382,8 @@
       "broadcastFailed": "An error occurred while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+      "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
+      "invalidTradePairBtnText": "Invalid Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
@@ -401,6 +403,7 @@
       "minMaxError": "An error occurred getting min / max trade amount",
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
+      "unsupportedChain": "This chain is not currently supported.",
       "rateError": "An error occurred getting trade rates",
       "signing": {
         "failed": "An error occurred signing the transaction",

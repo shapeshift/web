@@ -79,8 +79,6 @@ export const BridgeInput = () => {
     formState: { isValid, errors },
   } = useFormContext<BridgeState>()
 
-  const values = useWatch()
-
   const fieldError = errors.cryptoAmount?.message ?? null
 
   const { field: asset } = useController({
@@ -89,23 +87,13 @@ export const BridgeInput = () => {
     rules: { required: true },
   })
 
-  const validateChain = (value: BridgeChain | undefined) => {
-    if (value && value?.name) {
-      return ''
-    } else {
-      return 'no chain selected'
-    }
-  }
-
   const { field: fromChain } = useController({
     name: 'fromChain',
     control,
-    rules: { required: true, validate: validateChain },
   })
   const { field: toChain } = useController({
     name: 'toChain',
     control,
-    rules: { required: true, validate: validateChain },
   })
 
   const cryptoInputValidation = (value: string | undefined) => {
@@ -165,10 +153,6 @@ export const BridgeInput = () => {
     history.push(BridgeRoutePaths.Confirm)
   }
 
-  useEffect(() => {
-    console.info(values)
-  }, [values])
-
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -200,7 +184,7 @@ export const BridgeInput = () => {
         </List>
         <Button
           size='lg'
-          isDisabled={!isValid}
+          isDisabled={!isValid || !fromChain.value || !toChain.value}
           type='submit'
           colorScheme={errors.cryptoAmount ? 'red' : 'blue'}
         >

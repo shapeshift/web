@@ -90,7 +90,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
             </Row>
             <Stack spacing={0}>
               <Row variant='gutter'>
-                <Row.Label>Total Approx. Wait Time</Row.Label>
+                <Row.Label>Approx. Wait Time</Row.Label>
                 <Row.Value>~5-10 minutes</Row.Value>
               </Row>
               <Row variant='gutter'>
@@ -115,7 +115,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
             </Stack>
           </Summary>
           <Button size='lg' colorScheme='blue' onClick={handleContinue}>
-            Confirm
+            Start Bridge
           </Button>
         </Stack>
       </Card>

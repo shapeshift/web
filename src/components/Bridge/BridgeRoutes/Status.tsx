@@ -169,7 +169,7 @@ export const Status = () => {
                 </Row>
                 <Stack spacing={0}>
                   <Row variant='gutter'>
-                    <Row.Label>Total Approx. Wait Time</Row.Label>
+                    <Row.Label>Approx. Wait Time</Row.Label>
                     <Row.Value>~5-10 minutes</Row.Value>
                   </Row>
                   <Row variant='gutter'>

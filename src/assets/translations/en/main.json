@@ -383,6 +383,14 @@
     },
     "unknown": "Transaction"
   },
+  "bridge": {
+    "confirm": "Confirm Bridge",
+    "selectChain": "Select Chain",
+    "selectAsset": "Select Asset",
+    "confirmBridge": "Confirm Bridge",
+    "preview": "Preview Bridge",
+    "transferring": "Transferring"
+  },
   "trade": {
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",

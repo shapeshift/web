@@ -15,12 +15,13 @@ export const MaxButtonGroup: React.FC<MaxButtonGroupProps> = ({
   isDisabled,
 }) => {
   return (
-    <ButtonGroup justifyContent='space-between' size='xs'>
+    <ButtonGroup justifyContent='space-between' size='xs' width='full'>
       {options.map(option => (
         <Button
           isDisabled={isDisabled}
           isActive={option === value}
           key={option}
+          width='full'
           onClick={() => onClick(option)}
         >
           {option === 1 ? (

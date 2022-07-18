@@ -8,6 +8,24 @@ export const ListStyle = {
   sizes: {},
   // Styles for the visual style variations
   variants: {
+    rounded: (props: Record<string, any>) => ({
+      container: {
+        borderRadius: 'lg',
+        '> *': {
+          borderBottomWidth: 1,
+          borderColor: mode('gray.100', 'gray.750')(props),
+        },
+        '> :first-child': {
+          borderTopRadius: 'lg',
+          borderBottomRadius: 'none',
+        },
+        '> :last-child': {
+          borderBottomRadius: 'lg',
+          borderTopRadius: 'none',
+          borderBottomWidth: 0,
+        },
+      },
+    }),
     numerList: (props: Record<string, any>) => ({
       container: {
         listStyleType: 'none',

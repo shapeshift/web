@@ -50,7 +50,7 @@ export type AssetInputProps = {
   balance?: string
   fiatBalance?: string
   errors?: FieldError
-  percentOptions: number[]
+  percentOptions?: number[]
 }
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -93,6 +93,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       <Stack direction='row' alignItems='center' px={4}>
         <Button
           onClick={onAssetClick}
+          size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}
           leftIcon={<AssetIcon src={assetIcon} size='xs' />}
           rightIcon={onAssetClick && <ChevronDownIcon />}
@@ -139,7 +140,14 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       )}
       {(onMaxClick || balance) && (
-        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
+        <Stack
+          direction='row'
+          width='full'
+          py={2}
+          px={4}
+          justifyContent='space-between'
+          alignItems='center'
+        >
           {balance && (
             <Balance
               cryptoBalance={balance}
@@ -156,7 +164,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (
-        <Stack px={4} py={2} mt={2} borderTopWidth={1} borderColor={borderColor}>
+        <Stack mt={2} borderTopWidth={1} borderColor={borderColor}>
           {children}
         </Stack>
       )}

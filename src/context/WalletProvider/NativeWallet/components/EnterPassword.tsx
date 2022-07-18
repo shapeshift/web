@@ -25,6 +25,8 @@ import { getNativeLocalWalletName } from 'context/WalletProvider/local-wallet'
 import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { NativeWalletValues } from '../types'
+
 export const EnterPassword = () => {
   const translate = useTranslate()
   const { state, dispatch, disconnect } = useWallet()
@@ -38,7 +40,7 @@ export const EnterPassword = () => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm({ mode: 'onChange', shouldUnregister: true })
+  } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
@@ -113,7 +115,7 @@ export const EnterPassword = () => {
           <Text mb={6} color='gray.500' translation={'modals.shapeShift.password.body'} />
         )}
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl isInvalid={errors.password} mb={6}>
+          <FormControl isInvalid={Boolean(errors.password)} mb={6}>
             <InputGroup size='lg' variant='filled'>
               <Input
                 {...register('password', {

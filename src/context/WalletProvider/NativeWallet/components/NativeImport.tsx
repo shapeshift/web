@@ -13,6 +13,8 @@ import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
+import { NativeWalletValues } from '../types'
+
 export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {
     try {
@@ -30,7 +32,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm({ shouldUnregister: true })
+  } = useForm<NativeWalletValues>({ shouldUnregister: true })
 
   const translate = useTranslate()
 
@@ -42,7 +44,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
       <ModalBody>
         <Text color='gray.500' mb={4} translation={'walletProvider.shapeShift.import.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl isInvalid={errors.mnemonic} mb={6} mt={6}>
+          <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
             <Textarea
               variant='filled'
               size='lg'

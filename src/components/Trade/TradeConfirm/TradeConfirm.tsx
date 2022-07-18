@@ -163,6 +163,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
                     bnOrZero(trade?.rate),
                   )} ${trade?.buyAsset?.symbol}`}</RawText>
+                  {!!fees?.tradeFeeSource && (
+                    <RawText color="gray.500">@{fees?.tradeFeeSource}</RawText>
+                  )}
                 </Box>
               </Row>
               <Row>
@@ -180,10 +183,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <HelperTooltip label={translate('trade.tooltip.shapeshiftFee')}>
                   <Row.Label>
                     <Text
-                      translation={[
-                        'trade.tradeFeeSource',
-                        { tradeFeeSource: fees?.tradeFeeSource ?? 'Trade' },
-                      ]}
+                      translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]}
                     />
                   </Row.Label>
                 </HelperTooltip>

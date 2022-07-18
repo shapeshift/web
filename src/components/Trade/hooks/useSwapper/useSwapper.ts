@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -32,7 +32,6 @@ import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/account
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
-  selectAssetById,
   selectAssetIds,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
@@ -196,15 +195,10 @@ export const useSwapper = () => {
     }),
   )
 
-  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
+  // TODO: rename to sellFeeAsset
   const feeAsset = useAppSelector(state => {
     if (!sellTradeAsset?.asset) {
       return selectFeeAssetById(state, 'eip155:1/slip44:60')
-    } else if (
-      sellTradeAsset.asset.chainId === KnownChainIds.OsmosisMainnet ||
-      sellTradeAsset.asset.chainId === KnownChainIds.CosmosMainnet
-    ) {
-      return selectFeeAssetById(state, osmosisAsset?.assetId)
     } else return selectFeeAssetById(state, sellTradeAsset.asset.assetId)
   })
   const { showErrorToast } = useErrorHandler()

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v6.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.3.4...@shapeshiftoss/asset-service-v6.4.0) (2022-07-18)
+
+
+### Features
+
+* **asset-service:** override Ethereum asset translations ([#884](https://github.com/shapeshift/lib/issues/884)) ([d8afd28](https://github.com/shapeshift/lib/commit/d8afd2876e2eeabbb3ba720be7d9ad3cb91c875a))
+
 # [@shapeshiftoss/asset-service-v6.3.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.3.3...@shapeshiftoss/asset-service-v6.3.4) (2022-07-15)
 
 # [@shapeshiftoss/asset-service-v6.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.3.2...@shapeshiftoss/asset-service-v6.3.3) (2022-07-12)

@@ -1,5 +1,5 @@
 import { ChainId } from '@shapeshiftoss/caip'
-import { bitcoin, ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter, dogecoin } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -27,7 +27,7 @@ export function register(): Plugins {
                   getConfig().REACT_APP_UNCHAINED_DOGECOIN_WS_URL,
                 )
 
-                return new bitcoin.ChainAdapter({
+                return new dogecoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Dogecoin',
                 }) as unknown as ChainAdapter<ChainId>

@@ -65,7 +65,13 @@ const chainIdFeeAssetReferenceMap = (
   return (() => {
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Bitcoin:
-        return ASSET_REFERENCE.Bitcoin
+        switch (chainReference) {
+          case CHAIN_REFERENCE.DogecoinMainnet:
+          case CHAIN_REFERENCE.DogecoinTestnet:
+            return ASSET_REFERENCE.Dogecoin
+          default:
+            return ASSET_REFERENCE.Bitcoin
+        }
       case CHAIN_NAMESPACE.Ethereum:
         return ASSET_REFERENCE.Ethereum
       case CHAIN_NAMESPACE.Cosmos:

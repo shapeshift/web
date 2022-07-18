@@ -1,5 +1,5 @@
 import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { bitcoin, cosmos, ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { bitcoin, cosmos, dogecoin, ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -143,6 +143,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         if (!bitcoinChainAdapter)
           throw new Error(`No adapter available for ${KnownChainIds.BitcoinMainnet}`)
         return bitcoinChainAdapter.getFeeData({
+          to: values.address,
+          value,
+          chainSpecific: { pubkey: account },
+          sendMax: values.sendMax,
+        })
+      }
+      case KnownChainIds.DogecoinMainnet: {
+        const dogecoinChainAdapter = (await chainAdapterManager.get(
+          KnownChainIds.DogecoinMainnet,
+        )) as dogecoin.ChainAdapter | undefined
+        if (!dogecoinChainAdapter)
+          throw new Error(`No adapter available for ${KnownChainIds.DogecoinMainnet}`)
+        return dogecoinChainAdapter.getFeeData({
           to: values.address,
           value,
           chainSpecific: { pubkey: account },

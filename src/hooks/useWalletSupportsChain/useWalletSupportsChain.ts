@@ -3,6 +3,7 @@ import {
   btcChainId,
   ChainId,
   cosmosChainId,
+  dogeChainId,
   ethChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
@@ -30,6 +31,9 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     }
     case cosmosChainId: {
       return supportsCosmos(wallet)
+    }
+    case dogeChainId: {
+      return supportsBTC(wallet)
     }
     case osmosisChainId: {
       return supportsOsmosis(wallet)

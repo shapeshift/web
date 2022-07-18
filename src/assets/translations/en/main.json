@@ -1168,7 +1168,7 @@
         "title": "Help us improve ShapeShift",
         "description": "ShapeShift would like to gather usage data to better understand how our users interact with the app. This data will be used to continually improve the usability and user experience of our product.",
         "actionsSentence": "ShapeShift will...",
-        "noThanks": "No Thanks, take me to the private version",
+        "noThanks": "No thanks, take me to the private version",
         "sendEvents": "Send anonymized click and pageview events",
         "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
         "neverCollectIp": "Never collect your full IP address",

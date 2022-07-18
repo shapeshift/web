@@ -18,9 +18,9 @@ export const useBridgeRoutes = (): {
         console.info(asset)
         const { implmentations } = asset
         const chains = Object.keys(implmentations ?? {})
-        setValue('asset', asset)
-        setValue('fromChain', undefined)
-        setValue('toChain', undefined)
+        setValue('asset', asset, { shouldValidate: true })
+        setValue('fromChain', undefined, { shouldValidate: true })
+        setValue('toChain', undefined, { shouldValidate: true })
         if (chains.length > 1) {
           history.push(BridgeRoutePaths.ChainFromSelect)
         } else {

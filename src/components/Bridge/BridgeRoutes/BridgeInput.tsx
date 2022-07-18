@@ -1,7 +1,8 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, ButtonProps, List, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { useController, useFormContext } from 'react-hook-form'
+import { useEffect } from 'react'
+import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -78,6 +79,8 @@ export const BridgeInput = () => {
     formState: { isValid, errors },
   } = useFormContext<BridgeState>()
 
+  const values = useWatch()
+
   const fieldError = errors.cryptoAmount?.message ?? null
 
   const { field: asset } = useController({
@@ -86,15 +89,23 @@ export const BridgeInput = () => {
     rules: { required: true },
   })
 
+  const validateChain = (value: BridgeChain | undefined) => {
+    if (value && value?.name) {
+      return ''
+    } else {
+      return 'no chain selected'
+    }
+  }
+
   const { field: fromChain } = useController({
     name: 'fromChain',
     control,
-    rules: { required: true },
+    rules: { required: true, validate: validateChain },
   })
   const { field: toChain } = useController({
     name: 'toChain',
     control,
-    rules: { required: true },
+    rules: { required: true, validate: validateChain },
   })
 
   const cryptoInputValidation = (value: string | undefined) => {
@@ -154,6 +165,10 @@ export const BridgeInput = () => {
     history.push(BridgeRoutePaths.Confirm)
   }
 
+  useEffect(() => {
+    console.info(values)
+  }, [values])
+
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -183,7 +198,6 @@ export const BridgeInput = () => {
             onClick={() => history.push(BridgeRoutePaths.ChainToSelect)}
           />
         </List>
-        {errors.cryptoAmount && errors.cryptoAmount?.message}
         <Button
           size='lg'
           isDisabled={!isValid}

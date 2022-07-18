@@ -23,9 +23,9 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
 
   const { control } = useFormContext<BridgeState>()
 
-  const [asset, cryptoAmount, fiatAmount, fromChain, toChain] = useWatch({
+  const [asset, cryptoAmount, fromChain, toChain] = useWatch({
     control,
-    name: ['asset', 'cryptoAmount', 'fiatAmount', 'fromChain', 'toChain'],
+    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain'],
   })
 
   const handleContinue = () => {

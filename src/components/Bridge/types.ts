@@ -1,6 +1,4 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
-import { Asset } from '@shapeshiftoss/types'
+import { AssetId } from '@shapeshiftoss/caip'
 
 export enum BridgeAmountInputField {
   BUY = 'BUY',
@@ -28,8 +26,6 @@ export type BridgeAsset = {
 export type BridgeProps = {
   defaultBuyAssetId: AssetId
 }
-
-export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSource: string }
 
 export type BridgeState = {
   asset: BridgeAsset | undefined

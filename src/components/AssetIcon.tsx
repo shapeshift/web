@@ -4,7 +4,6 @@ import {
   Circle,
   useColorModeValue,
   useMultiStyleConfig,
-  useStyleConfig,
 } from '@chakra-ui/react'
 
 import { FoxIcon } from './Icons/FoxIcon'

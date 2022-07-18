@@ -1,11 +1,9 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, ButtonProps, List, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { useEffect } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { Card } from 'components/Card/Card'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -145,6 +143,7 @@ export const BridgeInput = () => {
   }
 
   const onSubmit = (values: BridgeState) => {
+    console.info(values)
     history.push(BridgeRoutePaths.Confirm)
   }
 

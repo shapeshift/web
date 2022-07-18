@@ -1,8 +1,6 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { BridgeAsset, BridgeChain, BridgeRoutePaths, BridgeState } from '../types'
 
@@ -13,10 +11,6 @@ export const useBridgeRoutes = (): {
 } => {
   const history = useHistory()
   const { setValue } = useFormContext<BridgeState>()
-
-  const {
-    state: { wallet },
-  } = useWallet()
 
   const handleAssetClick = useCallback(
     async (asset: BridgeAsset) => {

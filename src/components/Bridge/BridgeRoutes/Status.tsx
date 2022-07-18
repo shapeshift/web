@@ -1,18 +1,5 @@
-import {
-  ArrowForwardIcon,
-  ArrowRightIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-} from '@chakra-ui/icons'
-import {
-  Button,
-  Circle,
-  CircularProgressLabel,
-  Collapse,
-  Divider,
-  Stack,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import { Button, Circle, Collapse, Divider, Stack, useDisclosure } from '@chakra-ui/react'
 import { Summary } from 'features/defi/components/Summary'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -22,8 +9,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-
-import { WithBackButton } from './WithBackButton'
 
 const asset = {
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x85f138bfEE4ef8e540890CFb48F620571d67Eda3/logo.png',

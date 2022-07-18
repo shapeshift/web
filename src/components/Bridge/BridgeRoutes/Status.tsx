@@ -1,6 +1,7 @@
 import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, Circle, Collapse, Divider, Stack, useDisclosure } from '@chakra-ui/react'
 import { Summary } from 'features/defi/components/Summary'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
@@ -10,24 +11,17 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 
-const asset = {
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x85f138bfEE4ef8e540890CFb48F620571d67Eda3/logo.png',
-  symbol: 'WAVAX',
-}
-const fromChain = {
-  color: '#E84142',
-  name: 'Avalanche',
-}
-const toChain = {
-  color: '#627EEA',
-  name: 'Ethereum',
-}
-
-const cryptoAmount = '50'
+import { BridgeState } from '../types'
 
 export const Status = () => {
   const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure()
+  const { control } = useFormContext<BridgeState>()
+
+  const [asset, cryptoAmount, fromChain, toChain] = useWatch({
+    control,
+    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain'],
+  })
   return (
     <SlideTransition>
       <Card variant='unstyled'>
@@ -50,7 +44,11 @@ export const Status = () => {
               <WrappedIcon glow size='md' src={asset?.icon} wrapColor={toChain?.color} />
             </Stack>
             <Stack justifyContent='center' alignItems='center' spacing={0}>
-              <Amount.Crypto fontSize='xl' value={cryptoAmount ?? '0'} symbol={asset.symbol} />
+              <Amount.Crypto
+                fontSize='xl'
+                value={cryptoAmount ?? '0'}
+                symbol={asset?.symbol ?? ''}
+              />
               <Stack direction='row' justifyContent='center' alignItems='center' color='gray.500'>
                 <RawText>{fromChain?.name}</RawText>
                 <ArrowForwardIcon />

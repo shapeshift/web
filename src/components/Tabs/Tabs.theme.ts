@@ -28,6 +28,9 @@ export const TabsStyle = {
         borderColor: mode('gray.100', 'gray.750')(props),
         bg: mode('gray.100', 'gray.850')(props),
         color: 'gray.500',
+        _hover: {
+          color: mode('black', 'white')(props),
+        },
         _selected: {
           bg: 'transparent',
           borderBottomColor: mode('gray.100', 'gray.785')(props),

@@ -36,7 +36,7 @@ export const useBridgeRoutes = (): {
   const handleFromChainClick = useCallback(
     async (chain: BridgeChain) => {
       try {
-        setValue('fromChain', chain)
+        setValue('fromChain', chain, { shouldValidate: true })
       } catch (e) {
         console.warn(e)
       } finally {
@@ -49,7 +49,7 @@ export const useBridgeRoutes = (): {
   const handleToChainClick = useCallback(
     async (chain: BridgeChain) => {
       try {
-        setValue('toChain', chain)
+        setValue('toChain', chain, { shouldValidate: true })
       } catch (e) {
         console.warn(e)
       } finally {

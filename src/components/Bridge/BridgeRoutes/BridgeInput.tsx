@@ -142,6 +142,13 @@ export const BridgeInput = () => {
     }
   }
 
+  const handlePercentClick = (percent: number) => {
+    const cryptoAmount = bnOrZero(fromChain.value?.balance).times(percent)
+    const fiatAmount = bnOrZero(cryptoAmount).times(price)
+    setValue('fiatAmount', fiatAmount.toString(), { shouldValidate: true })
+    setValue('cryptoAmount', cryptoAmount.toString(), { shouldValidate: true })
+  }
+
   const onSubmit = (values: BridgeState) => {
     console.info(values)
     history.push(BridgeRoutePaths.Confirm)
@@ -157,7 +164,7 @@ export const BridgeInput = () => {
           fiatAmount={fiatAmount.value}
           assetIcon={asset.value?.icon ?? ''}
           onAssetClick={() => history.push(BridgeRoutePaths.SelectAsset)}
-          onMaxClick={() => console.info('max')}
+          onMaxClick={handlePercentClick}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
         />
         <List variant='rounded' borderColor='gray.750' borderWidth={1}>

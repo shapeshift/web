@@ -14,7 +14,7 @@ import {
   Html5QrcodeErrorTypes,
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
-} from 'html5-qrcode/esm/core'
+} from 'html5-qrcode/cjs/core'
 import { useState } from 'react'
 import { useController } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'

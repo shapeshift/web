@@ -389,7 +389,9 @@
     "selectAsset": "Select Asset",
     "confirmBridge": "Confirm Bridge",
     "preview": "Preview Bridge",
-    "transferring": "Transferring"
+    "transferring": "Transferring",
+    "transferComplete": "Transfer Complete",
+    "bridgeAnother": "Bridge another asset"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",

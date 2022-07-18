@@ -1,8 +1,16 @@
-import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import {
+  ArrowForwardIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CloseIcon,
+} from '@chakra-ui/icons'
 import { Button, Circle, Collapse, Divider, Stack, useDisclosure } from '@chakra-ui/react'
 import { Summary } from 'features/defi/components/Summary'
+import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -11,10 +19,13 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 
-import { BridgeState } from '../types'
+import { BridgeRoutePaths, BridgeState } from '../types'
 
 export const Status = () => {
+  const { reset } = useFormContext<BridgeState>()
+  const history = useHistory()
   const translate = useTranslate()
+  const [status, setStatus] = useState('pending')
   const { isOpen, onToggle } = useDisclosure()
   const { control } = useFormContext<BridgeState>()
 
@@ -22,12 +33,41 @@ export const Status = () => {
     control,
     name: ['asset', 'cryptoAmount', 'fromChain', 'toChain'],
   })
+
+  useEffect(() => {
+    setTimeout(() => {
+      setStatus('success')
+    }, 4000)
+  }, [])
+
+  const { statusIcon, statusText, statusBg } = (() => {
+    let statusIcon: React.ReactElement = <ArrowForwardIcon />
+    let statusText = 'bridge.transferring'
+    let statusBg = 'transparent'
+    if (status === 'success') {
+      statusText = 'bridge.transferComplete'
+      statusIcon = <CheckIcon color='white' />
+      statusBg = 'green.500'
+    }
+    if (status === 'failed') {
+      statusText = 'bridge.failed'
+      statusIcon = <CloseIcon color='white' />
+      statusBg = 'red.500'
+    }
+    return { statusIcon, statusText, statusBg }
+  })()
+
+  const handleContinue = () => {
+    reset()
+    history.push(BridgeRoutePaths.Input)
+  }
+
   return (
     <SlideTransition>
       <Card variant='unstyled'>
         <Card.Header px={0} pt={0}>
           <Card.Heading textAlign='center'>
-            <Text translation='bridge.transferring' />
+            <Text translation={statusText} />
           </Card.Heading>
         </Card.Header>
         <Stack spacing={0} justifyContent='center'>
@@ -36,8 +76,8 @@ export const Status = () => {
               <WrappedIcon glow size='md' src={asset?.icon} wrapColor={fromChain?.color} />
               <Divider width='50px' />
               <CircularProgress isIndeterminate={true} size={8}>
-                <Circle size={8} position='absolute' top={0} left={0} fontSize='md'>
-                  <ArrowForwardIcon />
+                <Circle bg={statusBg} size={8} position='absolute' top={0} left={0} fontSize='md'>
+                  {statusIcon}
                 </Circle>
               </CircularProgress>
               <Divider width='50px' />
@@ -55,6 +95,11 @@ export const Status = () => {
                 <RawText>{toChain?.name}</RawText>
               </Stack>
             </Stack>
+            {status === 'success' && (
+              <Button size='lg' colorScheme='blue' onClick={handleContinue}>
+                {translate('bridge.bridgeAnother')}
+              </Button>
+            )}
           </Stack>
 
           <Stack spacing={0}>

@@ -8,7 +8,7 @@ import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -74,10 +74,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
         // Switch to Mainnet if wallet is on any other chain
         const chainId = await wallet.ethGetChainId?.()
         if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
-          // TODO: Remove this comment when Tally multi-chain support is released
-          // This block is currently unreachable, Tally multi-chain support is currently under development
-          // Until this is supported in the published Tally extension, users will never be in a chain other than mainnet
-          await wallet.ethSwitchChain?.(bn(CHAIN_REFERENCE.EthereumMainnet).toNumber())
+          throw new Error('walletProvider.tallyHo.errors.network')
         }
 
         // Hack to handle Tally account changes

@@ -384,7 +384,6 @@
       "errors": {
         "unknown": "Произошла непредвиденная ошибка при соединении с MetaMask",
         "connectFailure": "Невозможно подключиться к кошельку MetaMask",
-        "network": "MetaMask не настроен на Ethereum Mainnet",
         "multipleWallets": "Обнаруженный Ethereum-провайдер не является MetaMask. Установлены ли у вас несколько кошельков?"
       },
       "connect": {

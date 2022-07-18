@@ -782,7 +782,6 @@
       "errors": {
         "unknown": "Metamask 연동 중 예기치 못한 오류가 발생했습니다.",
         "connectFailure": "Metamask 지갑에 연결할 수 없습니다.",
-        "network": "Metamask 지갑이 이더리움 메인넷으로 설정되지 않았습니다.",
         "multipleWallets": "확인된 이더리움 프로바이더가 Metamask가 아닙니다. 혹시 여러개의 지갑이 설치되어있나요?",
         "tallyInstalledAndSetToDefault": "Tally Ho가 설치되어 있고 기본값으로 설정되어 있음을 감지했습니다. MetaMask를 대신 사용하고 싶다면 Tally Ho에서 설정을 변경하고 페이지를 새로고침하세요."
       },
@@ -843,7 +842,6 @@
       "errors": {
         "unknown": "XDEFI와의 통신 도중에 오류가 발생하였습니다",
         "connectFailure": "XDEFI 지갑과 연결할 수 없습니다",
-        "network": "XDEFI 지갑이 이더리움 메인넷으로 설정되어야 합니다",
         "multipleWallets": "탐지된 이더리움 공급자가 XDEFI가 아닙니다. 혹시, 여러개의 지갑을 설치하셨나요?"
       },
       "connect": {

@@ -194,6 +194,10 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.connectWallet'
     }
 
+    if (errors.quote) {
+      return 'trade.errors.invalidTradePairBtnText'
+    }
+
     if (isValid && !hasValidTradeBalance) {
       return 'common.insufficientFunds'
     }
@@ -370,6 +374,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               size='lg'
               width='full'
               colorScheme={
+                errors.quote ||
                 error ||
                 (isValid &&
                   (!hasEnoughBalanceForGas || !hasValidTradeBalance) &&
@@ -385,7 +390,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 !hasValidTradeBalance ||
                 !hasEnoughBalanceForGas ||
                 !quote ||
-                !hasValidSellAmount
+                !hasValidSellAmount ||
+                !!errors.quote
               }
               style={{
                 whiteSpace: 'normal',

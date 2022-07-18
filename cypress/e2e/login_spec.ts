@@ -80,7 +80,6 @@ describe('The Dashboard', () => {
 
   it('support Portis log in', () => {
     cy.visit('')
-
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
     cy.getBySel('connect-wallet-portis-button').click()

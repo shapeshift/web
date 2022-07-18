@@ -28,8 +28,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
-import { SendFormFields } from '../SendCommon'
-import { SendRoutes } from '../SendCommon'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
@@ -47,9 +46,9 @@ export const Details = () => {
     fieldName,
     cryptoHumanBalance,
     fiatBalance,
-    handleInputChange,
     handleNextClick,
     handleSendMax,
+    handleInputChange,
     loading,
     toggleCurrency,
   } = useSendDetails()

@@ -3968,10 +3968,10 @@
     "@shapeshiftoss/hdwallet-core" "1.25.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/investor-foxy@^4.0.3":
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-4.0.3.tgz#700b2731a652882719d2a2c0ba984d18b22c6071"
-  integrity sha512-Oha8+Dlwh2UfsL4tR6Iv2DqdAOgn0gVXzKq/LA4MtMy7c42VaCozkqj9AXvHsxC9N5z6rQ7fRZnsdxlgTeMyaA==
+"@shapeshiftoss/investor-foxy@^4.0.4":
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-4.0.4.tgz#5dd6e11c6b93e40a57a0a6420b662885ab16b9ad"
+  integrity sha512-OLCpBiDAWB6Ty+Ep09YGMzkw88tyr+oDq36gX23+oi6x1gWjJLbevnRWHkMoeacVAbYxVQD77rXOneQ9VJVsGg==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"
@@ -3981,10 +3981,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-yearn@^4.0.3":
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-4.0.3.tgz#c8ade423b060a13d8dc74def8a51cd809947d926"
-  integrity sha512-ytjfBGCZ/OKBstnaCUmlB+NCwfZkP1GP+dROlF6R6xcMkRwWQQIB+dzuKJqx1obum01vmVZ24IZXbWZ5qFQ1+g==
+"@shapeshiftoss/investor-yearn@^4.0.4":
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-4.0.4.tgz#b93455c1b4d0d230ae845d00437281675cba1029"
+  integrity sha512-78ODcG5XrCdjh6jFKpxpoYg2a6ndfPtIPxjB5p598kJFb8MR3m6g3bYo98/GvCRTFT5ihHdROlOJEmdoCOR44g==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"
@@ -3999,10 +3999,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
   integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
 
-"@shapeshiftoss/market-service@^6.4.1":
-  version "6.4.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-6.4.1.tgz#9fbc737f8afacbb4d334e645f0ef79d19c00cc2f"
-  integrity sha512-JPztrlPg0xspfUnLI7cRrM7ehmN0GEmGR1f/sVblpNJJQmdrjADN61shZBj4s6k5jkqPWwmF5YWLukvW3zcfsw==
+"@shapeshiftoss/market-service@^6.4.2":
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-6.4.2.tgz#859a4a67ee971cc4d510788df84b933d5fb6077d"
+  integrity sha512-qamZey0ZFSehdrORi/zHMj2MYkYVSbtWxzP3dXn+ci4p0pwIF8ESzBkz+Nqil2ARAru56zTHH+BWv7BO4VMn/Q==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"

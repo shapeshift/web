@@ -148,7 +148,7 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
           onClick={handleConfirm}
           data-test='consent-optin-continue-button'
         >
-          <Text translation={'common.continue'} />
+          <Text translation={'common.connectWallet'} />
         </Button>
         <Button
           isFullWidth

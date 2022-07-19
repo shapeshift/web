@@ -3,16 +3,17 @@ import {
   ButtonGroup,
   Editable,
   EditableInput,
-  EditablePreview,
   IconButton,
   Input,
+  Stack,
   useEditableControls,
 } from '@chakra-ui/react'
 import { useController, useFormContext } from 'react-hook-form'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
 import { BridgeState } from '../types'
 
-const EditControls = () => {
+const EditControls: React.FC<{ value: string }> = ({ value }) => {
   const { isEditing, getSubmitButtonProps, getCancelButtonProps, getEditButtonProps } =
     useEditableControls()
   return isEditing ? (
@@ -21,7 +22,15 @@ const EditControls = () => {
       <IconButton aria-label='Cancel' icon={<CloseIcon />} {...getCancelButtonProps()} />
     </ButtonGroup>
   ) : (
-    <IconButton size='sm' aria-label='Edit Address' icon={<EditIcon />} {...getEditButtonProps()} />
+    <Stack direction='row'>
+      <MiddleEllipsis address={value} />
+      <IconButton
+        size='sm'
+        aria-label='Edit Address'
+        icon={<EditIcon />}
+        {...getEditButtonProps()}
+      />
+    </Stack>
   )
 }
 
@@ -30,9 +39,8 @@ export const EditableAddress = () => {
   const { field } = useController({ name: 'address', control })
   return (
     <Editable {...field}>
-      {field.value}
       <Input as={EditableInput} />
-      <EditControls />
+      <EditControls value={field.value ?? ''} />
     </Editable>
   )
 }

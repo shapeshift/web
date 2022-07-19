@@ -183,7 +183,7 @@ export const BridgeInput = () => {
         </List>
         <Button
           size='lg'
-          isDisabled={!isValid || !fromChain.value || !toChain.value}
+          isDisabled={!isValid || !fromChain.value || !toChain.value || !cryptoAmount.value}
           type='submit'
           colorScheme={errors.cryptoAmount ? 'red' : 'blue'}
         >

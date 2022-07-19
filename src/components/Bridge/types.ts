@@ -29,8 +29,8 @@ export type BridgeProps = {
 
 export type BridgeState = {
   asset: BridgeAsset | undefined
-  fiatAmount: string | undefined
-  cryptoAmount: string | undefined
+  fiatAmount: string
+  cryptoAmount: string
   fromChain: BridgeChain | undefined
   toChain: BridgeChain | undefined
   address: string | undefined

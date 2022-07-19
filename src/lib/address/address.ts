@@ -90,12 +90,11 @@ type ReverseResolversByChainId = {
 const reverseLookupResolversByChainId: ReverseResolversByChainId = {
   [btcChainId]: [reverseLookupUnstoppableDomain],
   [ethChainId]: [ensReverseLookupShim, reverseLookupUnstoppableDomain],
-  [cosmosChainId]: [],
-  [osmosisChainId]: [],
 }
 
 export const reverseLookupVanityAddress: ReverseLookupVanityAddress = async args => {
-  for (const resolver of reverseLookupResolversByChainId[args.chainId]) {
+  const resolvers = reverseLookupResolversByChainId[args.chainId] ?? []
+  for (const resolver of resolvers) {
     try {
       const result = await resolver(args)
       if (result) return result

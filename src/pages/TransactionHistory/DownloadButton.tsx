@@ -44,7 +44,7 @@ const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string =>
 
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
+  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssetsByMarketCap)
   const translate = useTranslate()

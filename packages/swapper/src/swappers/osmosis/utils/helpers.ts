@@ -219,7 +219,7 @@ export const performIbcTransfer = async (
   })()
   const latestBlock = responseLatestBlock.data.block.header.height
   const bip44Params = adapter.buildBIP44Params({
-    accountNumber: Number(accountNumber)
+    accountNumber: 0 // TODO: Use real accountNumbers
   })
   const path = toPath(bip44Params)
   const addressNList = bip32ToAddressNList(path)
@@ -300,7 +300,7 @@ export const buildTradeTx = async ({
   const sequence = responseAccount.chainSpecific.sequence || '0'
 
   const bip44Params = adapter.buildBIP44Params({
-    accountNumber: Number(accountNumber)
+    accountNumber: 0 // TODO: Use real accountNumbers
   })
   const path = toPath(bip44Params)
   const osmoAddressNList = bip32ToAddressNList(path)

@@ -3,6 +3,8 @@ import { AssetId, fromAssetId, toAssetId } from './assetId/assetId'
 import { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import {
   ASSET_REFERENCE,
+  avalancheAssetId,
+  avalancheChainId,
   btcAssetId,
   btcChainId,
   CHAIN_NAMESPACE,
@@ -26,7 +28,8 @@ export const chainIdToAssetId: Record<ChainId, AssetId> = {
   [ethChainId]: ethAssetId,
   [btcChainId]: btcAssetId,
   [cosmosChainId]: cosmosAssetId,
-  [osmosisChainId]: osmosisAssetId
+  [osmosisChainId]: osmosisAssetId,
+  [avalancheChainId]: avalancheAssetId
 }
 
 export const accountIdToChainId = (accountId: AccountId): ChainId =>

@@ -86,14 +86,7 @@ export const TxFeeRadioGroup = ({
   }
 
   return (
-    <ButtonGroup
-      variant='ghost-filled'
-      width='full'
-      borderRadius='xl'
-      p={0}
-      id='tx-fee'
-      {...styleProps}
-    >
+    <ButtonGroup variant='ghost' width='full' borderRadius='xl' p={0} id='tx-fee' {...styleProps}>
       {feesOrder.map((key: FeeDataKey) => {
         const current = fees[key]
         const color = getFeeColor(key)

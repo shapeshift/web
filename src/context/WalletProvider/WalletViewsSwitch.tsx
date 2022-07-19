@@ -59,6 +59,11 @@ export const WalletViewsSwitch = () => {
     await cancelWalletRequests()
   }
 
+  const onContinue = useCallback(() => {
+    // Without this check we'll fire again once a KeepKey initializes and ask the user to select a wallet again
+    if (!initialRoute || initialRoute === '/') history.push('/select')
+  }, [history, initialRoute])
+
   useEffect(() => {
     if (initialRoute) {
       history.push(initialRoute)
@@ -107,10 +112,7 @@ export const WalletViewsSwitch = () => {
                   })}
 
                 <Route path={'/select'} children={() => <SelectModal />} />
-                <Route
-                  path={'/'}
-                  children={() => <OptInModalBody onContinue={() => history.push('/select')} />}
-                />
+                <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

@@ -19,6 +19,7 @@ export const useBridgeRoutes = (): {
         const { implmentations } = asset
         const chains = Object.keys(implmentations ?? {})
         setValue('asset', asset, { shouldValidate: true })
+        setValue('address', '0xe21d837cd1437305632ac1660a94c64b1ecd3151')
         setValue('fromChain', undefined, { shouldValidate: true })
         setValue('toChain', undefined, { shouldValidate: true })
         if (chains.length > 1) {

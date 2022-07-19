@@ -33,6 +33,7 @@ export type BridgeState = {
   cryptoAmount: string | undefined
   fromChain: BridgeChain | undefined
   toChain: BridgeChain | undefined
+  address: string | undefined
 }
 
 export enum BridgeRoutePaths {

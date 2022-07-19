@@ -99,10 +99,6 @@ export const useFormSend = () => {
           const fees = estimatedFees[feeType] as FeeData<KnownChainIds.DogecoinMainnet>
 
           const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
-          if (utxoParams?.bip44Params) {
-            utxoParams.bip44Params.coinType = 3
-          }
-
           if (!accountType) {
             throw new Error(
               `useFormSend: could not get dogecoin accountType from accountId: ${data.accountId}`,

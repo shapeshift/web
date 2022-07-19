@@ -174,7 +174,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               for (const accountType of supportedAccountTypes) {
                 const accountParams = utxoAccountParams(chainId, accountType, 0)
                 const { bip44Params, scriptType } = accountParams
-                bip44Params.coinType = 3 // hack
                 const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))
                 const pubkeys = await wallet.getPublicKeys([
                   {

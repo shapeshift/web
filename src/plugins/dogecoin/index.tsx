@@ -6,7 +6,6 @@ import { getConfig } from 'config'
 import { Plugins } from 'plugins'
 
 export function register(): Plugins {
-  console.info('dogecoin register')
   return [
     [
       'dogecoinChainAdapter',

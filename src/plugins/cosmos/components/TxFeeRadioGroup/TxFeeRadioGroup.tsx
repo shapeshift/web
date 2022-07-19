@@ -67,23 +67,7 @@ export const TxFeeRadioGroup = ({
     name: ConfirmFormFields.FeeType,
   })
 
-  // TODO: Uncomment when wired up
-  if (!fees) {
-    return null
-    // return (
-    // <Box
-    // display='flex'
-    // flexDir='column'
-    // alignItems='center'
-    // justifyContent='center'
-    // py={2}
-    // width='full'
-    // height='auto'
-    // >
-    // <Spinner />
-    // </Box>
-    // )
-  }
+  if (!fees) return null
 
   return (
     <ButtonGroup variant='ghost' width='full' borderRadius='xl' p={0} id='tx-fee' {...styleProps}>

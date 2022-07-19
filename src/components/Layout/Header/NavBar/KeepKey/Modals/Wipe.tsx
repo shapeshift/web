@@ -104,7 +104,7 @@ export const WipeModal = () => {
           <Button
             onClick={wipeDevice}
             colorScheme='red'
-            isFullWidth
+            width='full'
             mb={6}
             isLoading={awaitingDeviceInteraction}
             disabled={!wipeConfirmationChecked}

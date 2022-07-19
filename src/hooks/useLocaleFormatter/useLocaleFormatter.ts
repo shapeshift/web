@@ -32,6 +32,8 @@ export type NumberFormatOptions = {
   minimumFractionDigits?: number
   notation?: 'compact' | 'standard' | 'scientific' | 'engineering'
   fiatType?: string
+  abbreviated?: boolean
+  omitDecimalTrailingZeros?: boolean
 }
 
 export type NumberFormatter = {
@@ -180,13 +182,13 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
    * Helper function to abbreviate number to truncate rather than round fractions
    * @param {number} maximumFractionDigits - truncate fraction after this number of digits. Use 0 for no fraction.
    */
-  function partsReducer(maximumFractionDigits: number, fiatType?: string) {
+  function partsReducer(maximumFractionDigits: number, omitDecimalTrailingZeros?: boolean) {
     return (accum: string, { type, value }: Intl.NumberFormatPart) => {
       let segment = value
       if (type === 'decimal' && maximumFractionDigits === 0) segment = ''
       if (type === 'fraction') {
         segment = value.substr(0, maximumFractionDigits)
-        if (!fiatType && segment && /^0*$/.test(segment)) {
+        if (omitDecimalTrailingZeros && segment && /^0*$/.test(segment)) {
           // remove trailing zeroes as well as separator character in case there are only zeroes as decimals
           return accum.slice(0, -1)
         }
@@ -220,7 +222,10 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       })
 
       const parts = formatter.formatToParts(formatNumber)
-      return parts.reduce(partsReducer(maximumFractionDigits), lessThanMin ? '<' : '')
+      return parts.reduce(
+        partsReducer(maximumFractionDigits, options?.omitDecimalTrailingZeros),
+        lessThanMin ? '<' : '',
+      )
     },
     [deviceLocale],
   )
@@ -319,6 +324,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   }
 
   const numberToString = (number: NumberValue, options?: NumberFormatOptions): string => {
+    if (options?.abbreviated) return abbreviateNumber(toNumber(number), undefined, options)
     const maximumFractionDigits = options?.maximumFractionDigits ?? 8
     return toNumber(number).toLocaleString(deviceLocale, { maximumFractionDigits })
   }

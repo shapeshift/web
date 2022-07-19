@@ -10,6 +10,9 @@ type AmountProps = {
   value: number | string
   prefix?: string
   suffix?: string
+  omitDecimalTrailingZeros?: boolean
+  abbreviated?: boolean
+  maximumFractionDigits?: number
 } & TextProps
 
 export function Amount({
@@ -17,6 +20,8 @@ export function Amount({
   prefix = '',
   suffix = '',
   maximumFractionDigits,
+  omitDecimalTrailingZeros = false,
+  abbreviated = false,
   ...props
 }: any): React.ReactElement {
   const {
@@ -26,7 +31,7 @@ export function Amount({
   return (
     <RawText {...props}>
       {prefix}
-      {toString(value, { maximumFractionDigits })}
+      {toString(value, { maximumFractionDigits, omitDecimalTrailingZeros, abbreviated })}
       {suffix}
     </RawText>
   )
@@ -56,13 +61,14 @@ const Crypto = ({
   maximumFractionDigits = 8,
   prefix,
   suffix,
+  omitDecimalTrailingZeros = false,
   ...props
 }: CryptoAmountProps) => {
   const {
     number: { toCrypto, toParts },
   } = useLocaleFormatter()
 
-  const crypto = toCrypto(value, symbol, { maximumFractionDigits })
+  const crypto = toCrypto(value, symbol, { maximumFractionDigits, omitDecimalTrailingZeros })
 
   if (!cryptoSymbolStyle) {
     return (
@@ -93,12 +99,27 @@ const Crypto = ({
   )
 }
 
-const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: FiatAmountProps) => {
+const Fiat = ({
+  value,
+  fiatSymbolStyle,
+  fiatType,
+  prefix,
+  suffix,
+  maximumFractionDigits,
+  omitDecimalTrailingZeros = false,
+  abbreviated = false,
+  ...props
+}: FiatAmountProps) => {
   const {
     number: { toFiat, toParts },
   } = useLocaleFormatter({ fiatType })
 
-  const fiat = toFiat(value, { fiatType })
+  const fiat = toFiat(value, {
+    fiatType,
+    omitDecimalTrailingZeros,
+    abbreviated,
+    maximumFractionDigits,
+  })
 
   if (!fiatSymbolStyle) {
     return (

@@ -728,7 +728,6 @@
       "errors": {
         "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan MetaMask",
         "connectFailure": "Tidak dapat menghubungkan dompet MetaMask",
-        "network": "MetaMask tidak disetel ke Ethereum Mainnet",
         "multipleWallets": "Penyedia Ethereum yang terdeteksi bukan MetaMask. Apakah Anda memiliki banyak dompet yang terpasang?"
       },
       "connect": {

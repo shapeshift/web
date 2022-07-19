@@ -113,13 +113,15 @@ export const Radio = <T extends RadioTypes>({
       {...buttonGroupProps}
     >
       {options.map(option => {
+        const { value, label } = option
+        const radio = getRadioProps({ value })
         return (
           <RadioCard
-            key={option.value}
-            {...getRadioProps({ value: option.value })}
+            key={value}
+            {...radio}
             showCheck={showCheck}
             checkColor={checkColor}
-            label={option.label}
+            label={label}
             radioProps={radioProps}
             isLoading={isLoading}
           />

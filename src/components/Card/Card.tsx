@@ -1,13 +1,14 @@
 import {
   Box,
   BoxProps,
-  StylesProvider,
+  createStylesContext,
   ThemingProps,
   useMultiStyleConfig,
-  useStyles,
 } from '@chakra-ui/react'
 
 export type CardProps = BoxProps & ThemingProps
+
+const [StylesProvider, useStyles] = createStylesContext('Card')
 
 export const Card = (props: CardProps) => {
   const { size, variant, children, ...rest } = props

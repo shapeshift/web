@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   Flex,
   ModalBody,
@@ -8,7 +9,13 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@chakra-ui/react'
-import { lazy, Suspense, useState } from 'react'
+import {
+  Html5QrcodeError,
+  Html5QrcodeErrorTypes,
+  QrcodeErrorCallback,
+  QrcodeSuccessCallback,
+} from 'html5-qrcode/cjs/core'
+import { useState } from 'react'
 import { useController } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -16,75 +23,85 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
 import { SendFormFields, SendRoutes } from '../SendCommon'
+import { QrCodeReader } from './QrCodeReader'
 
-const PERMISSION_ERROR = 'Permission denied'
+export type DOMExceptionCallback = (errorMessage: string) => void
 
-const QrReader = lazy(() => import('react-qr-reader'))
+const PERMISSION_ERROR = 'NotAllowedError : Permission denied'
+const isPermissionError = (
+  error: DOMException['message'] | Html5QrcodeError,
+): error is DOMException['message'] =>
+  typeof (error as DOMException['message']) === 'string' && error === PERMISSION_ERROR
 
 export const QrCodeScanner = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const [error, setError] = useState<DOMException | null>(null)
+  const [error, setError] = useState<DOMException['message'] | null>(null)
   const {
     field: { onChange },
   } = useController({ name: SendFormFields.Input })
 
-  const handleError = (error: DOMException) => {
-    setError(error)
+  const handleScanSuccess: QrcodeSuccessCallback = (decodedText, _result) => {
+    onChange(decodedText.trim())
+    history.push(SendRoutes.Address)
   }
 
-  const handleScan = async (value: string | null) => {
-    if (value) {
-      onChange(value.trim())
-
-      history.push(SendRoutes.Address)
+  const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = (_errorMessage, error) => {
+    if (error?.type === Html5QrcodeErrorTypes.UNKWOWN_ERROR) {
+      // https://github.com/mebjas/html5-qrcode/issues/320
+      // 'NotFoundException: No MultiFormat Readers were able to detect the code' errors are thrown on every frame until a valid QR is detected, don't handle these
+      return
     }
+
+    setError(_errorMessage)
   }
 
   return (
-    <Suspense fallback={null}>
-      <SlideTransition>
-        <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
-        <ModalCloseButton borderRadius='full' />
-        <ModalBody>
-          {error ? (
-            <Flex justifyContent='center' alignItems='center' flexDirection='column'>
-              <Alert status='error' borderRadius='xl'>
-                <AlertIcon />
-                <Text
-                  translation={
-                    error.message === PERMISSION_ERROR
-                      ? 'modals.send.errors.qrPermissions'
-                      : 'modals.send.errors.generic'
-                  }
-                />
-              </Alert>
-              {error.message === PERMISSION_ERROR && (
-                <Button colorScheme='blue' mt='5' onClick={() => setError(null)}>
-                  {translate('modals.send.permissionsButton')}
-                </Button>
-              )}
-            </Flex>
-          ) : (
-            <QrReader
-              delay={100}
-              onError={handleError}
-              onScan={handleScan}
-              style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
-            />
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            isFullWidth
-            variant='ghost'
-            size='lg'
-            onClick={() => history.push(SendRoutes.Address)}
+    <SlideTransition>
+      <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
+      <ModalCloseButton borderRadius='full' />
+      <ModalBody>
+        {error ? (
+          <Flex justifyContent='center' alignItems='center' flexDirection='column'>
+            <Alert status='error' borderRadius='xl'>
+              <AlertIcon />
+              <Text
+                translation={
+                  isPermissionError(error)
+                    ? 'modals.send.errors.qrPermissions'
+                    : 'modals.send.errors.generic'
+                }
+              />
+            </Alert>
+            {isPermissionError(error) && (
+              <Button colorScheme='blue' mt='5' onClick={() => setError(null)}>
+                {translate('modals.send.permissionsButton')}
+              </Button>
+            )}
+          </Flex>
+        ) : (
+          <Box
+            style={{ width: '100%', minHeight: '298px', overflow: 'hidden', borderRadius: '1rem' }}
           >
-            <Text translation='common.back' />
-          </Button>
-        </ModalFooter>
-      </SlideTransition>
-    </Suspense>
+            <QrCodeReader
+              qrbox={{ width: 250, height: 250 }}
+              fps={10}
+              qrCodeSuccessCallback={handleScanSuccess}
+              qrCodeErrorCallback={handleScanError}
+            />
+          </Box>
+        )}
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          width='full'
+          variant='ghost'
+          size='lg'
+          onClick={() => history.push(SendRoutes.Address)}
+        >
+          <Text translation='common.back' />
+        </Button>
+      </ModalFooter>
+    </SlideTransition>
   )
 }

@@ -29,7 +29,7 @@ export const KeepKeyRecoverySentenceInvalid = () => {
       <ModalBody textAlign='center'>
         <WarningTwoIcon color='yellow.500' boxSize={20} mb={6} />
         <Text color='gray.500' translation={'modals.keepKey.recoveryInvalid.body'} mb={4} />
-        <Button isFullWidth colorScheme='blue' disabled={loading} onClick={handleRetryClick}>
+        <Button width='full' colorScheme='blue' disabled={loading} onClick={handleRetryClick}>
           <Text translation={'modals.keepKey.recoveryInvalid.button'} />
         </Button>
       </ModalBody>

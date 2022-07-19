@@ -11,17 +11,17 @@ type PageProps = {
   children: ReactNode
   loading?: boolean
   error?: boolean
-  renderError(): JSX.Element
-  renderLoading(): JSX.Element
+  renderError?: () => ReactNode
+  renderLoading?: () => ReactNode
   route?: Route
 } & HTMLMotionProps<'div'>
 
-export const Page = ({
+export const Page: React.FC<PageProps> = ({
   children,
   loading,
   error,
-  renderLoading,
-  renderError,
+  renderLoading = () => null,
+  renderError = () => null,
   route,
   ...rest
 }: PageProps) => {

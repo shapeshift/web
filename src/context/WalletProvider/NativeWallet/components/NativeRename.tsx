@@ -16,7 +16,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
+import { NativeSetupProps, NativeWalletValues } from '../types'
 
 export const NativeRename = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
@@ -52,7 +52,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm({ mode: 'onChange', shouldUnregister: true })
+  } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
   return (
     <>
@@ -62,7 +62,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
       <ModalBody>
         <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.rename.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl mb={6} isInvalid={errors.name}>
+          <FormControl mb={6} isInvalid={Boolean(errors.name)}>
             <Input
               {...register('name', {
                 maxLength: {
@@ -77,7 +77,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
             />
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl mb={6} isInvalid={errors.password}>
+          <FormControl mb={6} isInvalid={Boolean(errors.password)}>
             <InputGroup size='lg' variant='filled'>
               <Input
                 {...register('password', {
@@ -108,10 +108,10 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
           <Button
             colorScheme='blue'
             size='lg'
-            isFullWidth
+            width='full'
             type='submit'
             isLoading={isSubmitting}
-            isDisabled={errors.name}
+            isDisabled={Boolean(errors.name)}
           >
             <Text translation={'walletProvider.shapeShift.rename.button'} />
           </Button>

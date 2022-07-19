@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.3.0...@shapeshiftoss/caip-v6.4.0) (2022-07-19)
+
+
+### Features
+
+* add avalanche mapping to chainIdToAssetId ([#889](https://github.com/shapeshift/lib/issues/889)) ([510ea92](https://github.com/shapeshift/lib/commit/510ea92e5136700a7629a56c4634bdf7d584a7c0))
+
 # [@shapeshiftoss/caip-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.2.2...@shapeshiftoss/caip-v6.3.0) (2022-07-08)
 
 

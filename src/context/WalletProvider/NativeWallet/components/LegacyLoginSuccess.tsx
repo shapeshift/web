@@ -40,7 +40,7 @@ export const LegacyLoginSuccess = () => {
         />
         <Button
           colorScheme='blue'
-          isFullWidth
+          width='full'
           size='lg'
           onClick={() => history.push('/native/create', { vault: location.state.vault })}
         >

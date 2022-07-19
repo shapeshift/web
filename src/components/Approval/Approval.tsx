@@ -122,24 +122,21 @@ export const Approval = () => {
             onSubmit={handleSubmit(approve)}
           >
             <CountdownCircleTimer
-              isPlaying={!!approvalTxId || !!isSubmitting}
+              isPlaying={!!approvalTxId || isSubmitting}
               size={90}
               strokeWidth={6}
               trailColor={theme.colors.whiteAlpha[500]}
               duration={60}
-              colors={[
-                [theme.colors.blue[500], 0.4],
-                [theme.colors.blue[500], 0.4],
-              ]}
-              onComplete={() => {
-                return [true, 0]
-              }}
+              colors={theme.colors.blue[500]}
+              onComplete={() => ({ shouldRepeat: true })}
             >
-              <Image
-                src={quote?.sellAsset?.icon}
-                boxSize='60px'
-                fallback={<SkeletonCircle boxSize='60px' />}
-              />
+              {() => (
+                <Image
+                  src={quote?.sellAsset?.icon}
+                  boxSize='60px'
+                  fallback={<SkeletonCircle boxSize='60px' />}
+                />
+              )}
             </CountdownCircleTimer>
             <Text
               my={2}

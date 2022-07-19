@@ -28,7 +28,7 @@ export const RedirectModal: React.FC<RedirectModalProps> = props => {
       <ModalBody>
         <Text mb={4} color='gray.500' translation={props.bodyText} />
         <Button
-          isFullWidth
+          width='full'
           colorScheme='blue'
           onClick={props.onClickAction}
           disabled={props.loading}

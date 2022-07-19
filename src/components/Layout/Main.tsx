@@ -37,15 +37,17 @@ export const Main: React.FC<MainProps> = ({ children, titleComponent, ...rest })
           zIndex='sticky'
           shadow={y > height ? 'sm' : undefined}
         >
-          <Container maxW='container.xl' pt={4}>
-            <Stack>
-              <HStack width='full' justifyContent='space-between'>
-                <Breadcrumbs />
-              </HStack>
-              {titleComponent}
-            </Stack>
-          </Container>
-          {currentRoute && <NestedMenu route={currentRoute} />}
+          <>
+            <Container maxW='container.xl' pt={4}>
+              <Stack>
+                <HStack width='full' justifyContent='space-between'>
+                  <Breadcrumbs />
+                </HStack>
+                {titleComponent}
+              </Stack>
+            </Container>
+            {currentRoute && <NestedMenu route={currentRoute} />}
+          </>
         </Box>
       )}
       <Container maxW='container.xl' py={8} px={{ base: 0, xl: 4 }} {...rest}>

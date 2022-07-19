@@ -18,7 +18,7 @@ type HeaderContentProps = {
 
 export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { settings } = useModal()
 
   const handleClick = (onClick?: () => void) => {

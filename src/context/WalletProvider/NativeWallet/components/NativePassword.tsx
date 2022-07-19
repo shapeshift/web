@@ -18,7 +18,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
+import { NativeSetupProps, NativeWalletValues } from '../types'
 
 export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
@@ -49,7 +49,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
     register,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm({ mode: 'onChange', shouldUnregister: true })
+  } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
   const watchPassword = watch('password')
 
@@ -75,7 +75,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
           <Text fontWeight='bold' translation={'walletProvider.shapeShift.password.warning'} />
         </Alert>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl mb={6} isInvalid={errors.name}>
+          <FormControl mb={6} isInvalid={Boolean(errors.name)}>
             <Input
               {...register('name', {
                 maxLength: {
@@ -91,7 +91,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
             />
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl mb={6} isInvalid={errors.password}>
+          <FormControl mb={6} isInvalid={Boolean(errors.password)}>
             <InputGroup size='lg' variant='filled'>
               <Input
                 {...register('password', {
@@ -120,7 +120,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
             </InputGroup>
             <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl mb={6} isInvalid={errors.confirmPassword}>
+          <FormControl mb={6} isInvalid={Boolean(errors.confirmPassword)}>
             <InputGroup size='lg' variant='filled'>
               <Input
                 {...register('confirmPassword', {
@@ -153,10 +153,10 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
           <Button
             colorScheme='blue'
             size='lg'
-            isFullWidth
+            width='full'
             type='submit'
             isLoading={isSubmitting}
-            isDisabled={errors.name || errors.password || errors.confirmPassword}
+            isDisabled={Boolean(errors.name || errors.password || errors.confirmPassword)}
             data-test='wallet-native-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />

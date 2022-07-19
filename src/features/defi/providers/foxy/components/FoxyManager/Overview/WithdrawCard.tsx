@@ -42,7 +42,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   return (
     <Button
       variant='input'
-      isFullWidth
+      width='full'
       maxHeight='auto'
       height='auto'
       alignItems='center'

@@ -146,7 +146,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 adapter as unknown as bitcoin.ChainAdapter
               ).getSupportedAccountTypes()
               for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(accountType, 0)
+                const accountParams = utxoAccountParams(chainId, accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 const pubkeys = await wallet.getPublicKeys([
                   {
@@ -172,7 +172,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 adapter as unknown as dogecoin.ChainAdapter
               ).getSupportedAccountTypes()
               for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(accountType, 0)
+                const accountParams = utxoAccountParams(chainId, accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 bip44Params.coinType = 3 // hack
                 const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))

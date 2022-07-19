@@ -3,8 +3,10 @@ import {
   AccountId,
   AssetId,
   btcAssetId,
+  ChainId,
   cosmosAssetId,
   ethAssetId,
+  fromAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
@@ -46,7 +48,6 @@ import {
   PortfolioBalancesById,
 } from './portfolioSliceCommon'
 import {
-  assetIdToChainId,
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
@@ -123,6 +124,7 @@ export const selectIsPortfolioLoaded = createSelector(
      * until the portfolioAssetIds includes supported chains fee assets, it's not fully loaded
      * the golf below ensures that's the case
      */
+    const assetIdToChainId = (assetId: AssetId): ChainId => fromAssetId(assetId).chainId
 
     return !size(
       difference(

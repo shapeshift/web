@@ -60,7 +60,7 @@ export const WalletViewsSwitch = () => {
   }
 
   const onContinue = useCallback(() => {
-    if (!initialRoute) history.push('/select')
+    if (!initialRoute || initialRoute === '/') history.push('/select')
   }, [history, initialRoute])
 
   useEffect(() => {

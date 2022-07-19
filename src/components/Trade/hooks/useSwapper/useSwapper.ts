@@ -254,6 +254,28 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
+    const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
+    const chainAdapter = getChainAdapters().get(receiveAddressChainId)
+
+    if (!chainAdapter) throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
+
+    const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
+      specifiers => specifiers[buyAsset.chainId],
+    )
+
+    if (!receiveAddressAccountSpecifiers) throw new Error('no receiveAddressAccountSpecifiers')
+    const receiveAddressAccountSpecifier = receiveAddressAccountSpecifiers[buyAsset.chainId]
+    if (!receiveAddressAccountSpecifier) throw new Error('no receiveAddressAccountSpecifier')
+
+    const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
+      accountIdToUtxoParams(receiveAddressAccountSpecifiers[buyAsset.chainId], 0)
+
+    const receiveAddress = await chainAdapter.getAddress({
+      wallet,
+      accountType: receiveAddressAccountType,
+      ...receiveAddressUtxoParams,
+    })
+
     const tradeQuote = await (async () => {
       if (supportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
@@ -268,7 +290,7 @@ export const useSwapper = () => {
           buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
           sendMax: true,
-          receiveAddress: '', // TODO add this later with the buildTrade PR
+          receiveAddress,
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
@@ -299,6 +321,7 @@ export const useSwapper = () => {
     })
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
+
     return swapper.executeTrade({ trade, wallet })
   }
 
@@ -356,9 +379,12 @@ export const useSwapper = () => {
           })
 
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-            if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
+            if (supportedSwappingChain(sellAsset.chainId)) {
               return swapper.getTradeQuote({
-                chainId: KnownChainIds.EthereumMainnet,
+                chainId: sellAsset.chainId as
+                  | KnownChainIds.EthereumMainnet
+                  | KnownChainIds.OsmosisMainnet
+                  | KnownChainIds.CosmosMainnet,
                 sellAsset,
                 buyAsset,
                 sellAmount,

@@ -57,7 +57,8 @@
     "verify": "Verify",
     "notRobot": "I am not a Robot",
     "skip": "Skip",
-    "generalError": "An error has occurred"
+    "generalError": "An error has occurred",
+    "walletSupportsETHOnly": "Ethereum Only"
   },
   "updateToast": {
     "body": "A new version of the app is available",

@@ -45,6 +45,13 @@ export const SelectModal = () => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
               const activeWallet = walletInfo?.name === option.name
+              // TODO: We can probably do better than a hardcoded ETH-only option for Walletconnect here.
+              const supportsETHOnly = option.name.toLowerCase() === KeyManager.WalletConnect
+              const walletSubText = activeWallet
+                ? 'common.connected'
+                : supportsETHOnly
+                ? 'common.walletSupportsETHOnly'
+                : null
 
               // some wallets (e.g. tally ho) do not exist on mobile
               if (isMobile && !option.mobileEnabled) return false
@@ -64,12 +71,10 @@ export const SelectModal = () => {
                 >
                   <Flex alignItems='flex-start' flexDir='column'>
                     <RawText fontWeight='semibold'>{option.name}</RawText>
-                    {activeWallet && (
-                      <Text fontSize='xs' color='gray.500' translation='common.connected' />
-                    )}
+                    {<Text fontSize='xs' color='gray.500' translation={walletSubText} />}
                   </Flex>
                   <Center width='25%'>
-                    {walletInfo?.name === option.name ? (
+                    {activeWallet ? (
                       <CheckCircleIcon color={greenColor} />
                     ) : (
                       <Icon height='24px' w='auto' />

@@ -39,7 +39,6 @@ export const Default = Template.bind({})
 Default.args = {
   stepNumber: '1',
   label: 'Approval',
-  buttonLabel: 'Continue',
   children: <ExampleRows />,
   isActive: true,
 }
@@ -47,7 +46,6 @@ export const Loading = Template.bind({})
 Loading.args = {
   stepNumber: '1',
   label: 'Approval',
-  buttonLabel: 'Continue',
   children: <ExampleRows />,
   isLoading: true,
 }
@@ -55,7 +53,6 @@ export const Complete = Template.bind({})
 Complete.args = {
   stepNumber: '1',
   label: 'Approval',
-  buttonLabel: 'Continue',
   children: <ExampleRows />,
   isComplete: true,
 }

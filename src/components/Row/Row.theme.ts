@@ -23,6 +23,21 @@ export const RowStyle = {
     vertical: {
       row: {
         flexDirection: 'column',
+        rowGap: 2,
+      },
+    },
+    gutter: {
+      row: {
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        p: 4,
+      },
+    },
+    'vert-gutter': {
+      row: {
+        p: 4,
+        flexDirection: 'column',
+        rowGap: 2,
       },
     },
     'btn-ghost': (props: Record<string, any>) => {

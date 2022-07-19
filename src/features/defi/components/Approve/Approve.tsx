@@ -1,20 +1,19 @@
 import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack } from '@chakra-ui/layout'
-import { ModalBody, ModalFooter } from '@chakra-ui/modal'
-import { CircularProgressLabel } from '@chakra-ui/progress'
+import { Divider, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
+import { FaExchangeAlt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 type ApproveProps = {
   asset: Asset
+  providerIcon?: string
   feeAsset: Asset
   cryptoEstimatedGasFee: string
   disableAction?: boolean
@@ -31,6 +30,7 @@ export const Approve = ({
   asset,
   cryptoEstimatedGasFee,
   feeAsset,
+  providerIcon,
   fiatEstimatedGasFee,
   learnMoreLink,
   loading,
@@ -41,6 +41,9 @@ export const Approve = ({
 }: ApproveProps) => {
   const translate = useTranslate()
 
+  const bgColor = useColorModeValue('gray.50', 'gray.850')
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
+
   const {
     state: { isConnected },
     dispatch,
@@ -50,30 +53,55 @@ export const Approve = ({
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   return (
-    <SlideTransition>
-      <ModalBody
-        width='full'
-        textAlign='center'
-        display='flex'
-        py={6}
-        flexDir={{ base: 'column', md: 'row' }}
-      >
-        <Stack flex={1} spacing={4}>
-          <Box>
-            <CircularProgress size='120px' thickness='4px' mb={4} isIndeterminate={loading}>
-              <CircularProgressLabel>
-                <AssetIcon src={asset.icon} boxSize='90px' />
-              </CircularProgressLabel>
-            </CircularProgress>
-          </Box>
+    <Stack
+      bg={bgColor}
+      borderColor={borderColor}
+      borderRadius='xl'
+      borderWidth={1}
+      divider={<Divider />}
+    >
+      <Stack flex={1} spacing={6} p={4} textAlign='center'>
+        <Stack
+          spacing={4}
+          direction='row'
+          alignItems='center'
+          justifyContent='center'
+          color='gray.500'
+          pt={6}
+        >
+          <AssetIcon src={asset.icon} size='md' />
+          {providerIcon && (
+            <>
+              <FaExchangeAlt />
+              <AssetIcon src={providerIcon} size='md' />
+            </>
+          )}
+        </Stack>
+        <Stack>
           <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
           <Text color='gray.500' translation={['modals.approve.body', { asset: asset.name }]} />
           <Link color='blue.500' href={learnMoreLink} isExternal>
             {translate('modals.approve.learnMore')}
           </Link>
         </Stack>
-      </ModalBody>
-      <ModalFooter as={Stack} spacing={4}>
+        <Stack justifyContent='space-between'>
+          <Button
+            onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+            size='lg'
+            colorScheme='blue'
+            width='full'
+            data-test='defi-modal-approve-button'
+            isLoading={loading}
+            loadingText={loadingText}
+          >
+            {translate('modals.approve.confirm')}
+          </Button>
+          <Button onClick={onCancel} size='lg' width='full' colorScheme='gray' isDisabled={loading}>
+            {translate('modals.approve.reject')}
+          </Button>
+        </Stack>
+      </Stack>
+      <Stack p={4}>
         {preFooter}
         <Row>
           <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
@@ -88,22 +116,7 @@ export const Approve = ({
             </Box>
           </Row.Value>
         </Row>
-      </ModalFooter>
-      <ModalFooter py={4} justifyContent='space-between'>
-        <Button onClick={onCancel} size='lg' colorScheme='gray' isDisabled={loading}>
-          {translate('modals.approve.reject')}
-        </Button>
-        <Button
-          onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
-          size='lg'
-          colorScheme='blue'
-          data-test='defi-modal-approve-button'
-          isLoading={loading}
-          loadingText={loadingText}
-        >
-          {translate('modals.approve.confirm')}
-        </Button>
-      </ModalFooter>
-    </SlideTransition>
+      </Stack>
+    </Stack>
   )
 }

@@ -1,5 +1,3 @@
-import { WithdrawType } from '@shapeshiftoss/types'
-
 import { YearnWithdrawActions, YearnWithdrawActionType, YearnWithdrawState } from './WithdrawCommon'
 
 export const initialState: YearnWithdrawState = {
@@ -14,7 +12,6 @@ export const initialState: YearnWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: WithdrawType.INSTANT,
   },
 }
 

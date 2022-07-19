@@ -80,6 +80,9 @@ function variantGhostFilled(props: Record<string, any>) {
     bg: mode(`${c}.50`, darkBg)(props),
     _hover: {
       bg: mode(`${c}.100`, darkHoverBg)(props),
+      _disabled: {
+        bg: mode(`${c}.50`, darkBg)(props),
+      },
     },
     _active: {
       bg: mode(`${c}.500`, darkActiveBg)(props),

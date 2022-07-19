@@ -1,4 +1,10 @@
-import { Avatar, AvatarProps, useColorModeValue } from '@chakra-ui/react'
+import {
+  Avatar,
+  AvatarProps,
+  Circle,
+  useColorModeValue,
+  useMultiStyleConfig,
+} from '@chakra-ui/react'
 
 import { FoxIcon } from './Icons/FoxIcon'
 
@@ -26,5 +32,32 @@ export const AssetIcon = ({ symbol, src, ...rest }: AssetIconProps) => {
       icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
       {...rest}
     />
+  )
+}
+
+type WrappedIconProps = {
+  wrapColor?: string
+  glow?: boolean
+} & AssetIconProps
+
+export const WrappedIcon: React.FC<WrappedIconProps> = ({ wrapColor, glow, ...rest }) => {
+  const styles = useMultiStyleConfig('Avatar', rest)
+  return (
+    <Circle
+      __css={styles.container}
+      borderColor={wrapColor}
+      borderWidth={2}
+      bg='transparent'
+      display='flex'
+      alignItems='center'
+      justifyContent='center'
+    >
+      <AssetIcon
+        {...rest}
+        width='80%'
+        height='80%'
+        boxShadow={glow ? `${wrapColor} 0 0 25px` : 'none'}
+      />
+    </Circle>
   )
 }

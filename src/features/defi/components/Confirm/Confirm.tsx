@@ -1,11 +1,8 @@
 import { Button } from '@chakra-ui/button'
-import { Flex, Stack } from '@chakra-ui/layout'
-import { ModalBody, ModalFooter, ModalHeader } from '@chakra-ui/modal'
-import { Divider } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/layout'
+import { StackProps } from '@chakra-ui/react'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetToAsset, AssetToAssetProps } from 'components/AssetToAsset/AssetToAsset'
-import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -18,7 +15,7 @@ type ConfirmProps = {
   loading: boolean
   loadingText?: string
   children?: React.ReactNode
-} & AssetToAssetProps
+} & StackProps
 
 export const Confirm = ({
   onConfirm,
@@ -48,35 +45,28 @@ export const Confirm = ({
   }
 
   return (
-    <SlideTransition>
-      <ModalBody pt={0} flexDir={{ base: 'column', md: 'row' }}>
-        <ModalHeader textAlign='center'>{translate(headerText)}</ModalHeader>
-        <Stack width='full' spacing={4} divider={<Divider />}>
-          <AssetToAsset {...rest} />
-          {children}
+    <>
+      <Stack width='full' spacing={6} {...rest}>
+        {children}
+        {prefooter}
+        <Stack width='full' direction='row'>
+          <Button size='lg' colorScheme='gray' width='full' onClick={onCancel} isDisabled={loading}>
+            {translate('modals.confirm.cancel')}
+          </Button>
+          <Button
+            size='lg'
+            width='full'
+            colorScheme='blue'
+            data-test='defi-modal-confirm-button'
+            onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+            isDisabled={isDisabled}
+            isLoading={loading}
+            loadingText={loadingText}
+          >
+            {translate('modals.confirm.signBroadcast')}
+          </Button>
         </Stack>
-      </ModalBody>
-      <ModalFooter flexDir='column' textAlign='center' mt={6}>
-        <Stack width='full'>
-          {prefooter}
-          <Flex width='full' justifyContent='space-between'>
-            <Button size='lg' colorScheme='gray' onClick={onCancel} isDisabled={loading}>
-              {translate('modals.confirm.cancel')}
-            </Button>
-            <Button
-              size='lg'
-              colorScheme='blue'
-              data-test='defi-modal-confirm-button'
-              onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
-              isDisabled={isDisabled}
-              isLoading={loading}
-              loadingText={loadingText}
-            >
-              {translate('modals.confirm.signBroadcast')}
-            </Button>
-          </Flex>
-        </Stack>
-      </ModalFooter>
-    </SlideTransition>
+      </Stack>
+    </>
   )
 }

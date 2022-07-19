@@ -18,6 +18,20 @@ export enum DefiAction {
   Deposit = 'deposit',
   Withdraw = 'withdraw',
   GetStarted = 'get-started',
+  Claim = 'claim',
+}
+
+export enum DefiStep {
+  Info = 'info',
+  Approve = 'approve',
+  Confirm = 'confirm',
+  Status = 'status',
+}
+
+export enum Templates {
+  Deposit = 'deposit',
+  Withdraw = 'withdraw',
+  Overview = 'overview',
 }
 
 export type DefiParams = {
@@ -31,6 +45,8 @@ export type DefiQueryParams = {
   contractAddress: string
   assetReference: string
   rewardId: string
+  modal: string
+  provider: string
 }
 
 export type DefiManagerProviderProps = {

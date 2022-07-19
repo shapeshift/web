@@ -1,13 +1,21 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiParams,
+  DefiQueryParams,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import qs from 'qs'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -15,14 +23,12 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DepositPath, YearnDepositActionType } from '../DepositCommon'
+import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type YearnDepositProps = {
-  getDepositGasEstimate: (deposit: DepositValues) => Promise<string | undefined>
-}
+const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
 
-export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
+export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -44,6 +50,33 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
 
   if (!state || !dispatch) return null
 
+  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
+    if (!(state.userAddress && state.opportunity && assetReference && yearnInvestor)) return
+    try {
+      const yearnOpportunity = await yearnInvestor.findByOpportunityId(
+        state.opportunity?.positionAsset.assetId ?? '',
+      )
+      if (!yearnOpportunity) throw new Error('No opportunity')
+      const preparedTx = await yearnOpportunity.prepareDeposit({
+        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        address: state.userAddress,
+      })
+      // TODO(theobold): Figure out a better way for the safety factor
+      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
+    } catch (error) {
+      moduleLogger.error(
+        { fn: 'getDepositGasEstimate', error },
+        'Error getting deposit gas estimate',
+      )
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error',
+      })
+    }
+  }
+
   const getApproveGasEstimate = async (): Promise<string | undefined> => {
     if (!(state.userAddress && assetReference && opportunity)) return
     try {
@@ -57,7 +90,10 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
         .integerValue()
         .toString()
     } catch (error) {
-      console.error('YearnDeposit:getApproveEstimate error:', error)
+      moduleLogger.error(
+        { fn: 'getApproveEstimate', error },
+        'Error getting deposit approval gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -71,6 +107,7 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
     if (!(state.userAddress && opportunity)) return
     // set deposit state for future use
     dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
+    dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
     try {
       // Check is approval is required for user address
       const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
@@ -88,7 +125,8 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
           type: YearnDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto },
         })
-        history.push(DepositPath.Confirm)
+        onNext(DefiStep.Confirm)
+        dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
@@ -96,16 +134,18 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
           type: YearnDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto },
         })
-        history.push(DepositPath.Approve)
+        onNext(DefiStep.Approve)
+        dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
       }
     } catch (error) {
-      console.error('YearnDeposit:handleContinue error:', error)
+      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
         title: translate('common.somethingWentWrong'),
         status: 'error',
       })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
   }
 
@@ -133,6 +173,16 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
+  const handleBack = () => {
+    history.push({
+      pathname: `/defi/earn`,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Overview,
+      }),
+    })
+  }
+
   return (
     <ReusableDeposit
       asset={asset}
@@ -150,8 +200,10 @@ export const Deposit = ({ getDepositGasEstimate }: YearnDepositProps) => {
       marketData={marketData}
       onCancel={handleCancel}
       onContinue={handleContinue}
+      onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}
       enableSlippage={false}
+      isLoading={state.loading}
     />
   )
 }

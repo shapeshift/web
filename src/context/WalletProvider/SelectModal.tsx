@@ -77,7 +77,7 @@ export const SelectModal = () => {
                     {activeWallet ? (
                       <CheckCircleIcon color={greenColor} />
                     ) : (
-                      <Icon height='24px' w='auto' />
+                      <Icon width='24px' height='auto' />
                     )}
                   </Center>
                 </Button>

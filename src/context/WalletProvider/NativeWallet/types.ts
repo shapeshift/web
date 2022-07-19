@@ -3,6 +3,16 @@ import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes } from 'context/WalletProvider/actions'
 
+export type NativeWalletValues = {
+  name: string
+  password: string
+  email: string
+  twoFactorCode: string
+  mnemonic: string
+  message: string
+  confirmPassword: string
+}
+
 export interface LocationState {
   vault: Vault
   isLegacyWallet?: boolean

@@ -38,7 +38,7 @@ export const WipedSuccessfully = () => {
       <ModalBody>
         <Text color='gray.500' translation={'modals.keepKey.wiped.body'} mb={4} />
         <Button
-          isFullWidth
+          width='full'
           size='lg'
           colorScheme='blue'
           onClick={handleCreateWalletPress}
@@ -48,7 +48,7 @@ export const WipedSuccessfully = () => {
           <Text translation={'modals.keepKey.wiped.createButton'} />
         </Button>
         <Button
-          isFullWidth
+          width='full'
           size='lg'
           onClick={handleRecoverWalletPress}
           disabled={loading}

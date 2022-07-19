@@ -1,6 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook, waitFor } from '@testing-library/react'
 import axios from 'axios'
-import { act } from 'react-dom/test-utils'
 
 import { useFoxyApr } from './useFoxyApr'
 
@@ -29,11 +28,13 @@ describe('useFoxyApr', () => {
       },
     })
 
-    const { result, waitForNextUpdate } = renderUseFoxyApr()
+    const { result, rerender } = renderUseFoxyApr()
     expect(result.current.foxyApr).toBeNull()
     expect(result.current.loaded).toBe(false)
-    await act(async () => waitForNextUpdate())
-    expect(result.current.foxyApr).toBe(MOCK_APR_RESPONSE)
+    rerender()
+    await waitFor(() => {
+      expect(result.current.foxyApr).toBe(MOCK_APR_RESPONSE)
+    })
     expect(result.current.loaded).toBe(true)
   })
 })

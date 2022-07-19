@@ -1,8 +1,9 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
 import debounce from 'lodash/debounce'
+import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'test/constants'
@@ -58,7 +59,9 @@ function setup({
     }),
     clearErrors,
   }))
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
   const { result } = renderHook(() => useSwapper(), { wrapper })
   const localMockState = {
     assets: {

@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { AnimatePresence } from 'framer-motion'
+import { OptInModalBody } from 'plugins/pendo/components/OptInModal/OptInModalBody'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
@@ -58,6 +59,10 @@ export const WalletViewsSwitch = () => {
     await cancelWalletRequests()
   }
 
+  const onContinue = useCallback(() => {
+    history.push('/select')
+  }, [history])
+
   useEffect(() => {
     if (initialRoute) {
       history.push(initialRoute)
@@ -105,7 +110,8 @@ export const WalletViewsSwitch = () => {
                     )
                   })}
 
-                <Route children={() => <SelectModal />} />
+                <Route path={'/select'} children={() => <SelectModal />} />
+                <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

@@ -37,6 +37,8 @@ env:
   REACT_APP_JUNOPAY_ASSET_LOGO_URL: https://cdn.juno.finance/
   REACT_APP_JUNOPAY_BASE_API_URL: https://api.juno.finance
 
+  REACT_APP_FEATURE_PENDO: false
+
 jobs:
   test-chrome:
     name: Run Cypress

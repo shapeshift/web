@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v6.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.4.0...@shapeshiftoss/asset-service-v6.5.0) (2022-07-20)
+
+
+### Features
+
+* dogecoin ([#888](https://github.com/shapeshift/lib/issues/888)) ([7ccb927](https://github.com/shapeshift/lib/commit/7ccb92707b48d912f1fd2126888b314baacbbfda))
+
 # [@shapeshiftoss/asset-service-v6.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v6.3.4...@shapeshiftoss/asset-service-v6.4.0) (2022-07-18)
 
 

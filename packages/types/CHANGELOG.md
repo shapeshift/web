@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v7.0.0...@shapeshiftoss/types-v7.1.0) (2022-07-20)
+
+
+### Features
+
+* dogecoin ([#888](https://github.com/shapeshift/lib/issues/888)) ([7ccb927](https://github.com/shapeshift/lib/commit/7ccb92707b48d912f1fd2126888b314baacbbfda))
+
 # [@shapeshiftoss/types-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v6.3.0...@shapeshiftoss/types-v7.0.0) (2022-07-07)
 
 

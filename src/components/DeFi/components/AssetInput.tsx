@@ -8,7 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import { PropsWithChildren, useRef, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -51,7 +51,7 @@ export type AssetInputProps = {
   fiatBalance?: string
   errors?: FieldError
   percentOptions: number[]
-}
+} & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
   assetSymbol,

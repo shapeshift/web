@@ -788,7 +788,6 @@
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec MetaMask",
         "connectFailure": "Impossible de se connecter au porte-monnaie MetaMask",
-        "network": "MetaMask n'est pas réglé sur Ethereum Mainnet",
         "multipleWallets": "Le fournisseur Ethereum détecté n'est pas MetaMask. Avez-vous plusieurs porte-monnaie installés ?",
         "tallyInstalledAndSetToDefault": "Nous avons détecté que vous avez installé Tally Ho et qu'il est défini par défaut. Si vous préférez utiliser MetaMask à la place, veuillez modifier les paramètres dans Tally Ho et actualiser la page."
       },
@@ -849,7 +848,6 @@
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec XDEFI",
         "connectFailure": "Impossible de connecter le porte-monnaie XDEFI",
-        "network": "XDEFI n'est pas réglé sur Ethereum Mainnet",
         "multipleWallets": "Le fournisseur Ethereum détecté n'est pas XDEFI. Avez-vous plusieurs porte-monnaie installés ?"
       },
       "connect": {

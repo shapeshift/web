@@ -415,6 +415,8 @@
       "broadcastFailed": "An error occurred while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+      "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
+      "invalidTradePairBtnText": "Invalid Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
@@ -840,7 +842,6 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
-        "network": "MetaMask isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
         "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
       },
@@ -901,7 +902,6 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with XDEFI",
         "connectFailure": "Unable to connect XDEFI wallet",
-        "network": "XDEFI isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed?"
       },
       "connect": {
@@ -1213,7 +1213,7 @@
         "title": "Help us improve ShapeShift",
         "description": "ShapeShift would like to gather usage data to better understand how our users interact with the app. This data will be used to continually improve the usability and user experience of our product.",
         "actionsSentence": "ShapeShift will...",
-        "noThanks": "No Thanks, take me to the private version",
+        "noThanks": "No thanks, take me to the private version",
         "sendEvents": "Send anonymized click and pageview events",
         "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
         "neverCollectIp": "Never collect your full IP address",

@@ -1,6 +1,5 @@
-import { extendTheme } from '@chakra-ui/react'
-import { mode } from '@chakra-ui/theme-tools'
-import { createBreakpoints } from '@chakra-ui/theme-tools'
+import { type ThemeConfig, extendTheme } from '@chakra-ui/react'
+import { createBreakpoints, mode, StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
@@ -35,7 +34,7 @@ export const breakpoints = createBreakpoints({
 })
 
 const styles = {
-  global: (props: Record<string, any>) => ({
+  global: (props: StyleFunctionProps) => ({
     body: {
       backgroundColor: mode('gray.50', 'gray.800')(props),
       backgroundSize: 'cover',
@@ -88,6 +87,11 @@ const styles = {
   }),
 }
 
+const config: ThemeConfig = {
+  initialColorMode: 'dark',
+  useSystemColorMode: false,
+}
+
 export const theme = extendTheme({
   breakpoints,
   styles,
@@ -125,7 +129,5 @@ export const theme = extendTheme({
     'outline-inset': '0 0 0 3px rgba(66, 153, 225, 0.6) inset',
     right: '3px 0px 2px rgba(0,0,0,.5), 5px 0 10px rgba(0,0,0,.2)',
   },
-  config: {
-    initialColorMode: 'dark',
-  },
+  config,
 })

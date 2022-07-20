@@ -1,7 +1,7 @@
-import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
 import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useState } from 'react'
+import { useInterval } from 'hooks/useInterval/useInterval'
 
 export const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 

@@ -4,8 +4,8 @@ import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { breakpoints } from 'theme/theme'
 
-export const PageTransition = (props: HTMLMotionProps<'div'>) => {
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+export const PageTransition: React.FC<HTMLMotionProps<'div'>> = props => {
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const walletContext = useWallet()
   const minHeight = isLargerThanMd
     ? `calc(100vh - ${

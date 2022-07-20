@@ -196,11 +196,9 @@ export const useSwapper = () => {
   )
 
   // TODO: rename to sellFeeAsset
-  const feeAsset = useAppSelector(state => {
-    if (!sellTradeAsset?.asset) {
-      return selectFeeAssetById(state, 'eip155:1/slip44:60')
-    } else return selectFeeAssetById(state, sellTradeAsset.asset.assetId)
-  })
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? 'eip155:1/slip44:60'),
+  )
   const { showErrorToast } = useErrorHandler()
 
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)

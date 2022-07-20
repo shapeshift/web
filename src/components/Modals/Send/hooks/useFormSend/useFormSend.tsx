@@ -110,28 +110,29 @@ export const useFormSend = () => {
         })()
         const txToSign = result.txToSign
 
-        let broadcastTXID: string | undefined
+        const broadcastTXID = await (async () => {
+          if (wallet.supportsOfflineSigning()) {
+            const signedTx = await adapter.signTransaction({
+              txToSign,
+              wallet,
+            })
+            return adapter.broadcastTransaction(signedTx)
+          } else if (wallet.supportsBroadcast()) {
+            /**
+             * signAndBroadcastTransaction is an optional method on the HDWallet interface.
+             * Check and see if it exists; if so, call and make sure a txhash is returned
+             */
+            if (!adapter.signAndBroadcastTransaction) {
+              throw new Error('signAndBroadcastTransaction undefined for wallet')
+            }
+            return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
+          } else {
+            throw new Error('Bad hdwallet config')
+          }
+        })()
 
-        if (wallet.supportsOfflineSigning()) {
-          const signedTx = await adapter.signTransaction({
-            txToSign,
-            wallet,
-          })
-          broadcastTXID = await adapter.broadcastTransaction(signedTx)
-        } else if (wallet.supportsBroadcast()) {
-          /**
-           * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-           * Check and see if it exists; if so, call and make sure a txhash is returned
-           */
-          if (!adapter.signAndBroadcastTransaction) {
-            throw new Error('signAndBroadcastTransaction undefined for wallet')
-          }
-          broadcastTXID = await adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-          if (!broadcastTXID) {
-            throw new Error('Broadcast failed')
-          }
-        } else {
-          throw new Error('Bad hdwallet config')
+        if (!broadcastTXID) {
+          throw new Error('Broadcast failed')
         }
 
         setTimeout(() => {

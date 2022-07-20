@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.7.0...@shapeshiftoss/chain-adapters-v7.8.0) (2022-07-20)
+
+
+### Features
+
+* export EvmChainIds type ([#892](https://github.com/shapeshift/lib/issues/892)) ([da92508](https://github.com/shapeshift/lib/commit/da925083d7bf0ffe945193694342e4b74da831db))
+
 # [@shapeshiftoss/chain-adapters-v7.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.6.0...@shapeshiftoss/chain-adapters-v7.7.0) (2022-07-15)
 
 

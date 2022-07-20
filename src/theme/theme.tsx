@@ -3,6 +3,7 @@ import { createBreakpoints, mode, StyleFunctionProps } from '@chakra-ui/theme-to
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
+import { DividerStyle as Divider } from 'components/Divider/Divider.theme'
 import { DrawerStyle as Drawer } from 'components/Drawer/Drawer.theme'
 import { FormStyle as Form } from 'components/Form/form.theme'
 import { HeadingStyle as Heading } from 'components/Heading/Heading.theme'
@@ -116,6 +117,7 @@ export const theme = extendTheme({
     Progress,
     Row,
     Drawer,
+    Divider,
     Textarea,
     Tooltip,
     Table,

@@ -229,7 +229,11 @@ export const useSwapper = () => {
     return maxAmount
   }
 
-  const isSupportedSwappingChain = (chainId: ChainId) => {
+  type SupportedSwappingChains =
+    | KnownChainIds.EthereumMainnet
+    | KnownChainIds.OsmosisMainnet
+    | KnownChainIds.CosmosMainnet
+  const isSupportedSwappingChain = (chainId: ChainId): chainId is SupportedSwappingChains => {
     return (
       chainId === KnownChainIds.EthereumMainnet ||
       chainId === KnownChainIds.OsmosisMainnet ||
@@ -279,10 +283,7 @@ export const useSwapper = () => {
     const tradeQuote = await (async () => {
       if (isSupportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
-          chainId: sellAsset.chainId as
-            | KnownChainIds.EthereumMainnet
-            | KnownChainIds.CosmosMainnet
-            | KnownChainIds.OsmosisMainnet,
+          chainId: sellAsset.chainId,
           sellAmount: amount,
           sellAsset,
           buyAsset,
@@ -381,10 +382,7 @@ export const useSwapper = () => {
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
             if (isSupportedSwappingChain(sellAsset.chainId)) {
               return swapper.getTradeQuote({
-                chainId: sellAsset.chainId as
-                  | KnownChainIds.EthereumMainnet
-                  | KnownChainIds.OsmosisMainnet
-                  | KnownChainIds.CosmosMainnet,
+                chainId: sellAsset.chainId,
                 sellAsset,
                 buyAsset,
                 sellAmount,

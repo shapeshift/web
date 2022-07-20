@@ -1,6 +1,6 @@
 import 'lib/polyfills'
 
-import { renderHook, RenderHookResult } from '@testing-library/react-hooks'
+import { renderHook, RenderHookResult } from '@testing-library/react'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
 
 import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
@@ -13,7 +13,7 @@ function setup({
 }: {
   locale?: string
   fiat: FiatTypeEnum
-}): RenderHookResult<unknown, NumberFormatter> {
+}): RenderHookResult<ReturnType<typeof useLocaleFormatter>, NumberFormatter> {
   return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }))
 }
 

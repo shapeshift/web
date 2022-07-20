@@ -145,7 +145,7 @@ export const KeepKeyRecoverySettings = () => {
           translation={'modals.keepKey.recoverySettings.recoveryPassphraseDescription'}
           mb={6}
         />
-        <Button isFullWidth size='lg' colorScheme='blue' onClick={handleSubmit} mb={3}>
+        <Button width='full' size='lg' colorScheme='blue' onClick={handleSubmit} mb={3}>
           <Text translation={'modals.keepKey.recoverySettings.button'} />
         </Button>
       </ModalBody>

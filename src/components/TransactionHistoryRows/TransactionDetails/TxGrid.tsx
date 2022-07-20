@@ -1,6 +1,9 @@
 import { SimpleGrid } from '@chakra-ui/react'
+import { PropsWithChildren } from 'react'
 
-export const TxGrid: React.FC<{ compactMode?: boolean }> = ({ compactMode, children }) => {
+type TxGridProps = { compactMode?: boolean } & PropsWithChildren
+
+export const TxGrid: React.FC<TxGridProps> = ({ compactMode, children }) => {
   return (
     <SimpleGrid
       spacing={{ base: 4, lg: compactMode ? 4 : 6 }}

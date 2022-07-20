@@ -99,7 +99,7 @@ export const AssetCell = ({
                   as='span'
                   position='absolute'
                   lineHeight='shorter'
-                  isTruncated
+                  noOfLines={1}
                   display='block'
                   maxWidth='100%'
                   color={linkColor}

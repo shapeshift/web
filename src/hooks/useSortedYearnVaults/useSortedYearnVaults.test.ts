@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react'
 import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { mockVault, mockVaultWithBalance } from 'test/mocks/vaults'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'

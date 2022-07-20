@@ -39,7 +39,7 @@ export const Header = () => {
    * Open the hidden flags menu via keypress
    */
   const handleKeyPress = useCallback(
-    event => {
+    (event: { altKey: unknown; shiftKey: unknown; keyCode: number }) => {
       if (event.altKey && event.shiftKey && event.keyCode === 70) {
         history.push('/flags')
       }

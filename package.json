@@ -89,7 +89,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.8.2",
     "@shapeshiftoss/asset-service": "^6.4.0",
-    "@shapeshiftoss/caip": "^6.3.0",
+    "@shapeshiftoss/caip": "^6.4.0",
     "@shapeshiftoss/chain-adapters": "^7.7.0",
     "@shapeshiftoss/errors": "^1.1.2",
     "@shapeshiftoss/hdwallet-core": "^1.27.0",

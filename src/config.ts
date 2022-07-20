@@ -57,10 +57,10 @@ const validators = {
     default: 'https://midgard.thorchain.info/v2',
   }),
   REACT_APP_COSMOS_NODE: url({
-    default: 'https://cosmos-mainnet-rpc.allthatnode.com:1317/',
+    default: 'https://rest.cosmos.directory/cosmoshub/',
   }),
   REACT_APP_OSMOSIS_NODE: url({
-    default: 'https://lcd-osmosis.blockapsis.com/',
+    default: 'https://rest.cosmos.directory/osmosis/',
   }),
   REACT_APP_FEATURE_PENDO: bool({ default: false }),
   REACT_APP_PENDO_API_KEY: envalid.str({ default: '67c2f326-a6c2-4aa2-4559-08a53b679e93' }),

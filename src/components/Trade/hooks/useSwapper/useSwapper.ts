@@ -277,7 +277,7 @@ export const useSwapper = () => {
     })
 
     const tradeQuote = await (async () => {
-      if (supportedSwappingChain(sellAsset.chainId)) {
+      if (isSupportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId as
             | KnownChainIds.EthereumMainnet
@@ -379,7 +379,7 @@ export const useSwapper = () => {
           })
 
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-            if (supportedSwappingChain(sellAsset.chainId)) {
+            if (isSupportedSwappingChain(sellAsset.chainId)) {
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId as
                   | KnownChainIds.EthereumMainnet

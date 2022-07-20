@@ -1,6 +1,6 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
-import { osmosisAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
@@ -123,9 +123,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
   const txLink = useMemo(() => {
-    if (
-fromChainId(trade.sellAsset).chainNamespace === CHAIN_NAMESPACE.COSMOS
-    ) {
+    if (fromChainId(trade.sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Cosmos) {
       return `${osmosisAsset?.explorerTxLink}${txid}`
     } else {
       return `${trade.sellAsset?.explorerTxLink}${txid}`

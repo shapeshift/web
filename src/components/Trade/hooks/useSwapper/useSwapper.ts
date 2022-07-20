@@ -3,6 +3,7 @@ import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  EvmSupportedChainIds,
   Swapper,
   SwapperManager,
   ThorchainSwapper,
@@ -22,6 +23,7 @@ import { useSelector } from 'react-redux'
 import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -136,6 +138,8 @@ export const useSwapper = () => {
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
+
+  const { supportedEvmChainIds } = useEvm()
 
   useEffect(() => {
     ;(async () => {
@@ -331,10 +335,18 @@ export const useSwapper = () => {
             ...receiveAddressUtxoParams,
           })
 
+          // This is a narrow type guard, as it only includes chains from the chainAdapters available at runtime
+          // It therefore belongs client-side rather than being generalised to @shapeshiftoss/swapper or otherwise
+          const isEvmSupportedChainId = (
+            maybeEvmSupportedChainId: ChainId,
+          ): maybeEvmSupportedChainId is EvmSupportedChainIds => {
+            return supportedEvmChainIds.includes(maybeEvmSupportedChainId)
+          }
+
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-            if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
+            if (isEvmSupportedChainId(sellAsset.chainId)) {
               return swapper.getTradeQuote({
-                chainId: KnownChainIds.EthereumMainnet,
+                chainId: sellAsset.chainId,
                 sellAsset,
                 buyAsset,
                 sellAmount,

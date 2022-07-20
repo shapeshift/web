@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook, waitFor } from '@testing-library/react'
+import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
@@ -59,14 +60,16 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
       return data[search]
     }),
   }))
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
-  const { result, waitFor } = renderHook(() => useTradeRoutes(), { wrapper })
-  return { result, waitFor, setValue, updateQuote }
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
+  const { result } = renderHook(() => useTradeRoutes(), { wrapper })
+  return { result, setValue, updateQuote }
 }
 
 describe('useTradeRoutes', () => {
   it('sets the default assets', async () => {
-    const { updateQuote, setValue, waitFor } = await setup({})
+    const { updateQuote, setValue } = await setup({})
     await waitFor(() => expect(updateQuote).toHaveBeenCalled())
     expect(setValue).toHaveBeenCalledWith('sellAsset.asset', mockETH)
     expect(setValue).toHaveBeenCalledWith('buyAsset.asset', mockFOX)

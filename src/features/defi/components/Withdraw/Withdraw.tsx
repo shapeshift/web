@@ -32,7 +32,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { Asset, MarketData, WithdrawType } from '@shapeshiftoss/types'
-import { useRef, useState } from 'react'
+import { PropsWithChildren, useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
 import { FaBolt, FaClock } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -73,7 +73,7 @@ type WithdrawProps = {
   onContinue(values: WithdrawValues): void
   updateWithdraw?(values: Pick<WithdrawValues, Field.WithdrawType | Field.CryptoAmount>): void
   onCancel(): void
-}
+} & PropsWithChildren
 
 const CryptoInput = (props: InputProps) => (
   <Input
@@ -269,7 +269,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
               <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
               <ButtonGroup colorScheme='blue' width='full' variant='input'>
                 <Button
-                  isFullWidth
+                  width='full'
                   flexDir='column'
                   height='auto'
                   py={4}
@@ -288,7 +288,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                   </Stack>
                 </Button>
                 <Button
-                  isFullWidth
+                  width='full'
                   flexDir='column'
                   height='auto'
                   onClick={() => handleWithdrawalTypeClick(WithdrawType.DELAYED)}
@@ -486,7 +486,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             colorScheme={fieldError ? 'red' : 'blue'}
             isDisabled={!isValid}
             size='lg'
-            isFullWidth
+            width='full'
             type='submit'
           >
             {translate(fieldError || 'common.continue')}

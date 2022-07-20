@@ -1,16 +1,20 @@
 import 'lib/polyfills'
 
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook, RenderHookResult } from '@testing-library/react'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
-import { TestProviders } from 'test/TestProviders'
 
-import { FiatParts, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
+import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
 
 type Scenario = [string, FiatTypeEnum, string[]]
 
-function setup({ locale, fiat }: { locale?: string; fiat: FiatTypeEnum }) {
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
-  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }), { wrapper })
+function setup({
+  locale,
+  fiat,
+}: {
+  locale?: string
+  fiat: FiatTypeEnum
+}): RenderHookResult<ReturnType<typeof useLocaleFormatter>, NumberFormatter> {
+  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }))
 }
 
 describe('useLocaleFormatter', () => {

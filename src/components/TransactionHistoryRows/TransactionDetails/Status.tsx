@@ -6,7 +6,7 @@ import { Text } from 'components/Text'
 import { breakpoints } from 'theme/theme'
 
 export const Status = ({ status }: { status: TxStatus }) => {
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const tagSize = isLargerThanMd ? 'lg' : 'md'
   switch (status) {
     case TxStatus.Confirmed:

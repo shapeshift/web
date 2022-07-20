@@ -1,4 +1,4 @@
-import { Box, StatArrow, StatNumber, Text } from '@chakra-ui/react'
+import { Box, Stat, StatArrow, StatNumber, Text } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -41,15 +41,17 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
               isNumericString={true}
             />
           </Box>
-          <StatNumber
-            display='flex'
-            alignItems='center'
-            justifyContent='center'
-            color={percentChange > 0 ? 'green.500' : 'red.500'}
-          >
-            <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
-            {isFinite(percentChange) && <RawText>{percentChange}%</RawText>}
-          </StatNumber>
+          <Stat>
+            <StatNumber
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+              color={percentChange > 0 ? 'green.500' : 'red.500'}
+            >
+              <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+              {isFinite(percentChange) && <RawText>{percentChange}%</RawText>}
+            </StatNumber>
+          </Stat>
         </Box>
         <PriceChart
           assetId={assetId}

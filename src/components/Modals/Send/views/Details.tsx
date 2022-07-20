@@ -27,8 +27,7 @@ import { useModal } from 'hooks/useModal/useModal'
 
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
-import { SendFormFields } from '../SendCommon'
-import { SendRoutes } from '../SendCommon'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
@@ -46,9 +45,9 @@ export const Details = () => {
     fieldName,
     cryptoHumanBalance,
     fiatBalance,
-    handleInputChange,
     handleNextClick,
     handleSendMax,
+    handleInputChange,
     loading,
     toggleCurrency,
   } = useSendDetails()
@@ -175,7 +174,7 @@ export const Details = () => {
       <ModalFooter>
         <Stack flex={1}>
           <Button
-            isFullWidth
+            width='full'
             isDisabled={!(cryptoAmount ?? fiatAmount) || !!amountFieldError || loading}
             colorScheme={amountFieldError ? 'red' : 'blue'}
             size='lg'
@@ -185,7 +184,7 @@ export const Details = () => {
           >
             <Text translation={amountFieldError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button width='full' variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

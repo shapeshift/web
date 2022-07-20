@@ -792,7 +792,6 @@
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
         "connectFailure": "No se puede conectar la billetera MetaMask",
-        "network": "MetaMask no está configurada para Ethereum Mainnet",
         "multipleWallets": "El proveedor de Ethereum detectado no es MetaMask. ¿Tienes varias carteras instaladas?",
         "tallyInstalledAndSetToDefault": "Hemos detectado que tiene Tally Ho instalado y configurado como Predeterminado. Si prefiere usar MetaMask en su lugar, cambie la configuración en Tally Ho y actualice la página."
       },
@@ -853,7 +852,6 @@
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con XDEFI",
         "connectFailure": "No se puede conectar la billetera XDEFI",
-        "network": "XDEFI no está configurado para Ethereum Mainnet",
         "multipleWallets": "El proveedor de Ethereum detectado no es XDEFI. ¿Tienes varias carteras instaladas?"
       },
       "connect": {

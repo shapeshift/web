@@ -73,7 +73,7 @@ export const AccountAssetsList = ({ assetIds, accountId, limit }: AccountAssetLi
               borderTopRadius='none'
               colorScheme='blue'
               onClick={onToggle}
-              isFullWidth
+              width='full'
               rightIcon={isOpen ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
             >
               {translate(`assets.assetCards.${isOpen ? 'hideTokens' : 'showTokens'}`, {

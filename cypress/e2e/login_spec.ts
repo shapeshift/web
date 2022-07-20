@@ -64,7 +64,7 @@ describe('The Dashboard', () => {
     cy.getBySel('native-saved-wallet').should('have.length', 1)
     cy.getBySel('native-saved-wallet-name').contains('cypress-test')
     cy.getBySel('native-saved-wallet-button').click()
-    cy.getBySel('wallet-password-input').type(password)
+    cy.getBySel('wallet-password-input').should('be.visible').type(password)
     cy.getBySel('wallet-password-submit-button').click()
     cy.url().should('equal', `${baseUrl}dashboard`)
   })
@@ -80,7 +80,6 @@ describe('The Dashboard', () => {
 
   it('support Portis log in', () => {
     cy.visit('')
-
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
     cy.getBySel('connect-wallet-portis-button').click()

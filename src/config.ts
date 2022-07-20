@@ -56,10 +56,10 @@ const validators = {
   REACT_APP_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
   }),
-  REACT_APP_COSMOS_NODE: url({
+  REACT_APP_COSMOS_NODE_URL: url({
     default: 'https://rest.cosmos.directory/cosmoshub/',
   }),
-  REACT_APP_OSMOSIS_NODE: url({
+  REACT_APP_OSMOSIS_NODE_URL: url({
     default: 'https://rest.cosmos.directory/osmosis/',
   }),
   REACT_APP_FEATURE_PENDO: bool({ default: false }),

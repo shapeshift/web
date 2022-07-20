@@ -1,11 +1,18 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { bitcoin, ChainAdapter, ethereum, FeeData } from '@shapeshiftoss/chain-adapters'
+import {
+  bitcoin,
+  ChainAdapter,
+  ethereum,
+  EvmChainIds,
+  FeeData,
+} from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -25,6 +32,7 @@ export const useFormSend = () => {
   const {
     state: { wallet },
   } = useWallet()
+  const { supportedEvmChainIds } = useEvm()
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -37,67 +45,69 @@ export const useFormSend = () => {
 
         const adapterType = adapter.getChainId()
 
-        let result
-
         const { estimatedFees, feeType, address: to } = data
-        if (adapterType === KnownChainIds.EthereumMainnet) {
-          if (!supportsETH(wallet)) throw new Error(`useFormSend: wallet does not support ethereum`)
-          const fees = estimatedFees[feeType] as FeeData<KnownChainIds.EthereumMainnet>
-          const {
-            chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
-          } = fees
-          const shouldUseEIP1559Fees =
-            (await wallet.ethSupportsEIP1559()) &&
-            maxFeePerGas !== undefined &&
-            maxPriorityFeePerGas !== undefined
-          if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-            throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
-          }
-          const erc20ContractAddress = tokenOrUndefined(
-            fromAssetId(data.asset.assetId).assetReference,
-          )
-          result = await (adapter as unknown as ethereum.ChainAdapter).buildSendTransaction({
-            to,
-            value,
-            wallet,
-            chainSpecific: {
-              erc20ContractAddress,
-              gasLimit,
-              ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-            },
-            sendMax: data.sendMax,
-          })
-        } else if (adapterType === KnownChainIds.BitcoinMainnet) {
-          const fees = estimatedFees[feeType] as FeeData<KnownChainIds.BitcoinMainnet>
 
-          const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
-
-          if (!accountType) {
-            throw new Error(
-              `useFormSend: could not get accountType from accountId: ${data.accountId}`,
+        const result = await (async () => {
+          if (supportedEvmChainIds.includes(adapterType)) {
+            if (!supportsETH(wallet))
+              throw new Error(`useFormSend: wallet does not support ethereum`)
+            const fees = estimatedFees[feeType] as FeeData<EvmChainIds>
+            const {
+              chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+            } = fees
+            const shouldUseEIP1559Fees =
+              (await wallet.ethSupportsEIP1559()) &&
+              maxFeePerGas !== undefined &&
+              maxPriorityFeePerGas !== undefined
+            if (!shouldUseEIP1559Fees && gasPrice === undefined) {
+              throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
+            }
+            const erc20ContractAddress = tokenOrUndefined(
+              fromAssetId(data.asset.assetId).assetReference,
             )
-          }
+            return await (adapter as unknown as ethereum.ChainAdapter).buildSendTransaction({
+              to,
+              value,
+              wallet,
+              chainSpecific: {
+                erc20ContractAddress,
+                gasLimit,
+                ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
+              },
+              sendMax: data.sendMax,
+            })
+          } else if (adapterType === KnownChainIds.BitcoinMainnet) {
+            const fees = estimatedFees[feeType] as FeeData<KnownChainIds.BitcoinMainnet>
 
-          if (!utxoParams) {
-            throw new Error(
-              `useFormSend: could not get utxoParams from accountId: ${data.accountId}`,
-            )
-          }
+            const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
 
-          result = await (adapter as unknown as bitcoin.ChainAdapter).buildSendTransaction({
-            to,
-            value,
-            wallet,
-            bip44Params: utxoParams.bip44Params,
-            chainSpecific: {
-              satoshiPerByte: fees.chainSpecific.satoshiPerByte,
-              accountType,
-            },
-            sendMax: data.sendMax,
-          })
-        } else {
-          throw new Error('unsupported adapterType')
-        }
+            if (!accountType) {
+              throw new Error(
+                `useFormSend: could not get accountType from accountId: ${data.accountId}`,
+              )
+            }
+
+            if (!utxoParams) {
+              throw new Error(
+                `useFormSend: could not get utxoParams from accountId: ${data.accountId}`,
+              )
+            }
+
+            return await (adapter as unknown as bitcoin.ChainAdapter).buildSendTransaction({
+              to,
+              value,
+              wallet,
+              bip44Params: utxoParams.bip44Params,
+              chainSpecific: {
+                satoshiPerByte: fees.chainSpecific.satoshiPerByte,
+                accountType,
+              },
+              sendMax: data.sendMax,
+            })
+          } else {
+            throw new Error('unsupported adapterType')
+          }
+        })()
         const txToSign = result.txToSign
 
         let broadcastTXID: string | undefined

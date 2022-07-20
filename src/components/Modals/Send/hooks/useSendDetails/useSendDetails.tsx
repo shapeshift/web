@@ -1,5 +1,13 @@
 import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { bitcoin, cosmos, ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import {
+  avalanche,
+  bitcoin,
+  ChainAdapter,
+  cosmos,
+  ethereum,
+  EvmChainIds,
+  FeeDataEstimate,
+} from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -112,29 +120,31 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
+    const getEvmFeeData = (chainAdapter: ChainAdapter<EvmChainIds>) => {
+      return chainAdapter.getFeeData({
+        to: values.address,
+        value,
+        chainSpecific: {
+          from: account,
+          contractAddress,
+        },
+        sendMax: values.sendMax,
+      })
+    }
+
+    const adapter = chainAdapterManager.get(values.asset.chainId)
+    if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
+
     switch (values.asset.chainId) {
       case KnownChainIds.CosmosMainnet:
       case KnownChainIds.OsmosisMainnet: {
-        const adapter = chainAdapterManager.get(values.asset.chainId)
-        if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
         return adapter.getFeeData({})
       }
       case KnownChainIds.EthereumMainnet: {
-        const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet) as
-          | ethereum.ChainAdapter
-          | undefined
-        if (!ethereumChainAdapter)
-          throw new Error(`No adapter available for ${KnownChainIds.EthereumMainnet}`)
-        const to = values.address
-        return ethereumChainAdapter.getFeeData({
-          to,
-          value,
-          chainSpecific: {
-            from: account,
-            contractAddress,
-          },
-          sendMax: values.sendMax,
-        })
+        return getEvmFeeData(adapter as unknown as ethereum.ChainAdapter)
+      }
+      case KnownChainIds.AvalancheMainnet: {
+        return getEvmFeeData(adapter as unknown as avalanche.ChainAdapter)
       }
       case KnownChainIds.BitcoinMainnet: {
         const bitcoinChainAdapter = (await chainAdapterManager.get(

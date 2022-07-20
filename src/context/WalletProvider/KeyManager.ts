@@ -5,6 +5,7 @@ export enum KeyManager {
   TallyHo = 'tallyho',
   Portis = 'portis',
   Demo = 'demo',
+  WalletConnect = 'walletconnect',
   XDefi = 'xdefi',
   Keplr = 'keplr',
 }

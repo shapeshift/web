@@ -6,6 +6,7 @@ import {
   ChainId,
   chainIdToFeeAssetId,
   cosmosChainId,
+  dogeChainId,
   ethChainId,
   fromAccountId,
   fromAssetId,
@@ -94,6 +95,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     }
     case osmosisChainId: {
       return 'Osmosis'
+    }
+    case dogeChainId: {
+      return 'Dogecoin'
     }
     default: {
       return ''

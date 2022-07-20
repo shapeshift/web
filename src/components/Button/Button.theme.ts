@@ -1,319 +1,182 @@
-import { mode, transparentize } from '@chakra-ui/theme-tools'
+import { ComponentStyleConfig } from '@chakra-ui/react'
+import { mode, StyleFunctionProps, transparentize } from '@chakra-ui/theme-tools'
 
-const baseStyle = {
-  lineHeight: '1.2',
-  borderRadius: 'lg',
-  fontWeight: 'semibold',
-  transitionProperty: 'common',
-  transitionDuration: 'normal',
-  _focus: {
-    boxShadow: 'outline-inset',
-  },
-  _disabled: {
-    opacity: 0.4,
-    cursor: 'not-allowed',
-    boxShadow: 'none',
-  },
-  _hover: {
-    textDecoration: 'none',
-    _disabled: {
-      bg: 'initial',
+export const ButtonStyle: ComponentStyleConfig = {
+  // style object for base or default style
+  baseStyle: {
+    borderRadius: 'lg',
+    _focusVisible: {
+      boxShadow: 'outline-inset',
     },
   },
-}
-
-function variantGhost(props: Record<string, any>) {
-  const { colorScheme: c, theme } = props
-
-  if (c === 'gray') {
-    return {
-      color: mode(`gray.500`, `gray.500`)(props),
-      _hover: {
-        color: mode('inherit', 'whiteAlpha.800')(props),
-        bg: mode(`gray.100`, `gray.750`)(props),
-      },
-      _active: { bg: mode(`gray.200`, `gray.700`)(props), color: mode(`gray.800`, 'white')(props) },
-      _checked: { bg: mode(`gray.200`, `gray.700`)(props) },
-    }
-  }
-
-  const darkHoverBg = transparentize(`${c}.200`, 0.12)(theme)
-  const darkActiveBg = transparentize(`${c}.200`, 0.24)(theme)
-
-  return {
-    color: mode(`${c}.600`, `${c}.200`)(props),
-    bg: 'transparent',
-    _hover: {
-      bg: mode(`${c}.50`, darkHoverBg)(props),
-    },
-    _active: {
-      bg: mode(`${c}.200`, darkActiveBg)(props),
-      color: mode('white', `${c}.200`)(props),
-    },
-    _checked: {
-      bg: mode(`${c}.200`, darkActiveBg)(props),
-      color: mode('white', `${c}.200`)(props),
-    },
-  }
-}
-
-function variantGhostFilled(props: Record<string, any>) {
-  const { colorScheme: c, theme } = props
-
-  if (c === 'gray') {
-    return {
-      color: mode(`inherit`, `whiteAlpha.900`)(props),
-      _hover: {
-        bg: mode(`gray.100`, `gray.750`)(props),
-      },
-      _active: { bg: mode(`gray.200`, `gray.700`)(props) },
-      _checked: { bg: mode(`gray.200`, `gray.700`)(props) },
-    }
-  }
-
-  const darkHoverBg = transparentize(`${c}.200`, 0.12)(theme)
-  const darkActiveBg = transparentize(`${c}.500`, 1)(theme)
-  const darkBg = transparentize(`${c}.200`, 0.2)(theme)
-
-  return {
-    color: mode(`${c}.500`, `${c}.200`)(props),
-    bg: mode(`${c}.50`, darkBg)(props),
-    _hover: {
-      bg: mode(`${c}.100`, darkHoverBg)(props),
-      _disabled: {
-        bg: mode(`${c}.50`, darkBg)(props),
-      },
-    },
-    _active: {
-      bg: mode(`${c}.500`, darkActiveBg)(props),
-      color: 'white',
-    },
-    _checked: {
-      bg: mode(`${c}.500`, darkActiveBg)(props),
-      color: 'white',
-    },
-    '.isActive': {
-      bg: mode(`${c}.500`, darkActiveBg)(props),
-      color: 'white',
-    },
-  }
-}
-
-function variantOutline(props: Record<string, any>) {
-  const { colorScheme: c } = props
-  const borderColor = mode(`gray.200`, `whiteAlpha.300`)(props)
-  return {
-    border: '1px solid',
-    borderColor: c === 'gray' ? borderColor : 'currentColor',
-    ...variantGhost(props),
-  }
-}
-
-function variantInput(props: Record<string, any>) {
-  const { colorScheme: c } = props
-  const borderColor = mode(`gray.200`, `gray.750`)(props)
-  const bg = mode('gray.50', 'gray.850')(props)
-  return {
-    border: '1px solid',
-    bg,
-    borderColor,
-    transition: 'color fill border-color .5s ease-in-out',
-    color: 'gray.500',
-    _active: {
-      borderColor: `${c}.500`,
-      color: mode('black', 'white')(props),
-      svg: {
-        fill: `${c}.500`,
-      },
-    },
-    _hover: {
-      borderColor: mode('gray.300', 'gray.700')(props),
-    },
-  }
-}
-
-type AccessibleColor = {
-  bg?: string
-  color?: string
-  hoverBg?: string
-  activeBg?: string
-}
-
-/** Accessible color overrides for less accessible colors. */
-const accessibleColorMap: { [key: string]: AccessibleColor } = {
-  yellow: {
-    bg: 'yellow.400',
-    color: 'black',
-    hoverBg: 'yellow.500',
-    activeBg: 'yellow.600',
-  },
-  cyan: {
-    bg: 'cyan.400',
-    color: 'black',
-    hoverBg: 'cyan.500',
-    activeBg: 'cyan.600',
-  },
-  blue: {
-    bg: 'blue.500',
-    color: 'white',
-  },
-}
-
-function variantSolid(props: Record<string, any>) {
-  const { colorScheme: c } = props
-
-  if (c === 'gray') {
-    const bg = mode(`gray.100`, `gray.700`)(props)
-
-    return {
-      bg,
-      _hover: {
-        bg: mode(`gray.200`, `gray.600`)(props),
-        _disabled: {
+  // styles for different sizes ("sm", "md", "lg")
+  sizes: {},
+  // styles for different visual variants ("outline", "solid")
+  variants: {
+    solid: (props: StyleFunctionProps) => {
+      const { colorScheme: c } = props
+      if (c === 'gray') {
+        const bg = mode('gray.100', 'gray.700')(props)
+        return {
           bg,
+          _hover: {
+            bg: mode('gray.200', 'gray.600')(props),
+            textDecoration: 'none',
+            _disabled: {
+              bg,
+            },
+          },
+          _active: { bg: mode('gray.300', 'whiteAlpha.400')(props) },
+          _checked: { bg: mode('gray.300', 'whiteAlpha.400')(props) },
+        }
+      }
+      return {
+        bg: `${c}.500`,
+        color: 'white',
+        _hover: {
+          bg: mode(`${c}.600`, `${c}.300`)(props),
+          _disabled: {
+            bg: `${c}.500`,
+          },
         },
-      },
-      _active: { bg: mode(`gray.300`, `whiteAlpha.400`)(props) },
-      _checked: { bg: mode(`gray.300`, `whiteAlpha.400`)(props) },
-    }
-  }
-
-  const {
-    bg = `${c}.500`,
-    color = 'white',
-    hoverBg = `${c}.600`,
-    activeBg = `${c}.700`,
-  } = accessibleColorMap[c] || {}
-
-  const background = mode(bg, `${c}.500`)(props)
-
-  return {
-    bg: background,
-    color: mode(color, `white`)(props),
-    _hover: {
-      bg: mode(hoverBg, `${c}.300`)(props),
-      _disabled: {
-        bg: background,
-      },
+        _active: {
+          bg: mode(`${c}.700`, `${c}.400`)(props),
+        },
+      }
     },
-    _active: { bg: mode(activeBg, `${c}.400`)(props) },
-    _checked: { bg: mode(activeBg, `${c}.400`)(props) },
-  }
-}
-
-function variantLink(props: Record<string, any>) {
-  const { colorScheme: c } = props
-  return {
-    padding: 0,
-    height: 'auto',
-    lineHeight: 'normal',
-    verticalAlign: 'baseline',
-    color: mode(`${c}.500`, `${c}.200`)(props),
-    _hover: {
-      textDecoration: 'underline',
-      _disabled: {
-        textDecoration: 'none',
-      },
+    'ghost-filled': (props: StyleFunctionProps) => {
+      const { colorScheme: c, theme } = props
+      const darkHoverBg = transparentize(`${c}.200`, 0.12)(theme)
+      const darkActiveBg = transparentize(`${c}.200`, 1)(theme)
+      const darkBg = transparentize(`${c}.200`, 0.2)(theme)
+      return {
+        color: mode(`${c}.500`, `${c}.200`)(props),
+        bg: mode(`${c}.50`, darkBg)(props),
+        _hover: {
+          bg: mode(`${c}.100`, darkHoverBg)(props),
+        },
+        _active: {
+          bg: mode(`${c}.500`, darkActiveBg)(props),
+          color: 'white',
+        },
+      }
     },
-    _active: {
-      color: mode(`${c}.700`, `${c}.500`)(props),
+    ghost: (props: StyleFunctionProps) => {
+      const { colorScheme: c, theme } = props
+      const darkHoverBg = transparentize(`${c}.200`, 0.12)(theme)
+      const darkActiveBg = transparentize(`${c}.200`, 0.25)(theme)
+      if (c === 'gray') {
+        return {
+          color: 'gray.500',
+          _hover: {
+            color: mode('inherit', 'whiteAlpha.800')(props),
+            bg: mode('gray.100', 'gray.750')(props),
+          },
+          _active: {
+            bg: mode('gray.200', 'gray.700')(props),
+            color: mode('gray.800', 'white')(props),
+            _checked: {
+              bg: mode('gray.200', 'gray.700')(props),
+            },
+          },
+        }
+      }
+      return {
+        color: mode(`${c}.500`, `${c}.200`)(props),
+        _hover: {
+          bg: mode(`${c}.50`, darkHoverBg)(props),
+          color: mode(`${c}.500`, `${c}.200`)(props),
+        },
+        _active: {
+          bg: mode(`${c}.200`, darkActiveBg)(props),
+          color: mode('white', `${c}.200`)(props),
+        },
+        _checked: {
+          bg: mode(`${c}.200`, 'gray.700')(props),
+          color: mode('white', `${c}.200`)(props),
+        },
+      }
     },
-    _checked: {
-      color: mode(`${c}.700`, `${c}.500`)(props),
+    input: (props: StyleFunctionProps) => {
+      const { colorScheme: c } = props
+      const borderColor = mode('gray.200', 'gray.750')(props)
+      const bg = mode('gray.50', 'gray.850')(props)
+      return {
+        border: '1px solid',
+        bg,
+        borderColor,
+        transition: 'color fill border-color 0.5s ease-in-out',
+        color: 'gray.500',
+        _active: {
+          borderColor: `${c}.500`,
+          color: mode('black', 'white')(props),
+          svg: {
+            fill: `${c}.500`,
+          },
+        },
+        _hover: {
+          borderColor: mode('gray.300', 'gray.700')(props),
+        },
+      }
     },
-  }
-}
-
-function variantTab(props: Record<string, any>) {
-  const { colorScheme: c } = props
-  return {
-    py: 4,
-    px: 2,
-    height: 'auto',
-    lineHeight: 'normal',
-    verticalAlign: 'baseline',
-    borderBottomWidth: '2px',
-    marginBottom: '-1px;',
-    borderColor: 'transparent',
-    borderRadius: 0,
-    color: 'gray.500',
-    _hover: {
-      borderColor: 'gray.500',
+    link: (props: StyleFunctionProps) => {
+      const { colorScheme: c } = props
+      return {
+        padding: 0,
+        height: 'auto',
+        lineHeight: 'normal',
+        verticalAlign: 'baseline',
+        color: mode(`${c}.500`, `${c}.200`)(props),
+        _hover: {
+          textDecoration: 'underline',
+          _disabled: {
+            textDecoration: 'none',
+          },
+        },
+        _active: {
+          color: mode(`${c}.700`, `${c}.500`)(props),
+        },
+        _checked: {
+          color: mode(`${c}.700`, `${c}.500`)(props),
+        },
+      }
     },
-    _active: {
-      color: mode(`${c}.500`, `${c}.200`)(props),
-      borderColor: mode(`${c}.500`, `${c}.200`)(props),
+    tab: (props: StyleFunctionProps) => {
+      const { colorScheme: c } = props
+      return {
+        py: 4,
+        px: 2,
+        height: 'auto',
+        lineHeight: 'normal',
+        verticalAlign: 'baseline',
+        borderBottomWidth: '2px',
+        marginBottom: '-1px;',
+        borderColor: 'transparent',
+        borderRadius: 0,
+        color: 'gray.500',
+        _hover: {
+          borderColor: 'gray.500',
+        },
+        _active: {
+          color: mode(`${c}.500`, `${c}.200`)(props),
+          borderColor: mode(`${c}.500`, `${c}.200`)(props),
+        },
+        _checked: {
+          color: mode(`${c}.700`, `${c}.500`)(props),
+        },
+      }
     },
-    _checked: {
-      color: mode(`${c}.700`, `${c}.500`)(props),
+    'read-only': {
+      px: 0,
+      bg: 'none',
+      minWidth: 'auto',
+      pointerEvents: 'none',
     },
-  }
-}
-
-const variantUnstyled = {
-  bg: 'none',
-  color: 'inherit',
-  display: 'inline',
-  lineHeight: 'inherit',
-  m: 0,
-  p: 0,
-}
-
-const variantReadOnly = {
-  px: 0,
-  bg: 'none',
-  minWidth: 'auto',
-  pointerEvents: 'none',
-}
-
-const variants = {
-  ghost: variantGhost,
-  'ghost-filled': variantGhostFilled,
-  outline: variantOutline,
-  solid: variantSolid,
-  link: variantLink,
-  input: variantInput,
-  unstyled: variantUnstyled,
-  tab: variantTab,
-  'read-only': variantReadOnly,
-}
-
-const sizes = {
-  lg: {
-    h: 12,
-    minW: 12,
-    fontSize: 'lg',
-    px: 6,
   },
-  md: {
-    h: 10,
-    minW: 10,
-    fontSize: 'md',
-    px: 4,
+  // default values for 'size', 'variant' and 'colorScheme'
+  defaultProps: {
+    variant: 'solid',
+    size: 'md',
+    colorScheme: 'gray',
   },
-  sm: {
-    h: 8,
-    minW: 8,
-    fontSize: 'sm',
-    px: 3,
-  },
-  xs: {
-    h: 6,
-    minW: 6,
-    fontSize: 'xs',
-    px: 2,
-  },
-}
-
-const defaultProps = {
-  variant: 'solid',
-  size: 'md',
-  colorScheme: 'gray',
-}
-
-export const ButtonStyle = {
-  baseStyle,
-  variants,
-  sizes,
-  defaultProps,
 }

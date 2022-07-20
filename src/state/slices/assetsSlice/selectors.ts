@@ -67,7 +67,9 @@ const chainIdFeeAssetReferenceMap = (
       case CHAIN_NAMESPACE.Bitcoin:
         return ASSET_REFERENCE.Bitcoin
       case CHAIN_NAMESPACE.Ethereum:
-        return ASSET_REFERENCE.Ethereum
+        return chainReference === CHAIN_REFERENCE.AvalancheCChain
+          ? ASSET_REFERENCE.AvalancheC
+          : ASSET_REFERENCE.Ethereum
       case CHAIN_NAMESPACE.Cosmos:
         return chainReference === CHAIN_REFERENCE.CosmosHubMainnet
           ? ASSET_REFERENCE.Cosmos

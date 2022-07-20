@@ -1,4 +1,5 @@
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -24,8 +25,8 @@ export const useTradeRoutes = (
   const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
-  const feeAssetId = getChainAdapters()
-    .get(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
+  const feeAssetId = (getChainAdapters() as ChainAdapterManager)
+    .get(sellTradeAsset?.asset?.chainId ?? ethChainId)
     ?.getFeeAssetId() as AssetId
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)

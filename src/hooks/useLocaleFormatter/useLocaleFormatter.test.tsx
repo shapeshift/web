@@ -2,6 +2,8 @@ import 'lib/polyfills'
 
 import { renderHook, RenderHookResult } from '@testing-library/react'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
+import { PropsWithChildren } from 'react'
+import { TestProviders } from 'test/TestProviders'
 
 import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
 
@@ -14,7 +16,10 @@ function setup({
   locale?: string
   fiat: FiatTypeEnum
 }): RenderHookResult<ReturnType<typeof useLocaleFormatter>, NumberFormatter> {
-  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }))
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
+  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }), { wrapper })
 }
 
 describe('useLocaleFormatter', () => {

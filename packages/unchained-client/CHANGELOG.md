@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.2.0...@shapeshiftoss/unchained-client-v9.3.0) (2022-07-20)
+
+
+### Features
+
+* dogecoin ([#888](https://github.com/shapeshift/lib/issues/888)) ([7ccb927](https://github.com/shapeshift/lib/commit/7ccb92707b48d912f1fd2126888b314baacbbfda))
+
 # [@shapeshiftoss/unchained-client-v9.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.1.1...@shapeshiftoss/unchained-client-v9.2.0) (2022-07-12)
 
 

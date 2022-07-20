@@ -149,13 +149,15 @@ export const useSwapper = () => {
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
-  const wethAsset = useAppSelector(state => selectAssetById(state, 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'))
+  const wethAsset = useAppSelector(state =>
+    selectAssetById(state, 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'),
+  )
 
   useEffect(() => {
     ;(async () => {
       setSwapperManager(await getSwapperManager(wethAsset))
     })()
-  }, [])
+  }, [wethAsset])
 
   const {
     state: { wallet },

@@ -9,7 +9,7 @@ export const entries = [
   SettingsRoutes.Index,
   SettingsRoutes.Languages,
   SettingsRoutes.FiatCurrencies,
-  SettingsRoutes.CurrenyFormat,
+  SettingsRoutes.CurrencyFormat,
 ]
 
 const Settings = () => {

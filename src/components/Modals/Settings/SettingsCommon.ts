@@ -4,7 +4,7 @@ export enum SettingsRoutes {
   Index = '/settings/index',
   Languages = '/settings/languages',
   FiatCurrencies = '/settings/fiat-currencies',
-  CurrenyFormat = '/settings/currency-format',
+  CurrencyFormat = '/settings/currency-format',
 }
 
 export const currnecyFormatsRepresenter: Record<CurrencyFormats, string> = {

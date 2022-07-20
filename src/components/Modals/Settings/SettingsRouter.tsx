@@ -20,7 +20,7 @@ export const SettingsRouter = ({ appHistory }: { appHistory: RouteComponentProps
         />
         <Route path={SettingsRoutes.Languages} component={() => <Languages />} />
         <Route path={SettingsRoutes.FiatCurrencies} component={() => <FiatCurrencies />} />
-        <Route path={SettingsRoutes.CurrenyFormat} component={() => <CurrencyFormat />} />
+        <Route path={SettingsRoutes.CurrencyFormat} component={() => <CurrencyFormat />} />
       </Switch>
     </AnimatePresence>
   )

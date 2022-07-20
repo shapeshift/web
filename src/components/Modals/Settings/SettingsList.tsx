@@ -85,7 +85,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
               <Divider my={1} />
               <SettingsListItem
                 label='modals.settings.currencyFormat'
-                onClick={() => routeProps.history.push(SettingsRoutes.CurrenyFormat)}
+                onClick={() => routeProps.history.push(SettingsRoutes.CurrencyFormat)}
                 icon={<Icon as={FaDollarSign} color='gray.500' />}
               >
                 <Flex alignItems='center'>

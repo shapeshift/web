@@ -10,7 +10,7 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { useMemo } from 'react'
+import { PropsWithChildren, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import {
   AssetDescriptionTeaser,
@@ -36,7 +36,8 @@ type OverviewProps = {
   provider: string
   tvl?: string
   apy?: string
-} & DefiActionButtonProps
+} & DefiActionButtonProps &
+  PropsWithChildren
 
 export const Overview: React.FC<OverviewProps> = ({
   underlyingAssets,

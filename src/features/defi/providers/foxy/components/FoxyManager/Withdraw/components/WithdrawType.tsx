@@ -50,7 +50,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
       <FormField label={translate('modals.withdraw.withdrawType')}>
         <ButtonGroup colorScheme='blue' width='full' variant='input'>
           <Button
-            isFullWidth
+            width='full'
             flexDir='column'
             height='auto'
             py={4}
@@ -68,7 +68,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
             </Stack>
           </Button>
           <Button
-            isFullWidth
+            width='full'
             flexDir='column'
             height='auto'
             onClick={() => handleClick(WithdrawType.DELAYED)}

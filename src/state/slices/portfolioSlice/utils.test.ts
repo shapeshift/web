@@ -1,11 +1,6 @@
-import {
-  AssetId,
-  avalancheAssetId,
-  btcAssetId,
-  cosmosAssetId,
-  ethAssetId,
-} from '@shapeshiftoss/caip'
+import { AssetId, avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { mockChainAdapters } from 'test/mocks/portfolio'
 
 import {
   accountIdToFeeAssetId,
@@ -16,33 +11,6 @@ import {
   makeSortedAccountBalances,
   trimWithEndEllipsis,
 } from './utils'
-
-const mockChainAdapters = new Map([
-  [
-    KnownChainIds.BitcoinMainnet,
-    {
-      getFeeAssetId: () => btcAssetId,
-    },
-  ],
-  [
-    KnownChainIds.CosmosMainnet,
-    {
-      getFeeAssetId: () => cosmosAssetId,
-    },
-  ],
-  [
-    KnownChainIds.EthereumMainnet,
-    {
-      getFeeAssetId: () => ethAssetId,
-    },
-  ],
-  [
-    KnownChainIds.AvalancheMainnet,
-    {
-      getFeeAssetId: () => avalancheAssetId,
-    },
-  ],
-])
 
 jest.mock('context/PluginProvider/PluginProvider', () => ({
   getChainAdapters: () => mockChainAdapters,

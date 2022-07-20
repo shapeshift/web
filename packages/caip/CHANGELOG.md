@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.4.0...@shapeshiftoss/caip-v6.5.0) (2022-07-20)
+
+
+### Features
+
+* dogecoin ([#888](https://github.com/shapeshift/lib/issues/888)) ([7ccb927](https://github.com/shapeshift/lib/commit/7ccb92707b48d912f1fd2126888b314baacbbfda))
+
 # [@shapeshiftoss/caip-v6.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.3.0...@shapeshiftoss/caip-v6.4.0) (2022-07-19)
 
 

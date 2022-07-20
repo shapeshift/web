@@ -3,6 +3,7 @@ import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  CowSwapper,
   Swapper,
   SwapperManager,
   ThorchainSwapper,
@@ -31,6 +32,7 @@ import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/account
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
+  selectAssetById,
   selectAssetIds,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
@@ -68,7 +70,7 @@ type DebouncedQuoteInput = {
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
 
-const getSwapperManager = async (): Promise<SwapperManager> => {
+const getSwapperManager = async (wethAsset: Asset): Promise<SwapperManager> => {
   if (_swapperManager) return _swapperManager
 
   // instantiate if it doesn't already exist
@@ -100,6 +102,17 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   })
 
   try {
+    if (getConfig().REACT_APP_FEATURE_COWSWAP) {
+      const cowSwapper = new CowSwapper({
+        adapter: ethereumChainAdapter,
+        apiUrl: 'https://api.cow.fi/mainnet/api/',
+        feeAsset: wethAsset,
+        web3,
+      })
+
+      _swapperManager.addSwapper(cowSwapper)
+    }
+
     _swapperManager.addSwapper(zrxEthereumSwapper)
 
     if (getConfig().REACT_APP_FEATURE_AVALANCHE) {
@@ -136,10 +149,11 @@ export const useSwapper = () => {
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
+  const wethAsset = useAppSelector(state => selectAssetById(state, 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'))
 
   useEffect(() => {
     ;(async () => {
-      setSwapperManager(await getSwapperManager())
+      setSwapperManager(await getSwapperManager(wethAsset))
     })()
   }, [])
 

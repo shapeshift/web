@@ -111,7 +111,7 @@ export const Status = () => {
     <TxStatus
       onClose={handleCancel}
       onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={state.withdraw.txStatus !== ('success' || 'failed ')}
+      loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
       continueText='modals.status.position'
       statusText={statusText}
       statusIcon={statusIcon}

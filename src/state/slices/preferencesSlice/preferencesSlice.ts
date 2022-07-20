@@ -19,11 +19,17 @@ export type FeatureFlags = {
 
 export type Flag = keyof FeatureFlags
 
+export enum CurrencyFormats {
+  DotDecimal = 'en-US',
+  CommaDecimal = 'fr-FR',
+}
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
   balanceThreshold: string
   selectedCurrency: SupportedFiatCurrencies
+  currencyFormat: CurrencyFormats
 }
 
 const initialState: Preferences = {
@@ -39,6 +45,7 @@ const initialState: Preferences = {
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
+  currencyFormat: CurrencyFormats.DotDecimal,
 }
 
 export const preferences = createSlice({
@@ -61,6 +68,9 @@ export const preferences = createSlice({
     },
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold
+    },
+    setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
+      state.currencyFormat = payload.currencyFormat
     },
   },
 })

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { logger } from 'lib/logger'
-import { selectSelectedCurrency } from 'state/slices/selectors'
+import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const CRYPTO_PRECISION = 8
@@ -153,7 +153,8 @@ type useLocaleFormatterArgs = {
  */
 
 export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatter => {
-  const deviceLocale = args?.locale ?? getBrowserLocales()
+  const currencyFormat = useAppSelector(selectCurrencyFormat)
+  const deviceLocale = args?.locale ?? currencyFormat
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const fiatTypeToUse = args?.fiatType ?? selectedCurrency
   /**

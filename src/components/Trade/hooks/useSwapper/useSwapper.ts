@@ -229,7 +229,7 @@ export const useSwapper = () => {
     return maxAmount
   }
 
-  const supportedSwappingChain = (chainId: string) => {
+  const isSupportedSwappingChain = (chainId: ChainId) => {
     return (
       chainId === KnownChainIds.EthereumMainnet ||
       chainId === KnownChainIds.OsmosisMainnet ||

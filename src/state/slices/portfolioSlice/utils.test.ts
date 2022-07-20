@@ -2,10 +2,8 @@ import {
   AssetId,
   avalancheAssetId,
   btcAssetId,
-  btcChainId,
   cosmosAssetId,
   ethAssetId,
-  ethChainId,
 } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 

@@ -11,7 +11,8 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
+// import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
+import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAssetById } from 'state/slices/selectors'
@@ -34,13 +35,14 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const vaults = useYearnVaults()
+  // const vaults = useYearnVaults()
+  const { vaults } = useVaultBalances()
   const { opportunities: foxyRows } = useFoxyBalances()
   //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
-    vaultArray: vaults,
     foxyArray: foxyRows,
+    vaultArray: Object.values(vaults),
     cosmosSdkStakingOpportunities: [],
   }).filter(row => row.assetId.toLowerCase() === asset.assetId.toLowerCase())
 

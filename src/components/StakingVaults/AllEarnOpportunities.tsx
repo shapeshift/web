@@ -16,7 +16,8 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useModal } from 'hooks/useModal/useModal'
-import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
+// import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import { useSortedVaults } from 'hooks/useSortedVaults/useSortedVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
@@ -30,7 +31,9 @@ export const AllEarnOpportunities = () => {
     state: { isConnected, walletInfo },
     dispatch,
   } = useWallet()
-  const sortedVaults = useSortedYearnVaults()
+
+  const sortedVaults = useSortedVaults()
+
   const { opportunities: foxyRows } = useFoxyBalances()
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
@@ -44,13 +47,15 @@ export const AllEarnOpportunities = () => {
   const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
-    vaultArray: sortedVaults,
     foxyArray: foxyRows,
+    vaultArray: sortedVaults,
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
   })
+
+  console.log('sortedVaults',sortedVaults,'allRows',allRows);
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {

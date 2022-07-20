@@ -5,12 +5,10 @@ import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
-import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import { useVaultBalances, MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
-
-import { DefiProvider, DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
-import { SerializableOpportunity } from '../providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { chainIdToLabel } from './utils'
+import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
 
 export type EarnOpportunityType = {
   type?: string
@@ -30,7 +28,7 @@ export type EarnOpportunityType = {
   isLoaded: boolean
 }
 
-const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityType[] => {
+const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportunityType[] => {
   const assetIds = useSelector(selectAssetIds)
 
   const { vaults: vaultsWithBalances } = useVaultBalances()
@@ -46,13 +44,13 @@ const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityTy
     const assetId = vault.underlyingAsset.assetId
     const data = {
       type: DefiType.Vault,
-      provider: DefiProvider.Yearn,
+      provider: vault.provider,
       version: vault.version,
       contractAddress: vault.id,
       rewardAddress: vault.id,
       tvl: bnOrZero(vault.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
       apy: vault.apy.toString(),
-      expired: vault.expired,
+      expired: vault?.expired || false,
       chainId,
       assetId,
       fiatAmount,
@@ -66,10 +64,10 @@ const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityTy
     // don't show new vaults that have an APY over 20,000% APY
     if (assetIds.includes(assetId)) {
       if (
-        vault.expired ||
+        vault?.expired ||
         bnOrZero(vault?.apy).isEqualTo(0) ||
         bnOrZero(vault.tvl.balanceUsdc).isEqualTo(0) ||
-        (bnOrZero(vault?.apy).gt(200) && vault.isNew)
+        (bnOrZero(vault?.apy).gt(200) && (vault?.isNew || false))
       ) {
         if (bnOrZero(cryptoAmount).gt(0)) {
           acc.push(data)
@@ -147,7 +145,7 @@ const useTransformCosmosStaking = (
 }
 
 type NormalizeOpportunitiesProps = {
-  vaultArray: SerializableOpportunity[]
+  vaultArray: MergedSerializableOpportunity[]
   foxyArray: MergedFoxyOpportunity[]
   cosmosSdkStakingOpportunities: MergedActiveStakingOpportunity[]
 }

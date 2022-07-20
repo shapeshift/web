@@ -9,6 +9,7 @@ export enum DefiType {
 }
 
 export enum DefiProvider {
+  Idle = 'idle',
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
 }

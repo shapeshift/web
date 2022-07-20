@@ -2,9 +2,10 @@ import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-
+import { IdleProvider } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { DefiModal } from '../../components/DefiModal/DefiModal'
 import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
+import { IdleManager } from '../../providers/idle/components/IdleManager/IdleManager'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 import {
   DefiManagerContextProps,
@@ -17,6 +18,7 @@ import {
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
 const DefiModules = {
+  [DefiProvider.Idle]: IdleManager,
   [DefiProvider.Yearn]: YearnManager,
   [DefiProvider.ShapeShift]: FoxyManager,
 }
@@ -44,10 +46,12 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   return (
     <DefiManagerContext.Provider value={null}>
       <YearnProvider>
-        <FoxyProvider>
-          {children}
-          {provider && renderModules}
-        </FoxyProvider>
+        <IdleProvider>
+          <FoxyProvider>
+            {children}
+            {provider && renderModules}
+          </FoxyProvider>
+        </IdleProvider>
       </YearnProvider>
     </DefiManagerContext.Provider>
   )

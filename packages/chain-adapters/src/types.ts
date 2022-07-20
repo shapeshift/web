@@ -11,6 +11,7 @@ import { BIP44Params, ChainSpecific, KnownChainIds, UtxoAccountType } from '@sha
 import * as bitcoin from './bitcoin'
 import * as cosmos from './cosmossdk/cosmos'
 import * as osmosis from './cosmossdk/osmosis'
+import * as dogecoin from './dogecoin'
 import * as evm from './evm/types'
 
 type ChainSpecificAccount<T> = ChainSpecific<
@@ -19,6 +20,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.Account
     [KnownChainIds.AvalancheMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: bitcoin.Account
+    [KnownChainIds.DogecoinMainnet]: dogecoin.Account
     [KnownChainIds.CosmosMainnet]: cosmos.Account
     [KnownChainIds.OsmosisMainnet]: osmosis.Account
   }
@@ -49,6 +51,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.FeeData
     [KnownChainIds.AvalancheMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: bitcoin.FeeData
+    [KnownChainIds.DogecoinMainnet]: dogecoin.FeeData
     [KnownChainIds.CosmosMainnet]: cosmos.FeeData
     [KnownChainIds.OsmosisMainnet]: osmosis.FeeData
   }
@@ -151,6 +154,7 @@ type ChainTxTypeInner = {
   [KnownChainIds.EthereumMainnet]: ETHSignTx
   [KnownChainIds.AvalancheMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
+  [KnownChainIds.DogecoinMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
   [KnownChainIds.OsmosisMainnet]: OsmosisSignTx
 }
@@ -204,6 +208,7 @@ type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
     [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: bitcoin.BuildTxInput
+    [KnownChainIds.DogecoinMainnet]: dogecoin.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmos.BuildTxInput
     [KnownChainIds.OsmosisMainnet]: cosmos.BuildTxInput
   }
@@ -242,6 +247,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: bitcoin.GetFeeDataInput
+    [KnownChainIds.DogecoinMainnet]: dogecoin.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {

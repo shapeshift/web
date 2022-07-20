@@ -1,3 +1,4 @@
+import { btcChainId, ChainId, dogeChainId } from '@shapeshiftoss/caip'
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
@@ -30,39 +31,54 @@ export const toBtcOutputScriptType = (x: BTCInputScriptType) => {
  * @returns object with BIP44Params and scriptType or undefined
  */
 export const utxoAccountParams = (
+  chainId: ChainId,
   accountType: UtxoAccountType,
   accountNumber: number
 ): { bip44Params: BIP44Params; scriptType: BTCInputScriptType } => {
-  switch (accountType) {
-    case UtxoAccountType.SegwitNative:
-      return {
-        scriptType: BTCInputScriptType.SpendWitness,
-        bip44Params: {
-          purpose: 84,
-          coinType: 0,
-          accountNumber
-        }
-      }
-    case UtxoAccountType.SegwitP2sh:
-      return {
-        scriptType: BTCInputScriptType.SpendP2SHWitness,
-        bip44Params: {
-          purpose: 49,
-          coinType: 0,
-          accountNumber
-        }
-      }
-    case UtxoAccountType.P2pkh:
+  switch (chainId) {
+    case dogeChainId:
       return {
         scriptType: BTCInputScriptType.SpendAddress,
         bip44Params: {
           purpose: 44,
-          coinType: 0,
+          coinType: 3,
           accountNumber
         }
       }
+    case btcChainId:
+      switch (accountType) {
+        case UtxoAccountType.SegwitNative:
+          return {
+            scriptType: BTCInputScriptType.SpendWitness,
+            bip44Params: {
+              purpose: 84,
+              coinType: 0,
+              accountNumber
+            }
+          }
+        case UtxoAccountType.SegwitP2sh:
+          return {
+            scriptType: BTCInputScriptType.SpendP2SHWitness,
+            bip44Params: {
+              purpose: 49,
+              coinType: 0,
+              accountNumber
+            }
+          }
+        case UtxoAccountType.P2pkh:
+          return {
+            scriptType: BTCInputScriptType.SpendAddress,
+            bip44Params: {
+              purpose: 44,
+              coinType: 0,
+              accountNumber
+            }
+          }
+        default:
+          throw new TypeError('utxoAccountType')
+      }
     default:
-      throw new TypeError('utxoAccountType')
+      throw new TypeError(`not a supported utxo chain ${chainId}`)
   }
 }
 
@@ -113,7 +129,8 @@ enum PublicKeyType {
   // mainnet
   xpub = '0488b21e', // xpub
   ypub = '049d7cb2', // ypub
-  zpub = '04b24746' // zpub
+  zpub = '04b24746', // zpub
+  dgub = '02facafd'
 }
 
 const accountTypeToVersion = {
@@ -122,16 +139,23 @@ const accountTypeToVersion = {
   [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, 'hex')
 }
 
+const convertVersions = ['xpub', 'ypub', 'zpub']
+
 /**
  * Convert any public key into an xpub, ypub, or zpub based on account type
  *
  * Blockbook generates addresses from a public key based on the version bytes
  * some wallets always return the public key in "xpub" format, so we need to convert those
  *
+ * USE SPARINGLY - there aren't many cases where we should convert version bytes
  * @param {string} xpub - the public key provided by the wallet
  * @param {UtxoAccountType} accountType - The desired account type to be encoded into the public key
  */
 export function convertXpubVersion(xpub: string, accountType: UtxoAccountType) {
+  if (!convertVersions.includes(xpub.substring(0, 4))) {
+    return xpub
+  }
+
   const payload = decode(xpub)
   const version = payload.slice(0, 4)
   if (version.compare(accountTypeToVersion[accountType]) !== 0) {

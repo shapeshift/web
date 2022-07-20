@@ -7,6 +7,7 @@ import dotenv from 'dotenv'
 import { ChainAdapter as BitcoinChainAdapter } from './bitcoin/BitcoinChainAdapter'
 import { ChainAdapter as CosmosChainAdapter } from './cosmossdk/cosmos'
 import { ChainAdapter as OsmosisChainAdapter } from './cosmossdk/osmosis'
+import { ChainAdapter as DogecoinChainAdapter } from './dogecoin/DogecoinChainAdapter'
 import { ChainAdapter as EthereumChainAdapter } from './evm/ethereum'
 
 dotenv.config()
@@ -23,6 +24,20 @@ const btcChainAdapter = new BitcoinChainAdapter({
     )
   },
   coinName: 'Bitcoin'
+})
+
+const dogeChainAdapter = new DogecoinChainAdapter({
+  providers: {
+    ws: new unchained.ws.Client<unchained.bitcoin.BitcoinTx>(
+      'wss://dev-api.dogecoin.shapeshift.com'
+    ),
+    http: new unchained.bitcoin.V1Api(
+      new unchained.bitcoin.Configuration({
+        basePath: 'https://dev-api.dogecoin.shapeshift.com'
+      })
+    )
+  },
+  coinName: 'Dogecoin'
 })
 
 const ethChainAdapter = new EthereumChainAdapter({
@@ -65,6 +80,7 @@ const osmosisChainAdapter = new OsmosisChainAdapter({
 
 const adapters = {
   btc: btcChainAdapter,
+  doge: dogeChainAdapter,
   eth: ethChainAdapter,
   cosmos: cosmosChainAdapter,
   osmo: osmosisChainAdapter

@@ -129,6 +129,9 @@ describe('adapters:coincap:utils', () => {
         'bip122:000000000019d6689c085ae165831e93': {
           'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin'
         },
+        'bip122:00000000001a91e3dace36e2be3bf030': {
+          'bip122:00000000001a91e3dace36e2be3bf030/slip44:3': 'dogecoin'
+        },
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos'
         },

@@ -11,6 +11,18 @@
     "explorerAddressLink": "https://live.blockcypher.com/btc/address/",
     "explorerTxLink": "https://live.blockcypher.com/btc/tx/"
   },
+  "bip122:00000000001a91e3dace36e2be3bf030/slip44:3": {
+    "assetId": "bip122:00000000001a91e3dace36e2be3bf030/slip44:3",
+    "chainId": "bip122:00000000001a91e3dace36e2be3bf030",
+    "symbol": "DOGE",
+    "name": "Dogecoin",
+    "precision": 8,
+    "color": "#FFC107",
+    "icon": "https://assets.coincap.io/assets/icons/256/doge.png",
+    "explorer": "https://live.blockcypher.com",
+    "explorerAddressLink": "https://live.blockcypher.com/doge/address/",
+    "explorerTxLink": "https://live.blockcypher.com/doge/tx/"
+  },
   "cosmos:cosmoshub-4/slip44:118": {
     "assetId": "cosmos:cosmoshub-4/slip44:118",
     "chainId": "cosmos:cosmoshub-4",
@@ -10330,16 +10342,16 @@
     "assetId": "eip155:1/erc20:0x22cf19eb64226e0e1a79c69b345b31466fd273a7"
   },
   "eip155:1/erc20:0x22de9912cd3d74953b1cd1f250b825133cc2c1b3": {
-    "assetId": "eip155:1/erc20:0x22de9912cd3d74953b1cd1f250b825133cc2c1b3",
-    "chainId": "eip155:1",
-    "name": "Drep  OLD ",
-    "precision": 18,
-    "color": "#8EA9C0",
-    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x22dE9912cd3D74953B1cd1F250B825133cC2C1b3/logo.png",
-    "symbol": "DREP",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
+    "explorerTxLink": "https://etherscan.io/tx/",
+    "color": "#8EA9C0",
+    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x22dE9912cd3D74953B1cd1F250B825133cC2C1b3/logo.png",
+    "name": "DREP",
+    "precision": 18,
+    "symbol": "DREP",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x22de9912cd3d74953b1cd1f250b825133cc2c1b3"
   },
   "eip155:1/erc20:0x22e5e3e5cd12042c532394437627bc5ea9708afe": {
     "assetId": "eip155:1/erc20:0x22e5e3e5cd12042c532394437627bc5ea9708afe",
@@ -13137,18 +13149,6 @@
     "color": "#04AC6B",
     "icon": "https://assets.coingecko.com/coins/images/10694/thumb/nfx.png?1604656044",
     "symbol": "NFXC",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0x2d5bed63b0fe325ed3b865ae2cdaa3649eb25461": {
-    "assetId": "eip155:1/erc20:0x2d5bed63b0fe325ed3b865ae2cdaa3649eb25461",
-    "chainId": "eip155:1",
-    "name": "Teslafan",
-    "precision": 18,
-    "color": "#6A3939",
-    "icon": "https://assets.coingecko.com/coins/images/15840/thumb/teslafan.PNG?1622082511",
-    "symbol": "TESLF",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -22323,6 +22323,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x4b5f49487ea7b3609b1ad05459be420548789f1f": {
+    "assetId": "eip155:1/erc20:0x4b5f49487ea7b3609b1ad05459be420548789f1f",
+    "chainId": "eip155:1",
+    "name": "LeverFi",
+    "precision": 18,
+    "color": "#343937",
+    "icon": "https://assets.coingecko.com/coins/images/26205/thumb/WI72SpBl_400x400.jpeg?1656494480",
+    "symbol": "LEVER",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x4b742b5bdb1d252907ae7f399a891d4a178dbc24": {
     "assetId": "eip155:1/erc20:0x4b742b5bdb1d252907ae7f399a891d4a178dbc24",
     "chainId": "eip155:1",
@@ -23853,7 +23865,7 @@
     "name": "Uplift",
     "precision": 18,
     "color": "#343434",
-    "icon": "https://assets.coingecko.com/coins/images/20666/thumb/socials_logo.png?1637546321",
+    "icon": "https://assets.coingecko.com/coins/images/20666/thumb/logo-200x200.png?1657675050",
     "symbol": "LIFT",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -29198,18 +29210,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0x652594082f97392a1703d80985ab575085f34a4e": {
-    "assetId": "eip155:1/erc20:0x652594082f97392a1703d80985ab575085f34a4e",
-    "chainId": "eip155:1",
-    "name": "Silver SLVT",
-    "precision": 8,
-    "color": "#BBBBBB",
-    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x652594082f97392a1703D80985Ab575085f34a4e/logo.png",
-    "symbol": "SLVT",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0x653430560be843c4a3d143d0110e896c2ab8ac0d": {
     "assetId": "eip155:1/erc20:0x653430560be843c4a3d143d0110e896c2ab8ac0d",
     "chainId": "eip155:1",
@@ -33583,18 +33583,6 @@
     "color": "#040404",
     "icon": "https://assets.coingecko.com/coins/images/13545/thumb/iMqC3F_p_400x400.png?1609711856",
     "symbol": "TEN",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0x741857c07b100c9c0c1272d95845dddc4f1b67cb": {
-    "assetId": "eip155:1/erc20:0x741857c07b100c9c0c1272d95845dddc4f1b67cb",
-    "chainId": "eip155:1",
-    "name": "RealT   8342 Schaefer Highway  Detroit ",
-    "precision": 18,
-    "color": "#4F4E3E",
-    "icon": "https://assets.coingecko.com/coins/images/16700/thumb/Schaefer-1.jpeg?1624642033",
-    "symbol": "REALT-S-8342-SCHAEF",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -46507,7 +46495,7 @@
     "name": "Tempus",
     "precision": 18,
     "color": "#D2E3E8",
-    "icon": "https://assets.coingecko.com/coins/images/20547/thumb/200x200-round.png?1637767238",
+    "icon": "https://assets.coingecko.com/coins/images/20547/thumb/Tempus_CoinGecko_200x200.png?1657674634",
     "symbol": "TEMP",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -54756,18 +54744,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0xc2e8f7d9fc0cbc7e7e8a6bf6035b934981077bdf": {
-    "assetId": "eip155:1/erc20:0xc2e8f7d9fc0cbc7e7e8a6bf6035b934981077bdf",
-    "chainId": "eip155:1",
-    "name": "UniqueMeta",
-    "precision": 18,
-    "color": "#523185",
-    "icon": "https://assets.coingecko.com/coins/images/22555/thumb/logo.jpg?1642055233",
-    "symbol": "UNQM",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0xc2ee6b0334c261ed60c72f6054450b61b8f18e35": {
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -56167,7 +56143,7 @@
     "name": "Empire Capital",
     "precision": 9,
     "color": "#8F7560",
-    "icon": "https://assets.coingecko.com/coins/images/21221/thumb/61a6125865cccc3140d0bdd9_Logo.png?1638675170",
+    "icon": "https://assets.coingecko.com/coins/images/21221/thumb/2022-07-13_18.49.44.jpg?1657709418",
     "symbol": "ECC",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -72190,18 +72166,6 @@
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
   },
-  "eip155:43114/erc20:0x37ded665a387a6f170fb60376b3057f09df6c0ea": {
-    "assetId": "eip155:43114/erc20:0x37ded665a387a6f170fb60376b3057f09df6c0ea",
-    "chainId": "eip155:43114",
-    "name": "KANDY",
-    "precision": 9,
-    "color": "#F0E0E4",
-    "icon": "https://assets.coingecko.com/coins/images/22561/thumb/KLLogo.png?1642057359",
-    "symbol": "KANDY",
-    "explorer": "https://snowtrace.io",
-    "explorerAddressLink": "https://snowtrace.io/address/",
-    "explorerTxLink": "https://snowtrace.io/tx/"
-  },
   "eip155:43114/erc20:0x38dcf0532699b880e6a125f7d918380524cd60a6": {
     "assetId": "eip155:43114/erc20:0x38dcf0532699b880e6a125f7d918380524cd60a6",
     "chainId": "eip155:43114",
@@ -74230,6 +74194,18 @@
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
   },
+  "eip155:43114/erc20:0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7": {
+    "assetId": "eip155:43114/erc20:0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7",
+    "chainId": "eip155:43114",
+    "name": "Tether on Avalanche",
+    "precision": 6,
+    "color": "#C4ECE0",
+    "icon": "https://assets.coingecko.com/coins/images/325/thumb/Tether-logo.png?1598003707",
+    "symbol": "USDT",
+    "explorer": "https://snowtrace.io",
+    "explorerAddressLink": "https://snowtrace.io/address/",
+    "explorerTxLink": "https://snowtrace.io/tx/"
+  },
   "eip155:43114/erc20:0x9767203e89dcd34851240b3919d4900d3e5069f1": {
     "assetId": "eip155:43114/erc20:0x9767203e89dcd34851240b3919d4900d3e5069f1",
     "chainId": "eip155:43114",
@@ -75265,10 +75241,10 @@
   "eip155:43114/erc20:0xc7198437980c041c805a1edcba50c1ce5db95118": {
     "assetId": "eip155:43114/erc20:0xc7198437980c041c805a1edcba50c1ce5db95118",
     "chainId": "eip155:43114",
-    "name": "Tether on Avalanche",
+    "name": "Tether Avalanche Bridged  USDT e ",
     "precision": 6,
     "color": "#C4ECE0",
-    "icon": "https://assets.coingecko.com/coins/images/325/thumb/Tether-logo.png?1598003707",
+    "icon": "https://assets.coingecko.com/coins/images/24189/thumb/Usdt.e.png?1646819144",
     "symbol": "USDT",
     "explorer": "https://snowtrace.io",
     "explorerAddressLink": "https://snowtrace.io/address/",

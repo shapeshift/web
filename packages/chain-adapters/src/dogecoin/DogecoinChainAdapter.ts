@@ -4,27 +4,27 @@ import { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/type
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ChainAdapter as IChainAdapter } from '../api'
-import { accountTypeToOutputScriptType } from '../utils'
-import { ChainAdapterArgs, UTXOBaseAdapter, UtxoChainId } from '../utxo/UTXOBaseAdapter'
+import {
+  ChainAdapterArgs,
+  UTXOBaseAdapter,
+  UtxoChainId,
+  UTXOChainIds
+} from '../utxo/UTXOBaseAdapter'
 
 export class ChainAdapter
-  extends UTXOBaseAdapter<KnownChainIds.BitcoinMainnet>
-  implements IChainAdapter<KnownChainIds.BitcoinMainnet>
+  extends UTXOBaseAdapter<KnownChainIds.DogecoinMainnet>
+  implements IChainAdapter<KnownChainIds.DogecoinMainnet>
 {
   public static readonly defaultBIP44Params: BIP44Params = {
-    purpose: 84, // segwit native
-    coinType: 0,
+    purpose: 44,
+    coinType: 3,
     accountNumber: 0
   }
-  public static readonly defaultUtxoAccountType: UtxoAccountType = UtxoAccountType.SegwitNative
+  public static readonly defaultUtxoAccountType: UtxoAccountType = UtxoAccountType.P2pkh
 
-  private static readonly supportedAccountTypes: UtxoAccountType[] = [
-    UtxoAccountType.SegwitNative,
-    UtxoAccountType.SegwitP2sh,
-    UtxoAccountType.P2pkh
-  ]
+  private static readonly supportedAccountTypes: UtxoAccountType[] = [UtxoAccountType.P2pkh]
 
-  protected readonly supportedChainIds: UtxoChainId[] = [KnownChainIds.BitcoinMainnet]
+  protected readonly supportedChainIds: UtxoChainId[] = [KnownChainIds.DogecoinMainnet]
 
   protected chainId = this.supportedChainIds[0]
 
@@ -33,36 +33,39 @@ export class ChainAdapter
   constructor(args: ChainAdapterArgs) {
     super(args)
 
-    if (args.chainId && !this.supportedChainIds.includes(args.chainId)) {
-      throw new Error(`Bitcoin chainId ${args.chainId} not supported`)
+    if (args.chainId && !UTXOChainIds.includes(args.chainId)) {
+      throw new Error(`${this.getDisplayName()} chainId ${args.chainId} not supported`)
     }
-
-    if (args.chainId) {
-      this.chainId = args.chainId
+    if (!args.chainId) {
+      args.chainId = KnownChainIds.DogecoinMainnet
     }
 
     this.coinName = args.coinName
     this.assetId = toAssetId({
       chainId: this.chainId,
       assetNamespace: 'slip44',
-      assetReference: ASSET_REFERENCE.Bitcoin
+      assetReference: ASSET_REFERENCE.Dogecoin
     })
+
     this.parser = new unchained.bitcoin.TransactionParser({
       chainId: this.chainId,
-      assetReference: ASSET_REFERENCE.Bitcoin
+      assetReference: ASSET_REFERENCE.Dogecoin
     })
   }
 
   getChainId(): ChainId {
-    return KnownChainIds.BitcoinMainnet
+    return KnownChainIds.DogecoinMainnet
   }
 
   getAssetId(): AssetId {
-    return this.assetId
+    return 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3'
   }
 
   accountTypeToOutputScriptType(accountType: UtxoAccountType): BTCOutputScriptType {
-    return accountTypeToOutputScriptType[accountType]
+    if (accountType != UtxoAccountType.P2pkh) {
+      throw new Error(`dogecoin adapter does not support accountType ${accountType}`)
+    }
+    return BTCOutputScriptType.PayToAddress
   }
 
   getDefaultAccountType(): UtxoAccountType {
@@ -78,11 +81,11 @@ export class ChainAdapter
   }
 
   getDisplayName() {
-    return 'Bitcoin'
+    return 'Dogecoin'
   }
 
-  getType(): KnownChainIds.BitcoinMainnet {
-    return KnownChainIds.BitcoinMainnet
+  getType(): KnownChainIds.DogecoinMainnet {
+    return KnownChainIds.DogecoinMainnet
   }
 
   getFeeAssetId(): AssetId {

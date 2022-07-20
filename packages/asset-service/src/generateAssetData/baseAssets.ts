@@ -27,6 +27,19 @@ export const bitcoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/'
 }
 
+export const dogecoin: Asset = {
+  assetId: caip.dogeAssetId,
+  chainId: caip.dogeChainId,
+  symbol: 'DOGE',
+  name: 'Dogecoin',
+  precision: 8,
+  color: '#FFC107',
+  icon: 'https://assets.coincap.io/assets/icons/256/doge.png',
+  explorer: 'https://live.blockcypher.com',
+  explorerAddressLink: 'https://live.blockcypher.com/doge/address/',
+  explorerTxLink: 'https://live.blockcypher.com/doge/tx/'
+}
+
 export const atom: Asset = {
   assetId: caip.cosmosAssetId,
   chainId: caip.cosmosChainId,

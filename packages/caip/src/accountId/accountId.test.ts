@@ -74,6 +74,18 @@ describe('fromAccountId', () => {
     expect(chainId).toEqual(`${expectedChainNamespace}:${expectedChainReference}`)
   })
 
+  it('returns chainId and account for dogecoin', () => {
+    const accountId = 'bip122:00000000001a91e3dace36e2be3bf030:DDFrdu2AyWCkgpdypkABTnL6FWBGKSAL8V'
+    const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
+    const expectedAccount = 'DDFrdu2AyWCkgpdypkABTnL6FWBGKSAL8V'
+    const expectedChainNamespace = CHAIN_NAMESPACE.Bitcoin
+    const expectedChainReference = CHAIN_REFERENCE.DogecoinMainnet
+    expect(account).toEqual(expectedAccount)
+    expect(chainNamespace).toEqual(expectedChainNamespace)
+    expect(chainReference).toEqual(expectedChainReference)
+    expect(chainId).toEqual(`${expectedChainNamespace}:${expectedChainReference}`)
+  })
+
   it('returns chainId and account for eth', () => {
     const accountId = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
     const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)

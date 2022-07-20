@@ -1,2 +1,2 @@
 export * from './BitcoinChainAdapter'
-export * from './types'
+export * from '../utxo/types'

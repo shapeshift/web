@@ -35,6 +35,16 @@
           "useSingleRequestParameter": true
         }
       },
+      "dogecoin": {
+        "inputSpec": "https://dev-api.dogecoin.shapeshift.com/swagger.json",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/dogecoin",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
       "osmosis": {
         "inputSpec": "https://dev-api.osmosis.shapeshift.com/swagger",
         "generatorName": "typescript-axios",

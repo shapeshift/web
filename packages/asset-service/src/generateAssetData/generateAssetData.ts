@@ -7,7 +7,7 @@ import orderBy from 'lodash/orderBy'
 
 import { AssetsById } from '../service/AssetService'
 import * as avalanche from './avalanche'
-import { atom, bitcoin } from './baseAssets'
+import { atom, bitcoin, dogecoin } from './baseAssets'
 import * as ethereum from './ethereum'
 import * as osmosis from './osmosis'
 import { setColors } from './setColors'
@@ -21,6 +21,7 @@ const generateAssetData = async () => {
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
     bitcoin,
+    dogecoin,
     atom,
     ...ethAssets,
     ...osmosisAssets,

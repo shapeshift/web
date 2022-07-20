@@ -11,6 +11,8 @@ import {
   CHAIN_REFERENCE,
   cosmosAssetId,
   cosmosChainId,
+  dogeAssetId,
+  dogeChainId,
   ethAssetId,
   ethChainId,
   osmosisAssetId,
@@ -27,6 +29,7 @@ export const parseAssetIdRegExp =
 export const chainIdToAssetId: Record<ChainId, AssetId> = {
   [ethChainId]: ethAssetId,
   [btcChainId]: btcAssetId,
+  [dogeChainId]: dogeAssetId,
   [cosmosChainId]: cosmosAssetId,
   [osmosisChainId]: osmosisAssetId,
   [avalancheChainId]: avalancheAssetId
@@ -62,6 +65,18 @@ export const makeBtcData = () => {
     assetReference: ASSET_REFERENCE.Bitcoin
   })
   return { [assetId]: 'bitcoin' }
+}
+
+export const makeDogecoinData = () => {
+  const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+  const chainReference = CHAIN_REFERENCE.DogecoinMainnet
+  const assetId = toAssetId({
+    chainNamespace,
+    chainReference,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Dogecoin
+  })
+  return { [assetId]: 'dogecoin' }
 }
 
 export const makeCosmosHubData = () => {

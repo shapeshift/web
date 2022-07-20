@@ -7,6 +7,7 @@ import { aggregateTransfer } from '../../utils'
 
 export interface TransactionParserArgs {
   chainId: ChainId
+  assetReference?: string
 }
 
 export class TransactionParser {
@@ -15,11 +16,12 @@ export class TransactionParser {
 
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
+    const assetReference = args.assetReference || ASSET_REFERENCE.Bitcoin
 
     this.assetId = toAssetId({
       ...fromChainId(this.chainId),
       assetNamespace: 'slip44',
-      assetReference: ASSET_REFERENCE.Bitcoin
+      assetReference
     })
   }
 

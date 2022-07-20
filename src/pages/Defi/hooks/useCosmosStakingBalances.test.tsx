@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react'
+import { PropsWithChildren } from 'react'
 import {
   cosmosAssetId,
   mockCosmosAccount,
@@ -47,7 +48,9 @@ function setup() {
     ]),
   )
 
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
   const { result } = renderHook(
     () =>
       useCosmosSdkStakingBalances({

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.8.0...@shapeshiftoss/chain-adapters-v7.9.0) (2022-07-20)
+
+
+### Features
+
+* dogecoin ([#888](https://github.com/shapeshift/lib/issues/888)) ([7ccb927](https://github.com/shapeshift/lib/commit/7ccb92707b48d912f1fd2126888b314baacbbfda))
+
 # [@shapeshiftoss/chain-adapters-v7.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.7.0...@shapeshiftoss/chain-adapters-v7.8.0) (2022-07-20)
 
 

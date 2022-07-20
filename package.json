@@ -103,7 +103,6 @@
     "@shapeshiftoss/investor-foxy": "^4.0.4",
     "@shapeshiftoss/investor-yearn": "^4.0.4",
     "@shapeshiftoss/logger": "^1.1.2",
-    "@shapeshiftoss/market-service": "^6.4.1",
     "@shapeshiftoss/swapper": "^8.5.0",
     "@shapeshiftoss/market-service": "^6.4.2",
     "@shapeshiftoss/types": "^7.0.0",

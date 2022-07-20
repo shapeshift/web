@@ -235,7 +235,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   const showTrailingDecimal = useCallback(
     (num: NumberValue, formattedNum: string): string => {
       const parts = numberToParts(formattedNum)
-      const numHasDecimal = String(num).includes('.')
+      const numHasDecimal = String(num).includes(localeParts.decimal)
       const decimalWasRemoved = !parts?.number?.includes(localeParts.decimal)
       if (numHasDecimal && decimalWasRemoved) {
         parts.number = parts.number + localeParts.decimal
@@ -266,7 +266,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     symbol = 'BTC',
     options?: NumberFormatOptions,
   ): string => {
-    const fractionDigits = (String(num).split('.')?.[1] ?? '').length
+    const fractionDigits = (String(num).split(localeParts.decimal)?.[1] ?? '').length
     const minimumFractionDigits =
       fractionDigits < CRYPTO_PRECISION ? fractionDigits : CRYPTO_PRECISION
     const crypto = numberToCrypto(num, symbol, { ...options, minimumFractionDigits })
@@ -297,7 +297,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     (num: NumberValue, options?: NumberFormatOptions): string => {
       try {
         const { fraction } = localeParts
-        const fractionDigits = (String(num).split('.')?.[1] ?? '').length
+        const fractionDigits = (String(num).split(localeParts.decimal)?.[1] ?? '').length
         const minimumFractionDigits = Math.min(fractionDigits, fraction)
         const fiat = numberToFiat(num, { ...options, minimumFractionDigits })
         return showTrailingDecimal(num, fiat)

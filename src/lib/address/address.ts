@@ -17,8 +17,6 @@ type VanityAddressValidatorsByChainId = {
 const vanityAddressValidatorsByChain: VanityAddressValidatorsByChainId = {
   [btcChainId]: [validateUnstoppableDomain],
   [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
-  [cosmosChainId]: [],
-  [osmosisChainId]: [],
 }
 
 type ValidateVanityAddressArgs = {
@@ -31,7 +29,8 @@ export type ValidateVanityAddress = (
 ) => Promise<ValidateVanityAddressReturn>
 
 export const validateVanityAddress: ValidateVanityAddress = async args => {
-  for (const validator of vanityAddressValidatorsByChain[args.chainId]) {
+  const validators = vanityAddressValidatorsByChain[args.chainId] ?? []
+  for (const validator of validators) {
     try {
       const result = await validator(args)
       if (result) return result

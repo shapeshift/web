@@ -124,8 +124,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const txLink = useMemo(() => {
     if (
-      trade.sellAsset.chainId === KnownChainIds.OsmosisMainnet ||
-      trade.sellAsset.chainId === KnownChainIds.CosmosMainnet
+fromChainId(trade.sellAsset).chainNamespace === CHAIN_NAMESPACE.COSMOS
     ) {
       return `${osmosisAsset?.explorerTxLink}${txid}`
     } else {

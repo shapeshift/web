@@ -305,7 +305,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     >
                       Max
                     </Button>
-                  ) : undefined
+                  ) : null
                 }
                 data-test='trade-form-token-input-row-sell'
               />

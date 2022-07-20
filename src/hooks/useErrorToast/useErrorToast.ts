@@ -18,7 +18,7 @@ const ErrorTranslationMap: Record<string, string> = {
   [SwapErrorTypes.TRADE_QUOTE_FAILED]: 'trade.errors.quoteFailed',
   [SwapErrorTypes.UNSUPPORTED_PAIR]: 'trade.errors.unsupportedPair',
   [SwapErrorTypes.USD_RATE_FAILED]: 'trade.errors.rateError',
-  [SwapErrorTypes.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedPair',
+  [SwapErrorTypes.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedChain',
   [SwapErrorTypes.VALIDATION_FAILED]: 'trade.errors.generalError',
   [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.generalError',
 }

@@ -1,6 +1,7 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { OptInModal } from 'plugins/pendo/components/OptInModal/OptInModal'
 import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
@@ -20,6 +21,7 @@ const MODALS = {
   cosmosStaking: StakingModal,
   settings: SettingsModal,
   keepKeyWipe: WipeModal,
+  consentOptin: OptInModal,
 }
 
 // state

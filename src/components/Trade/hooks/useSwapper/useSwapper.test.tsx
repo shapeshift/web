@@ -1,8 +1,9 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
 import debounce from 'lodash/debounce'
+import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'test/constants'
@@ -58,7 +59,9 @@ function setup({
     }),
     clearErrors,
   }))
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
   const { result } = renderHook(() => useSwapper(), { wrapper })
   const localMockState = {
     assets: {
@@ -75,6 +78,9 @@ function setup({
           [ETH.assetId]: '0',
         },
       },
+    },
+    accountSpecifiers: {
+      accountSpecifiers: [{ 'eip155:1': '0x8a65ac0e23f31979db06ec62af62b132a6df4741' }],
     },
   }
   return {
@@ -108,7 +114,10 @@ describe('useSwapper', () => {
         new Map([
           [KnownChainIds.BitcoinMainnet, {}],
           [KnownChainIds.CosmosMainnet, {}],
-          [KnownChainIds.EthereumMainnet, {}],
+          [
+            KnownChainIds.EthereumMainnet,
+            { getAddress: () => '0x8a65ac0e23f31979db06ec62af62b132a6df4741' },
+          ],
         ]),
     )
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({

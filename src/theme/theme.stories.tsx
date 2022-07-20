@@ -58,9 +58,9 @@ export const Colors = () => {
 const SpacingSquare: React.FC<CenterProps> = ({ mb }) => (
   <Flex>
     <Center w='50px'>
-      <Text fontWeight='bold'>{mb}</Text>
+      <Text fontWeight='bold'>{String(mb)}</Text>
     </Center>
-    <Box backgroundColor='green.500' pl={mb}>
+    <Box backgroundColor='green.500' pl={String(mb)}>
       <Center h='40px' backgroundColor='bg.normal' />
     </Box>
   </Flex>

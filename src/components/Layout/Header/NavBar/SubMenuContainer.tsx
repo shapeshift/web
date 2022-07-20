@@ -1,6 +1,6 @@
-import React from 'react'
+import { PropsWithChildren } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 
-export const SubMenuContainer: React.FC = ({ children }) => {
+export const SubMenuContainer: React.FC<PropsWithChildren> = ({ children }) => {
   return <SlideTransition>{children}</SlideTransition>
 }

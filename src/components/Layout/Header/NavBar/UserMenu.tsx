@@ -95,6 +95,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <Button
       width={{ base: '100%', lg: 'auto' }}
+      justifyContent='flex-start'
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
@@ -106,7 +107,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       }
     >
       <Flex>
-        {walletLabel ? (
+        {walletLabel && shouldShorten ? (
           <MiddleEllipsis
             rounded='lg'
             fontSize='sm'

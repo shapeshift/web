@@ -1,5 +1,6 @@
 import {
   AccountId,
+  accountIdToChainId,
   AssetId,
   btcChainId,
   CHAIN_NAMESPACE,
@@ -36,15 +37,6 @@ import {
 
 export const chainIds = [ethChainId, btcChainId, cosmosChainId, osmosisChainId] as const
 export type ChainIdType = typeof chainIds[number]
-
-export const assetIdToChainId = (assetId: AssetId): ChainIdType =>
-  assetId.split('/')[0] as ChainIdType
-
-export const accountIdToChainId = (accountId: AccountSpecifier): ChainId => {
-  // accountId = 'eip155:1:0xdef1...cafe
-  const [chain, network] = accountId.split(':')
-  return `${chain}:${network}`
-}
 
 export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
   // in the case of account based chains (eth), this is an address
@@ -84,7 +76,7 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
    * for now, for all intents and purposes, this is sufficient and works.
    *
    */
-  const chainId = accountIdToChainId(accountId)
+  const chainId = fromAccountId(accountId).chainId
   const specifier = accountIdToSpecifier(accountId)
   switch (chainId) {
     case ethChainId: {
@@ -148,7 +140,7 @@ export const findAccountsByAssetId = (
   // return the account(s) for that given assets chain
   if (result.length === 0) {
     return Object.keys(portfolioAccounts).filter(
-      accountId => assetIdToChainId(assetId) === accountIdToChainId(accountId),
+      accountId => fromAssetId(assetId).chainId === fromAccountId(accountId).chainId,
     )
   }
   return result

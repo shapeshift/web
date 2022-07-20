@@ -1,7 +1,8 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
+import { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -26,6 +27,12 @@ jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
   },
 }))
 
+// This mock fixes an issue with rendering the OptInModal in WalletViewsSwitch
+// when the Pendo plugin is disabled
+jest.mock('./WalletViewsRouter', () => ({
+  WalletViewsRouter: () => null,
+}))
+
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,
@@ -41,16 +48,16 @@ const setup = async () => {
   MetaMaskAdapter.useKeyring.mockImplementation(() => ({
     initialize: jest.fn(() => Promise.resolve()),
   }))
-  const wrapper: React.FC = ({ children }) => (
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>
       <WalletProvider>{children}</WalletProvider>
     </TestProviders>
   )
-  const { result, waitForValueToChange } = renderHook(() => useWallet(), { wrapper })
+  const { result } = renderHook(() => useWallet(), { wrapper })
   // Since there is a dispatch doing async state changes
   // in a useEffect on mount we must wait for that state
   // to finish updating before doing anything else to avoid errors
-  await waitForValueToChange(() => result.current.state.adapters)
+  await act(async () => void 0)
   return result
 }
 

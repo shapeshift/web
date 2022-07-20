@@ -200,7 +200,7 @@ export const ClaimStatus = () => {
               </Stack>
             </Row.Value>
           </Row>
-          <Button isFullWidth size='lg' onClick={() => browserHistory.goBack()}>
+          <Button width='full' size='lg' onClick={() => browserHistory.goBack()}>
             {translate('common.close')}
           </Button>
         </Stack>

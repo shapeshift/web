@@ -102,8 +102,19 @@ export const useTradeRoutes = (
   ])
 
   useEffect(() => {
-    setDefaultAssets()
-  }, [assets, routeBuyAssetId, wallet, setDefaultAssets, swapperManager, defaultFeeAsset])
+    if (!buyTradeAsset?.amount || !sellTradeAsset?.amount) {
+      setDefaultAssets()
+    }
+  }, [
+    assets,
+    routeBuyAssetId,
+    wallet,
+    swapperManager,
+    defaultFeeAsset,
+    setDefaultAssets,
+    buyTradeAsset,
+    sellTradeAsset,
+  ])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

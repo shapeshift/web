@@ -2,7 +2,7 @@ import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 
 type YearnContextProps = {
@@ -18,7 +18,7 @@ export const useYearn = () => {
   return context
 }
 
-export const YearnProvider: React.FC = ({ children }) => {
+export const YearnProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [yearn, setYearn] = useState<YearnInvestor | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const { chainAdapterManager } = usePlugins()

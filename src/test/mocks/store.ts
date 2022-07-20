@@ -48,6 +48,8 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       Osmosis: false,
+      WalletConnectWallet: false,
+      FoxPage: false,
       Avalanche: false,
       CoinbasePay: false,
       Thor: false,

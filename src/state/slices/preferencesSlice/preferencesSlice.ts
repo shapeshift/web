@@ -9,6 +9,7 @@ dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
+  WalletConnectWallet: boolean
   Avalanche: boolean
   CoinbasePay: boolean
   Thor: boolean
@@ -29,6 +30,7 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
+    WalletConnectWallet: getConfig().REACT_APP_FEATURE_WALLETCONNECT_WALLET,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
     Thor: getConfig().REACT_APP_FEATURE_THOR,

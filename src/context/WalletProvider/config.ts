@@ -40,6 +40,9 @@ import { PortisConfig } from './Portis/config'
 import { TallyHoConnect } from './TallyHo/components/Connect'
 import { TallyHoFailure } from './TallyHo/components/Failure'
 import { TallyHoConfig } from './TallyHo/config'
+import { WalletConnectConnect } from './WalletConnect/components/Connect'
+import { WalletConnectFailure } from './WalletConnect/components/Failure'
+import { WalletConnectConfig } from './WalletConnect/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
@@ -116,6 +119,13 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
+  },
+  [KeyManager.WalletConnect]: {
+    ...WalletConnectConfig,
+    routes: [
+      { path: '/walletconnect/connect', component: WalletConnectConnect },
+      { path: '/walletconnect/failure', component: WalletConnectFailure },
+    ],
   },
   [KeyManager.Keplr]: {
     ...KeplrConfig,

@@ -33,6 +33,7 @@ type OverviewProps = {
   selectedAsset: FiatRampAsset | null
   fiatRampProvider: FiatRamp
   btcAddress: string
+  dogeAddress: string
   ethAddress: string
   cosmosAddress: string
   ensName: string
@@ -47,6 +48,7 @@ type OverviewProps = {
 type GenerateAddressProps = {
   selectedAsset: FiatRampAsset | null
   btcAddress: string
+  dogeAddress: string
   ethAddress: string
   cosmosAddress: string
   ensName: string
@@ -82,6 +84,7 @@ export const Overview: React.FC<OverviewProps> = ({
   supportsAddressVerifying,
   setSupportsAddressVerifying,
   btcAddress,
+  dogeAddress,
   ethAddress,
   cosmosAddress,
   ensName,
@@ -104,6 +107,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
     btcAddress,
+    dogeAddress,
     ethAddress,
     cosmosAddress,
     ensName,

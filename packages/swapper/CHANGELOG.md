@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v8.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.5.1...@shapeshiftoss/swapper-v8.5.2) (2022-07-21)
+
+
+### Bug Fixes
+
+* **swapper:** filtering by assets ([#896](https://github.com/shapeshift/lib/issues/896)) ([2df27cb](https://github.com/shapeshift/lib/commit/2df27cbca6b3ea5f5a28bdfd40e0a7fee24b1714))
+
 # [@shapeshiftoss/swapper-v8.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.5.0...@shapeshiftoss/swapper-v8.5.1) (2022-07-19)
 
 

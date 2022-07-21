@@ -44,7 +44,7 @@ import {
 import { OsmoSwapperDeps } from './utils/types'
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = 'Osmosis'
-  supportAssets: string[]
+  supportedAssetIds: string[]
   deps: OsmoSwapperDeps
 
   getType() {
@@ -53,7 +53,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
   constructor(deps: OsmoSwapperDeps) {
     this.deps = deps
-    this.supportAssets = [cosmosAssetId, osmosisAssetId]
+    this.supportedAssetIds = [cosmosAssetId, osmosisAssetId]
   }
 
   async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
@@ -107,13 +107,16 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
-    const { sellAssetId } = args
-    if (!this.supportAssets.includes(sellAssetId)) return []
-    return this.supportAssets
+    const { assetIds = [], sellAssetId } = args
+    if (!this.supportedAssetIds.includes(sellAssetId)) return []
+
+    return assetIds.filter(
+      (assetId) => this.supportedAssetIds.includes(assetId) && assetId !== sellAssetId
+    )
   }
 
   filterAssetIdsBySellable(): AssetId[] {
-    return this.supportAssets
+    return this.supportedAssetIds
   }
 
   async buildTrade(args: BuildTradeInput): Promise<Trade<ChainId>> {

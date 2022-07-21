@@ -9,10 +9,7 @@ dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
-<<<<<<< HEAD
   MultiCurrency: boolean
-=======
->>>>>>> origin
   WalletConnectWallet: boolean
   Avalanche: boolean
   CoinbasePay: boolean

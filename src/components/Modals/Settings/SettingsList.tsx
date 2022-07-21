@@ -29,7 +29,7 @@ import { useAppSelector } from 'state/store'
 
 import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
-import { currnecyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
+import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
 import { SettingsListItem } from './SettingsListItem'
 
 type SettingsListProps = {
@@ -90,7 +90,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
               >
                 <Flex alignItems='center'>
                   <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
-                    {currnecyFormatsRepresenter[selectedCurrencyFormat]}
+                    {currencyFormatsRepresenter[selectedCurrencyFormat]}
                   </RawText>
                   <MdChevronRight color='gray.500' size='1.5em' />
                 </Flex>

@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { identity } from 'lodash'
+import identity from 'lodash/identity'
 import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -11,7 +11,7 @@ import { CurrencyFormats, preferences } from 'state/slices/preferencesSlice/pref
 import { selectCurrencyFormat } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { currnecyFormatsRepresenter } from './SettingsCommon'
+import { currencyFormatsRepresenter } from './SettingsCommon'
 
 export const CurrencyFormat = () => {
   const dispatch = useAppDispatch()
@@ -60,7 +60,7 @@ export const CurrencyFormat = () => {
             <Flex alignItems='center' textAlign='left'>
               <Icon as={FaCheck} color='blue.500' />
               <Flex ml={4}>
-                <RawText>{currnecyFormatsRepresenter[currentCurrencyFormat]}</RawText>
+                <RawText>{currencyFormatsRepresenter[currentCurrencyFormat]}</RawText>
               </Flex>
             </Flex>
           </Button>
@@ -73,7 +73,7 @@ export const CurrencyFormat = () => {
               variant='ghost'
               onClick={() => dispatch(setCurrencyFormat({ currencyFormat }))}
             >
-              <RawText>{currnecyFormatsRepresenter[currencyFormat]}</RawText>
+              <RawText>{currencyFormatsRepresenter[currencyFormat]}</RawText>
             </Button>
           ))}
         </ModalBody>

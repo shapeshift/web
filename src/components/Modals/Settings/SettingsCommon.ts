@@ -7,7 +7,7 @@ export enum SettingsRoutes {
   CurrencyFormat = '/settings/currency-format',
 }
 
-export const currnecyFormatsRepresenter: Record<CurrencyFormats, string> = {
+export const currencyFormatsRepresenter: Record<CurrencyFormats, string> = {
   [CurrencyFormats.DotDecimal]: '1,234.56',
   [CurrencyFormats.CommaDecimal]: '1.234,56',
 }

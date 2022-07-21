@@ -259,7 +259,7 @@ export const useSwapper = () => {
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
     const chainAdapter = getChainAdapters().get(receiveAddressChainId)
 
-    if (!chainAdapter) throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
+    if (!chainAdapter) throw new Error(`Couldn't get chain adapter for ${receiveAddressChainId}`)
 
     const receiveAddress = await getFirstReceiveAddress({
       accountSpecifiersList,

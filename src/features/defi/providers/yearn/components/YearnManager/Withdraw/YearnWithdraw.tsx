@@ -118,6 +118,7 @@ export const YearnWithdraw = () => {
         component: Status,
       },
     }
+    // We only need this to update on symbol change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [underlyingAsset.symbol])
 

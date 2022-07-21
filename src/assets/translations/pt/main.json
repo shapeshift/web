@@ -575,7 +575,7 @@
       "requestWithdraw": "Solicitar Retirada",
       "withdrawFee": "Haverá taxa de gás separada para retirar.",
       "disclaimer": "As solicitações subsequentes serão combinadas e redefinião o tempo de retirada.",
-      "withDrawalFee": "Taxa de saque",
+      "withdrawalFee": "Taxa de saque",
       "info": {
         "delayed": "A retirada atrasada tem duas transações:",
         "delayedOne": "Solicite a retirada",

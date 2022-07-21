@@ -621,7 +621,7 @@
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
-      "withDrawalFee": "Withdrawal Fee",
+      "withdrawalFee": "Withdrawal Fee",
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully withdrawn from %{opportunity}.",

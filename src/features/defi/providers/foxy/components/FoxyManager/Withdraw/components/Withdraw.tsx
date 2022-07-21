@@ -201,7 +201,6 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       .times(percent)
       .dp(asset.precision, BigNumber.ROUND_DOWN)
     const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    console.info('percent', cryptoAmount.toString(), fiatAmount.toString())
     setValue(Field.FiatAmount, fiatAmount.toString(), {
       shouldValidate: true,
     })
@@ -214,7 +213,6 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    console.info('crypto valid', crypto.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -224,7 +222,6 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-    console.info('fiat valid', crypto.toString(), _value.toString(), hasValidBalance)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }

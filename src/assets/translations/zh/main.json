@@ -530,7 +530,7 @@
       "requestWithdraw": "请求取款",
       "withdrawFee": "取款将有单独的 gas 费用。",
       "disclaimer": "随后的请求将被合并且重置提款时间。",
-      "withDrawalFee": "提款费用",
+      "withdrawalFee": "提款费用",
       "info": {
         "delayed": "延迟提款有两笔交易：",
         "delayedOne": "请求取款",

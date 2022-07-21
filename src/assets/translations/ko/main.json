@@ -566,7 +566,7 @@
       "requestWithdraw": "인출 요청",
       "withdrawFee": "인출 요청 시, 단일 트랜잭션 수수료를 필요로 합니다.",
       "disclaimer": "전체 인출을 위해 후속 요청을 합치는 것에 충분한 시간을 필요로 합니다.",
-      "withDrawalFee": "전체 인출 수수료",
+      "withdrawalFee": "전체 인출 수수료",
       "info": {
         "delayed": "지연된 출금에는 두 가지 거래가 있습니다:",
         "delayedOne": "전체 인출 요청",

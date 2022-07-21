@@ -86,7 +86,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
         </ButtonGroup>
       </FormField>
       <Row>
-        <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>
+        <Row.Label>{translate('modals.withdraw.withdrawalFee')}</Row.Label>
         <Row.Value>
           <Amount.Crypto value={withdrawalFee} symbol={asset.symbol} />
         </Row.Value>

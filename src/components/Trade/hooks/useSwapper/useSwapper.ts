@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
-import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalanche, ChainAdapter, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   OsmosisSwapper,
@@ -259,23 +259,13 @@ export const useSwapper = () => {
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
     const chainAdapter = getChainAdapters().get(receiveAddressChainId)
 
-    if (!chainAdapter) throw new Error(`Couldn't get chain adapter for ${receiveAddressChainId}`)
+    if (!chainAdapter) throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
 
-    const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
-      specifiers => specifiers[buyAsset.chainId],
-    )
-
-    if (!receiveAddressAccountSpecifiers) throw new Error('no receiveAddressAccountSpecifiers')
-    const receiveAddressAccountSpecifier = receiveAddressAccountSpecifiers[buyAsset.chainId]
-    if (!receiveAddressAccountSpecifier) throw new Error('no receiveAddressAccountSpecifier')
-
-    const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
-      accountIdToUtxoParams(receiveAddressAccountSpecifiers[buyAsset.chainId], 0)
-
-    const receiveAddress = await chainAdapter.getAddress({
+    const receiveAddress = await getFirstReceiveAddress({
+      accountSpecifiersList,
+      buyAsset,
+      chainAdapter,
       wallet,
-      accountType: receiveAddressAccountType,
-      ...receiveAddressUtxoParams,
     })
 
     const tradeQuote = await (async () => {
@@ -324,6 +314,38 @@ export const useSwapper = () => {
     return swapper.executeTrade({ trade, wallet })
   }
 
+  type GetFirstReceiveAddressArgs = {
+    accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
+    buyAsset: Asset
+    chainAdapter: ChainAdapter<ChainId>
+    wallet: HDWallet
+  }
+  type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
+  const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
+    accountSpecifiersList,
+    buyAsset,
+    chainAdapter,
+    wallet,
+  }) => {
+    // Get first specifier for receive asset chain id
+    // Eventually we may want to customize which account they want to receive trades into
+    const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
+      specifiers => specifiers[buyAsset.chainId],
+    )
+
+    if (!receiveAddressAccountSpecifiers) throw new Error('no receiveAddressAccountSpecifiers')
+    const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
+    if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
+
+    const { chainId } = buyAsset
+    const accountId = toAccountId({ chainId, account })
+
+    const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
+
+    const receiveAddress = await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
+    return receiveAddress
+  }
+
   const updateQuoteDebounced = useRef(
     debounce(
       async ({
@@ -357,27 +379,11 @@ export const useSwapper = () => {
           if (!chainAdapter)
             throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
 
-          // Get first specifier for receive asset chain id
-          // Eventually we may want to customize which account they want to receive trades into
-          const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
-            specifiers => specifiers[buyAsset.chainId],
-          )
-
-          if (!receiveAddressAccountSpecifiers)
-            throw new Error('no receiveAddressAccountSpecifiers')
-          const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
-          if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
-
-          const { chainId } = buyAsset
-          const accountId = toAccountId({ chainId, account })
-
-          const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
-            accountIdToUtxoParams(accountId, 0)
-
-          const receiveAddress = await chainAdapter.getAddress({
+          const receiveAddress = await getFirstReceiveAddress({
+            accountSpecifiersList,
+            buyAsset,
+            chainAdapter,
             wallet,
-            accountType: receiveAddressAccountType,
-            ...receiveAddressUtxoParams,
           })
 
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {

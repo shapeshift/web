@@ -5,7 +5,7 @@ Bug fixes and features should always come with tests.
 ### Testing Tools
 
 - Unit - test both frontend code in isolation
-  - [jest](https://jestjs.io/docs/getting-started), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library hooks](https://github.com/testing-library/react-hooks-testing-library#example)
+  - [jest](https://jestjs.io/docs/getting-started), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library](https://testing-library.com/docs/react-testing-library/api/#renderhook)
 - E2E - to test the full stack completely on critical flows
   - [cypress](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests)
     - When selecting DOM elements [use `data-test-*` instead of using a `class` or `id`](https://docs.cypress.io/guides/references/best-practices#Selecting-Elements).
@@ -52,7 +52,7 @@ describe('isLoggedIn', () => {
 This is an example of how we structure our hook tests.
 
 ```js
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react'
 import { useIsComponentMounted } from './useIsComponentMounted'
 
 const setup = () => {

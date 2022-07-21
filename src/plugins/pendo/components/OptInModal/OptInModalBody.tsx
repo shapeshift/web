@@ -142,7 +142,7 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
 
       <ModalFooter flexDirection='column'>
         <Button
-          isFullWidth
+          width='full'
           colorScheme={'blue'}
           size='md'
           onClick={handleConfirm}
@@ -151,7 +151,7 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
           <Text translation={'common.continue'} />
         </Button>
         <Button
-          isFullWidth
+          width='full'
           variant='ghost'
           size='md'
           mt={3}

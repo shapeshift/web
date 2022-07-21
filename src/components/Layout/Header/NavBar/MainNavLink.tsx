@@ -14,7 +14,7 @@ type SidebarLinkProps = {
 export const MainNavLink = memo(
   forwardRef<SidebarLinkProps, 'div'>(({ isCompact, ...rest }: SidebarLinkProps, ref) => {
     const { href, label } = rest
-    const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
+    const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
     const location = useLocation()
     const active = location?.pathname.includes(href ?? '')
     return (

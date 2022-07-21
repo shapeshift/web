@@ -1,7 +1,14 @@
-import { btcChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import {
   bitcoin,
   convertXpubVersion,
+  dogecoin,
   toRootDerivationPath,
   utxoAccountParams,
 } from '@shapeshiftoss/chain-adapters'
@@ -139,7 +146,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 adapter as unknown as bitcoin.ChainAdapter
               ).getSupportedAccountTypes()
               for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(accountType, 0)
+                const accountParams = utxoAccountParams(chainId, accountType, 0)
                 const { bip44Params, scriptType } = accountParams
                 const pubkeys = await wallet.getPublicKeys([
                   {
@@ -154,6 +161,32 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 }
                 const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
+                if (!pubkey) continue
+                acc.push({ [chainId]: pubkey })
+              }
+              break
+            }
+            case dogeChainId: {
+              if (!supportsBTC(wallet)) continue
+              const supportedAccountTypes = (
+                adapter as unknown as dogecoin.ChainAdapter
+              ).getSupportedAccountTypes()
+              for (const accountType of supportedAccountTypes) {
+                const accountParams = utxoAccountParams(chainId, accountType, 0)
+                const { bip44Params, scriptType } = accountParams
+                const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))
+                const pubkeys = await wallet.getPublicKeys([
+                  {
+                    coin: 'dogecoin',
+                    addressNList,
+                    curve: 'secp256k1',
+                    scriptType,
+                  },
+                ])
+                if (!pubkeys?.[0]?.xpub) {
+                  throw new Error(`usePubkeys: error getting dogecoin xpub`)
+                }
+                const pubkey = pubkeys[0].xpub
                 if (!pubkey) continue
                 acc.push({ [chainId]: pubkey })
               }

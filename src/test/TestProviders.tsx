@@ -1,13 +1,13 @@
+import React, { PropsWithChildren } from 'react'
 import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
-
-import { translations } from '../assets/translations'
-import { store } from '../state/store'
+import { translations } from 'assets/translations'
+import { store } from 'state/store'
 
 const locale: string = navigator?.language?.split('-')[0] ?? 'en'
 const messages = translations['en']
 
-export const TestProviders: React.FC = ({ children }) => (
+export const TestProviders: React.FC<PropsWithChildren> = ({ children }) => (
   <ReduxProvider store={store}>
     <I18n locale={locale} messages={messages}>
       {/* @ts-ignore remove warning */}

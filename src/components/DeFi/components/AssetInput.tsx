@@ -8,7 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { PropsWithChildren, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { Amount } from 'components/Amount/Amount'
@@ -46,7 +46,7 @@ export type AssetInputProps = {
   fiatAmount?: string
   balance?: string
   errors?: FieldError
-}
+} & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
   assetName,

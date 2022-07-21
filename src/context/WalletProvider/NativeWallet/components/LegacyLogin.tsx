@@ -19,7 +19,7 @@ import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
 
-import { loginErrors, LoginResponseError, RateLimitError } from '../types'
+import { loginErrors, LoginResponseError, NativeWalletValues, RateLimitError } from '../types'
 import { FriendlyCaptcha } from './Captcha'
 
 export const LegacyLogin = () => {
@@ -33,7 +33,7 @@ export const LegacyLogin = () => {
     register,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm({ shouldUnregister: true })
+  } = useForm<NativeWalletValues>({ shouldUnregister: true })
 
   const translate = useTranslate()
 
@@ -143,7 +143,7 @@ export const LegacyLogin = () => {
               mb={4}
               translation={'walletProvider.shapeShift.legacy.loginInformations'}
             />
-            <FormControl isInvalid={errors.email} mb={4}>
+            <FormControl isInvalid={Boolean(errors.email)} mb={4}>
               <Input
                 {...register('email', {
                   pattern: {
@@ -159,7 +159,7 @@ export const LegacyLogin = () => {
               />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.password}>
+            <FormControl isInvalid={Boolean(errors.password)}>
               <Input
                 {...register('password', {
                   required: translate('modals.shapeShift.password.error.required'),
@@ -223,7 +223,7 @@ export const LegacyLogin = () => {
           <Button
             disabled={!captchaSolution}
             colorScheme='blue'
-            isFullWidth
+            width='full'
             size='lg'
             type='submit'
             isLoading={isSubmitting}

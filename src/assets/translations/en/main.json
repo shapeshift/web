@@ -57,7 +57,8 @@
     "verify": "Verify",
     "notRobot": "I am not a Robot",
     "skip": "Skip",
-    "generalError": "An error has occurred"
+    "generalError": "An error has occurred",
+    "walletSupportsETHOnly": "Ethereum Only"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -851,6 +852,21 @@
         "body": "Unable to connect Portis wallet"
       }
     },
+    "walletConnect": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with WalletConnect",
+        "connectFailure": "Unable to connect WalletConnect wallet"
+      },
+      "connect": {
+        "header": "Pair WalletConnect",
+        "body": "Click Pair then select WalletConnect from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect WalletConnect wallet"
+      }
+    },
     "xdefi": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with XDEFI",
@@ -1166,7 +1182,7 @@
         "title": "Help us improve ShapeShift",
         "description": "ShapeShift would like to gather usage data to better understand how our users interact with the app. This data will be used to continually improve the usability and user experience of our product.",
         "actionsSentence": "ShapeShift will...",
-        "noThanks": "No Thanks, take me to the private version",
+        "noThanks": "No thanks, take me to the private version",
         "sendEvents": "Send anonymized click and pageview events",
         "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
         "neverCollectIp": "Never collect your full IP address",

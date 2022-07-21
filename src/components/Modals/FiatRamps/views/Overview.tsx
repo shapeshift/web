@@ -12,7 +12,7 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import { btcChainId, cosmosChainId, ethChainId } from '@shapeshiftoss/caip'
+import { btcChainId, cosmosChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,7 +22,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { assetIdToChainId, ChainIdType } from 'state/slices/portfolioSlice/utils'
+import { ChainIdType } from 'state/slices/portfolioSlice/utils'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRamp, supportedFiatRamps } from '../config'
@@ -33,6 +33,7 @@ type OverviewProps = {
   selectedAsset: FiatRampAsset | null
   fiatRampProvider: FiatRamp
   btcAddress: string
+  dogeAddress: string
   ethAddress: string
   cosmosAddress: string
   ensName: string
@@ -47,6 +48,7 @@ type OverviewProps = {
 type GenerateAddressProps = {
   selectedAsset: FiatRampAsset | null
   btcAddress: string
+  dogeAddress: string
   ethAddress: string
   cosmosAddress: string
   ensName: string
@@ -62,7 +64,7 @@ const generateAddresses: GenerateAddresses = props => {
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
-  const chainId = assetIdToChainId(assetId)
+  const chainId = fromAssetId(assetId).chainId
   switch (chainId) {
     case ethChainId:
       return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
@@ -82,6 +84,7 @@ export const Overview: React.FC<OverviewProps> = ({
   supportsAddressVerifying,
   setSupportsAddressVerifying,
   btcAddress,
+  dogeAddress,
   ethAddress,
   cosmosAddress,
   ensName,
@@ -104,6 +107,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
     btcAddress,
+    dogeAddress,
     ethAddress,
     cosmosAddress,
     ensName,
@@ -112,7 +116,9 @@ export const Overview: React.FC<OverviewProps> = ({
   useEffect(() => {
     if (!wallet) return
     supportsAddressVerifying && setSupportsAddressVerifying(true)
-    setChainId(assetIdToChainId(selectedAsset?.assetId ?? '') ?? ethChainId)
+    const maybeAssetId = selectedAsset?.assetId
+    const chainId = maybeAssetId ? fromAssetId(maybeAssetId).chainId : ethChainId
+    setChainId(chainId)
     // supportsAddressVerifying will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])

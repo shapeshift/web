@@ -3,8 +3,11 @@ import {
   AccountId,
   AssetId,
   btcAssetId,
+  ChainId,
   cosmosAssetId,
+  dogeAssetId,
   ethAssetId,
+  fromAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
@@ -46,7 +49,6 @@ import {
   PortfolioBalancesById,
 } from './portfolioSliceCommon'
 import {
-  assetIdToChainId,
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
@@ -77,7 +79,7 @@ const selectParamFromFilterOptional =
     filter?.[param] ?? ''
 
 // We should prob change this once we add more chains
-const FEE_ASSET_IDS = [ethAssetId, btcAssetId, cosmosAssetId, osmosisAssetId]
+const FEE_ASSET_IDS = [ethAssetId, btcAssetId, cosmosAssetId, osmosisAssetId, dogeAssetId]
 
 const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
@@ -123,6 +125,7 @@ export const selectIsPortfolioLoaded = createSelector(
      * until the portfolioAssetIds includes supported chains fee assets, it's not fully loaded
      * the golf below ensures that's the case
      */
+    const assetIdToChainId = (assetId: AssetId): ChainId => fromAssetId(assetId).chainId
 
     return !size(
       difference(

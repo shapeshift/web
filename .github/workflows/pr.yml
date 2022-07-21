@@ -13,6 +13,8 @@ jobs:
       REACT_APP_UNCHAINED_AVALANCHE_WS_URL: wss://dev-api.avalanche.shapeshift.com
       REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: https://dev-api.bitcoin.shapeshift.com
       REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
+      REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL: https://dev-api.dogecoin.shapeshift.com
+      REACT_APP_UNCHAINED_DOGECOIN_WS_URL: wss://dev-api.dogecoin.shapeshift.com
       REACT_APP_UNCHAINED_COSMOS_HTTP_URL: https://dev-api.cosmos.shapeshift.com
       REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
       REACT_APP_COSMOS_NODE_URL: https://rest.cosmos.directory/cosmoshub/

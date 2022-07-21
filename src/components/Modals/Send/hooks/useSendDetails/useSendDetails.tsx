@@ -4,6 +4,7 @@ import {
   bitcoin,
   ChainAdapter,
   cosmos,
+  dogecoin,
   ethereum,
   EvmChainIds,
   FeeDataEstimate,
@@ -159,6 +160,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           sendMax: values.sendMax,
         })
       }
+      case KnownChainIds.DogecoinMainnet: {
+        const dogecoinChainAdapter = (await chainAdapterManager.get(
+          KnownChainIds.DogecoinMainnet,
+        )) as dogecoin.ChainAdapter | undefined
+        if (!dogecoinChainAdapter)
+          throw new Error(`No adapter available for ${KnownChainIds.DogecoinMainnet}`)
+        return dogecoinChainAdapter.getFeeData({
+          to: values.address,
+          value,
+          chainSpecific: { pubkey: account },
+          sendMax: values.sendMax,
+        })
+      }
       default:
         throw new Error('unsupported chain type')
     }
@@ -263,6 +277,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee
+              return { adapterFees, fastFee }
+            }
+            case KnownChainIds.DogecoinMainnet: {
+              const dogeAdapter = (await chainAdapterManager.get(KnownChainIds.DogecoinMainnet)) as
+                | dogecoin.ChainAdapter
+                | undefined
+              if (!dogeAdapter)
+                throw new Error(`No adapter available for ${KnownChainIds.DogecoinMainnet}`)
+              const value = assetBalance
+              const adapterFees = await dogeAdapter.getFeeData({
+                to,
+                value,
+                chainSpecific: { pubkey: account },
+                sendMax: true,
+              })
+              const fastFee = adapterFees.fast.txFee // this is actually average fee for doge
               return { adapterFees, fastFee }
             }
             default: {

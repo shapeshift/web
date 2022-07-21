@@ -1,4 +1,11 @@
-import { btcChainId, ChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  ChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
@@ -58,6 +65,7 @@ type VanityAddressResolversByChainId = {
 const vanityResolversByChainId: VanityAddressResolversByChainId = {
   [btcChainId]: [resolveUnstoppableDomain],
   [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
+  [dogeChainId]: [],
   [cosmosChainId]: [],
   [osmosisChainId]: [],
 }

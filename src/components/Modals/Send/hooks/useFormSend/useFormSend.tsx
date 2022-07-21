@@ -4,6 +4,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import {
   bitcoin,
   ChainAdapter,
+  dogecoin,
   ethereum,
   EvmChainIds,
   FeeData,
@@ -83,17 +84,44 @@ export const useFormSend = () => {
 
             if (!accountType) {
               throw new Error(
-                `useFormSend: could not get accountType from accountId: ${data.accountId}`,
+                `useFormSend: could not get bitcoin accountType from accountId: ${data.accountId}`,
               )
             }
 
             if (!utxoParams) {
               throw new Error(
-                `useFormSend: could not get utxoParams from accountId: ${data.accountId}`,
+                `useFormSend: could not get bitcoin utxoParams from accountId: ${data.accountId}`,
               )
             }
 
             return await (adapter as unknown as bitcoin.ChainAdapter).buildSendTransaction({
+              to,
+              value,
+              wallet,
+              bip44Params: utxoParams.bip44Params,
+              chainSpecific: {
+                satoshiPerByte: fees.chainSpecific.satoshiPerByte,
+                accountType,
+              },
+              sendMax: data.sendMax,
+            })
+          } else if (adapterType === KnownChainIds.DogecoinMainnet) {
+            const fees = estimatedFees[feeType] as FeeData<KnownChainIds.DogecoinMainnet>
+
+            const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
+            if (!accountType) {
+              throw new Error(
+                `useFormSend: could not get dogecoin accountType from accountId: ${data.accountId}`,
+              )
+            }
+
+            if (!utxoParams) {
+              throw new Error(
+                `useFormSend: could not get dogecoin utxoParams from accountId: ${data.accountId}`,
+              )
+            }
+
+            return await (adapter as unknown as dogecoin.ChainAdapter).buildSendTransaction({
               to,
               value,
               wallet,

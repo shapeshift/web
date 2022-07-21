@@ -9,12 +9,14 @@ dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
+  WalletConnectWallet: boolean
   Avalanche: boolean
   CoinbasePay: boolean
   Thor: boolean
   CowSwap: boolean
   JunoPay: boolean
   Pendo: boolean
+  Dogecoin: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -29,12 +31,14 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
+    WalletConnectWallet: getConfig().REACT_APP_FEATURE_WALLETCONNECT_WALLET,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     JunoPay: getConfig().REACT_APP_FEATURE_JUNOPAY,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
+    Dogecoin: getConfig().REACT_APP_FEATURE_DOGECOIN,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -2,12 +2,12 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import {
+  type EvmChainIds,
+  type FeeData,
   bitcoin,
   ChainAdapter,
   dogecoin,
   ethereum,
-  EvmChainIds,
-  FeeData,
 } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'

@@ -121,8 +121,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
-    const getEvmFeeData = (chainAdapter: ChainAdapter<EvmChainIds>) => {
-      return chainAdapter.getFeeData({
+    const getEvmFeeData = (chainAdapter: ChainAdapter<EvmChainIds>) =>
+      chainAdapter.getFeeData({
         to: values.address,
         value,
         chainSpecific: {
@@ -131,7 +131,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         },
         sendMax: values.sendMax,
       })
-    }
 
     const adapter = chainAdapterManager.get(values.asset.chainId)
     if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
@@ -255,6 +254,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
                 throw new Error(`No adapter available for ${KnownChainIds.EthereumMainnet}`)
               const value = assetBalance
               const adapterFees = await ethAdapter.getFeeData({
+                to,
+                value,
+                chainSpecific: { contractAddress, from: account },
+                sendMax: true,
+              })
+              const fastFee = adapterFees.fast.txFee
+              return { adapterFees, fastFee }
+            }
+            case KnownChainIds.AvalancheMainnet: {
+              const avalancheAdapter = chainAdapterManager.get(KnownChainIds.AvalancheMainnet) as
+                | avalanche.ChainAdapter
+                | undefined
+              if (!avalancheAdapter)
+                throw new Error(`No adapter available for ${KnownChainIds.EthereumMainnet}`)
+              const value = assetBalance
+              const adapterFees = await avalancheAdapter.getFeeData({
                 to,
                 value,
                 chainSpecific: { contractAddress, from: account },

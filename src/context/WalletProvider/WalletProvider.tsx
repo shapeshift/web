@@ -4,6 +4,7 @@ import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
+import { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import findIndex from 'lodash/findIndex'
@@ -466,6 +467,34 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
+            case KeyManager.WalletConnect:
+              const localWalletConnectWallet = await state.adapters
+                .get(KeyManager.WalletConnect)
+                ?.pairDevice()
+              if (localWalletConnectWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnect]
+                try {
+                  await localWalletConnectWallet.initialize()
+                  const deviceId = await localWalletConnectWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localWalletConnectWallet,
+                      name,
+                      icon,
+                      deviceId,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
             default:
               /**
                * The fall-through case also handles clearing
@@ -484,13 +513,23 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (state.keyring) {
       ;(async () => {
         const adapters: Adapters = new Map()
-        let options: undefined | { portisAppId: string }
+        let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
         for (const wallet of Object.values(KeyManager)) {
           try {
-            options =
-              wallet === 'portis'
-                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
-                : undefined
+            switch (wallet) {
+              case 'portis':
+                options = { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
+                break
+              case 'walletconnect':
+                options = {
+                  rpc: {
+                    1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                  },
+                }
+                break
+              default:
+                break
+            }
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             adapters.set(wallet, adapter)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.

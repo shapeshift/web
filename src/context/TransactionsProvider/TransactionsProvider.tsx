@@ -85,7 +85,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 supportedAccountTypes.map(async accountType => {
                   moduleLogger.info({ chainId, accountType }, 'subscribing txs')
 
-                  const accountParams = accountType ? utxoAccountParams(accountType, 0) : {}
+                  const accountParams = accountType
+                    ? utxoAccountParams(chainId, accountType, 0)
+                    : {}
 
                   return adapter?.subscribeTxs(
                     { wallet, accountType, ...accountParams },

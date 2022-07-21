@@ -101,89 +101,89 @@ export const ConnectWallet = () => {
   }, [history, hasWallet, query, state, dispatch, isCypressTest])
   return (
     <Page>
-      <Flex
-        backgroundImage={AuroraBg}
-        backgroundSize='cover'
-        backgroundPosition='bottom center'
-        width='100vw'
-        alignItems='center'
-        justifyContent='center'
-      >
-        <Flex flexDir='column' zIndex={4} width='full'>
-          <Center flexDir='column' height='100vh' px={6}>
-            <Circle size='100px' mb={6}>
-              <FoxIcon boxSize='100%' color='white' />
-            </Circle>
-            <Flex
-              flexDir='row'
-              textAlign='center'
-              letterSpacing='-4px'
-              fontSize={{ base: '6xl', lg: '8xl' }}
-              mb={6}
-            >
-              <RawText color='white' fontWeight='light' lineHeight='1'>
-                {translate('connectWalletPage.exploreThe')}{' '}
-                <RawText color='white' fontWeight='bold' as='span' userSelect={'none'}>
-                  {translate('connectWalletPage.defiUniverse')}
+      <DarkMode>
+        <Flex
+          backgroundImage={AuroraBg}
+          backgroundSize='cover'
+          backgroundPosition='bottom center'
+          width='100vw'
+          alignItems='center'
+          justifyContent='center'
+        >
+          <Flex flexDir='column' zIndex={4} width='full'>
+            <Center flexDir='column' height='100vh' px={6}>
+              <Circle size='100px' mb={6}>
+                <FoxIcon boxSize='100%' color='white' />
+              </Circle>
+              <Flex
+                flexDir='row'
+                textAlign='center'
+                letterSpacing='-4px'
+                fontSize={{ base: '6xl', lg: '8xl' }}
+                mb={6}
+              >
+                <RawText color='white' fontWeight='light' lineHeight='1'>
+                  {translate('connectWalletPage.exploreThe')}{' '}
+                  <RawText color='white' fontWeight='bold' as='span' userSelect={'none'}>
+                    {translate('connectWalletPage.defiUniverse')}
+                  </RawText>
                 </RawText>
-              </RawText>
-            </Flex>
-            <Text
-              userSelect={'none'}
-              color='white'
-              fontSize='lg'
-              mb={12}
-              textAlign='center'
-              translation='connectWalletPage.body'
-            />
-            <Stack
-              alignItems='center'
-              spacing={{ base: 2, md: 8 }}
-              mx='auto'
-              direction={{ base: 'column', md: 'row' }}
-            >
-              <Button
-                size='lg'
-                zIndex={1}
-                colorScheme='blue'
-                onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-                data-test='connect-wallet-button'
-              >
-                <Text translation='connectWalletPage.cta' />
-              </Button>
-              <Flex alignItems='center' justifyContent='center'>
-                <Text
-                  color='whiteAlpha.500'
-                  fontSize='lg'
-                  fontWeight='bold'
-                  textAlign='center'
-                  translation='common.or'
-                />
               </Flex>
-              <Button
-                size='lg'
-                zIndex={1}
-                variant='outline'
-                colorScheme='white'
-                onClick={connectDemo}
-                isLoading={state.isLoadingLocalWallet}
+              <Text
+                userSelect={'none'}
+                color='white'
+                fontSize='lg'
+                mb={12}
+                textAlign='center'
+                translation='connectWalletPage.body'
+              />
+              <Stack
+                alignItems='center'
+                spacing={{ base: 2, md: 8 }}
+                mx='auto'
+                direction={{ base: 'column', md: 'row' }}
               >
-                <Text translation='connectWalletPage.viewADemo' />
-              </Button>
-            </Stack>
-          </Center>
-          <Flex
-            direction={'column'}
-            gap={4}
-            width='full'
-            position={{ base: 'static', md: 'fixed' }}
-            zIndex={3}
-            py={3}
-            px={4}
-            bottom={0}
-            alignItems={'center'}
-          >
-            <DarkMode>
+                <Button
+                  size='lg'
+                  zIndex={1}
+                  colorScheme='blue'
+                  onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+                  data-test='connect-wallet-button'
+                >
+                  <Text translation='connectWalletPage.cta' />
+                </Button>
+                <Flex alignItems='center' justifyContent='center'>
+                  <Text
+                    color='whiteAlpha.500'
+                    fontSize='lg'
+                    fontWeight='bold'
+                    textAlign='center'
+                    translation='common.or'
+                  />
+                </Flex>
+                <Button
+                  size='lg'
+                  zIndex={1}
+                  variant='outline'
+                  colorScheme='white'
+                  onClick={connectDemo}
+                  isLoading={state.isLoadingLocalWallet}
+                >
+                  <Text translation='connectWalletPage.viewADemo' />
+                </Button>
+              </Stack>
+            </Center>
+            <Flex
+              direction={'column'}
+              gap={4}
+              width='full'
+              position={{ base: 'static', md: 'fixed' }}
+              zIndex={3}
+              py={3}
+              px={4}
+              bottom={0}
+              alignItems={'center'}
+            >
               <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
                 <Link
                   href='/#/legal/terms-of-service'
@@ -200,11 +200,11 @@ export const ConnectWallet = () => {
                   <Text translation='common.privacy' />
                 </Link>
               </Flex>
-            </DarkMode>
+            </Flex>
           </Flex>
+          <AuroraBackground />
         </Flex>
-        <AuroraBackground />
-      </Flex>
+      </DarkMode>
     </Page>
   )
 }

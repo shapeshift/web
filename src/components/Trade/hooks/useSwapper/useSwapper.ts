@@ -352,6 +352,7 @@ export const useSwapper = () => {
         amount,
         swapper,
         sellAsset,
+        feeAsset,
         buyAsset,
         action,
         wallet,

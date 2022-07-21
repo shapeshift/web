@@ -61,7 +61,8 @@
     "skip": "Skip",
     "generalError": "An error has occurred",
     "showDetails": "Show Details",
-    "hideDetails": "Hide Details"
+    "hideDetails": "Hide Details",
+    "walletSupportsETHOnly": "Ethereum Only"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -896,6 +897,21 @@
       "failure": {
         "header": "Error",
         "body": "Unable to connect Portis wallet"
+      }
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with WalletConnect",
+        "connectFailure": "Unable to connect WalletConnect wallet"
+      },
+      "connect": {
+        "header": "Pair WalletConnect",
+        "body": "Click Pair then select WalletConnect from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect WalletConnect wallet"
       }
     },
     "xdefi": {

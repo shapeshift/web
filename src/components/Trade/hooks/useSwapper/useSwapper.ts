@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ChainId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -319,11 +319,14 @@ export const useSwapper = () => {
 
           if (!receiveAddressAccountSpecifiers)
             throw new Error('no receiveAddressAccountSpecifiers')
-          const receiveAddressAccountSpecifier = receiveAddressAccountSpecifiers[buyAsset.chainId]
-          if (!receiveAddressAccountSpecifier) throw new Error('no receiveAddressAccountSpecifier')
+          const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
+          if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
+
+          const { chainId } = buyAsset
+          const accountId = toAccountId({ chainId, account })
 
           const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
-            accountIdToUtxoParams(receiveAddressAccountSpecifiers[buyAsset.chainId], 0)
+            accountIdToUtxoParams(accountId, 0)
 
           const receiveAddress = await chainAdapter.getAddress({
             wallet,

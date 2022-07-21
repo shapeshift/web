@@ -6,6 +6,7 @@ import {
   ChainId,
   chainIdToFeeAssetId,
   cosmosChainId,
+  dogeChainId,
   ethChainId,
   fromAccountId,
   fromAssetId,
@@ -95,6 +96,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     case osmosisChainId: {
       return 'Osmosis'
     }
+    case dogeChainId: {
+      return 'Dogecoin'
+    }
     default: {
       return ''
     }
@@ -110,14 +114,16 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
   if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
   if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
+  if (pubkeyVariant?.startsWith('dgub')) return UtxoAccountType.P2pkh // doge
   return null
 }
 
 export const accountIdToUtxoParams = (accountId: AccountSpecifier, accountIndex: number) => {
   const accountType = accountIdToAccountType(accountId)
+  const chainId = fromAccountId(accountId).chainId
   // for eth, we don't return a UtxoAccountType or utxoParams
   if (!accountType) return {}
-  const utxoParams = utxoAccountParams(accountType, accountIndex)
+  const utxoParams = utxoAccountParams(chainId, accountType, accountIndex)
   return { utxoParams, accountType }
 }
 

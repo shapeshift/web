@@ -11,6 +11,7 @@ import {
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
@@ -23,7 +24,9 @@ export const SelectModal = () => {
     create,
   } = useWallet()
   const translate = useTranslate()
+
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
+  const walletConnectFeatureFlag = useFeatureFlag('WalletConnectWallet')
   const greenColor = useColorModeValue('green.500', 'green.200')
   const activeBg = useColorModeValue('gray.200', 'gray.900')
 
@@ -42,9 +45,17 @@ export const SelectModal = () => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
               const activeWallet = walletInfo?.name === option.name
+              // TODO: We can probably do better than a hardcoded ETH-only option for Walletconnect here.
+              const supportsETHOnly = option.name.toLowerCase() === KeyManager.WalletConnect
+              const walletSubText = activeWallet
+                ? 'common.connected'
+                : supportsETHOnly
+                ? 'common.walletSupportsETHOnly'
+                : null
 
               // some wallets (e.g. tally ho) do not exist on mobile
               if (isMobile && !option.mobileEnabled) return false
+              if (!walletConnectFeatureFlag && key === KeyManager.WalletConnect) return false
 
               return (
                 <Button
@@ -60,15 +71,13 @@ export const SelectModal = () => {
                 >
                   <Flex alignItems='flex-start' flexDir='column'>
                     <RawText fontWeight='semibold'>{option.name}</RawText>
-                    {activeWallet && (
-                      <Text fontSize='xs' color='gray.500' translation='common.connected' />
-                    )}
+                    {<Text fontSize='xs' color='gray.500' translation={walletSubText} />}
                   </Flex>
                   <Center width='25%'>
-                    {walletInfo?.name === option.name ? (
+                    {activeWallet ? (
                       <CheckCircleIcon color={greenColor} />
                     ) : (
-                      <Icon height='24px' w='auto' />
+                      <Icon width='24px' height='auto' />
                     )}
                   </Center>
                 </Button>

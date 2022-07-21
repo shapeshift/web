@@ -6,7 +6,7 @@ export const csp: Csp = {
     'https://api-osmosis.imperator.co/tokens/',
     process.env.REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL!,
     process.env.REACT_APP_UNCHAINED_OSMOSIS_WS_URL!,
-    process.env.REACT_APP_OSMOSIS_NODE_URL!, 
+    process.env.REACT_APP_OSMOSIS_NODE_URL!,
     process.env.REACT_APP_COSMOS_NODE_URL!,
   ],
   'img-src': ['https://raw.githubusercontent.com/osmosis-labs/'],

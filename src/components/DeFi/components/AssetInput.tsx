@@ -8,12 +8,14 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { PropsWithChildren, useState } from 'react'
+import { PropsWithChildren, useRef, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
 import { Balance } from './Balance'
@@ -36,7 +38,7 @@ const CryptoInput = (props: InputProps) => (
 )
 
 export type AssetInputProps = {
-  assetName: string
+  assetSymbol: string
   assetIcon: string
   onChange?: (arg0: string, arg1?: boolean) => void
   onAssetClick?: () => void
@@ -44,12 +46,15 @@ export type AssetInputProps = {
   isReadOnly?: boolean
   cryptoAmount?: string
   fiatAmount?: string
+  showFiatAmount?: boolean
   balance?: string
+  fiatBalance?: string
   errors?: FieldError
+  percentOptions: number[]
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
-  assetName,
+  assetSymbol,
   assetIcon,
   onChange = () => {},
   onAssetClick,
@@ -57,37 +62,42 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   cryptoAmount,
   isReadOnly,
   fiatAmount,
+  showFiatAmount = '0',
   balance,
+  fiatBalance,
   errors,
+  percentOptions = [0.25, 0.5, 0.75, 1],
   children,
 }) => {
   const {
     number: { localeParts },
   } = useLocaleFormatter()
+  const translate = useTranslate()
+  const amountRef = useRef<string | null>(null)
   const [isFiat, setIsFiat] = useState<boolean>(false)
   const [isFocused, setIsFocused] = useState(false)
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
-  const focusBg = useColorModeValue('gray.100', 'gray.900')
+  const focusBg = useColorModeValue('gray.50', 'gray.900')
   const focusBorder = useColorModeValue('blue.500', 'blue.400')
   return (
     <FormControl
-      pb={2}
       borderWidth={1}
       borderColor={isFocused ? focusBorder : borderColor}
       bg={isFocused ? focusBg : bgColor}
       borderRadius='xl'
       _hover={{ bg: isReadOnly ? bgColor : focusBg }}
       isInvalid={!!errors}
+      py={2}
     >
-      <Stack direction='row' alignItems='center' px={4} py={2}>
+      <Stack direction='row' alignItems='center' px={4}>
         <Button
           onClick={onAssetClick}
           variant={onAssetClick ? 'solid' : 'read-only'}
           leftIcon={<AssetIcon src={assetIcon} size='xs' />}
           rightIcon={onAssetClick && <ChevronDownIcon />}
         >
-          {assetName}
+          {assetSymbol}
         </Button>
         <Stack spacing={0} flex={1} alignItems='flex-end'>
           <NumberFormat
@@ -99,28 +109,49 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             decimalSeparator={localeParts.decimal}
             inputMode='decimal'
             thousandSeparator={localeParts.group}
-            value={isFiat ? fiatAmount : cryptoAmount}
+            value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
             onValueChange={values => {
-              onChange(values.value, isFiat)
+              // This fires anytime value changes including setting it on max click
+              // Store the value in a ref to send when we actually want the onChange to fire
+              amountRef.current = values.value
+            }}
+            onChange={() => {
+              // onChange will send us the formatted value
+              // To get around this we need to get the value from the onChange using a ref
+              // Now when the max buttons are clicked the onChange will not fire
+              onChange(amountRef.current ?? '', isFiat)
             }}
             onBlur={() => setIsFocused(false)}
             onFocus={() => setIsFocused(true)}
           />
-          {fiatAmount && (
-            <Button onClick={() => setIsFiat(!isFiat)} size='xs' variant='link' colorScheme='blue'>
-              {isFiat ? (
-                <Amount.Crypto value={cryptoAmount || ''} symbol={assetName} />
-              ) : (
-                <Amount.Fiat value={fiatAmount || ''} prefix='≈' />
-              )}
-            </Button>
-          )}
         </Stack>
       </Stack>
+
+      {showFiatAmount && (
+        <Stack width='full' alignItems='flex-end' px={4} pb={2}>
+          <Button onClick={() => setIsFiat(!isFiat)} size='xs' variant='link' colorScheme='blue'>
+            {isFiat ? (
+              <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+            ) : (
+              <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+            )}
+          </Button>
+        </Stack>
+      )}
       {(onMaxClick || balance) && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          {balance && <Balance value={balance} symbol='FOX' label='Balance' />}
-          {onMaxClick && <MaxButtonGroup options={[0.25, 0.5, 0.75, 1]} onClick={onMaxClick} />}
+          {balance && (
+            <Balance
+              cryptoBalance={balance}
+              fiatBalance={fiatBalance ?? ''}
+              symbol={assetSymbol}
+              isFiat={isFiat}
+              label={translate('common.balance')}
+            />
+          )}
+          {onMaxClick && (
+            <MaxButtonGroup options={percentOptions} isDisabled={isReadOnly} onClick={onMaxClick} />
+          )}
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}

@@ -1,5 +1,6 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { DefiType } from '@shapeshiftoss/investor-foxy'
+import { WithdrawType } from '@shapeshiftoss/types'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
@@ -40,6 +41,7 @@ type FoxyWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
+    withdrawType: WithdrawType
   }
 
 export type FoxyWithdrawState = {

@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Back",
+    "balance": "Balance",
     "next": "Next",
     "error": "Error",
     "cancel": "Cancel",
@@ -19,6 +20,7 @@
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
+    "claim": "Claim",
     "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
@@ -58,6 +60,8 @@
     "notRobot": "I am not a Robot",
     "skip": "Skip",
     "generalError": "An error has occurred",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details",
     "walletSupportsETHOnly": "Ethereum Only"
   },
   "updateToast": {
@@ -188,6 +192,14 @@
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}"
       },
+      "overview": {
+        "underlyingTokens": "Underlying Tokens",
+        "availableRewards": "Available Rewards",
+        "about": "About",
+        "tvl": "TVL",
+        "apy": "APY",
+        "noWithdrawals": "You don't have any withdrawals to claim."
+      },
       "claim": {
         "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
         "title": "Claim Staking Rewards",
@@ -273,7 +285,28 @@
         "cta": "View Opportunities"
       }
     },
-    "viewOnChain": "View on chain"
+    "viewOnChain": "View on chain",
+    "steps": {
+      "deposit": {
+        "info": {
+          "title": "Deposit Info",
+          "description": "Enter the amount of %{asset} you would like to deposit."
+        }
+      },
+      "withdraw": {
+        "info": {
+          "title": "Withdraw Info",
+          "description": "Enter the amount of %{asset} you would like to withdraw.",
+          "yieldyDescription": "Enter the amount of %{asset} you would like to withdraw. Subsequent withdrawals will be combined and reset the withdrawal time."
+        }
+      },
+      "approve": {
+        "title": "Approve"
+      },
+      "confirm": {
+        "title": "Confirm"
+      }
+    }
   },
   "staking": {
     "staking": "Staking",
@@ -564,14 +597,21 @@
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",
+      "depositInto": "Deposit Into %{opportunity}",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
       "footerDisclaimer": "By continuing you agree to our ",
       "footerDisclaimerLink": "terms of service.",
-      "slippageSettings": "Slippage Settings"
+      "slippageSettings": "Slippage Settings",
+      "status": {
+        "pending": "Your transaction has been broadcast and is pending confirmation.",
+        "success": "You have successfully deposited into %{opportunity}.",
+        "failed": "There was an issue with your deposit."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
+      "withdrawFrom": "Withdraw From %{opportunity}",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
       "slippageSettings": "Slippage Settings",
       "withdrawType": "Withdraw Type",
@@ -582,7 +622,12 @@
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
-      "withDrawalFee": "Withdrawal Fee",
+      "withdrawalFee": "Withdrawal Fee",
+      "status": {
+        "pending": "Your transaction has been broadcast and is pending confirmation.",
+        "success": "You have successfully withdrawn from %{opportunity}.",
+        "failed": "There was an issue with your deposit."
+      },
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",
         "delayedOne": "Request the withdrawal",
@@ -610,6 +655,8 @@
         "preFooter": "Rewards accrue automatically"
       },
       "withdrawTo": "Withdraw To",
+      "amountToDeposit": "Amount To Deposit",
+      "amountToWithdraw": "Amount To Withdraw",
       "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",

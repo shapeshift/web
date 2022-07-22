@@ -1,6 +1,7 @@
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
+import memoize from 'lodash/memoize'
 
 import env from './env'
 
@@ -62,6 +63,12 @@ const validators = {
   REACT_APP_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
   }),
+  REACT_APP_COSMOS_NODE_URL: url({
+    default: 'https://rest.cosmos.directory/cosmoshub/',
+  }),
+  REACT_APP_OSMOSIS_NODE_URL: url({
+    default: 'https://rest.cosmos.directory/osmosis/',
+  }),
   REACT_APP_FEATURE_PENDO: bool({ default: false }),
   REACT_APP_PENDO_API_KEY: envalid.str({ default: '67c2f326-a6c2-4aa2-4559-08a53b679e93' }),
   REACT_APP_PENDO_CONSENT_VERSION: envalid.str({ default: 'v1' }),
@@ -78,4 +85,4 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   })
 }
 
-export const getConfig = () => cleanEnv(env, validators, { reporter })
+export const getConfig = memoize(() => cleanEnv(env, validators, { reporter }))

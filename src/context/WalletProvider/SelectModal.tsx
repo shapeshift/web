@@ -41,8 +41,8 @@ export const SelectModal = () => {
           {adapters &&
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter
-            wallets.map(key => {
-              const option = SUPPORTED_WALLETS[key]
+            wallets.map(walletType => {
+              const option = SUPPORTED_WALLETS[walletType]
               const Icon = option.icon
               const activeWallet = walletInfo?.name === option.name
               // TODO: We can probably do better than a hardcoded ETH-only option for Walletconnect here.
@@ -55,19 +55,19 @@ export const SelectModal = () => {
 
               // some wallets (e.g. tally ho) do not exist on mobile
               if (isMobile && !option.mobileEnabled) return false
-              if (!walletConnectFeatureFlag && key === KeyManager.WalletConnect) return false
+              if (!walletConnectFeatureFlag && walletType === KeyManager.WalletConnect) return false
 
               return (
                 <Button
-                  key={key}
+                  key={walletType}
                   w='full'
                   size='md'
                   py={8}
                   isActive={activeWallet}
                   _active={{ bg: activeBg }}
                   justifyContent='space-between'
-                  onClick={() => connect(key)}
-                  data-test={`connect-wallet-${key}-button`}
+                  onClick={() => connect(walletType)}
+                  data-test={`connect-wallet-${walletType}-button`}
                 >
                   <Flex alignItems='flex-start' flexDir='column'>
                     <RawText fontWeight='semibold'>{option.name}</RawText>

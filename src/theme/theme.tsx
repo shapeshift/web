@@ -1,8 +1,9 @@
 import { type ThemeConfig, extendTheme } from '@chakra-ui/react'
-import { createBreakpoints, mode, StyleFunctionProps } from '@chakra-ui/theme-tools'
+import { mode, StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
+import { DividerStyle as Divider } from 'components/Divider/Divider.theme'
 import { DrawerStyle as Drawer } from 'components/Drawer/Drawer.theme'
 import { FormStyle as Form } from 'components/Form/form.theme'
 import { HeadingStyle as Heading } from 'components/Heading/Heading.theme'
@@ -19,18 +20,19 @@ import { StatStyle as Stat } from 'components/Stat/Stat.theme'
 import { StepsStyle as CustomSteps } from 'components/Steps.theme'
 import { TableStyle as Table } from 'components/Table/Table.theme'
 import { TabsStyle as Tabs } from 'components/Tabs/Tabs.theme'
+import { TagStyle as Tag } from 'components/Tag/Tag.theme'
 import { TextareaStyle as Textarea } from 'components/Textarea/Textarea.theme'
 import { TooltipStyle as Tooltip } from 'components/Tooltip/Tooltip.theme'
 
 import { colors } from './colors'
 
-export const breakpoints = createBreakpoints({
+export const breakpoints = {
   sm: '480px',
   md: '768px',
   lg: '992px',
   xl: '1280px',
   '2xl': '1440px',
-})
+}
 
 const styles = {
   global: (props: StyleFunctionProps) => ({
@@ -115,9 +117,11 @@ export const theme = extendTheme({
     Progress,
     Row,
     Drawer,
+    Divider,
     Textarea,
     Tooltip,
     Table,
+    Tag,
     Skeleton,
     Steps: CustomSteps,
     Popover,

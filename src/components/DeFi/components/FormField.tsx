@@ -8,8 +8,8 @@ export type FormFieldProps = {
 export const FormField: React.FC<FormFieldProps> = ({ label, children, ...rest }) => {
   return (
     <Stack spacing={2} {...rest}>
-      <RawText>{label}</RawText>
-      {children}
+      <RawText fontWeight='medium'>{label}</RawText>
+      <Stack spacing={6}>{children}</Stack>
     </Stack>
   )
 }

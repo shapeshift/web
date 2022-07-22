@@ -575,7 +575,7 @@
       "requestWithdraw": "Demander un retrait",
       "withdrawFee": "Il y aura des frais de carburant distincts pour effectuer un retirait.",
       "disclaimer": "Les demandes ultérieures seront combinées et réinitialiseront le temps de retrait.",
-      "withDrawalFee": "Frais de retrait",
+      "withdrawalFee": "Frais de retrait",
       "info": {
         "delayed": "Le retrait différé comporte deux transactions :",
         "delayedOne": "Demander le retrait",
@@ -1139,7 +1139,7 @@
       "buyAssetOnCoinbase": "Acheter du %{assetSymbol} sur Coinbase",
       "trade": "Échanger",
       "receive": "Recevoir",
-      "mainStakingTitle": "Mises de jetons %{assetName}",
+      "mainStakingTitle": "Mises de jetons %{assetSymbol}",
       "mainStakingDescription": "Mettez votre FOX au travail dans des contrats de mise unilatéraux pour gagner des récompenses FOX. (les FOX peuvent toujours être utilisés pour la gouvernance lorsqu'ils sont misés, mais autrement ils sont verrouillés dans le contrat durant la mise.)",
       "tvl": "TVL",
       "currentApy": "APY actuel",

@@ -11,14 +11,13 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   isCosmosChainId,
   isOsmosisChainId,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -58,7 +57,6 @@ export const OpportunityCard = ({
   assetId,
 }: OpportunityCardProps) => {
   const history = useHistory()
-  const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { cosmosStaking } = useModal()
@@ -81,22 +79,16 @@ export const OpportunityCard = ({
         return
       }
 
-      // TODO remove this condition once staking modals are unified
-      // Currently vault staking modals do not have overview tab
-      const pathname =
-        type === DefiType.TokenStaking
-          ? `/defi/${type}/${provider}/overview`
-          : `/defi/${type}/${provider}/withdraw`
-
       history.push({
-        pathname,
+        pathname: '/defi',
         search: qs.stringify({
+          provider,
           chainId,
           contractAddress,
           assetReference,
           rewardId: rewardAddress,
+          modal: 'overview',
         }),
-        state: { background: location },
       })
       return
     }

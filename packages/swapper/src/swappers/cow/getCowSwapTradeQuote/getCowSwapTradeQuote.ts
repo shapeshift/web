@@ -28,7 +28,7 @@ export async function getCowSwapTradeQuote(
 ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
   try {
     const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, wallet } = input
-    const { adapter, feeAsset, web3 } = deps
+    const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
@@ -97,40 +97,29 @@ export async function getCowSwapTradeQuote(
       contractAddress: sellAssetErc20Address
     })
 
-    const [feeDataOptions, feeAssetUsdRate, sellAssetUsdRate] = await Promise.all([
+    const [feeDataOptions, sellAssetUsdRate] = await Promise.all([
       adapter.getFeeData({
         to: sellAssetErc20Address,
         value: '0',
         chainSpecific: { from: receiveAddress, contractData: data }
       }),
-      getUsdRate(deps, feeAsset),
       getUsdRate(deps, sellAsset)
     ])
 
     const feeData = feeDataOptions['fast']
 
-    // quote.feeAmount is expressed in sellAsset token
-    // We need fee to be expressed in feeAsset token
-    // feeInFeeAsset * feeAssetUsdRate = feeInSellAsset * sellAssetUsdRate
-    // hence feeInFeeAsset = feeInSellAsset * sellAssetUsdRate / feeAssetUsdRate
-    const feeInSellAsset = bnOrZero(quote.feeAmount).div(
-      bn(10).exponentiatedBy(sellAsset.precision)
-    )
-
-    // feeInFeeAsset = feeInSellAsset * sellAssetUsdRate / feeAssetUsdRate
-    const feeInFeeAsset = feeInSellAsset
+    // calculating trade fee in USD
+    const tradeFeeFiat = bnOrZero(quote.feeAmount)
+      .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
-      .div(bnOrZero(feeAssetUsdRate))
-
-    // taking precision into account
-    const fee = feeInFeeAsset.multipliedBy(bn(10).exponentiatedBy(feeAsset.precision)).toString()
+      .toString()
 
     return {
       rate,
       minimum,
       maximum,
       feeData: {
-        fee,
+        fee: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGas: feeData.chainSpecific.gasLimit,
           gasPrice: feeData.chainSpecific.gasPrice,
@@ -138,7 +127,7 @@ export async function getCowSwapTradeQuote(
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
             .toString()
         },
-        tradeFee: '0'
+        tradeFee: tradeFeeFiat
       },
       sellAmount: normalizedSellAmount,
       buyAmount: quote.buyAmount,

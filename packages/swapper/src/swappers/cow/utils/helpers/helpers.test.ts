@@ -4,7 +4,13 @@ import Web3 from 'web3'
 import { BTC, ETH, FOX, USDC, WBTC, WETH } from '../../../utils/test-data/assets'
 import { CowSwapperDeps } from '../../CowSwapper'
 import { cowService } from '../cowService'
-import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../helpers/helpers'
+import {
+  CowSwapOrder,
+  domain,
+  getNowPlusThirtyMinutesTimestamp,
+  getUsdRate,
+  hashOrder
+} from '../helpers/helpers'
 
 jest.mock('../cowService')
 
@@ -115,6 +121,30 @@ describe('utils', () => {
       const timestamp = getNowPlusThirtyMinutesTimestamp()
       expect(timestamp).toEqual(1609460999)
       expect(new Date(timestamp * 1000).toUTCString()).toEqual('Fri, 01 Jan 2021 00:29:59 GMT')
+    })
+  })
+
+  describe('hashOrder', () => {
+    it('should return the correct order digest', () => {
+      const order: CowSwapOrder = {
+        sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+        sellAmount: '20200000000000000',
+        buyAmount: '272522025311597443544',
+        validTo: 1656667297,
+        appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        feeAmount: '3514395197690019',
+        kind: 'sell',
+        partiallyFillable: false,
+        receiver: '0xFc81A7B9f715A344A7c4ABFc444A774c3E9BA42D',
+        sellTokenBalance: 'erc20',
+        buyTokenBalance: 'erc20'
+      }
+
+      const orderDigest = hashOrder(domain(1, '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'), order)
+      expect(orderDigest).toEqual(
+        '0xaf1d4f80d997d0cefa325dd6e003e5b5940247694eaba507b793c7ec60db10a0'
+      )
     })
   })
 })

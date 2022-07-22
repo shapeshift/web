@@ -13,7 +13,6 @@ import {
   GetTradeQuoteInput,
   Swapper,
   SwapperType,
-  Trade,
   TradeQuote,
   TradeResult,
   TradeTxs
@@ -21,7 +20,10 @@ import {
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
 import { cowApproveInfinite } from './cowApproveInfinite/cowApproveInfinite'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
+import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
+import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
+import { CowTrade } from './types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 
@@ -48,7 +50,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return SwapperType.CowSwap
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<Trade<KnownChainIds.EthereumMainnet>> {
+  async buildTrade(args: BuildTradeInput): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
     return cowBuildTrade(this.deps, args)
   }
 
@@ -63,8 +65,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   }
 
   async executeTrade(args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>): Promise<TradeResult> {
-    console.info(args)
-    throw new Error('CowSwapper: executeTrade unimplemented')
+    return cowExecuteTrade(this.deps, args)
   }
 
   async approvalNeeded(
@@ -101,7 +102,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     )
   }
 
-  async getTradeTxs(): Promise<TradeTxs> {
-    throw new Error('CowSwapper: executeTrade unimplemented')
+  async getTradeTxs(args: TradeResult): Promise<TradeTxs> {
+    return cowGetTradeTxs(this.deps, args)
   }
 }

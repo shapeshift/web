@@ -7,5 +7,9 @@ export const DEFAULT_SOURCE = [{ name: 'CowSwap', proportion: '1' }]
 export const DEFAULT_ADDRESS = AddressZero
 export const DEFAULT_APP_DATA = HashZero
 export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
+export const COW_SWAP_SETTLEMENT_ADDRESS = '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
 
 export const ORDER_KIND_SELL = 'sell'
+export const SIGNING_SCHEME = 'ethsign'
+export const ERC20_TOKEN_BALANCE = 'erc20'
+export const ORDER_STATUS_FULFILLED = 'fulfilled'

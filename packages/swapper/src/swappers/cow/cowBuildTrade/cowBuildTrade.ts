@@ -2,7 +2,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
-import { BuildTradeInput, SwapError, SwapErrorTypes, Trade } from '../../../api'
+import { BuildTradeInput, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import {
@@ -11,7 +11,7 @@ import {
   normalizeAmount
 } from '../../utils/helpers/helpers'
 import { CowSwapperDeps } from '../CowSwapper'
-import { CowSwapQuoteResponse } from '../types'
+import { CowSwapQuoteResponse, CowTrade } from '../types'
 import {
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   DEFAULT_APP_DATA,
@@ -24,10 +24,10 @@ import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../utils/helpers/h
 export async function cowBuildTrade(
   deps: CowSwapperDeps,
   input: BuildTradeInput
-): Promise<Trade<KnownChainIds.EthereumMainnet>> {
+): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
   try {
     const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, wallet } = input
-    const { adapter, feeAsset, web3 } = deps
+    const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
@@ -86,42 +86,31 @@ export async function cowBuildTrade(
       contractAddress: sellAssetErc20Address
     })
 
-    const [feeDataOptions, feeAssetUsdRate, sellAssetUsdRate] = await Promise.all([
+    const [feeDataOptions, sellAssetUsdRate] = await Promise.all([
       adapter.getFeeData({
         to: sellAssetErc20Address,
         value: '0',
         chainSpecific: { from: receiveAddress, contractData: data }
       }),
-      getUsdRate(deps, feeAsset),
       getUsdRate(deps, sellAsset)
     ])
     const feeData = feeDataOptions['fast']
 
-    // quote.feeAmount is expressed in sellAsset token
-    // We need fee to be expressed in feeAsset token
-    // feeInFeeAsset * feeAssetUsdRate = feeInSellAsset * sellAssetUsdRate
-    // hence feeInFeeAsset = feeInSellAsset * sellAssetUsdRate / feeAssetUsdRate
-    const feeInSellAsset = bnOrZero(quote.feeAmount).div(
-      bn(10).exponentiatedBy(sellAsset.precision)
-    )
-
-    // feeInFeeAsset = feeInSellAsset * sellAssetUsdRate / feeAssetUsdRate
-    const feeInFeeAsset = feeInSellAsset
+    // calculating trade fee in USD
+    const tradeFeeFiat = bnOrZero(quote.feeAmount)
+      .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
-      .div(bnOrZero(feeAssetUsdRate))
+      .toString()
 
-    // taking precision into account
-    const fee = feeInFeeAsset.multipliedBy(bn(10).exponentiatedBy(feeAsset.precision)).toString()
-
-    const trade: Trade<KnownChainIds.EthereumMainnet> = {
+    const trade: CowTrade<KnownChainIds.EthereumMainnet> = {
       rate,
       feeData: {
-        fee,
+        fee: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGas: feeData.chainSpecific.gasLimit,
           gasPrice: feeData.chainSpecific.gasPrice
         },
-        tradeFee: '0'
+        tradeFee: tradeFeeFiat
       },
       sellAmount: normalizedSellAmount,
       buyAmount: quote.buyAmount,
@@ -129,7 +118,9 @@ export async function cowBuildTrade(
       buyAsset,
       sellAsset,
       sellAssetAccountNumber,
-      receiveAddress
+      receiveAddress,
+      feeAmountInSellToken: quote.feeAmount,
+      sellAmountWithoutFee: quote.sellAmount
     }
 
     const allowanceRequired = await getAllowanceRequired({

@@ -3,11 +3,12 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { BuildTradeInput, Trade } from '../../../api'
+import { BuildTradeInput } from '../../../api'
 import { bn } from '../../utils/bignumber'
 import { GetAllowanceRequiredArgs } from '../../utils/helpers/helpers'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
+import { CowTrade } from '../types'
 import { cowService } from '../utils/cowService'
 import { CowSwapQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
@@ -95,15 +96,15 @@ const expectedApiInputWbtcToWeth: CowSwapQuoteApiInput = {
   validTo: 1656797787
 }
 
-const expectedTradeWethToFox: Trade<KnownChainIds.EthereumMainnet> = {
+const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958', // 14716 FOX per WETH
   feeData: {
-    fee: '14557942658757988', // fee in WETH
+    fee: '0',
     chainSpecific: {
       estimatedGas: '100000',
       gasPrice: '79036500000'
     },
-    tradeFee: '0'
+    tradeFee: '17.95954294012756741283729339486489192096'
   },
   sellAmount: '1000000000000000000',
   buyAmount: '14501811818247595090576', // 14501 FOX
@@ -111,19 +112,21 @@ const expectedTradeWethToFox: Trade<KnownChainIds.EthereumMainnet> = {
   buyAsset: FOX,
   sellAsset: WETH,
   sellAssetAccountNumber: 0,
-  receiveAddress: 'address11'
+  receiveAddress: 'address11',
+  feeAmountInSellToken: '14557942658757988',
+  sellAmountWithoutFee: '985442057341242012'
 }
 
-const expectedTradeQuoteWbtcToWethWithApprovalFee: Trade<KnownChainIds.EthereumMainnet> = {
+const expectedTradeQuoteWbtcToWethWithApprovalFee: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '19.13939810252384532346', // 19.14 WETH per WBTC
   feeData: {
-    fee: '2931322143956216.36', // fee in WETH
+    fee: '0',
     chainSpecific: {
       estimatedGas: '100000',
       gasPrice: '79036500000',
       approvalFee: '7903650000000000'
     },
-    tradeFee: '0'
+    tradeFee: '3.6162531444'
   },
   sellAmount: '100000000',
   buyAmount: '19136098853078932263', // 19.13 WETH
@@ -131,7 +134,9 @@ const expectedTradeQuoteWbtcToWethWithApprovalFee: Trade<KnownChainIds.EthereumM
   buyAsset: WETH,
   sellAsset: WBTC,
   sellAssetAccountNumber: 0,
-  receiveAddress: 'address11'
+  receiveAddress: 'address11',
+  feeAmountInSellToken: '17238',
+  sellAmountWithoutFee: '99982762'
 }
 
 const defaultDeps: CowSwapperDeps = {

@@ -1,5 +1,6 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
+import { CHAIN_NAMESPACE, fromChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
@@ -19,7 +20,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
-import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountSpecifierByChainId,
+  selectTxStatusById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -39,7 +44,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     formState: { isSubmitting },
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
-  const { trade, fees, sellAssetFiatRate } = getValues()
+  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
+  const { trade, fees, sellAssetFiatRate, buyAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -116,6 +122,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const isFeeRatioOverThreshold =
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
+  const txLink = useMemo(() => {
+    if (fromChainId(trade.sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Cosmos) {
+      return `${osmosisAsset?.explorerTxLink}${txid}`
+    } else {
+      return `${trade.sellAsset?.explorerTxLink}${txid}`
+    }
+  }, [trade, osmosisAsset, txid])
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -143,11 +157,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <RawText>Tx ID</RawText>
                   </Row.Label>
                   <Box textAlign='right'>
-                    <Link
-                      isExternal
-                      color='blue.500'
-                      href={`${trade.sellAsset?.explorerTxLink}${txid}`}
-                    >
+                    <Link isExternal color='blue.500' href={txLink}>
                       <Text translation='trade.viewTransaction' />
                     </Link>
                   </Box>
@@ -187,7 +197,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>{toFiat(trade.feeData.tradeFee)}</Row.Value>
+                <Row.Value>
+                  {toFiat(bnOrZero(fees?.tradeFee).times(buyAssetFiatRate).toNumber())}
+                </Row.Value>
               </Row>
               {isFeeRatioOverThreshold && (
                 <Flex justifyContent='space-evenly' alignItems='center'>

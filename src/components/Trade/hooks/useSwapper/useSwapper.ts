@@ -1,9 +1,10 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
-import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalanche, ChainAdapter, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   CowSwapper,
+  OsmosisSwapper,
   Swapper,
   SwapperManager,
   ThorchainSwapper,
@@ -37,7 +38,7 @@ import {
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
 
@@ -69,9 +70,15 @@ type DebouncedQuoteInput = {
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
+// singleton - do not export me
+// Used to short circuit calls to getSwapperManager if flags have not changed
+let previousFlags: string = ''
 
 const getSwapperManager = async (): Promise<SwapperManager> => {
-  if (_swapperManager) return _swapperManager
+  const flags = store.getState().preferences.featureFlags
+  const flagsChanged = previousFlags !== JSON.stringify(flags)
+  if (_swapperManager && !flagsChanged) return _swapperManager
+  previousFlags = JSON.stringify(flags)
 
   // instantiate if it doesn't already exist
   _swapperManager = new SwapperManager()
@@ -79,7 +86,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   const adapterManager = getChainAdapters()
   const web3 = getWeb3Instance()
 
-  if (getConfig().REACT_APP_FEATURE_THOR) {
+  if (flags.Thor) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const thorSwapper = new ThorchainSwapper({
@@ -100,6 +107,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
     web3,
     adapter: ethereumChainAdapter,
   })
+  _swapperManager.addSwapper(zrxEthereumSwapper)
 
   try {
     if (getConfig().REACT_APP_FEATURE_COWSWAP) {
@@ -114,7 +122,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
 
     _swapperManager.addSwapper(zrxEthereumSwapper)
 
-    if (getConfig().REACT_APP_FEATURE_AVALANCHE) {
+    if (flags.Avalanche) {
       const avalancheChainAdapter = adapterManager.get(
         KnownChainIds.AvalancheMainnet,
       ) as unknown as avalanche.ChainAdapter
@@ -123,8 +131,13 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
         web3,
         adapter: avalancheChainAdapter,
       })
-
       _swapperManager.addSwapper(zrxAvalancheSwapper)
+    }
+    if (flags.Osmosis) {
+      const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
+      const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
+      const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
+      _swapperManager.addSwapper(osmoSwapper)
     }
   } catch (e) {
     moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
@@ -170,7 +183,9 @@ export const useSwapper = () => {
   const assetIds = useSelector(selectAssetIds)
   const getSupportedSellableAssets = useCallback(
     (assets: Asset[]) => {
-      const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({ assetIds })
+      const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({
+        assetIds,
+      })
       return filterAssetsByIds(assets, sellableAssetIds)
     },
     [assetIds, swapperManager],
@@ -197,13 +212,15 @@ export const useSwapper = () => {
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
+    selectPortfolioCryptoBalanceByAssetId(state, {
+      assetId: sellTradeAsset?.asset?.assetId ?? '',
+    }),
   )
 
+  // TODO: rename to sellFeeAsset
   const feeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? 'eip155:1/slip44:60'),
   )
-
   const { showErrorToast } = useErrorHandler()
 
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
@@ -232,6 +249,18 @@ export const useSwapper = () => {
     return maxAmount
   }
 
+  type SupportedSwappingChains =
+    | KnownChainIds.EthereumMainnet
+    | KnownChainIds.OsmosisMainnet
+    | KnownChainIds.CosmosMainnet
+  const isSupportedSwappingChain = (chainId: ChainId): chainId is SupportedSwappingChains => {
+    return (
+      chainId === KnownChainIds.EthereumMainnet ||
+      chainId === KnownChainIds.OsmosisMainnet ||
+      chainId === KnownChainIds.CosmosMainnet
+    )
+  }
+
   const updateTrade = async ({
     sellAsset,
     buyAsset,
@@ -249,8 +278,20 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
+    const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
+    const chainAdapter = getChainAdapters().get(receiveAddressChainId)
+
+    if (!chainAdapter) throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
+
+    const receiveAddress = await getFirstReceiveAddress({
+      accountSpecifiersList,
+      buyAsset,
+      chainAdapter,
+      wallet,
+    })
+
     const tradeQuote = await (async () => {
-      if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
+      if (isSupportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmount: amount,
@@ -260,7 +301,7 @@ export const useSwapper = () => {
           buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
           sendMax: true,
-          receiveAddress: '', // TODO add this later with the buildTrade PR
+          receiveAddress,
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
@@ -280,6 +321,7 @@ export const useSwapper = () => {
       sellAssetId: trade.sellAsset.assetId,
     })) as Swapper<ChainId>
     if (!swapper) throw new Error('no swapper available')
+
     return swapper.getTradeTxs(tradeResult)
   }
 
@@ -290,7 +332,40 @@ export const useSwapper = () => {
     })
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
+
     return swapper.executeTrade({ trade, wallet })
+  }
+
+  type GetFirstReceiveAddressArgs = {
+    accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
+    buyAsset: Asset
+    chainAdapter: ChainAdapter<ChainId>
+    wallet: HDWallet
+  }
+  type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
+  const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
+    accountSpecifiersList,
+    buyAsset,
+    chainAdapter,
+    wallet,
+  }) => {
+    // Get first specifier for receive asset chain id
+    // Eventually we may want to customize which account they want to receive trades into
+    const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
+      specifiers => specifiers[buyAsset.chainId],
+    )
+
+    if (!receiveAddressAccountSpecifiers) throw new Error('no receiveAddressAccountSpecifiers')
+    const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
+    if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
+
+    const { chainId } = buyAsset
+    const accountId = toAccountId({ chainId, account })
+
+    const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
+
+    const receiveAddress = await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
+    return receiveAddress
   }
 
   const updateQuoteDebounced = useRef(
@@ -299,6 +374,7 @@ export const useSwapper = () => {
         amount,
         swapper,
         sellAsset,
+        feeAsset,
         buyAsset,
         action,
         wallet,
@@ -324,35 +400,19 @@ export const useSwapper = () => {
           const chainAdapter = getChainAdapters().get(receiveAddressChainId)
 
           if (!chainAdapter)
-            throw new Error(`couldnt get chain adapter for ${receiveAddressChainId}`)
+            throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 
-          // Get first specifier for receive asset chain id
-          // Eventually we may want to customize which account they want to receive trades into
-          const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
-            specifiers => specifiers[buyAsset.chainId],
-          )
-
-          if (!receiveAddressAccountSpecifiers)
-            throw new Error('no receiveAddressAccountSpecifiers')
-          const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
-          if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
-
-          const { chainId } = buyAsset
-          const accountId = toAccountId({ chainId, account })
-
-          const { accountType: receiveAddressAccountType, utxoParams: receiveAddressUtxoParams } =
-            accountIdToUtxoParams(accountId, 0)
-
-          const receiveAddress = await chainAdapter.getAddress({
+          const receiveAddress = await getFirstReceiveAddress({
+            accountSpecifiersList,
+            buyAsset,
+            chainAdapter,
             wallet,
-            accountType: receiveAddressAccountType,
-            ...receiveAddressUtxoParams,
           })
 
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
-            if (sellAsset.chainId === KnownChainIds.EthereumMainnet) {
+            if (isSupportedSwappingChain(sellAsset.chainId)) {
               return swapper.getTradeQuote({
-                chainId: KnownChainIds.EthereumMainnet,
+                chainId: sellAsset.chainId,
                 sellAsset,
                 buyAsset,
                 sellAmount,
@@ -497,6 +557,16 @@ export const useSwapper = () => {
           setValue('fees', fees)
         }
         break
+      case KnownChainIds.OsmosisMainnet:
+      case KnownChainIds.CosmosMainnet: {
+        const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
+          fee,
+          tradeFee: trade.feeData.tradeFee,
+          tradeFeeSource: trade.sources[0].name,
+        }
+        setValue('fees', fees)
+        break
+      }
       case KnownChainIds.BitcoinMainnet:
         {
           const btcTrade = trade as Trade<KnownChainIds.BitcoinMainnet>
@@ -520,7 +590,6 @@ export const useSwapper = () => {
       buyAssetId: quote.buyAsset.assetId,
       sellAssetId: quote.sellAsset.assetId,
     })
-
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
     const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })

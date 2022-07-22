@@ -83,6 +83,9 @@ function setup({
     accountSpecifiers: {
       accountSpecifiers: [{ 'eip155:1': '0x8a65ac0e23f31979db06ec62af62b132a6df4741' }],
     },
+    preferences: {
+      featureFlags: {},
+    },
   }
   return {
     result,

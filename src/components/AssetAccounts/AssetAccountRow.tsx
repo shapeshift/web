@@ -111,7 +111,7 @@ export const AssetAccountRow = ({
           <AssetIcon src={asset?.icon} boxSize='30px' mr={2} />
         </Box>
         <Flex flexDir='column' ml={2} maxWidth='100%'>
-          {assetReference && (
+          {assetNamespace !== 'slip44' && (
             <RawText fontWeight='bold' color='gray.500' fontSize='sm'>
               {feeAsset.name}
             </RawText>

@@ -35,7 +35,7 @@ import {
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
 
@@ -67,9 +67,15 @@ type DebouncedQuoteInput = {
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
+// singleton - do not export me
+// Used to short circuit calls to getSwapperManager if flags have not changed
+let previousFlags: string = ''
 
 const getSwapperManager = async (): Promise<SwapperManager> => {
-  if (_swapperManager) return _swapperManager
+  const flags = store.getState().preferences.featureFlags
+  const flagsChanged = previousFlags !== JSON.stringify(flags)
+  if (_swapperManager && !flagsChanged) return _swapperManager
+  previousFlags = JSON.stringify(flags)
 
   // instantiate if it doesn't already exist
   _swapperManager = new SwapperManager()
@@ -77,7 +83,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   const adapterManager = getChainAdapters()
   const web3 = getWeb3Instance()
 
-  if (getConfig().REACT_APP_FEATURE_THOR) {
+  if (flags.Thor) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const thorSwapper = new ThorchainSwapper({
@@ -98,11 +104,10 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
     web3,
     adapter: ethereumChainAdapter,
   })
+  _swapperManager.addSwapper(zrxEthereumSwapper)
 
   try {
-    _swapperManager.addSwapper(zrxEthereumSwapper)
-
-    if (getConfig().REACT_APP_FEATURE_AVALANCHE) {
+    if (flags.Avalanche) {
       const avalancheChainAdapter = adapterManager.get(
         KnownChainIds.AvalancheMainnet,
       ) as unknown as avalanche.ChainAdapter
@@ -111,7 +116,6 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
         web3,
         adapter: avalancheChainAdapter,
       })
-
       _swapperManager.addSwapper(zrxAvalancheSwapper)
     }
   } catch (e) {

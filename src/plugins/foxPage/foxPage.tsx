@@ -197,7 +197,7 @@ export const FoxPage = () => {
                       />
                     )}
                   </MenuButton>
-                  <MenuList>
+                  <MenuList zIndex={3}>
                     {assets.map((asset, index) => (
                       <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId)}>
                         <FoxTab

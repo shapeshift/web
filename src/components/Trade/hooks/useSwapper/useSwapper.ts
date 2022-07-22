@@ -109,7 +109,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   _swapperManager.addSwapper(zrxEthereumSwapper)
 
   try {
-    if (getConfig().REACT_APP_FEATURE_COWSWAP) {
+    if (flags.CowSwap) {
       const cowSwapper = new CowSwapper({
         adapter: ethereumChainAdapter,
         apiUrl: 'https://api.cow.fi/mainnet/api/',
@@ -118,8 +118,6 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
 
       _swapperManager.addSwapper(cowSwapper)
     }
-
-    _swapperManager.addSwapper(zrxEthereumSwapper)
 
     if (flags.Avalanche) {
       const avalancheChainAdapter = adapterManager.get(

@@ -167,7 +167,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
   }, [accountSpecifier, chainAdapterManager, contractAddress, getValues, wallet])
 
-  const debouncedEstimateFormFees = useMemo(() => {
+  const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
       async () => {
         const estimatedFees = await estimateFormFees()
@@ -232,12 +232,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setValue,
   ])
 
-  // Stop calls to debouncedEstimateFormFees on unmount
+  // Stop calls to debouncedSetEstimatedFormFees on unmount
   useEffect(() => {
     return () => {
-      debouncedEstimateFormFees.cancel()
+      debouncedSetEstimatedFormFees.cancel()
     }
-  }, [debouncedEstimateFormFees])
+  }, [debouncedSetEstimatedFormFees])
 
   const handleNextClick = async () => {
     history.push(SendRoutes.Confirm)
@@ -409,7 +409,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       try {
         if (inputValue === '') {
           // Cancel any pending requests
-          debouncedEstimateFormFees.cancel()
+          debouncedSetEstimatedFormFees.cancel()
           // Don't show an error message when the input is empty
           setValue(SendFormFields.AmountFieldError, '')
           // Set value of the other input to an empty string as well
@@ -430,7 +430,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         await (async () => {
           try {
             setLoading(true)
-            await debouncedEstimateFormFees()
+            await debouncedSetEstimatedFormFees()
           } catch (e) {
             throw new Error('common.insufficientFunds')
           } finally {

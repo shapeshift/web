@@ -1,6 +1,9 @@
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
+import memoize from 'lodash/memoize'
+import merge from 'lodash/merge'
 
 import env from './env'
 
@@ -69,6 +72,11 @@ const validators = {
   REACT_APP_PENDO_VISITOR_ID_PREFIX: envalid.str({ default: 'test_visitor' }),
 }
 
+const constants = {
+  // used by AssetChart, Portfolio, and this file to prefetch price history
+  DEFAULT_HISTORY_TIMEFRAME: HistoryTimeframe.MONTH,
+} as const
+
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   forEach(errors, (err, key) => {
     if (!err) return
@@ -77,4 +85,6 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   })
 }
 
-export const getConfig = () => cleanEnv(env, validators, { reporter })
+export const getConfig = memoize(() =>
+  Object.freeze(merge({ ...cleanEnv(env, validators, { reporter }) }, constants)),
+)

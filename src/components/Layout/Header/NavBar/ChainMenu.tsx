@@ -7,7 +7,7 @@ import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useEffect, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,9 +17,10 @@ const ChainMenuItem: React.FC<{
   onClick: (chainId: ChainId) => void
   isConnected: boolean
 }> = ({ chainId, onClick, isConnected }) => {
-  const chainName = getChainAdapters().get(chainId)?.getDisplayName()
+  const chainAdapterManager = getChainAdapterManager()
+  const chainName = chainAdapterManager.get(chainId)?.getDisplayName()
   const { chainReference: evmChainId } = fromChainId(chainId)
-  const nativeAssetId = getChainAdapters().get(chainId)?.getFeeAssetId()
+  const nativeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
   const nativeAsset = useAppSelector(state => selectAssetById(state, nativeAssetId ?? ''))
 
   const connectedIconColor = useColorModeValue('green.500', 'green.200')
@@ -46,9 +47,11 @@ export const ChainMenu = () => {
   const [evmChainId, setEvmChainId] = useState<string | null>(null)
   const featureFlags = useAppSelector(selectFeatureFlags)
 
+  const chainAdapterManager = getChainAdapterManager()
+
   const supportedEvmChainIds = useMemo(
     () =>
-      Array.from(getChainAdapters().keys()).filter(
+      Array.from(chainAdapterManager.keys()).filter(
         chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
       ),
     // We want to explicitly react on featureFlags to get a new reference here
@@ -78,11 +81,8 @@ export const ChainMenu = () => {
   }
 
   const currentChainNativeAssetId = useMemo(
-    () =>
-      getChainAdapters()
-        .get(connectedChainId ?? '')
-        ?.getFeeAssetId(),
-    [connectedChainId],
+    () => chainAdapterManager.get(connectedChainId ?? '')?.getFeeAssetId(),
+    [chainAdapterManager, connectedChainId],
   )
   const currentChainNativeAsset = useAppSelector(state =>
     selectAssetById(state, currentChainNativeAssetId ?? ''),
@@ -103,7 +103,7 @@ export const ChainMenu = () => {
       >
         <Flex alignItems='center'>
           <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
-          {getChainAdapters()
+          {chainAdapterManager
             .get(supportedEvmChainIds.find(chainId => chainId === connectedChainId) ?? '')
             ?.getDisplayName() ?? ''}
         </Flex>

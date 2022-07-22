@@ -1,3 +1,4 @@
+import { createStandaloneToast } from '@chakra-ui/react'
 import {
   btcChainId,
   cosmosChainId,
@@ -19,10 +20,11 @@ import {
   supportsETH,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -50,9 +52,6 @@ import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
-// used by AssetChart, Portfolio, and this file to prefetch price history
-export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
-
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
  * market data, and portfolio fetching, and we don't want to over or under fetch data,
@@ -64,8 +63,10 @@ export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
  *
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const { ToastContainer } = createStandaloneToast()
   const dispatch = useDispatch()
-  const { chainAdapterManager, supportedChains } = usePlugins()
+  const { supportedChains } = usePlugins()
+  const chainAdapterManager = getChainAdapterManager()
   const {
     state: {
       wallet,
@@ -80,6 +81,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
+
+  const { DEFAULT_HISTORY_TIMEFRAME } = getConfig()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -300,7 +303,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
+  }, [DEFAULT_HISTORY_TIMEFRAME, dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
 
   /**
    * fetch forex spot and history for user's selected currency
@@ -313,7 +316,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
     dispatch(getFiatPriceHistory({ symbol, timeframe }))
     dispatch(fetchForexRate({ symbol }))
-  }, [dispatch, selectedCurrency])
+  }, [DEFAULT_HISTORY_TIMEFRAME, dispatch, selectedCurrency])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route
@@ -326,5 +329,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist
-  return assetIds.length ? <>{children}</> : <></>
+  return (
+    <>
+      <ToastContainer />
+      {assetIds.length && children}
+    </>
+  )
 }

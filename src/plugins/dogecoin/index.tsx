@@ -3,9 +3,10 @@ import { ChainAdapter, dogecoin } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
-import { Plugins } from 'plugins'
+import { type Plugins } from 'plugins/types'
 
-export function register(): Plugins {
+// eslint-disable-next-line import/no-default-export
+export default function register(): Plugins {
   return [
     [
       'dogecoinChainAdapter',

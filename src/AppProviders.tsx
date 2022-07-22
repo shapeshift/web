@@ -1,9 +1,4 @@
-import {
-  ChakraProvider,
-  ColorModeScript,
-  createLocalStorageManager,
-  createStandaloneToast,
-} from '@chakra-ui/react'
+import { ChakraProvider, ColorModeScript, createLocalStorageManager } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
@@ -18,6 +13,7 @@ import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
+import { logger } from 'lib/logger'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -28,8 +24,11 @@ type ProvidersProps = {
 
 const manager = createLocalStorageManager('ss-theme')
 
+const moduleLogger = logger.child({ namespace: ['AppProviders'] })
+
 export function AppProviders({ children }: ProvidersProps) {
-  const { ToastContainer } = createStandaloneToast()
+  moduleLogger.info('APP PROVIDERS')
+
   return (
     <ReduxProvider store={store}>
       <PluginProvider>
@@ -45,7 +44,6 @@ export function AppProviders({ children }: ProvidersProps) {
                       <ModalProvider>
                         <TransactionsProvider>
                           <AppProvider>
-                            <ToastContainer />
                             <DefiManagerProvider>{children}</DefiManagerProvider>
                           </AppProvider>
                         </TransactionsProvider>

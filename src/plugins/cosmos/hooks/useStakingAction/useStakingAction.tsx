@@ -5,7 +5,7 @@ import {
   isOsmosisChainId,
   StakingAction,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -29,7 +29,7 @@ type StakingInput =
     }
 
 export const useStakingAction = () => {
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const {
     state: { wallet },
   } = useWallet()

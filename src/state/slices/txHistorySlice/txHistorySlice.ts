@@ -7,7 +7,7 @@ import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import {
   AccountSpecifier,
@@ -275,7 +275,7 @@ export const txHistoryApi = createApi({
         if (chainId !== accountChainId) return { data: [] }
 
         // setup chain adapters
-        const adapters = getChainAdapters()
+        const adapters = getChainAdapterManager()
         if (![...adapters.keys()].includes(KnownChainIds.EthereumMainnet)) {
           const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${KnownChainIds.EthereumMainnet}`
           const status = 400
@@ -325,7 +325,7 @@ export const txHistoryApi = createApi({
           const txHistories = await Promise.allSettled(
             Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
               const accountSpecifier = toAccountId({ chainId, account: pubkey })
-              const adapter = getChainAdapters().get(chainId)
+              const adapter = getChainAdapterManager().get(chainId)
               if (!adapter)
                 return {
                   error: {

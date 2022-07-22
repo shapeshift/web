@@ -1,21 +1,7 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { Route } from 'Routes/helpers'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import { Plugin, Plugins } from 'plugins/types'
+import { logger } from 'lib/logger'
 
-export type Plugins = [chainId: string, chain: Plugin][]
-export type RegistrablePlugin = { register: () => Plugins }
-
-export interface Plugin {
-  name: string
-  icon?: JSX.Element
-  featureFlag?: keyof FeatureFlags
-  onLoad?: () => void
-  providers?: {
-    chainAdapters?: Array<[ChainId, () => ChainAdapter<ChainId>]>
-  }
-  routes?: Route[]
-}
+const moduleLogger = logger.child({ namespace: ['plugins', 'PluginManager'] })
 
 export class PluginManager {
   #pluginManager = new Map<string, Plugin>()
@@ -24,10 +10,13 @@ export class PluginManager {
     this.#pluginManager.clear()
   }
 
-  register(plugin: RegistrablePlugin): void {
-    for (const [pluginId, pluginManifest] of plugin.register()) {
+  register(plugin: Plugins): void {
+    for (const [pluginId, pluginManifest] of plugin) {
       if (this.#pluginManager.has(pluginId)) {
-        throw new Error('PluginManager: Duplicate pluginId')
+        moduleLogger.warn(
+          { fn: 'register', pluginId },
+          'Duplicate pluginId. Overwriting with new plugin manifest',
+        )
       }
       this.#pluginManager.set(pluginId, pluginManifest)
     }
@@ -35,5 +24,9 @@ export class PluginManager {
 
   entries(): [string, Plugin][] {
     return [...this.#pluginManager.entries()]
+  }
+
+  keys() {
+    return [...this.#pluginManager.keys()]
   }
 }

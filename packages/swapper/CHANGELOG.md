@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v8.5.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.5.2...@shapeshiftoss/swapper-v8.5.3) (2022-07-22)
+
+
+### Bug Fixes
+
+* silently fail if a swapper has already been added instead of throwing ([#898](https://github.com/shapeshift/lib/issues/898)) ([67a6143](https://github.com/shapeshift/lib/commit/67a614363684d77f6c28e6f9875249bacd5bff62))
+
 # [@shapeshiftoss/swapper-v8.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.5.1...@shapeshiftoss/swapper-v8.5.2) (2022-07-21)
 
 

@@ -1,13 +1,26 @@
-import { MemoryRouter, useHistory } from 'react-router'
+import {
+  DefiAction,
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import qs from 'qs'
+import { MemoryRouter } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
 export const Claim = () => {
-  const history = useHistory()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = () => {
-    history.push('/')
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Overview,
+      }),
+    })
   }
 
   return (

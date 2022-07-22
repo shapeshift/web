@@ -575,7 +575,7 @@
       "requestWithdraw": "Demander un retrait",
       "withdrawFee": "Il y aura des frais de carburant distincts pour effectuer un retirait.",
       "disclaimer": "Les demandes ultérieures seront combinées et réinitialiseront le temps de retrait.",
-      "withDrawalFee": "Frais de retrait",
+      "withdrawalFee": "Frais de retrait",
       "info": {
         "delayed": "Le retrait différé comporte deux transactions :",
         "delayedOne": "Demander le retrait",

@@ -3795,17 +3795,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.25.0", "@shapeshiftoss/hdwallet-core@latest":
-  version "1.25.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.25.0.tgz#97b4e29f124ef6600f182af33e620b10bb4b0e60"
-  integrity sha512-o4o9ww4ux7NmoBIjT3AlP6gmxKzRHvyfxpkVGuaM5bHuPa44GItO5duZwK9s38QqC0EX4z8USG1/44E2e+YaXw==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
-"@shapeshiftoss/hdwallet-core@1.27.0", "@shapeshiftoss/hdwallet-core@^1.27.0":
+"@shapeshiftoss/hdwallet-core@1.27.0", "@shapeshiftoss/hdwallet-core@^1.27.0", "@shapeshiftoss/hdwallet-core@latest":
   version "1.27.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.27.0.tgz#63ab356040f00980fbbc5d60435a7a8ea697fc7b"
   integrity sha512-NmucwcYTB3uq2SmsWK6rg+bywpDDn6CFAiiYkDR52CxSxxfKSWNkV0Pq+ZeHTvd5NZ9VGL2fft4WXGMjQ0fyzA==
@@ -4008,10 +3998,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-8.4.0.tgz#45b5aa0ed39bcdfb6749c23ba0136d20c8343629"
-  integrity sha512-ZtP1SuWkiu9B4Zy3Md1VjItAPNqrUcl2oLCb/cr0DiROj5Yw5r8Wg1p6nkfn6Kqeh3SC0LOdSRhMufgQRLbLGA==
+"@shapeshiftoss/swapper@^8.5.2":
+  version "8.5.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-8.5.2.tgz#539ec8b9d5ac1af035afad2cc698d6ab699e1e8a"
+  integrity sha512-pLyqnrpB4lV2nC5LIExp5cnUf9a6ps3XgWnN1T/NXt6T3NB4YLzo0jG/eE6tKeaJUqmu2pEZp5AG71Dd7Db2tA==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"

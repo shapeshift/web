@@ -1,15 +1,21 @@
-import { Center, Flex, useToast } from '@chakra-ui/react'
+import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { AnimatePresence } from 'framer-motion'
-import { useEffect, useReducer } from 'react'
+import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
+import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
+import {
+  DefiAction,
+  DefiParams,
+  DefiQueryParams,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import qs from 'qs'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useLocation } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RouteSteps } from 'components/RouteSteps/RouteSteps'
+import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -23,20 +29,16 @@ import { useAppSelector } from 'state/store'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
-import { routes, WithdrawPath, YearnWithdrawActionType } from './WithdrawCommon'
+import { YearnWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
-type YearnWithdrawProps = {
-  yearnInvestor: YearnInvestor
-}
-
-export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
+export const YearnWithdraw = () => {
+  const { yearn: api } = useYearn()
   const [state, dispatch] = useReducer(reducer, initialState)
-  const location = useLocation()
   const translate = useTranslate()
   const toast = useToast()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
@@ -52,6 +54,7 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
     assetReference: vaultAddress,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
   // user info
@@ -63,10 +66,10 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && yearnInvestor && chainAdapter)) return
+        if (!(walletState.wallet && vaultAddress && api && chainAdapter)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          yearnInvestor.findByOpportunityId(
+          api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
         ])
@@ -85,20 +88,39 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
         console.error('YearnWithdraw error:', error)
       }
     })()
-  }, [yearnInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
-  const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    switch (route.path) {
-      case WithdrawPath.Withdraw:
-        return <Withdraw />
-      case WithdrawPath.Confirm:
-        return <Confirm />
-      case WithdrawPath.Status:
-        return <Status />
-      default:
-        throw new Error('Route does not exist')
-    }
+  const handleBack = () => {
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Overview,
+      }),
+    })
   }
+
+  const StepConfig: DefiStepProps = useMemo(() => {
+    return {
+      [DefiStep.Info]: {
+        label: translate('defi.steps.withdraw.info.title'),
+        description: translate('defi.steps.withdraw.info.description', {
+          asset: underlyingAsset.symbol,
+        }),
+        component: Withdraw,
+      },
+      [DefiStep.Confirm]: {
+        label: translate('defi.steps.confirm.title'),
+        component: Confirm,
+      },
+      [DefiStep.Status]: {
+        label: 'Status',
+        component: Status,
+      },
+    }
+    // We only need this to update on symbol change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [underlyingAsset.symbol])
 
   if (loading || !asset || !marketData)
     return (
@@ -109,25 +131,15 @@ export const YearnWithdraw = ({ yearnInvestor }: YearnWithdrawProps) => {
 
   return (
     <WithdrawContext.Provider value={{ state, dispatch }}>
-      <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
-        <RouteSteps routes={routes} location={location} />
-        <Flex flexDir='column' width='full'>
-          <AnimatePresence exitBeforeEnter initial={false}>
-            <Switch location={location} key={location.key}>
-              {routes.map(route => {
-                return (
-                  <Route
-                    exact
-                    key={route.path}
-                    render={() => renderRoute(route)}
-                    path={route.path}
-                  />
-                )
-              })}
-            </Switch>
-          </AnimatePresence>
-        </Flex>
-      </Flex>
+      <DefiModalContent>
+        <DefiModalHeader
+          title={translate('modals.withdraw.withdrawFrom', {
+            opportunity: `${underlyingAsset.symbol} Vault`,
+          })}
+          onBack={handleBack}
+        />
+        <Steps steps={StepConfig} />
+      </DefiModalContent>
     </WithdrawContext.Provider>
   )
 }

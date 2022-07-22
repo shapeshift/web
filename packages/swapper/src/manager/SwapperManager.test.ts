@@ -64,13 +64,12 @@ describe('SwapperManager', () => {
       expect(manager.getSwapper(SwapperType.ZrxEthereum)).toBeInstanceOf(ZrxSwapper)
     })
 
-    it('should throw an error if adding an existing chain', () => {
-      const swapper = new SwapperManager()
-      expect(() => {
-        swapper
-          .addSwapper(new ThorchainSwapper(thorchainSwapperDeps))
-          .addSwapper(new ThorchainSwapper(thorchainSwapperDeps))
-      }).toThrow('already exists')
+    it('should return the existing swapper if trying to add the same one', () => {
+      const manager = new SwapperManager()
+      manager
+        .addSwapper(new ThorchainSwapper(thorchainSwapperDeps))
+        .addSwapper(new ThorchainSwapper(thorchainSwapperDeps))
+      expect(manager.getSwapper(SwapperType.Thorchain)).toBeInstanceOf(ThorchainSwapper)
     })
   })
 

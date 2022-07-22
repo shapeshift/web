@@ -27,12 +27,6 @@ export class SwapperManager {
   addSwapper(swapperInstance: Swapper<ChainId>): this {
     validateSwapper(swapperInstance)
     const swapperType = swapperInstance.getType()
-    const swapper = this.swappers.get(swapperType)
-    if (swapper)
-      throw new SwapError('[addSwapper] - swapper already exists', {
-        code: SwapErrorTypes.MANAGER_ERROR,
-        details: { swapperType }
-      })
     this.swappers.set(swapperType, swapperInstance)
     return this
   }

@@ -120,7 +120,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
       })
       _swapperManager.addSwapper(zrxAvalancheSwapper)
     }
-    if (getConfig().REACT_APP_FEATURE_OSMOSIS) {
+    if (flags.Osmosis) {
       const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
       const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
       const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })

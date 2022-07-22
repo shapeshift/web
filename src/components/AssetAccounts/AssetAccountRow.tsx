@@ -54,7 +54,7 @@ export const AssetAccountRow = ({
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
-  const { assetReference } = fromAssetId(asset.assetId)
+  const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
 
   const filter = useMemo(
     () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
@@ -96,7 +96,8 @@ export const AssetAccountRow = ({
     >
       <Flex alignItems='center'>
         <Box position='relative'>
-          {assetReference && (
+          {/** don't show "exponentiated" asset icons for fee assets */}
+          {assetNamespace !== 'slip44' && (
             <AssetIcon
               src={feeAsset.icon}
               right={0}

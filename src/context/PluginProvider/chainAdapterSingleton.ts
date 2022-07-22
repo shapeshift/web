@@ -1,10 +1,9 @@
-// don't export me, access me through the getter
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 
-let _chainAdapterManager: ChainAdapterManager | undefined
+// don't export me, access me through the getter
+let _chainAdapterManager: ChainAdapterManager = new Map()
 
 // we need to be able to access this outside react
 export const getChainAdapterManager = (): ChainAdapterManager => {
-  if (!_chainAdapterManager) _chainAdapterManager = new Map()
   return _chainAdapterManager
 }

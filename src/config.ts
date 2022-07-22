@@ -72,6 +72,7 @@ const validators = {
   REACT_APP_PENDO_VISITOR_ID_PREFIX: envalid.str({ default: 'test_visitor' }),
 }
 
+// @TODO: We may want to move internal constants out of config and into a separate file
 const constants = {
   // used by AssetChart, Portfolio, and this file to prefetch price history
   DEFAULT_HISTORY_TIMEFRAME: HistoryTimeframe.MONTH,

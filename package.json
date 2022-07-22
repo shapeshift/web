@@ -64,9 +64,6 @@
       "last 1 safari version"
     ]
   },
-  "resolutions": {
-    "@shapeshiftoss/hdwallet-core": "1.25.0"
-  },
   "config-overrides-path": "react-app-rewired.config.js",
   "fork-ts-checker": {
     "typescript": {

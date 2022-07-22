@@ -80,6 +80,8 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   const adapterManager = getChainAdapters()
   const web3 = getWeb3Instance()
 
+  /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
+
   if (flags.Thor) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
@@ -97,12 +99,6 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
-  const zrxEthereumSwapper = new ZrxSwapper({
-    web3,
-    adapter: ethereumChainAdapter,
-  })
-  _swapperManager.addSwapper(zrxEthereumSwapper)
-
   if (flags.CowSwap) {
     const cowSwapper = new CowSwapper({
       adapter: ethereumChainAdapter,
@@ -112,6 +108,12 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
 
     _swapperManager.addSwapper(cowSwapper)
   }
+
+  const zrxEthereumSwapper = new ZrxSwapper({
+    web3,
+    adapter: ethereumChainAdapter,
+  })
+  _swapperManager.addSwapper(zrxEthereumSwapper)
 
   if (flags.Avalanche) {
     const avalancheChainAdapter = adapterManager.get(

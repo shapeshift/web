@@ -1,18 +1,23 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { Summary } from 'features/defi/components/Summary'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
 import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { AssetIcon } from 'components/AssetIcon'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -24,16 +29,12 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxyWithdrawActionType, WithdrawPath } from '../WithdrawCommon'
+import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type FoxyConfirmProps = {
-  api: FoxyApi
-}
-
-export const Confirm = ({ api }: FoxyConfirmProps) => {
+export const Confirm = ({ onNext }: StepComponentProps) => {
+  const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
-  const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query
@@ -77,7 +78,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
 
   const handleConfirm = async () => {
     try {
-      if (!state.userAddress || !rewardId || !walletState.wallet || state.loading) return
+      if (!state.userAddress || !rewardId || !walletState.wallet || state.loading || !api) return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
@@ -93,7 +94,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
         api.getGasPrice(),
       ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
-      history.push(WithdrawPath.Status)
+      onNext(DefiStep.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -120,43 +121,35 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
 
   return (
     <ReusableConfirm
-      onCancel={() => history.push('/')}
+      onCancel={() => onNext(DefiStep.Info)}
       headerText='modals.confirm.withdraw.header'
       onConfirm={handleConfirm}
       isDisabled={!hasEnoughBalanceForGas}
       loading={state.loading}
       loadingText={translate('common.confirm')}
-      assets={[
-        {
-          ...asset,
-          color: '#FFFFFF',
-          cryptoAmount: state.withdraw.cryptoAmount,
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-        {
-          ...underlyingAsset,
-          color: '#FF0000',
-          cryptoAmount: state.withdraw.cryptoAmount,
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-      ]}
     >
-      <Stack spacing={6}>
-        <Row>
+      <Summary>
+        <Row variant='vert-gutter' p={4}>
           <Row.Label>
-            <Text translation='modals.confirm.withdrawTo' />
+            <Text translation='modals.confirm.amountToWithdraw' />
           </Row.Label>
-          <Row.Value>
-            <MiddleEllipsis address={state.userAddress || ''} />
-          </Row.Value>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={underlyingAsset.icon} />
+              <RawText>{underlyingAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+            </Row.Value>
+          </Row>
         </Row>
-        <Row>
+        <Row variant='gutter'>
           <Row.Label>
             <Text translation='modals.confirm.withdrawFee' />
           </Row.Label>
-          <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
+          <Row.Value fontWeight='bold'>{`${withdrawalFee} ${underlyingAsset.symbol}`}</Row.Value>
         </Row>
-        <Row>
+        <Row variant='gutter'>
           <Row.Label>
             <Text translation='modals.confirm.withdrawTime' />
           </Row.Label>
@@ -170,7 +163,7 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
             />
           </Row.Value>
         </Row>
-        <Row>
+        <Row variant='gutter'>
           <Row.Label>
             <Text translation='modals.confirm.estimatedGas' />
           </Row.Label>
@@ -193,13 +186,13 @@ export const Confirm = ({ api }: FoxyConfirmProps) => {
             </Box>
           </Row.Value>
         </Row>
-        {!hasEnoughBalanceForGas && (
-          <Alert status='error' borderRadius='lg'>
-            <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
-          </Alert>
-        )}
-      </Stack>
+      </Summary>
+      {!hasEnoughBalanceForGas && (
+        <Alert status='error' borderRadius='lg'>
+          <AlertIcon />
+          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+        </Alert>
+      )}
     </ReusableConfirm>
   )
 }

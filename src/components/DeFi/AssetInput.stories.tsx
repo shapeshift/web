@@ -26,7 +26,7 @@ const Template: ComponentStory<typeof AssetInput> = (args: AssetInputProps) => (
 export const Basic = Template.bind({})
 Basic.args = {
   assetIcon: 'https://assets.coincap.io/assets/icons/256/fox.png',
-  assetName: 'FOX',
+  assetSymbol: 'FOX',
   balance: '1000',
   fiatAmount: '0',
 }

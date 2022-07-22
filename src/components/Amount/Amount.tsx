@@ -129,7 +129,7 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: Fi
   )
 }
 
-const Percent = ({ value, autoColor, options, ...props }: PercentAmountProps) => {
+const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: PercentAmountProps) => {
   const {
     number: { toPercent },
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -148,7 +148,9 @@ const Percent = ({ value, autoColor, options, ...props }: PercentAmountProps) =>
 
   return (
     <RawText color={autoColor ? color : 'inherit'} {...props}>
+      {prefix && `${prefix} `}
       {formattedNumber}
+      {suffix && ` ${suffix}`}
     </RawText>
   )
 }

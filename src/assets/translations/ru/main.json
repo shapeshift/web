@@ -503,6 +503,21 @@
     "selectModal": {
       "header": "Подключить кошелек",
       "body": "Подключая кошелек, вы соглашаетесь с Условиями предоставления услуг ShapeShift и подтверждаете, что прочитали и поняли отказ от ответственности ShapeShift."
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Возникла непредвиденная ошибка при соединении с WalletConnect",
+        "connectFailure": "Невозможно подключить кошелек WalletConnect"
+      },
+      "connect": {
+        "header": "Обьединить WalletConnect",
+        "body": "Нажмите обьединить, затем выберите WalletConnect во всплывающем окне",
+        "button": "Обьединить"
+      },
+      "failure": {
+        "header": "Ошибка",
+        "body": "Невозможно подключить кошелек WalletConnect"
+      }
     }
   },
   "graph": {

@@ -576,7 +576,7 @@
       "requestWithdraw": "Solicitar Retiro",
       "withdrawFee": "Habrá una tarifa de gas por separado para retirar.",
       "disclaimer": "Las solicitudes posteriores se combinarán y restablecerán el tiempo de retiro.",
-      "withDrawalFee": "Cargo por retiro",
+      "withdrawalFee": "Cargo por retiro",
       "info": {
         "delayed": "El retiro diferido tiene dos transacciones:",
         "delayedOne": "Solicitar el retiro",
@@ -987,6 +987,21 @@
       "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift.",
       "footer": "¿No tienes billetera?",
       "create": "Crea una"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con WalletConnect",
+        "connectFailure": "No se puede conectar la billetera WalletConnect"
+      },
+      "connect": {
+        "header": "Emparejar WalletConnect",
+        "body": "Haga clic en Emparejar y luego seleccione WalletConnect en la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera WalletConnect"
+      }
     }
   },
   "graph": {

@@ -575,7 +575,7 @@
       "requestWithdraw": "Solicitar Retirada",
       "withdrawFee": "Haverá taxa de gás separada para retirar.",
       "disclaimer": "As solicitações subsequentes serão combinadas e redefinião o tempo de retirada.",
-      "withDrawalFee": "Taxa de saque",
+      "withdrawalFee": "Taxa de saque",
       "info": {
         "delayed": "A retirada atrasada tem duas transações:",
         "delayedOne": "Solicite a retirada",
@@ -982,6 +982,22 @@
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
+      "create": "Crie um"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com a WalletConnect",
+        "connectFailure": "Não foi possível conectar sua carteira WalletConnect"
+      },
+      "connect": {
+        "header": "Emparelhar WalletConnect",
+        "body": "Clique em Emparelhar e conecte sua carteira WalletConnect na janela pop-up",
+        "button": "Emparelhar"
+      },
+      "failure": {
+        "header": "Erro",
+        "body": "Não foi possível conectar sua carteira WalletConnect"
+      },
       "create": "Crie uma carteira"
     }
   },

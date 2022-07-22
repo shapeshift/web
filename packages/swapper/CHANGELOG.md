@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.5.3...@shapeshiftoss/swapper-v8.6.0) (2022-07-22)
+
+
+### Features
+
+* cowswap executeTrade and getTradeTxs methods ([#868](https://github.com/shapeshift/lib/issues/868)) ([b9ce707](https://github.com/shapeshift/lib/commit/b9ce7070d3f3a5d70464c57efc488c7a2604e3dc))
+
 # [@shapeshiftoss/swapper-v8.5.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.5.2...@shapeshiftoss/swapper-v8.5.3) (2022-07-22)
 
 

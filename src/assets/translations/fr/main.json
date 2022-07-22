@@ -1139,7 +1139,7 @@
       "buyAssetOnCoinbase": "Acheter du %{assetSymbol} sur Coinbase",
       "trade": "Échanger",
       "receive": "Recevoir",
-      "mainStakingTitle": "Mises de jetons %{assetName}",
+      "mainStakingTitle": "Mises de jetons %{assetSymbol}",
       "mainStakingDescription": "Mettez votre FOX au travail dans des contrats de mise unilatéraux pour gagner des récompenses FOX. (les FOX peuvent toujours être utilisés pour la gouvernance lorsqu'ils sont misés, mais autrement ils sont verrouillés dans le contrat durant la mise.)",
       "tvl": "TVL",
       "currentApy": "APY actuel",

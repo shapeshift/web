@@ -70,7 +70,7 @@ type DebouncedQuoteInput = {
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
 
-const getSwapperManager = async (wethAsset: Asset): Promise<SwapperManager> => {
+const getSwapperManager = async (): Promise<SwapperManager> => {
   if (_swapperManager) return _swapperManager
 
   // instantiate if it doesn't already exist
@@ -106,7 +106,6 @@ const getSwapperManager = async (wethAsset: Asset): Promise<SwapperManager> => {
       const cowSwapper = new CowSwapper({
         adapter: ethereumChainAdapter,
         apiUrl: 'https://api.cow.fi/mainnet/api/',
-        feeAsset: wethAsset,
         web3,
       })
 
@@ -155,7 +154,7 @@ export const useSwapper = () => {
 
   useEffect(() => {
     ;(async () => {
-      setSwapperManager(await getSwapperManager(wethAsset))
+      setSwapperManager(await getSwapperManager())
     })()
   }, [wethAsset])
 

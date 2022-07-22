@@ -32,6 +32,7 @@ import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
+  selectFeatureFlags,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -140,12 +141,12 @@ export const useSwapper = () => {
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
-
+  const featureFlags = useSelector(selectFeatureFlags)
   useEffect(() => {
     ;(async () => {
       setSwapperManager(await getSwapperManager())
     })()
-  }, [])
+  }, [featureFlags])
 
   const {
     state: { wallet },

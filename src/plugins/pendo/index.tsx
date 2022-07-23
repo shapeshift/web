@@ -37,7 +37,7 @@ export const launch = memoize(() => {
     xhrTimings: false,
     xhrWhitelist: null,
     htmlAttributeBlacklist: null,
-    htmlAttributes: /^(tabindex)$/,
+    htmlAttributes: /^(tabindex|data-test)$/,
     apiKey: config.REACT_APP_PENDO_API_KEY,
   })
 

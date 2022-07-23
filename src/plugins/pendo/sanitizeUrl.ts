@@ -25,7 +25,7 @@ function pruneSanitizedUrlsLater() {
 
 function sanitizeUrlObject(url: URL): URL {
   if (url.origin !== window.location.origin) {
-    url.pathname = url.pathname.replace(/(?<=^|\/)[^/]{20,}(?=\/|$)/g, '***')
+    url.pathname = url.pathname.replace(/(^|\/)[^/]{20,}(?=\/|$)/g, '$1***')
     url.hash = ''
   } else {
     url.hash = url.hash.replace(

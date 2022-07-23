@@ -19,11 +19,7 @@ export const CurrencyFormat = () => {
   const translate = useTranslate()
   const history = useHistory()
   const { goBack } = history
-  const defaultCurrencyFormat: CurrencyFormats = CurrencyFormats.DotDecimal
-  const otherCurrencies = sortBy(CurrencyFormats, identity).filter(
-    (k): k is CurrencyFormats => ![currentCurrencyFormat, defaultCurrencyFormat].includes(k),
-  )
-  currentCurrencyFormat !== defaultCurrencyFormat && otherCurrencies.unshift(defaultCurrencyFormat)
+  const formats = sortBy(CurrencyFormats, identity)
   const { setCurrencyFormat } = preferences.actions
 
   return (
@@ -50,32 +46,35 @@ export const CurrencyFormat = () => {
           overflowY='auto'
           overflowX='hidden'
         >
-          <Button
-            disabled={true}
-            width='full'
-            justifyContent='flexStart'
-            mb={2}
-            _disabled={{ opacity: 1 }}
-          >
-            <Flex alignItems='center' textAlign='left'>
-              <Icon as={FaCheck} color='blue.500' />
-              <Flex ml={4}>
-                <RawText>{currencyFormatsRepresenter[currentCurrencyFormat]}</RawText>
-              </Flex>
-            </Flex>
-          </Button>
-          {otherCurrencies.map(currencyFormat => (
-            <Button
-              width='full'
-              justifyContent='flexStart'
-              pl={12}
-              key={currencyFormat}
-              variant='ghost'
-              onClick={() => dispatch(setCurrencyFormat({ currencyFormat }))}
-            >
-              <RawText>{currencyFormatsRepresenter[currencyFormat]}</RawText>
-            </Button>
-          ))}
+          {formats.map(currencyFormat => {
+            const active = currencyFormat === currentCurrencyFormat
+            const buttonProps = active
+              ? {
+                  disabled: true,
+                  _disabled: { opacity: 1 },
+                }
+              : {
+                  pl: 8,
+                  variant: 'ghost',
+                  onClick: () => dispatch(setCurrencyFormat({ currencyFormat })),
+                }
+            return (
+              <Button
+                mb={2}
+                width='full'
+                justifyContent='flexStart'
+                key={currencyFormat}
+                {...buttonProps}
+              >
+                <Flex alignItems='center' textAlign='left'>
+                  {active && <Icon as={FaCheck} color='blue.500' />}
+                  <Flex ml={4}>
+                    <RawText>{currencyFormatsRepresenter[currencyFormat]}</RawText>
+                  </Flex>
+                </Flex>
+              </Button>
+            )
+          })}
         </ModalBody>
       </>
     </SlideTransition>

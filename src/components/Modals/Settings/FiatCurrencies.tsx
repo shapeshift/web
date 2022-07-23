@@ -19,10 +19,10 @@ export const FiatCurrencies = () => {
   const history = useHistory()
   const { goBack } = history
   const defaultCurrency: SupportedFiatCurrencies = 'USD'
-  const otherCurrencies = sortBy(SupportedFiatCurrenciesList, identity).filter(
-    (k): k is SupportedFiatCurrencies => ![selectedCurrency, defaultCurrency].includes(k),
+  const allFiatCurrencies = sortBy(SupportedFiatCurrenciesList, item =>
+    // keep default currency at the top of the list
+    item === defaultCurrency ? defaultCurrency : identity,
   )
-  selectedCurrency !== defaultCurrency && otherCurrencies.unshift(defaultCurrency)
   const { setSelectedCurrency } = preferences.actions
 
   return (
@@ -49,36 +49,37 @@ export const FiatCurrencies = () => {
           overflowY='auto'
           overflowX='hidden'
         >
-          <Button
-            disabled={true}
-            width='full'
-            justifyContent='flexStart'
-            mb={2}
-            _disabled={{ opacity: 1 }}
-          >
-            <Flex alignItems='center' textAlign='left'>
-              <Icon as={FaCheck} color='blue.500' />
-              <Flex ml={4}>
-                <RawText>{selectedCurrency}</RawText>
-                <RawText mx={2}>-</RawText>
-                <Text translation={`modals.settings.currencies.${selectedCurrency}`} />
-              </Flex>
-            </Flex>
-          </Button>
-          {otherCurrencies.map(currency => (
-            <Button
-              width='full'
-              justifyContent='flexStart'
-              pl={12}
-              key={currency}
-              variant='ghost'
-              onClick={() => dispatch(setSelectedCurrency({ currency }))}
-            >
-              <RawText>{currency}</RawText>
-              <RawText mx={2}>-</RawText>
-              <Text translation={`modals.settings.currencies.${currency}`} />
-            </Button>
-          ))}
+          {allFiatCurrencies.map(currency => {
+            const active = currency === selectedCurrency
+            const buttonProps = active
+              ? {
+                  disabled: true,
+                  _disabled: { opacity: 1 },
+                }
+              : {
+                  pl: 8,
+                  variant: 'ghost',
+                  onClick: () => dispatch(setSelectedCurrency({ currency })),
+                }
+            return (
+              <Button
+                width='full'
+                justifyContent='flexStart'
+                key={currency}
+                mb={2}
+                {...buttonProps}
+              >
+                <Flex alignItems='center' textAlign='left'>
+                  {active && <Icon as={FaCheck} color='blue.500' />}
+                  <Flex ml={4}>
+                    <RawText>{currency}</RawText>
+                    <RawText mx={2}>-</RawText>
+                    <Text translation={`modals.settings.currencies.${currency}`} />
+                  </Flex>
+                </Flex>
+              </Button>
+            )
+          })}
         </ModalBody>
       </>
     </SlideTransition>

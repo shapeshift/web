@@ -262,7 +262,7 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-    const chainAdapter = getChainAdapters().get(receiveAddressChainId)
+    const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
 
     if (!chainAdapter) throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 

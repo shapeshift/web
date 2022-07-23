@@ -57,7 +57,8 @@
     "verify": "Vérifier",
     "notRobot": "Je ne suis pas un robot",
     "skip": "Sauter",
-    "generalError": "Une erreur s'est produite"
+    "generalError": "Une erreur s'est produite",
+    "walletSupportsETHOnly": "Ethereum seulement"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -97,9 +98,12 @@
     "gem": "GEM",
     "gemMessage": "Acheter ou Vendre des cryptos avec Gem",
     "junoPay": "JunoPay",
+    "junoPayMessage": "Achetez des cryptos avec JunoPay",
     "banxa": "Banxa",
     "banxaMessage": "Achetez ou vendez des cryptos avec Banxa",
     "comingSoon": "Bientôt disponible ...",
+    "coinbasePay": "Coinbase Pay",
+    "coinbasePayMessage": "Acheter des cryptos  avec Coinbase Pay",
     "buy": "Acheter",
     "sell": "Vendre",
     "assetToBuy": "Actif à acheter",
@@ -352,7 +356,7 @@
     "previewTrade": "Aperçu de l'échange",
     "rate": "Taux",
     "minerFee": "Frais de minage",
-    "shapeshiftFee": "Frais ShapeShift",
+    "tradeFeeSource": "Frais %{tradeFeeSource}",
     "gasFeeExceedsTradeAmountThreshold": "La taxe sur le carburant dépasse %{percentage}% du montant d'échange.",
     "confirmDetails": "Confirmer les détails",
     "confirmAndTrade": "Confirmer et échanger",
@@ -379,6 +383,8 @@
       "broadcastFailed": "Une erreur s'est produite lors de la transmission de la transaction",
       "insufficientFundsForLimit": "Fonds insuffisants. Le montant minimum d'échange pour cette paire est de %{minLimit}",
       "insufficientFundsForAmount": "Fonds insuffisants. Votre solde de %{symbol} est inférieur au montant sélectionné.",
+      "invalidTradePair": "Paire d'échange invalide : %{sellAssetName} et %{buyAssetName}",
+      "invalidTradePairBtnText": "Paire d'échange invalide",
       "noLiquidityError": "Pas assez de liquidités disponibles",
       "overMaxSlippage": "Cette transaction entraînerait un glissement de taux de plus de %{slippagePercentage}%. Veuillez négocier un montant inférieur pour obtenir un meilleur prix.",
       "balanceToLow": "Le solde est trop bas. Le montant minimum de transaction pour cette paire est de %{minLimit}",
@@ -398,13 +404,15 @@
       "minMaxError": "Une erreur s'est produite lors de l'obtention du montant minimal / maximal de l'échange",
       "executeTradeFailed": "Une erreur s'est produite lors de l'exécution de votre échange.",
       "unsupportedPair": "Cette paire d'échange n'est pas prise en charge actuellement.",
+      "unsupportedChain": "Cette chaîne n'est pas prise en charge actuellement.",
       "rateError": "Une erreur s'est produite lors de l'obtention des taux d'échange",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
         "required": "Une transaction signée est requise"
       },
       "generalError": "Une erreur d'échange s'est produite"
-    }
+    },
+    "shapeshiftFee": "Frais ShapeShift"
   },
   "modals": {
     "keepKey": {
@@ -612,6 +620,7 @@
       "withdrawDelayedTime": "7 à 14 jours",
       "estimatedReturns": "Rendements annuels estimés*",
       "estimatedGas": "Estimation des frais de carburant",
+      "notEnoughGas": "Pas assez de %{assetSymbol} pour couvrir le carburant",
       "preFooter": "Les récompenses s'accumulent automatiquement",
       "signBroadcast": "Signer & Diffuser",
       "cancel": "Annuler"
@@ -844,6 +853,21 @@
         "body": "Impossible de se connecter au porte-monnaie Portis"
       }
     },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec WalletConnect",
+        "connectFailure": "Impossible de connecter le porte-monnaie WalletConnect."
+      },
+      "connect": {
+        "header": "Appairer WalletConnect",
+        "body": "Cliquez sur Appairer et connectez-vous à WalletConnect à partir de la fenêtre popup",
+        "button": "Appairer"
+      },
+      "failure": {
+        "header": "Erreur",
+        "body": "Impossible de se connecter au porte-monnaie WalletConnect"
+      }
+    },
     "xdefi": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec XDEFI",
@@ -983,21 +1007,6 @@
       "body": "En connectant un porte-monnaie, vous acceptez les conditions d'utilisation de ShapeShift et reconnaissez avoir lu et compris la clause de non-responsabilité de ShapeShift.",
       "footer": "Vous n'avez pas de porte-monnaie ?",
       "create": "Créez-en un"
-    },
-    "walletConnect": {
-      "errors": {
-        "unknown": "Une erreur inattendue s'est produite lors de la communication avec WalletConnect",
-        "connectFailure": "Impossible de connecter le porte-monnaie WalletConnect."
-      },
-      "connect": {
-        "header": "Appairer WalletConnect",
-        "body": "Cliquez sur Appairer et connectez-vous à WalletConnect à partir de la fenêtre popup",
-        "button": "Appairer"
-      },
-      "failure": {
-        "header": "Erreur",
-        "body": "Impossible de se connecter au porte-monnaie WalletConnect"
-      }
     }
   },
   "graph": {
@@ -1135,6 +1144,7 @@
     "foxPage": {
       "totalFoxValue": "Valeur totale des FOX",
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
+      "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",
       "getAsset": "Obtenez du %{assetSymbol}",
       "buyAssetOnCoinbase": "Acheter du %{assetSymbol} sur Coinbase",
       "trade": "Échanger",
@@ -1165,7 +1175,8 @@
       "seeAllProposals": "Voir toutes les propositions",
       "availableToTradeOn": "Disponible pour les échanges sur",
       "dex": "DEX",
-      "centralized": "Centralisé"
+      "centralized": "Centralisé",
+      "purchaseFox": "Achetez le jeton agile FOX sur Coinbase directement dans votre porte-monnaie compatible ShapeShift."
     },
     "analytics": {
       "optInModal": {

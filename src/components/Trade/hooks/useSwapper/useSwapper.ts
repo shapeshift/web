@@ -102,7 +102,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   if (flags.CowSwap) {
     const cowSwapper = new CowSwapper({
       adapter: ethereumChainAdapter,
-      apiUrl: 'https://api.cow.fi/mainnet/api/',
+      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
       web3,
     })
 

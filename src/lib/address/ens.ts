@@ -1,11 +1,15 @@
 import ENS, { getEnsAddress } from '@ensdomains/ensjs'
 import { AddressZero } from '@ethersproject/constants'
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE, ethChainId } from '@shapeshiftoss/caip'
 import memoize from 'lodash/memoize'
 import { getWeb3Provider } from 'lib/web3-provider'
 
-import { ReverseLookupVanityAddress } from './address'
-import { ResolveVanityAddress, ResolveVanityAddressReturn, ValidateVanityAddress } from './address'
+import {
+  ResolveVanityAddress,
+  ResolveVanityAddressReturn,
+  ReverseLookupVanityAddress,
+  ValidateVanityAddress,
+} from './address'
 
 let _ens: any | null
 type GetENS = () => Promise<any>
@@ -13,7 +17,7 @@ type GetENS = () => Promise<any>
 const getENS: GetENS = () => {
   if (!_ens) {
     _ens = new ENS({
-      provider: getWeb3Provider(),
+      provider: getWeb3Provider(ethChainId),
       ensAddress: getEnsAddress(CHAIN_REFERENCE.EthereumMainnet),
     })
   }

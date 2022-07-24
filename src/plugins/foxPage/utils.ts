@@ -1,4 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import memoize from 'lodash/memoize'
@@ -18,7 +19,7 @@ let maybeEthersProvider: providers.Web3Provider | undefined
 export const getEthersProvider = () => {
   if (maybeEthersProvider) return maybeEthersProvider
 
-  const provider = getWeb3Instance().currentProvider
+  const provider = getWeb3Instance(ethChainId).currentProvider
 
   maybeEthersProvider = new providers.Web3Provider(
     provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?

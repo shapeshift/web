@@ -9,5 +9,5 @@ export enum SettingsRoutes {
 
 export const currencyFormatsRepresenter: Record<CurrencyFormats, string> = {
   [CurrencyFormats.DotDecimal]: '1,234.56',
-  [CurrencyFormats.CommaDecimal]: '1.234,56',
+  [CurrencyFormats.CommaDecimal]: '1 234,56',
 }

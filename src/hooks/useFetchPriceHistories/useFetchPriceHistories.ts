@@ -26,8 +26,7 @@ export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timef
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [assetIds, dispatch, timeframe],
   )
-  useEffect(
-    () => void dispatch(findPriceHistoryByFiatSymbol.initiate({ symbol, timeframe })),
-    [dispatch, findPriceHistoryByFiatSymbol, symbol, timeframe],
-  )
+  useEffect(() => {
+    dispatch(findPriceHistoryByFiatSymbol.initiate({ symbol, timeframe }))
+  }, [dispatch, findPriceHistoryByFiatSymbol, symbol, timeframe])
 }

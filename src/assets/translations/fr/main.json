@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Retour",
+    "balance": "Solde",
     "next": "Suivant",
     "error": "Erreur",
     "cancel": "Annuler",
@@ -19,6 +20,7 @@
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
+    "claim": "Réclamer",
     "overview": "Aperçu",
     "getStarted": "Commencer",
     "connectWallet": "Connecter Porte-monnaie",
@@ -58,6 +60,8 @@
     "notRobot": "Je ne suis pas un robot",
     "skip": "Sauter",
     "generalError": "Une erreur s'est produite",
+    "showDetails": "Afficher les détails",
+    "hideDetails": "Cacher les détails",
     "walletSupportsETHOnly": "Ethereum seulement"
   },
   "updateToast": {
@@ -143,7 +147,7 @@
           "risks": "Y a-t-il des risques ?"
         },
         "bodies": {
-          "rateFluctuationInfo": "Le taux de %{assetName} que vous gagnez, le taux annuel effectif global (APR), fluctue généralement entre 7 % et 20 %.",
+          "rateFluctuationInfo": "Le taux de %{assetName} que vous gagnez, le taux annuel effectif global (APR), fluctue généralement entre 7% et 20%.",
           "amountStakingInfo": "Vous pouvez miser n'importe quel montant de %{assetName} et ils commenceront immédiatement à gagner des récompenses.",
           "withdrawInfo": "Vous pouvez retirer vos récompenses à tout moment, ce qui nécessite des frais de carburant minimes d'environ ~$.01.",
           "unbondingInfo": "Lorsque vous démisez vos jetons, ils restent verrouillés pendant %{unbondingDays} jours, au cours desquels ils ne sont pas récompensés. Après ces %{unbondingDays} jours, vos %{assetName} retourneront dans votre porte-monnaie principal.",
@@ -186,7 +190,15 @@
         "foxyBalance": "Solde FOXy",
         "withdrawals": "Retraits",
         "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici.",
-        "availableDate": "disponible %{date}"
+        "availableDate": "disponible le %{date}"
+      },
+      "overview": {
+        "underlyingTokens": "Jetons sous-jacents",
+        "availableRewards": "Récompenses disponibles",
+        "about": "À propos",
+        "tvl": "TVL",
+        "apy": "APY",
+        "noWithdrawals": "Vous n'avez aucun retrait à réclamer."
       },
       "claim": {
         "rewardDepositInfo": "Vos récompenses seront déposées dans votre porte-monnaie principal.",
@@ -273,7 +285,28 @@
         "cta": "Voir les opportunités"
       }
     },
-    "viewOnChain": "Voir sur la chaîne"
+    "viewOnChain": "Voir sur la chaîne",
+    "steps": {
+      "deposit": {
+        "info": {
+          "title": "Informations sur le dépôt",
+          "description": "Entrez le montant en %{asset} que vous souhaitez déposer."
+        }
+      },
+      "withdraw": {
+        "info": {
+          "title": "Informations sur le retrait",
+          "description": "Entrez le montant en %{asset} que vous souhaitez retirer.",
+          "yieldyDescription": "Entrez le montant en %{asset} que vous souhaitez retirer. Les retraits suivants seront combinés et réinitialiseront la durée du retrait."
+        }
+      },
+      "approve": {
+        "title": "Approuver"
+      },
+      "confirm": {
+        "title": "Confirmer"
+      }
+    }
   },
   "staking": {
     "staking": "Placements",
@@ -300,7 +333,7 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie"
   },
   "transactionRow": {
-    "send": "Envoyé %{symbol}",
+    "send": "%{symbol} envoyé",
     "receive": "Reçu %{symbol}",
     "moreDetails": "Plus de détails",
     "date": "Date",
@@ -488,7 +521,7 @@
       },
       "confirmPassword": {
         "header": "Confirmez votre mot de passe",
-        "walletName": "Surnom du portefeuille (facultatif)",
+        "walletName": "Surnom du porte-monnaie (facultatif)",
         "body": "Confirmez votre mot de passe pour décrypter votre porte-monnaie",
         "placeholder": "Confirmer le mot de passe",
         "show": "Afficher le mot de passe",
@@ -565,14 +598,21 @@
     },
     "deposit": {
       "amountToDeposit": "Montant à déposer",
+      "depositInto": "Déposer dans %{opportunité}",
       "estimatedReturns": "Rendement annuel estimé*",
       "estimateDisclaimer": "*Les estimations fluctuent en fonction des conditions du marché.",
       "footerDisclaimer": "En continuant, vous acceptez nos",
       "footerDisclaimerLink": "conditions d'utilisation.",
-      "slippageSettings": "Paramètres de glissement de taux"
+      "slippageSettings": "Paramètres de glissement de taux",
+      "status": {
+        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
+        "success": "Vous avez effectué un dépôt avec succès dans %{opportunity}.",
+        "failed": "Il y a eu un problème avec votre dépôt."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Montant à retirer",
+      "withdrawFrom": "Retirer de %{opportunité}",
       "footerDisclaimer": "Cette transaction nécessitera des frais de carburant pour une transaction.",
       "slippageSettings": "Paramètres de glissement de taux",
       "withdrawType": "Type de retrait",
@@ -584,6 +624,11 @@
       "withdrawFee": "Il y aura des frais de carburant distincts pour effectuer un retirait.",
       "disclaimer": "Les demandes ultérieures seront combinées et réinitialiseront le temps de retrait.",
       "withdrawalFee": "Frais de retrait",
+      "status": {
+        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
+        "success": "Vous avez effectué un retrait avec succès de %{opportunité}.",
+        "failed": "Il y a eu un problème avec votre dépôt."
+      },
       "info": {
         "delayed": "Le retrait différé comporte deux transactions :",
         "delayedOne": "Demander le retrait",
@@ -611,6 +656,8 @@
         "preFooter": "Les récompenses sont cumulées automatiquement"
       },
       "withdrawTo": "Retirer vers",
+      "amountToDeposit": "Montant à déposer",
+      "amountToWithdraw": "Montant à retirer",
       "withdrawFrom": "Retirer de",
       "depositTo": "Déposer sur",
       "averageApy": "APY moyen",

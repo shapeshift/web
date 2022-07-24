@@ -1,13 +1,26 @@
+import { avalancheChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import Web3 from 'web3'
 
-let maybeWeb3Provider: InstanceType<typeof Web3.providers.HttpProvider> | null
+type HttpProvider = InstanceType<typeof Web3.providers.HttpProvider>
 
-export const getWeb3Provider = () => {
-  if (!maybeWeb3Provider) {
-    maybeWeb3Provider = new Web3.providers.HttpProvider(getConfig().REACT_APP_ETHEREUM_NODE_URL)
-    return maybeWeb3Provider!
+const web3ProviderMap: Map<ChainId, HttpProvider> = new Map()
+
+const httpProviderByChain = (chainId: ChainId): string => {
+  switch (chainId) {
+    case avalancheChainId:
+      return getConfig().REACT_APP_AVALANCHE_NODE_URL
+    case ethChainId:
+    default:
+      return getConfig().REACT_APP_ETHEREUM_NODE_URL
+  }
+}
+
+export const getWeb3Provider = (chainId: ChainId): HttpProvider => {
+  if (!web3ProviderMap.get(chainId)) {
+    web3ProviderMap.set(chainId, new Web3.providers.HttpProvider(httpProviderByChain(chainId)))
+    return web3ProviderMap.get(chainId)!
   } else {
-    return maybeWeb3Provider!
+    return web3ProviderMap.get(chainId)!
   }
 }

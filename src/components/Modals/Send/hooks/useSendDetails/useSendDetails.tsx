@@ -1,11 +1,11 @@
 import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  avalanche,
   bitcoin,
   ChainAdapter,
   cosmos,
   dogecoin,
   ethereum,
+  EvmBaseAdapter,
   EvmChainIds,
   FeeDataEstimate,
 } from '@shapeshiftoss/chain-adapters'
@@ -137,15 +137,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     switch (values.asset.chainId) {
       case KnownChainIds.CosmosMainnet:
-      case KnownChainIds.OsmosisMainnet: {
+      case KnownChainIds.OsmosisMainnet:
         return adapter.getFeeData({})
-      }
-      case KnownChainIds.EthereumMainnet: {
-        return getEvmFeeData(adapter as unknown as ethereum.ChainAdapter)
-      }
-      case KnownChainIds.AvalancheMainnet: {
-        return getEvmFeeData(adapter as unknown as avalanche.ChainAdapter)
-      }
+      case KnownChainIds.EthereumMainnet:
+      case KnownChainIds.AvalancheMainnet:
+        return getEvmFeeData(adapter as unknown as EvmBaseAdapter<EvmChainIds>)
       case KnownChainIds.BitcoinMainnet: {
         const bitcoinChainAdapter = (await chainAdapterManager.get(
           KnownChainIds.BitcoinMainnet,
@@ -295,28 +291,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       try {
         const { chainId, account } = fromAccountId(accountSpecifier)
+        const adapter = chainAdapterManager.get(chainId)
+        if (!adapter) throw new Error(`No adapter available for ${chainId}`)
+
         const { fastFee, adapterFees } = await (async () => {
           switch (chainId) {
             case KnownChainIds.CosmosMainnet: {
-              const cosmosAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet) as
-                | cosmos.ChainAdapter
-                | undefined
-              if (!cosmosAdapter)
-                throw new Error(`No adapter available for ${KnownChainIds.CosmosMainnet}`)
+              const cosmosAdapter = adapter as unknown as cosmos.ChainAdapter
               const adapterFees = await cosmosAdapter.getFeeData({})
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
             case KnownChainIds.EthereumMainnet: {
-              const ethAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet) as
-                | ethereum.ChainAdapter
-                | undefined
-              if (!ethAdapter)
-                throw new Error(`No adapter available for ${KnownChainIds.EthereumMainnet}`)
-              const value = assetBalance
+              const ethAdapter = adapter as unknown as ethereum.ChainAdapter
               const adapterFees = await ethAdapter.getFeeData({
                 to,
-                value,
+                value: assetBalance,
                 chainSpecific: { contractAddress, from: account },
                 sendMax: true,
               })
@@ -324,15 +314,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               return { adapterFees, fastFee }
             }
             case KnownChainIds.AvalancheMainnet: {
-              const avalancheAdapter = chainAdapterManager.get(KnownChainIds.AvalancheMainnet) as
-                | avalanche.ChainAdapter
-                | undefined
-              if (!avalancheAdapter)
-                throw new Error(`No adapter available for ${KnownChainIds.EthereumMainnet}`)
-              const value = assetBalance
+              const avalancheAdapter = adapter as unknown as EvmBaseAdapter<EvmChainIds>
               const adapterFees = await avalancheAdapter.getFeeData({
                 to,
-                value,
+                value: assetBalance,
                 chainSpecific: { contractAddress, from: account },
                 sendMax: true,
               })
@@ -340,15 +325,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               return { adapterFees, fastFee }
             }
             case KnownChainIds.BitcoinMainnet: {
-              const btcAdapter = (await chainAdapterManager.get(KnownChainIds.BitcoinMainnet)) as
-                | bitcoin.ChainAdapter
-                | undefined
-              if (!btcAdapter)
-                throw new Error(`No adapter available for ${KnownChainIds.BitcoinMainnet}`)
-              const value = assetBalance
+              const btcAdapter = adapter as unknown as bitcoin.ChainAdapter
               const adapterFees = await btcAdapter.getFeeData({
                 to,
-                value,
+                value: assetBalance,
                 chainSpecific: { pubkey: account },
                 sendMax: true,
               })
@@ -356,15 +336,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               return { adapterFees, fastFee }
             }
             case KnownChainIds.DogecoinMainnet: {
-              const dogeAdapter = (await chainAdapterManager.get(KnownChainIds.DogecoinMainnet)) as
-                | dogecoin.ChainAdapter
-                | undefined
-              if (!dogeAdapter)
-                throw new Error(`No adapter available for ${KnownChainIds.DogecoinMainnet}`)
-              const value = assetBalance
+              const dogeAdapter = adapter as unknown as dogecoin.ChainAdapter
               const adapterFees = await dogeAdapter.getFeeData({
                 to,
-                value,
+                value: assetBalance,
                 chainSpecific: { pubkey: account },
                 sendMax: true,
               })
@@ -439,7 +414,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           // Don't show an error message when the input is empty
           setValue(SendFormFields.AmountFieldError, '')
           // Set value of the other input to an empty string as well
-          setValue(key, '') // TODO: this shouldnt be a thing, using a single amount field
+          setValue(key, '') // TODO: this shouldn't be a thing, using a single amount field
           return
         }
 
@@ -450,7 +425,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         setValue(key, amount)
 
-        // TODO: work toward a constistent way of handling tx fees and minimum amounts
+        // TODO: work toward a consistent way of handling tx fees and minimum amounts
         // see, https://github.com/shapeshift/web/issues/1966
 
         await (async () => {

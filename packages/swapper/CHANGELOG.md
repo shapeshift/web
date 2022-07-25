@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v8.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.6.1...@shapeshiftoss/swapper-v8.7.0) (2022-07-25)
+
+
+### Features
+
+* **swapper:** support all evm chains in `getZrxMinMax` ([#902](https://github.com/shapeshift/lib/issues/902)) ([e97be16](https://github.com/shapeshift/lib/commit/e97be165862f9402437c7539d699f5ed2c3990a7))
+
 # [@shapeshiftoss/swapper-v8.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.6.0...@shapeshiftoss/swapper-v8.6.1) (2022-07-25)
 
 # [@shapeshiftoss/swapper-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v8.5.3...@shapeshiftoss/swapper-v8.6.0) (2022-07-22)

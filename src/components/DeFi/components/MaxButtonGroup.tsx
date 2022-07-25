@@ -5,13 +5,24 @@ type MaxButtonGroupProps = {
   options: number[]
   value?: number | null
   onClick: (args: number) => void
+  isDisabled?: boolean
 }
 
-export const MaxButtonGroup: React.FC<MaxButtonGroupProps> = ({ options, value, onClick }) => {
+export const MaxButtonGroup: React.FC<MaxButtonGroupProps> = ({
+  options,
+  value,
+  onClick,
+  isDisabled,
+}) => {
   return (
     <ButtonGroup justifyContent='space-between' size='xs'>
       {options.map(option => (
-        <Button isActive={option === value} key={option} onClick={() => onClick(option)}>
+        <Button
+          isDisabled={isDisabled}
+          isActive={option === value}
+          key={option}
+          onClick={() => onClick(option)}
+        >
           {option === 1 ? (
             'Max'
           ) : (

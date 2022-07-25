@@ -1,18 +1,28 @@
 import { Amount } from 'components/Amount/Amount'
 type AssetBalanceProps = {
   symbol: string
-  value: string
+  cryptoBalance: string
+  fiatBalance: string
+  isFiat?: boolean
   label: string
 }
-export const Balance: React.FC<AssetBalanceProps> = ({ symbol, value, label }) => {
-  return (
+export const Balance: React.FC<AssetBalanceProps> = ({
+  symbol,
+  cryptoBalance,
+  fiatBalance,
+  label,
+  isFiat,
+}) => {
+  return isFiat ? (
+    <Amount.Fiat lineHeight={1} color='gray.500' fontSize='sm' prefix={label} value={fiatBalance} />
+  ) : (
     <Amount.Crypto
       lineHeight={1}
       color='gray.500'
       fontSize='sm'
       symbol={symbol}
       prefix={label}
-      value={value}
+      value={cryptoBalance}
     />
   )
 }

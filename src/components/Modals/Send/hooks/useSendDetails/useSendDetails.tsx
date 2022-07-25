@@ -167,16 +167,77 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
   }, [accountSpecifier, chainAdapterManager, contractAddress, getValues, wallet])
 
-  const debouncedEstimateFormFees = useMemo(() => {
-    return debounce(estimateFormFees, 1000, { leading: true })
-  }, [estimateFormFees])
+  const debouncedSetEstimatedFormFees = useMemo(() => {
+    return debounce(
+      async () => {
+        const estimatedFees = await estimateFormFees()
 
-  // Stop calls to debouncedEstimateFormFees on unmount
+        const { cryptoAmount } = getValues()
+        const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
+
+        if (!hasValidBalance) {
+          throw new Error('common.insufficientFunds')
+        }
+
+        if (estimatedFees === undefined) {
+          throw new Error('common.generalError')
+        }
+
+        if (estimatedFees instanceof Error) {
+          throw estimatedFees.message
+        }
+
+        // If sending native fee asset, ensure amount entered plus fees is less than balance.
+        if (feeAsset.assetId === asset.assetId) {
+          const canCoverFees = nativeAssetBalance
+            .minus(bnOrZero(cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0))
+            .minus(estimatedFees.fast.txFee)
+            .isPositive()
+          if (!canCoverFees) {
+            throw new Error('common.insufficientFunds')
+          }
+        }
+
+        const hasEnoughNativeTokenForGas = nativeAssetBalance
+          .minus(estimatedFees.fast.txFee)
+          .isPositive()
+
+        if (!hasEnoughNativeTokenForGas) {
+          setValue(SendFormFields.AmountFieldError, [
+            'modals.send.errors.notEnoughNativeToken',
+            { asset: feeAsset.symbol },
+          ])
+          setLoading(false)
+          return
+        }
+
+        // Remove existing error messages because the send amount is valid
+        if (estimatedFees !== undefined) {
+          setValue(SendFormFields.AmountFieldError, '')
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
+        }
+      },
+      1000,
+      { leading: true, trailing: true },
+    )
+  }, [
+    asset.assetId,
+    asset.precision,
+    cryptoHumanBalance,
+    estimateFormFees,
+    feeAsset.assetId,
+    feeAsset.symbol,
+    getValues,
+    nativeAssetBalance,
+    setValue,
+  ])
+
+  // Stop calls to debouncedSetEstimatedFormFees on unmount
   useEffect(() => {
     return () => {
-      debouncedEstimateFormFees.cancel()
+      debouncedSetEstimatedFormFees.cancel()
     }
-  }, [debouncedEstimateFormFees])
+  }, [debouncedSetEstimatedFormFees])
 
   const handleNextClick = async () => {
     history.push(SendRoutes.Confirm)
@@ -348,7 +409,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       try {
         if (inputValue === '') {
           // Cancel any pending requests
-          debouncedEstimateFormFees.cancel()
+          debouncedSetEstimatedFormFees.cancel()
           // Don't show an error message when the input is empty
           setValue(SendFormFields.AmountFieldError, '')
           // Set value of the other input to an empty string as well
@@ -366,61 +427,16 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         // TODO: work toward a constistent way of handling tx fees and minimum amounts
         // see, https://github.com/shapeshift/web/issues/1966
 
-        const estimatedFees = await (async () => {
+        await (async () => {
           try {
             setLoading(true)
-            return await debouncedEstimateFormFees()
+            await debouncedSetEstimatedFormFees()
           } catch (e) {
             throw new Error('common.insufficientFunds')
           } finally {
             setLoading(false)
           }
         })()
-
-        const { cryptoAmount } = getValues()
-        const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
-
-        if (!hasValidBalance) {
-          throw new Error('common.insufficientFunds')
-        }
-
-        if (estimatedFees === undefined) {
-          throw new Error('common.generalError')
-        }
-
-        if (estimatedFees instanceof Error) {
-          throw estimatedFees.message
-        }
-
-        // If sending native fee asset, ensure amount entered plus fees is less than balance.
-        if (feeAsset.assetId === asset.assetId) {
-          const canCoverFees = nativeAssetBalance
-            .minus(bnOrZero(cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0))
-            .minus(estimatedFees.fast.txFee)
-            .isPositive()
-          if (!canCoverFees) {
-            throw new Error('common.insufficientFunds')
-          }
-        }
-
-        const hasEnoughNativeTokenForGas = nativeAssetBalance
-          .minus(estimatedFees.fast.txFee)
-          .isPositive()
-
-        if (!hasEnoughNativeTokenForGas) {
-          setValue(SendFormFields.AmountFieldError, [
-            'modals.send.errors.notEnoughNativeToken',
-            { asset: feeAsset.symbol },
-          ])
-          setLoading(false)
-          return
-        }
-
-        // Remove existing error messages because the send amount is valid
-        if (estimatedFees !== undefined) {
-          setValue(SendFormFields.AmountFieldError, '')
-          setValue(SendFormFields.EstimatedFees, estimatedFees)
-        }
       } catch (e) {
         if (e instanceof Error) {
           setValue(SendFormFields.AmountFieldError, e.message)

@@ -44,7 +44,7 @@ export function TokenRow<C extends FieldValues>({
 }: TokenRowProps<C>) {
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
 
   return (
     <InputGroup size='lg' {...rest}>

@@ -626,7 +626,7 @@
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully withdrawn from %{opportunity}.",
-        "failed": "There was an issue with your deposit."
+        "failed": "There was an issue with your withdraw."
       },
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",
@@ -695,6 +695,7 @@
     "settings": {
       "settings": "Settings",
       "currency": "Currency",
+      "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "Hide balances below this value",

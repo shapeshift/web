@@ -43,6 +43,7 @@ const validators = {
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
+  REACT_APP_FEATURE_MULTI_CURRENCY: bool({ default: false }),
   REACT_APP_FEATURE_WALLETCONNECT_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
@@ -61,6 +62,9 @@ const validators = {
   }),
   REACT_APP_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
+  }),
+  REACT_APP_COWSWAP_HTTP_URL: url({
+    default: 'https://api.cow.fi/mainnet/api',
   }),
   REACT_APP_COSMOS_NODE_URL: url({
     default: 'https://rest.cosmos.directory/cosmoshub/',

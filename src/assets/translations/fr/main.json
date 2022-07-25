@@ -598,7 +598,7 @@
     },
     "deposit": {
       "amountToDeposit": "Montant à déposer",
-      "depositInto": "Déposer dans %{opportunité}",
+      "depositInto": "Déposer dans %{opportunity}",
       "estimatedReturns": "Rendement annuel estimé*",
       "estimateDisclaimer": "*Les estimations fluctuent en fonction des conditions du marché.",
       "footerDisclaimer": "En continuant, vous acceptez nos",
@@ -612,7 +612,7 @@
     },
     "withdraw": {
       "amountToWithdraw": "Montant à retirer",
-      "withdrawFrom": "Retirer de %{opportunité}",
+      "withdrawFrom": "Retirer de %{opportunity}",
       "footerDisclaimer": "Cette transaction nécessitera des frais de carburant pour une transaction.",
       "slippageSettings": "Paramètres de glissement de taux",
       "withdrawType": "Type de retrait",
@@ -626,8 +626,8 @@
       "withdrawalFee": "Frais de retrait",
       "status": {
         "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
-        "success": "Vous avez effectué un retrait avec succès de %{opportunité}.",
-        "failed": "Il y a eu un problème avec votre dépôt."
+        "success": "Vous avez effectué un retrait de %{opportunity} avec succès",
+        "failed": "Il y a eu un problème avec votre retrait."
       },
       "info": {
         "delayed": "Le retrait différé comporte deux transactions :",

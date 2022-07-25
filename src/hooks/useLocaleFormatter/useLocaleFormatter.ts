@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from 'react'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { logger } from 'lib/logger'
+import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const CRYPTO_PRECISION = 8
 
@@ -29,8 +31,9 @@ export type NumberFormatOptions = {
   maximumFractionDigits?: number
   minimumFractionDigits?: number
   notation?: 'compact' | 'standard' | 'scientific' | 'engineering'
-  compactDisplay?: 'short' | 'long'
   fiatType?: string
+  abbreviated?: boolean
+  omitDecimalTrailingZeros?: boolean
 }
 
 export type NumberFormatter = {
@@ -44,7 +47,6 @@ export type NumberFormatter = {
     toParts: (value: string) => FiatParts
     toPercent: (number: NumberValue, options?: NumberFormatOptions) => string
     toString: (number: NumberValue, options?: NumberFormatOptions) => string
-    toSupply: (number: NumberValue, options?: NumberFormatOptions) => string
   }
   date: {
     toDateTime: (date: DateValue, options?: Intl.DateTimeFormatOptions) => string
@@ -140,27 +142,28 @@ export const getBrowserLocales = (options = {}) => {
   })[0]
 }
 
+type useLocaleFormatterArgs = {
+  locale?: string
+  fiatType?: string
+}
+
 /**
  * Set of helper functions for formatting using the user's locale
  * such as numbers, currencies, and dates
  */
 
-export const useLocaleFormatter = ({
-  locale,
-  fiatType = 'USD',
-}: {
-  locale?: string
-  fiatType: string
-}): NumberFormatter => {
-  const deviceLocale = locale ?? getBrowserLocales()
-
+export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatter => {
+  const currencyFormat = useAppSelector(selectCurrencyFormat)
+  const deviceLocale = args?.locale ?? currencyFormat
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const fiatTypeToUse = args?.fiatType ?? selectedCurrency
   /**
    * Parse a number in the current locale formatted in the selected currency.
    * This will determine the thousandth group separator, decimal separator, and minor units
    */
   const localeParts = useMemo((): LocaleParts => {
-    return getParts(deviceLocale, fiatType)
-  }, [fiatType, deviceLocale])
+    return getParts(deviceLocale, fiatTypeToUse)
+  }, [fiatTypeToUse, deviceLocale])
 
   /**
    * Parse a formatted number string into a prefix, number, and postfix
@@ -180,13 +183,13 @@ export const useLocaleFormatter = ({
    * Helper function to abbreviate number to truncate rather than round fractions
    * @param {number} maximumFractionDigits - truncate fraction after this number of digits. Use 0 for no fraction.
    */
-  function partsReducer(maximumFractionDigits: number, fiatType?: string) {
+  function partsReducer(maximumFractionDigits: number, omitDecimalTrailingZeros?: boolean) {
     return (accum: string, { type, value }: Intl.NumberFormatPart) => {
       let segment = value
       if (type === 'decimal' && maximumFractionDigits === 0) segment = ''
       if (type === 'fraction') {
         segment = value.substr(0, maximumFractionDigits)
-        if (!fiatType && segment && /^0*$/.test(segment)) {
+        if (omitDecimalTrailingZeros && segment && /^0*$/.test(segment)) {
           // remove trailing zeroes as well as separator character in case there are only zeroes as decimals
           return accum.slice(0, -1)
         }
@@ -196,37 +199,43 @@ export const useLocaleFormatter = ({
     }
   }
 
-  const abbreviateNumber = (number: number, fiatType?: string, options?: NumberFormatOptions) => {
-    const bounds = { min: 10000, max: 1000000 }
-    const longCompactDisplayLowerBound = 1_000_000_000
-    const noDecimals = bounds.min <= number && number < bounds.max
-    const minDisplayValue = 0.000001
-    const lessThanMin = 0 < number && minDisplayValue > number
-    const formatNumber = lessThanMin ? minDisplayValue : number
-    const minimumFractionDigits = noDecimals ? 0 : 2
-    const maximumFractionDigits = Math.max(
-      minimumFractionDigits,
-      lessThanMin ? 6 : getFiatNumberFractionDigits(number),
-    )
-    const formatter = new Intl.NumberFormat(deviceLocale, {
-      notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
-      compactDisplay: fiatType || number < longCompactDisplayLowerBound ? 'short' : 'long',
-      style: fiatType ? 'currency' : 'decimal',
-      currency: fiatType,
-      minimumFractionDigits,
-      maximumFractionDigits: 10,
-      ...options,
-    })
+  const abbreviateNumber = useCallback(
+    (number: number, fiatType?: string, options?: NumberFormatOptions) => {
+      const bounds = { min: 10000, max: 1000000 }
+      const longCompactDisplayLowerBound = 1_000_000_000
+      const noDecimals = bounds.min <= number && number < bounds.max
+      const minDisplayValue = 0.000001
+      const lessThanMin = 0 < number && minDisplayValue > number
+      const formatNumber = lessThanMin ? minDisplayValue : number
+      const minimumFractionDigits = noDecimals ? 0 : 2
+      const maximumFractionDigits = Math.max(
+        minimumFractionDigits,
+        lessThanMin ? 6 : getFiatNumberFractionDigits(number),
+      )
+      const formatter = new Intl.NumberFormat(deviceLocale, {
+        notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
+        compactDisplay: fiatType || number < longCompactDisplayLowerBound ? 'short' : 'long',
+        style: fiatType ? 'currency' : 'decimal',
+        currency: fiatType,
+        minimumFractionDigits,
+        maximumFractionDigits: 10,
+        ...options,
+      })
 
-    const parts = formatter.formatToParts(formatNumber)
-    return parts.reduce(partsReducer(maximumFractionDigits, fiatType), lessThanMin ? '<' : '')
-  }
+      const parts = formatter.formatToParts(formatNumber)
+      return parts.reduce(
+        partsReducer(maximumFractionDigits, options?.omitDecimalTrailingZeros),
+        lessThanMin ? '<' : '',
+      )
+    },
+    [deviceLocale],
+  )
 
   /** If the number that is being formatted has a trailing decimal, add it back to the formatted number */
   const showTrailingDecimal = useCallback(
     (num: NumberValue, formattedNum: string): string => {
       const parts = numberToParts(formattedNum)
-      const numHasDecimal = String(num).includes('.')
+      const numHasDecimal = String(num).includes(localeParts.decimal)
       const decimalWasRemoved = !parts?.number?.includes(localeParts.decimal)
       if (numHasDecimal && decimalWasRemoved) {
         parts.number = parts.number + localeParts.decimal
@@ -257,7 +266,7 @@ export const useLocaleFormatter = ({
     symbol = 'BTC',
     options?: NumberFormatOptions,
   ): string => {
-    const fractionDigits = (String(num).split('.')?.[1] ?? '').length
+    const fractionDigits = (String(num).split(localeParts.decimal)?.[1] ?? '').length
     const minimumFractionDigits =
       fractionDigits < CRYPTO_PRECISION ? fractionDigits : CRYPTO_PRECISION
     const crypto = numberToCrypto(num, symbol, { ...options, minimumFractionDigits })
@@ -269,7 +278,7 @@ export const useLocaleFormatter = ({
     (value: NumberValue, options?: NumberFormatOptions): string => {
       try {
         const number = toNumber(value)
-        const numberFiat = options?.fiatType || fiatType
+        const numberFiat = options?.fiatType || fiatTypeToUse
         return abbreviateNumber(number, numberFiat, options)
       } catch (e) {
         // @TODO: figure out logging
@@ -277,7 +286,7 @@ export const useLocaleFormatter = ({
         return String(value)
       }
     },
-    [fiatType, deviceLocale], // eslint-disable-line react-hooks/exhaustive-deps
+    [abbreviateNumber, fiatTypeToUse],
   )
 
   /**
@@ -288,7 +297,7 @@ export const useLocaleFormatter = ({
     (num: NumberValue, options?: NumberFormatOptions): string => {
       try {
         const { fraction } = localeParts
-        const fractionDigits = (String(num).split('.')?.[1] ?? '').length
+        const fractionDigits = (String(num).split(localeParts.decimal)?.[1] ?? '').length
         const minimumFractionDigits = Math.min(fractionDigits, fraction)
         const fiat = numberToFiat(num, { ...options, minimumFractionDigits })
         return showTrailingDecimal(num, fiat)
@@ -302,26 +311,7 @@ export const useLocaleFormatter = ({
         return String(num)
       }
     },
-    [localeParts, numberToFiat], // eslint-disable-line react-hooks/exhaustive-deps
-  )
-
-  /** Format a number as a supply display value */
-  const numberToSupply = useCallback(
-    (value: NumberValue, options?: NumberFormatOptions): string => {
-      try {
-        const number = toNumber(value)
-        return abbreviateNumber(number, undefined, options)
-      } catch (e) {
-        // @TODO: figure out logging
-        moduleLogger.error(
-          e,
-          { fn: 'numberToSupply' },
-          'Error formatting number to supply display value',
-        )
-        return String(value)
-      }
-    },
-    [deviceLocale], // eslint-disable-line react-hooks/exhaustive-deps
+    [localeParts, numberToFiat, showTrailingDecimal],
   )
 
   const numberToPercent = (number: NumberValue, options: NumberFormatOptions = {}): string => {
@@ -335,6 +325,7 @@ export const useLocaleFormatter = ({
   }
 
   const numberToString = (number: NumberValue, options?: NumberFormatOptions): string => {
+    if (options?.abbreviated) return abbreviateNumber(toNumber(number), undefined, options)
     const maximumFractionDigits = options?.maximumFractionDigits ?? 8
     return toNumber(number).toLocaleString(deviceLocale, { maximumFractionDigits })
   }
@@ -365,7 +356,6 @@ export const useLocaleFormatter = ({
       toParts: numberToParts,
       toPercent: numberToPercent,
       toString: numberToString,
-      toSupply: numberToSupply,
     },
     date: {
       toDateTime,

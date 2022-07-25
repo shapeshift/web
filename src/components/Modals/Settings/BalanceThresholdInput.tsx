@@ -30,7 +30,7 @@ export const BalanceThresholdInput = () => {
   const dispatch = useAppDispatch()
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const onChange = (value: string) => {
     dispatch(preferences.actions.setBalanceThreshold({ threshold: value }))
   }

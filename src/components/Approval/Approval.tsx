@@ -42,7 +42,7 @@ export const Approval = () => {
   const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const {
     state: { isConnected },
     dispatch,

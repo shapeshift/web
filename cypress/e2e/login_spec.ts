@@ -56,6 +56,8 @@ describe('The Dashboard', () => {
   })
 
   it('supports login via locally stored Native wallet', () => {
+    // Use this to clear the "localWallet" data and show the splash screen
+    cy.clearLocalStorage()
     // This will use the wallet created in `supports log in via an imported Native wallet`
     cy.visit('')
     cy.getBySel('connect-wallet-button').click()
@@ -70,6 +72,7 @@ describe('The Dashboard', () => {
   })
 
   it('cannot login natively when no local Native wallets', () => {
+    cy.clearLocalStorage()
     cy.clearIndexedDB().then(() => {
       cy.visit('')
       cy.getBySel('connect-wallet-button').click()
@@ -79,6 +82,7 @@ describe('The Dashboard', () => {
   })
 
   it('support Portis log in', () => {
+    cy.clearLocalStorage()
     cy.visit('')
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()

@@ -1,19 +1,23 @@
-import { Center, Flex, useToast } from '@chakra-ui/react'
+import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { IdleInvestor } from '@shapeshiftoss/investor-idle'
-import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { AnimatePresence } from 'framer-motion'
-import { useEffect, useReducer } from 'react'
+import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
+import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
+import {
+  DefiAction,
+  DefiParams,
+  DefiQueryParams,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import qs from 'qs'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Switch, useLocation } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RouteSteps } from 'components/RouteSteps/RouteSteps'
+import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -25,20 +29,16 @@ import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { DepositPath, routes, IdleDepositActionType } from './DepositCommon'
+import { IdleDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
-type IdleDepositProps = {
-  idleInvestor: IdleInvestor
-}
-
-export const IdleDeposit = ({ idleInvestor }: IdleDepositProps) => {
+export const IdleDeposit = () => {
+  const { idle: api } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
-  const location = useLocation()
   const translate = useTranslate()
   const toast = useToast()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const chainAdapterManager = useChainAdapters()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
@@ -55,10 +55,10 @@ export const IdleDeposit = ({ idleInvestor }: IdleDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter && api)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          idleInvestor.findByOpportunityId(
+          api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
         ])
@@ -78,50 +78,42 @@ export const IdleDeposit = ({ idleInvestor }: IdleDepositProps) => {
         console.error('IdleDeposit error:', error)
       }
     })()
-  }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
-  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference)) return
-    try {
-      const idleOpportunity = await idleInvestor.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!idleOpportunity) throw new Error('No opportunity')
-      const preparedTx = await idleOpportunity.prepareDeposit({
-        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
-      })
-      // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      console.error('IdleDeposit:getDepositGasEstimate error:', error)
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
+  const handleBack = () => {
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Overview,
+      }),
+    })
   }
 
-  const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    if (!state.opportunity) return null
-
-    switch (route.path) {
-      case DepositPath.Deposit:
-        return <Deposit getDepositGasEstimate={getDepositGasEstimate} />
-      case DepositPath.Approve:
-        return <Approve getDepositGasEstimate={getDepositGasEstimate} />
-      case DepositPath.Confirm:
-        return <Confirm />
-      case DepositPath.Status:
-        return <Status />
-      default:
-        throw new Error('Route does not exist')
+  const StepConfig: DefiStepProps = useMemo(() => {
+    return {
+      [DefiStep.Info]: {
+        label: translate('defi.steps.deposit.info.title'),
+        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
+        component: Deposit,
+      },
+      [DefiStep.Approve]: {
+        label: translate('defi.steps.approve.title'),
+        component: Approve,
+      },
+      [DefiStep.Confirm]: {
+        label: translate('defi.steps.confirm.title'),
+        component: Confirm,
+      },
+      [DefiStep.Status]: {
+        label: 'Status',
+        component: Status,
+      },
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [asset.symbol])
 
-  if (loading || !asset || !marketData) {
+  if (loading || !asset || !marketData || !api) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -131,25 +123,13 @@ export const IdleDeposit = ({ idleInvestor }: IdleDepositProps) => {
 
   return (
     <DepositContext.Provider value={{ state, dispatch }}>
-      <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
-        <RouteSteps routes={routes} location={location} />
-        <Flex flexDir='column' width='full'>
-          <AnimatePresence exitBeforeEnter initial={false}>
-            <Switch location={location} key={location.key}>
-              {routes.map(route => {
-                return (
-                  <Route
-                    exact
-                    key={route.path}
-                    render={() => renderRoute(route)}
-                    path={route.path}
-                  />
-                )
-              })}
-            </Switch>
-          </AnimatePresence>
-        </Flex>
-      </Flex>
+      <DefiModalContent>
+        <DefiModalHeader
+          title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}
+          onBack={handleBack}
+        />
+        <Steps steps={StepConfig} />
+      </DefiModalContent>
     </DepositContext.Provider>
   )
 }

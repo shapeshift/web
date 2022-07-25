@@ -2,7 +2,7 @@ import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 
 type IdleContextProps = {
@@ -18,7 +18,7 @@ export const useIdle = () => {
   return context
 }
 
-export const IdleProvider: React.FC = ({ children }) => {
+export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [idle, setIdle] = useState<IdleInvestor | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const { chainAdapterManager } = usePlugins()

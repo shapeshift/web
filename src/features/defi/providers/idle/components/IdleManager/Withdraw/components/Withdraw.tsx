@@ -1,12 +1,18 @@
 import { toAssetId } from '@shapeshiftoss/caip'
 import {
+  Field,
   Withdraw as ReusableWithdraw,
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiParams,
+  DefiQueryParams,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useContext } from 'react'
-import { useHistory } from 'react-router-dom'
+import { FormProvider, useForm } from 'react-hook-form'
+import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -16,16 +22,18 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { WithdrawPath, IdleWithdrawActionType } from '../WithdrawCommon'
+import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-export const Withdraw = () => {
+export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { idle: idleInvestor } = useIdle()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
+
+  const methods = useForm<WithdrawValues>({ mode: 'onChange' })
+  const { setValue } = methods
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -40,10 +48,12 @@ export const Withdraw = () => {
     assetReference: vaultAddress,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   if (!state || !dispatch) return null
 
@@ -69,18 +79,26 @@ export const Withdraw = () => {
     if (!(state.userAddress && opportunity)) return
     // set withdraw state for future use
     dispatch({ type: IdleWithdrawActionType.SET_WITHDRAW, payload: formValues })
-
+    dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
     const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
     if (!estimatedGasCrypto) return
     dispatch({
       type: IdleWithdrawActionType.SET_WITHDRAW,
       payload: { estimatedGasCrypto },
     })
-    history.push(WithdrawPath.Confirm)
+    onNext(DefiStep.Confirm)
+    dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
   }
 
   const handleCancel = () => {
     browserHistory.goBack()
+  }
+
+  const handlePercentClick = (percent: number) => {
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+    setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+    setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -100,7 +118,6 @@ export const Withdraw = () => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
   const pricePerShare = bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
     `1e+${asset?.precision}`,
   )
@@ -108,30 +125,34 @@ export const Withdraw = () => {
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 
   return (
-    <ReusableWithdraw
-      asset={asset}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
-      cryptoInputValidation={{
-        required: true,
-        validate: { validateCryptoAmount },
-      }}
-      fiatAmountAvailable={fiatAmountAvailable.toString()}
-      fiatInputValidation={{
-        required: true,
-        validate: { validateFiatAmount },
-      }}
-      marketData={{
-        // The vault asset doesnt have market data.
-        // We're making our own market data object for the withdraw view
-        price: vaultTokenPrice.toString(),
-        marketCap: '0',
-        volume: '0',
-        changePercent24Hr: 0,
-      }}
-      onCancel={handleCancel}
-      onContinue={handleContinue}
-      percentOptions={[0.25, 0.5, 0.75, 1]}
-      enableSlippage={false}
-    />
+    <FormProvider {...methods}>
+      <ReusableWithdraw
+        asset={underlyingAsset}
+        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoInputValidation={{
+          required: true,
+          validate: { validateCryptoAmount },
+        }}
+        fiatAmountAvailable={fiatAmountAvailable.toString()}
+        fiatInputValidation={{
+          required: true,
+          validate: { validateFiatAmount },
+        }}
+        marketData={{
+          // The vault asset doesnt have market data.
+          // We're making our own market data object for the withdraw view
+          price: vaultTokenPrice.toString(),
+          marketCap: '0',
+          volume: '0',
+          changePercent24Hr: 0,
+        }}
+        onCancel={handleCancel}
+        onContinue={handleContinue}
+        isLoading={state.loading}
+        percentOptions={[0.25, 0.5, 0.75, 1]}
+        enableSlippage={false}
+        handlePercentClick={handlePercentClick}
+      />
+    </FormProvider>
   )
 }

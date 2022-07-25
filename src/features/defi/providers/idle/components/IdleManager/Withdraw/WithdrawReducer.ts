@@ -1,5 +1,3 @@
-import { WithdrawType } from '@shapeshiftoss/types'
-
 import { IdleWithdrawActions, IdleWithdrawActionType, IdleWithdrawState } from './WithdrawCommon'
 
 export const initialState: IdleWithdrawState = {
@@ -14,7 +12,6 @@ export const initialState: IdleWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: WithdrawType.INSTANT,
   },
 }
 

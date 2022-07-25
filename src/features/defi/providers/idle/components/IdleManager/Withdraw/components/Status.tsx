@@ -1,14 +1,16 @@
-import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Link, Stack } from '@chakra-ui/react'
+import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext, useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -24,6 +26,7 @@ import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
+  const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
@@ -82,73 +85,61 @@ export const Status = () => {
 
   if (!state) return null
 
-  let statusIcon: React.ReactElement = <ArrowForwardIcon />
-  let statusText = StatusTextEnum.pending
-  if (state.withdraw.txStatus === 'success') {
-    statusText = StatusTextEnum.success
-    statusIcon = <CheckIcon color='green' />
-  }
-  if (state.withdraw.txStatus === 'failed') {
-    statusText = StatusTextEnum.failed
-    statusIcon = <CloseIcon color='red' />
-  }
+  const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    switch (state.withdraw.txStatus) {
+      case 'success':
+        return {
+          statusText: StatusTextEnum.success,
+          statusIcon: <CheckIcon color='white' />,
+          statusBg: 'green.500',
+          statusBody: translate('modals.withdraw.status.success', {
+            opportunity: `${underlyingAsset.symbol} Vault`,
+          }),
+        }
+      case 'failed':
+        return {
+          statusText: StatusTextEnum.failed,
+          statusIcon: <CloseIcon color='white' />,
+          statusBg: 'red.500',
+          statusBody: translate('modals.withdraw.status.failed'),
+        }
+      default:
+        return {
+          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusText: StatusTextEnum.pending,
+          statusBg: 'transparent',
+          statusBody: translate('modals.withdraw.status.pending'),
+        }
+    }
+  })()
 
   return (
     <TxStatus
       onClose={handleCancel}
-      onContinue={handleViewPosition}
-      loading={state.loading}
+      onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
+      loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
       continueText='modals.status.position'
-      closeText='modals.status.close'
       statusText={statusText}
       statusIcon={statusIcon}
-      assets={[
-        {
-          ...asset,
-          cryptoAmount: state.withdraw.cryptoAmount,
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-        {
-          ...underlyingAsset,
-          cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-            .div(`1e+${asset.precision}`)
-            .times(bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition))
-            .toString(),
-          fiatAmount: state.withdraw.fiatAmount,
-        },
-      ]}
+      statusBg={statusBg}
+      statusBody={statusBody}
     >
-      <Stack spacing={6}>
-        <Row>
+      <Summary spacing={0} mx={6} mb={4}>
+        <Row variant='vert-gutter'>
           <Row.Label>
-            <Text translation='modals.status.transactionId' />
+            <Text translation='modals.confirm.amountToWithdraw' />
           </Row.Label>
-          <Row.Value>
-            <Link
-              href={`${asset.explorerTxLink}/${state.txid}`}
-              isExternal
-              color='blue.500'
-              fontWeight='bold'
-            >
-              <MiddleEllipsis address={state.txid || ''} />
-            </Link>
-          </Row.Value>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={underlyingAsset.icon} />
+              <RawText>{underlyingAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+            </Row.Value>
+          </Row>
         </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.withdrawFrom' />
-          </Row.Label>
-          <Row.Value fontWeight='bold'>Idle Finance</Row.Value>
-        </Row>
-        <Row>
-          <Row.Label>
-            <Text translation='modals.confirm.withdrawTo' />
-          </Row.Label>
-          <Row.Value fontWeight='bold'>
-            <MiddleEllipsis address={state.userAddress || ''} />
-          </Row.Value>
-        </Row>
-        <Row>
+        <Row variant='gutter'>
           <Row.Label>
             <Text
               translation={
@@ -185,7 +176,20 @@ export const Status = () => {
             </Box>
           </Row.Value>
         </Row>
-      </Stack>
+        <Row variant='gutter'>
+          <Button
+            as={Link}
+            width='full'
+            isExternal
+            variant='ghost-filled'
+            colorScheme='green'
+            rightIcon={<ExternalLinkIcon />}
+            href={`${asset.explorerTxLink}/${state.txid}`}
+          >
+            {translate('defi.viewOnChain')}
+          </Button>
+        </Row>
+      </Summary>
     </TxStatus>
   )
 }

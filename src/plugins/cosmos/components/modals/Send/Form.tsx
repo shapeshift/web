@@ -17,7 +17,7 @@ import { Address } from 'components/Modals/Send/views/Address'
 import { QrCodeScanner } from 'components/Modals/Send/views/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -49,6 +49,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.assetId))
 
   const methods = useForm<SendInput>({
@@ -62,7 +63,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
       cryptoAmount: '',
       cryptoSymbol: initialAsset?.symbol,
       fiatAmount: '',
-      fiatSymbol: 'USD', // TODO: use user preferences to get default fiat currency
+      fiatSymbol: selectedCurrency,
     },
   })
 
@@ -71,7 +72,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
     methods.setValue(SendFormFields.FiatAmount, '')
-    methods.setValue(SendFormFields.FiatSymbol, 'USD')
+    methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
     methods.setValue(SendFormFields.AccountId, accountId)
 
     history.push(SendRoutes.Address)

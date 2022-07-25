@@ -71,7 +71,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 }) => {
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const translate = useTranslate()
   const amountRef = useRef<string | null>(null)
   const [isFiat, setIsFiat] = useState<boolean>(false)

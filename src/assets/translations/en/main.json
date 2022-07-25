@@ -695,6 +695,7 @@
     "settings": {
       "settings": "Settings",
       "currency": "Currency",
+      "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "Hide balances below this value",

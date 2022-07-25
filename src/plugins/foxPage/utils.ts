@@ -5,7 +5,7 @@ import { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import { BN, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getWeb3Instance } from 'lib/web3-instance'
+import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 import { TRADING_FEE_RATE } from './const'
 
@@ -19,7 +19,7 @@ let maybeEthersProvider: providers.Web3Provider | undefined
 export const getEthersProvider = () => {
   if (maybeEthersProvider) return maybeEthersProvider
 
-  const provider = getWeb3Instance(ethChainId).currentProvider
+  const provider = getWeb3InstanceByChainId(ethChainId).currentProvider
 
   maybeEthersProvider = new providers.Web3Provider(
     provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?

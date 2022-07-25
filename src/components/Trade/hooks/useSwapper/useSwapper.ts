@@ -33,7 +33,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getWeb3Instance } from 'lib/web3-instance'
+import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
@@ -84,8 +84,8 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   _swapperManager = new SwapperManager()
 
   const adapterManager = getChainAdapters()
-  const ethWeb3 = getWeb3Instance(ethChainId)
-  const avaxWeb3 = getWeb3Instance(avalancheChainId)
+  const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
+  const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
 
   /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
 

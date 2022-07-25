@@ -313,11 +313,11 @@ export const useSwapper = () => {
           sellAmount: amount,
           sellAsset,
           buyAsset,
-          sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
-          buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
+          sellAssetAccountNumber: 0,
+          buyAssetAccountNumber: 0,
           wallet,
           sendMax: true,
-          receiveAddress, // TODO add this later with the buildTrade PR,
+          receiveAddress,
           bip44Params: utxoParams.bip44Params,
           accountType,
         })

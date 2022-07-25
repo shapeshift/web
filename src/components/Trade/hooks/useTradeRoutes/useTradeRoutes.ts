@@ -37,7 +37,7 @@ export const useTradeRoutes = (
 
   const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
-  const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)?.getFeeAssetId() as AssetId
+  const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)!.getFeeAssetId()
   const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
 
   const setDefaultAssets = useCallback(async () => {

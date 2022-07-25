@@ -35,7 +35,6 @@ export type CowSwapperDeps = {
   apiUrl: string
   adapter: ethereum.ChainAdapter
   web3: Web3
-  feeAsset: Asset // should be WETH asset
 }
 
 export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {

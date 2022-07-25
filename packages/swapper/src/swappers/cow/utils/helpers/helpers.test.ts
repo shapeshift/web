@@ -1,7 +1,7 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
-import { BTC, ETH, FOX, USDC, WBTC, WETH } from '../../../utils/test-data/assets'
+import { BTC, ETH, FOX, USDC, WBTC } from '../../../utils/test-data/assets'
 import { CowSwapperDeps } from '../../CowSwapper'
 import { cowService } from '../cowService'
 import {
@@ -18,8 +18,7 @@ describe('utils', () => {
   const cowSwapperDeps: CowSwapperDeps = {
     apiUrl: 'https://api.cow.fi/mainnet/api/',
     adapter: {} as ethereum.ChainAdapter,
-    web3: {} as Web3,
-    feeAsset: WETH
+    web3: {} as Web3
   }
 
   describe('getUsdRate', () => {

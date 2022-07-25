@@ -8,7 +8,6 @@ import { Swapper, SwapperType } from '../api'
 import { CowSwapper, ThorchainSwapper, ZrxSwapper } from '../swappers'
 import { CowSwapperDeps } from '../swappers/cow/CowSwapper'
 import { ThorchainSwapperDeps } from '../swappers/thorchain/types'
-import { WETH } from '../swappers/utils/test-data/assets'
 import { ZrxSwapperDeps } from '../swappers/zrx/types'
 import { SwapperManager } from './SwapperManager'
 
@@ -32,8 +31,7 @@ describe('SwapperManager', () => {
     adapter: <ethereum.ChainAdapter>{
       getChainId: () => KnownChainIds.EthereumMainnet
     },
-    web3: <Web3>{},
-    feeAsset: WETH
+    web3: <Web3>{}
   }
 
   const thorchainSwapperDeps: ThorchainSwapperDeps = {

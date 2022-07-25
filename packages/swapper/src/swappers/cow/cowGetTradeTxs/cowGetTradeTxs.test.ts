@@ -2,7 +2,6 @@ import { ethereum } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
 import { TradeResult } from '../../../api'
-import { WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
 import { cowService } from '../utils/cowService'
 import { cowGetTradeTxs } from './cowGetTradeTxs'
@@ -14,8 +13,7 @@ describe('cowGetTradeTxs', () => {
     const deps: CowSwapperDeps = {
       apiUrl: 'https://api.cow.fi/mainnet/api',
       adapter: {} as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3,
-      feeAsset: WETH
+      web3: {} as Web3
     }
 
     const input: TradeResult = {
@@ -43,8 +41,7 @@ describe('cowGetTradeTxs', () => {
     const deps: CowSwapperDeps = {
       apiUrl: 'https://api.cow.fi/mainnet/api',
       adapter: {} as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3,
-      feeAsset: WETH
+      web3: {} as Web3
     }
 
     const input: TradeResult = {

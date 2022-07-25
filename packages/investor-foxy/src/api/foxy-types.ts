@@ -151,6 +151,7 @@ export type StakingContract = {
   stakingContract: Contract
 }
 
-export type StakingContractWithUser = StakingContract & {
+export type CanClaimWithdrawParams = {
+  contractAddress: string
   userAddress: string
 }

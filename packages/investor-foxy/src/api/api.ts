@@ -28,6 +28,7 @@ import {
   AllowanceInput,
   ApproveInput,
   BalanceInput,
+  CanClaimWithdrawParams,
   ClaimWithdrawal,
   ContractAddressInput,
   EstimateGasApproveInput,
@@ -39,7 +40,6 @@ import {
   RebaseHistory,
   SignAndBroadcastTx,
   StakingContract,
-  StakingContractWithUser,
   TokeClaimIpfs,
   TokenAddressInput,
   TxInput,
@@ -538,10 +538,11 @@ export class FoxyApi {
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
 
-  async canClaimWithdraw(input: StakingContractWithUser): Promise<boolean> {
-    const { userAddress, stakingContract } = input
+  async canClaimWithdraw(input: CanClaimWithdrawParams): Promise<boolean> {
+    const { userAddress, contractAddress } = input
     const tokeManagerContract = new this.web3.eth.Contract(tokeManagerAbi, tokeManagerAddress)
     const tokePoolContract = new this.web3.eth.Contract(tokePoolAbi, tokePoolAddress)
+    const stakingContract = this.getStakingContract(contractAddress)
 
     const coolDownInfo = await (async () => {
       try {
@@ -629,7 +630,7 @@ export class FoxyApi {
 
     const stakingContract = this.getStakingContract(contractAddress)
 
-    const canClaim = await this.canClaimWithdraw({ userAddress, stakingContract })
+    const canClaim = await this.canClaimWithdraw({ userAddress, contractAddress })
     if (!canClaim) throw new Error('Not ready to claim')
 
     const data: string = stakingContract.methods.claimWithdraw(addressToClaim).encodeABI({

@@ -6,7 +6,7 @@ import {
   fromAssetId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { avalanche, ChainAdapter, ethereum, EvmChainIds } from '@shapeshiftoss/chain-adapters'
+import { avalanche, ChainAdapter, ethereum, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   OsmosisSwapper,
@@ -525,7 +525,7 @@ export const useSwapper = () => {
     )
     const fee = feeBN.toString()
 
-    const getEvmFees = <T extends EvmChainIds>(): DisplayFeeData<T> => {
+    const getEvmFees = <T extends EvmChainId>(): DisplayFeeData<T> => {
       const evmTrade = trade as Trade<T>
       const approvalFee = bnOrZero(evmTrade.feeData.chainSpecific.approvalFee)
         .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))

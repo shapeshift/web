@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import {
-  type EvmChainIds,
+  type EvmChainId,
   type FeeData,
   bitcoin,
   ChainAdapter,
@@ -52,7 +52,7 @@ export const useFormSend = () => {
           if (supportedEvmChainIds.includes(adapterType)) {
             if (!supportsETH(wallet))
               throw new Error(`useFormSend: wallet does not support ethereum`)
-            const fees = estimatedFees[feeType] as FeeData<EvmChainIds>
+            const fees = estimatedFees[feeType] as FeeData<EvmChainId>
             const {
               chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
             } = fees

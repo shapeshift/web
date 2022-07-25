@@ -4,7 +4,7 @@ import {
   cosmos,
   dogecoin,
   EvmBaseAdapter,
-  EvmChainIds,
+  EvmChainId,
   FeeDataEstimate,
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -128,7 +128,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return adapter.getFeeData({})
       case KnownChainIds.EthereumMainnet:
       case KnownChainIds.AvalancheMainnet:
-        return (adapter as unknown as EvmBaseAdapter<EvmChainIds>).getFeeData({
+        return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
           to: values.address,
           value,
           chainSpecific: {
@@ -291,7 +291,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             }
             case KnownChainIds.EthereumMainnet:
             case KnownChainIds.AvalancheMainnet: {
-              const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainIds>
+              const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
               const adapterFees = await evmAdapter.getFeeData({
                 to,
                 value: assetBalance,

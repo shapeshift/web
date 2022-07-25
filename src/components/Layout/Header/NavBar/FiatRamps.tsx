@@ -17,6 +17,7 @@ export const FiatRamps = () => {
   return (
     <Button
       leftIcon={<BuySellIcon color='inherit' />}
+      data-test='fiat-ramps-button'
       colorScheme='blue'
       width='full'
       onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}

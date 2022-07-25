@@ -47,6 +47,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
               justifyContent='space-between'
               variant='ghost'
               fontWeight='normal'
+              data-test={`fiat-ramp-${fiatRamp}-button`}
               py={2}
               onClick={() => {
                 setFiatRampProvider(fiatRamp)
@@ -93,6 +94,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
               justifyContent='flex-start'
               variant='ghost'
               fontWeight='normal'
+              data-test={`fiat-ramp-${fiatRamp}-button`}
               py={2}
             >
               <Flex

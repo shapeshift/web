@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.10.0...@shapeshiftoss/chain-adapters-v7.11.0) (2022-07-25)
+
+
+### Features
+
+* **swapper:** support all evm chains in `getZrxMinMax` ([#902](https://github.com/shapeshift/lib/issues/902)) ([e97be16](https://github.com/shapeshift/lib/commit/e97be165862f9402437c7539d699f5ed2c3990a7))
+
 # [@shapeshiftoss/chain-adapters-v7.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.9.0...@shapeshiftoss/chain-adapters-v7.10.0) (2022-07-22)
 
 

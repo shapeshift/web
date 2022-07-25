@@ -471,6 +471,7 @@ export const useSwapper = () => {
 
           setValue('quote', tradeQuote)
           setValue('sellAssetFiatRate', sellAssetUsdRate)
+          setValue('buyAssetFiatRate', buyAssetUsdRate)
           setValue('feeAssetFiatRate', feeAssetUsdRate)
 
           // Update trade input form fields to new calculated amount

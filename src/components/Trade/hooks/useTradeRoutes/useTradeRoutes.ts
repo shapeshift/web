@@ -1,4 +1,5 @@
-import { AssetId, chainIdToFeeAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -6,6 +7,7 @@ import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -23,7 +25,9 @@ export const useTradeRoutes = (
   const { updateQuote, getDefaultPair, swapperManager } = useSwapper()
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
-  const feeAssetId = chainIdToFeeAssetId(sellTradeAsset?.asset?.chainId ?? 'eip155:1')
+  const feeAssetId = (getChainAdapters() as ChainAdapterManager)
+    .get(sellTradeAsset?.asset?.chainId ?? ethChainId)
+    ?.getFeeAssetId() as AssetId
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
   const {
@@ -32,7 +36,7 @@ export const useTradeRoutes = (
 
   const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
-  const defaultFeeAssetId = chainIdToFeeAssetId(defaultSellChainId)
+  const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)?.getFeeAssetId() as AssetId
   const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
 
   const setDefaultAssets = useCallback(async () => {

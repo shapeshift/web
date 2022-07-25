@@ -3,6 +3,7 @@ import { ChainId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { avalanche, ChainAdapter, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  CowSwapper,
   OsmosisSwapper,
   Swapper,
   SwapperManager,
@@ -25,7 +26,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
@@ -39,10 +39,6 @@ import {
 import { store, useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
-
-const moduleLogger = logger.child({
-  namespace: ['useSwapper'],
-})
 
 const debounceTime = 1000
 
@@ -84,6 +80,8 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   const adapterManager = getChainAdapterManager()
   const web3 = getWeb3Instance()
 
+  /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
+
   if (flags.Thor) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
@@ -101,32 +99,39 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
+  if (flags.CowSwap) {
+    const cowSwapper = new CowSwapper({
+      adapter: ethereumChainAdapter,
+      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+      web3,
+    })
+
+    _swapperManager.addSwapper(cowSwapper)
+  }
+
   const zrxEthereumSwapper = new ZrxSwapper({
     web3,
     adapter: ethereumChainAdapter,
   })
   _swapperManager.addSwapper(zrxEthereumSwapper)
 
-  try {
-    if (flags.Avalanche) {
-      const avalancheChainAdapter = adapterManager.get(
-        KnownChainIds.AvalancheMainnet,
-      ) as unknown as avalanche.ChainAdapter
+  if (flags.Avalanche) {
+    const avalancheChainAdapter = adapterManager.get(
+      KnownChainIds.AvalancheMainnet,
+    ) as unknown as avalanche.ChainAdapter
 
-      const zrxAvalancheSwapper = new ZrxSwapper({
-        web3,
-        adapter: avalancheChainAdapter,
-      })
-      _swapperManager.addSwapper(zrxAvalancheSwapper)
-    }
-    if (flags.Osmosis) {
-      const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
-      const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
-      const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
-      _swapperManager.addSwapper(osmoSwapper)
-    }
-  } catch (e) {
-    moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
+    const zrxAvalancheSwapper = new ZrxSwapper({
+      web3,
+      adapter: avalancheChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxAvalancheSwapper)
+  }
+
+  if (flags.Osmosis) {
+    const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
+    const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
+    const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
+    _swapperManager.addSwapper(osmoSwapper)
   }
 
   return _swapperManager

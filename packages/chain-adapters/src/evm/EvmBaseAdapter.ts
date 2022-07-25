@@ -42,7 +42,15 @@ import { bnOrZero } from '../utils/bignumber'
 import { Fees } from './types'
 import { getErc20Data } from './utils'
 
-export type EvmChainIds = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+const evmChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet] as const
+
+export type EvmChainId = typeof evmChainIds[number]
+
+export const isEvmChainId = (
+  maybeEvmChainId: string | EvmChainId
+): maybeEvmChainId is EvmChainId => {
+  return evmChainIds.includes(maybeEvmChainId as EvmChainId)
+}
 
 export interface ChainAdapterArgs {
   chainId?: ChainId
@@ -58,7 +66,7 @@ export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   chainId: ChainId
 }
 
-export abstract class EvmBaseAdapter<T extends EvmChainIds> implements IChainAdapter<T> {
+export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
   protected readonly chainId: ChainId
   protected readonly supportedChainIds: Array<ChainId>
   protected readonly providers: {

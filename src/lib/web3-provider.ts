@@ -6,7 +6,7 @@ type HttpProvider = InstanceType<typeof Web3.providers.HttpProvider>
 
 const web3ProviderMap: Map<ChainId, HttpProvider> = new Map()
 
-const httpProviderByChain = (chainId: ChainId): string => {
+const httpProviderByChainId = (chainId: ChainId): string => {
   switch (chainId) {
     case avalancheChainId:
       return getConfig().REACT_APP_AVALANCHE_NODE_URL
@@ -16,9 +16,9 @@ const httpProviderByChain = (chainId: ChainId): string => {
   }
 }
 
-export const getWeb3Provider = (chainId: ChainId): HttpProvider => {
+export const getWeb3ProviderByChainId = (chainId: ChainId): HttpProvider => {
   if (!web3ProviderMap.get(chainId)) {
-    web3ProviderMap.set(chainId, new Web3.providers.HttpProvider(httpProviderByChain(chainId)))
+    web3ProviderMap.set(chainId, new Web3.providers.HttpProvider(httpProviderByChainId(chainId)))
     return web3ProviderMap.get(chainId)!
   } else {
     return web3ProviderMap.get(chainId)!

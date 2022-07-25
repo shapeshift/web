@@ -2,7 +2,7 @@ import ENS, { getEnsAddress } from '@ensdomains/ensjs'
 import { AddressZero } from '@ethersproject/constants'
 import { CHAIN_REFERENCE, ethChainId } from '@shapeshiftoss/caip'
 import memoize from 'lodash/memoize'
-import { getWeb3Provider } from 'lib/web3-provider'
+import { getWeb3ProviderByChainId } from 'lib/web3-provider'
 
 import {
   ResolveVanityAddress,
@@ -17,7 +17,7 @@ type GetENS = () => Promise<any>
 const getENS: GetENS = () => {
   if (!_ens) {
     _ens = new ENS({
-      provider: getWeb3Provider(ethChainId),
+      provider: getWeb3ProviderByChainId(ethChainId),
       ensAddress: getEnsAddress(CHAIN_REFERENCE.EthereumMainnet),
     })
   }

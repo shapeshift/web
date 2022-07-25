@@ -1,7 +1,7 @@
-import { EthereumTx } from '../../../../../generated/ethereum'
+import { Tx } from '../../../../../generated/ethereum'
 import { mempoolMock } from './mempoolMock'
 
-const ethSelfSend: EthereumTx = {
+const ethSelfSend: Tx = {
   txid: '0x854dff9231cadb562129cff006150dfc6dd1508ea2a39c9b51292d234c47a992',
   blockHash: '0xeafabfeaa242a02c116e4a67a45ef5b34b24b6743922b7d4efdad1a3e8454b24',
   blockHeight: 12697941,

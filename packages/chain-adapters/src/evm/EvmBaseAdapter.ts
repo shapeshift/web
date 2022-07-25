@@ -56,7 +56,7 @@ export interface ChainAdapterArgs {
   chainId?: ChainId
   providers: {
     http: unchained.ethereum.V1Api | unchained.avalanche.V1Api
-    ws: unchained.ws.Client<unchained.ethereum.EthereumTx | unchained.avalanche.AvalancheTx>
+    ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
   rpcUrl: string
 }
@@ -71,12 +71,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   protected readonly supportedChainIds: Array<ChainId>
   protected readonly providers: {
     http: unchained.ethereum.V1Api | unchained.avalanche.V1Api
-    ws: unchained.ws.Client<unchained.ethereum.EthereumTx | unchained.avalanche.AvalancheTx>
+    ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
 
   protected rpcUrl: string
   protected assetId: AssetId
-  protected parser: unchained.ethereum.TransactionParser
+  protected parser: unchained.evm.BaseTransactionParser<unchained.evm.types.Tx>
 
   static defaultBIP44Params: BIP44Params
 

@@ -36,7 +36,7 @@
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.5.1",
     "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/common-api": "^7.0.0",
+    "@shapeshiftoss/common-api": "^7.2.0",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/types": "^7.0.0",
     "@types/ws": "^8.2.1"

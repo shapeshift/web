@@ -59,7 +59,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
 
       const ethChainAdapter = new ethereum.ChainAdapter({
         providers: {
-          ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(
+          ws: new unchained.ws.Client<unchained.ethereum.Tx>(
             this.providerUrls.unchainedEthereumWsUrl
           ),
           http: new unchained.ethereum.V1Api(

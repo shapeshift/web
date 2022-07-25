@@ -1,7 +1,7 @@
-import { AvalancheTx } from '../../../../../generated/avalanche'
+import { Tx } from '../../../../../generated/avalanche'
 import { mempoolMock } from './mempoolMock'
 
-export const tokenStandard: AvalancheTx = {
+export const tokenStandard: Tx = {
   txid: '0x299b6cf79b731f2e89e6d062c051f3aa7ca168446cdbf7662e663f17a8edfae6',
   blockHash: '0x0468cd51c22f63c8a4f2a0307d8f09ff6a94d9bf8141dd768d6456b11ced167a',
   blockHeight: 16979938,

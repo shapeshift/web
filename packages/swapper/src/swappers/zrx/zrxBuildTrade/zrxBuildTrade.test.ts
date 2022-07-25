@@ -40,7 +40,7 @@ const setup = () => {
   const web3Instance = new Web3(web3Provider)
   const adapter = new ethereum.ChainAdapter({
     providers: {
-      ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>('ws://localhost:31300'),
+      ws: new unchained.ws.Client<unchained.ethereum.Tx>('ws://localhost:31300'),
       http: new unchained.ethereum.V1Api(
         new unchained.ethereum.Configuration({
           basePath: 'http://localhost:31300'

@@ -1,9 +1,9 @@
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 
-import { AvalancheTx } from '../../../generated/avalanche'
+import { Tx } from '../../../generated/avalanche'
 import { BaseTransactionParser, TransactionParserArgs } from '../../parser'
 
-export class TransactionParser extends BaseTransactionParser<AvalancheTx> {
+export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: TransactionParserArgs) {
     super(args)
 

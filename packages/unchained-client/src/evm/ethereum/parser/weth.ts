@@ -1,7 +1,7 @@
 import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../../generated/ethereum'
+import { Tx } from '../../../generated/ethereum'
 import { TransferType, TxParser } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import WETH_ABI from './abi/weth'
@@ -12,7 +12,7 @@ export interface ParserArgs {
   provider: ethers.providers.JsonRpcProvider
 }
 
-export class Parser implements SubParser<EthereumTx> {
+export class Parser implements SubParser<Tx> {
   provider: ethers.providers.JsonRpcProvider
 
   readonly chainId: ChainId
@@ -40,7 +40,7 @@ export class Parser implements SubParser<EthereumTx> {
     }
   }
 
-  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
+  async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, this.wethContract)) return
     if (!tx.inputData) return
 

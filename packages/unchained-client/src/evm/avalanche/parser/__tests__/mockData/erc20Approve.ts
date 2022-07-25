@@ -1,7 +1,7 @@
-import { AvalancheTx } from '../../../../../generated/avalanche'
+import { Tx } from '../../../../../generated/avalanche'
 import { mempoolMock } from './mempoolMock'
 
-const erc20Approve: AvalancheTx = {
+const erc20Approve: Tx = {
   txid: '0xaa8a7ad30cdcb2ec6809c177b6c2bb7a8e33beda0b3bd9b6330c3e35b8e5a8e8',
   blockHash: '0xe51b20cd3c8f8633d3facc028a08d974b5d8b7a8e300b10e226a25585eaa2948',
   blockHeight: 16980952,

@@ -79,7 +79,7 @@ const main = async (): Promise<void> => {
 
   const ethChainAdapter = new ethereum.ChainAdapter({
     providers: {
-      ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(UNCHAINED_WS_API),
+      ws: new unchained.ws.Client<unchained.ethereum.Tx>(UNCHAINED_WS_API),
       http: new unchained.ethereum.V1Api(
         new unchained.ethereum.Configuration({
           basePath: UNCHAINED_HTTP_API

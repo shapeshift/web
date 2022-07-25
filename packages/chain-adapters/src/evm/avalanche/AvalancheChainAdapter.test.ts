@@ -82,7 +82,7 @@ const makeChainAdapterArgs = (overrideArgs?: {
     {
       providers: {
         http: {} as unchained.avalanche.V1Api,
-        ws: {} as unchained.ws.Client<unchained.avalanche.AvalancheTx>
+        ws: {} as unchained.ws.Client<unchained.avalanche.Tx>
       },
       rpcUrl: ''
     },

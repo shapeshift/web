@@ -1,12 +1,12 @@
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../../generated/ethereum'
+import { Tx } from '../../../generated/ethereum'
 import { TxParser } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import FOXY_STAKING_ABI from './abi/foxyStaking'
 import { FOXY_STAKING_CONTRACT } from './constants'
 
-export class Parser implements SubParser<EthereumTx> {
+export class Parser implements SubParser<Tx> {
   readonly abiInterface = new ethers.utils.Interface(FOXY_STAKING_ABI)
 
   readonly supportedFunctions = {
@@ -16,7 +16,7 @@ export class Parser implements SubParser<EthereumTx> {
     claimWithdrawSigHash: this.abiInterface.getSighash('claimWithdraw')
   }
 
-  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
+  async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, FOXY_STAKING_CONTRACT)) return
     if (!tx.inputData) return
 

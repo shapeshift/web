@@ -1,7 +1,7 @@
 import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../../generated/ethereum'
+import { Tx } from '../../../generated/ethereum'
 import { TransferType, TxParser } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import ERC20_ABI from '../../parser/abi/erc20'
@@ -19,7 +19,7 @@ export interface ParserArgs {
   provider: ethers.providers.JsonRpcProvider
 }
 
-export class Parser implements SubParser<EthereumTx> {
+export class Parser implements SubParser<Tx> {
   provider: ethers.providers.JsonRpcProvider
 
   readonly chainId: ChainId
@@ -53,7 +53,7 @@ export class Parser implements SubParser<EthereumTx> {
     }
   }
 
-  async parseUniV2(tx: EthereumTx): Promise<TxSpecific | undefined> {
+  async parseUniV2(tx: Tx): Promise<TxSpecific | undefined> {
     if (!tx.inputData) return
     if (tx.confirmations) return
 
@@ -138,7 +138,7 @@ export class Parser implements SubParser<EthereumTx> {
     }
   }
 
-  async parseStakingRewards(tx: EthereumTx): Promise<TxSpecific | undefined> {
+  async parseStakingRewards(tx: Tx): Promise<TxSpecific | undefined> {
     if (!tx.inputData) return
 
     const txSigHash = getSigHash(tx.inputData)
@@ -159,7 +159,7 @@ export class Parser implements SubParser<EthereumTx> {
     }
   }
 
-  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
+  async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return this.parseUniV2(tx)
     // TODO: parse any transaction that has input data that is able to be decoded using the `stakingRewardsInterface`
     if (txInteractsWithContract(tx, UNI_V2_FOX_STAKING_REWARDS_V3))

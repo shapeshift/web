@@ -1,6 +1,6 @@
-import { AvalancheTx } from '../../../../../generated/avalanche'
+import { Tx } from '../../../../../generated/avalanche'
 
-export const mempoolMock = (tx: AvalancheTx, tokenTransfers = false) => {
+export const mempoolMock = (tx: Tx, tokenTransfers = false) => {
   const mempoolSpecific = {
     blockHeight: -1,
     status: -1,

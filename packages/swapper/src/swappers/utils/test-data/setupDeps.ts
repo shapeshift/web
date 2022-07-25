@@ -11,9 +11,7 @@ jest.mock('web3')
 export const setupDeps = () => {
   const ethChainAdapter = new ethereum.ChainAdapter({
     providers: {
-      ws: new unchained.ws.Client<unchained.ethereum.EthereumTx>(
-        'wss://dev-api.ethereum.shapeshift.com'
-      ),
+      ws: new unchained.ws.Client<unchained.ethereum.Tx>('wss://dev-api.ethereum.shapeshift.com'),
       http: new unchained.ethereum.V1Api(
         new unchained.ethereum.Configuration({
           basePath: 'https://dev-api.ethereum.shapeshift.com'

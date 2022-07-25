@@ -1,8 +1,8 @@
-import { AvalancheTx } from '../../generated/avalanche'
-import { EthereumTx } from '../../generated/ethereum'
+import type { evm } from '@shapeshiftoss/common-api'
+
 import { BaseTxMetadata, StandardTx, StandardTxMetadata } from '../../types'
 
-export type Tx = EthereumTx | AvalancheTx
+export type Tx = evm.Tx
 
 export enum TxParser {
   ERC20 = 'erc20'

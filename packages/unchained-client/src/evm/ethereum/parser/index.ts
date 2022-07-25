@@ -1,6 +1,6 @@
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 
-import { EthereumTx } from '../../../generated/ethereum'
+import { Tx } from '../../../generated/ethereum'
 import { BaseTransactionParser, TransactionParserArgs } from '../../parser'
 import * as foxy from './foxy'
 import * as thor from './thor'
@@ -9,7 +9,7 @@ import * as weth from './weth'
 import * as yearn from './yearn'
 import * as zrx from './zrx'
 
-export class TransactionParser extends BaseTransactionParser<EthereumTx> {
+export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: TransactionParserArgs) {
     super(args)
 

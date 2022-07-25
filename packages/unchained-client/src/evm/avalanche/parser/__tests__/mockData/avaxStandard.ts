@@ -1,7 +1,7 @@
-import { AvalancheTx } from '../../../../../generated/avalanche'
+import { Tx } from '../../../../../generated/avalanche'
 import { mempoolMock } from './mempoolMock'
 
-const avaxStandard: AvalancheTx = {
+const avaxStandard: Tx = {
   txid: '0xb2e0ad82503fbe87b60b13d91d343f1701f084ba963caf8ad17f7170eea79943',
   blockHash: '0xc98db2c34378d94debfcde42c0cf6b35c2e0a13d0fd509fce7ea745d28e8a1cd',
   blockHeight: 16979496,

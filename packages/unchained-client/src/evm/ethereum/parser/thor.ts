@@ -1,7 +1,7 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { EthereumTx } from '../../../generated/ethereum'
+import { Tx } from '../../../generated/ethereum'
 import { Dex, TradeType, TxParser } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import THOR_ABI from './abi/thor'
@@ -14,7 +14,7 @@ export interface ParserArgs {
   rpcUrl: string
 }
 
-export class Parser implements SubParser<EthereumTx> {
+export class Parser implements SubParser<Tx> {
   readonly routerContract: string
   readonly abiInterface = new ethers.utils.Interface(THOR_ABI)
 
@@ -38,7 +38,7 @@ export class Parser implements SubParser<EthereumTx> {
     }
   }
 
-  async parse(tx: EthereumTx): Promise<TxSpecific | undefined> {
+  async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, this.routerContract)) return
     if (!tx.inputData) return
 

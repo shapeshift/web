@@ -100,7 +100,7 @@
     "@shapeshiftoss/hdwallet-tallyho": "^1.27.0",
     "@shapeshiftoss/hdwallet-walletconnect": "^1.27.0",
     "@shapeshiftoss/hdwallet-xdefi": "^1.27.0",
-    "@shapeshiftoss/investor-foxy": "^4.0.4",
+    "@shapeshiftoss/investor-foxy": "^4.0.5",
     "@shapeshiftoss/investor-yearn": "^4.0.4",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^6.4.2",

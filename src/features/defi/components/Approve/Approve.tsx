@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack } from '@chakra-ui/layout'
 import { Divider, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { FaExchangeAlt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'

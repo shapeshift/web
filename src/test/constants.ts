@@ -1,4 +1,5 @@
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { DisplayFeeData } from '../components/Trade/types'
 

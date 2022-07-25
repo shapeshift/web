@@ -9,7 +9,7 @@ import {
   StatLabel,
   Tag,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { PropsWithChildren, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import {

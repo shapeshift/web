@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   ASSET_REFERENCE,
   AssetId,
@@ -12,7 +13,6 @@ import {
   fromChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import createCachedSelector from 're-reselect'

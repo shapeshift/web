@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { ChainId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { avalanche, ChainAdapter, ethereum } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -14,7 +15,7 @@ import {
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'

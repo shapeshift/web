@@ -1,10 +1,8 @@
 import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   bitcoin,
-  ChainAdapter,
   cosmos,
   dogecoin,
-  ethereum,
   EvmBaseAdapter,
   EvmChainIds,
   FeeDataEstimate,
@@ -121,17 +119,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
-    const getEvmFeeData = (chainAdapter: ChainAdapter<EvmChainIds>) =>
-      chainAdapter.getFeeData({
-        to: values.address,
-        value,
-        chainSpecific: {
-          from: account,
-          contractAddress,
-        },
-        sendMax: values.sendMax,
-      })
-
     const adapter = chainAdapterManager.get(values.asset.chainId)
     if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
 
@@ -141,13 +128,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return adapter.getFeeData({})
       case KnownChainIds.EthereumMainnet:
       case KnownChainIds.AvalancheMainnet:
-        return getEvmFeeData(adapter as unknown as EvmBaseAdapter<EvmChainIds>)
+        return (adapter as unknown as EvmBaseAdapter<EvmChainIds>).getFeeData({
+          to: values.address,
+          value,
+          chainSpecific: {
+            from: account,
+            contractAddress,
+          },
+          sendMax: values.sendMax,
+        })
       case KnownChainIds.BitcoinMainnet: {
-        const bitcoinChainAdapter = (await chainAdapterManager.get(
-          KnownChainIds.BitcoinMainnet,
-        )) as bitcoin.ChainAdapter | undefined
-        if (!bitcoinChainAdapter)
-          throw new Error(`No adapter available for ${KnownChainIds.BitcoinMainnet}`)
+        const bitcoinChainAdapter = adapter as unknown as bitcoin.ChainAdapter
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
@@ -156,11 +147,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })
       }
       case KnownChainIds.DogecoinMainnet: {
-        const dogecoinChainAdapter = (await chainAdapterManager.get(
-          KnownChainIds.DogecoinMainnet,
-        )) as dogecoin.ChainAdapter | undefined
-        if (!dogecoinChainAdapter)
-          throw new Error(`No adapter available for ${KnownChainIds.DogecoinMainnet}`)
+        const dogecoinChainAdapter = adapter as unknown as dogecoin.ChainAdapter
         return dogecoinChainAdapter.getFeeData({
           to: values.address,
           value,
@@ -302,20 +289,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case KnownChainIds.EthereumMainnet: {
-              const ethAdapter = adapter as unknown as ethereum.ChainAdapter
-              const adapterFees = await ethAdapter.getFeeData({
-                to,
-                value: assetBalance,
-                chainSpecific: { contractAddress, from: account },
-                sendMax: true,
-              })
-              const fastFee = adapterFees.fast.txFee
-              return { adapterFees, fastFee }
-            }
+            case KnownChainIds.EthereumMainnet:
             case KnownChainIds.AvalancheMainnet: {
-              const avalancheAdapter = adapter as unknown as EvmBaseAdapter<EvmChainIds>
-              const adapterFees = await avalancheAdapter.getFeeData({
+              const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainIds>
+              const adapterFees = await evmAdapter.getFeeData({
                 to,
                 value: assetBalance,
                 chainSpecific: { contractAddress, from: account },

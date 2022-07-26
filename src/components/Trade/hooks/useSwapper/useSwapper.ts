@@ -299,7 +299,7 @@ export const useSwapper = () => {
           sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
-          sendMax: true,
+          sendMax: false,
           receiveAddress,
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
@@ -313,7 +313,7 @@ export const useSwapper = () => {
           sellAssetAccountNumber: 0,
           buyAssetAccountNumber: 0,
           wallet,
-          sendMax: true,
+          sendMax: false,
           receiveAddress,
           bip44Params: utxoParams.bip44Params,
           accountType,

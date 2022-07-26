@@ -1192,7 +1192,7 @@
     "foxPage": {
       "totalFoxValue": "Valor total de FOX",
       "foxToken": "ShapeShift %{assetSymbol} Token",
-      "foxDescription": "Desde 2019, nosso token FOX  oferece aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 não apenas permite que você influencie o futuro da ShapeShift por meio de seu voto, mas também tem um universo cada vez maior de oportunidades de investimento. Invista, acompanhe e gerencie suas participações na FOX aqui.",
+      "foxDescription": "Desde 2019, nosso token FOX oferece aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 não apenas permite que você influencie o futuro da ShapeShift por meio de seu voto, mas também tem um universo cada vez maior de oportunidades de investimento. Invista, acompanhe e gerencie suas participações na FOX aqui.",
       "getAsset": "Obtenha %{assetSymbol}",
       "buyAssetOnCoinbase": "Compre %{assetSymbol} na Coinbase",
       "trade": "Trocar",

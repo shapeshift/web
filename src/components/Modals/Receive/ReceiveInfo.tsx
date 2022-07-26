@@ -18,7 +18,8 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'

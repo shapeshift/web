@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   avalancheAssetId,
   avalancheChainId,
@@ -21,7 +22,7 @@ import {
   TradeTxs,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'

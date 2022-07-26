@@ -1,6 +1,6 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 

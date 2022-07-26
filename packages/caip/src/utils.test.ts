@@ -31,7 +31,6 @@ import {
 import {
   accountIdToChainId,
   accountIdToSpecifier,
-  chainIdToFeeAssetId,
   getFeeAssetIdFromAssetId,
   isValidChainPartsPair
 } from './utils'
@@ -63,18 +62,6 @@ describe('accountIdToSpecifier', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
     const result = accountIdToSpecifier(accountId)
     expect(result).toEqual(xpub)
-  })
-})
-
-describe('chainIdToFeeAssetId', () => {
-  it('returns a chain fee assetId for a given Ethereum chainId', () => {
-    const result = chainIdToFeeAssetId(ethChainId)
-    expect(result).toEqual(ethAssetId)
-  })
-
-  it('returns chain fee assetId (ATOM) for a given Cosmos chainId', () => {
-    const result = chainIdToFeeAssetId(cosmosChainId)
-    expect(result).toEqual(cosmosAssetId)
   })
 })
 

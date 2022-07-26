@@ -1,5 +1,4 @@
-import { Asset } from '@shapeshiftoss/types'
-
+import { Asset } from '../../service/AssetService'
 import { ethereum } from '../baseAssets'
 
 export const overrideTokens: Array<Asset> = [

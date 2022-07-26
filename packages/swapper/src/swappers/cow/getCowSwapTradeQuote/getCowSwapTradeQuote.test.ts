@@ -1,6 +1,7 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { GetTradeQuoteInput, TradeQuote } from '../../../api'

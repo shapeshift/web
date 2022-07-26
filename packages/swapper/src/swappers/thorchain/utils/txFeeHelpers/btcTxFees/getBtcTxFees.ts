@@ -1,5 +1,6 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { bitcoin, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { QuoteFeeData, SwapError, SwapErrorTypes } from '../../../../../api'
 import { bn } from '../../../../utils/bignumber'

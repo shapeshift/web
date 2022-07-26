@@ -1,8 +1,8 @@
 import { adapters, avalancheChainId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
 
+import { Asset } from '../service/AssetService'
 import { avax, ethereum } from './baseAssets'
 import { colorMap } from './colorMap'
 

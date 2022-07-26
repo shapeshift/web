@@ -1,5 +1,4 @@
-import { adapters, AssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { adapters, AssetId, ChainId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
@@ -8,6 +7,21 @@ import { getRenderedIdenticonBase64, IdenticonOptions } from './GenerateAssetIco
 import localAssetData from './generatedAssetData.json'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
+
+export type Asset = {
+  assetId: AssetId
+  chainId: ChainId
+  description?: string
+  isTrustedDescription?: boolean
+  symbol: string
+  name: string
+  precision: number
+  color: string
+  icon: string
+  explorer: string
+  explorerTxLink: string
+  explorerAddressLink: string
+}
 
 export type AssetsById = Record<AssetId, Asset>
 

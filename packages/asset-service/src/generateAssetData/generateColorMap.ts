@@ -1,10 +1,10 @@
 import 'dotenv/config'
 
 import { AssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 
+import { Asset } from '../service/AssetService'
 import * as avalanche from './avalanche'
 import { atom, bitcoin } from './baseAssets'
 import * as ethereum from './ethereum'

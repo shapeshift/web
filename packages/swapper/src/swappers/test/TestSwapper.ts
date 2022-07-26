@@ -1,5 +1,5 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 
 import {
   ApprovalNeededOutput,

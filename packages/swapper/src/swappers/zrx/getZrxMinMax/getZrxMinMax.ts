@@ -1,5 +1,5 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 
 import { MinMaxOutput, SwapError, SwapErrorTypes } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'

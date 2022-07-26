@@ -1,7 +1,8 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { btcChainId } from '@shapeshiftoss/caip'
 import { bitcoin } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Asset, BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
 import { SwapError, SwapErrorTypes } from '../../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../../utils/bignumber'

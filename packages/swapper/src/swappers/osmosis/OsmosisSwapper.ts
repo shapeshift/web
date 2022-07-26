@@ -1,3 +1,4 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   AssetId,
   ChainId,
@@ -7,7 +8,6 @@ import {
   osmosisChainId
 } from '@shapeshiftoss/caip'
 import { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 
 import {
   ApprovalNeededOutput,

@@ -1,8 +1,8 @@
 import { ethChainId as chainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
 
+import { Asset } from '../../service/AssetService'
 import { colorMap } from '../colorMap'
 import { overrideTokens } from '../ethereum/overrides'
 

@@ -1,7 +1,8 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Asset, BIP44Params } from '@shapeshiftoss/types'
+import { BIP44Params } from '@shapeshiftoss/types'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { ThorchainSwapperDeps } from '../../types'

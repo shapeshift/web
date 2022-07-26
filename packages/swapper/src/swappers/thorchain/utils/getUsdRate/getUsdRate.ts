@@ -1,5 +1,5 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { adapters } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { PoolResponse, ThorchainSwapperDeps } from '../../types'

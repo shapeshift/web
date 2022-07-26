@@ -1,5 +1,6 @@
-import { Asset } from '@shapeshiftoss/types'
 import colorThief from 'colorthief'
+
+import { Asset } from '../service/AssetService'
 
 const toHex = (num: number): string => num.toString(16).toUpperCase().padStart(2, '0')
 

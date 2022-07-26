@@ -1,7 +1,7 @@
 import { ASSET_REFERENCE, osmosisChainId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
+import { Asset } from '../../service/AssetService'
 import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
 import { osmosis } from '../baseAssets'
 import { colorMap } from '../colorMap'

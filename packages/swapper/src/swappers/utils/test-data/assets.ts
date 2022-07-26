@@ -1,5 +1,5 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { avalancheAssetId, avalancheChainId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 
 export const BTC: Asset = {
   assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',

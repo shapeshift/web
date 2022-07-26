@@ -1,10 +1,10 @@
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
 import uniqBy from 'lodash/uniqBy'
 
+import { Asset } from '../../service/AssetService'
 import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
 import { generateTrustWalletUrl } from '../../service/TrustWalletService'
 import { ethereum } from '../baseAssets'

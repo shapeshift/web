@@ -1,7 +1,6 @@
-import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import { AssetService } from './AssetService'
+import { Asset, AssetService } from './AssetService'
 import descriptions from './descriptions'
 
 jest.mock('axios')

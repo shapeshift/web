@@ -27,19 +27,3 @@ export enum UtxoAccountType {
   SegwitP2sh = 'SegwitP2sh',
   P2pkh = 'P2pkh'
 }
-
-// asset-service
-export type Asset = {
-  assetId: string
-  chainId: string
-  description?: string
-  isTrustedDescription?: boolean
-  symbol: string
-  name: string
-  precision: number
-  color: string
-  icon: string
-  explorer: string
-  explorerTxLink: string
-  explorerAddressLink: string
-}

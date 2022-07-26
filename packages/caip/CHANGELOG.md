@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.5.1...@shapeshiftoss/caip-v6.6.0) (2022-07-26)
+
+
+### Features
+
+* **caip:** remove chainIdToFeeAssetId ([#907](https://github.com/shapeshift/lib/issues/907)) ([13f526e](https://github.com/shapeshift/lib/commit/13f526eabc21162c1429faa4a31687a3a70947ea))
+
 # [@shapeshiftoss/caip-v6.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.5.0...@shapeshiftoss/caip-v6.5.1) (2022-07-26)
 
 

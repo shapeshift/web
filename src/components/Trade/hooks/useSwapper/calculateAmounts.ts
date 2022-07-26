@@ -42,7 +42,7 @@ export const calculateAmounts = async ({
           .toFixed(2),
       }
     case TradeAmountInputField.FIAT:
-      const usdAmount = bnOrZero(amount).times(selectedCurrencyToUsdRate)
+      const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
       return {
         sellAmount: toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision),
         buyAmount: toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision),

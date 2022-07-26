@@ -1,7 +1,9 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { mockChainAdapters } from 'test/mocks/portfolio'
 
 import {
+  accountIdToFeeAssetId,
   accountIdToLabel,
   accountIdToSpecifier,
   findAccountsByAssetId,
@@ -9,6 +11,23 @@ import {
   makeSortedAccountBalances,
   trimWithEndEllipsis,
 } from './utils'
+
+jest.mock('context/PluginProvider/PluginProvider', () => ({
+  getChainAdapters: () => mockChainAdapters,
+}))
+
+describe('accountIdToFeeAssetId', () => {
+  it('can get eth feeAssetId from accountId', () => {
+    const accountId = 'eip155:1:0xdef1cafe'
+    const result = accountIdToFeeAssetId(accountId)
+    expect(result).toEqual(ethAssetId)
+  })
+  it('can get avalanche feeAssetId from accountId', () => {
+    const accountId = 'eip155:43114:0xdef1cafe'
+    const result = accountIdToFeeAssetId(accountId)
+    expect(result).toEqual(avalancheAssetId)
+  })
+})
 
 describe('accountIdToSpecifier', () => {
   it('can get eth address from accountId', () => {

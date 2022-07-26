@@ -626,7 +626,7 @@
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully withdrawn from %{opportunity}.",
-        "failed": "There was an issue with your deposit."
+        "failed": "There was an issue with your withdraw."
       },
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",

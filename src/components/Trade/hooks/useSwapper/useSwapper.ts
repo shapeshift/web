@@ -1,8 +1,15 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
-import { avalanche, ChainAdapter, ethereum } from '@shapeshiftoss/chain-adapters'
+import {
+  avalancheChainId,
+  ChainId,
+  ethChainId,
+  fromAssetId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
+import { avalanche, ChainAdapter, ethereum, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  CowSwapper,
   OsmosisSwapper,
   Swapper,
   SwapperManager,
@@ -25,9 +32,8 @@ import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { getWeb3Instance } from 'lib/web3-instance'
+import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
@@ -36,13 +42,9 @@ import {
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
-
-const moduleLogger = logger.child({
-  namespace: ['useSwapper'],
-})
 
 const debounceTime = 1000
 
@@ -70,22 +72,32 @@ type DebouncedQuoteInput = {
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
+// singleton - do not export me
+// Used to short circuit calls to getSwapperManager if flags have not changed
+let previousFlags: string = ''
 
 const getSwapperManager = async (): Promise<SwapperManager> => {
-  if (_swapperManager) return _swapperManager
+  const flags = store.getState().preferences.featureFlags
+  const flagsChanged = previousFlags !== JSON.stringify(flags)
+  if (_swapperManager && !flagsChanged) return _swapperManager
+  previousFlags = JSON.stringify(flags)
+
   // instantiate if it doesn't already exist
   _swapperManager = new SwapperManager()
 
   const adapterManager = getChainAdapters()
-  const web3 = getWeb3Instance()
+  const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
+  const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
 
-  if (getConfig().REACT_APP_FEATURE_THOR) {
+  /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
+
+  if (flags.Thor) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const thorSwapper = new ThorchainSwapper({
         midgardUrl,
         adapterManager,
-        web3,
+        web3: ethWeb3,
       })
       await thorSwapper.initialize()
       _swapperManager.addSwapper(thorSwapper)
@@ -96,34 +108,39 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
+  if (flags.CowSwap) {
+    const cowSwapper = new CowSwapper({
+      adapter: ethereumChainAdapter,
+      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+      web3: ethWeb3,
+    })
+
+    _swapperManager.addSwapper(cowSwapper)
+  }
+
   const zrxEthereumSwapper = new ZrxSwapper({
-    web3,
+    web3: ethWeb3,
     adapter: ethereumChainAdapter,
   })
+  _swapperManager.addSwapper(zrxEthereumSwapper)
 
-  try {
-    _swapperManager.addSwapper(zrxEthereumSwapper)
+  if (flags.Avalanche) {
+    const avalancheChainAdapter = adapterManager.get(
+      KnownChainIds.AvalancheMainnet,
+    ) as unknown as avalanche.ChainAdapter
 
-    if (getConfig().REACT_APP_FEATURE_AVALANCHE) {
-      const avalancheChainAdapter = adapterManager.get(
-        KnownChainIds.AvalancheMainnet,
-      ) as unknown as avalanche.ChainAdapter
+    const zrxAvalancheSwapper = new ZrxSwapper({
+      web3: avaxWeb3,
+      adapter: avalancheChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxAvalancheSwapper)
+  }
 
-      const zrxAvalancheSwapper = new ZrxSwapper({
-        web3,
-        adapter: avalancheChainAdapter,
-      })
-
-      _swapperManager.addSwapper(zrxAvalancheSwapper)
-    }
-    if (getConfig().REACT_APP_FEATURE_OSMOSIS) {
-      const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
-      const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
-      const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
-      _swapperManager.addSwapper(osmoSwapper)
-    }
-  } catch (e) {
-    moduleLogger.error(e, { fn: 'addSwapper' }, 'error adding swapper')
+  if (flags.Osmosis) {
+    const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
+    const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
+    const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
+    _swapperManager.addSwapper(osmoSwapper)
   }
 
   return _swapperManager
@@ -231,11 +248,14 @@ export const useSwapper = () => {
 
   type SupportedSwappingChains =
     | KnownChainIds.EthereumMainnet
+    | KnownChainIds.AvalancheMainnet
     | KnownChainIds.OsmosisMainnet
     | KnownChainIds.CosmosMainnet
+
   const isSupportedSwappingChain = (chainId: ChainId): chainId is SupportedSwappingChains => {
     return (
       chainId === KnownChainIds.EthereumMainnet ||
+      chainId === KnownChainIds.AvalancheMainnet ||
       chainId === KnownChainIds.OsmosisMainnet ||
       chainId === KnownChainIds.CosmosMainnet
     )
@@ -523,30 +543,33 @@ export const useSwapper = () => {
     )
     const fee = feeBN.toString()
 
+    const getEvmFees = <T extends EvmChainId>(): DisplayFeeData<T> => {
+      const evmTrade = trade as Trade<T>
+      const approvalFee = bnOrZero(evmTrade.feeData.chainSpecific.approvalFee)
+        .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
+        .toString()
+      const totalFee = feeBN.plus(approvalFee).toString()
+      const gasPrice = bnOrZero(evmTrade.feeData.chainSpecific.gasPrice).toString()
+      const estimatedGas = bnOrZero(evmTrade.feeData.chainSpecific.estimatedGas).toString()
+
+      return {
+        fee,
+        chainSpecific: {
+          approvalFee,
+          gasPrice,
+          estimatedGas,
+          totalFee,
+        },
+        tradeFee: evmTrade.feeData.tradeFee,
+        tradeFeeSource,
+      } as unknown as DisplayFeeData<T>
+    }
+
     switch (sellAsset.chainId) {
       case KnownChainIds.EthereumMainnet:
-        {
-          const ethTrade = trade as Trade<KnownChainIds.EthereumMainnet>
-          const approvalFee = bnOrZero(ethTrade.feeData.chainSpecific.approvalFee)
-            .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
-            .toString()
-          const totalFee = feeBN.plus(approvalFee).toString()
-          const gasPrice = bnOrZero(ethTrade.feeData.chainSpecific.gasPrice).toString()
-          const estimatedGas = bnOrZero(ethTrade.feeData.chainSpecific.estimatedGas).toString()
-
-          const fees: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
-            fee,
-            chainSpecific: {
-              approvalFee,
-              gasPrice,
-              estimatedGas,
-              totalFee,
-            },
-            tradeFee: ethTrade.feeData.tradeFee,
-            tradeFeeSource,
-          }
-          setValue('fees', fees)
-        }
+      case KnownChainIds.AvalancheMainnet:
+        const fees = getEvmFees()
+        setValue('fees', fees)
         break
       case KnownChainIds.OsmosisMainnet:
       case KnownChainIds.CosmosMainnet: {

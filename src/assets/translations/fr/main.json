@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Retour",
+    "balance": "Solde",
     "next": "Suivant",
     "error": "Erreur",
     "cancel": "Annuler",
@@ -19,6 +20,7 @@
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
+    "claim": "Réclamer",
     "overview": "Aperçu",
     "getStarted": "Commencer",
     "connectWallet": "Connecter Porte-monnaie",
@@ -57,7 +59,10 @@
     "verify": "Vérifier",
     "notRobot": "Je ne suis pas un robot",
     "skip": "Sauter",
-    "generalError": "Une erreur s'est produite"
+    "generalError": "Une erreur s'est produite",
+    "showDetails": "Afficher les détails",
+    "hideDetails": "Cacher les détails",
+    "walletSupportsETHOnly": "Ethereum seulement"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -97,9 +102,12 @@
     "gem": "GEM",
     "gemMessage": "Acheter ou Vendre des cryptos avec Gem",
     "junoPay": "JunoPay",
+    "junoPayMessage": "Achetez des cryptos avec JunoPay",
     "banxa": "Banxa",
     "banxaMessage": "Achetez ou vendez des cryptos avec Banxa",
     "comingSoon": "Bientôt disponible ...",
+    "coinbasePay": "Coinbase Pay",
+    "coinbasePayMessage": "Acheter des cryptos  avec Coinbase Pay",
     "buy": "Acheter",
     "sell": "Vendre",
     "assetToBuy": "Actif à acheter",
@@ -139,6 +147,7 @@
           "risks": "Y a-t-il des risques ?"
         },
         "bodies": {
+          "rateFluctuationInfo": "Le taux de %{assetName} que vous gagnez, le taux annuel effectif global (APR), fluctue généralement entre 7% et 20%.",
           "amountStakingInfo": "Vous pouvez miser n'importe quel montant de %{assetName} et ils commenceront immédiatement à gagner des récompenses.",
           "withdrawInfo": "Vous pouvez retirer vos récompenses à tout moment, ce qui nécessite des frais de carburant minimes d'environ ~$.01.",
           "unbondingInfo": "Lorsque vous démisez vos jetons, ils restent verrouillés pendant %{unbondingDays} jours, au cours desquels ils ne sont pas récompensés. Après ces %{unbondingDays} jours, vos %{assetName} retourneront dans votre porte-monnaie principal.",
@@ -180,9 +189,16 @@
         "cta": "Déposer du FOX maintenant",
         "foxyBalance": "Solde FOXy",
         "withdrawals": "Retraits",
-        "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici."
+        "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici.",
+        "availableDate": "disponible le %{date}"
       },
       "overview": {
+        "underlyingTokens": "Jetons sous-jacents",
+        "availableRewards": "Récompenses disponibles",
+        "about": "À propos",
+        "tvl": "TVL",
+        "apy": "APY",
+        "noWithdrawals": "Vous n'avez aucun retrait à réclamer."
       },
       "claim": {
         "rewardDepositInfo": "Vos récompenses seront déposées dans votre porte-monnaie principal.",
@@ -273,15 +289,22 @@
     "steps": {
       "deposit": {
         "info": {
+          "title": "Informations sur le dépôt",
+          "description": "Entrez le montant en %{asset} que vous souhaitez déposer."
         }
       },
       "withdraw": {
         "info": {
+          "title": "Informations sur le retrait",
+          "description": "Entrez le montant en %{asset} que vous souhaitez retirer.",
+          "yieldyDescription": "Entrez le montant en %{asset} que vous souhaitez retirer. Les retraits suivants seront combinés et réinitialiseront la durée du retrait."
         }
       },
       "approve": {
+        "title": "Approuver"
       },
       "confirm": {
+        "title": "Confirmer"
       }
     }
   },
@@ -310,6 +333,7 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie"
   },
   "transactionRow": {
+    "send": "%{symbol} envoyé",
     "receive": "Reçu %{symbol}",
     "moreDetails": "Plus de détails",
     "date": "Date",
@@ -365,6 +389,7 @@
     "previewTrade": "Aperçu de l'échange",
     "rate": "Taux",
     "minerFee": "Frais de minage",
+    "tradeFeeSource": "Frais %{tradeFeeSource}",
     "gasFeeExceedsTradeAmountThreshold": "La taxe sur le carburant dépasse %{percentage}% du montant d'échange.",
     "confirmDetails": "Confirmer les détails",
     "confirmAndTrade": "Confirmer et échanger",
@@ -391,6 +416,8 @@
       "broadcastFailed": "Une erreur s'est produite lors de la transmission de la transaction",
       "insufficientFundsForLimit": "Fonds insuffisants. Le montant minimum d'échange pour cette paire est de %{minLimit}",
       "insufficientFundsForAmount": "Fonds insuffisants. Votre solde de %{symbol} est inférieur au montant sélectionné.",
+      "invalidTradePair": "Paire d'échange invalide : %{sellAssetName} et %{buyAssetName}",
+      "invalidTradePairBtnText": "Paire d'échange invalide",
       "noLiquidityError": "Pas assez de liquidités disponibles",
       "overMaxSlippage": "Cette transaction entraînerait un glissement de taux de plus de %{slippagePercentage}%. Veuillez négocier un montant inférieur pour obtenir un meilleur prix.",
       "balanceToLow": "Le solde est trop bas. Le montant minimum de transaction pour cette paire est de %{minLimit}",
@@ -410,6 +437,7 @@
       "minMaxError": "Une erreur s'est produite lors de l'obtention du montant minimal / maximal de l'échange",
       "executeTradeFailed": "Une erreur s'est produite lors de l'exécution de votre échange.",
       "unsupportedPair": "Cette paire d'échange n'est pas prise en charge actuellement.",
+      "unsupportedChain": "Cette chaîne n'est pas prise en charge actuellement.",
       "rateError": "Une erreur s'est produite lors de l'obtention des taux d'échange",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
@@ -493,6 +521,7 @@
       },
       "confirmPassword": {
         "header": "Confirmez votre mot de passe",
+        "walletName": "Surnom du porte-monnaie (facultatif)",
         "body": "Confirmez votre mot de passe pour décrypter votre porte-monnaie",
         "placeholder": "Confirmer le mot de passe",
         "show": "Afficher le mot de passe",
@@ -569,16 +598,21 @@
     },
     "deposit": {
       "amountToDeposit": "Montant à déposer",
+      "depositInto": "Déposer dans %{opportunity}",
       "estimatedReturns": "Rendement annuel estimé*",
       "estimateDisclaimer": "*Les estimations fluctuent en fonction des conditions du marché.",
       "footerDisclaimer": "En continuant, vous acceptez nos",
       "footerDisclaimerLink": "conditions d'utilisation.",
       "slippageSettings": "Paramètres de glissement de taux",
       "status": {
+        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
+        "success": "Vous avez effectué un dépôt avec succès dans %{opportunity}.",
+        "failed": "Il y a eu un problème avec votre dépôt."
       }
     },
     "withdraw": {
       "amountToWithdraw": "Montant à retirer",
+      "withdrawFrom": "Retirer de %{opportunity}",
       "footerDisclaimer": "Cette transaction nécessitera des frais de carburant pour une transaction.",
       "slippageSettings": "Paramètres de glissement de taux",
       "withdrawType": "Type de retrait",
@@ -591,6 +625,9 @@
       "disclaimer": "Les demandes ultérieures seront combinées et réinitialiseront le temps de retrait.",
       "withdrawalFee": "Frais de retrait",
       "status": {
+        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
+        "success": "Vous avez effectué un retrait de %{opportunity} avec succès",
+        "failed": "Il y a eu un problème avec votre retrait."
       },
       "info": {
         "delayed": "Le retrait différé comporte deux transactions :",
@@ -619,6 +656,8 @@
         "preFooter": "Les récompenses sont cumulées automatiquement"
       },
       "withdrawTo": "Retirer vers",
+      "amountToDeposit": "Montant à déposer",
+      "amountToWithdraw": "Montant à retirer",
       "withdrawFrom": "Retirer de",
       "depositTo": "Déposer sur",
       "averageApy": "APY moyen",
@@ -628,6 +667,7 @@
       "withdrawDelayedTime": "7 à 14 jours",
       "estimatedReturns": "Rendements annuels estimés*",
       "estimatedGas": "Estimation des frais de carburant",
+      "notEnoughGas": "Pas assez de %{assetSymbol} pour couvrir le carburant",
       "preFooter": "Les récompenses s'accumulent automatiquement",
       "signBroadcast": "Signer & Diffuser",
       "cancel": "Annuler"
@@ -1151,6 +1191,7 @@
     "foxPage": {
       "totalFoxValue": "Valeur totale des FOX",
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
+      "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",
       "getAsset": "Obtenez du %{assetSymbol}",
       "buyAssetOnCoinbase": "Acheter du %{assetSymbol} sur Coinbase",
       "trade": "Échanger",
@@ -1181,7 +1222,8 @@
       "seeAllProposals": "Voir toutes les propositions",
       "availableToTradeOn": "Disponible pour les échanges sur",
       "dex": "DEX",
-      "centralized": "Centralisé"
+      "centralized": "Centralisé",
+      "purchaseFox": "Achetez le jeton agile FOX sur Coinbase directement dans votre porte-monnaie compatible ShapeShift."
     },
     "analytics": {
       "optInModal": {

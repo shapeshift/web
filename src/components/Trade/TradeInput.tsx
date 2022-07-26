@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -230,6 +230,23 @@ export const TradeInput = ({ history }: RouterProps) => {
       })
     }
   }
+
+  // force update quote when the fiat currency changes
+  useEffect(() => {
+    if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+      updateQuote({
+        forceQuote: true,
+        amount: bnOrZero(sellTradeAsset.amount).toString(),
+        sellAsset: sellTradeAsset.asset,
+        buyAsset: buyTradeAsset.asset,
+        feeAsset,
+        action: TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
+      })
+    }
+    // only dependency of this hook is the fiat currency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCurrencyToUsdRate])
 
   return (
     <SlideTransition>

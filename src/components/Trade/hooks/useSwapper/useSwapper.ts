@@ -306,7 +306,7 @@ export const useSwapper = () => {
         const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
-          chainId: sellAsset.chainId,
+          chainId: KnownChainIds.BitcoinMainnet,
           sellAmount: amount,
           sellAsset,
           buyAsset,

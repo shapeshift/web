@@ -39,14 +39,14 @@
     "@shapeshiftoss/caip": "^6.2.0",
     "@shapeshiftoss/chain-adapters": "^7.2.0",
     "@shapeshiftoss/investor-foxy": "^4.0.2",
-    "@shapeshiftoss/types": "^7.0.0",
+    "@shapeshiftoss/types": "^8.0.0",
     "@shapeshiftoss/unchained-client": "^9.0.1"
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^6.2.0",
     "@shapeshiftoss/chain-adapters": "^7.2.0",
     "@shapeshiftoss/investor-foxy": "^4.0.2",
-    "@shapeshiftoss/types": "^7.0.0",
+    "@shapeshiftoss/types": "^8.0.0",
     "@shapeshiftoss/unchained-client": "^9.0.1",
     "limiter": "^2.1.0"
   }

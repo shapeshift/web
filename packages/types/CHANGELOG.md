@@ -1,3 +1,17 @@
+# [@shapeshiftoss/types-v8.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v7.1.0...@shapeshiftoss/types-v8.0.0) (2022-07-26)
+
+
+### Features
+
+* **types:** export Asset type from asset-service ([#893](https://github.com/shapeshift/lib/issues/893)) ([616ea72](https://github.com/shapeshift/lib/commit/616ea72573dd7a3a91a9233d83f8936b43ca0ed7))
+
+
+### BREAKING CHANGES
+
+* **types:** Asset is now exported from asset-service, and all consumers should now import it from it
+
+* fix: tests Asset type imports
+
 # [@shapeshiftoss/types-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v7.0.0...@shapeshiftoss/types-v7.1.0) (2022-07-20)
 
 

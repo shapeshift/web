@@ -9,9 +9,9 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/chain-adapters'
 import { Trade } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'

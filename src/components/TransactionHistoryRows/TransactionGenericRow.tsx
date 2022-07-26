@@ -193,7 +193,7 @@ export const TransactionGenericRow = ({
         </Flex>
         {isLargerThanLg && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
-            {fee && (
+            {fee && bnOrZero(fee?.amount).gt(0) ? (
               <Flex alignItems='center' width='full'>
                 <Box flex={1}>
                   <Amount.Crypto
@@ -217,7 +217,7 @@ export const TransactionGenericRow = ({
                   />
                 </Box>
               </Flex>
-            )}
+            ) : null}
           </Flex>
         )}
         {isLargerThanLg && (

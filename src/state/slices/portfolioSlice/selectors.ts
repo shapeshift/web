@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   AccountId,
   AssetId,
@@ -11,7 +12,6 @@ import {
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
 import head from 'lodash/head'

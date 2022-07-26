@@ -1,6 +1,6 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
 import { FormLabel } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 

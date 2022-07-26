@@ -3,8 +3,7 @@ import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { ETHWallet, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -46,19 +45,7 @@ export const ChainMenu = () => {
   const { state } = useWallet()
   const [evmChainId, setEvmChainId] = useState<string | null>(null)
   // fixme: abstract to custom hook
-  const { supportedEvmChainIds } = useEvm()
-
-  useEffect(() => {
-    ;(async () => {
-      const chainId = await (state.wallet as ETHWallet)?.ethGetChainId?.()
-      if (chainId) setEvmChainId(bnOrZero(chainId).toString())
-    })()
-  }, [state])
-
-  const connectedChainId = useMemo(
-    () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === evmChainId),
-    [evmChainId, supportedEvmChainIds],
-  )
+  const { supportedEvmChainIds, connectedChainId } = useEvm()
 
   const handleChainClick = async (chainId: ChainId) => {
     try {

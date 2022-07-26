@@ -53,7 +53,6 @@ export const mockStore: ReduxState = {
       WalletConnectWallet: false,
       FoxPage: false,
       Avalanche: false,
-      CoinbasePay: false,
       Thor: false,
       CowSwap: false,
       JunoPay: false,

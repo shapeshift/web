@@ -12,7 +12,6 @@ export type FeatureFlags = {
   MultiCurrency: boolean
   WalletConnectWallet: boolean
   Avalanche: boolean
-  CoinbasePay: boolean
   Thor: boolean
   CowSwap: boolean
   JunoPay: boolean
@@ -41,7 +40,6 @@ const initialState: Preferences = {
     MultiCurrency: getConfig().REACT_APP_FEATURE_MULTI_CURRENCY,
     WalletConnectWallet: getConfig().REACT_APP_FEATURE_WALLETCONNECT_WALLET,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
-    CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     JunoPay: getConfig().REACT_APP_FEATURE_JUNOPAY,

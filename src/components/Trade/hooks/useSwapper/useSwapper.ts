@@ -292,7 +292,7 @@ export const useSwapper = () => {
           receiveAddress,
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
-        const { accountType, utxoParams } = getBtcUtxoParams()
+        const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
@@ -370,7 +370,7 @@ export const useSwapper = () => {
 
   // TODO btcAccountSpecifier must come from the btc account selection modal
   // We are defaulting temporarily for development
-  const getBtcUtxoParams = () => {
+  const getBtcUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
     const btcAccountSpecifiers = accountSpecifiersList.find(
       specifiers => specifiers[KnownChainIds.BitcoinMainnet],
     )
@@ -378,9 +378,8 @@ export const useSwapper = () => {
     const btcAccountSpecifier = btcAccountSpecifiers[KnownChainIds.BitcoinMainnet]
     if (!btcAccountSpecifier) throw new Error('no btc account specifier')
 
-    if (!sellTradeAsset?.asset) throw new Error('no sell asset')
     const btcAccountId = toAccountId({
-      chainId: sellTradeAsset.asset.chainId,
+      chainId: sellAsset.chainId,
       account: btcAccountSpecifier,
     })
     return accountIdToUtxoParams(btcAccountId, 0)
@@ -440,7 +439,7 @@ export const useSwapper = () => {
                 receiveAddress,
               })
             } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
-              const { accountType, utxoParams } = getBtcUtxoParams()
+              const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
                 chainId: KnownChainIds.BitcoinMainnet,

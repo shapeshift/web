@@ -1,14 +1,17 @@
-import { AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethChainId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,7 +37,24 @@ export const useTradeRoutes = (
     state: { wallet },
   } = useWallet()
 
-  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
+  // fixme: abstract to custom hook
+  const [evmChainId, setEvmChainId] = useState<string | null>(null)
+  const { supportedEvmChainIds } = useEvm()
+
+  useEffect(() => {
+    ;(async () => {
+      const chainId = await (wallet as ETHWallet)?.ethGetChainId?.()
+      if (chainId) setEvmChainId(bnOrZero(chainId).toString())
+    })()
+  }, [wallet])
+
+  const connectedChainId = useMemo(
+    () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === evmChainId),
+    [evmChainId, supportedEvmChainIds],
+  )
+
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(connectedChainId)
+
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
   const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)?.getFeeAssetId() as AssetId
   const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))

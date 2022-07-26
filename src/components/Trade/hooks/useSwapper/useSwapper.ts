@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import {
+  avalancheAssetId,
   avalancheChainId,
   ChainId,
   ethChainId,
@@ -201,9 +202,15 @@ export const useSwapper = () => {
     [swapperManager, sellTradeAsset],
   )
 
-  const getDefaultPair = useCallback(() => {
-    // eth & fox
-    return ['eip155:1/slip44:60', 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+  const getDefaultPair = useCallback((connectedChainId: ChainId | undefined) => {
+    switch (connectedChainId) {
+      case KnownChainIds.AvalancheMainnet:
+        return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
+      case KnownChainIds.EthereumMainnet:
+      default:
+        // eth & fox
+        return ['eip155:1/slip44:60', 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+    }
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>

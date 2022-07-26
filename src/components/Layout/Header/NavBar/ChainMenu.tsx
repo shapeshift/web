@@ -45,6 +45,7 @@ const ChainMenuItem: React.FC<{
 export const ChainMenu = () => {
   const { state } = useWallet()
   const [evmChainId, setEvmChainId] = useState<string | null>(null)
+  // fixme: abstract to custom hook
   const { supportedEvmChainIds } = useEvm()
 
   useEffect(() => {

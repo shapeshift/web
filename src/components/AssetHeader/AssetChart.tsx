@@ -56,7 +56,7 @@ type AssetChartProps = {
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
   const {
     number: { toFiat },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
   const [timeframe, setTimeframe] = useState(DEFAULT_HISTORY_TIMEFRAME)

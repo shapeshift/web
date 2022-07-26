@@ -1,5 +1,6 @@
 import { ReduxState } from 'state/reducer'
 import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
+import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -48,6 +49,7 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       Osmosis: false,
+      MultiCurrency: false,
       WalletConnectWallet: false,
       FoxPage: false,
       Avalanche: false,
@@ -61,6 +63,7 @@ export const mockStore: ReduxState = {
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
+    currencyFormat: CurrencyFormats.DotDecimal,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

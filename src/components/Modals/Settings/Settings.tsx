@@ -5,7 +5,12 @@ import { useModal } from 'hooks/useModal/useModal'
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsRouter } from './SettingsRouter'
 
-export const entries = [SettingsRoutes.Index, SettingsRoutes.Languages]
+export const entries = [
+  SettingsRoutes.Index,
+  SettingsRoutes.Languages,
+  SettingsRoutes.FiatCurrencies,
+  SettingsRoutes.CurrencyFormat,
+]
 
 const Settings = () => {
   /**

@@ -1,5 +1,6 @@
-import { TxTransfer, TxType } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import {
   getBuyTransfer,
@@ -77,27 +78,27 @@ describe('isTradeContract', () => {
 })
 
 describe('getTransferByType', () => {
-  describe('TxType.Send', () => {
-    it('finds transfer with TxType.Send', () => {
-      const result = getTransferByType(EthSend, TxType.Send)
+  describe('TransferType.Send', () => {
+    it('finds transfer with TransferType.Send', () => {
+      const result = getTransferByType(EthSend, TransferType.Send)
       const expected = EthSend.transfers[0]
       expect(result).toEqual(expected)
     })
     it('returns undefined on failure', () => {
       // receive !== send
-      const result = getTransferByType(EthReceive, TxType.Send)
+      const result = getTransferByType(EthReceive, TransferType.Send)
       expect(result).toBeUndefined()
     })
 
-    describe('TxType.Receive', () => {
-      it('finds transfer with TxType.Receive', () => {
-        const result = getTransferByType(EthReceive, TxType.Receive)
+    describe('TransferType.Receive', () => {
+      it('finds transfer with TransferType.Receive', () => {
+        const result = getTransferByType(EthReceive, TransferType.Receive)
         const expected = EthReceive.transfers[0]
         expect(result).toEqual(expected)
       })
       it('returns undefined on failure', () => {
         // send !== receive
-        const result = getTransferByType(EthSend, TxType.Receive)
+        const result = getTransferByType(EthSend, TransferType.Receive)
         expect(result).toBeUndefined()
       })
     })

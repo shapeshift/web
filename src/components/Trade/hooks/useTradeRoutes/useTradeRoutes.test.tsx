@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
+import { mockChainAdapters } from 'test/mocks/portfolio'
 import { TestProviders } from 'test/TestProviders'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeAmountInputField } from 'components/Trade/types'
@@ -30,6 +31,9 @@ jest.mock('state/slices/selectors', () => ({
   selectAssetById: () => ({
     'eip155:1/slip44:60': mockETH,
   }),
+}))
+jest.mock('context/PluginProvider/PluginProvider', () => ({
+  getChainAdapters: () => mockChainAdapters,
 }))
 
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {

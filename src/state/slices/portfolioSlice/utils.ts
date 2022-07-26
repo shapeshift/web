@@ -1,10 +1,11 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   AccountId,
+  accountIdToChainId,
   AssetId,
   btcChainId,
   CHAIN_NAMESPACE,
   ChainId,
-  chainIdToFeeAssetId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
@@ -16,11 +17,12 @@ import {
 } from '@shapeshiftoss/caip'
 import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { Asset, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -105,9 +107,11 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
-// note - this is not really a selector, more of a util
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
-  chainIdToFeeAssetId(fromAccountId(accountId).chainId)
+  // the only way we get an accountId, is from a chainAdapter that supports that chain
+  // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter
+  // and we can safely non-null assert that it will exist
+  getChainAdapters().get(accountIdToChainId(accountId))!.getFeeAssetId()
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))

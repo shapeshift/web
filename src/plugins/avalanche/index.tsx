@@ -23,7 +23,7 @@ export function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.avalanche.AvalancheTx>(
+                const ws = new unchained.ws.Client<unchained.avalanche.Tx>(
                   getConfig().REACT_APP_UNCHAINED_AVALANCHE_WS_URL,
                 )
 

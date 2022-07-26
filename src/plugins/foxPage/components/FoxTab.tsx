@@ -58,8 +58,14 @@ export const FoxTab: React.FC<FoxTabProps> = ({
               lineHeight={'1.2'}
               fontSize={{ base: 'lg', md: '2xl' }}
               fontWeight='semibold'
+              maximumFractionDigits={2}
             />
-            <Amount.Fiat color='gray.500' value={fiatAmount} lineHeight={'1.2'} />
+            <Amount.Fiat
+              color='gray.500'
+              value={fiatAmount}
+              lineHeight={'1.2'}
+              maximumFractionDigits={2}
+            />
           </SkeletonText>
         </Card.Body>
       </Card>

@@ -44,6 +44,7 @@ export const ClaimConfirm = ({
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
+  const [canClaim, setCanClaim] = useState<boolean>(false)
   const chainAdapterManager = useChainAdapters()
   const { foxy } = useFoxy()
   const { state: walletState } = useWallet()
@@ -101,7 +102,7 @@ export const ClaimConfirm = ({
         if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
-        const [gasLimit, gasPrice] = await Promise.all([
+        const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
           foxy.estimateClaimWithdrawGas({
             claimAddress: userAddress,
             userAddress,
@@ -109,7 +110,10 @@ export const ClaimConfirm = ({
             wallet: walletState.wallet,
           }),
           foxy.getGasPrice(),
+          foxy.canClaimWithdraw({ contractAddress, userAddress }),
         ])
+
+        setCanClaim(canClaimWithdraw)
         const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         setEstimatedGas(gasEstimate)
       } catch (error) {
@@ -193,7 +197,13 @@ export const ClaimConfirm = ({
             <Button size='lg' onClick={onBack}>
               {translate('common.cancel')}
             </Button>
-            <Button size='lg' colorScheme='blue' onClick={handleConfirm} isLoading={loading}>
+            <Button
+              size='lg'
+              colorScheme='blue'
+              isDisabled={!canClaim}
+              onClick={handleConfirm}
+              isLoading={loading}
+            >
               {translate('defi.modals.claim.confirmClaim')}
             </Button>
           </Stack>

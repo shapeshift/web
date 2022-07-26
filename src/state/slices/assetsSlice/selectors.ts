@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   ASSET_REFERENCE,
   AssetId,
@@ -12,7 +13,6 @@ import {
   fromChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import createCachedSelector from 're-reselect'
@@ -72,11 +72,23 @@ const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.Bitcoin
         }
       case CHAIN_NAMESPACE.Ethereum:
-        return ASSET_REFERENCE.Ethereum
+        switch (chainReference) {
+          case CHAIN_REFERENCE.AvalancheCChain:
+            return ASSET_REFERENCE.AvalancheC
+          case CHAIN_REFERENCE.EthereumMainnet:
+            return ASSET_REFERENCE.Ethereum
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
       case CHAIN_NAMESPACE.Cosmos:
-        return chainReference === CHAIN_REFERENCE.CosmosHubMainnet
-          ? ASSET_REFERENCE.Cosmos
-          : ASSET_REFERENCE.Osmosis
+        switch (chainReference) {
+          case CHAIN_REFERENCE.CosmosHubMainnet:
+            return ASSET_REFERENCE.Cosmos
+          case CHAIN_REFERENCE.OsmosisMainnet:
+            return ASSET_REFERENCE.Osmosis
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
       default:
         throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
     }

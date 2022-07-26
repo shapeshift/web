@@ -1,4 +1,5 @@
 import {
+  avalancheChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
@@ -17,6 +18,7 @@ import {
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -135,6 +137,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           switch (chainId) {
             case ethChainId: {
               if (!supportsETH(wallet)) continue
+              const pubkey = await adapter.getAddress({ wallet })
+              if (!pubkey) continue
+              acc.push({ [chainId]: pubkey.toLowerCase() })
+              break
+            }
+            case avalancheChainId: {
+              if (!supportsEthSwitchChain(wallet)) continue
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey.toLowerCase() })

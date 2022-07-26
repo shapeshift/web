@@ -1,5 +1,5 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { useMemo } from 'react'
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'

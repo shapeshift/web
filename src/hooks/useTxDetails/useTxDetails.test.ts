@@ -1,5 +1,5 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { TxTransfer, TxType } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import {
   getBuyTransfer,

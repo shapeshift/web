@@ -9,6 +9,7 @@ dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
+  MultiCurrency: boolean
   WalletConnectWallet: boolean
   Avalanche: boolean
   CoinbasePay: boolean
@@ -21,16 +22,23 @@ export type FeatureFlags = {
 
 export type Flag = keyof FeatureFlags
 
+export enum CurrencyFormats {
+  DotDecimal = 'en-US',
+  CommaDecimal = 'fr-FR',
+}
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
   balanceThreshold: string
   selectedCurrency: SupportedFiatCurrencies
+  currencyFormat: CurrencyFormats
 }
 
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
+    MultiCurrency: getConfig().REACT_APP_FEATURE_MULTI_CURRENCY,
     WalletConnectWallet: getConfig().REACT_APP_FEATURE_WALLETCONNECT_WALLET,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     CoinbasePay: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
@@ -43,6 +51,7 @@ const initialState: Preferences = {
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
+  currencyFormat: CurrencyFormats.DotDecimal,
 }
 
 export const preferences = createSlice({
@@ -65,6 +74,9 @@ export const preferences = createSlice({
     },
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold
+    },
+    setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
+      state.currencyFormat = payload.currencyFormat
     },
   },
 })

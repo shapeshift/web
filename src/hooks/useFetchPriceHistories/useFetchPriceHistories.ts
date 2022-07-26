@@ -2,7 +2,8 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { useAppDispatch } from 'state/store'
+import { selectSelectedCurrency } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 type UseFetchPriceHistoriesArgs = {
   assetIds: AssetId[]
@@ -13,13 +14,19 @@ type UseFetchPriceHistories = (args: UseFetchPriceHistoriesArgs) => void
 
 export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timeframe }) => {
   const dispatch = useAppDispatch()
+  const symbol = useAppSelector(selectSelectedCurrency)
+
+  const { findPriceHistoryByAssetId, findPriceHistoryByFiatSymbol } = marketApi.endpoints
   useEffect(
     () =>
       assetIds.forEach(assetId =>
-        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate({ assetId, timeframe })),
+        dispatch(findPriceHistoryByAssetId.initiate({ assetId, timeframe })),
       ),
     // assetIds ref changes, prevent infinite render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(assetIds), dispatch, timeframe],
+    [assetIds, dispatch, timeframe],
   )
+  useEffect(() => {
+    dispatch(findPriceHistoryByFiatSymbol.initiate({ symbol, timeframe }))
+  }, [dispatch, findPriceHistoryByFiatSymbol, symbol, timeframe])
 }

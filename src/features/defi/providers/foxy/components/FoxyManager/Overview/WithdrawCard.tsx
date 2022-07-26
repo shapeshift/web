@@ -1,6 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import { Asset } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import {
   DefiAction,

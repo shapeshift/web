@@ -10,6 +10,9 @@ type AmountProps = {
   value: number | string
   prefix?: string
   suffix?: string
+  omitDecimalTrailingZeros?: boolean
+  abbreviated?: boolean
+  maximumFractionDigits?: number
 } & TextProps
 
 export function Amount({
@@ -17,16 +20,18 @@ export function Amount({
   prefix = '',
   suffix = '',
   maximumFractionDigits,
+  omitDecimalTrailingZeros = false,
+  abbreviated = false,
   ...props
 }: any): React.ReactElement {
   const {
     number: { toString },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
 
   return (
     <RawText {...props}>
       {prefix}
-      {toString(value, { maximumFractionDigits })}
+      {toString(value, { maximumFractionDigits, omitDecimalTrailingZeros, abbreviated })}
       {suffix}
     </RawText>
   )
@@ -56,13 +61,14 @@ const Crypto = ({
   maximumFractionDigits = 8,
   prefix,
   suffix,
+  omitDecimalTrailingZeros = false,
   ...props
 }: CryptoAmountProps) => {
   const {
     number: { toCrypto, toParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
 
-  const crypto = toCrypto(value, symbol, { maximumFractionDigits })
+  const crypto = toCrypto(value, symbol, { maximumFractionDigits, omitDecimalTrailingZeros })
 
   if (!cryptoSymbolStyle) {
     return (
@@ -93,12 +99,27 @@ const Crypto = ({
   )
 }
 
-const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: FiatAmountProps) => {
+const Fiat = ({
+  value,
+  fiatSymbolStyle,
+  fiatType,
+  prefix,
+  suffix,
+  maximumFractionDigits,
+  omitDecimalTrailingZeros = false,
+  abbreviated = false,
+  ...props
+}: FiatAmountProps) => {
   const {
     number: { toFiat, toParts },
-  } = useLocaleFormatter({ fiatType: fiatType || 'USD' })
+  } = useLocaleFormatter({ fiatType })
 
-  const fiat = toFiat(value, { fiatType })
+  const fiat = toFiat(value, {
+    fiatType,
+    omitDecimalTrailingZeros,
+    abbreviated,
+    maximumFractionDigits,
+  })
 
   if (!fiatSymbolStyle) {
     return (
@@ -132,7 +153,7 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: Fi
 const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: PercentAmountProps) => {
   const {
     number: { toPercent },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const formattedNumber = toPercent(value, options)
 
   const color = useMemo(() => {
@@ -155,17 +176,6 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
   )
 }
 
-const Supply = ({ value, ...props }: AmountProps) => {
-  const {
-    number: { toSupply },
-  } = useLocaleFormatter({ fiatType: 'USD' })
-
-  const volume = toSupply(value)
-
-  return <RawText {...props}>{volume}</RawText>
-}
-
 Amount.Crypto = Crypto
 Amount.Fiat = Fiat
 Amount.Percent = Percent
-Amount.Supply = Supply

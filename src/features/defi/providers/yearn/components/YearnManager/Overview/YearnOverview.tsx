@@ -2,6 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import {
   DefiAction,
@@ -103,7 +104,7 @@ export const YearnOverview = () => {
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: underlyingToken.isTrustedDescription,
       }}
-      tvl={opportunity.tvl.balanceUsdc.toFixed(2)}
+      tvl={opportunity.tvl.balanceUsdc.div(`1e+${USDC_PRECISION}`).toString()}
       apy={opportunity.apy.toString()}
       menu={[
         {

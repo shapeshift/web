@@ -1,5 +1,5 @@
-import { TxStatus } from '@shapeshiftoss/chain-adapters'
 import { UtxoAccountType } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { map, reverse } from 'lodash'
 import { mockStore } from 'test/mocks/store'
 import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'

@@ -1,5 +1,5 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
-import { TxType } from '@shapeshiftoss/chain-adapters'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useState } from 'react'
@@ -70,8 +70,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const txId = txIds[index]
       const transaction = allTxs[txId]
       const standardTx = getStandardTx(transaction)
-      const txType = isSupportedContract(transaction)
-        ? TxType.Contract
+      const TxType = isSupportedContract(transaction)
+        ? TransferType.Contract
         : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
       const buyTransfer = getBuyTransfer(transaction)
       const sellTransfer = getSellTransfer(transaction)
@@ -87,8 +87,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       report.push({
         txid: transaction.txid,
         type: translate(
-          txType
-            ? `transactionHistory.transactionTypes.${txType}`
+          TxType
+            ? `transactionHistory.transactionTypes.${TxType}`
             : transaction.data
             ? `transactionRow.parser.${transaction.data?.parser}.${transaction.data?.method}`
             : 'transactionRow.unknown',

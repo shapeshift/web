@@ -1,5 +1,6 @@
-import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/chain-adapters'
+import { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { Asset, MarketData } from '@shapeshiftoss/types'
+import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/address/ens'
 import { ReduxState } from 'state/reducer'
@@ -46,7 +47,7 @@ export interface TxDetails {
   ensTo?: string
   from: string
   ensFrom?: string
-  type: TradeType | TxType | ''
+  type: TradeType | TransferType | ''
   symbol: string
   precision: number
   explorerTxLink: string
@@ -58,10 +59,10 @@ export interface TxDetails {
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getTransferByType = (tx: Tx, txType: TxType) =>
-  tx.transfers.find(t => t.type === txType)
-export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, TxType.Receive)
-export const getSellTransfer = (tx: Tx) => getTransferByType(tx, TxType.Send)
+export const getTransferByType = (tx: Tx, TransferType: TransferType) =>
+  tx.transfers.find(t => t.type === TransferType)
+export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, TransferType.Receive)
+export const getSellTransfer = (tx: Tx) => getTransferByType(tx, TransferType.Send)
 export const getTransferByAsset = (tx: Tx, asset: Asset) =>
   tx.transfers.find(t => t.assetId === asset.assetId)
 
@@ -74,8 +75,8 @@ export const isSupportedContract = (tx: Tx) =>
  * Returns true when a tx has transfers matching the generalized idea of a
  * trade (i.e. some account sells to pool A and buys from pool B).
  *
- * @param buyTransfer transfer with TxType.Receive
- * @param sellTransfer transfer with TxType.Send
+ * @param buyTransfer transfer with TransferType.Receive
+ * @param sellTransfer transfer with TransferType.Send
  * @returns boolean
  */
 export const isTradeContract = (buyTransfer: TxTransfer, sellTransfer: TxTransfer): boolean => {
@@ -87,8 +88,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const method = tx.data?.method
 
   const standardTx = getStandardTx(tx)
-  const buyTransfer = getTransferByType(tx, TxType.Receive)
-  const sellTransfer = getTransferByType(tx, TxType.Send)
+  const buyTransfer = getTransferByType(tx, TransferType.Receive)
+  const sellTransfer = getTransferByType(tx, TransferType.Send)
   const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
 
   const direction: Direction | undefined = (() => {
@@ -150,7 +151,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       ? TradeType.Trade
       : undefined
   const type = isSupportedContract(tx)
-    ? TxType.Contract
+    ? TransferType.Contract
     : standardTx?.type ?? tx.tradeDetails?.type ?? tradeType ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18

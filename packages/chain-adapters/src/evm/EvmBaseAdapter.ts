@@ -30,14 +30,7 @@ import {
   ValidAddressResult,
   ValidAddressResultType
 } from '../types'
-import {
-  chainIdToChainLabel,
-  getAssetNamespace,
-  getStatus,
-  getType,
-  toPath,
-  toRootDerivationPath
-} from '../utils'
+import { chainIdToChainLabel, getAssetNamespace, toPath, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { Fees } from './types'
 import { getErc20Data } from './utils'
@@ -232,13 +225,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           confirmations: parsedTx.confirmations,
           txid: parsedTx.txid,
           fee: parsedTx.fee,
-          status: getStatus(parsedTx.status),
+          status: parsedTx.status,
           tradeDetails: parsedTx.trade,
           transfers: parsedTx.transfers.map((transfer) => ({
             assetId: transfer.assetId,
             from: transfer.from,
             to: transfer.to,
-            type: getType(transfer.type),
+            type: transfer.type,
             value: transfer.totalValue
           })),
           data: parsedTx.data
@@ -339,13 +332,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           chain: this.getType(),
           confirmations: tx.confirmations,
           fee: tx.fee,
-          status: getStatus(tx.status),
+          status: tx.status,
           tradeDetails: tx.trade,
           transfers: tx.transfers.map((transfer) => ({
             assetId: transfer.assetId,
             from: transfer.from,
             to: transfer.to,
-            type: getType(transfer.type),
+            type: transfer.type,
             value: transfer.totalValue
           })),
           txid: tx.txid,

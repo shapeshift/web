@@ -1,4 +1,4 @@
-import { Status, TransferType, Tx } from '../../../types'
+import { TransferType, Tx, TxStatus } from '../../../types'
 import { TransactionParser } from '../index'
 import standardNoChange from './mockData/standardNoChange'
 import standardWithChange from './mockData/standardWithChange'
@@ -17,7 +17,7 @@ describe('parseTx', () => {
       blockHeight: txMempool.blockHeight,
       blockTime: txMempool.timestamp,
       confirmations: txMempool.confirmations,
-      status: Status.Pending,
+      status: TxStatus.Pending,
       address,
       chainId: 'bip122:000000000019d6689c085ae165831e93',
       fee: {
@@ -51,7 +51,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       blockHash: tx.blockHash,
       confirmations: tx.confirmations,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       address,
       chainId: 'bip122:000000000019d6689c085ae165831e93',
       fee: {
@@ -84,7 +84,7 @@ describe('parseTx', () => {
       blockHeight: txMempool.blockHeight,
       blockTime: txMempool.timestamp,
       confirmations: txMempool.confirmations,
-      status: Status.Pending,
+      status: TxStatus.Pending,
       address,
       chainId: 'bip122:000000000019d6689c085ae165831e93',
       transfers: [
@@ -114,7 +114,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       blockHash: tx.blockHash,
       confirmations: tx.confirmations,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       address,
       chainId: 'bip122:000000000019d6689c085ae165831e93',
       transfers: [
@@ -143,7 +143,7 @@ describe('parseTx', () => {
       blockHeight: txMempool.blockHeight,
       blockTime: txMempool.timestamp,
       confirmations: txMempool.confirmations,
-      status: Status.Pending,
+      status: TxStatus.Pending,
       address,
       chainId: 'bip122:000000000019d6689c085ae165831e93',
       fee: {
@@ -185,7 +185,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       blockHash: tx.blockHash,
       confirmations: tx.confirmations,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       address,
       chainId: 'bip122:000000000019d6689c085ae165831e93',
       fee: {

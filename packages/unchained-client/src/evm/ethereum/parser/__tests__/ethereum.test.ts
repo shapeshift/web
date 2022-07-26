@@ -1,4 +1,4 @@
-import { Dex, Status, Trade, TradeType, TransferType, TxParser } from '../../../../types'
+import { Dex, Trade, TradeType, TransferType, TxParser, TxStatus } from '../../../../types'
 import { ParsedTx as Tx, TxParser as EvmTxParser } from '../../../parser'
 import {
   FOXY_STAKING_CONTRACT,
@@ -89,7 +89,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         transfers: [standardTransfer]
       }
 
@@ -129,7 +129,7 @@ describe('parseTx', () => {
           method: 'deposit',
           parser: TxParser.Thor
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           assetId: 'eip155:1/slip44:60',
           value: '1700235000000000'
@@ -173,7 +173,7 @@ describe('parseTx', () => {
           method: 'deposit',
           parser: TxParser.Thor
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           assetId: 'eip155:1/slip44:60',
           value: '4700280000000000'
@@ -217,7 +217,7 @@ describe('parseTx', () => {
           method: 'transferOut',
           parser: TxParser.Thor
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         transfers: [buyTransfer],
         trade
       }
@@ -257,7 +257,7 @@ describe('parseTx', () => {
           method: 'transferOut',
           parser: TxParser.Thor
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         transfers: [buyTransfer],
         trade
       }
@@ -297,7 +297,7 @@ describe('parseTx', () => {
           method: 'transferOut',
           parser: TxParser.Thor
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         transfers: [buyTransfer],
         trade
       }
@@ -356,7 +356,7 @@ describe('parseTx', () => {
           method: undefined,
           parser: TxParser.ZRX
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '8308480000000000',
           assetId: 'eip155:1/slip44:60'
@@ -418,7 +418,7 @@ describe('parseTx', () => {
           method: undefined,
           parser: TxParser.ZRX
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '19815285000000000',
           assetId: 'eip155:1/slip44:60'
@@ -472,7 +472,7 @@ describe('parseTx', () => {
           method: undefined,
           parser: TxParser.ZRX
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '78183644000000000',
           assetId: 'eip155:1/slip44:60'
@@ -546,7 +546,7 @@ describe('parseTx', () => {
           method: undefined,
           parser: TxParser.ZRX
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '18399681000000000',
           assetId: 'eip155:1/slip44:60'
@@ -574,7 +574,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: undefined,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [
           {
             type: TransferType.Send,
@@ -613,7 +613,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '399000000000000',
           assetId: 'eip155:1/slip44:60'
@@ -655,7 +655,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: undefined,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [
           {
             type: TransferType.Send,
@@ -696,7 +696,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '1011738000000000',
           assetId: 'eip155:1/slip44:60'
@@ -747,7 +747,7 @@ describe('parseTx', () => {
           method: 'approve',
           parser: EvmTxParser.ERC20
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '1447243200000000',
           assetId: 'eip155:1/slip44:60'
@@ -775,7 +775,7 @@ describe('parseTx', () => {
           method: 'addLiquidityETH',
           parser: TxParser.UniV2
         },
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [
           {
             type: TransferType.Send,
@@ -820,7 +820,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '26926494400000000',
           assetId: 'eip155:1/slip44:60'
@@ -875,7 +875,7 @@ describe('parseTx', () => {
           method: 'removeLiquidityETH',
           parser: TxParser.UniV2
         },
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [
           {
             type: TransferType.Send,
@@ -907,7 +907,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '4082585000000000',
           assetId: 'eip155:1/slip44:60'
@@ -962,7 +962,7 @@ describe('parseTx', () => {
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '2559843000000000',
           assetId: 'eip155:1/slip44:60'
@@ -1000,7 +1000,7 @@ describe('parseTx', () => {
           method: 'stake',
           parser: TxParser.UniV2
         },
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: []
       }
 
@@ -1025,7 +1025,7 @@ describe('parseTx', () => {
           method: 'stake',
           parser: TxParser.UniV2
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '4650509500000000',
           assetId: 'eip155:1/slip44:60'
@@ -1063,7 +1063,7 @@ describe('parseTx', () => {
           method: 'exit',
           parser: TxParser.UniV2
         },
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: []
       }
 
@@ -1088,7 +1088,7 @@ describe('parseTx', () => {
           method: 'exit',
           parser: TxParser.UniV2
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '6136186875000000',
           assetId: 'eip155:1/slip44:60'
@@ -1138,7 +1138,7 @@ describe('parseTx', () => {
           method: 'approve',
           parser: TxParser.Yearn
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '4519526097650998',
           assetId: 'eip155:1/slip44:60'
@@ -1166,7 +1166,7 @@ describe('parseTx', () => {
           method: 'deposit',
           parser: TxParser.Yearn
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '18139009291874667',
           assetId: 'eip155:1/slip44:60'
@@ -1213,7 +1213,7 @@ describe('parseTx', () => {
           method: 'withdraw',
           parser: TxParser.Yearn
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '19460274119661600',
           assetId: 'eip155:1/slip44:60'
@@ -1260,7 +1260,7 @@ describe('parseTx', () => {
           method: 'deposit',
           parser: TxParser.Yearn
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '9099683709794574',
           assetId: 'eip155:1/slip44:60'
@@ -1309,7 +1309,7 @@ describe('parseTx', () => {
           method: 'stake',
           parser: TxParser.Foxy
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '8343629232016788',
           assetId: 'eip155:1/slip44:60'
@@ -1358,7 +1358,7 @@ describe('parseTx', () => {
           method: 'unstake',
           parser: TxParser.Foxy
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '7586577934107040',
           assetId: 'eip155:1/slip44:60'
@@ -1407,7 +1407,7 @@ describe('parseTx', () => {
           method: 'instantUnstake',
           parser: TxParser.Foxy
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '10348720598973963',
           assetId: 'eip155:1/slip44:60'
@@ -1456,7 +1456,7 @@ describe('parseTx', () => {
           method: 'claimWithdraw',
           parser: TxParser.Foxy
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '4735850597827293',
           assetId: 'eip155:1/slip44:60'
@@ -1499,7 +1499,7 @@ describe('parseTx', () => {
           method: 'deposit',
           parser: TxParser.WETH
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '2161334514900778',
           assetId: 'eip155:1/slip44:60'
@@ -1554,7 +1554,7 @@ describe('parseTx', () => {
           method: 'deposit',
           parser: TxParser.WETH
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '1087028000000000',
           assetId: 'eip155:1/slip44:60'
@@ -1619,7 +1619,7 @@ describe('parseTx', () => {
           method: 'withdraw',
           parser: TxParser.WETH
         },
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           value: '1482222626533792',
           assetId: 'eip155:1/slip44:60'

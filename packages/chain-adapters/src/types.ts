@@ -7,6 +7,7 @@ import {
   OsmosisSignTx
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
 import * as bitcoin from './bitcoin'
 import * as cosmos from './cosmossdk/cosmos'
@@ -86,20 +87,6 @@ export type TxFee = {
   value: string
 }
 
-export enum TxType {
-  Send = 'send',
-  Receive = 'receive',
-  Contract = 'contract',
-  Unknown = 'unknown'
-}
-
-export enum TxStatus {
-  Confirmed = 'confirmed',
-  Pending = 'pending',
-  Failed = 'failed',
-  Unknown = 'unknown'
-}
-
 export type Transaction<T extends ChainId> = {
   address: string
   blockHash?: string
@@ -114,11 +101,6 @@ export type Transaction<T extends ChainId> = {
   tradeDetails?: TradeDetails
   transfers: Array<TxTransfer>
   data?: TxMetadata
-}
-
-export enum TradeType {
-  Trade = 'trade',
-  Refund = 'refund'
 }
 
 export type TradeDetails = {
@@ -136,7 +118,7 @@ export type TxTransfer = {
   assetId: string
   from: string
   to: string
-  type: TxType
+  type: TransferType
   value: string
 }
 

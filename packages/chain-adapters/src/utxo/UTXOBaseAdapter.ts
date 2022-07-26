@@ -35,8 +35,6 @@ import {
   accountTypeToScriptType,
   chainIdToChainLabel,
   convertXpubVersion,
-  getStatus,
-  getType,
   toPath,
   toRootDerivationPath
 } from '../utils'
@@ -404,13 +402,13 @@ export abstract class UTXOBaseAdapter<T extends UtxoChainId> implements IChainAd
               confirmations: parsedTx.confirmations,
               txid: parsedTx.txid,
               fee: parsedTx.fee,
-              status: getStatus(parsedTx.status),
+              status: parsedTx.status,
               tradeDetails: parsedTx.trade,
               transfers: parsedTx.transfers.map((transfer) => ({
                 assetId: transfer.assetId,
                 from: transfer.from,
                 to: transfer.to,
-                type: getType(transfer.type),
+                type: transfer.type,
                 value: transfer.totalValue
               }))
             }
@@ -469,13 +467,13 @@ export abstract class UTXOBaseAdapter<T extends UtxoChainId> implements IChainAd
           chain: this.getType(),
           confirmations: tx.confirmations,
           fee: tx.fee,
-          status: getStatus(tx.status),
+          status: tx.status,
           tradeDetails: tx.trade,
           transfers: tx.transfers.map((transfer) => ({
             assetId: transfer.assetId,
             from: transfer.from,
             to: transfer.to,
-            type: getType(transfer.type),
+            type: transfer.type,
             value: transfer.totalValue
           })),
           txid: tx.txid

@@ -2,7 +2,7 @@ import { ASSET_REFERENCE, AssetId, ChainId, fromChainId, toAssetId } from '@shap
 import { BigNumber } from 'bignumber.js'
 
 import { BitcoinTx } from '../../generated/bitcoin'
-import { Status, TransferType, Tx as ParsedTx } from '../../types'
+import { TransferType, Tx as ParsedTx, TxStatus } from '../../types'
 import { aggregateTransfer } from '../../utils'
 
 export interface TransactionParserArgs {
@@ -33,7 +33,7 @@ export class TransactionParser {
       blockTime: tx.timestamp,
       chainId: this.chainId,
       confirmations: tx.confirmations,
-      status: tx.confirmations > 0 ? Status.Confirmed : Status.Pending,
+      status: tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending,
       transfers: [],
       txid: tx.txid
     }

@@ -1,7 +1,7 @@
 import { ASSET_REFERENCE, AssetId, ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
-import { Status, TransferType } from '../../types'
+import { TransferType, TxStatus } from '../../types'
 import { Tx as CosmosTx } from '../index'
 import { ParsedTx } from '../types'
 import { valuesFromMsgEvents } from './utils'
@@ -35,7 +35,7 @@ export class TransactionParser {
       blockTime: tx.timestamp ?? Math.floor(Date.now() / 1000),
       chainId: this.chainId,
       confirmations: tx.confirmations,
-      status: tx.confirmations > 0 ? Status.Confirmed : Status.Pending, // TODO: handle failed case
+      status: tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending, // TODO: handle failed case
       transfers: [],
       txid: tx.txid
     }

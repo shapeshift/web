@@ -2,7 +2,7 @@ import { AssetId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import { Status, Token, TransferType } from '../../types'
+import { Token, TransferType, TxStatus } from '../../types'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
 import * as erc20 from './erc20'
 import { ParsedTx, SubParser, Tx, TxSpecific } from './types'
@@ -69,14 +69,14 @@ export class BaseTransactionParser<T extends Tx> {
     return this.getParsedTxWithTransfers(tx, parsedTx, address)
   }
 
-  private getStatus(tx: T): Status {
+  private getStatus(tx: T): TxStatus {
     const status = tx.status
 
-    if (status === -1 && tx.confirmations <= 0) return Status.Pending
-    if (status === 1 && tx.confirmations > 0) return Status.Confirmed
-    if (status === 0) return Status.Failed
+    if (status === -1 && tx.confirmations <= 0) return TxStatus.Pending
+    if (status === 1 && tx.confirmations > 0) return TxStatus.Confirmed
+    if (status === 0) return TxStatus.Failed
 
-    return Status.Unknown
+    return TxStatus.Unknown
   }
 
   private getParsedTxWithTransfers(tx: T, parsedTx: ParsedTx, address: string) {

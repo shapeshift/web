@@ -2,6 +2,7 @@ import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 
 import { Tx } from '../../../generated/ethereum'
 import { BaseTransactionParser, TransactionParserArgs } from '../../parser'
+import * as cowswap from './cowswap'
 import * as foxy from './foxy'
 import * as thor from './thor'
 import * as uniV2 from './uniV2'
@@ -27,7 +28,8 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new weth.Parser({ chainId: this.chainId, provider: this.provider }),
       new uniV2.Parser({ chainId: this.chainId, provider: this.provider }),
       new thor.Parser({ chainId: this.chainId, rpcUrl: args.rpcUrl }),
-      new zrx.Parser()
+      new zrx.Parser(),
+      new cowswap.Parser()
     ])
   }
 }

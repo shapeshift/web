@@ -1,4 +1,4 @@
-import { Status, TransferType } from '../../../types'
+import { TransferType, TxStatus } from '../../../types'
 import { ParsedTx } from '../../types'
 import { TransactionParser } from '../index'
 import delegate from './mockData/delegate'
@@ -22,7 +22,7 @@ describe('parseTx', () => {
       blockHeight: tx.blockHeight,
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       address,
       chainId: 'cosmos:cosmoshub-4',
       fee: {
@@ -56,7 +56,7 @@ describe('parseTx', () => {
       blockHeight: tx.blockHeight,
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       address,
       chainId: 'cosmos:cosmoshub-4',
       transfers: [
@@ -86,7 +86,7 @@ describe('parseTx', () => {
       blockTime: 1645207449,
       chainId: 'cosmos:cosmoshub-4',
       confirmations: 358801,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       transfers: [
         {
           type: TransferType.Send,
@@ -126,7 +126,7 @@ describe('parseTx', () => {
       blockTime: 1646429915,
       chainId: 'cosmos:cosmoshub-4',
       confirmations: 229191,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       fee: {
         assetId: 'cosmos:cosmoshub-4/slip44:118',
         value: '6250'
@@ -171,7 +171,7 @@ describe('parseTx', () => {
       blockTime: 1646429755,
       chainId: 'cosmos:cosmoshub-4',
       confirmations: 229341,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       transfers: [],
       txid: 'A69531AE72161D6556CEE744D5D6B3D0661443FA66C89360F40EC75CF7E278CA',
       data: {
@@ -204,7 +204,7 @@ describe('parseTx', () => {
       blockTime: 1646430088,
       chainId: 'cosmos:cosmoshub-4',
       confirmations: 229401,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       transfers: [
         {
           type: TransferType.Receive,
@@ -245,7 +245,7 @@ describe('parseTx', () => {
       blockTime: 1637387732,
       chainId: 'cosmos:cosmoshub-4',
       confirmations: 1632185,
-      status: Status.Confirmed,
+      status: TxStatus.Confirmed,
       transfers: [
         {
           type: TransferType.Send,
@@ -288,7 +288,7 @@ it('should be able to parse an ibc receive tx', async () => {
     blockTime: 1646429517,
     chainId: 'cosmos:cosmoshub-4',
     confirmations: 231594,
-    status: Status.Confirmed,
+    status: TxStatus.Confirmed,
     transfers: [
       {
         type: TransferType.Receive,

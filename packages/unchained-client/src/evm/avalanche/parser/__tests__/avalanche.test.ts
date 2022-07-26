@@ -1,6 +1,6 @@
 import { avalancheAssetId, avalancheChainId } from '@shapeshiftoss/caip'
 
-import { Status, TransferType } from '../../../../types'
+import { TransferType, TxStatus } from '../../../../types'
 import { ParsedTx, TxParser as EvmTxParser } from '../../../parser'
 import { TransactionParser } from '../index'
 import avaxSelfSend from './mockData/avaxSelfSend'
@@ -25,7 +25,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [
           {
             type: TransferType.Send,
@@ -55,7 +55,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
           value: '573508559337000'
@@ -88,7 +88,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [
           {
             type: TransferType.Receive,
@@ -118,7 +118,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         transfers: [
           {
             type: TransferType.Receive,
@@ -147,7 +147,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: []
       }
 
@@ -168,7 +168,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
           value: '1736704000000000'
@@ -204,7 +204,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: []
       }
 
@@ -225,7 +225,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         transfers: [
           {
             type: TransferType.Receive,
@@ -257,7 +257,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [
           {
             type: TransferType.Send,
@@ -295,7 +295,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
           value: '573508559337000'
@@ -336,7 +336,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: []
       }
 
@@ -357,7 +357,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
           value: '1736704000000000'
@@ -402,7 +402,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
-        status: Status.Pending,
+        status: TxStatus.Pending,
         transfers: [],
         data: {
           assetId: 'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
@@ -428,7 +428,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        status: Status.Confirmed,
+        status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
           value: '1645985000000000'

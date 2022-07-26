@@ -1,6 +1,8 @@
+// these are user facing values, and should be rendered as such
 export enum Dex {
-  Thor = 'thor',
-  Zrx = 'zrx'
+  Thor = 'THORChain',
+  Zrx = '0x',
+  CowSwap = 'CowSwap'
 }
 
 export interface Fee {
@@ -8,11 +10,12 @@ export interface Fee {
   value: string
 }
 
-export enum Status {
-  Confirmed = 'confirmed',
-  Pending = 'pending',
-  Failed = 'failed',
-  Unknown = 'unknown'
+// these are user facing values, and should be rendered as such
+export enum TxStatus {
+  Confirmed = 'Confirmed',
+  Pending = 'Pending',
+  Failed = 'Failed',
+  Unknown = 'Unknown'
 }
 
 export interface Token {
@@ -28,9 +31,10 @@ export interface Trade {
   type: TradeType
 }
 
+// these are user facing values, and should be rendered as such
 export enum TradeType {
-  Trade = 'trade',
-  Refund = 'refund'
+  Trade = 'Trade',
+  Refund = 'Refund'
 }
 
 export interface Transfer {
@@ -43,9 +47,11 @@ export interface Transfer {
   token?: Token
 }
 
+// these are user facing values, and should be rendered as such
 export enum TransferType {
-  Send = 'send',
-  Receive = 'receive'
+  Send = 'Send',
+  Receive = 'Receive',
+  Contract = 'Contract'
 }
 
 export enum TxParser {
@@ -55,7 +61,8 @@ export enum TxParser {
   ZRX = 'zrx',
   Thor = 'thor',
   Foxy = 'foxy',
-  WETH = 'weth'
+  WETH = 'weth',
+  CowSwap = 'cowswap'
 }
 
 export interface BaseTxMetadata {
@@ -75,7 +82,7 @@ export interface StandardTx {
   chainId: string
   confirmations: number
   fee?: Fee
-  status: Status
+  status: TxStatus
   trade?: Trade
   transfers: Array<Transfer>
   txid: string

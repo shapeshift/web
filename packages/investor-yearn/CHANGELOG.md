@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v4.0.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v4.0.5...@shapeshiftoss/investor-yearn-v4.0.6) (2022-07-26)
+
+
+### Bug Fixes
+
+* unrug lib bump packages ([#910](https://github.com/shapeshift/lib/issues/910)) ([c914e58](https://github.com/shapeshift/lib/commit/c914e58a2832e5bc196d062074499ec46a200d50))
+
 # [@shapeshiftoss/investor-yearn-v4.0.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v4.0.4...@shapeshiftoss/investor-yearn-v4.0.5) (2022-07-25)
 
 # [@shapeshiftoss/investor-yearn-v4.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v4.0.3...@shapeshiftoss/investor-yearn-v4.0.4) (2022-07-07)

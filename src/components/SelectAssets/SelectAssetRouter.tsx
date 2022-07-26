@@ -1,5 +1,5 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 

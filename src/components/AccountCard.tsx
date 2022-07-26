@@ -1,7 +1,7 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, ButtonProps } from '@chakra-ui/react'
 import { SkeletonCircle, SkeletonText } from '@chakra-ui/skeleton'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from './Amount/Amount'

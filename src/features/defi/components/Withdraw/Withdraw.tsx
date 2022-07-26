@@ -11,7 +11,8 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
-import { Asset, MarketData } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { MarketData } from '@shapeshiftoss/types'
 import React, { PropsWithChildren } from 'react'
 import {
   ControllerProps,

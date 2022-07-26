@@ -1,5 +1,6 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import { Asset, MarketData } from '@shapeshiftoss/types'
+import { MarketData } from '@shapeshiftoss/types'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/address/ens'

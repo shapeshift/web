@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'

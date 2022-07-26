@@ -1,6 +1,7 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -26,8 +27,8 @@ export const useTradeRoutes = (
   const buyTradeAsset = getValues('buyAsset')
   const sellTradeAsset = getValues('sellAsset')
   const feeAssetId = (getChainAdapters() as ChainAdapterManager)
-    .get(sellTradeAsset?.asset?.chainId ?? ethChainId)
-    ?.getFeeAssetId() as AssetId
+    .get(sellTradeAsset?.asset ? sellTradeAsset.asset.chainId : ethChainId)! // ! operator as Map.prototype.get() is typed as get(key: K): V | undefined;
+    .getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useSelector(selectAssets)
   const {
@@ -36,7 +37,7 @@ export const useTradeRoutes = (
 
   const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
-  const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)?.getFeeAssetId() as AssetId
+  const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)!.getFeeAssetId()
   const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
 
   const setDefaultAssets = useCallback(async () => {

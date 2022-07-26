@@ -1,5 +1,5 @@
 import { Button, Input, InputGroup, InputGroupProps, InputLeftElement } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { CSSProperties } from 'react'
 import { Control, Controller } from 'react-hook-form'

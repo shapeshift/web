@@ -1,6 +1,6 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { ChainId } from '@shapeshiftoss/caip'
 import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'

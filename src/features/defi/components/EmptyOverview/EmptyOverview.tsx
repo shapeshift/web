@@ -1,5 +1,5 @@
 import { Flex, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { PropsWithChildren } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'

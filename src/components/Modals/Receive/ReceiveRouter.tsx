@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'

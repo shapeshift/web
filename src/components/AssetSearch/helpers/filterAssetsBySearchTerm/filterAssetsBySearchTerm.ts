@@ -1,5 +1,5 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import { matchSorter } from 'match-sorter'
 import { isEthAddress } from 'lib/address/utils'
 

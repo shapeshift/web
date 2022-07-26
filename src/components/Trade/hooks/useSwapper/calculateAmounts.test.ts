@@ -1,5 +1,6 @@
 import { ETH, FOX } from 'test/constants'
 import { TradeAmountInputField } from 'components/Trade/types'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { calculateAmounts } from './calculateAmounts'
 
@@ -9,6 +10,7 @@ describe('calculateAmounts', () => {
   const sellAsset = ETH
   const buyAssetUsdRate = '1'
   const sellAssetUsdRate = '2'
+  const selectedCurrencyToUsdRate = bn(1)
 
   it('returns sellAmount, buyAmount, fiatSellAmount for SELL action', async () => {
     const action = TradeAmountInputField.SELL
@@ -20,6 +22,7 @@ describe('calculateAmounts', () => {
       buyAssetUsdRate,
       sellAssetUsdRate,
       action,
+      selectedCurrencyToUsdRate,
     })
 
     expect(result).toEqual({
@@ -39,6 +42,7 @@ describe('calculateAmounts', () => {
       buyAssetUsdRate,
       sellAssetUsdRate,
       action,
+      selectedCurrencyToUsdRate,
     })
 
     expect(result).toEqual({
@@ -58,6 +62,7 @@ describe('calculateAmounts', () => {
       buyAssetUsdRate,
       sellAssetUsdRate,
       action,
+      selectedCurrencyToUsdRate,
     })
 
     expect(result).toEqual({

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v6.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.3...@shapeshiftoss/market-service-v6.4.4) (2022-07-26)
+
+
+### Bug Fixes
+
+* unrug lib bump packages ([#910](https://github.com/shapeshift/lib/issues/910)) ([c914e58](https://github.com/shapeshift/lib/commit/c914e58a2832e5bc196d062074499ec46a200d50))
+
 # [@shapeshiftoss/market-service-v6.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.2...@shapeshiftoss/market-service-v6.4.3) (2022-07-25)
 
 # [@shapeshiftoss/market-service-v6.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.1...@shapeshiftoss/market-service-v6.4.2) (2022-07-07)

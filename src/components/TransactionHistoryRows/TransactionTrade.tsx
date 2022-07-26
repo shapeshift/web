@@ -54,7 +54,7 @@ export const TransactionTrade = ({
           )}
           {txDetails.tx.tradeDetails && (
             <Row title='orderRoute'>
-              <Text value={'0x'} />
+              <Text value={txDetails.tx.tradeDetails.dexName} />
             </Row>
           )}
           {txDetails.tx.tradeDetails && (

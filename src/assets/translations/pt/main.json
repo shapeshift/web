@@ -607,7 +607,7 @@
       "status": {
         "pending": "Sua transação já foi transmitida e sua confirmação está pendente.",
         "success": "Você depositou com sucesso em %{opportunity}.",
-        "failed": "Há um problema com seu depósito. "
+        "failed": "Há um problema com seu depósito."
       }
     },
     "withdraw": {

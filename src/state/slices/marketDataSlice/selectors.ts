@@ -34,6 +34,12 @@ export const selectMarketData = createDeepEqualOutputSelector(
   },
 )
 
+export const selectFiatToUsdRate = createSelector(
+  selectFiatMarketData,
+  selectSelectedCurrency,
+  (fiatMarketData, selectedCurrency) => bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1), // fallback to USD
+)
+
 const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 
 export const selectMarketDataById = createCachedSelector(

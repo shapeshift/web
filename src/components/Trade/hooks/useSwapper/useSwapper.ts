@@ -24,7 +24,7 @@ import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Tr
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getWeb3Instance } from 'lib/web3-instance'
@@ -53,6 +53,7 @@ type GetQuoteInput = {
   feeAsset: Asset
   action: TradeAmountInputField
   forceQuote?: boolean
+  selectedCurrencyToUsdRate: BigNumber
 }
 
 type DebouncedQuoteInput = {
@@ -64,6 +65,7 @@ type DebouncedQuoteInput = {
   action: TradeAmountInputField
   wallet: HDWallet
   accountSpecifiersList: AccountSpecifierMap[]
+  selectedCurrencyToUsdRate: BigNumber
 }
 
 // singleton - do not export me, use getSwapperManager
@@ -357,6 +359,7 @@ export const useSwapper = () => {
         action,
         wallet,
         accountSpecifiersList,
+        selectedCurrencyToUsdRate,
       }: DebouncedQuoteInput) => {
         try {
           const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
@@ -372,6 +375,7 @@ export const useSwapper = () => {
             buyAssetUsdRate,
             sellAssetUsdRate,
             action,
+            selectedCurrencyToUsdRate,
           })
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
@@ -446,7 +450,15 @@ export const useSwapper = () => {
   )
 
   const updateQuote = useCallback(
-    async ({ amount, sellAsset, buyAsset, feeAsset, action, forceQuote }: GetQuoteInput) => {
+    async ({
+      amount,
+      sellAsset,
+      buyAsset,
+      feeAsset,
+      action,
+      forceQuote,
+      selectedCurrencyToUsdRate,
+    }: GetQuoteInput) => {
       if (!wallet || !accountSpecifiersList.length) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       setValue('quote', undefined)
@@ -481,6 +493,7 @@ export const useSwapper = () => {
           buyAsset,
           wallet,
           accountSpecifiersList,
+          selectedCurrencyToUsdRate,
         })
       }
     },

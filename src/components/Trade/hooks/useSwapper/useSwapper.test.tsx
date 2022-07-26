@@ -11,6 +11,7 @@ import { TestProviders } from 'test/TestProviders'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { useSwapper } from './useSwapper'
 
@@ -32,6 +33,7 @@ const getBestSwapper = jest.fn()
 const getQuote = () => ETHCHAIN_QUOTE
 const approvalNeeded = jest.fn()
 const wallet = {} as HDWallet
+const selectedCurrencyToUsdRate = bn(1)
 const sellAsset: TradeAsset = {
   amount: '20',
   asset: WETH,
@@ -166,6 +168,7 @@ describe('useSwapper', () => {
         buyAsset: USDC,
         feeAsset: ETH,
         action: TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
       })
     })
     expect(setValue).toHaveBeenNthCalledWith(1, 'quote', undefined)
@@ -190,6 +193,7 @@ describe('useSwapper', () => {
         buyAsset: USDC,
         feeAsset: ETH,
         action: TradeAmountInputField.BUY,
+        selectedCurrencyToUsdRate,
       })
     })
     expect(setValue).toHaveBeenNthCalledWith(1, 'quote', undefined)
@@ -214,6 +218,7 @@ describe('useSwapper', () => {
         buyAsset: USDC,
         feeAsset: ETH,
         action: TradeAmountInputField.FIAT,
+        selectedCurrencyToUsdRate,
       })
     })
 

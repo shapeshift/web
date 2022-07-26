@@ -20,7 +20,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
-import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
+import {
+  selectFiatToUsdRate,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
@@ -47,6 +50,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const {
     state: { wallet },
   } = useWallet()
@@ -149,6 +153,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           feeAsset,
           action: TradeAmountInputField.SELL,
           amount: maxSendAmount,
+          selectedCurrencyToUsdRate,
         })
       } else {
         fnLogger.error(
@@ -183,6 +188,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: currentSellAsset.asset,
         feeAsset,
         action: TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
       })
     } catch (e) {
       showErrorToast(e)
@@ -220,6 +226,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: buyTradeAsset.asset,
         feeAsset,
         action,
+        selectedCurrencyToUsdRate,
       })
     }
   }
@@ -260,6 +267,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                           buyAsset: buyTradeAsset.asset,
                           feeAsset,
                           action: TradeAmountInputField.FIAT,
+                          selectedCurrencyToUsdRate,
                         })
                       }
                     }}

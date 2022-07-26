@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.3.2...@shapeshiftoss/unchained-client-v9.4.0) (2022-07-26)
+
+
+### Features
+
+* cowswap tx parser ([#909](https://github.com/shapeshift/lib/issues/909)) ([4e67743](https://github.com/shapeshift/lib/commit/4e67743339b916e87903c44a2d4eccf23b4b3a59))
+
 # [@shapeshiftoss/unchained-client-v9.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.3.1...@shapeshiftoss/unchained-client-v9.3.2) (2022-07-26)
 
 

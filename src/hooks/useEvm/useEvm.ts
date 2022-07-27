@@ -9,7 +9,7 @@ import { useAppSelector } from 'state/store'
 
 export const useEvm = () => {
   const { state } = useWallet()
-  const [evmChainId, setEvmChainId] = useState<string | null>(null)
+  const [ethNetwork, setEthNetwork] = useState<string | null>(null)
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
     () =>
@@ -23,15 +23,15 @@ export const useEvm = () => {
 
   useEffect(() => {
     ;(async () => {
-      const chainId = await (state.wallet as ETHWallet)?.ethGetChainId?.()
-      if (chainId) setEvmChainId(bnOrZero(chainId).toString())
+      const ethNetwork = await (state.wallet as ETHWallet)?.ethGetChainId?.()
+      if (ethNetwork) setEthNetwork(bnOrZero(ethNetwork).toString())
     })()
   }, [state])
 
   const connectedChainId = useMemo(
-    () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === evmChainId),
-    [evmChainId, supportedEvmChainIds],
+    () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork),
+    [ethNetwork, supportedEvmChainIds],
   )
 
-  return { supportedEvmChainIds, connectedChainId, setEvmChainId }
+  return { supportedEvmChainIds, connectedChainId, setEthNetwork }
 }

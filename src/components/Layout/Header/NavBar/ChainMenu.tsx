@@ -18,7 +18,7 @@ const ChainMenuItem: React.FC<{
   isConnected: boolean
 }> = ({ chainId, onClick, isConnected }) => {
   const chainName = getChainAdapters().get(chainId)?.getDisplayName()
-  const { chainReference: evmChainId } = fromChainId(chainId)
+  const { chainReference: ethNetwork } = fromChainId(chainId)
   const nativeAssetId = getChainAdapters().get(chainId)?.getFeeAssetId()
   const nativeAsset = useAppSelector(state => selectAssetById(state, nativeAssetId ?? ''))
 
@@ -31,7 +31,7 @@ const ChainMenuItem: React.FC<{
     <MenuItem
       icon={<AssetIcon src={nativeAsset.icon} width='6' height='auto' />}
       backgroundColor={isConnected ? connectedChainBgColor : undefined}
-      onClick={() => onClick(evmChainId)}
+      onClick={() => onClick(ethNetwork)}
       borderRadius='lg'
     >
       <Flex justifyContent={'space-between'}>
@@ -43,12 +43,12 @@ const ChainMenuItem: React.FC<{
 }
 export const ChainMenu = () => {
   const { state, load } = useWallet()
-  const { supportedEvmChainIds, connectedChainId, setEvmChainId } = useEvm()
+  const { supportedEvmChainIds, connectedChainId, setEthNetwork } = useEvm()
 
   const handleChainClick = async (chainId: ChainId) => {
     try {
       await (state.wallet as ETHWallet).ethSwitchChain?.(Number(chainId))
-      setEvmChainId(chainId)
+      setEthNetwork(chainId)
       load()
     } catch (e) {
       // TODO: Handle me after https://github.com/shapeshift/hdwallet/pull/551 is published

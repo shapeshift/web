@@ -38,7 +38,8 @@ export const useTradeRoutes = (
 
   const { connectedChainId } = useEvm()
 
-  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(connectedChainId)
+  const swapperChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : connectedChainId
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(swapperChainId)
 
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
   const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)!.getFeeAssetId()

@@ -42,7 +42,6 @@ const validators = {
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_CURRENCY: bool({ default: false }),
-  REACT_APP_FEATURE_WALLETCONNECT_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
   REACT_APP_FEATURE_DOGECOIN: bool({ default: false }),

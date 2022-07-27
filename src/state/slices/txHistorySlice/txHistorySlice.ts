@@ -337,6 +337,13 @@ export const txHistoryApi = createApi({
               const pageSize = (() => {
                 switch (chainId) {
                   case KnownChainIds.AvalancheMainnet:
+                    /**
+                     * as of writing, the data source upstream from unchained can choke and timeout
+                     * on a page size of 100 for avalanche tx history.
+                     *
+                     * using a larger number of smaller requests is a stopgap to prevent timeouts
+                     * until we can address the root cause upstream.
+                     */
                     return 10
                   default:
                     return 100

@@ -106,8 +106,6 @@
     "banxa": "Banxa",
     "banxaMessage": "Compra o vende cripto con Banxa",
     "comingSoon": "Próximamente ...",
-    "coinbasePay": "Coinbase Pay",
-    "coinbasePayMessage": "Compre Cripto con Coinbase Pay",
     "buy": "Comprar",
     "sell": "Vender",
     "assetToBuy": "Activo a comprar",
@@ -1197,7 +1195,6 @@
       "foxToken": "Token ShapeShift %{assetSymbol} ",
       "foxDescription": "Desde 2019, nuestro token FOX que cambia de forma ha estado ofreciendo a los usuarios un mundo de utilidades y ventajas en constante expansión. Hoy, nuestro token de gobierno ERC-20 no solo le permite influir en el futuro de ShapeShift a través de su voto, sino que también tiene un universo en constante expansión de oportunidades de inversión. Invierta, rastree y administre sus tenencias de FOX aquí.",
       "getAsset": "Obtener %{assetSymbol}",
-      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
       "trade": "Intercambie",
       "receive": "Recibir",
       "mainStakingTitle": "%{assetSymbol} Staking de Token",
@@ -1226,8 +1223,7 @@
       "seeAllProposals": "Ver todas las Propuestas",
       "availableToTradeOn": "Disponible para Intercambiar",
       "dex": "DEX",
-      "centralized": "Centralizado",
-      "purchaseFox": "Compre el ágil token FOX en Coinbase directamente en su billetera compatible con ShapeShift."
+      "centralized": "Centralizado"
     },
     "analytics": {
       "optInModal": {

@@ -303,11 +303,10 @@ export const useSwapper = () => {
           sellAmount: amount,
           sellAsset,
           buyAsset,
-          sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
-          buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
           sendMax: false,
           receiveAddress,
+          bip44Params: chainAdapter.buildBIP44Params({ accountNumber: 0 }),
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
@@ -317,8 +316,6 @@ export const useSwapper = () => {
           sellAmount: amount,
           sellAsset,
           buyAsset,
-          sellAssetAccountNumber: 0,
-          buyAssetAccountNumber: 0,
           wallet,
           sendMax: false,
           receiveAddress,
@@ -452,9 +449,9 @@ export const useSwapper = () => {
                 buyAsset,
                 sellAmount,
                 sendMax: false,
-                sellAssetAccountNumber: 0,
                 wallet,
                 receiveAddress,
+                bip44Params: chainAdapter.buildBIP44Params({ accountNumber: 0 }),
               })
             } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
               const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
@@ -465,7 +462,6 @@ export const useSwapper = () => {
                 buyAsset,
                 sellAmount,
                 sendMax: false,
-                sellAssetAccountNumber: 0,
                 wallet,
                 bip44Params: utxoParams.bip44Params,
                 accountType,

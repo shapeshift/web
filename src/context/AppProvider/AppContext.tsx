@@ -312,7 +312,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [DEFAULT_HISTORY_TIMEFRAME, dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
+    // DEFAULT_HISTORY_TIMEFRAME comes from a memoized function, so React doesn't know it's a constant
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
 
   /**
    * fetch forex spot and history for user's selected currency
@@ -325,7 +327,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
     dispatch(getFiatPriceHistory({ symbol, timeframe }))
     dispatch(fetchForexRate({ symbol }))
-  }, [DEFAULT_HISTORY_TIMEFRAME, dispatch, selectedCurrency])
+    // DEFAULT_HISTORY_TIMEFRAME comes from a memoized function, so React doesn't know it's a constant
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedCurrency])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route

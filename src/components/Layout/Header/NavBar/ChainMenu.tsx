@@ -45,6 +45,7 @@ const ChainMenuItem: React.FC<{
 export const ChainMenu = () => {
   const { state, load } = useWallet()
   const { supportedEvmChainIds, connectedChainId, setEthNetwork } = useEvm()
+  const chainAdapterManager = getChainAdapterManager()
 
   const handleChainClick = async (chainId: ChainId) => {
     try {
@@ -58,7 +59,7 @@ export const ChainMenu = () => {
 
   const currentChainNativeAssetId = useMemo(
     () => chainAdapterManager.get(connectedChainId ?? '')?.getFeeAssetId(),
-    [chainAdapterManager, connectedChainId],
+    [connectedChainId],
   )
   const currentChainNativeAsset = useAppSelector(state =>
     selectAssetById(state, currentChainNativeAssetId ?? ''),

@@ -3,6 +3,7 @@ import {
   AccountId,
   accountIdToChainId,
   AssetId,
+  avalancheChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   ChainId,
@@ -81,6 +82,7 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   const chainId = fromAccountId(accountId).chainId
   const specifier = accountIdToSpecifier(accountId)
   switch (chainId) {
+    case avalancheChainId:
     case ethChainId: {
       // this will be the 0x account
       return firstFourLastFour(specifier)

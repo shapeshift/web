@@ -3,6 +3,7 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import {
   AccountId,
   AssetId,
+  avalancheAssetId,
   btcAssetId,
   ChainId,
   cosmosAssetId,
@@ -79,7 +80,14 @@ const selectParamFromFilterOptional =
     filter?.[param] ?? ''
 
 // We should prob change this once we add more chains
-const FEE_ASSET_IDS = [ethAssetId, btcAssetId, cosmosAssetId, osmosisAssetId, dogeAssetId]
+const FEE_ASSET_IDS = [
+  ethAssetId,
+  btcAssetId,
+  cosmosAssetId,
+  osmosisAssetId,
+  dogeAssetId,
+  avalancheAssetId,
+]
 
 const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
@@ -672,7 +680,6 @@ export const selectPortfolioAssetIdsByAccountId = createSelector(
   (accounts, accountId) => Object.keys(accounts[accountId]),
 )
 
-// @TODO: remove this assets check once we filter the portfolio on the way in
 export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqualOutputSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAccountIdParamFromFilter,

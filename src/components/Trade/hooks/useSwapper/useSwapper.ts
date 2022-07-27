@@ -306,7 +306,7 @@ export const useSwapper = () => {
           wallet,
           sendMax: false,
           receiveAddress,
-          bip44Params: chainAdapter.buildBIP44Params({ accountNumber: 0 }),
+          bip44Params: chainAdapter.buildBIP44Params({}),
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
@@ -451,7 +451,7 @@ export const useSwapper = () => {
                 sendMax: false,
                 wallet,
                 receiveAddress,
-                bip44Params: chainAdapter.buildBIP44Params({ accountNumber: 0 }),
+                bip44Params: chainAdapter.buildBIP44Params({}),
               })
             } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
               const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
@@ -634,7 +634,7 @@ export const useSwapper = () => {
     const txid = await swapper.approveInfinite({
       quote,
       wallet,
-      bip44Params: chainAdapter.buildBIP44Params({ accountNumber: 0 }),
+      bip44Params: chainAdapter.buildBIP44Params({}),
     })
     return txid
   }

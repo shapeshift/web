@@ -1746,11 +1746,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@coinbase/cbpay-js@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@coinbase/cbpay-js/-/cbpay-js-1.0.1.tgz#694b3a14d912c02dd170bb19aa918b683a384f72"
-  integrity sha512-6cbBES1XSmhtmYaBHhYK/oTOWrA9A0Dje1uMauVC4hKrJ95BF/j0reYsipLKC5ApoVE/8fYXGFfKfK0rZnbIQA==
-
 "@commitlint/cli@^15.0.0":
   version "15.0.0"
   resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-15.0.0.tgz#8e78e86ee2b6955c1a5d140e734a6c171ce367ee"

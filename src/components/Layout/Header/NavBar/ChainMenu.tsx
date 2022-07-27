@@ -3,7 +3,7 @@ import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { ETHWallet, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -43,9 +43,7 @@ const ChainMenuItem: React.FC<{
 }
 export const ChainMenu = () => {
   const { state } = useWallet()
-  const [evmChainId, setEvmChainId] = useState<string | null>(null)
-  // fixme: abstract to custom hook
-  const { supportedEvmChainIds, connectedChainId } = useEvm()
+  const { supportedEvmChainIds, connectedChainId, setEvmChainId } = useEvm()
 
   const handleChainClick = async (chainId: ChainId) => {
     try {
@@ -67,7 +65,7 @@ export const ChainMenu = () => {
     selectAssetById(state, currentChainNativeAssetId ?? ''),
   )
 
-  if (!state.wallet || !evmChainId || !currentChainNativeAsset) return null
+  if (!state.wallet || !connectedChainId || !currentChainNativeAsset) return null
   if (!supportsEthSwitchChain(state.wallet)) return null
 
   // don't show the menu if there is only one chain

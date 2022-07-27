@@ -33,5 +33,5 @@ export const useEvm = () => {
     [evmChainId, supportedEvmChainIds],
   )
 
-  return { supportedEvmChainIds, connectedChainId }
+  return { supportedEvmChainIds, connectedChainId, setEvmChainId }
 }

@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { constants } from 'constants/Config'
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
@@ -81,12 +81,6 @@ const validators = {
   REACT_APP_PENDO_UNSAFE_DESIGNER_MODE: envalid.bool({ default: false }),
   REACT_APP_PENDO_VISITOR_ID_PREFIX: envalid.str({ default: 'test_visitor' }),
 }
-
-// @TODO: We may want to move internal constants out of config and into a separate file
-const constants = {
-  // used by AssetChart, Portfolio, and this file to prefetch price history
-  DEFAULT_HISTORY_TIMEFRAME: HistoryTimeframe.MONTH,
-} as const
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   forEach(errors, (err, key) => {

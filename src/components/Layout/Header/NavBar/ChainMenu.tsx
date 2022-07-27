@@ -42,13 +42,14 @@ const ChainMenuItem: React.FC<{
   )
 }
 export const ChainMenu = () => {
-  const { state } = useWallet()
+  const { state, load } = useWallet()
   const { supportedEvmChainIds, connectedChainId, setEvmChainId } = useEvm()
 
   const handleChainClick = async (chainId: ChainId) => {
     try {
       await (state.wallet as ETHWallet).ethSwitchChain?.(Number(chainId))
       setEvmChainId(chainId)
+      load()
     } catch (e) {
       // TODO: Handle me after https://github.com/shapeshift/hdwallet/pull/551 is published
     }

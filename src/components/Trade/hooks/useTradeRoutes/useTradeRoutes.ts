@@ -122,6 +122,10 @@ export const useTradeRoutes = (
     sellTradeAsset,
   ])
 
+  useEffect(() => {
+    setDefaultAssets()
+  }, [connectedChainId, setDefaultAssets])
+
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {

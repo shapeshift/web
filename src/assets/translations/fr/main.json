@@ -106,8 +106,6 @@
     "banxa": "Banxa",
     "banxaMessage": "Achetez ou vendez des cryptos avec Banxa",
     "comingSoon": "Bientôt disponible ...",
-    "coinbasePay": "Coinbase Pay",
-    "coinbasePayMessage": "Acheter des cryptos avec Coinbase Pay",
     "buy": "Acheter",
     "sell": "Vendre",
     "assetToBuy": "Actif à acheter",
@@ -1193,7 +1191,6 @@
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
       "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",
       "getAsset": "Obtenez du %{assetSymbol}",
-      "buyAssetOnCoinbase": "Acheter du %{assetSymbol} sur Coinbase",
       "trade": "Échanger",
       "receive": "Recevoir",
       "mainStakingTitle": "Mises de jetons %{assetSymbol}",
@@ -1222,8 +1219,7 @@
       "seeAllProposals": "Voir toutes les propositions",
       "availableToTradeOn": "Disponible pour les échanges sur",
       "dex": "DEX",
-      "centralized": "Centralisé",
-      "purchaseFox": "Achetez le jeton agile FOX sur Coinbase directement dans votre porte-monnaie compatible ShapeShift."
+      "centralized": "Centralisé"
     },
     "analytics": {
       "optInModal": {

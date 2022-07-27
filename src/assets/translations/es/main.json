@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Atrás",
+    "balance": "Balance",
     "next": "Siguiente",
     "error": "Error",
     "cancel": "Cancelar",
@@ -19,6 +20,7 @@
     "deposit": "Depositar",
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
+    "claim": "Reclamar",
     "overview": "Vista Rápida",
     "getStarted": "Iniciar",
     "connectWallet": "Conectar Billetera",
@@ -57,7 +59,10 @@
     "verify": "Verificar",
     "notRobot": "No soy un robot",
     "skip": "Saltar",
-    "generalError": "Se ha producido un error"
+    "generalError": "Se ha producido un error",
+    "showDetails": "Mostrar detalles",
+    "hideDetails": "Ocultar detalles",
+    "walletSupportsETHOnly": "Solo Ethereum"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -97,6 +102,7 @@
     "gem": "GEM",
     "gemMessage": "Compra o Vende criptomonedas con Gem",
     "junoPay": "JunoPay",
+    "junoPayMessage": "Compre Cripto con JunoPay",
     "banxa": "Banxa",
     "banxaMessage": "Compra o vende cripto con Banxa",
     "comingSoon": "Próximamente ...",
@@ -142,7 +148,7 @@
           "rateFluctuationInfo": "La tasa de %{assetName} que gana, el rendimiento porcentual anual (APR), normalmente fluctúa entre el 7 % y el 20 %.",
           "amountStakingInfo": "Puede hacer staking en cualquier cantidad de %{assetName} e inmediatamente comenzará a ganar recompensas.",
           "withdrawInfo": "Puede retirar sus recompensas en cualquier momento, lo que requiere una pequeña tarifa de gasolina alrededor de ~ $ 0,01.",
-          "unbondingInfo": "Cuando realice unstaking de sus activos, permanecerán bloqueados durante %{unbondingDays} días, sin generar recompensas. Después de los %{unbondingDays} días, su %{assetName} volverá a su billetera principal.",
+          "unbondingInfo": "Cuando retire sus activos de staking, permanecerán bloqueados durante %{unbondingDays} días, sin generar recompensas. Después de los %{unbondingDays} días, su %{assetName} volverá a su billetera principal.",
           "slashingInfo": "El staking se realiza a través de un validador. Es increíblemente raro, pero si el validador delegado se equivoca al permitir que se realicen transacciones falsas o incorrectas, podría perder parte de sus activos.",
           "partnerInfo": "Hemos mitigado este riesgo al asociarnos con un validador acreditado, que tiene una infraestructura segura, confiable y auditada."
         },
@@ -184,6 +190,14 @@
         "emptyWithdraws": "Los retiros pendientes o activos se mostrarán aquí.",
         "availableDate": "disponible %{date}"
       },
+      "overview": {
+        "underlyingTokens": "Tokens Subyacentes",
+        "availableRewards": "Recompensas disponibles",
+        "about": "Acerca de",
+        "tvl": "TVL",
+        "apy": "APY",
+        "noWithdrawals": "No tienes retiros para reclamar."
+      },
       "claim": {
         "rewardDepositInfo": "Sus recompensas se depositarán en su billetera principal.",
         "title": "Reclamar Recompensas de Staking",
@@ -224,7 +238,7 @@
     "claimAsset": "Reclamar Recompensas de Staking",
     "claim": "Reclamar",
     "rewards": "Recompensas",
-    "unstaking": "Unstaking",
+    "unstaking": "Retirar de Staking",
     "available": "Disponible %{unbondingEnd}",
     "earn": "Gane",
     "asset": "Activo",
@@ -269,7 +283,28 @@
         "cta": "Ver Oportunidades"
       }
     },
-    "viewOnChain": "Ver en cadena"
+    "viewOnChain": "Ver en cadena",
+    "steps": {
+      "deposit": {
+        "info": {
+          "title": "Información de depósito",
+          "description": "Ingrese la cantidad de %{asset} que le gustaría depositar."
+        }
+      },
+      "withdraw": {
+        "info": {
+          "title": "Información sobre retiro",
+          "description": "Ingrese la cantidad de %{asset} que desea retirar.",
+          "yieldyDescription": "Ingrese la cantidad de %{asset} que desea retirar. Los retiros posteriores se combinarán y restablecerán el tiempo de retiro."
+        }
+      },
+      "approve": {
+        "title": "Aprobar"
+      },
+      "confirm": {
+        "title": "Confirmar"
+      }
+    }
   },
   "staking": {
     "staking": "Staking",
@@ -352,7 +387,7 @@
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
     "minerFee": "Tarifa de minero",
-    "shapeshiftFee": "Tarifa de ShapeShift",
+    "tradeFeeSource": "Tarifa de %{tradeFeeSource}",
     "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
     "confirmAndTrade": "Confirmar e Intercambiar",
@@ -379,6 +414,8 @@
       "broadcastFailed": "Ocurrió un error al transmitir la transacción",
       "insufficientFundsForLimit": "Fondos insuficientes. El monto mínimo de operación para este par es %{minLimit}",
       "insufficientFundsForAmount": "Fondos insuficientes. Tu %{symbol} el saldo es menor que la cantidad seleccionada",
+      "invalidTradePair": "Par comercial no válido: %{sellAssetName} y %{buyAssetName}",
+      "invalidTradePairBtnText": "Par de intercambio no válido",
       "noLiquidityError": "No hay suficiente liquidez disponible",
       "overMaxSlippage": "Este comercio daría como resultado más de %{slippagePercentage}% deslizamiento. Intercambie una cantidad menor por un mejor precio",
       "balanceToLow": "Saldo demasiado bajo. El monto mínimo de operación para este par es %{minLimit}",
@@ -398,13 +435,15 @@
       "minMaxError": "Se produjo un error al obtener el monto mínimo / máximo de la operación",
       "executeTradeFailed": "Ocurrió un error al ejecutar su operación.",
       "unsupportedPair": "Este par comercial no es compatible actualmente.",
+      "unsupportedChain": "Esta cadena no es compatible actualmente.",
       "rateError": "Se produjo un error al obtener las tasas comerciales",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
       },
       "generalError": "Ha ocurrido un error comercial"
-    }
+    },
+    "shapeshiftFee": "Tarifa de ShapeShift"
   },
   "modals": {
     "keepKey": {
@@ -558,14 +597,21 @@
     },
     "deposit": {
       "amountToDeposit": "Cantidad a depositar",
+      "depositInto": "Deposite en %{opportunity}",
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimateDisclaimer": "*Las estimaciones fluctúan con las condiciones del mercado.",
       "footerDisclaimer": "Al continuar aceptas nuestros términos de servicio.",
       "footerDisclaimerLink": "términos de servicio.",
-      "slippageSettings": "Ajustes de Deslizamiento"
+      "slippageSettings": "Ajustes de Deslizamiento",
+      "status": {
+        "pending": "Su transacción ha sido transmitida y está pendiente de confirmación.",
+        "success": "Ha depositado con éxito en %{opportunity}.",
+        "failed": "Hubo un problema con su depósito."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Cantidad a retirar",
+      "withdrawFrom": "Retirar de %{oportunidad}",
       "footerDisclaimer": "Esta transacción requerirá una tarifa de gas por transacción.",
       "slippageSettings": "Ajustes de Deslizamiento",
       "withdrawType": "Tipo de Retiro",
@@ -577,6 +623,11 @@
       "withdrawFee": "Habrá una tarifa de gas por separado para retirar.",
       "disclaimer": "Las solicitudes posteriores se combinarán y restablecerán el tiempo de retiro.",
       "withdrawalFee": "Cargo por retiro",
+      "status": {
+        "pending": "Su transacción ha sido transmitida y está pendiente de confirmación.",
+        "success": "Se ha retirado con éxito de %{opportunity}.",
+        "failed": "Hubo un problema con su depósito."
+      },
       "info": {
         "delayed": "El retiro diferido tiene dos transacciones:",
         "delayedOne": "Solicitar el retiro",
@@ -604,6 +655,8 @@
         "preFooter": "Las Recompensas se acumulan automáticamente"
       },
       "withdrawTo": "Retirar A",
+      "amountToDeposit": "Cantidad a Depositar",
+      "amountToWithdraw": "Cantidad a Retirar",
       "withdrawFrom": "Retiro de",
       "depositTo": "Depositar A",
       "averageApy": "APY Promedio",
@@ -613,6 +666,7 @@
       "withdrawDelayedTime": "7 - 14 días",
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimatedGas": "Tarifa Estimada de Gas",
+      "notEnoughGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
       "preFooter": "Las Recompensas se acumulan automáticamente",
       "signBroadcast": "Firmar y Transmitir",
       "cancel": "Cancelar"
@@ -848,6 +902,21 @@
         "body": "No se puede conectar la billetera Portis"
       }
     },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con WalletConnect",
+        "connectFailure": "No se puede conectar la billetera WalletConnect"
+      },
+      "connect": {
+        "header": "Emparejar WalletConnect",
+        "body": "Haga clic en Emparejar y luego seleccione WalletConnect en la ventana emergente",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "No se puede conectar la billetera WalletConnect"
+      }
+    },
     "xdefi": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con XDEFI",
@@ -987,21 +1056,6 @@
       "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift.",
       "footer": "¿No tienes billetera?",
       "create": "Crea una"
-    },
-    "walletConnect": {
-      "errors": {
-        "unknown": "Ocurrió un error inesperado al comunicarse con WalletConnect",
-        "connectFailure": "No se puede conectar la billetera WalletConnect"
-      },
-      "connect": {
-        "header": "Emparejar WalletConnect",
-        "body": "Haga clic en Emparejar y luego seleccione WalletConnect en la ventana emergente",
-        "button": "Emparejar"
-      },
-      "failure": {
-        "header": "Error",
-        "body": "No se puede conectar la billetera WalletConnect"
-      }
     }
   },
   "graph": {
@@ -1024,7 +1078,7 @@
         "dayChange": "Cambio de día",
         "aboutAsset": "Acerca de %{asset}",
         "SegwitP2sh": "Segwit",
-        "SegwitNative": "Segwit Native",
+        "SegwitNative": "Segwit Nativo",
         "P2pkh": "Legacy",
         "SegwitNativeTooltip": "Recomendado para la mayoría de los usuarios. Utilice las otras direcciones solo si sabe para qué sirven.",
         "btcFormat": "Formato BTC",
@@ -1139,8 +1193,8 @@
     "foxPage": {
       "totalFoxValue": "Valor total de Fox",
       "foxToken": "Token ShapeShift %{assetSymbol} ",
+      "foxDescription": "Desde 2019, nuestro token FOX que cambia de forma ha estado ofreciendo a los usuarios un mundo de utilidades y ventajas en constante expansión. Hoy, nuestro token de gobierno ERC-20 no solo le permite influir en el futuro de ShapeShift a través de su voto, sino que también tiene un universo en constante expansión de oportunidades de inversión. Invierta, rastree y administre sus tenencias de FOX aquí.",
       "getAsset": "Obtener %{assetSymbol}",
-      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
       "trade": "Intercambie",
       "receive": "Recibir",
       "mainStakingTitle": "%{assetSymbol} Staking de Token",

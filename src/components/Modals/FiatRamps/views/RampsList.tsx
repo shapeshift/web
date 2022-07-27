@@ -17,7 +17,6 @@ type RampsListProps = {
 
 export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => {
   const history = useHistory()
-  const coinbasePayFeatureFlag = useFeatureFlag('CoinbasePay')
   const junoPayFeatureFlag = useFeatureFlag('JunoPay')
 
   const ramps = useMemo(() => {
@@ -30,8 +29,6 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
           // since isImplemented is set in a config file where we can't use hooks,
           // we reassign isImplemented here based on the feature flag.
           switch (fiatRamp) {
-            case 'CoinbasePay':
-              return coinbasePayFeatureFlag
             case 'JunoPay':
               return junoPayFeatureFlag
             default:
@@ -117,7 +114,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       initial,
     )
     return result
-  }, [history, setFiatRampProvider, coinbasePayFeatureFlag, junoPayFeatureFlag])
+  }, [history, setFiatRampProvider, junoPayFeatureFlag])
 
   return (
     <Flex justifyContent='center' alignItems='center' width={['100%', '32rem']}>

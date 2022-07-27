@@ -1,4 +1,4 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter, FeeDataKey, GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
 import { ThorchainSwapperDeps } from '../../types'
@@ -19,7 +19,26 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
       {
         buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
         getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
-        getFeeData: jest.fn(() => feeData)
+        getFeeData: jest.fn(() => feeData),
+        getGasFeeData: jest.fn(
+          (): GasFeeDataEstimate => ({
+            [FeeDataKey.Slow]: {
+              gasPrice: '1',
+              maxFeePerGas: '2',
+              maxPriorityFeePerGas: '3'
+            },
+            [FeeDataKey.Average]: {
+              gasPrice: '4',
+              maxFeePerGas: '5',
+              maxPriorityFeePerGas: '6'
+            },
+            [FeeDataKey.Fast]: {
+              gasPrice: '7',
+              maxFeePerGas: '8',
+              maxPriorityFeePerGas: '9'
+            }
+          })
+        )
       } as unknown as ChainAdapter<'eip155'>
     ]
   ])

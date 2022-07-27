@@ -25,20 +25,6 @@ describe('thorTradeApprovalNeeded', () => {
     expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({ approvalNeeded: false })
   })
 
-  it('throws an error if sellAsset chain is not ETH', async () => {
-    const input = {
-      quote: {
-        ...tradeQuote,
-        sellAsset: { ...sellAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' }
-      },
-      wallet
-    }
-
-    await expect(thorTradeApprovalNeeded({ deps, input })).rejects.toThrow(
-      '[thorTradeApprovalNeeded]'
-    )
-  })
-
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
     const allowanceOnChain = '50'
     const input = {

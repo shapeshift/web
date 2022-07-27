@@ -1,28 +1,23 @@
-import { Asset } from '@shapeshiftoss/asset-service'
 import { bitcoin, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { QuoteFeeData, SwapError, SwapErrorTypes } from '../../../../../api'
 import { bn } from '../../../../utils/bignumber'
-import { ThorchainSwapperDeps } from '../../../types'
-import { estimateTradeFee } from '../../estimateTradeFee/estimateTradeFee'
 
 export const getBtcTxFees = async ({
-  deps,
   opReturnData,
   vault,
-  buyAsset,
   sellAmount,
   adapterManager,
-  pubkey
+  pubkey,
+  tradeFee
 }: {
-  deps: ThorchainSwapperDeps
   opReturnData: string
   vault: string
-  buyAsset: Asset
   sellAmount: string
   adapterManager: ChainAdapterManager
   pubkey: string
+  tradeFee: string
 }): Promise<QuoteFeeData<KnownChainIds.BitcoinMainnet>> => {
   try {
     const adapter = adapterManager.get('bip122:000000000019d6689c085ae165831e93') as
@@ -43,7 +38,6 @@ export const getBtcTxFees = async ({
     })
 
     const feeData = feeDataOptions['fast']
-    const tradeFee = await estimateTradeFee(deps, buyAsset.assetId)
 
     return {
       fee: feeData.txFee,

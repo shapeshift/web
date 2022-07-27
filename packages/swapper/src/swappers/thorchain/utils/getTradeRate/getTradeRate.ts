@@ -2,9 +2,10 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
-import { BN, bn } from '../../../utils/bignumber'
+import { BN, bn, bnOrZero } from '../../../utils/bignumber'
 import { fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
 import { PoolResponse, ThorchainSwapperDeps } from '../../types'
+import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { thorService } from '../thorService'
 
 const THOR_PRECISION = 8
@@ -37,6 +38,14 @@ export const getTradeRate = async (
   sellAmount: string,
   deps: ThorchainSwapperDeps
 ): Promise<string> => {
+  // we can't get a quote for a zero amount so use getPriceRatio between pools instead
+  if (bnOrZero(sellAmount).eq(0)) {
+    return getPriceRatio(deps, {
+      sellAssetId: sellAsset.assetId,
+      buyAssetId
+    })
+  }
+
   const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = adapters.assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 

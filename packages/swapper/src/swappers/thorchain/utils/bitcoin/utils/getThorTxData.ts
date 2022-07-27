@@ -7,7 +7,8 @@ import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { SwapError, SwapErrorTypes } from '../../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../../utils/bignumber'
 import { InboundResponse, ThorchainSwapperDeps } from '../../../types'
-import { getPriceRatio } from '../../getPriceRatio/getPriceRatio'
+import { THORCHAIN_FIXED_PRECISION } from '../../constants'
+import { getTradeRate } from '../../getTradeRate/getTradeRate'
 import { makeSwapMemo } from '../../makeSwapMemo/makeSwapMemo'
 import { thorService } from '../../thorService'
 
@@ -21,6 +22,7 @@ type GetBtcThorTxInfoArgs = {
   wallet: HDWallet
   bip44Params: BIP44Params
   accountType: UtxoAccountType
+  tradeFee: string
 }
 type GetBtcThorTxInfoReturn = Promise<{
   opReturnData: string
@@ -38,7 +40,8 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   destinationAddress,
   wallet,
   bip44Params,
-  accountType
+  accountType,
+  tradeFee
 }) => {
   try {
     const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
@@ -55,26 +58,25 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
         details: { inboundAddresses }
       })
 
-    const priceRatio = await getPriceRatio(deps, {
-      buyAssetId: buyAsset.assetId,
-      sellAssetId: sellAsset.assetId
-    })
-
-    const expectedBuyAmount = toBaseUnit(
-      fromBaseUnit(bnOrZero(sellAmount).dividedBy(priceRatio), sellAsset.precision),
-      buyAsset.precision
+    const tradeRate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)
+    const expectedBuyAmountPrecision8 = toBaseUnit(
+      fromBaseUnit(bnOrZero(sellAmount).times(tradeRate), sellAsset.precision),
+      THORCHAIN_FIXED_PRECISION
     )
 
     const isValidSlippageRange =
       bnOrZero(slippageTolerance).gte(0) && bnOrZero(slippageTolerance).lte(1)
-    if (bnOrZero(expectedBuyAmount).lt(0) || !isValidSlippageRange)
+    if (bnOrZero(expectedBuyAmountPrecision8).lt(0) || !isValidSlippageRange)
       throw new SwapError('[getThorTxInfo]: bad expected buy amount or bad slippage tolerance', {
         code: SwapErrorTypes.BUILD_TRADE_FAILED,
-        details: { expectedBuyAmount, slippageTolerance }
+        details: { expectedBuyAmountPrecision8, slippageTolerance }
       })
 
-    const limit = bnOrZero(expectedBuyAmount)
+    const tradeFeePrecision8 = toBaseUnit(bnOrZero(tradeFee), THORCHAIN_FIXED_PRECISION)
+
+    const limit = bnOrZero(expectedBuyAmountPrecision8)
       .times(bn(1).minus(slippageTolerance))
+      .minus(bnOrZero(tradeFeePrecision8))
       .decimalPlaces(0)
       .toString()
 

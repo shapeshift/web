@@ -627,10 +627,15 @@ export const useSwapper = () => {
       buyAssetId: quote.buyAsset.assetId,
       sellAssetId: quote.sellAsset.assetId,
     })
-
+    const chainAdapter = getChainAdapters().get(quote.buyAsset.chainId)
+    if (!chainAdapter) throw new Error('couldnt get chain adapter')
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
-    const txid = await swapper.approveInfinite({ quote, wallet })
+    const txid = await swapper.approveInfinite({
+      quote,
+      wallet,
+      bip44Params: chainAdapter.buildBIP44Params({ accountNumber: 0 }),
+    })
     return txid
   }
 

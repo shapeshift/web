@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -35,7 +36,11 @@ export const useTradeRoutes = (
     state: { wallet },
   } = useWallet()
 
-  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair()
+  const { connectedChainId } = useEvm()
+
+  const swapperChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : connectedChainId
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(swapperChainId)
+
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
   const defaultFeeAssetId = getChainAdapters().get(defaultSellChainId)!.getFeeAssetId()
   const defaultFeeAsset = useAppSelector(state => selectAssetById(state, defaultFeeAssetId))
@@ -117,6 +122,10 @@ export const useTradeRoutes = (
     buyTradeAsset,
     sellTradeAsset,
   ])
+
+  useEffect(() => {
+    setDefaultAssets()
+  }, [connectedChainId, setDefaultAssets])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

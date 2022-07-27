@@ -334,13 +334,22 @@ export const txHistoryApi = createApi({
                   },
                 }
 
+              const pageSize = (() => {
+                switch (chainId) {
+                  case KnownChainIds.AvalancheMainnet:
+                    return 10
+                  default:
+                    return 100
+                }
+              })()
+
               let currentCursor: string = ''
               try {
                 do {
                   const { cursor, transactions } = await adapter.getTxHistory({
                     cursor: currentCursor,
                     pubkey,
-                    pageSize: 100,
+                    pageSize,
                   })
 
                   currentCursor = cursor

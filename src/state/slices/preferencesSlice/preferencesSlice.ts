@@ -14,7 +14,6 @@ export type FeatureFlags = {
   Avalanche: boolean
   Thor: boolean
   CowSwap: boolean
-  JunoPay: boolean
   Pendo: boolean
   Dogecoin: boolean
 }
@@ -42,7 +41,6 @@ const initialState: Preferences = {
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
-    JunoPay: getConfig().REACT_APP_FEATURE_JUNOPAY,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     Dogecoin: getConfig().REACT_APP_FEATURE_DOGECOIN,
   },

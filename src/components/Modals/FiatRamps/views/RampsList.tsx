@@ -6,7 +6,6 @@ import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { FiatRamp, SupportedFiatRampConfig, supportedFiatRamps } from '../config'
 import { FiatRampsRoutes } from '../FiatRampsCommon'
@@ -17,24 +16,12 @@ type RampsListProps = {
 
 export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => {
   const history = useHistory()
-  const junoPayFeatureFlag = useFeatureFlag('JunoPay')
-
   const ramps = useMemo(() => {
     type Entry = [keyof typeof supportedFiatRamps, SupportedFiatRampConfig]
     const initial: ReactElement[] = []
     const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce(
       (acc, supportedFiatRamp) => {
         const [fiatRamp, fiatRampConfig] = supportedFiatRamp
-        fiatRampConfig.isImplemented = (() => {
-          // since isImplemented is set in a config file where we can't use hooks,
-          // we reassign isImplemented here based on the feature flag.
-          switch (fiatRamp) {
-            case 'JunoPay':
-              return junoPayFeatureFlag
-            default:
-              return true
-          }
-        })()
         if (fiatRampConfig.isImplemented) {
           acc.unshift(
             <Button
@@ -114,7 +101,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       initial,
     )
     return result
-  }, [history, setFiatRampProvider, junoPayFeatureFlag])
+  }, [history, setFiatRampProvider])
 
   return (
     <Flex justifyContent='center' alignItems='center' width={['100%', '32rem']}>

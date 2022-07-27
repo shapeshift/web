@@ -1,5 +1,4 @@
 import { adapters, AssetId, btcAssetId } from '@shapeshiftoss/caip'
-import { getConfig } from 'config'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
@@ -98,7 +97,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     label: 'fiatRamps.junoPay',
     info: 'fiatRamps.junoPayMessage',
     logo: junoPayLogo,
-    isImplemented: getConfig().REACT_APP_FEATURE_JUNOPAY,
+    isImplemented: true,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {

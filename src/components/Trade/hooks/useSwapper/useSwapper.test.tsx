@@ -120,7 +120,10 @@ describe('useSwapper', () => {
           [KnownChainIds.CosmosMainnet, {}],
           [
             KnownChainIds.EthereumMainnet,
-            { getAddress: () => '0x8a65ac0e23f31979db06ec62af62b132a6df4741' },
+            {
+              getAddress: () => '0x8a65ac0e23f31979db06ec62af62b132a6df4741',
+              buildBIP44Params: () => ({ purpose: 44, coinType: 60, accountNumber: 0 }),
+            },
           ],
         ]),
     )

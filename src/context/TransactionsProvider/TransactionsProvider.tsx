@@ -1,5 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { TxStatus, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import isEmpty from 'lodash/isEmpty'
 import {
   isCosmosChainId,

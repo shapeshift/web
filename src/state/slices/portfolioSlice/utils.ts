@@ -1,3 +1,4 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   AccountId,
   accountIdToChainId,
@@ -16,7 +17,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { Asset, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'

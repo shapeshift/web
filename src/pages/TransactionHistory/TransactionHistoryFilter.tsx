@@ -13,7 +13,7 @@ import {
   useColorModeValue,
   useOutsideClick,
 } from '@chakra-ui/react'
-import { TradeType, TxType } from '@shapeshiftoss/chain-adapters'
+import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import { useRef, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
@@ -173,9 +173,9 @@ export const TransactionHistoryFilter = ({
                 title='transactionHistory.filters.categories'
                 allowMultipleOptions
                 options={[
-                  ['transactionHistory.filters.send', TxType.Send],
+                  ['transactionHistory.filters.send', TransferType.Send],
                   ['transactionHistory.filters.trade', TradeType.Trade],
-                  ['transactionHistory.filters.receive', TxType.Receive],
+                  ['transactionHistory.filters.receive', TransferType.Receive],
                 ]}
               />
               <Flex justifyContent='center' alignItems='center'>

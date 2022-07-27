@@ -1,6 +1,6 @@
 import { Box, BoxProps, Button, ButtonGroup, Radio } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'

@@ -7,6 +7,7 @@ import * as reactRedux from 'react-redux'
 import { ethAssetId, ethChainId } from 'test/mocks/accounts'
 import { EthSend } from 'test/mocks/txs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
@@ -32,6 +33,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton')
 jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('hooks/useModal/useModal')
 jest.mock('hooks/useWallet/useWallet')
+jest.mock('hooks/useEvm/useEvm')
 
 jest.mock('lib/address/ens')
 
@@ -126,6 +128,9 @@ describe.each([
         },
       },
     })
+    ;(useEvm as jest.Mock<unknown>).mockImplementation(() => ({
+      supportedEvmChainIds: [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet],
+    }))
   })
 
   it('handles successfully sending a tx with ETH address', async () => {

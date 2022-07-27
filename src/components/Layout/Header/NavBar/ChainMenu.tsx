@@ -1,15 +1,16 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, ChainId, fromChainId } from '@shapeshiftoss/caip'
+import { ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { ETHWallet, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useEffect, useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const ChainMenuItem: React.FC<{
@@ -45,19 +46,8 @@ const ChainMenuItem: React.FC<{
 export const ChainMenu = () => {
   const { state } = useWallet()
   const [evmChainId, setEvmChainId] = useState<string | null>(null)
-  const featureFlags = useAppSelector(selectFeatureFlags)
-
+  const { supportedEvmChainIds } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
-
-  const supportedEvmChainIds = useMemo(
-    () =>
-      Array.from(chainAdapterManager.keys()).filter(
-        chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
-      ),
-    // We want to explicitly react on featureFlags to get a new reference here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [featureFlags],
-  )
 
   useEffect(() => {
     ;(async () => {

@@ -23,7 +23,7 @@ export default function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.ethereum.EthereumTx>(
+                const ws = new unchained.ws.Client<unchained.ethereum.Tx>(
                   getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
                 )
 

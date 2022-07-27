@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.0.1...@shapeshiftoss/swapper-v9.1.0) (2022-07-27)
+
+
+### Features
+
+* build thor trade ([#895](https://github.com/shapeshift/lib/issues/895)) ([d3cfe4c](https://github.com/shapeshift/lib/commit/d3cfe4c6c4d384e4f9343487c26ec8ea47a68ab3))
+
 # [@shapeshiftoss/swapper-v9.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.0.0...@shapeshiftoss/swapper-v9.0.1) (2022-07-26)
 
 

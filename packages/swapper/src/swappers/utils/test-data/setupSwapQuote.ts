@@ -44,7 +44,6 @@ export const setupBuildTrade = () => {
     buyAsset,
     sendMax: false,
     sellAssetAccountNumber: 0,
-    buyAssetAccountNumber: 0,
     sellAsset,
     wallet: <HDWallet>{},
     receiveAddress: ''

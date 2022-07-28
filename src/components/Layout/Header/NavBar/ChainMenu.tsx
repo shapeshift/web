@@ -59,7 +59,7 @@ export const ChainMenu = () => {
 
   const currentChainNativeAssetId = useMemo(
     () => chainAdapterManager.get(connectedChainId ?? '')?.getFeeAssetId(),
-    [connectedChainId],
+    [chainAdapterManager, connectedChainId],
   )
   const currentChainNativeAsset = useAppSelector(state =>
     selectAssetById(state, currentChainNativeAssetId ?? ''),

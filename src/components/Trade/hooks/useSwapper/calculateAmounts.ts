@@ -1,6 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { TradeAmountInputField } from 'components/Trade/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 
 export const calculateAmounts = async ({
@@ -10,6 +10,7 @@ export const calculateAmounts = async ({
   buyAssetUsdRate,
   sellAssetUsdRate,
   action,
+  selectedCurrencyToUsdRate,
 }: {
   amount: string
   buyAsset: Asset
@@ -17,6 +18,7 @@ export const calculateAmounts = async ({
   buyAssetUsdRate: string
   sellAssetUsdRate: string
   action: TradeAmountInputField
+  selectedCurrencyToUsdRate: BigNumber
 }) => {
   const assetPriceRatio = bnOrZero(buyAssetUsdRate).dividedBy(sellAssetUsdRate)
 
@@ -25,18 +27,25 @@ export const calculateAmounts = async ({
       return {
         sellAmount: toBaseUnit(amount, sellAsset.precision),
         buyAmount: toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision),
-        fiatSellAmount: bnOrZero(amount).times(bnOrZero(sellAssetUsdRate)).toFixed(2),
+        fiatSellAmount: bnOrZero(amount)
+          .times(selectedCurrencyToUsdRate)
+          .times(bnOrZero(sellAssetUsdRate))
+          .toFixed(2),
       }
     case TradeAmountInputField.BUY:
       return {
         sellAmount: toBaseUnit(assetPriceRatio.times(amount), sellAsset.precision),
         buyAmount: toBaseUnit(amount, buyAsset.precision),
-        fiatSellAmount: bnOrZero(amount).times(bnOrZero(buyAssetUsdRate)).toFixed(2),
+        fiatSellAmount: bnOrZero(amount)
+          .times(selectedCurrencyToUsdRate)
+          .times(bnOrZero(buyAssetUsdRate))
+          .toFixed(2),
       }
     case TradeAmountInputField.FIAT:
+      const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
       return {
-        sellAmount: toBaseUnit(bnOrZero(amount).dividedBy(sellAssetUsdRate), sellAsset.precision),
-        buyAmount: toBaseUnit(bnOrZero(amount).dividedBy(buyAssetUsdRate), buyAsset.precision),
+        sellAmount: toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision),
+        buyAmount: toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision),
         fiatSellAmount: amount,
       }
     default:

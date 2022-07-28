@@ -46,8 +46,6 @@ export const IdleOverview = () => {
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: vaultTokenId }),
   )
 
-  console.log('asset',chainId, assetNamespace, assetReference, vaultTokenId, asset );
-
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 

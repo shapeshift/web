@@ -57,6 +57,12 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   if (!state || !dispatch) return null
 
+  const pricePerShare = bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
+    `1e+${asset?.precision}`,
+  )
+  const vaultTokenPrice = pricePerShare.times(marketData.price)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
+
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     if (!(state.userAddress && opportunity && assetReference)) return
     try {
@@ -96,7 +102,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const handlePercentClick = (percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+    const fiatAmount = bnOrZero(cryptoAmount).times(vaultTokenPrice)
     setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
   }
@@ -111,18 +117,12 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const validateFiatAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const fiat = crypto.times(marketData.price)
+    const fiat = crypto.times(vaultTokenPrice)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
-
-  const pricePerShare = bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
-    `1e+${asset?.precision}`,
-  )
-  const vaultTokenPrice = pricePerShare.times(marketData.price)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 
   return (
     <FormProvider {...methods}>

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v6.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.4...@shapeshiftoss/market-service-v6.4.5) (2022-07-28)
+
+
+### Bug Fixes
+
+* don't return zero value fiat exchange rates ([#918](https://github.com/shapeshift/lib/issues/918)) ([6216b48](https://github.com/shapeshift/lib/commit/6216b48a2eba76c5df64efe8e816642d2a88cd4e))
+
 # [@shapeshiftoss/market-service-v6.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.3...@shapeshiftoss/market-service-v6.4.4) (2022-07-26)
 
 

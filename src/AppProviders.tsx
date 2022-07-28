@@ -10,6 +10,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
+import { Zendesk } from 'components/Zendesk/Zendesk'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { I18nProvider } from 'context/I18nProvider/I18nProvider'
@@ -36,6 +37,7 @@ export function AppProviders({ children }: ProvidersProps) {
         <ColorModeScript storageKey='ss-theme' />
         <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
           <ToastContainer />
+          <Zendesk />
           <PersistGate loading={<SplashScreen />} persistor={persistor}>
             <HashRouter basename='/'>
               <ScrollToTop />

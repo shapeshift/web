@@ -43,6 +43,7 @@ const validators = {
   REACT_APP_GEM_ENV: str(),
   REACT_APP_GEM_API_KEY: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
+  REACT_APP_ZENDESK_KEY: str({ default: '' }),
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_CURRENCY: bool({ default: false }),

@@ -11,7 +11,6 @@ import {
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
@@ -26,7 +25,6 @@ export const SelectModal = () => {
   const translate = useTranslate()
 
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
-  const walletConnectFeatureFlag = useFeatureFlag('WalletConnectWallet')
   const greenColor = useColorModeValue('green.500', 'green.200')
   const activeBg = useColorModeValue('gray.200', 'gray.900')
 
@@ -53,9 +51,8 @@ export const SelectModal = () => {
                 ? 'common.walletSupportsETHOnly'
                 : null
 
-              // some wallets (e.g. tally ho) do not exist on mobile
+              // some wallets (e.g. tally ho, keepkey etc) do not exist on mobile
               if (isMobile && !option.mobileEnabled) return false
-              if (!walletConnectFeatureFlag && walletType === KeyManager.WalletConnect) return false
 
               return (
                 <Button

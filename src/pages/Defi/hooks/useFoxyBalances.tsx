@@ -5,7 +5,7 @@ import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -109,7 +109,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
   const marketData = useSelector(selectMarketData)
   const assets = useSelector(selectAssets)
 
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
 
   const {
     state: { wallet },

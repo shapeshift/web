@@ -6,7 +6,7 @@ import { ETHWallet, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById } from 'state/slices/selectors'
@@ -17,9 +17,10 @@ const ChainMenuItem: React.FC<{
   onClick: (chainId: ChainId) => void
   isConnected: boolean
 }> = ({ chainId, onClick, isConnected }) => {
-  const chainName = getChainAdapters().get(chainId)?.getDisplayName()
+  const chainAdapterManager = getChainAdapterManager()
+  const chainName = chainAdapterManager.get(chainId)?.getDisplayName()
   const { chainReference: ethNetwork } = fromChainId(chainId)
-  const nativeAssetId = getChainAdapters().get(chainId)?.getFeeAssetId()
+  const nativeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
   const nativeAsset = useAppSelector(state => selectAssetById(state, nativeAssetId ?? ''))
 
   const connectedIconColor = useColorModeValue('green.500', 'green.200')
@@ -44,6 +45,7 @@ const ChainMenuItem: React.FC<{
 export const ChainMenu = () => {
   const { state, load } = useWallet()
   const { supportedEvmChainIds, connectedChainId, setEthNetwork } = useEvm()
+  const chainAdapterManager = getChainAdapterManager()
 
   const handleChainClick = async (chainId: ChainId) => {
     try {
@@ -56,11 +58,8 @@ export const ChainMenu = () => {
   }
 
   const currentChainNativeAssetId = useMemo(
-    () =>
-      getChainAdapters()
-        .get(connectedChainId ?? '')
-        ?.getFeeAssetId(),
-    [connectedChainId],
+    () => chainAdapterManager.get(connectedChainId ?? '')?.getFeeAssetId(),
+    [chainAdapterManager, connectedChainId],
   )
   const currentChainNativeAsset = useAppSelector(state =>
     selectAssetById(state, currentChainNativeAssetId ?? ''),
@@ -81,7 +80,7 @@ export const ChainMenu = () => {
       >
         <Flex alignItems='center'>
           <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
-          {getChainAdapters()
+          {chainAdapterManager
             .get(supportedEvmChainIds.find(chainId => chainId === connectedChainId) ?? '')
             ?.getDisplayName() ?? ''}
         </Flex>

@@ -7,7 +7,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
@@ -34,6 +34,7 @@ jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('context/PluginProvider/PluginProvider')
+jest.mock('context/PluginProvider/chainAdapterSingleton')
 jest.mock('lib/address/ens', () => ({ ensLookup: jest.fn() }))
 
 jest.mock('state/slices/selectors', () => ({
@@ -133,7 +134,7 @@ describe('useSendDetails', () => {
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],

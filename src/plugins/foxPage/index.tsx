@@ -1,9 +1,10 @@
-import { Plugins } from 'plugins'
+import { type Plugins } from 'plugins/types'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
 import { FoxPage } from './foxPage'
 
-export function register(): Plugins {
+// eslint-disable-next-line import/no-default-export
+export default function register(): Plugins {
   return [
     [
       'foxPage',

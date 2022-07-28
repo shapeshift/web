@@ -6,7 +6,7 @@ import {
   ethChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
   resolveUnstoppableDomain,
@@ -120,7 +120,7 @@ export type ValidateAddress = (args: ValidateAddressArgs) => Promise<ValidateAdd
 
 export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
   try {
-    const adapter = getChainAdapters().get(chainId)
+    const adapter = getChainAdapterManager().get(chainId)
     if (!adapter) return false
     return (await adapter.validateAddress(value)).valid
   } catch (e) {

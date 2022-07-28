@@ -32,8 +32,8 @@ jest.mock('state/slices/selectors', () => ({
     'eip155:1/slip44:60': mockETH,
   }),
 }))
-jest.mock('context/PluginProvider/PluginProvider', () => ({
-  getChainAdapters: () => mockChainAdapters,
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
 }))
 
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {

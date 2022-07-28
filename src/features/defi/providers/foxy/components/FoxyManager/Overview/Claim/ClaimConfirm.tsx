@@ -20,7 +20,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -45,12 +45,13 @@ export const ClaimConfirm = ({
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
-  const chainAdapterManager = useChainAdapters()
   const { foxy } = useFoxy()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
   const claimAmount = bnOrZero(amount).toString()
   const history = useHistory()
+
+  const chainAdapterManager = getChainAdapterManager()
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))

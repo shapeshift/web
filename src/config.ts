@@ -2,6 +2,7 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
+import merge from 'lodash/merge'
 
 import env from './env'
 
@@ -42,12 +43,10 @@ const validators = {
   REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_CURRENCY: bool({ default: false }),
-  REACT_APP_FEATURE_WALLETCONNECT_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
   REACT_APP_FEATURE_DOGECOIN: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
-  REACT_APP_FEATURE_JUNOPAY: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_LOCAL_IP: str({ default: '192.168.1.222' }),
@@ -85,4 +84,6 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   })
 }
 
-export const getConfig = memoize(() => cleanEnv(env, validators, { reporter }))
+export const getConfig = memoize(() =>
+  Object.freeze(merge({ ...cleanEnv(env, validators, { reporter }) })),
+)

@@ -55,8 +55,6 @@ export const AllEarnOpportunities = () => {
     ),
   })
 
-  console.log('sortedVaults',sortedVaults,'allRows',allRows);
-
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
       const { provider, contractAddress, chainId, rewardAddress, assetId } = opportunity

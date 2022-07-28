@@ -1130,7 +1130,6 @@
       "totalFoxValue": "총 Fox 가치",
       "foxToken": "ShapeShift %{assetSymbol} 토큰",
       "getAsset": "%{assetSymbol} 가져오기",
-      "buyAssetOnCoinbase": "Coinbase에서 %{assetSymbol} 구입하기",
       "trade": "거래",
       "receive": "수신",
       "mainStakingTitle": "%{assetSymbol} 토큰 스테이킹",

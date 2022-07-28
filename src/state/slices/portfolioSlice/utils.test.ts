@@ -13,8 +13,8 @@ import {
   trimWithEndEllipsis,
 } from './utils'
 
-jest.mock('context/PluginProvider/PluginProvider', () => ({
-  getChainAdapters: () => mockChainAdapters,
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
 }))
 
 describe('accountIdToFeeAssetId', () => {

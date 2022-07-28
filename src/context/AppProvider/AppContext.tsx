@@ -1,3 +1,4 @@
+import { createStandaloneToast } from '@chakra-ui/react'
 import {
   avalancheChainId,
   btcChainId,
@@ -21,10 +22,11 @@ import {
   supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -52,9 +54,6 @@ import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
-// used by AssetChart, Portfolio, and this file to prefetch price history
-export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
-
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
  * market data, and portfolio fetching, and we don't want to over or under fetch data,
@@ -66,8 +65,10 @@ export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
  *
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const { ToastContainer } = createStandaloneToast()
   const dispatch = useDispatch()
-  const { chainAdapterManager, supportedChains } = usePlugins()
+  const { supportedChains } = usePlugins()
+  const chainAdapterManager = getChainAdapterManager()
   const {
     state: {
       wallet,
@@ -335,5 +336,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist
-  return assetIds.length ? <>{children}</> : <></>
+  return (
+    <>
+      <ToastContainer />
+      {assetIds.length && children}
+    </>
+  )
 }

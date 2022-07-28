@@ -1,14 +1,19 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import { useEffect, useMemo, useState } from 'react'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useEvm = () => {
+  const { state } = useWallet()
+  const [ethNetwork, setEthNetwork] = useState<string | null>(null)
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
     () =>
-      Array.from(getChainAdapters().keys()).filter(
+      Array.from(getChainAdapterManager().keys()).filter(
         chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
       ),
     // We want to explicitly react on featureFlags to get a new reference here
@@ -16,5 +21,17 @@ export const useEvm = () => {
     [featureFlags],
   )
 
-  return { supportedEvmChainIds }
+  useEffect(() => {
+    ;(async () => {
+      const ethNetwork = await (state.wallet as ETHWallet)?.ethGetChainId?.()
+      if (ethNetwork) setEthNetwork(bnOrZero(ethNetwork).toString())
+    })()
+  }, [state])
+
+  const connectedChainId = useMemo(
+    () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork),
+    [ethNetwork, supportedEvmChainIds],
+  )
+
+  return { supportedEvmChainIds, connectedChainId, setEthNetwork }
 }

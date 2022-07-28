@@ -1,15 +1,11 @@
-import { generateOnRampURL } from '@coinbase/cbpay-js'
 import { adapters, AssetId, btcAssetId } from '@shapeshiftoss/caip'
-import { getConfig } from 'config'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
-import coinbaseLogo from 'assets/coinbase-pay/cb-pay-icon.png'
 import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
 import { logger } from 'lib/logger'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
-import { getCoinbasePayAssets } from './fiatRampProviders/coinbase-pay'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -41,7 +37,7 @@ export interface SupportedFiatRampConfig {
   supportsSell: boolean
 }
 
-export type FiatRamp = 'Gem' | 'Banxa' | 'CoinbasePay' | 'JunoPay'
+export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay'
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
@@ -97,40 +93,11 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       }
     },
   },
-  CoinbasePay: {
-    label: 'fiatRamps.coinbasePay',
-    info: 'fiatRamps.coinbasePayMessage',
-    logo: coinbaseLogo,
-    isImplemented: getConfig().REACT_APP_FEATURE_COINBASE_RAMP,
-    supportsBuy: true,
-    supportsSell: false,
-    getBuyAndSellList: async () => {
-      const buyAssets = await getCoinbasePayAssets()
-      return [buyAssets, []]
-    },
-    onSubmit: (_, assetId: AssetId, address: string) => {
-      try {
-        const ticker = adapters.assetIdToCoinbaseTicker(assetId)
-        if (!ticker) throw new Error('Asset not supported by Coinbase')
-        const coinbasePayUrl = generateOnRampURL({
-          appId: getConfig().REACT_APP_COINBASE_PAY_APP_ID,
-          destinationWallets: [{ address, assets: [ticker] }],
-        })
-        window.open(coinbasePayUrl, '_blank')?.focus()
-      } catch (err) {
-        moduleLogger.error(
-          err,
-          { fn: 'CoinbasePay onSubmit' },
-          'Asset not supported by Coinbase Pay',
-        )
-      }
-    },
-  },
   JunoPay: {
     label: 'fiatRamps.junoPay',
     info: 'fiatRamps.junoPayMessage',
     logo: junoPayLogo,
-    isImplemented: getConfig().REACT_APP_FEATURE_JUNOPAY,
+    isImplemented: true,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {

@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import {
+  avalancheAssetId,
   avalancheChainId,
   ChainId,
   ethChainId,
@@ -29,7 +30,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -84,7 +85,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   // instantiate if it doesn't already exist
   _swapperManager = new SwapperManager()
 
-  const adapterManager = getChainAdapters()
+  const adapterManager = getChainAdapterManager()
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
   const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
 
@@ -202,9 +203,15 @@ export const useSwapper = () => {
     [swapperManager, sellTradeAsset],
   )
 
-  const getDefaultPair = useCallback(() => {
-    // eth & fox
-    return ['eip155:1/slip44:60', 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+  const getDefaultPair = useCallback((connectedChainId: ChainId | undefined) => {
+    switch (connectedChainId) {
+      case KnownChainIds.AvalancheMainnet:
+        return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
+      case KnownChainIds.EthereumMainnet:
+      default:
+        // eth & fox
+        return ['eip155:1/slip44:60', 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+    }
   }, [])
 
   const sellAssetBalance = useAppSelector(state =>
@@ -278,7 +285,7 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-    const chainAdapter = getChainAdapters().get(receiveAddressChainId)
+    const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
 
     if (!chainAdapter) throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 
@@ -299,13 +306,25 @@ export const useSwapper = () => {
           sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           buyAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
           wallet,
-          sendMax: true,
+          sendMax: false,
           receiveAddress,
         })
       } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
-        // TODO do bitcoin specific trade quote including `bip44Params`, `accountType` and `wallet`
-        // They will need to have selected an accountType from a modal if bitcoin
-        throw new Error('bitcoin unsupported')
+        const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
+        if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+        return swapper.buildTrade({
+          chainId: KnownChainIds.BitcoinMainnet,
+          sellAmount: amount,
+          sellAsset,
+          buyAsset,
+          sellAssetAccountNumber: 0,
+          buyAssetAccountNumber: 0,
+          wallet,
+          sendMax: false,
+          receiveAddress,
+          bip44Params: utxoParams.bip44Params,
+          accountType,
+        })
       }
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
@@ -367,6 +386,23 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
+  // TODO btcAccountSpecifier must come from the btc account selection modal
+  // We are defaulting temporarily for development
+  const getBtcUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
+    const btcAccountSpecifiers = accountSpecifiersList.find(
+      specifiers => specifiers[KnownChainIds.BitcoinMainnet],
+    )
+    if (!btcAccountSpecifiers) throw new Error('no btc account specifiers')
+    const btcAccountSpecifier = btcAccountSpecifiers[KnownChainIds.BitcoinMainnet]
+    if (!btcAccountSpecifier) throw new Error('no btc account specifier')
+
+    const btcAccountId = toAccountId({
+      chainId: sellAsset.chainId,
+      account: btcAccountSpecifier,
+    })
+    return accountIdToUtxoParams(btcAccountId, 0)
+  }
+
   const updateQuoteDebounced = useRef(
     debounce(
       async ({
@@ -396,7 +432,7 @@ export const useSwapper = () => {
           })
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-          const chainAdapter = getChainAdapters().get(receiveAddressChainId)
+          const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
 
           if (!chainAdapter)
             throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
@@ -421,16 +457,7 @@ export const useSwapper = () => {
                 receiveAddress,
               })
             } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
-              // TODO btcAccountSpecifier must come from the btc account selection modal
-              // We are defaulting temporarily for development
-              const btcAccountSpecifiers = accountSpecifiersList.find(
-                specifiers => specifiers[KnownChainIds.BitcoinMainnet],
-              )
-              if (!btcAccountSpecifiers) throw new Error('no btc account specifiers')
-              const btcAccountSpecifier = btcAccountSpecifiers[KnownChainIds.BitcoinMainnet]
-              if (!btcAccountSpecifier) throw new Error('no btc account specifier')
-
-              const { accountType, utxoParams } = accountIdToUtxoParams(btcAccountSpecifier, 0)
+              const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
                 chainId: KnownChainIds.BitcoinMainnet,
@@ -452,6 +479,7 @@ export const useSwapper = () => {
 
           setValue('quote', tradeQuote)
           setValue('sellAssetFiatRate', sellAssetUsdRate)
+          setValue('buyAssetFiatRate', buyAssetUsdRate)
           setValue('feeAssetFiatRate', feeAssetUsdRate)
 
           // Update trade input form fields to new calculated amount

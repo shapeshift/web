@@ -1,3 +1,4 @@
+import { ethChainId } from '@shapeshiftoss/caip'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -9,7 +10,7 @@ import { useSelector } from 'react-redux'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useSwapper } from './useSwapper'
@@ -20,6 +21,7 @@ jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('context/PluginProvider/PluginProvider')
+jest.mock('context/PluginProvider/chainAdapterSingleton')
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
   useSelector: jest.fn(),
@@ -112,7 +114,7 @@ describe('useSwapper', () => {
       }),
       addSwapper: jest.fn(),
     }))
-    ;(getChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, {}],
@@ -148,7 +150,7 @@ describe('useSwapper', () => {
   })
   it('gets default pair', () => {
     const { result } = setup()
-    const defaultPair = result.current.getDefaultPair()
+    const defaultPair = result.current.getDefaultPair(ethChainId)
     expect(defaultPair).toHaveLength(2)
   })
   it('swappermanager initializes with swapper', () => {
@@ -175,10 +177,11 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
     expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(4, 'sellAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'feeAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'fiatSellAmount', '20.00')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'buyAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(8, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(6, 'feeAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatSellAmount', '20.00')
+    expect(setValue).toHaveBeenNthCalledWith(8, 'buyAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(9, 'sellAsset.amount', '20')
   })
   it('getQuote gets quote with buyAmount', async () => {
     const { localMockState } = setup()
@@ -199,10 +202,11 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
     expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(4, 'sellAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'feeAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'fiatSellAmount', '20.00')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'buyAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(8, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(6, 'feeAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatSellAmount', '20.00')
+    expect(setValue).toHaveBeenNthCalledWith(8, 'buyAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(9, 'sellAsset.amount', '20')
   })
   it('getQuote gets quote with fiatAmount', async () => {
     const { localMockState } = setup()
@@ -224,10 +228,11 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
     expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(4, 'sellAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'feeAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'fiatSellAmount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'buyAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(8, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(6, 'feeAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatSellAmount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(8, 'buyAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(9, 'sellAsset.amount', '20')
   })
   it('reset resets', () => {
     const { result, setValue } = setup()

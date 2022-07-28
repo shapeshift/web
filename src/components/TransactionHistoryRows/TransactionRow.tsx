@@ -1,6 +1,6 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { TradeType, TxType } from '@shapeshiftoss/chain-adapters'
+import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
@@ -54,14 +54,15 @@ export const TransactionRow = ({
       isOpen,
       parentWidth,
     }
+
     switch (txDetails.type || txDetails.direction) {
-      case TxType.Send:
+      case TransferType.Send:
         return <TransactionSend {...props} />
-      case TxType.Receive:
+      case TransferType.Receive:
         return <TransactionReceive {...props} />
       case TradeType.Trade:
         return <TransactionTrade {...props} />
-      case TxType.Contract:
+      case TransferType.Contract:
         return <TransactionContract {...props} />
       default:
         return <UnknownTransaction {...props} />

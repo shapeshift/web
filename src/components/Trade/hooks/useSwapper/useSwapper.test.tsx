@@ -137,29 +137,38 @@ describe('useSwapper', () => {
   })
   it('approves infinite', async () => {
     const { result } = setup()
-    const txid = await result.current.approveInfinite()
-    expect(txid).toBe('0x023423093248420937')
+    await act(async () => {
+      const txid = await result.current.approveInfinite()
+      expect(txid).toBe('0x023423093248420937')
+    })
   })
   it('gets approval needed', async () => {
     const { result } = setup()
-    const approvalNeeded = await result.current.checkApprovalNeeded()
-    expect(approvalNeeded).toBe(false)
+    await act(async () => {
+      const approvalNeeded = await result.current.checkApprovalNeeded()
+      expect(approvalNeeded).toBe(false)
+    })
   })
   it('returns true when approval is needed', async () => {
     const { result } = setup({ approvalNeededBoolean: true })
-
-    const approvalNeeded = await result.current.checkApprovalNeeded()
-    expect(approvalNeeded).toBe(true)
+    await act(async () => {
+      const approvalNeeded = await result.current.checkApprovalNeeded()
+      expect(approvalNeeded).toBe(true)
+    })
   })
-  it('gets default pair', () => {
+  it('gets default pair', async () => {
     const { result } = setup()
-    const defaultPair = result.current.getDefaultPair(ethChainId)
-    expect(defaultPair).toHaveLength(2)
+    await act(async () => {
+      const defaultPair = result.current.getDefaultPair(ethChainId)
+      expect(defaultPair).toHaveLength(2)
+    })
   })
-  it('swappermanager initializes with swapper', () => {
+  it('swappermanager initializes with swapper', async () => {
     const { result } = setup()
-    const swapperManager = result.current.swapperManager
-    expect(swapperManager).not.toBeNull()
+    await act(async () => {
+      const swapperManager = result.current.swapperManager
+      expect(swapperManager).not.toBeNull()
+    })
   })
   it('getQuote gets quote with sellAmount', async () => {
     const { localMockState } = setup()
@@ -240,10 +249,12 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(8, 'buyAsset.amount', '20')
     expect(setValue).toHaveBeenNthCalledWith(9, 'sellAsset.amount', '20')
   })
-  it('reset resets', () => {
+  it('reset resets', async () => {
     const { result, setValue } = setup()
-    const reset = result.current.reset
-    reset()
+    await act(async () => {
+      const reset = result.current.reset
+      reset()
+    })
     expect(setValue).toBeCalledWith('buyAsset.amount', '')
     expect(setValue).toBeCalledWith('sellAsset.amount', '')
     expect(setValue).toBeCalledWith('fiatSellAmount', '')

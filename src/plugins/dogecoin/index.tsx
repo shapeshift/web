@@ -18,13 +18,13 @@ export default function register(): Plugins {
             [
               KnownChainIds.DogecoinMainnet,
               () => {
-                const http = new unchained.bitcoin.V1Api(
-                  new unchained.bitcoin.Configuration({
+                const http = new unchained.dogecoin.V1Api(
+                  new unchained.dogecoin.Configuration({
                     basePath: getConfig().REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL,
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.bitcoin.BitcoinTx>(
+                const ws = new unchained.ws.Client<unchained.dogecoin.Tx>(
                   getConfig().REACT_APP_UNCHAINED_DOGECOIN_WS_URL,
                 )
 

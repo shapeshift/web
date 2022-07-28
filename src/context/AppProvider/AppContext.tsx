@@ -1,18 +1,18 @@
 import { createStandaloneToast } from '@chakra-ui/react'
 import {
-  avalancheChainId,
-  btcChainId,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
   cosmosChainId,
-  dogeChainId,
   ethChainId,
+  fromChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import {
-  bitcoin,
   convertXpubVersion,
-  dogecoin,
   toRootDerivationPath,
   utxoAccountParams,
+  UtxoBaseAdapter,
+  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
@@ -135,85 +135,69 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const adapter = chainAdapterManager.get(chainId)
           if (!adapter) continue
 
-          switch (chainId) {
-            case ethChainId: {
-              if (!supportsETH(wallet)) continue
-              const pubkey = await adapter.getAddress({ wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              break
-            }
-            case avalancheChainId: {
-              if (!supportsEthSwitchChain(wallet)) continue
-              const pubkey = await adapter.getAddress({ wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              break
-            }
-            case btcChainId: {
+          const { chainNamespace, chainReference } = fromChainId(chainId)
+
+          switch (chainNamespace) {
+            case CHAIN_NAMESPACE.Bitcoin: {
               if (!supportsBTC(wallet)) continue
+
+              const coin = {
+                [CHAIN_REFERENCE.BitcoinMainnet]: 'bitcoin',
+                [CHAIN_REFERENCE.DogecoinMainnet]: 'dogecoin',
+                [CHAIN_REFERENCE.LitecoinMainnet]: 'litecoin',
+              }[chainReference as string]
+
+              if (!coin) continue
+
               const supportedAccountTypes = (
-                adapter as unknown as bitcoin.ChainAdapter
+                adapter as unknown as UtxoBaseAdapter<UtxoChainId>
               ).getSupportedAccountTypes()
+
               for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(chainId, accountType, 0)
-                const { bip44Params, scriptType } = accountParams
+                const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
                 const pubkeys = await wallet.getPublicKeys([
                   {
-                    coin: 'bitcoin',
+                    coin,
                     addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                     curve: 'secp256k1',
                     scriptType,
                   },
                 ])
-                if (!pubkeys?.[0]?.xpub) {
-                  throw new Error(`usePubkeys: error getting bitcoin xpub`)
-                }
-                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
+                if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
+
+                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
                 if (!pubkey) continue
+
                 acc.push({ [chainId]: pubkey })
               }
               break
             }
-            case dogeChainId: {
-              if (!supportsBTC(wallet)) continue
-              const supportedAccountTypes = (
-                adapter as unknown as dogecoin.ChainAdapter
-              ).getSupportedAccountTypes()
-              for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(chainId, accountType, 0)
-                const { bip44Params, scriptType } = accountParams
-                const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))
-                const pubkeys = await wallet.getPublicKeys([
-                  {
-                    coin: 'dogecoin',
-                    addressNList,
-                    curve: 'secp256k1',
-                    scriptType,
-                  },
-                ])
-                if (!pubkeys?.[0]?.xpub) {
-                  throw new Error(`usePubkeys: error getting dogecoin xpub`)
-                }
-                const pubkey = pubkeys[0].xpub
-                if (!pubkey) continue
-                acc.push({ [chainId]: pubkey })
+
+            case CHAIN_NAMESPACE.Ethereum: {
+              if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
+                if (!supportsETH(wallet)) continue
               }
-              break
-            }
-            case cosmosChainId: {
-              if (!supportsCosmos(wallet)) continue
+              if (chainReference === CHAIN_REFERENCE.AvalancheCChain) {
+                if (!supportsEthSwitchChain(wallet)) continue
+              }
+
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              acc.push({ [chainId]: pubkey })
+              acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
-            case osmosisChainId: {
-              if (!supportsOsmosis(wallet)) continue
+            case CHAIN_NAMESPACE.Cosmos: {
+              if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
+                if (!supportsCosmos(wallet)) continue
+              }
+              if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
+                if (!supportsOsmosis(wallet)) continue
+              }
+
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              acc.push({ [chainId]: pubkey })
+              acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
             default:

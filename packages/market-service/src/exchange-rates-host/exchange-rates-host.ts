@@ -100,7 +100,8 @@ export class ExchangeRateHostService implements FiatMarketService {
         Object.entries(data.rates).forEach(([formattedDate, ratesObject]) => {
           const date = dayjs(formattedDate, 'YYYY-MM-DD').startOf('day').valueOf()
           const price = bnOrZero(ratesObject[symbol]).toNumber()
-          acc.push({ date, price })
+          // skip zero prices (current day rate gets returned as zero)
+          price > 0 && acc.push({ date, price })
         })
         return acc
       }, [])

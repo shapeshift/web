@@ -15,7 +15,7 @@ import {
   useLocation,
 } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
@@ -66,7 +66,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string>('')
 
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const bitcoinChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinMainnet)
   const dogecoinChainAdapter = chainAdapterManager.get(KnownChainIds.DogecoinMainnet)

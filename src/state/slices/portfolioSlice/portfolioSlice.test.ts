@@ -48,8 +48,8 @@ import {
   selectTotalFiatBalanceWithDelegations,
 } from './selectors'
 
-jest.mock('context/PluginProvider/PluginProvider', () => ({
-  getChainAdapters: () => mockChainAdapters,
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
 }))
 
 describe('portfolioSlice', () => {

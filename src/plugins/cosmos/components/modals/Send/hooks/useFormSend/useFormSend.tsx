@@ -3,7 +3,7 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import { ChainAdapter, FeeData } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -13,7 +13,7 @@ import { SendInput } from '../../Form'
 export const useFormSend = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const { send } = useModal()
   const {
     state: { wallet },

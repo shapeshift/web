@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
 import { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useSwapper } from './useSwapper'
@@ -21,6 +21,7 @@ jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('context/PluginProvider/PluginProvider')
+jest.mock('context/PluginProvider/chainAdapterSingleton')
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
   useSelector: jest.fn(),
@@ -113,7 +114,7 @@ describe('useSwapper', () => {
       }),
       addSwapper: jest.fn(),
     }))
-    ;(getChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, {}],

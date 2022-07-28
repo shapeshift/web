@@ -30,7 +30,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -85,7 +85,7 @@ const getSwapperManager = async (): Promise<SwapperManager> => {
   // instantiate if it doesn't already exist
   _swapperManager = new SwapperManager()
 
-  const adapterManager = getChainAdapters()
+  const adapterManager = getChainAdapterManager()
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
   const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
 
@@ -285,7 +285,7 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
 
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-    const chainAdapter = getChainAdapters().get(receiveAddressChainId)
+    const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
 
     if (!chainAdapter) throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 
@@ -432,7 +432,7 @@ export const useSwapper = () => {
           })
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-          const chainAdapter = getChainAdapters().get(receiveAddressChainId)
+          const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
 
           if (!chainAdapter)
             throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)

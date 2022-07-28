@@ -12,7 +12,7 @@ import {
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -28,7 +28,7 @@ const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseF
 export const useFormSend = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const { send } = useModal()
   const {
     state: { wallet },

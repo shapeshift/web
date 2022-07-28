@@ -25,7 +25,7 @@ import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -66,7 +66,7 @@ export const ClaimConfirm = ({
   const { cosmosStaking } = useModal()
   const translate = useTranslate()
   const memoryHistory = useHistory()
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(asset.chainId) as unknown as cosmos.ChainAdapter
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

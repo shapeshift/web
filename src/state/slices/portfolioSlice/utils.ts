@@ -23,7 +23,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -113,7 +113,7 @@ export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
   // the only way we get an accountId, is from a chainAdapter that supports that chain
   // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter
   // and we can safely non-null assert that it will exist
-  getChainAdapters().get(accountIdToChainId(accountId))!.getFeeAssetId()
+  getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))

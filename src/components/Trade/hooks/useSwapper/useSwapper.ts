@@ -510,6 +510,7 @@ export const useSwapper = () => {
     }: GetQuoteInput) => {
       if (!wallet || !accountSpecifiersList.length) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
+      if (!Array.from(swapperManager.swappers.keys()).length) return
       setValue('quote', undefined)
       clearErrors('quote')
 

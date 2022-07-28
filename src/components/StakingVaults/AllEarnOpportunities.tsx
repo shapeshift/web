@@ -4,10 +4,6 @@ import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
-import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -15,7 +11,6 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
-import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
@@ -41,7 +36,6 @@ export const AllEarnOpportunities = () => {
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
     })
-  const { cosmosStaking } = useModal()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
@@ -58,15 +52,6 @@ export const AllEarnOpportunities = () => {
       const { assetReference } = fromAssetId(assetId)
       if (!isConnected && walletInfo?.deviceId !== DemoConfig.name) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-        return
-      }
-
-      if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
-        cosmosStaking.open({
-          assetId,
-          validatorAddress: contractAddress,
-        })
-
         return
       }
 

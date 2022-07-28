@@ -1,9 +1,11 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, IconButton } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
+import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
+import { assetIdToUnbondingDays } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import rewards from 'assets/rewards.svg'
@@ -12,10 +14,9 @@ import withdraw from 'assets/withdraw.svg'
 import { CarouselDots } from 'components/CarouselDots/CarouselDots'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { selectAssetNameById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { assetIdToUnbondingDays } from '../../StakingCommon'
 
 const STEP_TO_ELEMENTS_MAPPING = [
   {
@@ -43,11 +44,18 @@ const STEP_TO_ELEMENTS_MAPPING = [
 ]
 
 type LearnMoreProps = {
-  assetId: AssetId
+  onClose: () => void
 }
 
-export const LearnMore = ({ assetId }: LearnMoreProps) => {
+export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
   const history = useHistory()
+
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, assetReference } = query
+  const assetNamespace = 'slip44'
+
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+
   const assetName = useAppSelector(state => selectAssetNameById(state, assetId))
   const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
 
@@ -60,7 +68,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
   const isLastStep = activeStep === stepsLength
 
   const handleNextOrCloseClick = () => {
-    if (isLastStep) return
+    if (isLastStep) return onClose()
 
     nextStep()
   }

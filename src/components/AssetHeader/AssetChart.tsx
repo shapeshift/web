@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -56,7 +56,6 @@ type AssetChartProps = {
 }
 
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
-  const { DEFAULT_HISTORY_TIMEFRAME } = getConfig()
   const {
     number: { toFiat },
   } = useLocaleFormatter()

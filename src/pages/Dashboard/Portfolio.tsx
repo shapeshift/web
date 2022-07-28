@@ -1,6 +1,6 @@
 import { Box, Skeleton, Stack, Stat, StatArrow, StatNumber } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
@@ -17,7 +17,6 @@ import {
 import { AccountTable } from './components/AccountList/AccountTable'
 
 export const Portfolio = () => {
-  const { DEFAULT_HISTORY_TIMEFRAME } = getConfig()
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
   const [percentChange, setPercentChange] = useState(0)
 

@@ -22,7 +22,7 @@ import {
   supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { getConfig } from 'config'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -83,8 +83,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
-
-  const { DEFAULT_HISTORY_TIMEFRAME } = getConfig()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -312,8 +310,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-    // DEFAULT_HISTORY_TIMEFRAME comes from a memoized function, so React doesn't know it's a constant
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
 
   /**
@@ -327,8 +323,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
     dispatch(getFiatPriceHistory({ symbol, timeframe }))
     dispatch(fetchForexRate({ symbol }))
-    // DEFAULT_HISTORY_TIMEFRAME comes from a memoized function, so React doesn't know it's a constant
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedCurrency])
 
   // market data single-asset fetch, will use cached version if available

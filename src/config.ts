@@ -1,4 +1,3 @@
-import { constants } from 'constants/Config'
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
@@ -86,5 +85,5 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
 }
 
 export const getConfig = memoize(() =>
-  Object.freeze(merge({ ...cleanEnv(env, validators, { reporter }) }, constants)),
+  Object.freeze(merge({ ...cleanEnv(env, validators, { reporter }) })),
 )

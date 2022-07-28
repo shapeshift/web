@@ -115,6 +115,7 @@ describe('useSwapper', () => {
         getTradeQuote: getQuote,
       }),
       addSwapper: jest.fn(),
+      swappers: new Map([['foo', 'bar']]),
     }))
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>

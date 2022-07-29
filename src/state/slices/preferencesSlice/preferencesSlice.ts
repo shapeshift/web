@@ -14,7 +14,6 @@ export type FeatureFlags = {
   Thor: boolean
   CowSwap: boolean
   Pendo: boolean
-  Dogecoin: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -40,7 +39,6 @@ const initialState: Preferences = {
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
-    Dogecoin: getConfig().REACT_APP_FEATURE_DOGECOIN,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

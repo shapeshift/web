@@ -36,18 +36,18 @@
     "web3-utils": "1.7.4"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/chain-adapters": "^7.2.0",
+    "@shapeshiftoss/caip": "^6.7.0",
+    "@shapeshiftoss/chain-adapters": "^7.13.0",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",
     "@shapeshiftoss/investor": "^1.0.1",
-    "@shapeshiftoss/types": "^8.0.0"
+    "@shapeshiftoss/types": "^8.1.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^6.2.0",
-    "@shapeshiftoss/chain-adapters": "^7.2.0",
+    "@shapeshiftoss/caip": "^6.7.0",
+    "@shapeshiftoss/chain-adapters": "^7.13.0",
     "@shapeshiftoss/hdwallet-core": "^1.23.0",
     "@shapeshiftoss/investor": "^1.0.1",
-    "@shapeshiftoss/types": "^8.0.0",
-    "@shapeshiftoss/unchained-client": "^9.0.1"
+    "@shapeshiftoss/types": "^8.1.0",
+    "@shapeshiftoss/unchained-client": "^9.5.0"
   }
 }

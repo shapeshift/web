@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.0.1...@shapeshiftoss/asset-service-v7.1.0) (2022-07-29)
+
+
+### Features
+
+* litecoin ([#914](https://github.com/shapeshift/lib/issues/914)) ([5af5c60](https://github.com/shapeshift/lib/commit/5af5c60c954ae0295d4cd175b98da3732d99d9e4))
+
 # [@shapeshiftoss/asset-service-v7.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.0.0...@shapeshiftoss/asset-service-v7.0.1) (2022-07-26)
 
 

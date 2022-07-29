@@ -12,7 +12,14 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import { btcChainId, cosmosChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  fromAssetId,
+  ltcChainId,
+} from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,14 +36,18 @@ import { FiatRamp, supportedFiatRamps } from '../config'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
-type OverviewProps = {
+type GenerateAddressProps = {
   selectedAsset: FiatRampAsset | null
-  fiatRampProvider: FiatRamp
   btcAddress: string
   dogeAddress: string
+  ltcAddress: string
   ethAddress: string
   cosmosAddress: string
   ensName: string
+}
+
+type OverviewProps = GenerateAddressProps & {
+  fiatRampProvider: FiatRamp
   supportsAddressVerifying: boolean
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
@@ -45,14 +56,7 @@ type OverviewProps = {
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
 }
-type GenerateAddressProps = {
-  selectedAsset: FiatRampAsset | null
-  btcAddress: string
-  dogeAddress: string
-  ethAddress: string
-  cosmosAddress: string
-  ensName: string
-}
+
 type AddressOrNameFull = string
 type AddressFull = string
 type AddressOrNameEllipsed = string
@@ -60,7 +64,8 @@ type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEll
 type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
 
 const generateAddresses: GenerateAddresses = props => {
-  const { selectedAsset, btcAddress, ethAddress, ensName, cosmosAddress } = props
+  const { selectedAsset, btcAddress, dogeAddress, ltcAddress, ethAddress, ensName, cosmosAddress } =
+    props
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
@@ -70,6 +75,10 @@ const generateAddresses: GenerateAddresses = props => {
       return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
     case btcChainId:
       return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
+    case dogeChainId:
+      return [dogeAddress, dogeAddress, middleEllipsis(dogeAddress, 11)]
+    case ltcChainId:
+      return [ltcAddress, ltcAddress, middleEllipsis(ltcAddress, 11)]
     case cosmosChainId:
       return [cosmosAddress, cosmosAddress, middleEllipsis(cosmosAddress, 11)]
     default:
@@ -85,6 +94,7 @@ export const Overview: React.FC<OverviewProps> = ({
   setSupportsAddressVerifying,
   btcAddress,
   dogeAddress,
+  ltcAddress,
   ethAddress,
   cosmosAddress,
   ensName,
@@ -107,6 +117,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
     btcAddress,
+    ltcAddress,
     dogeAddress,
     ethAddress,
     cosmosAddress,
@@ -150,7 +161,7 @@ export const Overview: React.FC<OverviewProps> = ({
   }
 
   const handleVerify = async () => {
-    const chainAdapter = await chainAdapterManager.get(chainId)
+    const chainAdapter = chainAdapterManager.get(chainId)
     if (!(wallet && chainAdapter)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,

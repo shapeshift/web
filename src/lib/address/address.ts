@@ -4,6 +4,7 @@ import {
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  ltcChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -66,6 +67,7 @@ const vanityResolversByChainId: VanityAddressResolversByChainId = {
   [btcChainId]: [resolveUnstoppableDomain],
   [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
   [dogeChainId]: [],
+  [ltcChainId]: [],
   [cosmosChainId]: [],
   [osmosisChainId]: [],
 }

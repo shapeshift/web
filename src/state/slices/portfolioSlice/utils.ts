@@ -100,7 +100,11 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     case dogeChainId:
       return 'Dogecoin'
     case ltcChainId:
-      return 'Litecoin'
+      // TODO: translations
+      if (specifier.startsWith('Ltub')) return 'LEGACY'
+      if (specifier.startsWith('Mtub')) return 'SEGWIT'
+      if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
+      return ''
     default: {
       return ''
     }

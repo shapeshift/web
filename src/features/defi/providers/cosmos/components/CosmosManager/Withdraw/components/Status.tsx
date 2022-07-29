@@ -1,5 +1,5 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Button, Link, Stack } from '@chakra-ui/react'
+import { Button, Link, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -13,8 +13,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
@@ -39,13 +38,6 @@ export const Status = () => {
     assetReference,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   if (!state || !dispatch) return null
 
@@ -117,43 +109,6 @@ export const Status = () => {
           </Row.Label>
           <Row.Value fontWeight='bold'>
             <MiddleEllipsis address={state.userAddress || ''} />
-          </Row.Value>
-        </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <Text
-              translation={
-                state.withdraw.txStatus === 'pending'
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
-              }
-            />
-          </Row.Label>
-          <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat
-                fontWeight='bold'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
-                  .toFixed(2)}
-              />
-              <Amount.Crypto
-                color='gray.500'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
-                symbol={asset.symbol} // TODO: Handle multiple denoms
-              />
-            </Box>
           </Row.Value>
         </Row>
         {state.txid && (

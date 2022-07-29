@@ -50,7 +50,7 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
 
   return (
     <SlideTransition>
-      <RouteSteps routes={routes} location={location} />
+      <RouteSteps routes={routes} location={location} pt={4} />
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location} key={location.key}>
           <Route exact path='/'>

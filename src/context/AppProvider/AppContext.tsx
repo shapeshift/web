@@ -142,9 +142,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               if (!supportsBTC(wallet)) continue
 
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-              const supportedAccountTypes = utxoAdapter.getSupportedAccountTypes()
 
-              for (const accountType of supportedAccountTypes) {
+              for (const accountType of utxoAdapter.getSupportedAccountTypes()) {
                 const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
                 const pubkeys = await wallet.getPublicKeys([
                   {

@@ -47,7 +47,6 @@ const validators = {
   REACT_APP_FEATURE_MULTI_CURRENCY: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
-  REACT_APP_FEATURE_DOGECOIN: bool({ default: false }),
   REACT_APP_FEATURE_LITECOIN: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),

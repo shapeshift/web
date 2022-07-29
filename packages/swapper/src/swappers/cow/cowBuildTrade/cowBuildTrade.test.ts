@@ -11,7 +11,7 @@ import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowTrade } from '../types'
 import { cowService } from '../utils/cowService'
-import { CowSwapQuoteApiInput } from '../utils/helpers/helpers'
+import { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
 
 jest.mock('@shapeshiftoss/chain-adapters')
@@ -73,7 +73,7 @@ const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
   }
 }
 
-const expectedApiInputWethToFox: CowSwapQuoteApiInput = {
+const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: 'address11',
@@ -85,7 +85,7 @@ const expectedApiInputWethToFox: CowSwapQuoteApiInput = {
   validTo: 1656797787
 }
 
-const expectedApiInputWbtcToWeth: CowSwapQuoteApiInput = {
+const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
   appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
   buyToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: 'address11',

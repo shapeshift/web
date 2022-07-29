@@ -5,10 +5,10 @@ import { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
-import { bn, bnOrZero } from '../../../utils/bignumber'
+import { bn } from '../../../utils/bignumber'
 import { CowSwapperDeps } from '../../CowSwapper'
-import { CowSwapPriceResponse } from '../../types'
-import { WETH_ASSET_ID } from '../constants'
+import { CowSwapQuoteResponse } from '../../types'
+import { DEFAULT_ADDRESS, DEFAULT_APP_DATA, ORDER_KIND_BUY, WETH_ASSET_ID } from '../constants'
 import { cowService } from '../cowService'
 
 const USDC_CONTRACT_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
@@ -49,16 +49,29 @@ export type CowSwapOrder = {
   buyTokenBalance: string
 }
 
-export type CowSwapQuoteApiInput = {
+export type CowSwapQuoteApiInputBase = {
   appData: string
   buyToken: string
   from: string
   kind: string
   partiallyFillable: boolean
   receiver: string
-  sellAmountBeforeFee: string
   sellToken: string
   validTo: number
+}
+
+export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
+  sellAmountBeforeFee: string
+}
+
+export type CowSwapBuyQuoteApiInput = CowSwapQuoteApiInputBase & {
+  buyAmountAfterFee: string
+}
+
+export const getNowPlusThirtyMinutesTimestamp = (): number => {
+  const ts = new Date()
+  ts.setMinutes(ts.getMinutes() + 30)
+  return Math.round(ts.getTime() / 1000)
 }
 
 export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Promise<string> => {
@@ -77,29 +90,55 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
     return '1'
   }
 
+  // rate is imprecise for low $ values, hence asking for $1000
   const buyAmountInDollars = 1000
-  const buyAmount = bn(buyAmountInDollars).times(bn(10).exponentiatedBy(USDC_ASSET_PRECISION))
+  const buyAmount = bn(buyAmountInDollars)
+    .times(bn(10).exponentiatedBy(USDC_ASSET_PRECISION))
+    .toString()
 
   try {
-    // rate is imprecise for low $ values, hence asking for $1000
-    // cowSwap api used : markets/{baseToken}-{quoteToken}/{kind}/{amount}
-    // It returns the estimated amount in quoteToken for either buying or selling amount of baseToken.
-    const rateResponse: AxiosResponse<CowSwapPriceResponse> =
-      await cowService.get<CowSwapPriceResponse>(
-        `${apiUrl}/v1/markets/${USDC_CONTRACT_ADDRESS}-${erc20Address}/buy/${buyAmount}`
-      )
+    const apiInput: CowSwapBuyQuoteApiInput = {
+      sellToken: erc20Address,
+      buyToken: USDC_CONTRACT_ADDRESS,
+      receiver: DEFAULT_ADDRESS,
+      validTo: getNowPlusThirtyMinutesTimestamp(),
+      appData: DEFAULT_APP_DATA,
+      partiallyFillable: false,
+      from: DEFAULT_ADDRESS,
+      kind: ORDER_KIND_BUY,
+      buyAmountAfterFee: buyAmount
+    }
 
-    const tokenAmount = bnOrZero(rateResponse.data.amount).div(
-      bn(10).exponentiatedBy(asset.precision)
-    )
+    /**
+     * /v1/quote
+     * params: {
+     * sellToken: contract address of token to sell
+     * buyToken: contractAddress of token to buy
+     * receiver: receiver address can be defaulted to "0x0000000000000000000000000000000000000000"
+     * validTo: time duration during which quote is valid (eg : 1654851610 as timestamp)
+     * appData: appData for the CowSwap quote that can be used later, can be defaulted to "0x0000000000000000000000000000000000000000000000000000000000000000"
+     * partiallyFillable: false
+     * from: sender address can be defaulted to "0x0000000000000000000000000000000000000000"
+     * kind: "sell" or "buy"
+     * sellAmountBeforeFee / buyAmountAfterFee: amount in base unit
+     * }
+     */
+    const quoteResponse: AxiosResponse<CowSwapQuoteResponse> =
+      await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/v1/quote/`, apiInput)
 
-    if (!tokenAmount.gt(0))
-      throw new SwapError('[getUsdRate] - Failed to get token amount', {
+    const {
+      data: { quote }
+    } = quoteResponse
+
+    const sellCryptoAmount = bn(quote.sellAmount).div(bn(10).exponentiatedBy(asset.precision))
+
+    if (!sellCryptoAmount.gt(0))
+      throw new SwapError('[getUsdRate] - Failed to get sell token amount', {
         code: SwapErrorTypes.RESPONSE_ERROR
       })
 
-    // dividing $1000 by amount of token received
-    return bn(buyAmountInDollars).dividedBy(tokenAmount).toString()
+    // dividing $1000 by amount of sell token received
+    return bn(buyAmountInDollars).div(sellCryptoAmount).toString()
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getUsdRate]', {
@@ -107,12 +146,6 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
       code: SwapErrorTypes.USD_RATE_FAILED
     })
   }
-}
-
-export const getNowPlusThirtyMinutesTimestamp = (): number => {
-  const ts = new Date()
-  ts.setMinutes(ts.getMinutes() + 30)
-  return Math.round(ts.getTime() / 1000)
 }
 
 export const hashTypedData = (

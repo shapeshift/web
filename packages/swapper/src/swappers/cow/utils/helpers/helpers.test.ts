@@ -3,6 +3,7 @@ import Web3 from 'web3'
 
 import { BTC, ETH, FOX, USDC, WBTC } from '../../../utils/test-data/assets'
 import { CowSwapperDeps } from '../../CowSwapper'
+import { DEFAULT_ADDRESS, DEFAULT_APP_DATA, ORDER_KIND_BUY } from '../constants'
 import { cowService } from '../cowService'
 import {
   CowSwapOrder,
@@ -14,61 +15,88 @@ import {
 
 jest.mock('../cowService')
 
+const expectedQuoteInputForUsdRate = {
+  receiver: DEFAULT_ADDRESS,
+  appData: DEFAULT_APP_DATA,
+  partiallyFillable: false,
+  from: DEFAULT_ADDRESS,
+  kind: ORDER_KIND_BUY,
+  buyAmountAfterFee: '1000000000'
+}
+
 describe('utils', () => {
   const cowSwapperDeps: CowSwapperDeps = {
-    apiUrl: 'https://api.cow.fi/mainnet/api/',
+    apiUrl: 'https://api.cow.fi/mainnet/api',
     adapter: {} as ethereum.ChainAdapter,
     web3: {} as Web3
   }
 
   describe('getUsdRate', () => {
     it('gets the usd rate of FOX', async () => {
-      ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
         Promise.resolve({
           data: {
-            amount: '7702130994619175777719',
-            token: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+            quote: {
+              sellAmount: '7702130994619175777719'
+            }
           }
         })
       )
+
       const rate = await getUsdRate(cowSwapperDeps, FOX)
       expect(parseFloat(rate)).toBeCloseTo(0.129834198, 9)
-      expect(cowService.get).toHaveBeenCalledWith(
-        'https://api.cow.fi/mainnet/api//v1/markets/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48-0xc770eefad204b5180df6a14ee197d99d808ee52d/buy/1000000000'
+      expect(cowService.post).toHaveBeenCalledWith(
+        'https://api.cow.fi/mainnet/api/v1/quote/',
+        expect.objectContaining({
+          ...expectedQuoteInputForUsdRate,
+          sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+        })
       )
     })
 
     it('gets the usd rate of WBTC', async () => {
-      ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
         Promise.resolve({
           data: {
-            amount: '3334763',
-            token: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'
+            quote: {
+              sellAmount: '3334763'
+            }
           }
         })
       )
       const rate = await getUsdRate(cowSwapperDeps, WBTC)
       expect(parseFloat(rate)).toBeCloseTo(29987.13851629, 9)
-      expect(cowService.get).toHaveBeenCalledWith(
-        'https://api.cow.fi/mainnet/api//v1/markets/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48-0x2260fac5e5542a773aa44fbcfedf7c193bc2c599/buy/1000000000'
+      expect(cowService.post).toHaveBeenCalledWith(
+        'https://api.cow.fi/mainnet/api/v1/quote/',
+        expect.objectContaining({
+          ...expectedQuoteInputForUsdRate,
+          sellToken: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+        })
       )
     })
 
     it('should get the rate of WETH when called with ETH', async () => {
-      ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
         Promise.resolve({
           data: {
-            amount: '913757780947770826',
-            token: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+            quote: {
+              sellAmount: '913757780947770826'
+            }
           }
         })
       )
 
       const rate = await getUsdRate(cowSwapperDeps, ETH)
       expect(parseFloat(rate)).toBeCloseTo(1094.381925769, 9)
-
-      expect(cowService.get).toHaveBeenCalledWith(
-        'https://api.cow.fi/mainnet/api//v1/markets/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48-0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2/buy/1000000000'
+      expect(cowService.post).toHaveBeenCalledWith(
+        'https://api.cow.fi/mainnet/api/v1/quote/',
+        expect.objectContaining({
+          ...expectedQuoteInputForUsdRate,
+          sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+        })
       )
     })
 
@@ -85,16 +113,17 @@ describe('utils', () => {
     })
 
     it('should fail when api is returning 0 as token amount', async () => {
-      ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
         Promise.resolve({
           data: {
-            amount: '0',
-            token: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+            quote: {
+              sellAmount: '0'
+            }
           }
         })
       )
       await expect(getUsdRate(cowSwapperDeps, FOX)).rejects.toThrow(
-        '[getUsdRate] - Failed to get token amount'
+        '[getUsdRate] - Failed to get sell token amount'
       )
     })
 

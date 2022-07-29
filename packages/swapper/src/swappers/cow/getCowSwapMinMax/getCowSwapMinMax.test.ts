@@ -19,7 +19,7 @@ const DEPS = {
 describe('getCowSwapMinMax', () => {
   it('returns minimum and maximum', async () => {
     const minMax = await getCowSwapMinMax(DEPS, FOX, WETH)
-    expect(minMax.minimum).toBe('40')
+    expect(minMax.minimum).toBe('80')
     expect(minMax.maximum).toBe(MAX_COWSWAP_TRADE)
   })
 

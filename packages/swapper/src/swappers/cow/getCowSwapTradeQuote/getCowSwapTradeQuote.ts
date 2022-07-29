@@ -17,7 +17,7 @@ import {
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import {
-  CowSwapQuoteApiInput,
+  CowSwapSellQuoteApiInput,
   getNowPlusThirtyMinutesTimestamp,
   getUsdRate
 } from '../utils/helpers/helpers'
@@ -52,7 +52,7 @@ export async function getCowSwapTradeQuote(
       bnOrZero(sellAmount).lt(minQuoteSellAmount) ? minQuoteSellAmount : sellAmount
     )
 
-    const apiInput: CowSwapQuoteApiInput = {
+    const apiInput: CowSwapSellQuoteApiInput = {
       sellToken: sellAssetErc20Address,
       buyToken: buyAssetErc20Address,
       receiver: DEFAULT_ADDRESS,

@@ -2819,10 +2819,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-7.2.0.tgz#846abad9a7ba1696b67f861b6769464e6ac54e8a"
-  integrity sha512-CP/32Z2R21NTX5hLrf9vn8UiMQGQMdy6sV5uv4ZfLk47Fha3l+vz7EGKyspnPE8GzEDHbpHC+DYk27HWVYZOAQ==
+"@shapeshiftoss/blockbook@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-8.0.0.tgz#3b3f15661dfc5bd76ed975d4a86c516f0e5ae088"
+  integrity sha512-+lFDj4JiPATpTpsxixasvBY55QLW5OQznknINovcqa3c7qFnKhERjF47D0fCjszJd58LF/iMnHU5at+UfQ/pyQ==
   dependencies:
     axios "^0.27.2"
     axios-retry "^3.2.5"
@@ -2831,12 +2831,12 @@
     tsoa "^4.1.0"
     ws "^8.8.0"
 
-"@shapeshiftoss/common-api@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-7.2.0.tgz#5ed4dba4db71e0d17f8812576fb9dd911ee38443"
-  integrity sha512-DNiVz3LL9LVeDO2jpcSWZGAV/hk+gHSuKHzZZTgHJA5nXwUjuqPLRuJtgZWllTzd7gnR9v701vVm0eAUQXiuvg==
+"@shapeshiftoss/common-api@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-8.0.0.tgz#3e98d15c426278a9015e90d4d674ff4e91e5377a"
+  integrity sha512-7+vdqHKObOfec7ggHHNN+5eV3gP4wWf7HyyO/wrdEHpe07XCBrigFrpXtAQEiT8Gkn0dnahH0/LBOsvDzDczrA==
   dependencies:
-    "@shapeshiftoss/blockbook" "^7.2.0"
+    "@shapeshiftoss/blockbook" "^8.0.0"
     "@shapeshiftoss/logger" "^1.1.2"
     axios "^0.27.2"
     axios-retry "^3.2.5"

@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, osmosisAssetId } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   OsmosisSignTx,
@@ -17,7 +17,6 @@ import {
   BuildSendTxInput,
   BuildUndelegateTxInput,
   FeeDataEstimate,
-  FeeDataKey,
   GetAddressInput,
   GetFeeDataInput,
   SignTxInput
@@ -26,40 +25,34 @@ import { toPath } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 
-export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMainnet> {
-  protected readonly supportedChainIds = ['cosmos:osmosis-1']
-  protected readonly chainId = this.supportedChainIds[0]
-  protected readonly assetId: AssetId
-  protected readonly CHAIN_VALIDATOR_PREFIX_MAPPING = {
-    [KnownChainIds.OsmosisMainnet]: 'osmovaloper'
-  }
+const SUPPORTED_CHAIN_IDS = [KnownChainIds.OsmosisMainnet]
+const DEFAULT_CHAIN_ID = KnownChainIds.OsmosisMainnet
+const CHAIN_VALIDATOR_PREFIX_MAPPING = {
+  [KnownChainIds.OsmosisMainnet]: 'osmovaloper'
+}
 
+export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
-    coinType: 118,
+    coinType: Number(ASSET_REFERENCE.Osmosis),
     accountNumber: 0
   }
 
   constructor(args: ChainAdapterArgs) {
-    super(args)
-
-    const chainId = this.chainId
-
-    this.assetId = toAssetId({
-      chainId,
-      assetNamespace: 'slip44',
-      assetReference: ASSET_REFERENCE.Osmosis
+    super({
+      chainId: DEFAULT_CHAIN_ID,
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
+      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      ...args
     })
+
+    this.assetId = osmosisAssetId
 
     // TODO this will need to change to the osmosis tx parser once we support osmosis specic things (trading, lping)
     this.parser = new unchained.cosmos.TransactionParser({
       chainId: this.chainId,
-      assetId: this.getFeeAssetId()
+      assetId: this.assetId
     })
-  }
-
-  getFeeAssetId(): AssetId {
-    return 'cosmos:osmosis-1/slip44:118'
   }
 
   getDisplayName() {
@@ -70,8 +63,12 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     return KnownChainIds.OsmosisMainnet
   }
 
+  getFeeAssetId(): AssetId {
+    return this.assetId
+  }
+
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params, showOnDevice = false } = input
+    const { wallet, bip44Params = this.defaultBIP44Params, showOnDevice = false } = input
     const path = toPath(bip44Params)
     const addressNList = bip32ToAddressNList(path)
 
@@ -117,7 +114,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const {
         to,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         sendMax = false,
         value,
@@ -194,7 +191,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const {
         validator,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
         memo = ''
@@ -203,7 +200,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       if (!value) throw new Error('OsmosisChainAdapter: value is required')
       const { prefix } = bech32.decode(validator)
       const chain = this.getType()
-      if (this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
+      if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
           `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
         )
@@ -266,7 +263,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const {
         validator,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
         memo = ''
@@ -275,7 +272,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       if (!value) throw new Error('OsmosisChainAdapter: value is required')
       const { prefix } = bech32.decode(validator)
       const chain = this.getType()
-      if (this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
+      if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
           `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
         )
@@ -337,14 +334,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const {
         validator,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         memo = ''
       } = tx
       if (!validator) throw new Error('OsmosisChainAdapter: validator is required')
       const { prefix } = bech32.decode(validator)
       const chain = this.getType()
-      if (this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
+      if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
           `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
         )
@@ -401,7 +398,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     try {
       const {
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
         memo = '',
@@ -415,8 +412,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const { prefix: fromPrefix } = bech32.decode(fromValidator)
       const chain = this.getType()
       if (
-        this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== toPrefix ||
-        this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== fromPrefix
+        CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== toPrefix ||
+        CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== fromPrefix
       )
         throw new Error(
           `OsmosisChainAdapter:buildDelegateTransaction invalid toValidator or fromValidator address ${toValidator} ${fromValidator}`
@@ -484,18 +481,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     // We currently don't have a way to query validators to get dynamic fees, so they are hard coded.
     // When we find a strategy to make this more dynamic, we can use 'sendMax' to define max amount.
     return {
-      [FeeDataKey.Fast]: {
-        txFee: '5000',
-        chainSpecific: { gasLimit: '300000' }
-      },
-      [FeeDataKey.Average]: {
-        txFee: '3500',
-        chainSpecific: { gasLimit: '300000' }
-      },
-      [FeeDataKey.Slow]: {
-        txFee: '2500',
-        chainSpecific: { gasLimit: '300000' }
-      }
+      fast: { txFee: '5000', chainSpecific: { gasLimit: '300000' } },
+      average: { txFee: '3500', chainSpecific: { gasLimit: '300000' } },
+      slow: { txFee: '2500', chainSpecific: { gasLimit: '300000' } }
     }
   }
 

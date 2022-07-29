@@ -4,23 +4,19 @@ import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 
-import { ChainAdapter as BitcoinChainAdapter } from './bitcoin/BitcoinChainAdapter'
 import { ChainAdapter as CosmosChainAdapter } from './cosmossdk/cosmos'
 import { ChainAdapter as OsmosisChainAdapter } from './cosmossdk/osmosis'
-import { ChainAdapter as DogecoinChainAdapter } from './dogecoin/DogecoinChainAdapter'
 import { ChainAdapter as EthereumChainAdapter } from './evm/ethereum'
+import { ChainAdapter as BitcoinChainAdapter } from './utxo/bitcoin'
+import { ChainAdapter as DogecoinChainAdapter } from './utxo/dogecoin'
 
 dotenv.config()
 
 const btcChainAdapter = new BitcoinChainAdapter({
   providers: {
-    ws: new unchained.ws.Client<unchained.bitcoin.BitcoinTx>(
-      'wss://dev-api.bitcoin.shapeshift.com'
-    ),
+    ws: new unchained.ws.Client<unchained.bitcoin.Tx>('wss://dev-api.bitcoin.shapeshift.com'),
     http: new unchained.bitcoin.V1Api(
-      new unchained.bitcoin.Configuration({
-        basePath: 'https://dev-api.bitcoin.shapeshift.com'
-      })
+      new unchained.bitcoin.Configuration({ basePath: 'https://dev-api.bitcoin.shapeshift.com' })
     )
   },
   coinName: 'Bitcoin'
@@ -28,13 +24,9 @@ const btcChainAdapter = new BitcoinChainAdapter({
 
 const dogeChainAdapter = new DogecoinChainAdapter({
   providers: {
-    ws: new unchained.ws.Client<unchained.bitcoin.BitcoinTx>(
-      'wss://dev-api.dogecoin.shapeshift.com'
-    ),
-    http: new unchained.bitcoin.V1Api(
-      new unchained.bitcoin.Configuration({
-        basePath: 'https://dev-api.dogecoin.shapeshift.com'
-      })
+    ws: new unchained.ws.Client<unchained.dogecoin.Tx>('wss://dev-api.dogecoin.shapeshift.com'),
+    http: new unchained.dogecoin.V1Api(
+      new unchained.dogecoin.Configuration({ basePath: 'https://dev-api.dogecoin.shapeshift.com' })
     )
   },
   coinName: 'Dogecoin'
@@ -44,9 +36,7 @@ const ethChainAdapter = new EthereumChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.ethereum.Tx>('wss://dev-api.ethereum.shapeshift.com'),
     http: new unchained.ethereum.V1Api(
-      new unchained.ethereum.Configuration({
-        basePath: 'https://dev-api.ethereum.shapeshift.com'
-      })
+      new unchained.ethereum.Configuration({ basePath: 'https://dev-api.ethereum.shapeshift.com' })
     )
   },
   rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57'
@@ -56,9 +46,7 @@ const cosmosChainAdapter = new CosmosChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.cosmos.Tx>('wss://dev-api.cosmos.shapeshift.com'),
     http: new unchained.cosmos.V1Api(
-      new unchained.cosmos.Configuration({
-        basePath: 'https://dev-api.cosmos.shapeshift.com'
-      })
+      new unchained.cosmos.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' })
     )
   },
   coinName: 'Cosmos'
@@ -68,9 +56,7 @@ const osmosisChainAdapter = new OsmosisChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.osmosis.Tx>('wss://dev-api.ethereum.shapeshift.com'),
     http: new unchained.osmosis.V1Api(
-      new unchained.osmosis.Configuration({
-        basePath: 'https://dev-api.cosmos.shapeshift.com'
-      })
+      new unchained.osmosis.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' })
     )
   },
   coinName: 'Osmosis'

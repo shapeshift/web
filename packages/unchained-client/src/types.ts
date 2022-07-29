@@ -88,4 +88,4 @@ export interface StandardTx {
   txid: string
 }
 
-export type Tx = StandardTx
+export type ParsedTx = StandardTx

@@ -1,6 +1,6 @@
 import realFs from 'fs'
 
-import { makeBtcData, makeCosmosHubData, makeOsmosisData } from '../../utils'
+import { bitcoinAssetMap, cosmosAssetMap, osmosisAssetMap } from '../../utils'
 import { parseData, writeFiles } from './utils'
 
 const makeEthMockCoingeckoResponse = () => ({
@@ -76,19 +76,19 @@ jest.mock('fs', () => ({
 describe('adapters:coingecko:utils', () => {
   describe('makeData', () => {
     it('can make btc data', async () => {
-      const result = makeBtcData()
+      const result = bitcoinAssetMap
       const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' }
       expect(result).toEqual(expected)
     })
 
     it('can make cosmos data', async () => {
-      const result = makeCosmosHubData()
+      const result = cosmosAssetMap
       const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
       expect(result).toEqual(expected)
     })
 
     it('can make osmosis data', async () => {
-      const result = makeOsmosisData()
+      const result = osmosisAssetMap
       const expected = { 'cosmos:osmosis-1/slip44:118': 'osmosis' }
       expect(result).toEqual(expected)
     })
@@ -107,6 +107,12 @@ describe('adapters:coingecko:utils', () => {
       const expected = {
         'bip122:000000000019d6689c085ae165831e93': {
           'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin'
+        },
+        'bip122:00000000001a91e3dace36e2be3bf030': {
+          'bip122:00000000001a91e3dace36e2be3bf030/slip44:3': 'dogecoin'
+        },
+        'bip122:12a765e31ffd4059bada1e25190f6e98': {
+          'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2': 'litecoin'
         },
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos'

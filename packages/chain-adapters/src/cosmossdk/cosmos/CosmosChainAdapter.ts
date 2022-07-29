@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, cosmosAssetId } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   CosmosSignTx,
@@ -17,7 +17,6 @@ import {
   BuildSendTxInput,
   BuildUndelegateTxInput,
   FeeDataEstimate,
-  FeeDataKey,
   GetAddressInput,
   GetFeeDataInput,
   SignTxInput
@@ -26,31 +25,28 @@ import { toPath } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 
-export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainnet> {
-  protected readonly supportedChainIds = ['cosmos:cosmoshub-4', 'cosmos:vega-testnet']
-  protected readonly chainId = this.supportedChainIds[0]
-  protected readonly assetId: AssetId
-  protected readonly CHAIN_VALIDATOR_PREFIX_MAPPING = {
-    [KnownChainIds.CosmosMainnet]: 'cosmosvaloper'
-  }
+const SUPPORTED_CHAIN_IDS = [KnownChainIds.CosmosMainnet]
+const DEFAULT_CHAIN_ID = KnownChainIds.CosmosMainnet
+const CHAIN_VALIDATOR_PREFIX_MAPPING = {
+  [KnownChainIds.CosmosMainnet]: 'cosmosvaloper'
+}
 
-  public static readonly defaultBIP44Params: BIP44Params = {
+export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainnet> {
+  static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
-    coinType: 118,
+    coinType: Number(ASSET_REFERENCE.Cosmos),
     accountNumber: 0
   }
 
   constructor(args: ChainAdapterArgs) {
-    super(args)
-
-    const chainId = this.chainId
-
-    this.assetId = toAssetId({
-      chainId,
-      assetNamespace: 'slip44',
-      assetReference: ASSET_REFERENCE.Cosmos
+    super({
+      chainId: DEFAULT_CHAIN_ID,
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
+      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      ...args
     })
 
+    this.assetId = cosmosAssetId
     this.parser = new unchained.cosmos.TransactionParser({ chainId: this.chainId })
   }
 
@@ -63,7 +59,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   getFeeAssetId(): AssetId {
-    return 'cosmos:cosmoshub-4/slip44:118'
+    return this.assetId
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
@@ -113,7 +109,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const {
         to,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         sendMax = false,
         value,
@@ -190,7 +186,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const {
         validator,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
         memo = ''
@@ -199,7 +195,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       if (!value) throw new Error('CosmosChainAdapter: value is required')
       const { prefix } = bech32.decode(validator)
       const chain = this.getType()
-      if (this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
+      if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
           `CosmosChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
         )
@@ -262,7 +258,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const {
         validator,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
         memo = ''
@@ -271,7 +267,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       if (!value) throw new Error('CosmosChainAdapter: value is required')
       const { prefix } = bech32.decode(validator)
       const chain = this.getType()
-      if (this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
+      if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
           `CosmosChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
         )
@@ -333,14 +329,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const {
         validator,
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         memo = ''
       } = tx
       if (!validator) throw new Error('CosmosChainAdapter: validator is required')
       const { prefix } = bech32.decode(validator)
       const chain = this.getType()
-      if (this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
+      if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
           `CosmosChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
         )
@@ -397,7 +393,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     try {
       const {
         wallet,
-        bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
+        bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
         memo = '',
@@ -411,8 +407,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const { prefix: fromPrefix } = bech32.decode(fromValidator)
       const chain = this.getType()
       if (
-        this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== toPrefix ||
-        this.CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== fromPrefix
+        CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== toPrefix ||
+        CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== fromPrefix
       )
         throw new Error(
           `CosmosChainAdapter:buildDelegateTransaction invalid toValidator or fromValidator address ${toValidator} ${fromValidator}`
@@ -480,18 +476,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     // We currently don't have a way to query validators to get dynamic fees, so they are hard coded.
     // When we find a strategy to make this more dynamic, we can use 'sendMax' to define max amount.
     return {
-      [FeeDataKey.Fast]: {
-        txFee: '5000',
-        chainSpecific: { gasLimit: '250000' }
-      },
-      [FeeDataKey.Average]: {
-        txFee: '3500',
-        chainSpecific: { gasLimit: '250000' }
-      },
-      [FeeDataKey.Slow]: {
-        txFee: '2500',
-        chainSpecific: { gasLimit: '250000' }
-      }
+      fast: { txFee: '5000', chainSpecific: { gasLimit: '250000' } },
+      average: { txFee: '3500', chainSpecific: { gasLimit: '250000' } },
+      slow: { txFee: '2500', chainSpecific: { gasLimit: '250000' } }
     }
   }
 

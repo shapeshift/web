@@ -10,9 +10,16 @@ import {
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  ltcChainId,
   osmosisChainId
 } from '../../constants'
-import { makeBtcData, makeCosmosHubData, makeDogecoinData, makeOsmosisData } from '../../utils'
+import {
+  bitcoinAssetMap,
+  cosmosAssetMap,
+  dogecoinAssetMap,
+  litecoinAssetMap,
+  osmosisAssetMap
+} from '../../utils'
 
 export type CoinCapCoin = {
   id: string
@@ -64,12 +71,11 @@ export const parseEthData = (data: CoinCapCoin[]) => {
   }, {} as Record<string, string>)
 }
 
-export const parseData = (d: CoinCapCoin[]) => {
-  return {
-    [ethChainId]: parseEthData(d),
-    [btcChainId]: makeBtcData(),
-    [dogeChainId]: makeDogecoinData(),
-    [cosmosChainId]: makeCosmosHubData(),
-    [osmosisChainId]: makeOsmosisData()
-  }
-}
+export const parseData = (d: CoinCapCoin[]) => ({
+  [ethChainId]: parseEthData(d),
+  [btcChainId]: bitcoinAssetMap,
+  [dogeChainId]: dogecoinAssetMap,
+  [ltcChainId]: litecoinAssetMap,
+  [cosmosChainId]: cosmosAssetMap,
+  [osmosisChainId]: osmosisAssetMap
+})

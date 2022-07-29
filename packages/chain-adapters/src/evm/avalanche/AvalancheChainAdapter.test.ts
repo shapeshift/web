@@ -19,7 +19,7 @@ import {
   ValidAddressResultType
 } from '../../types'
 import { bn } from '../../utils/bignumber'
-import { ChainAdapterArgs } from '../EvmBaseAdapter'
+import { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as avalanche from './AvalancheChainAdapter'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -76,7 +76,7 @@ const makeGetAccountMockResponse = (balance: {
 
 const makeChainAdapterArgs = (overrideArgs?: {
   providers?: { http: unchained.avalanche.V1Api }
-  chainId?: string
+  chainId?: EvmChainId
 }): ChainAdapterArgs =>
   merge(
     {
@@ -97,8 +97,9 @@ describe('AvalancheChainAdapter', () => {
     })
 
     it('should return chainAdapter with valid chainId if called with valid chainId', () => {
-      const args = makeChainAdapterArgs({ chainId: 'eip155:43113' })
-      expect(() => new avalanche.ChainAdapter(args)).toThrow()
+      const args = makeChainAdapterArgs({ chainId: KnownChainIds.AvalancheMainnet })
+      const adapter = new avalanche.ChainAdapter(args)
+      expect(adapter.getChainId()).toEqual(VALID_CHAIN_ID)
     })
   })
 
@@ -291,7 +292,7 @@ describe('AvalancheChainAdapter', () => {
       }
 
       await expect(adapter.signMessage(message)).rejects.toThrow(
-        /EvmChainAdapter: error signing message/
+        /EvmBaseAdapter: error signing message/
       )
     })
   })

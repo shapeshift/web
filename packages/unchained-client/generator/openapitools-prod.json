@@ -5,10 +5,10 @@
     "version": "5.4.0",
     "storageDir": "~/.openapitools",
     "generators": {
-      "ethereum": {
-        "inputSpec": "https://api.ethereum.shapeshift.com/swagger.json",
+      "avalanche": {
+        "inputSpec": "https://dev-api.avalanche.shapeshift.com/swagger.json",
         "generatorName": "typescript-axios",
-        "output": "#{cwd}/src/generated/ethereum",
+        "output": "#{cwd}/src/generated/avalanche",
         "reservedWordsMappings": { "in": "in" },
         "additionalProperties": {
           "supportsES6": "true",
@@ -45,20 +45,30 @@
           "useSingleRequestParameter": true
         }
       },
-      "osmosis": {
-        "inputSpec": "https://dev-api.osmosis.shapeshift.com/swagger",
+      "ethereum": {
+        "inputSpec": "https://api.ethereum.shapeshift.com/swagger.json",
         "generatorName": "typescript-axios",
-        "output": "#{cwd}/src/generated/osmosis",
+        "output": "#{cwd}/src/generated/ethereum",
         "reservedWordsMappings": { "in": "in" },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
         }
       },
-      "avalanche": {
-        "inputSpec": "https://dev-api.avalanche.shapeshift.com/swagger.json",
+      "litecoin": {
+        "inputSpec": "https://dev-api.litecoin.shapeshift.com/swagger.json",
         "generatorName": "typescript-axios",
-        "output": "#{cwd}/src/generated/avalanche",
+        "output": "#{cwd}/src/generated/litecoin",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "osmosis": {
+        "inputSpec": "https://dev-api.osmosis.shapeshift.com/swagger",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/osmosis",
         "reservedWordsMappings": { "in": "in" },
         "additionalProperties": {
           "supportsES6": "true",

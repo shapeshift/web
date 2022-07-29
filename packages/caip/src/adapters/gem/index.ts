@@ -2,6 +2,8 @@ import toLower from 'lodash/toLower'
 
 const assetIdToGemAssetIdMap = {
   'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin',
+  'bip122:00000000001a91e3dace36e2be3bf030/slip44:3': 'dogecoin',
+  'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2': 'litecoin',
   'eip155:1/slip44:60': 'ethereum',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0x0d8775f648430679a709e98d2b0cb6250d2887ef': 'basic-attention-token',

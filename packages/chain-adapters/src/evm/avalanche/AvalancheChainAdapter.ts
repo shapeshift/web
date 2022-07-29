@@ -1,10 +1,4 @@
-import {
-  ASSET_REFERENCE,
-  AssetId,
-  avalancheAssetId,
-  avalancheChainId,
-  fromAssetId
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, avalancheAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -14,8 +8,8 @@ import { bn, bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
 import { getErc20Data } from '../utils'
 
-const SUPPORTED_CHAIN_IDS = [avalancheChainId]
-const DEFAULT_CHAIN_ID = avalancheChainId
+const SUPPORTED_CHAIN_IDS = [KnownChainIds.AvalancheMainnet]
+const DEFAULT_CHAIN_ID = KnownChainIds.AvalancheMainnet
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
@@ -25,7 +19,12 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
   }
 
   constructor(args: ChainAdapterArgs) {
-    super({ chainId: DEFAULT_CHAIN_ID, supportedChainIds: SUPPORTED_CHAIN_IDS, ...args })
+    super({
+      chainId: DEFAULT_CHAIN_ID,
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
+      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      ...args
+    })
 
     this.assetId = avalancheAssetId
     this.parser = new unchained.avalanche.TransactionParser({

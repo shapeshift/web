@@ -41,6 +41,19 @@ export const dogecoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/doge/tx/'
 }
 
+export const litecoin: Asset = {
+  assetId: caip.ltcAssetId,
+  chainId: caip.ltcChainId,
+  symbol: 'LTC',
+  name: 'Litecoin',
+  precision: 8,
+  color: '#B8B8B8',
+  icon: 'https://assets.coincap.io/assets/icons/256/ltc.png',
+  explorer: 'https://live.blockcypher.com',
+  explorerAddressLink: 'https://live.blockcypher.com/ltc/address/',
+  explorerTxLink: 'https://live.blockcypher.com/ltc/tx/'
+}
+
 export const atom: Asset = {
   assetId: caip.cosmosAssetId,
   chainId: caip.cosmosChainId,

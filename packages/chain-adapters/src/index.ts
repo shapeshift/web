@@ -3,8 +3,7 @@ export * from './utils'
 export * from './types'
 
 export * from './evm'
+export * from './utxo'
 export * from './cosmossdk'
 
-export * as bitcoin from './bitcoin'
-export * as dogecoin from './dogecoin'
 export * as cosmossdk from './cosmossdk'

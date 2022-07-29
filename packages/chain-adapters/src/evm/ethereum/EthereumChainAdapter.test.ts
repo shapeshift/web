@@ -18,7 +18,7 @@ import {
   ValidAddressResultType
 } from '../../types'
 import { bn } from '../../utils/bignumber'
-import { ChainAdapterArgs } from '../EvmBaseAdapter'
+import { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -111,7 +111,7 @@ describe('EthereumChainAdapter', () => {
 
   const makeChainAdapterArgs = (overrideArgs?: {
     providers?: { http: unchained.ethereum.V1Api }
-    chainId?: string
+    chainId?: EvmChainId
   }): ChainAdapterArgs =>
     merge(
       {
@@ -132,8 +132,10 @@ describe('EthereumChainAdapter', () => {
       expect(chainId).toEqual(VALID_CHAIN_ID)
     })
     it('should return chainAdapter with valid chainId if called with valid chainId', () => {
-      const args = makeChainAdapterArgs({ chainId: 'eip155:3' })
-      expect(() => new ethereum.ChainAdapter(args)).toThrow()
+      const args = makeChainAdapterArgs({ chainId: KnownChainIds.EthereumMainnet })
+      const adapter = new ethereum.ChainAdapter(args)
+      const chainId = adapter.getChainId()
+      expect(chainId).toEqual(VALID_CHAIN_ID)
     })
   })
 
@@ -464,7 +466,7 @@ describe('EthereumChainAdapter', () => {
       }
 
       await expect(adapter.signMessage(message)).rejects.toThrow(
-        /EvmChainAdapter: error signing message/
+        /EvmBaseAdapter: error signing message/
       )
     })
   })

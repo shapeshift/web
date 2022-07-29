@@ -6,7 +6,7 @@ import orderBy from 'lodash/orderBy'
 
 import { Asset } from '../service/AssetService'
 import * as avalanche from './avalanche'
-import { atom, bitcoin } from './baseAssets'
+import { atom, bitcoin, dogecoin, litecoin } from './baseAssets'
 import * as ethereum from './ethereum'
 import * as osmosis from './osmosis'
 import { setColors } from './setColors'
@@ -22,6 +22,8 @@ const generateColorMap = async () => {
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
     bitcoin,
+    dogecoin,
+    litecoin,
     atom,
     ...ethAssets,
     ...osmosisAssets,

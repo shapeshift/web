@@ -21,10 +21,12 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Bitcoin:
       switch (chainReference) {
-        case CHAIN_REFERENCE.DogecoinMainnet:
-          return 'dogecoin'
         case CHAIN_REFERENCE.BitcoinMainnet:
           return 'bitcoin'
+        case CHAIN_REFERENCE.DogecoinMainnet:
+          return 'dogecoin'
+        case CHAIN_REFERENCE.LitecoinMainnet:
+          return 'litecoin'
         default:
           throw new Error(
             `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`

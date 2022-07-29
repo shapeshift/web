@@ -9,19 +9,19 @@ import {
 import { BIP44Params, ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
-import * as bitcoin from './bitcoin'
 import * as cosmos from './cosmossdk/cosmos'
 import * as osmosis from './cosmossdk/osmosis'
-import * as dogecoin from './dogecoin'
 import * as evm from './evm/types'
+import * as utxo from './utxo/types'
 
 type ChainSpecificAccount<T> = ChainSpecific<
   T,
   {
     [KnownChainIds.EthereumMainnet]: evm.Account
     [KnownChainIds.AvalancheMainnet]: evm.Account
-    [KnownChainIds.BitcoinMainnet]: bitcoin.Account
-    [KnownChainIds.DogecoinMainnet]: dogecoin.Account
+    [KnownChainIds.BitcoinMainnet]: utxo.Account
+    [KnownChainIds.DogecoinMainnet]: utxo.Account
+    [KnownChainIds.LitecoinMainnet]: utxo.Account
     [KnownChainIds.CosmosMainnet]: cosmos.Account
     [KnownChainIds.OsmosisMainnet]: osmosis.Account
   }
@@ -51,8 +51,9 @@ type ChainSpecificFeeData<T> = ChainSpecific<
   {
     [KnownChainIds.EthereumMainnet]: evm.FeeData
     [KnownChainIds.AvalancheMainnet]: evm.FeeData
-    [KnownChainIds.BitcoinMainnet]: bitcoin.FeeData
-    [KnownChainIds.DogecoinMainnet]: dogecoin.FeeData
+    [KnownChainIds.BitcoinMainnet]: utxo.FeeData
+    [KnownChainIds.DogecoinMainnet]: utxo.FeeData
+    [KnownChainIds.LitecoinMainnet]: utxo.FeeData
     [KnownChainIds.CosmosMainnet]: cosmos.FeeData
     [KnownChainIds.OsmosisMainnet]: osmosis.FeeData
   }
@@ -137,6 +138,7 @@ type ChainTxTypeInner = {
   [KnownChainIds.AvalancheMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
+  [KnownChainIds.LitecoinMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
   [KnownChainIds.OsmosisMainnet]: OsmosisSignTx
 }
@@ -189,8 +191,9 @@ type ChainSpecificBuildTxData<T> = ChainSpecific<
   {
     [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
     [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
-    [KnownChainIds.BitcoinMainnet]: bitcoin.BuildTxInput
-    [KnownChainIds.DogecoinMainnet]: dogecoin.BuildTxInput
+    [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmos.BuildTxInput
     [KnownChainIds.OsmosisMainnet]: cosmos.BuildTxInput
   }
@@ -221,15 +224,16 @@ export type GetAddressInputBase = {
   showOnDevice?: boolean
 }
 
-export type GetAddressInput = GetAddressInputBase | bitcoin.GetAddressInput
+export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput
 
 type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
   T,
   {
     [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.BitcoinMainnet]: bitcoin.GetFeeDataInput
-    [KnownChainIds.DogecoinMainnet]: dogecoin.GetFeeDataInput
+    [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
+    [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
+    [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {

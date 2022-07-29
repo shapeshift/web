@@ -25,17 +25,6 @@ import {
 import { toRootDerivationPath } from '../utils'
 import { cosmos } from './'
 
-export type CosmosChainIds = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
-
-export interface ChainAdapterArgs {
-  chainId?: ChainId
-  providers: {
-    http: unchained.cosmos.V1Api | unchained.osmosis.V1Api
-    ws: unchained.ws.Client<unchained.cosmos.Tx> | unchained.ws.Client<unchained.osmosis.Tx>
-  }
-  coinName: string
-}
-
 const CHAIN_TO_BECH32_PREFIX_MAPPING = {
   [KnownChainIds.CosmosMainnet]: 'cosmos',
   [KnownChainIds.OsmosisMainnet]: 'osmo'
@@ -49,40 +38,69 @@ const transformValidator = (validator: unchained.cosmos.Validator): cosmos.Valid
   apr: validator.apr
 })
 
-export abstract class CosmosSdkBaseAdapter<T extends CosmosChainIds> implements IChainAdapter<T> {
-  protected readonly chainId: ChainId
-  protected readonly assetId: AssetId // This is the AssetId for native token on the chain (ATOM/OSMO/etc)
-  protected readonly supportedChainIds: ChainId[]
+export const cosmosSdkChainIds = [
+  KnownChainIds.CosmosMainnet,
+  KnownChainIds.OsmosisMainnet
+] as const
+
+export type CosmosSdkChainId = typeof cosmosSdkChainIds[number]
+
+export interface ChainAdapterArgs {
+  chainId?: CosmosSdkChainId
+  coinName: string
+  providers: {
+    http: unchained.cosmos.V1Api | unchained.osmosis.V1Api
+    ws: unchained.ws.Client<unchained.cosmos.Tx> | unchained.ws.Client<unchained.osmosis.Tx>
+  }
+}
+
+export interface CosmosSdkBaseAdapterArgs extends ChainAdapterArgs {
+  defaultBIP44Params: BIP44Params
+  supportedChainIds: Array<ChainId>
+  chainId: CosmosSdkChainId
+}
+
+export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implements IChainAdapter<T> {
+  protected readonly chainId: CosmosSdkChainId
   protected readonly coinName: string
+  protected readonly defaultBIP44Params: BIP44Params
+  protected readonly supportedChainIds: Array<ChainId>
   protected readonly providers: {
     http: unchained.cosmos.V1Api | unchained.osmosis.V1Api
     ws: unchained.ws.Client<unchained.cosmos.Tx> | unchained.ws.Client<unchained.osmosis.Tx>
   }
 
+  protected assetId: AssetId
   protected parser: unchained.cosmos.TransactionParser
 
-  static defaultBIP44Params: BIP44Params
-
-  protected constructor(args: ChainAdapterArgs) {
-    if (args.chainId && this.supportedChainIds.includes(args.chainId)) {
-      this.chainId = args.chainId
-    }
-
-    CosmosSdkBaseAdapter.defaultBIP44Params = (<typeof CosmosSdkBaseAdapter>(
-      this.constructor
-    )).defaultBIP44Params
-
+  protected constructor(args: CosmosSdkBaseAdapterArgs) {
+    this.chainId = args.chainId
+    this.coinName = args.coinName
+    this.defaultBIP44Params = args.defaultBIP44Params
+    this.supportedChainIds = args.supportedChainIds
     this.providers = args.providers
+
+    if (!this.supportedChainIds.includes(this.chainId)) {
+      throw new Error(`${this.chainId} not supported. (supported: ${this.supportedChainIds})`)
+    }
   }
 
   abstract getType(): T
+  abstract getFeeAssetId(): AssetId
   abstract getDisplayName(): string
+  abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: ChainTxType<T> }>
+  abstract getAddress(input: GetAddressInput): Promise<string>
+  abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
+  abstract signTransaction(signTxInput: SignTxInput<ChainTxType<T>>): Promise<string>
+  abstract signAndBroadcastTransaction(signTxInput: SignTxInput<CosmosSignTx>): Promise<string>
 
   getChainId(): ChainId {
     return this.chainId
   }
 
-  abstract getFeeAssetId(): AssetId
+  buildBIP44Params(params: Partial<BIP44Params>): BIP44Params {
+    return { ...this.defaultBIP44Params, ...params }
+  }
 
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
@@ -144,10 +162,6 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainIds> implements 
     }
   }
 
-  buildBIP44Params(params: Partial<BIP44Params>): BIP44Params {
-    return { ...CosmosSdkBaseAdapter.defaultBIP44Params, ...params }
-  }
-
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse<T>> {
     try {
       const { data } = await this.providers.http.getTxHistory({
@@ -194,14 +208,6 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainIds> implements 
     }
   }
 
-  abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: ChainTxType<T> }>
-
-  abstract getAddress(input: GetAddressInput): Promise<string>
-
-  abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
-
-  abstract signTransaction(signTxInput: SignTxInput<ChainTxType<T>>): Promise<string>
-
   async broadcastTransaction(hex: string): Promise<string> {
     try {
       const { data } = await this.providers.http.sendTx({ body: { rawTx: hex } })
@@ -210,8 +216,6 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainIds> implements 
       return ErrorHandler(err)
     }
   }
-
-  abstract signAndBroadcastTransaction(signTxInput: SignTxInput<CosmosSignTx>): Promise<string>
 
   async validateAddress(address: string): Promise<ValidAddressResult> {
     const chain = this.getType()
@@ -237,7 +241,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainIds> implements 
     onMessage: (msg: Transaction<T>) => void,
     onError: (err: SubscribeError) => void
   ): Promise<void> {
-    const { wallet, bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params } = input
+    const { wallet, bip44Params = this.defaultBIP44Params } = input
 
     const address = await this.getAddress({ wallet, bip44Params })
     const subscriptionId = toRootDerivationPath(bip44Params)
@@ -276,7 +280,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainIds> implements 
   unsubscribeTxs(input?: SubscribeTxsInput): void {
     if (!input) return this.providers.ws.unsubscribeTxs()
 
-    const { bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params } = input
+    const { bip44Params = this.defaultBIP44Params } = input
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })

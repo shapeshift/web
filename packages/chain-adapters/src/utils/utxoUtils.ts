@@ -1,4 +1,4 @@
-import { btcChainId, ChainId, dogeChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ChainId, dogeChainId, ltcChainId } from '@shapeshiftoss/caip'
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
@@ -25,16 +25,13 @@ export const toBtcOutputScriptType = (x: BTCInputScriptType) => {
 
 /**
  * Utility function to get BIP44Params and scriptType for chain-adapter functions (getAddress, buildSendTransaction)
- * @param accountType
- * @param asset
- * @param accountNumber
- * @returns object with BIP44Params and scriptType or undefined
  */
 export const utxoAccountParams = (
   chainId: ChainId,
   accountType: UtxoAccountType,
   accountNumber: number
 ): { bip44Params: BIP44Params; scriptType: BTCInputScriptType } => {
+  // TODO: dynamic coinType assignment to reduce copy/pasta
   switch (chainId) {
     case dogeChainId:
       return {
@@ -71,6 +68,38 @@ export const utxoAccountParams = (
             bip44Params: {
               purpose: 44,
               coinType: 0,
+              accountNumber
+            }
+          }
+        default:
+          throw new TypeError('utxoAccountType')
+      }
+    case ltcChainId:
+      switch (accountType) {
+        case UtxoAccountType.SegwitNative:
+          return {
+            scriptType: BTCInputScriptType.SpendWitness,
+            bip44Params: {
+              purpose: 84,
+              coinType: 2,
+              accountNumber
+            }
+          }
+        case UtxoAccountType.SegwitP2sh:
+          return {
+            scriptType: BTCInputScriptType.SpendP2SHWitness,
+            bip44Params: {
+              purpose: 49,
+              coinType: 2,
+              accountNumber
+            }
+          }
+        case UtxoAccountType.P2pkh:
+          return {
+            scriptType: BTCInputScriptType.SpendAddress,
+            bip44Params: {
+              purpose: 44,
+              coinType: 2,
               accountNumber
             }
           }
@@ -126,11 +155,12 @@ export const scriptTypeToAccountType: Record<BTCInputScriptType, UtxoAccountType
  *
  */
 enum PublicKeyType {
-  // mainnet
-  xpub = '0488b21e', // xpub
-  ypub = '049d7cb2', // ypub
-  zpub = '04b24746', // zpub
-  dgub = '02facafd'
+  xpub = '0488b21e',
+  ypub = '049d7cb2',
+  zpub = '04b24746',
+  dgub = '02facafd',
+  Ltub = '019da462',
+  Mtub = '01b26ef6'
 }
 
 const accountTypeToVersion = {

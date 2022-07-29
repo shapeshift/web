@@ -1,6 +1,6 @@
 import realFs from 'fs'
 
-import { makeBtcData, makeCosmosHubData, makeOsmosisData } from '../../utils'
+import { bitcoinAssetMap, cosmosAssetMap, osmosisAssetMap } from '../../utils'
 import { parseData, parseEthData, writeFiles } from './utils'
 
 const makeEthMockCoincapResponse = () => ({
@@ -96,19 +96,19 @@ describe('adapters:coincap:utils', () => {
     })
 
     it('can parse btc data', async () => {
-      const result = makeBtcData()
+      const result = bitcoinAssetMap
       const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' }
       expect(result).toEqual(expected)
     })
 
     it('can parse cosmos data', async () => {
-      const result = makeCosmosHubData()
+      const result = cosmosAssetMap
       const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
       expect(result).toEqual(expected)
     })
 
     it('can parse osmosis data', async () => {
-      const result = makeOsmosisData()
+      const result = osmosisAssetMap
       const expected = {
         'cosmos:osmosis-1/slip44:118': 'osmosis'
       }
@@ -131,6 +131,9 @@ describe('adapters:coincap:utils', () => {
         },
         'bip122:00000000001a91e3dace36e2be3bf030': {
           'bip122:00000000001a91e3dace36e2be3bf030/slip44:3': 'dogecoin'
+        },
+        'bip122:12a765e31ffd4059bada1e25190f6e98': {
+          'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2': 'litecoin'
         },
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos'

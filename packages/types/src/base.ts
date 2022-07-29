@@ -1,5 +1,3 @@
-/** Common */
-
 export type BIP44Params = {
   purpose: number
   coinType: number
@@ -13,6 +11,7 @@ export enum KnownChainIds {
   AvalancheMainnet = 'eip155:43114',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
+  LitecoinMainnet = 'bip122:12a765e31ffd4059bada1e25190f6e98',
   CosmosMainnet = 'cosmos:cosmoshub-4',
   OsmosisMainnet = 'cosmos:osmosis-1'
 }

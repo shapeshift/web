@@ -7,6 +7,7 @@ import { AnimatePresence } from 'framer-motion'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
+import { Claim } from './Claim/Claim'
 import { IdleDeposit } from './Deposit/IdleDeposit'
 import { IdleOverview } from './Overview/IdleOverview'
 import { IdleWithdraw } from './Withdraw/IdleWithdraw'
@@ -30,6 +31,11 @@ export const IdleManager = () => {
       {modal === DefiAction.Withdraw && (
         <SlideTransition key={DefiAction.Withdraw}>
           <IdleWithdraw />
+        </SlideTransition>
+      )}
+      {modal === DefiAction.Claim && (
+        <SlideTransition key={DefiAction.Claim}>
+          <Claim />
         </SlideTransition>
       )}
     </AnimatePresence>

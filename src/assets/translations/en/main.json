@@ -300,6 +300,12 @@
           "yieldyDescription": "Enter the amount of %{asset} you would like to withdraw. Subsequent withdrawals will be combined and reset the withdrawal time."
         }
       },
+      "claim": {
+        "info": {
+          "title": "Claim Info",
+          "description": "Rewards you'll receive"
+        }
+      },
       "approve": {
         "title": "Approve"
       },

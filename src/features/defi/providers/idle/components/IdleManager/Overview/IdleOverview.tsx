@@ -116,6 +116,11 @@ export const IdleOverview = () => {
           icon: <ArrowDownIcon />,
           action: DefiAction.Withdraw,
         },
+        {
+          label: 'common.claim',
+          icon: <ArrowDownIcon />,
+          action: DefiAction.Claim,
+        },
       ]}
     />
   )

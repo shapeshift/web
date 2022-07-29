@@ -134,10 +134,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           getYearnVaults(balances, yearn),
         ])
 
-        // console.log(balances,idleVaults,yearnVaults)
-
         const allVaults = { ...idleVaults, ...yearnVaults }
-        // if (!idleVaults) return
         setVaults(allVaults)
       } catch (error) {
         console.error('error', error)

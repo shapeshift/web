@@ -141,23 +141,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             case CHAIN_NAMESPACE.Bitcoin: {
               if (!supportsBTC(wallet)) continue
 
-              const coin = {
-                [CHAIN_REFERENCE.BitcoinMainnet]: 'bitcoin',
-                [CHAIN_REFERENCE.DogecoinMainnet]: 'dogecoin',
-                [CHAIN_REFERENCE.LitecoinMainnet]: 'litecoin',
-              }[chainReference as string]
-
-              if (!coin) continue
-
-              const supportedAccountTypes = (
-                adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-              ).getSupportedAccountTypes()
+              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
+              const supportedAccountTypes = utxoAdapter.getSupportedAccountTypes()
 
               for (const accountType of supportedAccountTypes) {
                 const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
                 const pubkeys = await wallet.getPublicKeys([
                   {
-                    coin,
+                    coin: utxoAdapter.getCoinName(),
                     addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                     curve: 'secp256k1',
                     scriptType,
@@ -197,7 +188,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              acc.push({ [chainId]: pubkey.toLowerCase() })
+              acc.push({ [chainId]: pubkey })
               break
             }
             default:

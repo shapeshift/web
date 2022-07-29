@@ -53,7 +53,7 @@ export const useFormSend = () => {
         const result = await (async () => {
           if (supportedEvmChainIds.includes(chainId)) {
             if (!supportsETH(wallet))
-              throw new Error(`useFormSend: wallet does not have evm support`)
+              throw new Error(`useFormSend: wallet does not support ethereum`)
             const fees = estimatedFees[feeType] as FeeData<EvmChainId>
             const {
               chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },

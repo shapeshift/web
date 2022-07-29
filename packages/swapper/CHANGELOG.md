@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.1.1...@shapeshiftoss/swapper-v9.2.0) (2022-07-29)
+
+
+### Features
+
+* replace '/api/v1/market' call with '/api/v1/quote' in getUsdRate ([#916](https://github.com/shapeshift/lib/issues/916)) ([23816aa](https://github.com/shapeshift/lib/commit/23816aaf3d08a76c04e0723b86ac4fbf122c6921))
+
 # [@shapeshiftoss/swapper-v9.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.1.0...@shapeshiftoss/swapper-v9.1.1) (2022-07-28)
 
 # [@shapeshiftoss/swapper-v9.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.0.1...@shapeshiftoss/swapper-v9.1.0) (2022-07-27)

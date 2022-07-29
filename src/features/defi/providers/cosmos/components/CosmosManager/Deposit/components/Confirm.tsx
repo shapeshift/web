@@ -107,9 +107,11 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     }
   }
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance).gte(
+    bnOrZero(state.deposit.cryptoAmount).plus(
+      bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`),
+    ),
+  )
 
   return (
     <ReusableConfirm

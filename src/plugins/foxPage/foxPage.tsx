@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -232,12 +232,14 @@ export const FoxPage = () => {
                   balance={cryptoBalances[selectedAssetIndex]}
                   onClick={() => {
                     history.push({
-                      pathname: FoxyPath.Overview,
+                      pathname: location.pathname,
                       search: qs.stringify({
+                        provider: DefiProvider.ShapeShift,
                         chainId: assetFoxy.chainId,
                         contractAddress: foxyAddresses[0].staking,
                         assetReference: foxyAddresses[0].fox,
                         rewardId: foxyAddresses[0].foxy,
+                        modal: 'overview',
                       }),
                       state: { background: location },
                     })

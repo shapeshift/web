@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { FoxyPath } from 'features/defi/providers/foxy/components/FoxyManager/FoxyCommon'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
@@ -39,8 +39,8 @@ const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
 
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const translate = useTranslate()
-  const history = useHistory()
   const location = useLocation()
+  const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { description } = asset || {}
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
@@ -61,12 +61,14 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
 
   const onGetAssetClick = () => {
     history.push({
-      pathname: FoxyPath.Overview,
+      pathname: location.pathname,
       search: qs.stringify({
+        provider: DefiProvider.ShapeShift,
         chainId: asset.chainId,
         contractAddress: foxyAddresses[0].staking,
         assetReference: foxyAddresses[0].fox,
         rewardId: foxyAddresses[0].foxy,
+        modal: 'overview',
       }),
       state: { background: location },
     })

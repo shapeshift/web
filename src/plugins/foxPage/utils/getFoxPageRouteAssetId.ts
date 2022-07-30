@@ -1,10 +1,6 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { matchPath } from 'react-router'
-
-const FoxRoutePartToAssetId: Record<string, AssetId> = {
-  fox: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  foxy: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-}
 
 const FOX_PAGE_DEFAULT_ASSET = 'fox'
 
@@ -14,10 +10,18 @@ export const getFoxPageRouteAssetId = (pathname: string) => {
   })
 
   if (foxPageAssetIdPathMatch) {
-    const foxAsset = foxPageAssetIdPathMatch?.params?.foxAsset ?? FOX_PAGE_DEFAULT_ASSET
+    const foxAsset = (foxPageAssetIdPathMatch?.params?.foxAsset ?? FOX_PAGE_DEFAULT_ASSET) as
+      | 'fox'
+      | 'foxy'
 
-    if (FoxRoutePartToAssetId[foxAsset]) {
-      return FoxRoutePartToAssetId[foxAsset]
+    if (foxyAddresses[0][foxAsset]) {
+      const assetReference = foxyAddresses[0][foxAsset]
+
+      return toAssetId({
+        assetReference,
+        assetNamespace: 'erc20',
+        chainId: ethChainId,
+      })
     }
   }
 }

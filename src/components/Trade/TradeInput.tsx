@@ -233,7 +233,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   // force update quote when the fiat currency changes
   useEffect(() => {
-    if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+    if (sellTradeAsset?.asset && buyTradeAsset?.asset && bnOrZero(sellTradeAsset.amount).gt(0)) {
       updateQuote({
         forceQuote: true,
         amount: bnOrZero(sellTradeAsset.amount).toString(),
@@ -271,7 +271,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     customInput={FlexibleInputContainer}
                     variant='unstyled'
                     textAlign='center'
-                    placeholder='$0.00'
+                    placeholder={`${localeParts.prefix}0${localeParts.decimal}00${localeParts.postfix}`}
                     mb={6}
                     fontSize='5xl'
                     isNumericString={true}

@@ -18,7 +18,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
-  selectMarketDataById,
+  selectMarketDataByIdInUSD,
   selectPortfolioCryptoBalanceByAssetId,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -41,7 +41,7 @@ export const YearnOverview = () => {
   })
   const asset = useAppSelector(state => selectAssetById(state, vaultTokenId))
   const underlyingToken = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByIdInUSD(state, assetId))
   // user info
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: vaultTokenId }),

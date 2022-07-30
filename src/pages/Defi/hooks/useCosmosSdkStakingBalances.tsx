@@ -6,7 +6,7 @@ import {
   ActiveStakingOpportunity,
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
-  selectMarketDataById,
+  selectMarketDataByIdInUSD,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,7 +38,7 @@ export type MergedStakingOpportunity = cosmos.Validator & {
 export function useCosmosSdkStakingBalances({
   assetId,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByIdInUSD(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const accountSpecifier = useAppSelector(state =>

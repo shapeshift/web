@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataByIdInUSD } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FeePrice } from '../../views/Confirm'
@@ -20,7 +20,7 @@ export const useSendFees = () => {
   } = useWallet()
 
   const price = bnOrZero(
-    useAppSelector(state => selectMarketDataById(state, feeAsset.assetId)).price,
+    useAppSelector(state => selectMarketDataByIdInUSD(state, feeAsset.assetId)).price,
   )
 
   useEffect(() => {

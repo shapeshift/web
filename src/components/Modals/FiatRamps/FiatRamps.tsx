@@ -1,23 +1,20 @@
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/modal'
+import { IconButton, ModalHeader } from '@chakra-ui/react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { FiatRampsRoutes } from './FiatRampsCommon'
 import { FiatRampsRouter } from './FiatRampsRouter'
 
-import { useHistory } from 'react-router-dom'
-import { IconButton, ModalHeader } from '@chakra-ui/react'
-import { ArrowBackIcon } from '@chakra-ui/icons'
-
-
 const entries = [FiatRampsRoutes.Select, FiatRampsRoutes.Manager]
-
 
 const FiatRampsContent = () => {
   const history = useHistory()
   const location = useLocation()
 
-  if(location.pathname == FiatRampsRoutes.Select) {
+  if (location.pathname == FiatRampsRoutes.Select) {
     return (
       <>
         <ModalCloseButton />
@@ -29,11 +26,11 @@ const FiatRampsContent = () => {
   return (
     <>
       <ModalHeader>
-        <IconButton 
-          variant="ghost"
+        <IconButton
+          variant='ghost'
           icon={<ArrowBackIcon />}
           onClick={history.goBack}
-          size="sm"
+          size='sm'
           aria-label='Back'
           position={'absolute'}
           top={2}
@@ -41,7 +38,7 @@ const FiatRampsContent = () => {
           fontSize='xl'
           isRound
         />
-    
+
         <ModalCloseButton />
       </ModalHeader>
       <FiatRampsRouter />
@@ -54,14 +51,13 @@ export const FiatRampsModal = () => {
   const { close, isOpen } = fiatRamps
 
   return (
-      <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
-        <ModalOverlay />
-        <MemoryRouter initialEntries={entries}>
-          <ModalContent>
-            <FiatRampsContent />
-          </ModalContent>
-        </MemoryRouter>
-      </Modal>
-
+    <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
+      <ModalOverlay />
+      <MemoryRouter initialEntries={entries}>
+        <ModalContent>
+          <FiatRampsContent />
+        </ModalContent>
+      </MemoryRouter>
+    </Modal>
   )
 }

@@ -32,9 +32,7 @@ const FiatRampsContent = () => {
         <IconButton 
           variant="ghost"
           icon={<ArrowBackIcon />}
-          onClick={() => {
-            history.goBack()
-          }}
+          onClick={history.goBack}
           size="sm"
           aria-label='Back'
           position={'absolute'}

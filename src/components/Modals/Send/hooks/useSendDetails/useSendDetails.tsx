@@ -19,7 +19,7 @@ import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import {
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByIdInUSD,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
@@ -65,7 +65,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   })
 
   const { assetId } = asset
-  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.assetId)).price)
+  const price = bnOrZero(
+    useAppSelector(state => selectMarketDataByIdInUSD(state, asset.assetId)).price,
+  )
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
   const balancesLoading = false

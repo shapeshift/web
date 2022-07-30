@@ -50,7 +50,8 @@ export const mockStore: ReduxState = {
     featureFlags: {
       Osmosis: false,
       MultiCurrency: false,
-      FoxPage: false,
+      FoxLP: false,
+      FoxFarming: false,
       Avalanche: false,
       Thor: false,
       CowSwap: false,

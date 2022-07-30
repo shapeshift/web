@@ -1,12 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ChainId } from '@shapeshiftoss/caip'
+import { ChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 import {
   isCosmosChainId,
   isOsmosisChainId,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-// @ts-ignore this will fail at 'file differs in casing' error
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import {
@@ -15,12 +14,16 @@ import {
 } from 'state/slices/validatorDataSlice/constants'
 
 import { PortfolioAccounts } from '../portfolioSlice/portfolioSliceCommon'
+import { cosmosAssetId } from './../../../test/mocks/accounts'
 
 const moduleLogger = logger.child({ namespace: ['validatorDataSlice'] })
 
 export type PubKey = string
 
 type SingleValidatorDataArgs = { accountSpecifier: string; chainId: ChainId }
+
+// assets that can be staked to validators
+export const VALIDATOR_STAKABLE_ASSET_IDS = [cosmosAssetId, osmosisAssetId]
 
 export type Validators = {
   validators: cosmos.Validator[]

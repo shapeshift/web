@@ -29,11 +29,11 @@ import {
 import {
   selectAccountSpecifiers,
   selectAssets,
+  selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoriesLoadingByTimeframe,
   selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
@@ -328,9 +328,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  // dummy assetId - we're only filtering on account
+
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId),
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
   )
 
   // Get total delegation

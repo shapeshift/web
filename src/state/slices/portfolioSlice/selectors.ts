@@ -50,6 +50,7 @@ import {
   PortfolioAssetBalances,
   PortfolioAssets,
   PortfolioBalancesById,
+  StakingDataByValidatorId,
 } from './portfolioSliceCommon'
 import {
   findAccountsByAssetId,
@@ -364,7 +365,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
 export const selectStakingDataByAccountSpecifier = createSelector(
   selectPortfolioAccounts,
   selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts, accountSpecifier) => {
+  (portfolioAccounts, accountSpecifier): StakingDataByValidatorId | null => {
     return portfolioAccounts?.[accountSpecifier]?.stakingDataByValidatorId || null
   },
 )
@@ -382,7 +383,7 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEq
   selectAssetIdParamFromFilter,
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  (stakingData, assetId) => {
+  (stakingData, assetId): string => {
     const delegations = Object.values(stakingData || {})
       .flatMap(validatorStaking => validatorStaking[assetId]?.delegations?.[0])
       .filter(Boolean)
@@ -459,24 +460,31 @@ export const selectTotalCryptoBalanceWithDelegations = createSelector(
   },
 )
 
-export const selectPortfolioCryptoBalancesByAccountIdAboveThreshold = createDeepEqualOutputSelector(
-  selectAssets,
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
-  selectMarketData,
-  selectBalanceThreshold,
-  (_state: ReduxState, accountId?: string) => accountId,
-  (
-    assetsById,
-    accountBalances,
-    assetBalances,
-    marketData,
-    balanceThreshold,
-    accountId,
-  ): PortfolioBalancesById => {
-    const balances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
-    const aboveThresholdBalances = Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
-      (acc, [assetId, baseUnitBalance]) => {
+/**
+ * this selector is very specific
+ * we need to consider balances above a threshold, and including delegations
+ * as delegations don't show in account balances, but we want them included in the total
+ */
+export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
+  createDeepEqualOutputSelector(
+    selectAssets,
+    selectPortfolioAccountBalances,
+    selectPortfolioAssetBalances,
+    selectMarketData,
+    selectBalanceThreshold,
+    (_state: ReduxState, accountId?: string) => accountId,
+    (
+      assetsById,
+      accountBalances,
+      assetBalances,
+      marketData,
+      balanceThreshold,
+      accountId,
+    ): PortfolioBalancesById => {
+      const balances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
+      const aboveThresholdBalances = Object.entries(balances).reduce<
+        PortfolioAssetBalances['byId']
+      >((acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
@@ -485,12 +493,10 @@ export const selectPortfolioCryptoBalancesByAccountIdAboveThreshold = createDeep
         // if it's above the threshold set the original object key and value to result
         acc[assetId] = baseUnitBalance
         return acc
-      },
-      {},
-    )
-    return aboveThresholdBalances
-  },
-)
+      }, {})
+      return aboveThresholdBalances
+    },
+  )
 
 export const selectPortfolioCryptoBalanceByFilter = createSelector(
   selectPortfolioAccountBalances,

@@ -1,14 +1,8 @@
-import { ASSET_REFERENCE, cosmosChainId, toAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { Bucket } from './useBalanceChartData'
-
-const cosmosAssetId = toAssetId({
-  chainId: cosmosChainId,
-  assetNamespace: 'slip44',
-  assetReference: ASSET_REFERENCE.Cosmos,
-})
 
 export const includeTransaction = (tx: Tx): boolean =>
   tx.data?.parser !== 'cosmos' ||

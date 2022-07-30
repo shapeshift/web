@@ -14,7 +14,7 @@ import { fromBaseUnit } from 'lib/math'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByIdInUSD,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
@@ -44,6 +44,7 @@ jest.mock('state/slices/selectors', () => ({
   selectPortfolioCryptoBalanceByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
   selectMarketDataById: jest.fn(),
+  selectMarketDataByIdInUSD: jest.fn(),
 }))
 
 const ethAssetId = 'eip155:1/slip44:60'
@@ -83,7 +84,7 @@ const setup = ({
     }
   })
 
-  mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
+  mocked(selectMarketDataByIdInUSD).mockImplementation((_state, assetId) => {
     const fakeMarketData = {
       [mockEthereum.assetId]: {
         price: '3500',

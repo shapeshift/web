@@ -16,7 +16,7 @@ jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
   selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
-  selectMarketDataById: () => mockEthAsset,
+  selectMarketDataByIdInUSD: () => mockEthAsset,
 }))
 
 const fees = {

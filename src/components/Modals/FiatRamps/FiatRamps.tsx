@@ -6,7 +6,7 @@ import { FiatRampsRoutes } from './FiatRampsCommon'
 import { FiatRampsRouter } from './FiatRampsRouter'
 
 import { useHistory } from 'react-router-dom'
-import { IconButton } from '@chakra-ui/react'
+import { IconButton, ModalHeader } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 
 
@@ -17,16 +17,26 @@ const FiatRampsContent = () => {
   const history = useHistory()
   return (
     <>
-      <ModalCloseButton />
-      <IconButton 
-        variant="ghost"
-        icon={<ArrowBackIcon />}
-        onClick={() => {
-          history.goBack()
-        }}
-        size="sm"
-        aria-label='Back'
-      />
+      <ModalHeader>
+        <IconButton 
+          variant="ghost"
+          icon={<ArrowBackIcon />}
+          onClick={() => {
+            history.goBack()
+          }}
+          size="sm"
+          aria-label='Back'
+          position={'absolute'}
+          top={2}
+          left={3}
+          fontSize='xl'
+          isRound
+        />
+    
+        <ModalCloseButton />
+
+      </ModalHeader>
+
       <FiatRampsRouter />
     </>
   )
@@ -38,14 +48,16 @@ export const FiatRampsModal = () => {
 
 
   return (
-    <MemoryRouter initialEntries={entries}>
       <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
         <ModalOverlay />
-        <ModalContent>
-          <FiatRampsContent />
-        </ModalContent>
+        <MemoryRouter initialEntries={entries}>
+
+          <ModalContent>
+            <FiatRampsContent />
+          </ModalContent>
+        </MemoryRouter>
+
       </Modal>
-    </MemoryRouter>
 
   )
 }

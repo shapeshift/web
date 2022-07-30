@@ -16,7 +16,6 @@ const entries = [FiatRampsRoutes.Select, FiatRampsRoutes.Manager]
 const FiatRampsContent = () => {
   const history = useHistory()
   const location = useLocation()
-  console.log(location.pathname == FiatRampsRoutes.Select)
 
   if(location.pathname == FiatRampsRoutes.Select) {
     return (
@@ -29,7 +28,6 @@ const FiatRampsContent = () => {
 
   return (
     <>
-
       <ModalHeader>
         <IconButton 
           variant="ghost"
@@ -47,9 +45,7 @@ const FiatRampsContent = () => {
         />
     
         <ModalCloseButton />
-
       </ModalHeader>
-
       <FiatRampsRouter />
     </>
   )
@@ -63,12 +59,10 @@ export const FiatRampsModal = () => {
       <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
         <ModalOverlay />
         <MemoryRouter initialEntries={entries}>
-
           <ModalContent>
             <FiatRampsContent />
           </ModalContent>
         </MemoryRouter>
-
       </Modal>
 
   )

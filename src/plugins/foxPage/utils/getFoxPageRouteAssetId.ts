@@ -5,14 +5,12 @@ import { matchPath } from 'react-router'
 const FOX_PAGE_DEFAULT_ASSET = 'fox'
 
 export const getFoxPageRouteAssetId = (pathname: string) => {
-  const foxPageAssetIdPathMatch = matchPath<{ foxAsset?: string }>(pathname, {
+  const foxPageAssetIdPathMatch = matchPath<{ foxAsset?: 'fox' | 'foxy' }>(pathname, {
     path: '/fox/:foxAsset?',
   })
 
   if (foxPageAssetIdPathMatch) {
-    const foxAsset = (foxPageAssetIdPathMatch?.params?.foxAsset ?? FOX_PAGE_DEFAULT_ASSET) as
-      | 'fox'
-      | 'foxy'
+    const foxAsset = foxPageAssetIdPathMatch?.params?.foxAsset ?? FOX_PAGE_DEFAULT_ASSET
 
     if (foxyAddresses[0][foxAsset]) {
       const assetReference = foxyAddresses[0][foxAsset]

@@ -1,0 +1,7 @@
+.grSync path {
+  stroke: var(--chakra-colors-gray-500)
+}
+
+.grSync-white path {
+  stroke: #fff;
+}

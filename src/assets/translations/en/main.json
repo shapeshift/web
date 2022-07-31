@@ -1230,5 +1230,58 @@
         "neverSellData": "Never sell data for profit"
       }
     }
+  },
+  "simpleSwap": {
+    "links": {
+      "fullPlatform": "Full Platform",
+      "connectWallet": "Connect Wallet"
+    },
+    "classic": {
+      "buyInstantly": "Buy Coins Instantly",
+      "noAccountNeeded": "No Account Needed",
+      "testimonial": "\"I've been waiting for a service like this. Great job!\" - Charlie Lee, Creator of Litecoin",
+      "yourTradeIs": "Your Trade is ",
+      "processing": "processing...",
+      "complete": "COMPLETE!",
+      "pending": "pending...",
+      "transaction": "Transaction",
+      "quote": "When law and morality contradict each other, the citizen has the cruel alternative of either losing his moral sense or losing his respect for the law. -Bastiat",
+      "sell": {
+        "title": "Deposit",
+        "inputLabel": "Deposit amount:",
+        "inputPlaceholder": "Dep amount",
+        "footerLabel": "Exchange Rate"
+      },
+      "buy": {
+        "title": "Receive",
+        "inputLabel": "You will receive:",
+        "footerLabel": "Your Receive Address",
+        "cta": "Start"
+      }
+    },
+    "modern": {
+      "start": "Start",
+      "yourTradeIs": "Your Trade is ",
+      "processing": "Processing",
+      "complete": "Complete",
+      "pending": "pending...",
+      "sovereign": "Thank You for Being a Sovereign Individual.",
+      "executeTrade": "Execute Trade",
+      "sell": {
+        "title": "Sell",
+        "walletBalance": "Wallet Balance"
+      },
+      "buy": {
+        "title": "Buy",
+        "youGet": "You Get",
+        "exchangeRate": "Exchange Rate",
+        "deliveredTo": "Delivered to"
+      }
+    },
+    "currency": {
+      "litecoin": "Litecoin",
+      "bitcoin": "Bitcoin",
+      "ethereum": "Ethereum"
+    }
   }
 }

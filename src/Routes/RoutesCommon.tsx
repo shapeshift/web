@@ -9,6 +9,7 @@ import {
   FaWallet,
   FaWater,
 } from 'react-icons/fa'
+import { GrSync } from 'react-icons/gr'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Account } from 'pages/Accounts/Account'
@@ -25,6 +26,7 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { SimpleSwap } from 'pages/Swap/SimpleSwap'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import { Route as NestedRoute } from './helpers'
@@ -155,5 +157,11 @@ export const routes: Array<NestedRoute> = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
+  },
+  {
+    path: '/swap',
+    label: 'navBar.swap',
+    icon: <GrSync className='grSync' />,
+    main: SimpleSwap,
   },
 ]

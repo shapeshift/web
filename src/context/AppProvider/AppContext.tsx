@@ -339,7 +339,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <ToastContainer />
-      {assetIds.length && children}
+      {Boolean(assetIds.length) && children}
     </>
   )
 }

@@ -5,7 +5,6 @@ import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
-import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 
@@ -48,9 +47,9 @@ const ChainButton: React.FC<ChainButtonProps> = ({
       fontSize='sm'
       {...rest}
     >
-      <Row.Label width='35px' textAlign='left'>
+      <RawText width='35px' textAlign='left'>
         {label}
-      </Row.Label>
+      </RawText>
       {chain && symbol ? (
         <ChainRow
           symbol={symbol}
@@ -162,6 +161,7 @@ export const BridgeInput = () => {
           fiatAmount={fiatAmount.value}
           assetIcon={asset.value?.icon ?? ''}
           onAssetClick={() => history.push(BridgeRoutePaths.SelectAsset)}
+          percentOptions={[0.25, 0.5, 0.75, 1]}
           onMaxClick={handlePercentClick}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
         />

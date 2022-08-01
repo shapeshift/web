@@ -15,7 +15,7 @@ export const ListStyle = {
           borderBottomWidth: 1,
           borderColor: mode('gray.100', 'gray.750')(props),
         },
-        '> :first-child': {
+        '> :first-of-type': {
           borderTopRadius: 'lg',
           borderBottomRadius: 'none',
         },

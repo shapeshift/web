@@ -111,7 +111,7 @@ export const useFormSend = () => {
             })
           }
 
-          throw new Error(`${chainId} not suppported`)
+          throw new Error(`${chainId} not supported`)
         })()
 
         const txToSign = result.txToSign

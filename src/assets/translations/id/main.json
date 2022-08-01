@@ -153,19 +153,6 @@
           "learnMore": "Pelajari Lebih Lanjut "
         }
       },
-      "staking": {
-        "estimateDisclaimer": "*Perkiraan berfluktuasi dengan kondisi pasar.",
-        "byContinuing": "Dengan melanjutkan, Anda menerima",
-        "risks": "Resiko",
-        "ofParticipating": "berpartisipasi dalam fitur ini dan menyetujui",
-        "terms": "ketentuan",
-        "stakingYourTokens": "Staking Token Anda",
-        "unstakingYourTokens": "Unstaking Token Anda ",
-        "tooltip": {
-          "validator": "Validator bertanggung jawab untuk memproses transaksi, menyimpan data, dan menambahkan blok ke blockchain.",
-          "gasFees": "Biaya gas di %{networkName} jauh lebih rendah daripada di Ethereum Mainnet. Biaya ini dibayarkan langsung ke validator yang mengamankan dan mengoperasikan jaringan dan tidak dibayarkan ke ShapeShift."
-        }
-      },
       "foxyOverview": {
         "header": "Setor FOX untuk mendapatkan FOXy untuk menghasilkan",
         "body": "FOXy adalah token rebasing yang dipatok dengan harga FOX. Staked FOX bekerja di berbagai protokol DeFi untuk mendapatkan hasil terbaik.",

@@ -85,5 +85,12 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
 }
 
 export const getConfig = memoize(() =>
-  Object.freeze(merge({ ...cleanEnv(env, validators, { reporter }) })),
+  Object.freeze(
+    merge(
+      { ...cleanEnv(env, validators, { reporter }) },
+      {
+        isMobile: Boolean((globalThis as any).isShapeShiftMobile),
+      },
+    ),
+  ),
 )

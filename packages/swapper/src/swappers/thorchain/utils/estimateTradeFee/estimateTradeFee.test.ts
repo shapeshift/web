@@ -1,3 +1,4 @@
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
@@ -11,14 +12,23 @@ jest.mock('../thorService')
 describe('estimateTradeFee', () => {
   const deps = {
     midgardUrl: 'localhost:3000',
-    adapterManager: <ChainAdapterManager>{},
+    adapterManager: <ChainAdapterManager>(
+      (<unknown>{ get: () => ({ getFeeAssetId: () => ethAssetId }) })
+    ),
     web3: <Web3>{}
   }
   it('should correctly estimate a trade fee for bitcoin', async () => {
+    const btcDeps = {
+      midgardUrl: 'localhost:3000',
+      adapterManager: <ChainAdapterManager>(
+        (<unknown>{ get: () => ({ getFeeAssetId: () => btcAssetId }) })
+      ),
+      web3: <Web3>{}
+    }
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({ data: mockInboundAdresses })
     )
-    const estimatedTradeFee = await estimateTradeFee(deps, BTC)
+    const estimatedTradeFee = await estimateTradeFee(btcDeps, BTC)
 
     const expectedResult = '0.00036'
     expect(estimatedTradeFee).toEqual(expectedResult)

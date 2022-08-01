@@ -1,3 +1,4 @@
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter, FeeDataKey, GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
@@ -20,6 +21,7 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
         buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
         getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
         getFeeData: jest.fn(() => feeData),
+        getFeeAssetId: jest.fn(() => ethAssetId),
         getGasFeeData: jest.fn(
           (): GasFeeDataEstimate => ({
             [FeeDataKey.Slow]: {

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.2.1...@shapeshiftoss/swapper-v9.2.2) (2022-08-01)
+
+
+### Bug Fixes
+
+* use fee asset instead of asset in calculation ([#930](https://github.com/shapeshift/lib/issues/930)) ([fa836e4](https://github.com/shapeshift/lib/commit/fa836e40c8d264a7d8746dc86c690fd87d83465b))
+
 # [@shapeshiftoss/swapper-v9.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.2.0...@shapeshiftoss/swapper-v9.2.1) (2022-07-29)
 
 # [@shapeshiftoss/swapper-v9.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.1.1...@shapeshiftoss/swapper-v9.2.0) (2022-07-29)

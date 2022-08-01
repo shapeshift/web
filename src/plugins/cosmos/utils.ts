@@ -1,7 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { cosmos, cosmossdk, FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { cosmos, cosmossdk, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -14,47 +13,7 @@ export type FeePrice = {
   [key in FeeDataKey]: FeePriceValueHuman
 }
 
-export const getFormFees = (
-  feeData: FeeDataEstimate<KnownChainIds.CosmosMainnet>,
-  precision: number,
-  fiatRate: string,
-) => {
-  const initialFees = {
-    slow: {
-      fiatFee: '',
-      txFee: '',
-      chainSpecific: {
-        gasLimit: '',
-      },
-    },
-    average: {
-      fiatFee: '',
-      txFee: '',
-      chainSpecific: {
-        gasLimit: '',
-      },
-    },
-    fast: {
-      fiatFee: '',
-      txFee: '',
-      chainSpecific: {
-        gasLimit: '',
-      },
-    },
-  }
-  return (Object.keys(feeData) as FeeDataKey[]).reduce<FeePrice>((acc: any, key: FeeDataKey) => {
-    const chainSpecific = feeData[key].chainSpecific
-    const txFee = bnOrZero(feeData[key].txFee)
-      .dividedBy(bnOrZero(`1e+${precision}`))
-      .toPrecision()
-    const fiatFee = bnOrZero(txFee).times(fiatRate).toPrecision()
-    acc[key] = { txFee, fiatFee, chainSpecific }
-    return acc
-  }, initialFees)
-}
-
-// TODO: Remove the old implementation and rename me to getFormFees before landing
-export const getStakingFees = async (asset: Asset, fiatRate: string) => {
+export const getFormFees = async (asset: Asset, fiatRate: string) => {
   // We don't use all of these fields for the return value but this is our standard FeeDataEstimate fees, for consistency
   const initialFees = {
     slow: {

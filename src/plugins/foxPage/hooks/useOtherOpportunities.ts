@@ -33,16 +33,6 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.farming',
           opportunities: [
             {
-              title: 'ETH-FOX UNI V2 Farm',
-              isLoaded: isFarmingAprV2Loaded,
-              apy: isFarmingAprV2Loaded ? farmingAprV2 : null,
-              link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/staking/0x212ebf9FD3c10F371557b08E993eAaB385c3932b/get-started',
-              icons: [
-                'https://assets.coincap.io/assets/icons/eth@2x.png',
-                'https://assets.coincap.io/assets/icons/fox@2x.png',
-              ],
-            },
-            {
               title: 'ETH-FOX UNI V4 Farm',
               isLoaded: isFarmingAprV4Loaded,
               apy: isFarmingAprV4Loaded ? farmingAprV4 : null,

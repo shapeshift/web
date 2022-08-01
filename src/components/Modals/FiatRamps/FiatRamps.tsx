@@ -14,7 +14,7 @@ const FiatRampsContent = () => {
   const history = useHistory()
   const location = useLocation()
 
-  if (location.pathname == FiatRampsRoutes.Select) {
+  if (location.pathname === FiatRampsRoutes.Select) {
     return (
       <>
         <ModalCloseButton />

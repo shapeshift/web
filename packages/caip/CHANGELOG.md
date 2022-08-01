@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.8.0...@shapeshiftoss/caip-v6.9.0) (2022-08-01)
+
+
+### Features
+
+* **caip & market-service:** handle multiple assets with the same CoinGecko `id` ([#929](https://github.com/shapeshift/lib/issues/929)) ([0bdd0a1](https://github.com/shapeshift/lib/commit/0bdd0a13add10e6a9f6d9aa76b119c155191b7b2))
+
 # [@shapeshiftoss/caip-v6.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.7.1...@shapeshiftoss/caip-v6.8.0) (2022-08-01)
 
 

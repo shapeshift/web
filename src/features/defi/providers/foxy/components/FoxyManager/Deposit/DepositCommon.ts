@@ -3,24 +3,6 @@ import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-export enum DepositPath {
-  Deposit = '/',
-  Approve = '/approve',
-  ApproveSettings = '/approve/settings',
-  Confirm = '/confirm',
-  ConfirmSettings = '/confirm/settings',
-  Status = '/status',
-}
-
-export const routes = [
-  { step: 0, path: DepositPath.Deposit, label: 'Deposit' },
-  { step: 1, path: DepositPath.Approve, label: 'Approve' },
-  { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
-  { step: 2, path: DepositPath.Confirm, label: 'Confirm' },
-  { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: DepositPath.Status, label: 'Status' },
-]
-
 type SupportedFoxyOpportunity = {
   type: DefiType
   provider: string

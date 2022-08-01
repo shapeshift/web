@@ -1,20 +1,6 @@
 import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 
-export enum WithdrawPath {
-  Withdraw = '/',
-  Confirm = '/confirm',
-  ConfirmSettings = '/confirm/settings',
-  Status = '/status',
-}
-
-export const routes = [
-  { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
-  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm' },
-  { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 2, path: WithdrawPath.Status, label: 'Status' },
-]
-
 type EstimatedGas = {
   estimatedGasCrypto?: string
 }

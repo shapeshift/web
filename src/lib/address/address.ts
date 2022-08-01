@@ -66,10 +66,6 @@ type VanityAddressResolversByChainId = {
 const vanityResolversByChainId: VanityAddressResolversByChainId = {
   [btcChainId]: [resolveUnstoppableDomain],
   [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
-  [dogeChainId]: [],
-  [ltcChainId]: [],
-  [cosmosChainId]: [],
-  [osmosisChainId]: [],
 }
 
 export const resolveVanityAddress: ResolveVanityAddress = async args => {

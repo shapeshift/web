@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v6.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.6...@shapeshiftoss/market-service-v6.5.0) (2022-08-01)
+
+
+### Features
+
+* **caip & market-service:** handle multiple assets with the same CoinGecko `id` ([#929](https://github.com/shapeshift/lib/issues/929)) ([0bdd0a1](https://github.com/shapeshift/lib/commit/0bdd0a13add10e6a9f6d9aa76b119c155191b7b2))
+
 # [@shapeshiftoss/market-service-v6.4.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.5...@shapeshiftoss/market-service-v6.4.6) (2022-07-29)
 
 # [@shapeshiftoss/market-service-v6.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.4...@shapeshiftoss/market-service-v6.4.5) (2022-07-28)

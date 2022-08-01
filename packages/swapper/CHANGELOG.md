@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.2.3...@shapeshiftoss/swapper-v9.3.0) (2022-08-01)
+
+
+### Features
+
+* **caip:** remove getFeeAssetIdFromAssetId / chainIdToAssetId ([#908](https://github.com/shapeshift/lib/issues/908)) ([d5cfda5](https://github.com/shapeshift/lib/commit/d5cfda5d037e7d1d7a3a4d4b522ec2a5ee8f4ac5))
+
 # [@shapeshiftoss/swapper-v9.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.2.2...@shapeshiftoss/swapper-v9.2.3) (2022-08-01)
 
 

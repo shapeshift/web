@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.2.2...@shapeshiftoss/swapper-v9.2.3) (2022-08-01)
+
+
+### Bug Fixes
+
+* prevent user from cow swapping with small sell amount ([#927](https://github.com/shapeshift/lib/issues/927)) ([27c1b30](https://github.com/shapeshift/lib/commit/27c1b30dbce3d41cbcb9c91a1ef51b47ac6509dc))
+
 # [@shapeshiftoss/swapper-v9.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.2.1...@shapeshiftoss/swapper-v9.2.2) (2022-08-01)
 
 

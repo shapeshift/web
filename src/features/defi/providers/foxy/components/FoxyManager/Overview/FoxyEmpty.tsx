@@ -1,5 +1,5 @@
 import { Button, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import { Amount } from 'components/Amount/Amount'
@@ -17,7 +17,7 @@ export const FoxyEmpty = ({ assets, apy, onClick }: FoxyEmptyProps) => {
       <EmptyOverview
         assets={assets}
         footer={
-          <Button isFullWidth colorScheme='blue' onClick={onClick}>
+          <Button width='full' colorScheme='blue' onClick={onClick}>
             <Text translation='defi.modals.foxyOverview.cta' />
           </Button>
         }

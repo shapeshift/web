@@ -1,7 +1,9 @@
 import 'lib/polyfills'
 
-import { renderHook, RenderHookResult } from '@testing-library/react-hooks'
+import { renderHook, RenderHookResult } from '@testing-library/react'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
+import { PropsWithChildren } from 'react'
+import { TestProviders } from 'test/TestProviders'
 
 import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
 
@@ -13,8 +15,11 @@ function setup({
 }: {
   locale?: string
   fiat: FiatTypeEnum
-}): RenderHookResult<unknown, NumberFormatter> {
-  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }))
+}): RenderHookResult<ReturnType<typeof useLocaleFormatter>, NumberFormatter> {
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
+  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }), { wrapper })
 }
 
 describe('useLocaleFormatter', () => {
@@ -326,33 +331,5 @@ describe('useLocaleFormatter', () => {
         expect(result.current.number.toCrypto(number, symbol, options)).toEqual(expected)
       },
     )
-  })
-
-  describe('toSupply', () => {
-    const scenarios: [{ number: NumberValue }, string][] = [
-      [{ number: 123.456 }, '123.45'],
-      [{ number: 1234.567 }, '1,234.56'],
-      [{ number: 12345.6789 }, '12,345'],
-      [{ number: 123456.789 }, '123,456'],
-      [{ number: 1234567.89123 }, '1.23M'],
-      [{ number: 12345678.9123 }, '12.34M'],
-      [{ number: 123456789.12345 }, '123.45M'],
-      [{ number: 1234567891.2345 }, '1.23 billion'],
-      [{ number: 12345678912.3456 }, '12.34 billion'],
-      [{ number: 123456789123.4567 }, '123.45 billion'],
-      [{ number: 1004567.89123 }, '1M'],
-      [{ number: 1014567.89123 }, '1.01M'],
-      [{ number: 10005678.9123 }, '10M'],
-      [{ number: 123006789.12345 }, '123M'],
-      [{ number: 1004567891.2345 }, '1 billion'],
-      [{ number: 12005678912.3456 }, '12 billion'],
-      [{ number: 123006789123.4567 }, '123 billion'],
-    ]
-
-    it.each(scenarios)('parses %p and returns %s', async ({ number }, expected) => {
-      const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
-
-      expect(result.current.number.toSupply(number)).toEqual(expected)
-    })
   })
 })

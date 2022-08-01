@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { AnimatePresence } from 'framer-motion'
+import { OptInModalBody } from 'plugins/pendo/components/OptInModal/OptInModalBody'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
@@ -52,11 +53,16 @@ export const WalletViewsSwitch = () => {
     history.goBack()
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
-    if (history.location.pathname === '/') {
+    if (history.location.pathname === '/select') {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
     await cancelWalletRequests()
   }
+
+  const onContinue = useCallback(() => {
+    // Without this check we'll fire again once a KeepKey initializes and ask the user to select a wallet again
+    if (!initialRoute || initialRoute === '/') history.push('/select')
+  }, [history, initialRoute])
 
   useEffect(() => {
     if (initialRoute) {
@@ -105,7 +111,8 @@ export const WalletViewsSwitch = () => {
                     )
                   })}
 
-                <Route children={() => <SelectModal />} />
+                <Route path={'/select'} children={() => <SelectModal />} />
+                <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

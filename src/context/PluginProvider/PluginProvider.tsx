@@ -1,7 +1,8 @@
 import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { Plugin, PluginManager } from 'plugins'
+import { PluginManager } from 'plugins'
+import { activePlugins } from 'plugins/activePlugins'
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
@@ -9,33 +10,22 @@ import { logger } from 'lib/logger'
 import { partitionCompareWith } from 'lib/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
+import { getChainAdapterManager } from './chainAdapterSingleton'
+
 type PluginProviderProps = {
   children: React.ReactNode
 }
 
 type PluginProviderContextProps = {
   pluginManager: PluginManager
-  plugins: [string, Plugin][]
-  chainAdapterManager: ChainAdapterManager
+  plugins: string[]
   supportedChains: ChainId[]
   routes: Route[]
-}
-
-const activePlugins = ['bitcoin', 'cosmos', 'ethereum', 'foxPage', 'osmosis', 'avalanche']
-
-// don't export me, access me through the getter
-let _chainAdapterManager: ChainAdapterManager | undefined
-
-// we need to be able to access this outside react
-export const getChainAdapters = (): ChainAdapterManager => {
-  if (!_chainAdapterManager) _chainAdapterManager = new Map()
-  return _chainAdapterManager
 }
 
 const PluginContext = createContext<PluginProviderContextProps>({
   pluginManager: {} as PluginManager,
   plugins: [],
-  chainAdapterManager: getChainAdapters(),
   supportedChains: [],
   routes: [],
 })
@@ -43,43 +33,37 @@ const PluginContext = createContext<PluginProviderContextProps>({
 const moduleLogger = logger.child({ namespace: ['PluginProvider'] })
 
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
-  const [pluginManager] = useState(new PluginManager())
-  const [plugins, setPlugins] = useState<[string, Plugin][] | null>(null)
   const [supportedChains, setSupportedChains] = useState<ChainId[]>([])
   const [routes, setRoutes] = useState<Route[]>([])
   const featureFlags = useSelector(selectFeatureFlags)
 
-  // a referentially stable, reactive reference to the chain adapter manager singleton
-  const chainAdapterManagerRef = useRef<ChainAdapterManager>(getChainAdapters())
+  const pluginManagerRef = useRef<PluginManager>(new PluginManager())
+  const pluginManager = useMemo(() => pluginManagerRef.current, [pluginManagerRef])
 
-  // a memoized version of the current version of the ref to be made available on the context
-  const chainAdapterManager = useMemo(
-    () => chainAdapterManagerRef.current,
-    [chainAdapterManagerRef],
-  )
+  const chainAdapterManager = getChainAdapterManager()
 
-  useEffect(() => {
-    ;(async () => {
-      pluginManager.clear()
+  const plugins = useMemo(() => {
+    moduleLogger.debug({ existingPlugins: pluginManager.keys() }, 'Plugin Registration Starting...')
+    pluginManager.clear()
 
-      for (const plugin of activePlugins) {
-        try {
-          pluginManager.register(await import(`../../plugins/${plugin}/index.tsx`))
-        } catch (e) {
-          moduleLogger.error(e, { fn: 'register' }, 'Register Plugins')
-        }
+    for (const plugin of activePlugins) {
+      try {
+        pluginManager.register(plugin())
+      } catch (e) {
+        moduleLogger.error(e, { fn: 'register', plugin }, 'Register Plugins')
       }
+    }
 
-      const plugins = pluginManager.entries()
-      setPlugins(plugins)
-      moduleLogger.debug({ plugins }, 'Plugins Registration Completed')
-    })()
+    moduleLogger.debug({ plugins: pluginManager.keys() }, 'Plugins Registration Completed')
+
+    return pluginManager.keys()
   }, [pluginManager])
 
   useEffect(() => {
     if (!plugins) return
 
     const fnLogger = moduleLogger.child({ namespace: ['onFeatureFlags'] })
+    fnLogger.trace('Activating plugins...')
     let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
@@ -91,7 +75,9 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       // Ignore plugins that have their feature flag disabled
       // If no featureFlag is present, then we assume it's enabled
       if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
-        // routes providers
+        // Call the optional `onLoad` callback
+        plugin.onLoad?.()
+        // Add optional routes
         if (plugin.routes) {
           pluginRoutes = pluginRoutes.concat(plugin.routes)
           fnLogger.trace({ plugin: plugin.name }, 'Added Routes')
@@ -108,21 +94,21 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     // unregister the difference between what we had, and now have after loading plugins
     partitionCompareWith<ChainId>(
-      Object.keys(KnownChainIds) as ChainId[],
+      [...chainAdapterManager.keys()],
       Object.keys(newChainAdapters) as ChainId[],
       {
         add: chainId => {
           const factory = newChainAdapters[chainId]
           if (factory) {
-            _chainAdapterManager?.set(chainId, factory())
-            moduleLogger.debug({ chainId, fn: 'partitionCompareWith' }, 'Added ChainAdapter')
+            getChainAdapterManager().set(chainId, factory())
+            fnLogger.debug({ chainId, fn: 'partitionCompareWith' }, 'Added ChainAdapter')
           }
         },
         remove: chainId => {
-          moduleLogger.trace({ chainId, fn: 'partitionCompareWith' }, 'Closing Subscriptions')
-          _chainAdapterManager?.delete(chainId)
-          _chainAdapterManager?.get(chainId)?.closeTxs()
-          moduleLogger.debug({ chainId, fn: 'partitionCompareWith' }, 'Removed ChainAdapter')
+          fnLogger.trace({ chainId, fn: 'partitionCompareWith' }, 'Removing ChainAdapter')
+          getChainAdapterManager().delete(chainId)
+          getChainAdapterManager().get(chainId)?.closeTxs()
+          fnLogger.debug({ chainId, fn: 'partitionCompareWith' }, 'Removed ChainAdapter')
         },
       },
     )
@@ -132,12 +118,13 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(chainId => {
       if (!featureFlags.Osmosis && chainId === KnownChainIds.OsmosisMainnet) return false
       if (!featureFlags.Avalanche && chainId === KnownChainIds.AvalancheMainnet) return false
+      if (!featureFlags.Litecoin && chainId === KnownChainIds.LitecoinMainnet) return false
       return true
     })
 
     moduleLogger.trace({ supportedChains: _supportedChains }, 'Setting supportedChains')
     setSupportedChains(_supportedChains)
-  }, [chainAdapterManager, featureFlags, plugins, pluginManager])
+  }, [chainAdapterManager, featureFlags, pluginManager, plugins])
 
   if (!plugins) return <></>
 
@@ -154,14 +141,3 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 }
 
 export const usePlugins = () => useContext(PluginContext)
-
-/**
- * @deprecated - use getChainAdapters() singleton instead
- */
-export const useChainAdapters = () => {
-  const context = useContext(PluginContext)
-  if (!context) {
-    throw new Error('PluginProvider: trying to access useChainAdapters outside the PluginProvider')
-  }
-  return context.chainAdapterManager
-}

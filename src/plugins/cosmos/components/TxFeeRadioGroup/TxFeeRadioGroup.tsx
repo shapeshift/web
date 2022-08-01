@@ -1,6 +1,6 @@
 import { Box, BoxProps, Button, ButtonGroup, Radio } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
@@ -67,33 +67,10 @@ export const TxFeeRadioGroup = ({
     name: ConfirmFormFields.FeeType,
   })
 
-  // TODO: Uncomment when wired up
-  if (!fees) {
-    return null
-    // return (
-    // <Box
-    // display='flex'
-    // flexDir='column'
-    // alignItems='center'
-    // justifyContent='center'
-    // py={2}
-    // width='full'
-    // height='auto'
-    // >
-    // <Spinner />
-    // </Box>
-    // )
-  }
+  if (!fees) return null
 
   return (
-    <ButtonGroup
-      variant='ghost-filled'
-      width='full'
-      borderRadius='xl'
-      p={0}
-      id='tx-fee'
-      {...styleProps}
-    >
+    <ButtonGroup variant='ghost' width='full' borderRadius='xl' p={0} id='tx-fee' {...styleProps}>
       {feesOrder.map((key: FeeDataKey) => {
         const current = fees[key]
         const color = getFeeColor(key)

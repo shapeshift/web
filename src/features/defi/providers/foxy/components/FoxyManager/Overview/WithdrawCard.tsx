@@ -1,13 +1,19 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import { Asset } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
+import {
+  DefiAction,
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import qs from 'qs'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
-import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -17,7 +23,7 @@ type WithdrawCardProps = {
 } & WithdrawInfo
 
 export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
-  const history = useHistory()
+  const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     state: { isConnected },
     dispatch,
@@ -29,7 +35,13 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   const successColor = useColorModeValue('green.500', 'green.200')
 
   const handleClick = () => {
-    history.push('/claim')
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Claim,
+      }),
+    })
   }
 
   const handleWalletModalOpen = () =>
@@ -43,7 +55,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
       ) : (
         <Button
           variant='input'
-          isFullWidth
+          width='full'
           maxHeight='auto'
           height='auto'
           alignItems='center'

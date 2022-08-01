@@ -13,7 +13,7 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import isNil from 'lodash/isNil'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -24,6 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
@@ -51,6 +52,10 @@ export const Details = () => {
     loading,
     toggleCurrency,
   } = useSendDetails()
+
+  const {
+    state: { wallet },
+  } = useWallet()
 
   if (
     !(
@@ -135,7 +140,11 @@ export const Details = () => {
                   {cryptoSymbol}
                 </Button>
               }
-              inputRightElement={<SendMaxButton onClick={handleSendMax} />}
+              inputRightElement={
+                wallet?.getVendor() === 'WalletConnect' ? null : (
+                  <SendMaxButton onClick={handleSendMax} />
+                )
+              }
               rules={{
                 required: true,
               }}
@@ -161,7 +170,9 @@ export const Details = () => {
                 </Button>
               }
               inputRightElement={
-                <SendMaxButton onClick={handleSendMax} data-test='send-max-button' />
+                wallet?.getVendor() === 'WalletConnect' ? null : (
+                  <SendMaxButton onClick={handleSendMax} />
+                )
               }
               rules={{
                 required: true,
@@ -174,7 +185,7 @@ export const Details = () => {
       <ModalFooter>
         <Stack flex={1}>
           <Button
-            isFullWidth
+            width='full'
             isDisabled={!(cryptoAmount ?? fiatAmount) || !!amountFieldError || loading}
             colorScheme={amountFieldError ? 'red' : 'blue'}
             size='lg'
@@ -184,7 +195,7 @@ export const Details = () => {
           >
             <Text translation={amountFieldError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button width='full' variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

@@ -1,12 +1,13 @@
 import { Flex, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { PropsWithChildren } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 
 type EmptyOverviewProps = {
   assets: Asset[]
   footer?: React.ReactNode
-}
+} & PropsWithChildren
 
 export const EmptyOverview: React.FC<EmptyOverviewProps> = ({ children, footer, assets }) => {
   if (assets.length === 0) return null

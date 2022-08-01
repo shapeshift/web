@@ -1,12 +1,10 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
-import { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
-import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
+import { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import findIndex from 'lodash/findIndex'
@@ -15,7 +13,6 @@ import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { Entropy, VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { ActionTypes, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
@@ -366,20 +363,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             case KeyManager.MetaMask:
               //Handle refresh bug - when a user changes TallyHo to default, is connected to MM and refreshs the page
               if (localWalletType === 'metamask' && (window as any)?.ethereum?.isTally) disconnect()
-              const localMetaMaskWallet = (await state.adapters
+              const localMetaMaskWallet = await state.adapters
                 .get(KeyManager.MetaMask)
-                ?.pairDevice()) as MetaMaskHDWallet
+                ?.pairDevice()
               if (localMetaMaskWallet) {
-                const chainId = await localMetaMaskWallet.ethGetChainId?.()
-                if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
-                  try {
-                    await localMetaMaskWallet.ethSwitchChain?.(
-                      bn(CHAIN_REFERENCE.EthereumMainnet).toNumber(),
-                    )
-                  } catch (e) {
-                    disconnect()
-                  }
-                }
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
                 try {
                   await localMetaMaskWallet.initialize()
@@ -406,19 +393,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             case KeyManager.TallyHo:
               //Handle refresh bug - when a user changes TallyHo from default, is connected to TallyHo and refreshs the page
               if (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask) disconnect()
-              const localTallyHoWallet = (await state.adapters
-                .get(KeyManager.TallyHo)
-                ?.pairDevice()) as TallyHoHDWallet
+              const localTallyHoWallet = await state.adapters.get(KeyManager.TallyHo)?.pairDevice()
               if (localTallyHoWallet) {
-                const chainId = await localTallyHoWallet.ethGetChainId?.()
-                if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
-                  // TODO: Remove this comment when Tally multi-chain support is released
-                  // This block is currently unreachable, Tally multi-chain support is currently under development
-                  // Until this is supported in the published Tally extension, users will never be in a chain other than mainnet
-                  await localTallyHoWallet.ethSwitchChain?.(
-                    bn(CHAIN_REFERENCE.EthereumMainnet).toNumber(),
-                  )
-                }
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.TallyHo]
                 try {
                   await localTallyHoWallet.initialize()
@@ -442,16 +418,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.XDefi:
-              const localXDEFIWallet = (await state.adapters
-                .get(KeyManager.XDefi)
-                ?.pairDevice()) as XDEFIHDWallet
+              const localXDEFIWallet = await state.adapters.get(KeyManager.XDefi)?.pairDevice()
               if (localXDEFIWallet) {
-                const chainId = await localXDEFIWallet.ethGetChainId?.()
-                if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
-                  await localXDEFIWallet.ethSwitchChain?.(
-                    bn(CHAIN_REFERENCE.EthereumMainnet).toNumber(),
-                  )
-                }
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
                 try {
                   await localXDEFIWallet.initialize()
@@ -499,6 +467,34 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
+            case KeyManager.WalletConnect:
+              const localWalletConnectWallet = await state.adapters
+                .get(KeyManager.WalletConnect)
+                ?.pairDevice()
+              if (localWalletConnectWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnect]
+                try {
+                  await localWalletConnectWallet.initialize()
+                  const deviceId = await localWalletConnectWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localWalletConnectWallet,
+                      name,
+                      icon,
+                      deviceId,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
             default:
               /**
                * The fall-through case also handles clearing
@@ -517,13 +513,23 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (state.keyring) {
       ;(async () => {
         const adapters: Adapters = new Map()
-        let options: undefined | { portisAppId: string }
+        let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
         for (const wallet of Object.values(KeyManager)) {
           try {
-            options =
-              wallet === 'portis'
-                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
-                : undefined
+            switch (wallet) {
+              case 'portis':
+                options = { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
+                break
+              case 'walletconnect':
+                options = {
+                  rpc: {
+                    1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                  },
+                }
+                break
+              default:
+                break
+            }
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             adapters.set(wallet, adapter)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.

@@ -12,7 +12,14 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import { btcChainId, cosmosChainId, ethChainId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  fromAssetId,
+  ltcChainId,
+} from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,20 +29,25 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { assetIdToChainId, ChainIdType } from 'state/slices/portfolioSlice/utils'
+import { ChainIdType } from 'state/slices/portfolioSlice/utils'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRamp, supportedFiatRamps } from '../config'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
-type OverviewProps = {
+type GenerateAddressProps = {
   selectedAsset: FiatRampAsset | null
-  fiatRampProvider: FiatRamp
   btcAddress: string
+  dogeAddress: string
+  ltcAddress: string
   ethAddress: string
   cosmosAddress: string
   ensName: string
+}
+
+type OverviewProps = GenerateAddressProps & {
+  fiatRampProvider: FiatRamp
   supportsAddressVerifying: boolean
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
@@ -44,13 +56,7 @@ type OverviewProps = {
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
 }
-type GenerateAddressProps = {
-  selectedAsset: FiatRampAsset | null
-  btcAddress: string
-  ethAddress: string
-  cosmosAddress: string
-  ensName: string
-}
+
 type AddressOrNameFull = string
 type AddressFull = string
 type AddressOrNameEllipsed = string
@@ -58,16 +64,21 @@ type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEll
 type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
 
 const generateAddresses: GenerateAddresses = props => {
-  const { selectedAsset, btcAddress, ethAddress, ensName, cosmosAddress } = props
+  const { selectedAsset, btcAddress, dogeAddress, ltcAddress, ethAddress, ensName, cosmosAddress } =
+    props
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
-  const chainId = assetIdToChainId(assetId)
+  const chainId = fromAssetId(assetId).chainId
   switch (chainId) {
     case ethChainId:
       return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
     case btcChainId:
       return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
+    case dogeChainId:
+      return [dogeAddress, dogeAddress, middleEllipsis(dogeAddress, 11)]
+    case ltcChainId:
+      return [ltcAddress, ltcAddress, middleEllipsis(ltcAddress, 11)]
     case cosmosChainId:
       return [cosmosAddress, cosmosAddress, middleEllipsis(cosmosAddress, 11)]
     default:
@@ -82,6 +93,8 @@ export const Overview: React.FC<OverviewProps> = ({
   supportsAddressVerifying,
   setSupportsAddressVerifying,
   btcAddress,
+  dogeAddress,
+  ltcAddress,
   ethAddress,
   cosmosAddress,
   ensName,
@@ -104,6 +117,8 @@ export const Overview: React.FC<OverviewProps> = ({
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
     btcAddress,
+    ltcAddress,
+    dogeAddress,
     ethAddress,
     cosmosAddress,
     ensName,
@@ -112,7 +127,9 @@ export const Overview: React.FC<OverviewProps> = ({
   useEffect(() => {
     if (!wallet) return
     supportsAddressVerifying && setSupportsAddressVerifying(true)
-    setChainId(assetIdToChainId(selectedAsset?.assetId ?? '') ?? ethChainId)
+    const maybeAssetId = selectedAsset?.assetId
+    const chainId = maybeAssetId ? fromAssetId(maybeAssetId).chainId : ethChainId
+    setChainId(chainId)
     // supportsAddressVerifying will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])
@@ -144,7 +161,7 @@ export const Overview: React.FC<OverviewProps> = ({
   }
 
   const handleVerify = async () => {
-    const chainAdapter = await chainAdapterManager.get(chainId)
+    const chainAdapter = chainAdapterManager.get(chainId)
     if (!(wallet && chainAdapter)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,

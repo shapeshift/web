@@ -90,8 +90,6 @@
     "title": "Beli atau Jual Crypto",
     "titleMessage": "ShapeShift telah bermitra dengan beberapa penyedia jalan fiat untuk membeli dan menjual cryptocurrency.",
     "gem": "PERMATA",
-    "gemMessage": "Beli atau Jual Crypto dengan Gem",
-    "banxaMessage": "Beli atau Jual Crypto dengan Banxa",
     "junoPay": "Di Juno",
     "comingSoon": "Segera hadir ...",
     "buy": "Beli",
@@ -539,7 +537,7 @@
       "requestWithdraw": "Permintaan Penarikan",
       "withdrawFee": "Akan ada biaya gas terpisah untuk penarikan.",
       "disclaimer": "Permintaan selanjutnya akan digabungkan dan mengatur ulang waktu penarikan.",
-      "withDrawalFee": "Biaya Penarikan",
+      "withdrawalFee": "Biaya Penarikan",
       "info": {
         "delayed": "Penarikan tertunda memiliki dua transaksi:",
         "delayedOne": "Minta penarikan",
@@ -728,7 +726,6 @@
       "errors": {
         "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan MetaMask",
         "connectFailure": "Tidak dapat menghubungkan dompet MetaMask",
-        "network": "MetaMask tidak disetel ke Ethereum Mainnet",
         "multipleWallets": "Penyedia Ethereum yang terdeteksi bukan MetaMask. Apakah Anda memiliki banyak dompet yang terpasang?"
       },
       "connect": {
@@ -877,6 +874,21 @@
       "body": "Dengan menghubungkan dompet, Anda menyetujui Persyaratan Layanan ShapeShift dan mengakui bahwa Anda telah membaca dan memahami penafian ShapeShift.",
       "footer": "Tidak punya dompet?",
       "create": "Buat Satu"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan WalletConnect",
+        "connectFailure": "Tidak dapat menghubungkan dompet WalletConnect"
+      },
+      "connect": {
+        "header": "Pasangkan WalletConnect",
+        "body": "Klik Pasangkan lalu pilih WalletConnect dari jendela popup",
+        "button": "Pasangkan"
+      },
+      "failure": {
+        "header": "Kesalahan",
+        "body": "Tidak dapat menghubungkan dompet WalletConnect"
+      }
     }
   },
   "graph": {

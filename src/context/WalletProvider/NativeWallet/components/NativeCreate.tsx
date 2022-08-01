@@ -14,7 +14,7 @@ import {
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
-import { Component, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -43,7 +43,7 @@ export const NativeCreate = () => {
     setRevealed(!revealed)
   }
   const [vault, setVault] = useState<Vault | null>(null)
-  const [words, setWords] = useState<Component[] | null>(null)
+  const [words, setWords] = useState<ReactNode[] | null>(null)
   const [revoker] = useState(new (Revocable(class {}))())
 
   const isLegacyWallet = !!location.state?.vault

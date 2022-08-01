@@ -8,7 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import { PropsWithChildren, useRef, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -50,8 +50,8 @@ export type AssetInputProps = {
   balance?: string
   fiatBalance?: string
   errors?: FieldError
-  percentOptions?: number[]
-}
+  percentOptions: number[]
+} & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
   assetSymbol,
@@ -71,7 +71,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 }) => {
   const {
     number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const translate = useTranslate()
   const amountRef = useRef<string | null>(null)
   const [isFiat, setIsFiat] = useState<boolean>(false)
@@ -140,14 +140,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       )}
       {(onMaxClick || balance) && (
-        <Stack
-          direction='row'
-          width='full'
-          py={2}
-          px={4}
-          justifyContent='space-between'
-          alignItems='center'
-        >
+        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
           {balance && (
             <Balance
               cryptoBalance={balance}

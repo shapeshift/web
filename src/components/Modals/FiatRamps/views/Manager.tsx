@@ -15,7 +15,7 @@ import {
   useLocation,
 } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
@@ -60,14 +60,18 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
   // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string>('')
+  const [dogeAddress, setDogeAddress] = useState<string>('')
+  const [ltcAddress, setLtcAddress] = useState<string>('')
   const [ethAddress, setEthAddress] = useState<string>('')
   const [cosmosAddress, setCosmosAddress] = useState<string>('')
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string>('')
 
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const bitcoinChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinMainnet)
+  const dogecoinChainAdapter = chainAdapterManager.get(KnownChainIds.DogecoinMainnet)
+  const litecoinChainAdapter = chainAdapterManager.get(KnownChainIds.LitecoinMainnet)
   const cosmosChainAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet)
 
   const [chainId, setChainId] = useState<ChainIdType>(ethChainId)
@@ -88,6 +92,12 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
         if (supportsBTC(wallet) && bitcoinChainAdapter) {
           setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
         }
+        if (supportsBTC(wallet) && dogecoinChainAdapter) {
+          setDogeAddress(await dogecoinChainAdapter.getAddress(payload))
+        }
+        if (supportsBTC(wallet) && litecoinChainAdapter) {
+          setLtcAddress(await litecoinChainAdapter.getAddress(payload))
+        }
         if (supportsCosmos(wallet) && cosmosChainAdapter) {
           setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
         }
@@ -95,7 +105,14 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
         moduleLogger.error(e, { fn: 'getAddress' }, 'GetAddress Failed')
       }
     })()
-  }, [wallet, bitcoinChainAdapter, ethereumChainAdapter, cosmosChainAdapter])
+  }, [
+    wallet,
+    bitcoinChainAdapter,
+    dogecoinChainAdapter,
+    litecoinChainAdapter,
+    ethereumChainAdapter,
+    cosmosChainAdapter,
+  ])
 
   useEffect(() => {
     ;(async () => {
@@ -156,6 +173,8 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             onIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
             btcAddress={btcAddress}
+            dogeAddress={dogeAddress}
+            ltcAddress={ltcAddress}
             cosmosAddress={cosmosAddress}
             ethAddress={ethAddress}
             supportsAddressVerifying={supportsAddressVerifying}

@@ -1,5 +1,5 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card, CardProps } from 'components/Card/Card'

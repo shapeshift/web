@@ -11,8 +11,9 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
-import { Asset, MarketData } from '@shapeshiftoss/types'
-import React from 'react'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { MarketData } from '@shapeshiftoss/types'
+import React, { PropsWithChildren } from 'react'
 import {
   ControllerProps,
   ControllerRenderProps,
@@ -63,7 +64,7 @@ type WithdrawProps = {
   handlePercentClick: (arg: number) => void
   onContinue(values: FieldValues): void
   onCancel(): void
-}
+} & PropsWithChildren
 
 export enum Field {
   FiatAmount = 'fiatAmount',
@@ -205,7 +206,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         colorScheme={fieldError ? 'red' : 'blue'}
         isDisabled={!isValid}
         size='lg'
-        isFullWidth
+        width='full'
         isLoading={isLoading}
         type='submit'
       >

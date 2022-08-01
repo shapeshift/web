@@ -1,5 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { TxStatus, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import isEmpty from 'lodash/isEmpty'
 import {
   isCosmosChainId,
@@ -7,6 +8,7 @@ import {
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -36,7 +38,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const {
     state: { wallet, walletInfo },
   } = useWallet()
-  const { chainAdapterManager, supportedChains } = usePlugins()
+  const { supportedChains } = usePlugins()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
   const assets = useSelector(selectAssets)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
@@ -44,6 +46,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
+  const chainAdapterManager = getChainAdapterManager()
   /**
    * unsubscribe and cleanup logic
    */
@@ -85,7 +88,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 supportedAccountTypes.map(async accountType => {
                   moduleLogger.info({ chainId, accountType }, 'subscribing txs')
 
-                  const accountParams = accountType ? utxoAccountParams(accountType, 0) : {}
+                  const accountParams = accountType
+                    ? utxoAccountParams(chainId, accountType, 0)
+                    : {}
 
                   return adapter?.subscribeTxs(
                     { wallet, accountType, ...accountParams },

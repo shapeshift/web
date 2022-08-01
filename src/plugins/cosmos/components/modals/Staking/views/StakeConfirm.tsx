@@ -25,7 +25,7 @@ import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -61,7 +61,7 @@ export const StakeConfirm = ({ assetId, validatorAddress, onCancel }: StakeProps
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const validatorInfo = useAppSelector(state => selectValidatorByAddress(state, validatorAddress))
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(asset.chainId) as unknown as cosmossdk.cosmos.ChainAdapter
   const translate = useTranslate()
   const memoryHistory = useHistory()

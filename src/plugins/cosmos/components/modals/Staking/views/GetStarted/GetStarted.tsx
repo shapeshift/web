@@ -1,7 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { History } from 'history'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import {
@@ -12,6 +11,7 @@ import {
 import { useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectValidatorByAddress } from 'state/slices/selectors'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,

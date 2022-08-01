@@ -21,7 +21,6 @@ export const MaxButtonGroup: React.FC<MaxButtonGroupProps> = ({
           isDisabled={isDisabled}
           isActive={option === value}
           key={option}
-          width='full'
           onClick={() => onClick(option)}
         >
           {option === 1 ? (

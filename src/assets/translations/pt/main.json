@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Voltar",
+    "balance": "Saldo",
     "next": "Avançar",
     "error": "Erro",
     "cancel": "Cancelar",
@@ -19,6 +20,7 @@
     "deposit": "Depositar",
     "withdraw": "Sacar",
     "withdrawal": "Sacar",
+    "claim": "Resgatar",
     "overview": "Visão Geral",
     "getStarted": "Começar",
     "connectWallet": "Conectar Carteira",
@@ -57,7 +59,10 @@
     "verify": "Verificar",
     "notRobot": "Eu não sou um robô",
     "skip": "Pular",
-    "generalError": "ocorreu um erro"
+    "generalError": "ocorreu um erro",
+    "showDetails": "Mostrar Detalhes",
+    "hideDetails": "Esconder Detalhes",
+    "walletSupportsETHOnly": "Somente Ethereum"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -95,10 +100,8 @@
     "title": "Compre ou venda criptomoedas",
     "titleMessage": "A ShapeShift possui parceria com provedores de moeda fiduciária para compra e venda de criptomoedas.",
     "gem": "GEM",
-    "gemMessage": "Comprar ou Vender criptomoedas com GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
-    "banxaMessage": "Compre ou venda criptomoedas com o Banxa",
     "comingSoon": "Em breve...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -183,6 +186,14 @@
         "withdrawals": "Saques",
         "emptyWithdraws": "Saques pendentes ou em processo de pagamento serão exibidos aqui.",
         "availableDate": "Disponível %{date}"
+      },
+      "overview": {
+        "underlyingTokens": "Tokens Subjacentes",
+        "availableRewards": "Recompensas Disponíveis",
+        "about": "Sobre",
+        "tvl": "TVL",
+        "apy": "APY",
+        "noWithdrawals": "Você não tem nenhum saque para resgatar."
       },
       "claim": {
         "rewardDepositInfo": "Suas recompensas serão depositadas em sua carteira principal.",
@@ -269,7 +280,28 @@
         "cta": "Descobrir Oportunidades"
       }
     },
-    "viewOnChain": "Ver na blockchain"
+    "viewOnChain": "Ver na blockchain",
+    "steps": {
+      "deposit": {
+        "info": {
+          "title": "Informação do Depósito",
+          "description": "Insira a quantia do %{ativo} que você deseja depositar"
+        }
+      },
+      "withdraw": {
+        "info": {
+          "title": "Informação do Saque",
+          "description": "Insira a quantia do %{asset} que você deseja sacar.",
+          "yieldyDescription": "Insira a quantia do %{asset} que você deseja sacar.\nOs próximos saques serão combinados e resetarão o tempo de saque."
+        }
+      },
+      "approve": {
+        "title": "Aprovar"
+      },
+      "confirm": {
+        "title": "Confirmar"
+      }
+    }
   },
   "staking": {
     "staking": "Poupança",
@@ -352,7 +384,7 @@
     "previewTrade": "Prévia da Negociação",
     "rate": "Taxa",
     "minerFee": "Taxa de Mineração",
-    "shapeshiftFee": "Taxa ShapeShift",
+    "tradeFeeSource": "%{tradeFeeSource} Taxa",
     "gasFeeExceedsTradeAmountThreshold": "A taxa de gás excede %{percentage}% do valor da transação",
     "confirmDetails": "Confirmar Detalhes",
     "confirmAndTrade": "Confirmar e Trocar",
@@ -379,6 +411,8 @@
       "broadcastFailed": "Ocorreu um erro ao transmitir a transação",
       "insufficientFundsForLimit": "Saldo insuficiente. O valor mínimo de negociação para este par é %{minLimit}",
       "insufficientFundsForAmount": "Saldo insuficiente. Seu saldo de %{symbol} é menor do que o selecionado",
+      "invalidTradePair": "Par de Negociação Inválido: %{sellAssetName} e %{buyAssetName}",
+      "invalidTradePairBtnText": "Par de Negociação Inválido",
       "noLiquidityError": "Não há liquidez suficiente disponível",
       "overMaxSlippage": "A operação ultrapassa em %{slippagePercentage}% a margem de Slippage da negociação. Reduza o valor para obter melhor cotação",
       "balanceToLow": "Saldo muito baixo. O valor mínimo de negociação para este par é %{minLimit}",
@@ -398,13 +432,15 @@
       "minMaxError": "Ocorreu um erro ao obter o valor mínimo / máximo da negociação",
       "executeTradeFailed": "Ocorreu um erro ao executar sua negociação.",
       "unsupportedPair": "Este par de negociação não é suportado atualmente.",
+      "unsupportedChain": "Esta rede não é suportada atualmente.",
       "rateError": "Ocorreu um erro ao obter as taxas de negociação",
       "signing": {
         "failed": "Erro ao assinar a transação",
         "required": "É necessário assinar a transação"
       },
       "generalError": "Ocorreu um erro durante a troca."
-    }
+    },
+    "shapeshiftFee": "Taxa ShapeShift"
   },
   "modals": {
     "keepKey": {
@@ -557,14 +593,21 @@
     },
     "deposit": {
       "amountToDeposit": "Valor a depositar",
+      "depositInto": "Deposito em %{opportunity}",
       "estimatedReturns": "Estimativa de rendimentos anuais*",
       "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
       "footerDisclaimer": "Ao continuar você concorda com nossos termos de serviço.",
       "footerDisclaimerLink": "termos de serviço.",
-      "slippageSettings": "Configurações de Slippage"
+      "slippageSettings": "Configurações de Slippage",
+      "status": {
+        "pending": "Sua transação já foi transmitida e sua confirmação está pendente.",
+        "success": "Você depositou com sucesso em %{opportunity}.",
+        "failed": "Há um problema com seu depósito."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Valor da Retirada",
+      "withdrawFrom": "Saque de %{opportunity}",
       "footerDisclaimer": "Esta transação exigirá uma taxa.",
       "slippageSettings": "Configurações de Slippage",
       "withdrawType": "Tipo de saque",
@@ -575,7 +618,12 @@
       "requestWithdraw": "Solicitar Retirada",
       "withdrawFee": "Haverá taxa de gás separada para retirar.",
       "disclaimer": "As solicitações subsequentes serão combinadas e redefinião o tempo de retirada.",
-      "withDrawalFee": "Taxa de saque",
+      "withdrawalFee": "Taxa de saque",
+      "status": {
+        "pending": "Sua transação foi transmitida e a confirmação está pendente.",
+        "success": "Você realizou o saque com sucesso do %{opportunity}.",
+        "failed": "Há um problema com o seu depósito."
+      },
       "info": {
         "delayed": "A retirada atrasada tem duas transações:",
         "delayedOne": "Solicite a retirada",
@@ -603,6 +651,8 @@
         "preFooter": "As recompensas são acumuladas automaticamente"
       },
       "withdrawTo": "Retirar para",
+      "amountToDeposit": "Quantia Para Depositar",
+      "amountToWithdraw": "Quantia Para Sacar.",
       "withdrawFrom": "Retirada de",
       "depositTo": "Depositar em",
       "averageApy": "Média APY",
@@ -612,6 +662,7 @@
       "withdrawDelayedTime": "7 a 14 dias",
       "estimatedReturns": "Estimativa de rendimentos anuais*",
       "estimatedGas": "Taxa Estimada da Rede",
+      "notEnoughGas": "Insuficiente %{assetSymbol} para pagar o gas",
       "preFooter": "As recompensas são acumuladas automaticamente",
       "signBroadcast": "Assinar e transmitir",
       "cancel": "Cancelar"
@@ -788,7 +839,6 @@
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
         "connectFailure": "Não foi possível conectar a carteira MetaMask",
-        "network": "Selecione a rede Ethereum Mainnet em sua MetaMask",
         "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?",
         "tallyInstalledAndSetToDefault": "Detectamos que você tem a Tally Ho instalado e definida como Padrão. Se você preferir usar a MetaMask, altere as configurações em Tally Ho e atualize a página."
       },
@@ -845,11 +895,26 @@
         "body": "Não foi possível conectar sua carteira Portis"
       }
     },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com a WalletConnect",
+        "connectFailure": "Não foi possível conectar sua carteira WalletConnect"
+      },
+      "connect": {
+        "header": "Emparelhar WalletConnect",
+        "body": "Clique em Emparelhar e conecte sua carteira WalletConnect na janela pop-up",
+        "button": "Emparelhar"
+      },
+      "failure": {
+        "header": "Erro",
+        "body": "Não foi possível conectar sua carteira WalletConnect"
+      },
+      "create": "Crie uma carteira"
+    },
     "xdefi": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com a XDEFI",
         "connectFailure": "Não foi possível conectar a carteira XDEFI",
-        "network": "XDEFI não está definida para Ethereum Mainnet",
         "multipleWallets": "O provedor Ethereum detectado não é XDEFI. Você tem várias carteiras instaladas?"
       },
       "connect": {
@@ -984,7 +1049,7 @@
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
-      "create": "Crie uma carteira"
+      "create": "Crie um"
     }
   },
   "graph": {
@@ -1122,8 +1187,8 @@
     "foxPage": {
       "totalFoxValue": "Valor total de FOX",
       "foxToken": "ShapeShift %{assetSymbol} Token",
+      "foxDescription": "Desde 2019, nosso token FOX oferece aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 não apenas permite que você influencie o futuro da ShapeShift por meio de seu voto, mas também tem um universo cada vez maior de oportunidades de investimento. Invista, acompanhe e gerencie suas participações na FOX aqui.",
       "getAsset": "Obtenha %{assetSymbol}",
-      "buyAssetOnCoinbase": "Compre %{assetSymbol} na Coinbase",
       "trade": "Trocar",
       "receive": "Receber",
       "mainStakingTitle": "%{assetSymbol} Token Staking",

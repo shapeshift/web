@@ -90,8 +90,6 @@
     "title": "购买或出售加密货币",
     "titleMessage": "ShapeShift 已与多家法定坡道供应商合作购买和销售加密货币。",
     "gem": "GEM",
-    "gemMessage": "使用 Gem 购买或出售加密货币",
-    "banxaMessage": "使用 Banxa 购买或出售加密货币",
     "junoPay": "JunoPay",
     "comingSoon": "敬请期待 ...",
     "buy": "买入",
@@ -530,7 +528,7 @@
       "requestWithdraw": "请求取款",
       "withdrawFee": "取款将有单独的 gas 费用。",
       "disclaimer": "随后的请求将被合并且重置提款时间。",
-      "withDrawalFee": "提款费用",
+      "withdrawalFee": "提款费用",
       "info": {
         "delayed": "延迟提款有两笔交易：",
         "delayedOne": "请求取款",
@@ -868,6 +866,21 @@
       "body": "连接一个钱包代表您同意接受 ShapeShift 的服务条款并确认您已经阅读并理解 Shapeshift 的免责声明。",
       "footer": "还没有钱包？",
       "create": "创建一个"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "与您的 WalletConnect 通讯出现未知错误",
+        "connectFailure": "无法连接 WalletConnect"
+      },
+      "connect": {
+        "header": "与 WalletConnect 配对",
+        "body": "点击配对并在弹窗中选择 WalletConnect",
+        "button": "配对"
+      },
+      "failure": {
+        "header": "错误",
+        "body": "无法连接 WalletConnect"
+      }
     }
   },
   "graph": {

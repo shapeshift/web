@@ -1,6 +1,8 @@
 import { AnimatePresence } from 'framer-motion'
 import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 
+import { CurrencyFormat } from './CurrencyFormat'
+import { FiatCurrencies } from './FiatCurrencies'
 import { Languages } from './Languages'
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsList } from './SettingsList'
@@ -16,7 +18,9 @@ export const SettingsRouter = ({ appHistory }: { appHistory: RouteComponentProps
             <SettingsList appHistory={appHistory} {...props} />
           )}
         />
-        <Route path={SettingsRoutes.Languages} component={() => <Languages />} />
+        <Route path={SettingsRoutes.Languages} component={Languages} />
+        <Route path={SettingsRoutes.FiatCurrencies} component={FiatCurrencies} />
+        <Route path={SettingsRoutes.CurrencyFormat} component={CurrencyFormat} />
       </Switch>
     </AnimatePresence>
   )

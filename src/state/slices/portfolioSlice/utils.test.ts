@@ -1,28 +1,32 @@
-import { AssetId, btcChainId, ethChainId } from '@shapeshiftoss/caip'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { AssetId, avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { mockChainAdapters } from 'test/mocks/portfolio'
 
 import {
-  accountIdToChainId,
+  accountIdToFeeAssetId,
   accountIdToLabel,
   accountIdToSpecifier,
-  assetIdToChainId,
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
   trimWithEndEllipsis,
 } from './utils'
 
-describe('accountIdToChainId', () => {
-  it('can get eth chainId from accountId', () => {
-    const accountId = 'eip155:1:0xdef1cafe'
-    const chainId = accountIdToChainId(accountId)
-    expect(chainId).toEqual(ethChainId)
-  })
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
+}))
 
-  it('can get btc chainId from accountId', () => {
-    const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
-    const chainId = accountIdToChainId(accountId)
-    expect(chainId).toEqual(btcChainId)
+describe('accountIdToFeeAssetId', () => {
+  it('can get eth feeAssetId from accountId', () => {
+    const accountId = 'eip155:1:0xdef1cafe'
+    const result = accountIdToFeeAssetId(accountId)
+    expect(result).toEqual(ethAssetId)
+  })
+  it('can get avalanche feeAssetId from accountId', () => {
+    const accountId = 'eip155:43114:0xdef1cafe'
+    const result = accountIdToFeeAssetId(accountId)
+    expect(result).toEqual(avalancheAssetId)
   })
 })
 
@@ -69,22 +73,6 @@ describe('accountIdToLabel', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:zpubfoobarbaz'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(label)
-  })
-})
-
-describe('assetIdToChainId', () => {
-  it('returns a ETH chainId for a given ETH assetId', () => {
-    const ethAssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
-    const chainId = 'eip155:1'
-    const result = assetIdToChainId(ethAssetId)
-    expect(result).toEqual(chainId)
-  })
-
-  it('returns a BTC chainId for a given BTC assetId', () => {
-    const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-    const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
-    const result = assetIdToChainId(btcAssetId)
-    expect(result).toEqual(btcChainId)
   })
 })
 

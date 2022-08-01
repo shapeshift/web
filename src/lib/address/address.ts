@@ -1,5 +1,5 @@
-import { btcChainId, ChainId, cosmosChainId, ethChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { btcChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
   resolveUnstoppableDomain,
@@ -17,8 +17,6 @@ type VanityAddressValidatorsByChainId = {
 const vanityAddressValidatorsByChain: VanityAddressValidatorsByChainId = {
   [btcChainId]: [validateUnstoppableDomain],
   [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
-  [cosmosChainId]: [],
-  [osmosisChainId]: [],
 }
 
 type ValidateVanityAddressArgs = {
@@ -31,7 +29,8 @@ export type ValidateVanityAddress = (
 ) => Promise<ValidateVanityAddressReturn>
 
 export const validateVanityAddress: ValidateVanityAddress = async args => {
-  for (const validator of vanityAddressValidatorsByChain[args.chainId]) {
+  const validators = vanityAddressValidatorsByChain[args.chainId] ?? []
+  for (const validator of validators) {
     try {
       const result = await validator(args)
       if (result) return result
@@ -59,8 +58,6 @@ type VanityAddressResolversByChainId = {
 const vanityResolversByChainId: VanityAddressResolversByChainId = {
   [btcChainId]: [resolveUnstoppableDomain],
   [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
-  [cosmosChainId]: [],
-  [osmosisChainId]: [],
 }
 
 export const resolveVanityAddress: ResolveVanityAddress = async args => {
@@ -90,12 +87,11 @@ type ReverseResolversByChainId = {
 const reverseLookupResolversByChainId: ReverseResolversByChainId = {
   [btcChainId]: [reverseLookupUnstoppableDomain],
   [ethChainId]: [ensReverseLookupShim, reverseLookupUnstoppableDomain],
-  [cosmosChainId]: [],
-  [osmosisChainId]: [],
 }
 
 export const reverseLookupVanityAddress: ReverseLookupVanityAddress = async args => {
-  for (const resolver of reverseLookupResolversByChainId[args.chainId]) {
+  const resolvers = reverseLookupResolversByChainId[args.chainId] ?? []
+  for (const resolver of resolvers) {
     try {
       const result = await resolver(args)
       if (result) return result
@@ -114,7 +110,7 @@ export type ValidateAddress = (args: ValidateAddressArgs) => Promise<ValidateAdd
 
 export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
   try {
-    const adapter = getChainAdapters().get(chainId)
+    const adapter = getChainAdapterManager().get(chainId)
     if (!adapter) return false
     return (await adapter.validateAddress(value)).valid
   } catch (e) {

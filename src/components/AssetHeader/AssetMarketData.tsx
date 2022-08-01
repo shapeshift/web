@@ -1,6 +1,6 @@
 import { BoxProps, SimpleGrid, TextProps } from '@chakra-ui/layout'
 import { Skeleton } from '@chakra-ui/skeleton'
-import { StatArrow } from '@chakra-ui/stat'
+import { Stat, StatArrow } from '@chakra-ui/stat'
 import { AssetId } from '@shapeshiftoss/caip'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -17,7 +17,7 @@ type AssetMarketDataProps = {
 
 type StatProps = TextProps & { isLoaded?: boolean }
 
-const Stat = (props: BoxProps) => (
+const StatRow = (props: BoxProps) => (
   <Row
     alignItems='center'
     width='full'
@@ -58,63 +58,69 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
       </Card.Header>
       <Card.Body>
         <SimpleGrid gridTemplateColumns={{ base: '1fr', md: '1fr' }} gridGap={6} width='full'>
-          <Stat>
+          <StatRow>
             <StatLabel isLoaded={isLoaded}>
               <Text translation='assets.assetDetails.assetHeader.price' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
               <Amount.Fiat value={marketData?.price ?? 0} />
             </StatValue>
-          </Stat>
-          <Stat>
+          </StatRow>
+          <StatRow>
             <StatLabel isLoaded={isLoaded}>
               <Text translation='assets.assetDetails.assetHeader.marketCap' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
               <Amount.Fiat value={marketData?.marketCap ?? 0} />
             </StatValue>
-          </Stat>
-          <Stat>
+          </StatRow>
+          <StatRow>
             <StatLabel isLoaded={isLoaded}>
               <Text translation='assets.assetDetails.assetHeader.24HrVolume' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
               <Amount.Fiat value={marketData?.volume ?? 0} />
             </StatValue>
-          </Stat>
-          <Stat>
+          </StatRow>
+          <StatRow>
             <StatLabel isLoaded={isLoaded}>
               <Text translation='assets.assetDetails.assetHeader.dayChange' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <StatArrow
-                fontSize='sm'
-                mr={1}
-                type={percentChange.gt(0) ? 'increase' : 'decrease'}
-              />
+              <Stat>
+                <StatArrow
+                  fontSize='sm'
+                  mr={1}
+                  type={percentChange.gt(0) ? 'increase' : 'decrease'}
+                />
+              </Stat>
               <Amount.Percent value={percentChange.div(100).toNumber() ?? 0} />
             </StatValue>
-          </Stat>
+          </StatRow>
 
           {marketData?.maxSupply && (
-            <Stat>
+            <StatRow>
               <StatLabel isLoaded={isLoaded}>
                 <Text translation='assets.assetDetails.assetHeader.maxTotalSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount.Supply value={marketData?.maxSupply ?? 0} />
+                <Amount value={marketData?.maxSupply ?? 0} abbreviated omitDecimalTrailingZeros />
               </StatValue>
-            </Stat>
+            </StatRow>
           )}
           {marketData?.supply && (
-            <Stat>
+            <StatRow>
               <StatLabel isLoaded={isLoaded}>
                 <Text translation='assets.assetDetails.assetHeader.availableSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount.Supply value={marketData?.supply} />
+                <Amount
+                  value={Math.round(Number(marketData?.supply ?? 0))}
+                  abbreviated
+                  omitDecimalTrailingZeros
+                />
               </StatValue>
-            </Stat>
+            </StatRow>
           )}
         </SimpleGrid>
       </Card.Body>

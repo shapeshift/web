@@ -1,5 +1,6 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
+import { CHAIN_NAMESPACE, fromChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
@@ -19,7 +20,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
-import { selectFirstAccountSpecifierByChainId, selectTxStatusById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFiatToUsdRate,
+  selectFirstAccountSpecifierByChainId,
+  selectTxStatusById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -39,13 +45,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     formState: { isSubmitting },
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
-  const { trade, fees, sellAssetFiatRate } = getValues()
+  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
+  const { trade, fees, sellAssetFiatRate, buyAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
   const {
     number: { toFiat },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const {
     state: { isConnected },
     dispatch,
@@ -99,22 +106,35 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+
   const tradeFiatAmount = toFiat(
     bnOrZero(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0))
       .times(bnOrZero(sellAssetFiatRate))
+      .times(selectedCurrencyToUsdRate)
       .toNumber(),
   )
-  const feeFiatValue = bnOrZero(fees?.fee).times(fiatRate)
+  const feeFiatValue = bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate)
 
   const tradeFiatValue = bnOrZero(
     fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0),
-  ).times(bnOrZero(sellAssetFiatRate))
+  )
+    .times(bnOrZero(sellAssetFiatRate))
+    .times(selectedCurrencyToUsdRate)
 
   //ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const gasFeeToTradeRatioPercentage = feeFiatValue.dividedBy(tradeFiatValue).times(100).toNumber()
   const gasFeeToTradeRatioPercentageThreshold = 5
   const isFeeRatioOverThreshold =
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
+
+  const txLink = useMemo(() => {
+    if (fromChainId(trade.sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Cosmos) {
+      return `${osmosisAsset?.explorerTxLink}${txid}`
+    } else {
+      return `${trade.sellAsset?.explorerTxLink}${txid}`
+    }
+  }, [trade, osmosisAsset, txid])
 
   return (
     <SlideTransition>
@@ -143,11 +163,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <RawText>Tx ID</RawText>
                   </Row.Label>
                   <Box textAlign='right'>
-                    <Link
-                      isExternal
-                      color='blue.500'
-                      href={`${trade.sellAsset?.explorerTxLink}${txid}`}
-                    >
+                    <Link isExternal color='blue.500' href={txLink}>
                       <Text translation='trade.viewTransaction' />
                     </Link>
                   </Box>
@@ -163,6 +179,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
                     bnOrZero(trade?.rate),
                   )} ${trade?.buyAsset?.symbol}`}</RawText>
+                  {!!fees?.tradeFeeSource && (
+                    <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
+                  )}
                 </Box>
               </Row>
               <Row>
@@ -173,21 +192,27 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Row.Value>
                   {bnOrZero(fees?.fee).toNumber()} ≃{' '}
-                  {toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}
+                  {toFiat(
+                    bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
+                  )}
                 </Row.Value>
               </Row>
               <Row>
                 <HelperTooltip label={translate('trade.tooltip.shapeshiftFee')}>
                   <Row.Label>
                     <Text
-                      translation={[
-                        'trade.tradeFeeSource',
-                        { tradeFeeSource: fees?.tradeFeeSource ?? 'Trade' },
-                      ]}
+                      translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]}
                     />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>{toFiat(trade.feeData.tradeFee)}</Row.Value>
+                <Row.Value>
+                  {toFiat(
+                    bnOrZero(fees?.tradeFee)
+                      .times(buyAssetFiatRate)
+                      .times(selectedCurrencyToUsdRate)
+                      .toNumber(),
+                  )}
+                </Row.Value>
               </Row>
               {isFeeRatioOverThreshold && (
                 <Flex justifyContent='space-evenly' alignItems='center'>

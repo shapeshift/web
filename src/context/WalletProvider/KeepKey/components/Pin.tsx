@@ -154,7 +154,7 @@ export const KeepKeyPin = () => {
             </AlertDescription>
           </Alert>
         )}
-        <Button isFullWidth size='lg' colorScheme='blue' onClick={handleSubmit} disabled={loading}>
+        <Button width='full' size='lg' colorScheme='blue' onClick={handleSubmit} disabled={loading}>
           <Text translation={`walletProvider.keepKey.${translationType}.button`} />
         </Button>
       </ModalBody>

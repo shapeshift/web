@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import axios from 'axios'
 
 import { APP_UPDATE_CHECK_INTERVAL, useHasAppUpdated } from './useHasAppUpdated'
@@ -32,9 +32,8 @@ describe('useHasAppUpdated', () => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, waitForNextUpdate } = renderHook(() => useHasAppUpdated())
-
-      await act(async () => waitForNextUpdate())
+      const { result } = renderHook(() => useHasAppUpdated())
+      await act(async () => void 0)
       expect(result.current).toBe(false)
     })
 
@@ -43,7 +42,7 @@ describe('useHasAppUpdated', () => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, waitForNextUpdate } = renderHook(() => useHasAppUpdated())
+      const { result } = renderHook(() => useHasAppUpdated())
 
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
@@ -54,8 +53,7 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await act(async () => waitForNextUpdate())
-      expect(result.current).toBe(true)
+      await waitFor(() => expect(result.current).toBe(true))
     })
 
     it('should return true when asset-manifest.json is updated', async () => {
@@ -63,7 +61,7 @@ describe('useHasAppUpdated', () => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, waitForNextUpdate } = renderHook(() => useHasAppUpdated())
+      const { result } = renderHook(() => useHasAppUpdated())
 
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
@@ -74,8 +72,7 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await act(async () => waitForNextUpdate())
-      expect(result.current).toBe(true)
+      await waitFor(() => expect(result.current).toBe(true))
     })
   })
 
@@ -85,10 +82,8 @@ describe('useHasAppUpdated', () => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, waitForNextUpdate } = renderHook(() => useHasAppUpdated())
-
-      await act(async () => waitForNextUpdate())
-      expect(result.current).toBe(false)
+      const { result } = renderHook(() => useHasAppUpdated())
+      await waitFor(() => expect(result.current).toBe(false))
     })
 
     beforeEach(() => {
@@ -103,7 +98,7 @@ describe('useHasAppUpdated', () => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, waitForNextUpdate } = renderHook(() => useHasAppUpdated())
+      const { result } = renderHook(() => useHasAppUpdated())
 
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
@@ -114,8 +109,7 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await act(async () => waitForNextUpdate())
-      expect(result.current).toBe(false)
+      await waitFor(() => expect(result.current).toBe(false))
     })
 
     it('should return false when asset-manifest.json is updated', async () => {
@@ -123,7 +117,7 @@ describe('useHasAppUpdated', () => {
         return Promise.resolve({ data: {} })
       })
 
-      const { result, waitForNextUpdate } = renderHook(() => useHasAppUpdated())
+      const { result } = renderHook(() => useHasAppUpdated())
 
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
@@ -134,8 +128,7 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await act(async () => waitForNextUpdate())
-      expect(result.current).toBe(false)
+      await waitFor(() => expect(result.current).toBe(false))
     })
   })
 })

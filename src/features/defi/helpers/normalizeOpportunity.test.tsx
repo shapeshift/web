@@ -1,5 +1,6 @@
 import { cosmosChainId } from '@shapeshiftoss/caip'
-import { renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react'
+import { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
@@ -49,7 +50,9 @@ function setup({
 }: {
   cosmosStakingOpportunities?: MergedActiveStakingOpportunity[]
 } = {}) {
-  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
+    <TestProviders>{children}</TestProviders>
+  )
   const { result } = renderHook(
     () =>
       useNormalizeOpportunities({

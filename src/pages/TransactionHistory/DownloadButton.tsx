@@ -1,8 +1,8 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
-import { TxType } from '@shapeshiftoss/chain-adapters'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
+import fileDownload from 'js-file-download'
 import { useState } from 'react'
-import { useJsonToCsv } from 'react-json-csv'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import {
@@ -33,12 +33,20 @@ type ReportRow = {
   outputAddress: string
 }
 
+const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string => {
+  const csvRows = [
+    Object.values(fields).join(','), // header
+    ...rows.map(row => Object.values(row).join(',')), // data
+  ].join('\r\n')
+
+  return `${csvRows}\r\n`
+}
+
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
+  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssetsByMarketCap)
-  const { saveAsCsv } = useJsonToCsv()
   const translate = useTranslate()
   const fields = {
     txid: translate('transactionHistory.csv.txid'),
@@ -62,8 +70,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const txId = txIds[index]
       const transaction = allTxs[txId]
       const standardTx = getStandardTx(transaction)
-      const txType = isSupportedContract(transaction)
-        ? TxType.Contract
+      const TxType = isSupportedContract(transaction)
+        ? TransferType.Contract
         : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
       const buyTransfer = getBuyTransfer(transaction)
       const sellTransfer = getSellTransfer(transaction)
@@ -79,8 +87,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       report.push({
         txid: transaction.txid,
         type: translate(
-          txType
-            ? `transactionHistory.transactionTypes.${txType}`
+          TxType
+            ? `transactionHistory.transactionTypes.${TxType}`
             : transaction.data
             ? `transactionRow.parser.${transaction.data?.parser}.${transaction.data?.method}`
             : 'transactionRow.unknown',
@@ -107,13 +115,11 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       })
     }
     try {
-      saveAsCsv({
-        data: report,
-        fields,
-        filename: `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
-          'HH:mm A, MMMM DD, YYYY',
-        )}`,
-      })
+      const data = jsonToCsv(fields, report)
+      const filename = `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
+        'HH:mm A, MMMM DD, YYYY',
+      )}.csv`
+      fileDownload(data, filename)
     } catch (error) {
       console.error(error)
     } finally {

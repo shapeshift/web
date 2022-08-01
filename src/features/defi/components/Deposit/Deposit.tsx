@@ -1,5 +1,6 @@
-import { Button, Stack } from '@chakra-ui/react'
-import { Asset, MarketData } from '@shapeshiftoss/types'
+import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -66,6 +67,7 @@ export const Deposit = ({
   percentOptions,
 }: DepositProps) => {
   const translate = useTranslate()
+  const green = useColorModeValue('green.500', 'green.200')
 
   const {
     control,
@@ -123,10 +125,6 @@ export const Deposit = ({
     })
   }
 
-  // const handleSlippageChange = (value: string | number) => {
-  //   setValue(Field.Slippage, String(value))
-  // }
-
   const onSubmit = (values: DepositValues) => {
     onContinue(values)
   }
@@ -153,7 +151,7 @@ export const Deposit = ({
           <Row>
             <Stack flex={1} spacing={0}>
               <Text fontWeight='medium' translation='modals.deposit.estimatedReturns' />
-              <Amount.Percent color='green.200' value={apy} prefix='@' suffix='APY' />
+              <Amount.Percent color={green} value={apy} prefix='@' suffix='APY' />
             </Stack>
             <Row.Value>
               <Stack textAlign='right' spacing={0}>

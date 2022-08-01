@@ -58,9 +58,7 @@
     }
   },
   "fiatRamps": {
-    "headerLabel": "Купить/Продать криптовалюту",
-    "gemMessage": "Купить или продать криптовалюту на Gem",
-    "banxaMessage": "Купить или продать криптовалюту на Banxa"
+    "headerLabel": "Купить/Продать криптовалюту"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -384,7 +382,6 @@
       "errors": {
         "unknown": "Произошла непредвиденная ошибка при соединении с MetaMask",
         "connectFailure": "Невозможно подключиться к кошельку MetaMask",
-        "network": "MetaMask не настроен на Ethereum Mainnet",
         "multipleWallets": "Обнаруженный Ethereum-провайдер не является MetaMask. Установлены ли у вас несколько кошельков?"
       },
       "connect": {
@@ -504,6 +501,21 @@
     "selectModal": {
       "header": "Подключить кошелек",
       "body": "Подключая кошелек, вы соглашаетесь с Условиями предоставления услуг ShapeShift и подтверждаете, что прочитали и поняли отказ от ответственности ShapeShift."
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "Возникла непредвиденная ошибка при соединении с WalletConnect",
+        "connectFailure": "Невозможно подключить кошелек WalletConnect"
+      },
+      "connect": {
+        "header": "Обьединить WalletConnect",
+        "body": "Нажмите обьединить, затем выберите WalletConnect во всплывающем окне",
+        "button": "Обьединить"
+      },
+      "failure": {
+        "header": "Ошибка",
+        "body": "Невозможно подключить кошелек WalletConnect"
+      }
     }
   },
   "graph": {

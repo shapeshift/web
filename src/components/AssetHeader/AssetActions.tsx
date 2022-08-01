@@ -3,7 +3,7 @@ import { Button, Link, Stack } from '@chakra-ui/react'
 import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -21,7 +21,7 @@ type AssetActionProps = {
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
   const [isValidChainId, setIsValidChainId] = useState(true)
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const { send, receive } = useModal()
   const translate = useTranslate()
   const {

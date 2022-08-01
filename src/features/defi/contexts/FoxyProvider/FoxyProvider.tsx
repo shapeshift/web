@@ -2,8 +2,8 @@ import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import React, { useContext, useEffect, useState } from 'react'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 type FoxyContextProps = {
   loading: boolean
@@ -18,10 +18,10 @@ export const useFoxy = () => {
   return context
 }
 
-export const FoxyProvider: React.FC = ({ children }) => {
+export const FoxyProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [foxy, setFoxy] = useState<FoxyApi | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const { chainAdapterManager } = usePlugins()
+  const chainAdapterManager = getChainAdapterManager()
 
   useEffect(() => {
     ;(async () => {

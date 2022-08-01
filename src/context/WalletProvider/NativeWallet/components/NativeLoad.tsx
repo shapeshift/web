@@ -80,9 +80,6 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will
           // return null, and we don't have a retry mechanism
           await wallet.initialize()
-          // If the wallet is not initialized, it means that the password need to be entered
-          // so we have to redirect to the enter-password view
-          history.push('/native/enter-password', { deviceId })
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
@@ -162,7 +159,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                       maxWidth='260px'
                       lineHeight='1.2'
                       mb={1}
-                      isTruncated
+                      noOfLines={1}
                       data-test='native-saved-wallet-name'
                     >
                       {wallet.name}

@@ -90,10 +90,8 @@
     "title": "암호화폐 거래하기",
     "titleMessage": "ShapeShift에서는 암호화폐의 원활한 매매를 위해 여러 fiat-on-ramp 서비스 제공 업체들과 제휴 중입니다.",
     "gem": "GEM",
-    "gemMessage": "Gem으로 암호화폐 거래하기",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
-    "banxaMessage": "Banxa를 이용해 암호화폐 거래하기",
     "comingSoon": "개발 중입니다 - 나중에 확인해주세요",
     "buy": "구매",
     "sell": "판매",
@@ -566,7 +564,7 @@
       "requestWithdraw": "인출 요청",
       "withdrawFee": "인출 요청 시, 단일 트랜잭션 수수료를 필요로 합니다.",
       "disclaimer": "전체 인출을 위해 후속 요청을 합치는 것에 충분한 시간을 필요로 합니다.",
-      "withDrawalFee": "전체 인출 수수료",
+      "withdrawalFee": "전체 인출 수수료",
       "info": {
         "delayed": "지연된 출금에는 두 가지 거래가 있습니다:",
         "delayedOne": "전체 인출 요청",
@@ -782,7 +780,6 @@
       "errors": {
         "unknown": "Metamask 연동 중 예기치 못한 오류가 발생했습니다.",
         "connectFailure": "Metamask 지갑에 연결할 수 없습니다.",
-        "network": "Metamask 지갑이 이더리움 메인넷으로 설정되지 않았습니다.",
         "multipleWallets": "확인된 이더리움 프로바이더가 Metamask가 아닙니다. 혹시 여러개의 지갑이 설치되어있나요?",
         "tallyInstalledAndSetToDefault": "Tally Ho가 설치되어 있고 기본값으로 설정되어 있음을 감지했습니다. MetaMask를 대신 사용하고 싶다면 Tally Ho에서 설정을 변경하고 페이지를 새로고침하세요."
       },
@@ -843,7 +840,6 @@
       "errors": {
         "unknown": "XDEFI와의 통신 도중에 오류가 발생하였습니다",
         "connectFailure": "XDEFI 지갑과 연결할 수 없습니다",
-        "network": "XDEFI 지갑이 이더리움 메인넷으로 설정되어야 합니다",
         "multipleWallets": "탐지된 이더리움 공급자가 XDEFI가 아닙니다. 혹시, 여러개의 지갑을 설치하셨나요?"
       },
       "connect": {
@@ -979,6 +975,21 @@
       "body": "지갑을 연결하는 것으로, 셰이프시프트의 서비스 약관에 동의하며 셰이프시프트의 면책 및 면피 조항을 읽고 이해했음을 확인합니다.",
       "footer": "지갑이 없으신가요?",
       "create": "지갑 만들기"
+    },
+    "walletConnect": {
+      "errors": {
+        "unknown": "WalletConnect와 연동하는 도중에 예기치 못한 오류가 발생했습니다.",
+        "connectFailure": "WalletConnect 지갑을 연결할 수 없습니다."
+      },
+      "connect": {
+        "header": "WalletConnect 지갑 연동하기",
+        "body": "연결하기 버튼을 누른 후 팝업창에서 WalletConnect를 선택하세요.",
+        "button": "연결하기"
+      },
+      "failure": {
+        "header": "오류 발생",
+        "body": "WalletConnect 지갑을 연결할 수 없습니다."
+      }
     }
   },
   "graph": {
@@ -1117,7 +1128,6 @@
       "totalFoxValue": "총 Fox 가치",
       "foxToken": "ShapeShift %{assetSymbol} 토큰",
       "getAsset": "%{assetSymbol} 가져오기",
-      "buyAssetOnCoinbase": "Coinbase에서 %{assetSymbol} 구입하기",
       "trade": "거래",
       "receive": "수신",
       "mainStakingTitle": "%{assetSymbol} 토큰 스테이킹",

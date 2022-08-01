@@ -123,7 +123,7 @@ export const FoxPage = () => {
 
   const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
 
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
   const description =
     selectedAsset?.assetId === FOX_ASSET_ID
@@ -197,7 +197,7 @@ export const FoxPage = () => {
                       />
                     )}
                   </MenuButton>
-                  <MenuList>
+                  <MenuList zIndex={3}>
                     {assets.map((asset, index) => (
                       <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId)}>
                         <FoxTab

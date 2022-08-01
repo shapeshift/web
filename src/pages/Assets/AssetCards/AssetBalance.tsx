@@ -13,7 +13,7 @@ export const AssetBalance = () => {
       <Card.Body pt={0}>
         <StatGroup>
           <Stat>
-            <StatLabel color='gray.500' isTruncated>
+            <StatLabel color='gray.500' noOfLines={1}>
               Balance
             </StatLabel>
             <StatNumber>0.00 BTC</StatNumber>

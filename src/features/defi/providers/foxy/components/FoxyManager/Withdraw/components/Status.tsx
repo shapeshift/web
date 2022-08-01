@@ -65,33 +65,38 @@ export const Status = () => {
   }
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    let statusIcon: React.ReactElement = <AssetIcon size='xs' src={asset?.icon} />
-    let statusText = StatusTextEnum.pending
-    let statusBg = 'transparent'
-    let statusBody = translate('modals.withdraw.status.pending')
-    if (state.withdraw.txStatus === 'success') {
-      statusText = StatusTextEnum.success
-      statusIcon = <CheckIcon color='white' />
-      statusBg = 'green.500'
-      statusBody = translate('modals.withdraw.status.success', {
-        opportunity: `${underlyingAsset.symbol} Vault`,
-      })
+    switch (state.withdraw.txStatus) {
+      case 'success':
+        return {
+          statusText: StatusTextEnum.success,
+          statusIcon: <CheckIcon color='white' />,
+          statusBg: 'green.500',
+          statusBody: translate('modals.withdraw.status.success', {
+            opportunity: `${underlyingAsset.symbol} Vault`,
+          }),
+        }
+      case 'failed':
+        return {
+          statusText: StatusTextEnum.failed,
+          statusIcon: <CloseIcon color='white' />,
+          statusBg: 'red.500',
+          statusBody: translate('modals.withdraw.status.failed'),
+        }
+      default:
+        return {
+          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusText: StatusTextEnum.pending,
+          statusBg: 'transparent',
+          statusBody: translate('modals.withdraw.status.pending'),
+        }
     }
-    if (state.withdraw.txStatus === 'failed') {
-      statusText = StatusTextEnum.failed
-      statusIcon = <CloseIcon color='white' />
-      statusBg = 'red.500'
-      statusBody = translate('modals.withdraw.status.failed')
-    }
-
-    return { statusIcon, statusText, statusBg, statusBody }
   })()
 
   return (
     <TxStatus
       onClose={handleCancel}
       onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={state.withdraw.txStatus !== ('success' || 'failed ')}
+      loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
       continueText='modals.status.position'
       statusText={statusText}
       statusBg={statusBg}

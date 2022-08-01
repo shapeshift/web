@@ -26,7 +26,7 @@ import {
 } from 'test/mocks/accounts'
 import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
-import { mockUpsertPortfolio } from 'test/mocks/portfolio'
+import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
@@ -47,6 +47,10 @@ import {
   selectPortfolioTotalFiatBalanceByAccount,
   selectTotalFiatBalanceWithDelegations,
 } from './selectors'
+
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
+}))
 
 describe('portfolioSlice', () => {
   const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)

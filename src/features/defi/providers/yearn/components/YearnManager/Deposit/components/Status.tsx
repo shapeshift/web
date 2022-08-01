@@ -55,11 +55,11 @@ export const Status = () => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {
+    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
         type: YearnDepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: confirmedTransaction.status === 'confirmed' ? 'success' : 'failed',
+          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
           usedGasFee: confirmedTransaction.fee?.value,
         },
       })
@@ -77,32 +77,38 @@ export const Status = () => {
   if (!state) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    let statusIcon: React.ReactElement = <AssetIcon size='xs' src={asset?.icon} />
-    let statusText = StatusTextEnum.pending
-    let statusBody = translate('modals.deposit.status.pending')
-    let statusBg = 'transparent'
-    if (state.deposit.txStatus === 'success') {
-      statusText = StatusTextEnum.success
-      statusIcon = <CheckIcon color='white' />
-      statusBody = translate('modals.deposit.status.success', {
-        opportunity: `${asset.name} Vault`,
-      })
-      statusBg = 'green.500'
+    switch (state.deposit.txStatus) {
+      case 'success':
+        return {
+          statusText: StatusTextEnum.success,
+          statusIcon: <CheckIcon color='white' />,
+          statusBody: translate('modals.deposit.status.success', {
+            opportunity: `${asset.name} Vault`,
+          }),
+          statusBg: 'green.500',
+        }
+      case 'failed':
+        return {
+          statusText: StatusTextEnum.failed,
+          statusIcon: <CloseIcon color='white' />,
+          statusBody: translate('modals.deposit.status.failed'),
+          statusBg: 'red.500',
+        }
+      default:
+        return {
+          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusText: StatusTextEnum.pending,
+          statusBody: translate('modals.deposit.status.pending'),
+          statusBg: 'transparent',
+        }
     }
-    if (state.deposit.txStatus === 'failed') {
-      statusText = StatusTextEnum.failed
-      statusIcon = <CloseIcon color='white' />
-      statusBody = translate('modals.deposit.status.failed')
-      statusBg = 'red.500'
-    }
-    return { statusIcon, statusText, statusBg, statusBody }
   })()
 
   return (
     <TxStatus
       onClose={handleCancel}
       onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={state.deposit.txStatus !== ('success' || 'failed ')}
+      loading={!['success', 'failed'].includes(state.deposit.txStatus)}
       statusText={statusText}
       statusIcon={statusIcon}
       statusBody={statusBody}

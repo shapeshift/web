@@ -61,7 +61,8 @@
     "skip": "Skip",
     "generalError": "An error has occurred",
     "showDetails": "Show Details",
-    "hideDetails": "Hide Details"
+    "hideDetails": "Hide Details",
+    "walletSupportsETHOnly": "Ethereum Only"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -99,14 +100,9 @@
     "title": "Buy or Sell Crypto",
     "titleMessage": "ShapeShift has partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
     "gem": "GEM",
-    "gemMessage": "Buy or Sell Crypto with Gem",
     "junoPay": "JunoPay",
-    "junoPayMessage": "Buy Crypto with JunoPay",
     "banxa": "Banxa",
-    "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
-    "coinbasePay": "Coinbase Pay",
-    "coinbasePayMessage": "Buy Crypto with Coinbase Pay",
     "buy": "Buy",
     "sell": "Sell",
     "assetToBuy": "Asset to Buy",
@@ -425,6 +421,8 @@
       "broadcastFailed": "An error occurred while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+      "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
+      "invalidTradePairBtnText": "Invalid Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
@@ -629,11 +627,11 @@
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
-      "withDrawalFee": "Withdrawal Fee",
+      "withdrawalFee": "Withdrawal Fee",
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully withdrawn from %{opportunity}.",
-        "failed": "There was an issue with your deposit."
+        "failed": "There was an issue with your withdraw."
       },
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",
@@ -702,6 +700,7 @@
     "settings": {
       "settings": "Settings",
       "currency": "Currency",
+      "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "Hide balances below this value",
@@ -850,7 +849,6 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
-        "network": "MetaMask isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?",
         "tallyInstalledAndSetToDefault": "We have detected that you have Tally Ho installed and set to Default. If you would prefer to use MetaMask instead, please change the settings in Tally Ho and refresh the page."
       },
@@ -907,11 +905,25 @@
         "body": "Unable to connect Portis wallet"
       }
     },
+    "walletConnect": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with WalletConnect",
+        "connectFailure": "Unable to connect WalletConnect wallet"
+      },
+      "connect": {
+        "header": "Pair WalletConnect",
+        "body": "Click Pair then select WalletConnect from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect WalletConnect wallet"
+      }
+    },
     "xdefi": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with XDEFI",
         "connectFailure": "Unable to connect XDEFI wallet",
-        "network": "XDEFI isn't set to Ethereum Mainnet",
         "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed?"
       },
       "connect": {
@@ -1186,7 +1198,6 @@
       "foxToken": "ShapeShift %{assetSymbol} Token",
       "foxDescription": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.",
       "getAsset": "Get %{assetSymbol}",
-      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "trade": "Trade",
       "receive": "Receive",
       "mainStakingTitle": "%{assetSymbol} Token Staking",
@@ -1215,15 +1226,14 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized",
-      "purchaseFox": "Purchase the agile FOX token on Coinbase directly into your ShapeShift-compatible wallet."
+      "centralized": "Centralized"
     },
     "analytics": {
       "optInModal": {
         "title": "Help us improve ShapeShift",
         "description": "ShapeShift would like to gather usage data to better understand how our users interact with the app. This data will be used to continually improve the usability and user experience of our product.",
         "actionsSentence": "ShapeShift will...",
-        "noThanks": "No Thanks, take me to the private version",
+        "noThanks": "No thanks, take me to the private version",
         "sendEvents": "Send anonymized click and pageview events",
         "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
         "neverCollectIp": "Never collect your full IP address",

@@ -46,9 +46,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: 'Type',
         accessor: 'type',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+        Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize'>{value.replace('_', ' ')}</Tag>
+            <Tag textTransform='capitalize'>{value?.replace('_', ' ')}</Tag>
           </Skeleton>
         ),
       },
@@ -57,10 +57,10 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         accessor: 'apy',
         isNumeric: true,
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+        Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
-              <Amount.Percent value={value} />
+              <Amount.Percent value={value ?? ''} />
             </Tag>
           </Skeleton>
         ),

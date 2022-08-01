@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Stack } from '@chakra-ui/react'
-import { Asset, WithdrawType } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { WithdrawType } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -50,7 +51,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
       <FormField label={translate('modals.withdraw.withdrawType')}>
         <ButtonGroup colorScheme='blue' width='full' variant='input'>
           <Button
-            isFullWidth
+            width='full'
             flexDir='column'
             height='auto'
             py={4}
@@ -68,7 +69,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
             </Stack>
           </Button>
           <Button
-            isFullWidth
+            width='full'
             flexDir='column'
             height='auto'
             onClick={() => handleClick(WithdrawType.DELAYED)}
@@ -86,7 +87,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
         </ButtonGroup>
       </FormField>
       <Row>
-        <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>
+        <Row.Label>{translate('modals.withdraw.withdrawalFee')}</Row.Label>
         <Row.Value>
           <Amount.Crypto value={withdrawalFee} symbol={asset.symbol} />
         </Row.Value>

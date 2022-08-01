@@ -1,12 +1,12 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Tag, useMediaQuery } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { breakpoints } from 'theme/theme'
 
 export const Status = ({ status }: { status: TxStatus }) => {
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const tagSize = isLargerThanMd ? 'lg' : 'md'
   switch (status) {
     case TxStatus.Confirmed:

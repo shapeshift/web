@@ -94,7 +94,7 @@ export const Address = () => {
       <ModalFooter>
         <Stack flex={1}>
           <Button
-            isFullWidth
+            width='full'
             isDisabled={!address || addressError}
             isLoading={isValidating}
             colorScheme={addressError && !isValidating ? 'red' : 'blue'}
@@ -104,7 +104,7 @@ export const Address = () => {
           >
             <Text translation={addressError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button width='full' variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

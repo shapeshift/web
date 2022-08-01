@@ -28,7 +28,7 @@ export const TokenButton = ({ logo, symbol, ...rest }: TokenButtonProps) => {
         leftIcon={<AssetIcon boxSize='20px' src={logo} />}
         {...rest}
       >
-        <RawText isTruncated ref={textRef}>
+        <RawText noOfLines={1} ref={textRef}>
           {symbol}
         </RawText>
       </Button>

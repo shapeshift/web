@@ -6,41 +6,6 @@ on:
 jobs:
   commitlint-lint-typecheck-test-build:
     runs-on: ubuntu-latest
-    env:
-      REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: https://dev-api.ethereum.shapeshift.com
-      REACT_APP_UNCHAINED_ETHEREUM_WS_URL: wss://dev-api.ethereum.shapeshift.com
-      REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: https://dev-api.avalanche.shapeshift.com
-      REACT_APP_UNCHAINED_AVALANCHE_WS_URL: wss://dev-api.avalanche.shapeshift.com
-      REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: https://dev-api.bitcoin.shapeshift.com
-      REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
-      REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL: https://dev-api.dogecoin.shapeshift.com
-      REACT_APP_UNCHAINED_DOGECOIN_WS_URL: wss://dev-api.dogecoin.shapeshift.com
-      REACT_APP_UNCHAINED_LITECOIN_HTTP_URL: https://dev-api.litecoin.shapeshift.com
-      REACT_APP_UNCHAINED_LITECOIN_WS_URL: wss://dev-api.litecoin.shapeshift.com
-      REACT_APP_UNCHAINED_COSMOS_HTTP_URL: https://dev-api.cosmos.shapeshift.com
-      REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
-      REACT_APP_COSMOS_NODE_URL: https://rest.cosmos.directory/cosmoshub/
-      REACT_APP_OSMOSIS_NODE_URL: https://rest.cosmos.directory/osmosis/
-      REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
-      REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
-      REACT_APP_AVALANCHE_NODE_URL: https://api.avax.network/ext/bc/C/rpc
-      REACT_APP_ALCHEMY_POLYGON_URL: https://polygon-mainnet.g.alchemy.com/v2/458rwsHQDajSOTCdC5AACXQUMYrllacR
-      REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
-      REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: FCMM7AFC0S6A8NUK
-      REACT_APP_KEEPKEY_VERSIONS_URL: https://ipfs.io/ipns/k51qzi5uqu5dlbggjzdpw8ya206zkcdmd1gmg77oqdmuhs899bgfv43lzhd5er/releases.json
-      REACT_APP_MIDGARD_URL: https://midgard.thorchain.info/v2
-      REACT_APP_COWSWAP_HTTP_URL: https://api.cow.fi/mainnet/api
-
-      REACT_APP_GEM_COINIFY_SUPPORTED_COINS: https://api.gem.co/institutions/coinify/supported_currencies
-      REACT_APP_GEM_WYRE_SUPPORTED_COINS: https://api.gem.co/institutions/wyre/supported_currencies
-      REACT_APP_GEM_ASSET_LOGO: https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/
-      REACT_APP_GEM_API_KEY: bb4164a72246dae1e03010d664d6cdae4e19b2554de02e3bf6c3cd30aa7e359e
-      REACT_APP_GEM_ENV: production
-
-      REACT_APP_JUNOPAY_APP_ID: live_SYkQkrlyIQeuQf8AauSOaGTa
-      REACT_APP_JUNOPAY_ASSET_LOGO_URL: https://cdn.juno.finance/
-      REACT_APP_JUNOPAY_BASE_API_URL: https://api.juno.finance
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3

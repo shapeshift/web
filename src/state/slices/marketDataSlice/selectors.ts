@@ -45,30 +45,6 @@ const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 export const selectMarketDataById = createCachedSelector(
   selectMarketData,
   selectAssetId,
-  selectFiatMarketData,
-  selectSelectedCurrency,
-  (cryptoMarketData, assetId, fiatMarketData, selectedCurrency): MarketData => {
-    const defaultMarketData: MarketData = {
-      price: '0',
-      marketCap: '0',
-      volume: '0',
-      changePercent24Hr: 0,
-    }
-    const assetMarketData = cryptoMarketData[assetId] ?? defaultMarketData
-    const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
-    if (fiatPrice.eq(1)) return assetMarketData // don't unnecessarily compute price history for USD
-    return {
-      ...assetMarketData,
-      price: bnOrZero(assetMarketData?.price ?? 0)
-        .times(fiatPrice)
-        .toString(),
-    }
-  },
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
-
-export const selectMarketDataByIdInUSD = createCachedSelector(
-  selectMarketData,
-  selectAssetId,
   (cryptoMarketData, assetId): MarketData => {
     const defaultMarketData: MarketData = {
       price: '0',

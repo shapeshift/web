@@ -92,7 +92,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     const { chainId, assetReference } = fromAssetId(assetId)
     const provider = chainIdToLabel(chainId)
     history.push({
-      pathname: '/defi',
       search: qs.stringify({
         provider,
         chainId,

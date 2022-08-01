@@ -1,9 +1,4 @@
-import {
-  CHAIN_NAMESPACE,
-  fromAssetId,
-  fromChainId,
-  getFeeAssetIdFromAssetId
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorTypes } from '../../../api'
@@ -29,11 +24,6 @@ export const thorTradeApprovalNeeded = async ({
 
     if (chainNamespace !== CHAIN_NAMESPACE.Ethereum) return { approvalNeeded: false }
 
-    // No approval needed for selling a fee asset
-    if (sellAsset.assetId === getFeeAssetIdFromAssetId(sellAsset.assetId)) {
-      return { approvalNeeded: false }
-    }
-
     const accountNumber = quote.sellAssetAccountNumber
 
     const adapter = adapterManager.get(sellAsset.chainId)
@@ -46,6 +36,11 @@ export const thorTradeApprovalNeeded = async ({
           details: { chainId: sellAsset.chainId }
         }
       )
+
+    // No approval needed for selling a fee asset
+    if (sellAsset.assetId === adapter.getFeeAssetId()) {
+      return { approvalNeeded: false }
+    }
 
     const bip44Params = adapter.buildBIP44Params({ accountNumber })
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })

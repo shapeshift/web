@@ -1,4 +1,4 @@
-import { ChainId, fromAssetId, getFeeAssetIdFromAssetId } from '@shapeshiftoss/caip'
+import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { GetTradeQuoteInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
@@ -48,14 +48,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       throw new SwapError(`[getThorTradeQuote] - No chain adapter found for ${chainId}.`, {
         code: SwapErrorTypes.UNSUPPORTED_CHAIN,
         details: { chainId }
-      })
-
-    const buyAssetId = buyAsset.assetId
-    const feeAssetId = getFeeAssetIdFromAssetId(buyAssetId)
-    if (!feeAssetId)
-      throw new SwapError(`[getThorTradeQuote] - No feeAssetId found for ${buyAssetId}.`, {
-        code: SwapErrorTypes.VALIDATION_FAILED,
-        details: { buyAssetId }
       })
 
     const tradeRate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)

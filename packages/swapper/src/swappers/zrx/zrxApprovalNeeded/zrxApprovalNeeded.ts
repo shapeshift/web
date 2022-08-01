@@ -1,4 +1,4 @@
-import { fromAssetId, getFeeAssetIdFromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 
 import {
   ApprovalNeededInput,
@@ -29,7 +29,7 @@ export async function zrxApprovalNeeded<T extends EvmSupportedChainIds>(
     }
 
     // No approval needed for selling a fee asset
-    if (sellAsset.assetId === getFeeAssetIdFromAssetId(sellAsset.assetId)) {
+    if (sellAsset.assetId === adapter.getFeeAssetId()) {
       return { approvalNeeded: false }
     }
 

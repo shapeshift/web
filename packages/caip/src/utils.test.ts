@@ -1,5 +1,4 @@
-import { ChainNamespace, ChainReference } from 'packages/caip/src/chainId/chainId'
-
+import { ChainNamespace, ChainReference } from './chainId/chainId'
 import {
   ASSET_NAMESPACE_STRINGS,
   ASSET_REFERENCE,
@@ -28,12 +27,7 @@ import {
   isChainNamespace,
   isChainReference
 } from './typeGuards'
-import {
-  accountIdToChainId,
-  accountIdToSpecifier,
-  getFeeAssetIdFromAssetId,
-  isValidChainPartsPair
-} from './utils'
+import { accountIdToChainId, accountIdToSpecifier, isValidChainPartsPair } from './utils'
 
 describe('accountIdToChainId', () => {
   it('can get eth chainId from accountId', () => {
@@ -62,22 +56,6 @@ describe('accountIdToSpecifier', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
     const result = accountIdToSpecifier(accountId)
     expect(result).toEqual(xpub)
-  })
-})
-
-describe('getFeeAssetIdFromAssetId', () => {
-  it('returns a ETH fee assetId (ETH) for a given ETH/ERC20 assetId', () => {
-    const erc20AssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
-    const feeAssetId = 'eip155:1/slip44:60'
-    const result = getFeeAssetIdFromAssetId(erc20AssetId)
-    expect(result).toEqual(feeAssetId)
-  })
-
-  it('returns Cosmos fee assetId (ATOM) for a given Cosmos assetId', () => {
-    const junoAssetId =
-      'cosmos:cosmoshub-4/ibc:46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED'
-    const result = getFeeAssetIdFromAssetId(junoAssetId)
-    expect(result).toEqual(cosmosAssetId)
   })
 })
 

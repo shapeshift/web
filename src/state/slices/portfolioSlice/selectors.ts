@@ -884,6 +884,8 @@ export const selectRewardsByValidator = createDeepEqualOutputSelector(
   (allPortfolioAccounts, validatorAddress, accountSpecifier, assetId): string => {
     const cosmosAccount = allPortfolioAccounts?.[accountSpecifier]
 
+    if (!cosmosAccount) return '0'
+
     const rewards =
       cosmosAccount.stakingDataByValidatorId?.[validatorAddress]?.[assetId]?.rewards?.[0]?.amount ??
       '0'

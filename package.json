@@ -103,7 +103,7 @@
     "@shapeshiftoss/investor-yearn": "^4.0.6",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^6.4.5",
-    "@shapeshiftoss/swapper": "^9.2.2",
+    "@shapeshiftoss/swapper": "^9.3.1",
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^9.5.0",
     "@uniswap/sdk": "^3.0.3",

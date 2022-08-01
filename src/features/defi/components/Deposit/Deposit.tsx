@@ -36,7 +36,7 @@ type DepositProps = {
   onCancel(): void
 }
 
-enum Field {
+export enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
   Slippage = 'slippage',

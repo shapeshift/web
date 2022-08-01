@@ -10,6 +10,7 @@ import {
   dogeAssetId,
   ethAssetId,
   fromAssetId,
+  ltcAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
@@ -86,6 +87,7 @@ const FEE_ASSET_IDS = [
   cosmosAssetId,
   osmosisAssetId,
   dogeAssetId,
+  ltcAssetId,
   avalancheAssetId,
 ]
 

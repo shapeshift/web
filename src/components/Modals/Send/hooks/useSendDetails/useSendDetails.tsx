@@ -1,11 +1,11 @@
 import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  bitcoin,
   cosmos,
-  dogecoin,
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
+  UtxoBaseAdapter,
+  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
@@ -137,18 +137,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           },
           sendMax: values.sendMax,
         })
-      case KnownChainIds.BitcoinMainnet: {
-        const bitcoinChainAdapter = adapter as unknown as bitcoin.ChainAdapter
-        return bitcoinChainAdapter.getFeeData({
-          to: values.address,
-          value,
-          chainSpecific: { pubkey: account },
-          sendMax: values.sendMax,
-        })
-      }
-      case KnownChainIds.DogecoinMainnet: {
-        const dogecoinChainAdapter = adapter as unknown as dogecoin.ChainAdapter
-        return dogecoinChainAdapter.getFeeData({
+      case KnownChainIds.BitcoinMainnet:
+      case KnownChainIds.DogecoinMainnet:
+      case KnownChainIds.LitecoinMainnet: {
+        return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
           to: values.address,
           value,
           chainSpecific: { pubkey: account },
@@ -301,26 +293,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case KnownChainIds.BitcoinMainnet: {
-              const btcAdapter = adapter as unknown as bitcoin.ChainAdapter
-              const adapterFees = await btcAdapter.getFeeData({
+            case KnownChainIds.BitcoinMainnet:
+            case KnownChainIds.DogecoinMainnet:
+            case KnownChainIds.LitecoinMainnet: {
+              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
+              const adapterFees = await utxoAdapter.getFeeData({
                 to,
                 value: assetBalance,
                 chainSpecific: { pubkey: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee
-              return { adapterFees, fastFee }
-            }
-            case KnownChainIds.DogecoinMainnet: {
-              const dogeAdapter = adapter as unknown as dogecoin.ChainAdapter
-              const adapterFees = await dogeAdapter.getFeeData({
-                to,
-                value: assetBalance,
-                chainSpecific: { pubkey: account },
-                sendMax: true,
-              })
-              const fastFee = adapterFees.fast.txFee // this is actually average fee for doge
               return { adapterFees, fastFee }
             }
             default: {

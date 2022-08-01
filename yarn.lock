@@ -4003,10 +4003,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^9.2.2":
-  version "9.2.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.2.2.tgz#0cde02846805baaf25a6a99602188b16e7c4e12c"
-  integrity sha512-f4F+IUHvUXUXwXIVCt4pnNy0Qd6kGkm8QFEaydBJUvJBe7GhPwDnPjGEjvTGOpTegO6q10BOtsWFoAlcAsgt7g==
+"@shapeshiftoss/swapper@^9.3.1":
+  version "9.3.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.3.1.tgz#b912a476fa4a21c25d70827ec0822869b51e0e56"
+  integrity sha512-pMzQyuQwCQZS9MeyYtBkHVMCAObbs04wJw2GtO5Lwe5N8JoPeSXTwz3063Pihmk33S9tbNU0XXPN8X4lb/FpQw==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"

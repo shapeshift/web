@@ -12,7 +12,10 @@ const mockedAxios = axios as jest.Mocked<typeof axios>
 const coinGeckoMarketServiceArgs = { coinGeckoAPIKey: '' }
 const coinGeckoMarketService = new CoinGeckoMarketService(coinGeckoMarketServiceArgs)
 
-describe('coingecko market service', () => {
+const coinGeckoMarketApiUrl = 'https://api.coingecko.com/api/v3/coins/markets'
+const coinGeckoMarketProApiUrl = 'https://pro-api.coingecko.com/api/v3/coins/markets'
+
+describe('CoinGecko market service', () => {
   describe('findAll', () => {
     const btc: CoinGeckoMarketCap = {
       id: 'bitcoin',
@@ -109,21 +112,46 @@ describe('coingecko market service', () => {
       last_updated: '2021-10-10T22:16:22.950Z'
     }
 
+    const usdc: CoinGeckoMarketCap = {
+      ath: 1.17,
+      ath_change_percentage: -14.79969,
+      ath_date: '2019-05-08T00:40:28.300Z',
+      atl: 0.891848,
+      atl_change_percentage: 12.03135,
+      atl_date: '2021-05-19T13:14:05.611Z',
+      circulating_supply: 54492069074.1417,
+      current_price: 1,
+      fully_diluted_valuation: null,
+      high_24h: 1.015,
+      id: 'usd-coin',
+      image: 'https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png?1547042389',
+      last_updated: '2022-08-01T05:50:36.806Z',
+      low_24h: 0.99002,
+      market_cap: 54500234986,
+      market_cap_change_24h: 33737555,
+      market_cap_change_percentage_24h: 0.06194,
+      market_cap_rank: 4,
+      max_supply: null,
+      name: 'USD Coin',
+      price_change_24h: -0.000088001691941342,
+      price_change_percentage_24h: -0.0088,
+      roi: null,
+      symbol: 'usdc',
+      total_supply: 54494627696.0103,
+      total_volume: 5745233196
+    }
+
     it('can use free tier with no api key', async () => {
       const freeCoinGeckoMarketService = new CoinGeckoMarketService({ coinGeckoAPIKey: '' })
       await freeCoinGeckoMarketService.findAll({ count: 10 })
-      // note - url starts with api, not pro-api
-      const url =
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false'
+      const url = `${coinGeckoMarketApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
       expect(mockedAxios.get).toBeCalledWith(url)
     })
 
     it('can use pro tier with api key', async () => {
       const proCoinGeckoMarketService = new CoinGeckoMarketService({ coinGeckoAPIKey: 'dummyKey' })
       await proCoinGeckoMarketService.findAll({ count: 10 })
-      // note - url starts with pro-api, not api
-      const url =
-        'https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&x_cg_pro_api_key=dummyKey'
+      const url = `${coinGeckoMarketProApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&x_cg_pro_api_key=dummyKey`
       expect(mockedAxios.get).toBeCalledWith(url)
     })
 
@@ -136,7 +164,7 @@ describe('coingecko market service', () => {
     it('can sort by market cap', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result)[0]).toEqual(adapters.coingeckoToAssetId(btc.id))
+      expect(adapters.coingeckoToAssetIds(btc.id)).toEqual([Object.keys(result)[0]])
     })
 
     it('can handle api errors', async () => {
@@ -167,8 +195,7 @@ describe('coingecko market service', () => {
       mockedAxios.get.mockResolvedValue({ data: [btc] })
       await coinGeckoMarketService.findAll({ count: 10 })
       expect(mockedAxios.get).toHaveBeenCalledTimes(1)
-      const url =
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false'
+      const url = `${coinGeckoMarketApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
       expect(mockedAxios.get).toBeCalledWith(url)
     })
 
@@ -178,14 +205,21 @@ describe('coingecko market service', () => {
       expect(mockedAxios.get).toHaveBeenCalledTimes(2)
     })
 
-    it('can map coingecko to assetIds', async () => {
+    it('can map CoinGecko id to assetIds', async () => {
       mockedAxios.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      const btcAssetId = adapters.coingeckoToAssetId('bitcoin')
-      const ethAssetId = adapters.coingeckoToAssetId('ethereum')
+      const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')
+      const ethAssetId = adapters.coingeckoToAssetIds('ethereum')
       const [btcKey, ethKey] = Object.keys(result)
-      expect(btcKey).toEqual(btcAssetId)
-      expect(ethKey).toEqual(ethAssetId)
+      expect(btcAssetId).toEqual([btcKey])
+      expect(ethAssetId).toEqual([ethKey])
+    })
+
+    it('can map CoinGecko id to multiple assetIds', async () => {
+      mockedAxios.get.mockResolvedValue({ data: [usdc] })
+      const result = await coinGeckoMarketService.findAll()
+      const usdcAssetIds = adapters.coingeckoToAssetIds('usd-coin')
+      expect(usdcAssetIds).toEqual(Object.keys(result))
     })
 
     it('extract correct values for each asset', async () => {
@@ -208,8 +242,8 @@ describe('coingecko market service', () => {
 
       mockedAxios.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      const btcAssetId = adapters.coingeckoToAssetId('bitcoin')
-      const ethAssetId = adapters.coingeckoToAssetId('ethereum')
+      const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')[0]
+      const ethAssetId = adapters.coingeckoToAssetIds('ethereum')[0]
       expect(result[btcAssetId!]).toEqual(btcResult)
       expect(result[ethAssetId!]).toEqual(ethResult)
     })
@@ -226,7 +260,7 @@ describe('coingecko market service', () => {
 
       mockedAxios.get.mockResolvedValue({ data: [fox] })
       const result = await coinGeckoMarketService.findAll()
-      const foxAssetId = adapters.coingeckoToAssetId('shapeshift-fox-token')
+      const foxAssetId = adapters.coingeckoToAssetIds('shapeshift-fox-token')[0]
       expect(result[foxAssetId!]).toEqual(foxResult)
     })
   })

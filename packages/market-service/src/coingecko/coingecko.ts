@@ -74,17 +74,19 @@ export class CoinGeckoMarketService implements MarketService {
       )
 
       return marketData.flat().reduce<MarketCapResult>((prev, asset) => {
-        const assetId = adapters.coingeckoToAssetId(asset.id)
-        if (!assetId) return prev
+        const assetIds = adapters.coingeckoToAssetIds(asset.id)
+        if (!assetIds) return prev
 
-        prev[assetId] = {
-          price: asset.current_price.toString(),
-          marketCap: asset.market_cap.toString(),
-          volume: asset.total_volume.toString(),
-          changePercent24Hr: asset.price_change_percentage_24h,
-          supply: asset.circulating_supply.toString(),
-          maxSupply: asset.max_supply?.toString() ?? asset.total_supply?.toString()
-        }
+        assetIds.forEach((assetId) => {
+          prev[assetId] = {
+            price: asset.current_price.toString(),
+            marketCap: asset.market_cap.toString(),
+            volume: asset.total_volume.toString(),
+            changePercent24Hr: asset.price_change_percentage_24h,
+            supply: asset.circulating_supply.toString(),
+            maxSupply: asset.max_supply?.toString() ?? asset.total_supply?.toString()
+          }
+        })
 
         return prev
       }, {})

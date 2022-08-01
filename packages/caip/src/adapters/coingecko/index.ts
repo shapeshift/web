@@ -1,6 +1,7 @@
+import invertBy from 'lodash/invertBy'
 import toLower from 'lodash/toLower'
 
-import { fromAssetId } from '../../assetId/assetId'
+import { AssetId, fromAssetId } from '../../assetId/assetId'
 import { ChainId, fromChainId, toChainId } from '../../chainId/chainId'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 import * as adapters from './generated'
@@ -13,26 +14,27 @@ export enum CoingeckoAssetPlatform {
   Avalanche = 'avalanche'
 }
 
+type CoinGeckoId = string
+
 export const coingeckoBaseUrl = 'https://api.coingecko.com/api/v3'
 export const coingeckoProBaseUrl = 'https://pro-api.coingecko.com/api/v3'
 export const coingeckoUrl = 'https://api.coingecko.com/api/v3/coins/list?include_platform=true'
 
-const generatedAssetIdToCoingeckoMap = Object.values(adapters).reduce((acc, cur) => ({
+const assetIdToCoinGeckoIdMapByChain: Record<AssetId, CoinGeckoId>[] = Object.values(adapters)
+
+const generatedAssetIdToCoingeckoMap = assetIdToCoinGeckoIdMapByChain.reduce((acc, cur) => ({
   ...acc,
   ...cur
 })) as Record<string, string>
 
-const invert = <T extends Record<string, string>>(data: T) =>
-  Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
-
-const generatedCoingeckoToAssetIdMap: Record<string, string> = invert(
+const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> = invertBy(
   generatedAssetIdToCoingeckoMap
 )
 
-export const coingeckoToAssetId = (id: string): string | undefined =>
-  generatedCoingeckoToAssetIdMap[id]
+export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
+  generatedCoingeckoToAssetIdsMap[id]
 
-export const assetIdToCoingecko = (assetId: string): string | undefined =>
+export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
   generatedAssetIdToCoingeckoMap[toLower(assetId)]
 
 // https://www.coingecko.com/en/api/documentation - See asset_platforms
@@ -79,7 +81,7 @@ export const makeCoingeckoUrlParts = (
   return { baseUrl, maybeApiKeyQueryParam }
 }
 
-export const makeCoingeckoAssetUrl = (assetId: string, apiKey?: string): string | undefined => {
+export const makeCoingeckoAssetUrl = (assetId: AssetId, apiKey?: string): string | undefined => {
   const id = assetIdToCoingecko(assetId)
   if (!id) return
 

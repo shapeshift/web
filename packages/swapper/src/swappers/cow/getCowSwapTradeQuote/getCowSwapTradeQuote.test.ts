@@ -33,6 +33,14 @@ jest.mock('../../utils/helpers/helpers', () => {
   }
 })
 
+jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
+  return {
+    getCowSwapMinMax: () => {
+      return { minimum: '0.011624', maximum: '100000000000000000000000000' }
+    }
+  }
+})
+
 const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
   fast: {
     txFee: '4080654495000000',
@@ -75,9 +83,21 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   validTo: 1656797787
 }
 
+const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
+  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  from: '0x0000000000000000000000000000000000000000',
+  kind: 'sell',
+  partiallyFillable: false,
+  receiver: '0x0000000000000000000000000000000000000000',
+  sellAmountBeforeFee: '11624000000000000',
+  sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  validTo: 1656797787
+}
+
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958', // 14716 FOX per WETH
-  minimum: '0.01621193001101461472',
+  minimum: '0.011624',
   maximum: '100000000000000000000000000',
   feeData: {
     fee: '0',
@@ -90,6 +110,28 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   },
   sellAmount: '1000000000000000000',
   buyAmount: '14501811818247595090576', // 14501 FOX
+  sources: [{ name: 'CowSwap', proportion: '1' }],
+  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+  buyAsset: FOX,
+  sellAsset: WETH,
+  sellAssetAccountNumber: 0
+}
+
+const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
+  rate: '14716.04718939437523468382', // 14716 FOX per WETH
+  minimum: '0.011624',
+  maximum: '100000000000000000000000000',
+  feeData: {
+    fee: '0',
+    chainSpecific: {
+      estimatedGas: '100000',
+      gasPrice: '79036500000',
+      approvalFee: '7903650000000000'
+    },
+    tradeFee: '1.79595429401274711874033728120645035672'
+  },
+  sellAmount: '1000000000000',
+  buyAmount: '145018118182475950905', // 14501 FOX
   sources: [{ name: 'CowSwap', proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -166,6 +208,54 @@ describe('getCowTradeQuote', () => {
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputWethToFox
+    )
+  })
+
+  it('should call cowService with correct parameters and return quote with original sellAmount when selling a very small amount of WETH', async () => {
+    const deps: CowSwapperDeps = {
+      apiUrl: 'https://api.cow.fi/mainnet/api',
+      adapter: {
+        getAddress: jest.fn(() => Promise.resolve('address11')),
+        getFeeData: jest.fn<Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>>, []>(() =>
+          Promise.resolve(feeData)
+        )
+      } as unknown as ethereum.ChainAdapter,
+      web3: {} as Web3
+    }
+
+    const input: GetTradeQuoteInput = {
+      chainId: KnownChainIds.EthereumMainnet,
+      sellAsset: WETH,
+      buyAsset: FOX,
+      sellAmount: '1000000000000',
+      sendMax: true,
+      sellAssetAccountNumber: 0,
+      wallet: <HDWallet>{},
+      receiveAddress: ''
+    }
+
+    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve({
+        data: {
+          quote: {
+            ...expectedApiInputSmallAmountWethToFox,
+            sellAmountBeforeFee: undefined,
+            sellAmount: '9854420573412420',
+            buyAmount: '145018118182475950905',
+            feeAmount: '1455794265875791',
+            sellTokenBalance: 'erc20',
+            buyTokenBalance: 'erc20'
+          }
+        }
+      })
+    )
+
+    const trade = await getCowSwapTradeQuote(deps, input)
+
+    expect(trade).toEqual(expectedTradeQuoteSmallAmountWethToFox)
+    expect(cowService.post).toHaveBeenCalledWith(
+      'https://api.cow.fi/mainnet/api/v1/quote/',
+      expectedApiInputSmallAmountWethToFox
     )
   })
 })

@@ -73,6 +73,7 @@
         ]
       }
     ],
-    "object-shorthand": "error"
+    "object-shorthand": "error",
+    "eqeqeq": "error"
   }
 }

@@ -81,7 +81,7 @@ export const useFormSend = () => {
             })
           }
 
-          if (utxoChainIds.some(id => id === chainId)) {
+          if (utxoChainIds.some(utxoChainId => utxoChainId === chainId)) {
             const fees = estimatedFees[feeType] as FeeData<UtxoChainId>
 
             const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)

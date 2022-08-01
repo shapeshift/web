@@ -10,7 +10,7 @@ import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/T
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { selectAssetById, selectAssets, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapper'
@@ -30,6 +30,7 @@ export const useTradeRoutes = (
     .get(sellTradeAsset?.asset ? sellTradeAsset.asset.chainId : ethChainId)! // ! operator as Map.prototype.get() is typed as get(key: K): V | undefined;
     .getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const assets = useSelector(selectAssets)
   const {
     state: { wallet },
@@ -91,6 +92,7 @@ export const useTradeRoutes = (
           buyAsset,
           feeAsset: defaultFeeAsset,
           action: TradeAmountInputField.SELL,
+          selectedCurrencyToUsdRate,
         })
       }
     } catch (e) {
@@ -102,6 +104,7 @@ export const useTradeRoutes = (
     defaultFeeAsset,
     defaultSellAssetId,
     routeBuyAssetId,
+    selectedCurrencyToUsdRate,
     setValue,
     swapperManager,
     updateQuote,
@@ -149,6 +152,7 @@ export const useTradeRoutes = (
             buyAsset: buyTradeAsset.asset,
             feeAsset,
             action: TradeAmountInputField.FIAT,
+            selectedCurrencyToUsdRate,
           })
         }
       } catch (e) {
@@ -157,7 +161,16 @@ export const useTradeRoutes = (
         history.push(TradeRoutePaths.Input)
       }
     },
-    [getValues, sellTradeAsset, buyTradeAsset, setValue, updateQuote, feeAsset, history],
+    [
+      getValues,
+      sellTradeAsset,
+      buyTradeAsset,
+      selectedCurrencyToUsdRate,
+      setValue,
+      updateQuote,
+      feeAsset,
+      history,
+    ],
   )
 
   const handleBuyClick = useCallback(
@@ -184,6 +197,7 @@ export const useTradeRoutes = (
             buyAsset: asset,
             feeAsset,
             action: TradeAmountInputField.FIAT,
+            selectedCurrencyToUsdRate,
           })
         }
       } catch (e) {
@@ -192,7 +206,16 @@ export const useTradeRoutes = (
         history.push(TradeRoutePaths.Input)
       }
     },
-    [getValues, buyTradeAsset, sellTradeAsset, updateQuote, feeAsset, setValue, history],
+    [
+      getValues,
+      buyTradeAsset,
+      sellTradeAsset,
+      updateQuote,
+      selectedCurrencyToUsdRate,
+      feeAsset,
+      setValue,
+      history,
+    ],
   )
 
   return { handleSellClick, handleBuyClick }

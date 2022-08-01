@@ -6,8 +6,11 @@ import { mockChainAdapters } from 'test/mocks/portfolio'
 import { TestProviders } from 'test/TestProviders'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeAmountInputField } from 'components/Trade/types'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { useTradeRoutes } from './useTradeRoutes'
+
+const mockUsdRate = bn(1)
 
 jest.mock('react-router-dom', () => ({
   useHistory: () => ({
@@ -31,6 +34,7 @@ jest.mock('state/slices/selectors', () => ({
   selectAssetById: () => ({
     'eip155:1/slip44:60': mockETH,
   }),
+  selectFiatToUsdRate: () => mockUsdRate,
 }))
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,

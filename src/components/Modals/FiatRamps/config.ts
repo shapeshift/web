@@ -43,7 +43,6 @@ export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 export const supportedFiatRamps: SupportedFiatRamp = {
   Gem: {
     label: 'fiatRamps.gem',
-    info: 'fiatRamps.gemMessage',
     logo: gemLogo,
     supportsBuy: true,
     supportsSell: true,
@@ -69,7 +68,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
   },
   Banxa: {
     label: 'fiatRamps.banxa',
-    info: 'fiatRamps.banxaMessage',
     logo: banxaLogo,
     isImplemented: true,
     minimumSellThreshold: 50,
@@ -95,7 +93,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
   },
   JunoPay: {
     label: 'fiatRamps.junoPay',
-    info: 'fiatRamps.junoPayMessage',
     logo: junoPayLogo,
     isImplemented: true,
     supportsBuy: true,

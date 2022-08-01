@@ -22,6 +22,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
+  selectFiatToUsdRate,
   selectFirstAccountSpecifierByChainId,
   selectTxStatusById,
 } from 'state/slices/selectors'
@@ -105,16 +106,21 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+
   const tradeFiatAmount = toFiat(
     bnOrZero(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0))
       .times(bnOrZero(sellAssetFiatRate))
+      .times(selectedCurrencyToUsdRate)
       .toNumber(),
   )
-  const feeFiatValue = bnOrZero(fees?.fee).times(fiatRate)
+  const feeFiatValue = bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate)
 
   const tradeFiatValue = bnOrZero(
     fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0),
-  ).times(bnOrZero(sellAssetFiatRate))
+  )
+    .times(bnOrZero(sellAssetFiatRate))
+    .times(selectedCurrencyToUsdRate)
 
   //ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const gasFeeToTradeRatioPercentage = feeFiatValue.dividedBy(tradeFiatValue).times(100).toNumber()
@@ -186,7 +192,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Row.Value>
                   {bnOrZero(fees?.fee).toNumber()} ≃{' '}
-                  {toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}
+                  {toFiat(
+                    bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
+                  )}
                 </Row.Value>
               </Row>
               <Row>
@@ -198,7 +206,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </Row.Label>
                 </HelperTooltip>
                 <Row.Value>
-                  {toFiat(bnOrZero(fees?.tradeFee).times(buyAssetFiatRate).toNumber())}
+                  {toFiat(
+                    bnOrZero(fees?.tradeFee)
+                      .times(buyAssetFiatRate)
+                      .times(selectedCurrencyToUsdRate)
+                      .toNumber(),
+                  )}
                 </Row.Value>
               </Row>
               {isFeeRatioOverThreshold && (

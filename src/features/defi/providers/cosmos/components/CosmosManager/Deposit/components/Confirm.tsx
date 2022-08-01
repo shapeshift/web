@@ -9,7 +9,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getStakingFees } from 'plugins/cosmos/utils'
+import { getFormFees } from 'plugins/cosmos/utils'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -67,7 +67,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     if (!state.userAddress || !assetReference || !walletState.wallet) return
     dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
 
-    const { gasLimit, gasPrice } = await getStakingFees(asset, marketData.price)
+    const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 
     try {
       const broadcastTxId = await handleStakingAction({

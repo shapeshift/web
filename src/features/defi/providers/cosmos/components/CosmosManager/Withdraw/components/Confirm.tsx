@@ -12,7 +12,7 @@ import {
   StakingAction,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getStakingFees } from 'plugins/cosmos/utils'
+import { getFormFees } from 'plugins/cosmos/utils'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -73,7 +73,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   useEffect(() => {
     ;(async () => {
-      const { gasLimit, gasPrice } = await getStakingFees(asset, feeMarketData.price)
+      const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
 
       setGasLimit(gasLimit)
       setGasPrice(gasPrice)

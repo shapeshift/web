@@ -12,7 +12,7 @@ import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/cai
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getStakingFees } from 'plugins/cosmos/utils'
+import { getFormFees } from 'plugins/cosmos/utils'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -70,7 +70,7 @@ export const ClaimConfirm = ({
     if (!walletState.wallet || !contractAddress || !userAddress) return
     setLoading(true)
 
-    const { gasLimit, gasPrice } = await getStakingFees(asset, feeMarketData.price)
+    const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
 
     try {
       const broadcastTxId = await handleStakingAction({
@@ -109,7 +109,7 @@ export const ClaimConfirm = ({
       try {
         if (!walletState.wallet) return
 
-        const { gasLimit, gasPrice } = await getStakingFees(asset, feeMarketData.price)
+        const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
 
         const chainAdapter = chainAdapterManager.get(chainId) as unknown as
           | cosmossdk.cosmos.ChainAdapter

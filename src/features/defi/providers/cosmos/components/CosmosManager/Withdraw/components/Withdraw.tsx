@@ -11,7 +11,7 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getStakingFees } from 'plugins/cosmos/utils'
+import { getFormFees } from 'plugins/cosmos/utils'
 import { useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -86,7 +86,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const getWithdrawGasEstimate = async () => {
     if (!state.userAddress) return
 
-    const { gasLimit, gasPrice } = await getStakingFees(asset, marketData.price)
+    const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 
     try {
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)

@@ -156,7 +156,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake your %{assetName} to earn %{apr}% APR*",
+        "header": "Stake your %{assetName} to earn",
         "body": "Staking is the process of holding funds in a cryptocurrency wallet to support the operations of a blockchain network and, in return, holders are rewarded for their contribution.",
         "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
         "cta": {
@@ -176,6 +176,14 @@
           "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
         }
+      },
+      "cosmosOverview": {
+        "rewards": "The rewards you earn will accrue automatically.",
+        "cta": "Start Staking",
+        "learnMore": "Learn More",
+        "withdrawals": "Unstaking",
+        "emptyWithdraws": "Pending unstakings will show here.",
+        "availableDate": "available %{date}"
       },
       "foxyOverview": {
         "header": "Deposit FOX to get FOXy to earn",
@@ -204,7 +212,8 @@
         "claimAmount": "Claim Amount",
         "claimToAddress": "Claim To Address",
         "confirmClaim": "Confirm Claim",
-        "claimNow": "Claim Now"
+        "claimNow": "Claim Now",
+        "claimYour": "Claim your %{opportunity}"
       }
     },
     "amountToStake": "Amount to Stake",
@@ -607,9 +616,23 @@
         "failed": "There was an issue with your deposit."
       }
     },
+    "stake": {
+      "amountToStake": "Amount To Stake",
+      "stakeYour": "Stake your %{opportunity}",
+      "estimatedReturns": "Estimated Yearly Returns*",
+      "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
+      "footerDisclaimer": "By continuing you agree to our ",
+      "footerDisclaimerLink": "terms of service.",
+      "status": {
+        "pending": "Your transaction has been broadcast and is pending confirmation.",
+        "success": "You have successfully staked your %{opportunity}.",
+        "failed": "There was an issue with your stake."
+      }
+    },
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
       "withdrawFrom": "Withdraw From %{opportunity}",
+      "unstakeYour": "Withdraw your %{opportunity}",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
       "slippageSettings": "Slippage Settings",
       "withdrawType": "Withdraw Type",
@@ -654,6 +677,7 @@
       },
       "withdrawTo": "Withdraw To",
       "amountToDeposit": "Amount To Deposit",
+      "amountToStake": "Amount To Stake",
       "amountToWithdraw": "Amount To Withdraw",
       "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
@@ -662,6 +686,7 @@
       "withdrawFee": "Withdraw Fee",
       "withdrawInstantTime": "Instant",
       "withdrawDelayedTime": "7 to 14 days",
+      "xDays": "%{unbondingDays} days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "notEnoughGas": "Not enough %{assetSymbol} to cover gas",

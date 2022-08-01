@@ -1,5 +1,5 @@
 import { ChainId } from '@shapeshiftoss/caip'
-import { bitcoin, ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter, litecoin } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -9,27 +9,28 @@ import { type Plugins } from 'plugins/types'
 export default function register(): Plugins {
   return [
     [
-      'bitcoinChainAdapter',
+      'litecoinChainAdapter',
       {
-        name: 'bitcoinChainAdapter',
+        name: 'litecoinChainAdapter',
+        featureFlag: 'Litecoin',
         providers: {
           chainAdapters: [
             [
-              KnownChainIds.BitcoinMainnet,
+              KnownChainIds.LitecoinMainnet,
               () => {
-                const http = new unchained.bitcoin.V1Api(
-                  new unchained.bitcoin.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
+                const http = new unchained.litecoin.V1Api(
+                  new unchained.litecoin.Configuration({
+                    basePath: getConfig().REACT_APP_UNCHAINED_LITECOIN_HTTP_URL,
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.bitcoin.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL,
+                const ws = new unchained.ws.Client<unchained.litecoin.Tx>(
+                  getConfig().REACT_APP_UNCHAINED_LITECOIN_WS_URL,
                 )
 
-                return new bitcoin.ChainAdapter({
+                return new litecoin.ChainAdapter({
                   providers: { http, ws },
-                  coinName: 'Bitcoin',
+                  coinName: 'Litecoin',
                 }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly
               },
             ],

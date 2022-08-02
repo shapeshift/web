@@ -122,90 +122,86 @@ export const useFarmingApr = () => {
       try {
         if (!connectedWalletEthAddress || !uniswapRouterContract || !wallet) return
         const chainAdapterManager = getChainAdapterManager()
-        try {
-          const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-          if (!adapter)
-            throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
-          const value = bnOrZero(ethAmount)
-            .times(bnOrZero(10).exponentiatedBy(ethAsset.precision))
-            .toFixed(0)
-          const data = uniswapRouterContract?.interface.encodeFunctionData('addLiquidityETH', [
-            FOX_TOKEN_CONTRACT_ADDRESS,
-            foxAmount,
-            calculateSlippageMargin(foxAmount),
-            calculateSlippageMargin(ethAmount),
-            connectedWalletEthAddress,
-            Date.now() + 1200000,
-          ])
-          const adapterType = adapter.getChainId()
-          const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData(
-            {
+        const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
+        if (!adapter)
+          throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
+        const value = bnOrZero(ethAmount)
+          .times(bnOrZero(10).exponentiatedBy(ethAsset.precision))
+          .toFixed(0)
+        const data = uniswapRouterContract?.interface.encodeFunctionData('addLiquidityETH', [
+          FOX_TOKEN_CONTRACT_ADDRESS,
+          foxAmount,
+          calculateSlippageMargin(foxAmount),
+          calculateSlippageMargin(ethAmount),
+          connectedWalletEthAddress,
+          Date.now() + 1200000,
+        ])
+        const adapterType = adapter.getChainId()
+        const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+          to: UNISWAP_V2_ROUTER_ADDRESS,
+          value,
+          chainSpecific: {
+            contractData: data,
+            from: connectedWalletEthAddress,
+            contractAddress: FOX_TOKEN_CONTRACT_ADDRESS,
+          },
+        })
+        const result = await (async () => {
+          if (supportedEvmChainIds.includes(adapterType)) {
+            if (!supportsETH(wallet))
+              throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
+            const fees = estimatedFees.average as FeeData<EvmChainId>
+            const {
+              chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+            } = fees
+            const shouldUseEIP1559Fees =
+              (await wallet.ethSupportsEIP1559()) &&
+              maxFeePerGas !== undefined &&
+              maxPriorityFeePerGas !== undefined
+            if (!shouldUseEIP1559Fees && gasPrice === undefined) {
+              throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
+            }
+            return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
               to: UNISWAP_V2_ROUTER_ADDRESS,
               value,
-              chainSpecific: {
-                contractData: data,
-                from: connectedWalletEthAddress,
-                contractAddress: FOX_TOKEN_CONTRACT_ADDRESS,
-              },
-            },
-          )
-          const result = await (async () => {
-            if (supportedEvmChainIds.includes(adapterType)) {
-              if (!supportsETH(wallet))
-                throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
-              const fees = estimatedFees.average as FeeData<EvmChainId>
-              const {
-                chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
-              } = fees
-              const shouldUseEIP1559Fees =
-                (await wallet.ethSupportsEIP1559()) &&
-                maxFeePerGas !== undefined &&
-                maxPriorityFeePerGas !== undefined
-              if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-                throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
-              }
-              return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
-                to: UNISWAP_V2_ROUTER_ADDRESS,
-                value,
-                wallet,
-                data,
-                gasLimit,
-                bip44Params: adapter.buildBIP44Params({
-                  accountNumber: 0,
-                }),
-                ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-              })
-            } else {
-              throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
-            }
-          })()
-          const txToSign = result.txToSign
-
-          const broadcastTXID = await (async () => {
-            if (wallet.supportsOfflineSigning()) {
-              const signedTx = await adapter.signTransaction({
-                txToSign,
-                wallet,
-              })
-              return adapter.broadcastTransaction(signedTx)
-            } else if (wallet.supportsBroadcast()) {
-              /**
-               * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-               * Check and see if it exists; if so, call and make sure a txhash is returned
-               */
-              if (!adapter.signAndBroadcastTransaction) {
-                throw new Error('signAndBroadcastTransaction undefined for wallet')
-              }
-              return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-            } else {
-              throw new Error('Bad hdwallet config')
-            }
-          })()
-
-          if (!broadcastTXID) {
-            throw new Error('Broadcast failed')
+              wallet,
+              data,
+              gasLimit,
+              bip44Params: adapter.buildBIP44Params({
+                accountNumber: 0,
+              }),
+              ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
+            })
+          } else {
+            throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
           }
-        } catch (e) {}
+        })()
+        const txToSign = result.txToSign
+
+        const broadcastTXID = await (async () => {
+          if (wallet.supportsOfflineSigning()) {
+            const signedTx = await adapter.signTransaction({
+              txToSign,
+              wallet,
+            })
+            return adapter.broadcastTransaction(signedTx)
+          } else if (wallet.supportsBroadcast()) {
+            /**
+             * signAndBroadcastTransaction is an optional method on the HDWallet interface.
+             * Check and see if it exists; if so, call and make sure a txhash is returned
+             */
+            if (!adapter.signAndBroadcastTransaction) {
+              throw new Error('signAndBroadcastTransaction undefined for wallet')
+            }
+            return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
+          } else {
+            throw new Error('Bad hdwallet config')
+          }
+        })()
+
+        if (!broadcastTXID) {
+          throw new Error('Broadcast failed')
+        }
       } catch (error) {
         console.warn(error)
       }

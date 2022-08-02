@@ -159,9 +159,7 @@ describe('adapters:coingecko', () => {
 
     it('throws on invalid ChainId', () => {
       const chainId = btcChainId
-      expect(() => chainIdToCoingeckoAssetPlatform(chainId)).toThrow(
-        'chainNamespace bip122, chainReference 000000000019d6689c085ae165831e93 not supported.'
-      )
+      expect(() => chainIdToCoingeckoAssetPlatform(chainId)).toThrow()
     })
   })
 })

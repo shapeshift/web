@@ -28,6 +28,19 @@ export const bitcoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/'
 }
 
+export const bitcoincash: Asset = {
+  assetId: caip.bchAssetId,
+  chainId: caip.bchChainId,
+  symbol: 'BCH',
+  name: 'Bitcoin Cash',
+  precision: 8,
+  color: '#8BC34A',
+  icon: 'https://assets.coincap.io/assets/icons/256/bch.png',
+  explorer: 'https://blockchair.com',
+  explorerAddressLink: 'https://blockchair.com/bitcoin-cash/address/',
+  explorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/'
+}
+
 export const dogecoin: Asset = {
   assetId: caip.dogeAssetId,
   chainId: caip.dogeChainId,

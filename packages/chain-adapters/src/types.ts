@@ -20,6 +20,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.Account
     [KnownChainIds.AvalancheMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
+    [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
     [KnownChainIds.LitecoinMainnet]: utxo.Account
     [KnownChainIds.CosmosMainnet]: cosmos.Account
@@ -52,6 +53,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.FeeData
     [KnownChainIds.AvalancheMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
+    [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
     [KnownChainIds.LitecoinMainnet]: utxo.FeeData
     [KnownChainIds.CosmosMainnet]: cosmos.FeeData
@@ -137,6 +139,7 @@ type ChainTxTypeInner = {
   [KnownChainIds.EthereumMainnet]: ETHSignTx
   [KnownChainIds.AvalancheMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
+  [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
   [KnownChainIds.LitecoinMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
@@ -192,6 +195,7 @@ type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
     [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmos.BuildTxInput
@@ -232,6 +236,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
+    [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
   }

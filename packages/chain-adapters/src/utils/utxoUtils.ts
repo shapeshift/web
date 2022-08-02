@@ -1,4 +1,11 @@
-import { btcChainId, ChainId, dogeChainId, ltcChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_REFERENCE,
+  bchChainId,
+  btcChainId,
+  ChainId,
+  dogeChainId,
+  ltcChainId
+} from '@shapeshiftoss/caip'
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
@@ -38,7 +45,7 @@ export const utxoAccountParams = (
         scriptType: BTCInputScriptType.SpendAddress,
         bip44Params: {
           purpose: 44,
-          coinType: 3,
+          coinType: Number(ASSET_REFERENCE.Dogecoin),
           accountNumber
         }
       }
@@ -49,7 +56,7 @@ export const utxoAccountParams = (
             scriptType: BTCInputScriptType.SpendWitness,
             bip44Params: {
               purpose: 84,
-              coinType: 0,
+              coinType: Number(ASSET_REFERENCE.Bitcoin),
               accountNumber
             }
           }
@@ -58,7 +65,7 @@ export const utxoAccountParams = (
             scriptType: BTCInputScriptType.SpendP2SHWitness,
             bip44Params: {
               purpose: 49,
-              coinType: 0,
+              coinType: Number(ASSET_REFERENCE.Bitcoin),
               accountNumber
             }
           }
@@ -67,12 +74,21 @@ export const utxoAccountParams = (
             scriptType: BTCInputScriptType.SpendAddress,
             bip44Params: {
               purpose: 44,
-              coinType: 0,
+              coinType: Number(ASSET_REFERENCE.Bitcoin),
               accountNumber
             }
           }
         default:
           throw new TypeError('utxoAccountType')
+      }
+    case bchChainId:
+      return {
+        scriptType: BTCInputScriptType.SpendAddress,
+        bip44Params: {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Bitcoincash),
+          accountNumber
+        }
       }
     case ltcChainId:
       switch (accountType) {
@@ -81,7 +97,7 @@ export const utxoAccountParams = (
             scriptType: BTCInputScriptType.SpendWitness,
             bip44Params: {
               purpose: 84,
-              coinType: 2,
+              coinType: Number(ASSET_REFERENCE.Litecoin),
               accountNumber
             }
           }
@@ -90,7 +106,7 @@ export const utxoAccountParams = (
             scriptType: BTCInputScriptType.SpendP2SHWitness,
             bip44Params: {
               purpose: 49,
-              coinType: 2,
+              coinType: Number(ASSET_REFERENCE.Litecoin),
               accountNumber
             }
           }
@@ -99,7 +115,7 @@ export const utxoAccountParams = (
             scriptType: BTCInputScriptType.SpendAddress,
             bip44Params: {
               purpose: 44,
-              coinType: 2,
+              coinType: Number(ASSET_REFERENCE.Litecoin),
               accountNumber
             }
           }

@@ -23,6 +23,8 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
       switch (chainReference) {
         case CHAIN_REFERENCE.BitcoinMainnet:
           return 'bitcoin'
+        case CHAIN_REFERENCE.BitcoinCashMainnet:
+          return 'bitcoincash'
         case CHAIN_REFERENCE.DogecoinMainnet:
           return 'dogecoin'
         case CHAIN_REFERENCE.LitecoinMainnet:

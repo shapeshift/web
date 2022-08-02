@@ -25,6 +25,16 @@
           "useSingleRequestParameter": true
         }
       },
+      "bitcoincash": {
+        "inputSpec": "https://dev-api.bitcoincash.shapeshift.com/swagger.json",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/bitcoincash",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
       "cosmos": {
         "inputSpec": "https://api.cosmos.shapeshift.com/swagger",
         "generatorName": "typescript-axios",

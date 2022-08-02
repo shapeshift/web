@@ -6,6 +6,7 @@ import { ChainId } from '../../chainId/chainId'
 import {
   avalancheAssetId,
   avalancheChainId,
+  bchChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -18,6 +19,7 @@ import {
 } from '../../constants'
 import {
   bitcoinAssetMap,
+  bitcoinCashAssetMap,
   cosmosAssetMap,
   dogecoinAssetMap,
   litecoinAssetMap,
@@ -77,6 +79,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
   return {
     ...assetMap,
     [btcChainId]: bitcoinAssetMap,
+    [bchChainId]: bitcoinCashAssetMap,
     [dogeChainId]: dogecoinAssetMap,
     [ltcChainId]: litecoinAssetMap,
     [cosmosChainId]: cosmosAssetMap,

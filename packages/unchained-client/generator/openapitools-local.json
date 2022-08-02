@@ -25,6 +25,16 @@
           "useSingleRequestParameter": true
         }
       },
+      "bitcoincash": {
+        "inputSpec": "http://api.bitcoincash.localhost/swagger.json",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/bitcoincash",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
       "cosmos": {
         "inputSpec": "http://api.cosmos.localhost/swagger",
         "generatorName": "typescript-axios",

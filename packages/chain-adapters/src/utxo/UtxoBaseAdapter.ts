@@ -43,6 +43,7 @@ import { utxoSelect } from './utxoSelect'
 
 export const utxoChainIds = [
   KnownChainIds.BitcoinMainnet,
+  KnownChainIds.BitcoinCashMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.LitecoinMainnet
 ] as const
@@ -53,7 +54,11 @@ export interface ChainAdapterArgs {
   chainId?: UtxoChainId
   coinName: string
   providers: {
-    http: unchained.bitcoin.V1Api | unchained.dogecoin.V1Api | unchained.litecoin.V1Api
+    http:
+      | unchained.bitcoin.V1Api
+      | unchained.bitcoincash.V1Api
+      | unchained.dogecoin.V1Api
+      | unchained.litecoin.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
 }
@@ -74,7 +79,11 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   protected readonly supportedChainIds: Array<ChainId>
   protected readonly supportedAccountTypes: Array<UtxoAccountType>
   protected readonly providers: {
-    http: unchained.bitcoin.V1Api | unchained.dogecoin.V1Api | unchained.litecoin.V1Api
+    http:
+      | unchained.bitcoin.V1Api
+      | unchained.bitcoincash.V1Api
+      | unchained.dogecoin.V1Api
+      | unchained.litecoin.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
 

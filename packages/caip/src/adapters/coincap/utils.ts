@@ -4,6 +4,7 @@ import fs from 'fs'
 import { toAssetId } from '../../assetId/assetId'
 import {
   ASSET_REFERENCE,
+  bchChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -15,6 +16,7 @@ import {
 } from '../../constants'
 import {
   bitcoinAssetMap,
+  bitcoinCashAssetMap,
   cosmosAssetMap,
   dogecoinAssetMap,
   litecoinAssetMap,
@@ -74,6 +76,7 @@ export const parseEthData = (data: CoinCapCoin[]) => {
 export const parseData = (d: CoinCapCoin[]) => ({
   [ethChainId]: parseEthData(d),
   [btcChainId]: bitcoinAssetMap,
+  [bchChainId]: bitcoinCashAssetMap,
   [dogeChainId]: dogecoinAssetMap,
   [ltcChainId]: litecoinAssetMap,
   [cosmosChainId]: cosmosAssetMap,

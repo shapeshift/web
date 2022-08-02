@@ -18,6 +18,7 @@ export const isValidChainPartsPair = (
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
 
 export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }
+export const bitcoinCashAssetMap = { [constants.bchAssetId]: 'bitcoin-cash' }
 export const dogecoinAssetMap = { [constants.dogeAssetId]: 'dogecoin' }
 export const litecoinAssetMap = { [constants.ltcAssetId]: 'litecoin' }
 export const cosmosAssetMap = { [constants.cosmosAssetId]: 'cosmos' }

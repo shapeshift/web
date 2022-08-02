@@ -13,6 +13,7 @@ import {
 } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
+import { ethChainId } from '@shapeshiftoss/caip'
 
 // Adding a new supported method? Also update transactionRow.parser translations accordingly
 export enum ContractMethod {
@@ -140,13 +141,15 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const [ensTo, setEnsTo] = useState<string>()
 
   useEffect(() => {
+    if (tx.chainId !== ethChainId) return
     ;(async () => {
       const reverseFromLookup = await ensReverseLookup(from)
       const reverseToLookup = await ensReverseLookup(to)
       !reverseFromLookup.error && setEnsFrom(reverseFromLookup.name)
       !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
-  }, [from, to])
+  }, [from, to, tx.chainId])
+
   const tradeType =
     buyTransfer && sellTransfer && isTradeContract(buyTransfer, sellTransfer)
       ? TradeType.Trade

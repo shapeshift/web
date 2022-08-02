@@ -169,7 +169,7 @@
         "cta": "Start Staking",
         "learnMore": "Learn More",
         "withdrawals": "Unstaking",
-        "emptyWithdraws": "Pending unstakings will show here.",
+        "emptyWithdraws": "Pending unstaking requests will show here.",
         "availableDate": "available %{date}"
       },
       "foxyOverview": {

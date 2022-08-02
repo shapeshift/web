@@ -21,8 +21,12 @@ jest.mock('../utils/helpers/helpers', () => {
     ...jest.requireActual('../utils/helpers/helpers'),
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
     getUsdRate: (_args: CowSwapperDeps, input: Asset) => {
-      if (input.assetId === WETH.assetId) {
+      if (input.assetId === WETH.assetId || input.assetId === ETH.assetId) {
         return Promise.resolve('1233.65940923824103061992')
+      }
+
+      if (input.assetId === FOX.assetId) {
+        return Promise.resolve('0.0873')
       }
 
       return Promise.resolve('20978.38')
@@ -97,6 +101,18 @@ const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
   validTo: 1656797787
 }
 
+const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
+  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  from: 'address11',
+  kind: 'sell',
+  partiallyFillable: false,
+  receiver: 'address11',
+  sellAmountBeforeFee: '1000000000000000000000',
+  sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  validTo: 1656797787
+}
+
 const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958', // 14716 FOX per WETH
   feeData: {
@@ -140,9 +156,33 @@ const expectedTradeQuoteWbtcToWethWithApprovalFee: CowTrade<KnownChainIds.Ethere
   sellAmountWithoutFee: '99982762'
 }
 
-const defaultDeps: CowSwapperDeps = {
-  apiUrl: '',
-  adapter: {} as ethereum.ChainAdapter,
+const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
+  rate: '0.00004995640398295996',
+  feeData: {
+    fee: '0',
+    chainSpecific: {
+      estimatedGas: '100000',
+      gasPrice: '79036500000'
+    },
+    tradeFee: '5.3955565850972847808512'
+  },
+  sellAmount: '1000000000000000000000',
+  buyAmount: '46868859830863283',
+  sources: [{ name: 'CowSwap', proportion: '1' }],
+  buyAsset: ETH,
+  sellAsset: FOX,
+  sellAssetAccountNumber: 0,
+  receiveAddress: 'address11',
+  feeAmountInSellToken: '61804771879693983744',
+  sellAmountWithoutFee: '938195228120306016256'
+}
+
+const deps: CowSwapperDeps = {
+  apiUrl: 'https://api.cow.fi/mainnet/api',
+  adapter: {
+    getAddress: jest.fn(() => Promise.resolve('address11')),
+    getFeeData: jest.fn(() => Promise.resolve(feeData))
+  } as unknown as ethereum.ChainAdapter,
   web3: {} as Web3
 }
 
@@ -159,21 +199,12 @@ describe('cowBuildTrade', () => {
       receiveAddress: ''
     }
 
-    await expect(cowBuildTrade(defaultDeps, tradeInput)).rejects.toThrow(
-      '[cowBuildTrade] - Both assets need to be ERC-20 to use CowSwap'
+    await expect(cowBuildTrade(deps, tradeInput)).rejects.toThrow(
+      '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap'
     )
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when selling WETH', async () => {
-    const deps: CowSwapperDeps = {
-      apiUrl: 'https://api.cow.fi/mainnet/api',
-      adapter: {
-        getAddress: jest.fn(() => Promise.resolve('address11')),
-        getFeeData: jest.fn(() => Promise.resolve(feeData))
-      } as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3
-    }
-
     const tradeInput: BuildTradeInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
@@ -211,15 +242,6 @@ describe('cowBuildTrade', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when selling WBTC with allowance being required', async () => {
-    const deps: CowSwapperDeps = {
-      apiUrl: 'https://api.cow.fi/mainnet/api',
-      adapter: {
-        getAddress: jest.fn(() => Promise.resolve('address11')),
-        getFeeData: jest.fn(() => Promise.resolve(feeData))
-      } as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3
-    }
-
     const tradeInput: BuildTradeInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WBTC,
@@ -253,6 +275,43 @@ describe('cowBuildTrade', () => {
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputWbtcToWeth
+    )
+  })
+
+  it('should call cowService with correct parameters, handle the fees and return the correct trade when buying ETH', async () => {
+    const tradeInput: BuildTradeInput = {
+      chainId: KnownChainIds.EthereumMainnet,
+      sellAsset: FOX,
+      buyAsset: ETH,
+      sellAmount: '1000000000000000000000',
+      sendMax: true,
+      sellAssetAccountNumber: 0,
+      wallet: <HDWallet>{},
+      receiveAddress: ''
+    }
+
+    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve({
+        data: {
+          quote: {
+            ...expectedApiInputFoxToEth,
+            sellAmountBeforeFee: undefined,
+            sellAmount: '938195228120306016256',
+            buyAmount: '46868859830863283',
+            feeAmount: '61804771879693983744',
+            sellTokenBalance: 'erc20',
+            buyTokenBalance: 'erc20'
+          }
+        }
+      })
+    )
+
+    const trade = await cowBuildTrade(deps, tradeInput)
+
+    expect(trade).toEqual(expectedTradeQuoteFoxToEth)
+    expect(cowService.post).toHaveBeenCalledWith(
+      'https://api.cow.fi/mainnet/api/v1/quote/',
+      expectedApiInputFoxToEth
     )
   })
 })

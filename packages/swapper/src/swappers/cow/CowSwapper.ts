@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
@@ -28,10 +28,6 @@ import { CowTrade } from './types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 
-/**
- * CowSwap only supports ERC-20 swaps, hence ETH is not supported
- * In order to get rates correctly, we need WETH asset to be passed as feeAsset
- */
 export type CowSwapperDeps = {
   apiUrl: string
   adapter: ethereum.ChainAdapter
@@ -83,7 +79,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
     if (
-      !sellAssetId?.startsWith('eip155:1/erc20') ||
+      fromAssetId(sellAssetId).assetNamespace !== 'erc20' ||
       COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
     )
       return []
@@ -91,14 +87,14 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return assetIds.filter(
       (id) =>
         id !== sellAssetId &&
-        id.startsWith('eip155:1/erc20') &&
+        fromAssetId(id).chainId === KnownChainIds.EthereumMainnet &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
     )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     return assetIds.filter(
-      (id) => id.startsWith('eip155:1/erc20') && !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+      (id) => fromAssetId(id).assetNamespace === 'erc20' && !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
     )
   }
 

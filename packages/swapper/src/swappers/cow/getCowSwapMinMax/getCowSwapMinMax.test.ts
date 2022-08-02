@@ -23,8 +23,14 @@ describe('getCowSwapMinMax', () => {
     expect(minMax.maximum).toBe(MAX_COWSWAP_TRADE)
   })
 
-  it('fails on non erc 20 assets', async () => {
-    await expect(getCowSwapMinMax(DEPS, BTC, WETH)).rejects.toThrow('[getCowSwapMinMax]')
-    await expect(getCowSwapMinMax(DEPS, FOX, ETH)).rejects.toThrow('[getCowSwapMinMax]')
+  it('returns minimum and maximum for ETH as buy asset', async () => {
+    const minMax = await getCowSwapMinMax(DEPS, FOX, ETH)
+    expect(minMax.minimum).toBe('80')
+    expect(minMax.maximum).toBe(MAX_COWSWAP_TRADE)
+  })
+
+  it('fails on non erc 20 sell assets and non ETH-mainnet buy assets', async () => {
+    await expect(getCowSwapMinMax(DEPS, ETH, WETH)).rejects.toThrow('[getCowSwapMinMax]')
+    await expect(getCowSwapMinMax(DEPS, FOX, BTC)).rejects.toThrow('[getCowSwapMinMax]')
   })
 })

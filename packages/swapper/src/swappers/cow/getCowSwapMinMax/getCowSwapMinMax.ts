@@ -1,4 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { MinMaxOutput, SwapError, SwapErrorTypes } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
@@ -12,10 +14,10 @@ export const getCowSwapMinMax = async (
   buyAsset: Asset
 ): Promise<MinMaxOutput> => {
   try {
-    if (
-      !sellAsset.assetId.startsWith('eip155:1/erc20') ||
-      !buyAsset.assetId.startsWith('eip155:1/erc20')
-    ) {
+    const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
+    const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+
+    if (sellAssetNamespace !== 'erc20' || buyAssetChainId !== KnownChainIds.EthereumMainnet) {
       throw new SwapError('[getCowSwapMinMax]', { code: SwapErrorTypes.UNSUPPORTED_PAIR })
     }
 

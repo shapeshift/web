@@ -1,4 +1,4 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
@@ -9,6 +9,7 @@ import { CowSwapperDeps } from '../CowSwapper'
 import { getCowSwapMinMax } from '../getCowSwapMinMax/getCowSwapMinMax'
 import { CowSwapQuoteResponse } from '../types'
 import {
+  COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   DEFAULT_ADDRESS,
   DEFAULT_APP_DATA,
@@ -32,17 +33,29 @@ export async function getCowSwapTradeQuote(
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
-    const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
+    const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
       buyAsset.assetId
     )
 
-    if (buyAssetNamespace !== 'erc20' || sellAssetNamespace !== 'erc20') {
-      throw new SwapError('[getCowSwapTradeQuote] - Both assets need to be ERC-20 to use CowSwap', {
+    if (sellAssetNamespace !== 'erc20') {
+      throw new SwapError('[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap', {
         code: SwapErrorTypes.UNSUPPORTED_PAIR,
-        details: { buyAssetNamespace, sellAssetNamespace }
+        details: { sellAssetNamespace }
       })
     }
 
+    if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
+      throw new SwapError(
+        '[getCowSwapTradeQuote] - Buy asset needs to be on ETH mainnet to use CowSwap',
+        {
+          code: SwapErrorTypes.UNSUPPORTED_PAIR,
+          details: { buyAssetChainId }
+        }
+      )
+    }
+
+    const buyToken =
+      buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
     const { minimum, maximum } = await getCowSwapMinMax(deps, sellAsset, buyAsset)
 
     const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
@@ -54,7 +67,7 @@ export async function getCowSwapTradeQuote(
 
     const apiInput: CowSwapSellQuoteApiInput = {
       sellToken: sellAssetErc20Address,
-      buyToken: buyAssetErc20Address,
+      buyToken,
       receiver: DEFAULT_ADDRESS,
       validTo: getNowPlusThirtyMinutesTimestamp(),
       appData: DEFAULT_APP_DATA,

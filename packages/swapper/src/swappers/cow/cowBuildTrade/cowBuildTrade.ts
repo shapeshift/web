@@ -1,4 +1,4 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 
@@ -13,6 +13,7 @@ import {
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowSwapQuoteResponse, CowTrade } from '../types'
 import {
+  COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   DEFAULT_APP_DATA,
   DEFAULT_SOURCE,
@@ -31,17 +32,26 @@ export async function cowBuildTrade(
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
-    const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
+    const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
       buyAsset.assetId
     )
 
-    if (buyAssetNamespace !== 'erc20' || sellAssetNamespace !== 'erc20') {
-      throw new SwapError('[cowBuildTrade] - Both assets need to be ERC-20 to use CowSwap', {
+    if (sellAssetNamespace !== 'erc20') {
+      throw new SwapError('[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
         code: SwapErrorTypes.UNSUPPORTED_PAIR,
-        details: { buyAssetNamespace, sellAssetNamespace }
+        details: { sellAssetNamespace }
       })
     }
 
+    if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
+      throw new SwapError('[cowBuildTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
+        code: SwapErrorTypes.UNSUPPORTED_PAIR,
+        details: { buyAssetChainId }
+      })
+    }
+
+    const buyToken =
+      buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
     const receiveAddress = await adapter.getAddress({ wallet })
     const normalizedSellAmount = normalizeAmount(sellAmount)
 
@@ -62,7 +72,7 @@ export async function cowBuildTrade(
     const quoteResponse: AxiosResponse<CowSwapQuoteResponse> =
       await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, {
         sellToken: sellAssetErc20Address,
-        buyToken: buyAssetErc20Address,
+        buyToken,
         receiver: receiveAddress,
         validTo: getNowPlusThirtyMinutesTimestamp(),
         appData: DEFAULT_APP_DATA,

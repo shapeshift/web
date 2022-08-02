@@ -120,19 +120,19 @@ describe('CowSwapper', () => {
           assetIds: ASSET_IDS,
           sellAssetId: WETH.assetId
         })
-      ).toEqual([WBTC.assetId, FOX.assetId])
+      ).toEqual([ETH.assetId, WBTC.assetId, FOX.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
           sellAssetId: WBTC.assetId
         })
-      ).toEqual([WETH.assetId, FOX.assetId])
+      ).toEqual([ETH.assetId, WETH.assetId, FOX.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
           sellAssetId: FOX.assetId
         })
-      ).toEqual([WBTC.assetId, WETH.assetId])
+      ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
     })
 
     it('returns array filtered out of unsupported tokens when called with a sellable sellAssetId', () => {

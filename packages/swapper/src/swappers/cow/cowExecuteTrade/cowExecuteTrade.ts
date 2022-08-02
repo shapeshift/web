@@ -1,4 +1,4 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { ethereum, SignMessageInput, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -9,6 +9,7 @@ import { ExecuteTradeInput, SwapError, SwapErrorTypes, TradeResult } from '../..
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowTrade } from '../types'
 import {
+  COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_SETTLEMENT_ADDRESS,
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
@@ -33,21 +34,31 @@ export async function cowExecuteTrade(
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
     sellAsset.assetId
   )
-  const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
+  const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
     buyAsset.assetId
   )
 
-  if (buyAssetNamespace !== 'erc20' || sellAssetNamespace !== 'erc20') {
-    throw new SwapError('[cowExecuteTrade] - Both assets need to be ERC-20 to use CowSwap', {
+  if (sellAssetNamespace !== 'erc20') {
+    throw new SwapError('[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
       code: SwapErrorTypes.UNSUPPORTED_PAIR,
-      details: { buyAssetNamespace, sellAssetNamespace }
+      details: { sellAssetNamespace }
     })
   }
+
+  if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
+    throw new SwapError('[cowExecuteTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
+      code: SwapErrorTypes.UNSUPPORTED_PAIR,
+      details: { buyAssetChainId }
+    })
+  }
+
+  const buyToken =
+    buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
 
   try {
     const orderToSign: CowSwapOrder = {
       sellToken: sellAssetErc20Address,
-      buyToken: buyAssetErc20Address,
+      buyToken,
       sellAmount: sellAmountWithoutFee,
       buyAmount: trade.buyAmount,
       validTo: getNowPlusThirtyMinutesTimestamp(),

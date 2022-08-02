@@ -16,7 +16,6 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const assetIds = useAppSelector(state =>
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
-  // @TODO: This filters for EVM to not show tokens component on tokens
   const { chainNamespace } = fromAssetId(assetId)
   if (!(chainNamespace === CHAIN_NAMESPACE.Ethereum) || assetIds.length === 0) return null
 

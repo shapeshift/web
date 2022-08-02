@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.13.1...@shapeshiftoss/chain-adapters-v7.14.0) (2022-08-02)
+
+
+### Features
+
+* add bitcoincash ([#932](https://github.com/shapeshift/lib/issues/932)) ([85080ed](https://github.com/shapeshift/lib/commit/85080ed065027d3e9fe6d28799a0c171ac7ea39c))
+
 # [@shapeshiftoss/chain-adapters-v7.13.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.13.0...@shapeshiftoss/chain-adapters-v7.13.1) (2022-07-29)
 
 # [@shapeshiftoss/chain-adapters-v7.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.12.0...@shapeshiftoss/chain-adapters-v7.13.0) (2022-07-29)

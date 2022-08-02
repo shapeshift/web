@@ -1,4 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { MarketData } from '@shapeshiftoss/types'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
@@ -13,7 +14,6 @@ import {
 } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
-import { ethChainId } from '@shapeshiftoss/caip'
 
 // Adding a new supported method? Also update transactionRow.parser translations accordingly
 export enum ContractMethod {

@@ -43,10 +43,11 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(
         opportunity => opportunity.address === contractAddress,
-      ) ?? {},
+      ),
     [opportunities, contractAddress],
-  ) as MergedActiveStakingOpportunity
+  )
   const location = useLocation()
+  if (!opportunity) return null
 
   return (
     <SlideTransition>

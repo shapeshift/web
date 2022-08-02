@@ -19,10 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  MergedActiveStakingOpportunity,
-  useCosmosSdkStakingBalances,
-} from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
@@ -59,11 +56,11 @@ export const CosmosOverview = () => {
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(
         opportunity => opportunity.address === contractAddress,
-      ) ?? {},
+      ),
     [opportunities, contractAddress],
-  ) as MergedActiveStakingOpportunity
+  )
 
-  const loaded = useMemo(() => opportunity.isLoaded, [opportunity.isLoaded])
+  const loaded = useMemo(() => opportunity?.isLoaded, [opportunity?.isLoaded])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -82,8 +79,6 @@ export const CosmosOverview = () => {
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const cryptoAmountAvailable = bnOrZero(totalBondings).div(`1e${stakingAsset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
-  const hasClaim = bnOrZero(opportunity.rewards).gt(0)
-  const claimDisabled = !hasClaim
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -99,6 +94,11 @@ export const CosmosOverview = () => {
   )
 
   const apr = useMemo(() => bnOrZero(validatorData?.apr).toString(), [validatorData])
+
+  if (!opportunity) return null
+
+  const hasClaim = bnOrZero(opportunity?.rewards).gt(0)
+  const claimDisabled = !hasClaim
 
   if (!loaded || !opportunity) {
     return (

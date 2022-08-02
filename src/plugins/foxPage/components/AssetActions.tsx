@@ -35,6 +35,7 @@ type FoxTabProps = {
   assetId: AssetId
 }
 
+const BuyFoxCoinbaseUrl = 'https://www.coinbase.com/price/fox-token'
 const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
 
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
@@ -103,6 +104,23 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                   <Button onClick={onGetAssetClick} colorScheme={'blue'} mb={2} size='lg'>
                     <CText>
                       {translate('plugins.foxPage.getAsset', {
+                        assetSymbol: asset.symbol,
+                      })}
+                    </CText>
+                  </Button>
+                )}
+                {isFoxAsset && (
+                  <Button
+                    colorScheme={'blue'}
+                    mb={2}
+                    size='lg'
+                    as={Link}
+                    leftIcon={<ExternalLinkIcon />}
+                    href={BuyFoxCoinbaseUrl}
+                    isExternal
+                  >
+                    <CText>
+                      {translate('plugins.foxPage.buyAssetOnCoinbase', {
                         assetSymbol: asset.symbol,
                       })}
                     </CText>

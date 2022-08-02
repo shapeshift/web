@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.9.1...@shapeshiftoss/caip-v6.10.0) (2022-08-02)
+
+
+### Features
+
+* additonal thorchain asset support ([#935](https://github.com/shapeshift/lib/issues/935)) ([0b1a492](https://github.com/shapeshift/lib/commit/0b1a492b4f6c1f69674f3114f284caa0b5b8e1ce))
+
 # [@shapeshiftoss/caip-v6.9.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.9.0...@shapeshiftoss/caip-v6.9.1) (2022-08-01)
 
 # [@shapeshiftoss/caip-v6.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.8.0...@shapeshiftoss/caip-v6.9.0) (2022-08-01)

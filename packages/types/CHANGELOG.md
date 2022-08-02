@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.1.0...@shapeshiftoss/types-v8.2.0) (2022-08-02)
+
+
+### Features
+
+* add bitcoincash ([#932](https://github.com/shapeshift/lib/issues/932)) ([85080ed](https://github.com/shapeshift/lib/commit/85080ed065027d3e9fe6d28799a0c171ac7ea39c))
+
 # [@shapeshiftoss/types-v8.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.0.0...@shapeshiftoss/types-v8.1.0) (2022-07-29)
 
 

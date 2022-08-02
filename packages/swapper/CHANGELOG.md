@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.4.0...@shapeshiftoss/swapper-v9.5.0) (2022-08-02)
+
+
+### Features
+
+* atom thorchain support ([#938](https://github.com/shapeshift/lib/issues/938)) ([86296d1](https://github.com/shapeshift/lib/commit/86296d1ebf3ba57cdc462e1c95e46b122230b881))
+
 # [@shapeshiftoss/swapper-v9.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.3.2...@shapeshiftoss/swapper-v9.4.0) (2022-08-02)
 
 

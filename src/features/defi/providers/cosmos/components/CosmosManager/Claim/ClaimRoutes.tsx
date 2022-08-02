@@ -6,10 +6,7 @@ import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import {
-  MergedActiveStakingOpportunity,
-  useCosmosSdkStakingBalances,
-} from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'

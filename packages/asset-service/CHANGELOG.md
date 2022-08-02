@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v7.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.1.1...@shapeshiftoss/asset-service-v7.2.0) (2022-08-02)
+
+
+### Features
+
+* add bitcoincash ([#932](https://github.com/shapeshift/lib/issues/932)) ([85080ed](https://github.com/shapeshift/lib/commit/85080ed065027d3e9fe6d28799a0c171ac7ea39c))
+
 # [@shapeshiftoss/asset-service-v7.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.1.0...@shapeshiftoss/asset-service-v7.1.1) (2022-07-29)
 
 # [@shapeshiftoss/asset-service-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.0.1...@shapeshiftoss/asset-service-v7.1.0) (2022-07-29)

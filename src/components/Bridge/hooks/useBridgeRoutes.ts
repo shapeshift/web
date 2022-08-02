@@ -15,8 +15,8 @@ export const useBridgeRoutes = (): {
   const handleAssetClick = useCallback(
     async (asset: BridgeAsset) => {
       try {
-        const { implmentations } = asset
-        const chains = Object.keys(implmentations ?? {})
+        const { implementations } = asset
+        const chains = Object.keys(implementations ?? {})
         setValue('asset', asset, { shouldValidate: true })
         setValue('address', '0xe21d837cd1437305632ac1660a94c64b1ecd3151')
         setValue('fromChain', undefined, { shouldValidate: true })

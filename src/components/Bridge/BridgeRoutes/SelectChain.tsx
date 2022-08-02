@@ -19,8 +19,8 @@ export const SelectChain: React.FC<SelectAssetProps> = ({ onClick, history }) =>
   }
   const { control } = useFormContext<BridgeState>()
   const sellAsset = useWatch({ control, name: 'asset' })
-  const implmentations = sellAsset?.implmentations
-  const chains = Object.keys(sellAsset?.implmentations ?? {})
+  const implmentations = sellAsset?.implementations
+  const chains = Object.keys(sellAsset?.implementations ?? {})
 
   if (!implmentations) return null
 

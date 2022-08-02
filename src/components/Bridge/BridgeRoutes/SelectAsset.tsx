@@ -1,62 +1,25 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, Circle, Stack } from '@chakra-ui/react'
+import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { useSelector } from 'react-redux'
 import { RouteComponentProps } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { selectPortfolioBridgeAssets } from 'state/slices/portfolioSlice/selectors'
 
 import { BridgeAsset, BridgeRoutePaths } from '../types'
 import { WithBackButton } from './WithBackButton'
-
-const assets = [
-  {
-    assetId: '1',
-    symbol: 'WAVAX',
-    balance: '1000',
-    icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x85f138bfEE4ef8e540890CFb48F620571d67Eda3/logo.png',
-    implmentations: {
-      avalanche: {
-        name: 'Avalanche',
-        balance: '1000',
-        fiatBalance: '2510.00',
-        color: '#E84142',
-      },
-      ethereum: {
-        name: 'Ethereum',
-        balance: '0',
-        fiatBalance: '0',
-        color: '#627EEA',
-      },
-    },
-  },
-  {
-    assetId: '2',
-    symbol: 'ATOM',
-    icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
-    balance: '14.1245',
-  },
-  {
-    assetId: '3',
-    symbol: 'OSMOSIS',
-    balance: '20.2988',
-    icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/osmosis/info/logo.png',
-  },
-  {
-    assetId: '4',
-    symbol: 'USDC',
-    balance: '10.299',
-    icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x566957eF80F9fd5526CD2BEF8BE67035C0b81130/logo.png',
-  },
-]
 
 type AssetRowProps = {
   onClick: (arg: BridgeAsset) => void
 } & BridgeAsset
 
 const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
-  const { symbol, icon, balance, implmentations } = rest
-  const chains = Object.keys(implmentations ?? {})
+  const { symbol, icon, balance, implementations } = rest
+  const chains = Object.keys(implementations ?? {})
   return (
     <Button
       variant='ghost'
@@ -86,7 +49,28 @@ type SelectAssetProps = {
   onClick: (asset: BridgeAsset) => void
 } & RouteComponentProps
 
+const getWrappedAxelarAssetIdOnAvalanche = (asset: AssetId): AssetId | undefined => {
+  const chainId = KnownChainIds.AvalancheMainnet
+  const assetNamespace = 'erc20'
+  switch (asset) {
+    // USDC on Ethereum
+    case 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48':
+      return toAssetId({
+        chainId,
+        assetNamespace,
+        assetReference: '0xfaB550568C688d5D8A52C7d794cb93Edc26eC0eC',
+      })
+    default:
+      return undefined
+  }
+}
+
 export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) => {
+  const assets = useSelector(selectPortfolioBridgeAssets)
+  const supportedAssets = assets.filter(asset => {
+    return !!getWrappedAxelarAssetIdOnAvalanche(asset.assetId)
+  })
+
   const handleBack = () => {
     history.push(BridgeRoutePaths.Input)
   }
@@ -103,7 +87,7 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
         </Card.Header>
         <Card.Body p={0} height='400px' display='flex' flexDir='column'>
           <Stack>
-            {assets.map(asset => (
+            {supportedAssets.map(asset => (
               <AssetRow key={asset.assetId} onClick={onClick} {...asset} />
             ))}
           </Stack>

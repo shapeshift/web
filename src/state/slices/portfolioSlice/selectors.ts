@@ -23,6 +23,7 @@ import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { BridgeAsset } from 'components/Bridge/types'
 import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -812,6 +813,35 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
       [],
     )
     return assetRows
+  },
+)
+
+export const selectPortfolioBridgeAssets = createSelector(
+  selectPortfolioAccountRows,
+  (portfolioAssets): BridgeAsset[] => {
+    return Object.entries(portfolioAssets).map(([_, v]) => {
+      return {
+        assetId: v.assetId,
+        symbol: v.symbol,
+        balance: v.cryptoAmount,
+        icon: v.icon,
+        // FIXME
+        implementations: {
+          avalanche: {
+            name: 'Avalanche',
+            balance: '1000',
+            fiatBalance: '2510.00',
+            color: '#E84142',
+          },
+          ethereum: {
+            name: 'Ethereum',
+            balance: '800',
+            fiatBalance: '2000',
+            color: '#627EEA',
+          },
+        },
+      }
+    })
   },
 )
 

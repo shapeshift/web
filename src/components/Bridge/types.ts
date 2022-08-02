@@ -18,7 +18,7 @@ export type BridgeAsset = {
   symbol: string
   balance: string
   icon: string
-  implmentations?: {
+  implementations?: {
     [key in string]: BridgeChain
   }
 }

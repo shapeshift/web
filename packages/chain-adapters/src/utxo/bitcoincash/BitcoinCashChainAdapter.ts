@@ -27,7 +27,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinCashMainn
     })
 
     this.assetId = bchAssetId
-    this.parser = new unchained.bitcoin.TransactionParser({
+    this.parser = new unchained.bitcoincash.TransactionParser({
       chainId: this.chainId
     })
   }

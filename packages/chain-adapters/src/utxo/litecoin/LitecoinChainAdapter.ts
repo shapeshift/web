@@ -6,11 +6,7 @@ import { ChainAdapterArgs, UtxoBaseAdapter } from '../UtxoBaseAdapter'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.LitecoinMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.LitecoinMainnet
-const SUPPORTED_ACCOUNT_TYPES = [
-  UtxoAccountType.SegwitNative,
-  UtxoAccountType.SegwitP2sh,
-  UtxoAccountType.P2pkh
-]
+const SUPPORTED_ACCOUNT_TYPES = [UtxoAccountType.P2pkh]
 
 export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.LitecoinMainnet> {
   public static readonly defaultUtxoAccountType = UtxoAccountType.SegwitNative

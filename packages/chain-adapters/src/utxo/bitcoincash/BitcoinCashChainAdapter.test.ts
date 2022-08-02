@@ -20,7 +20,7 @@ import { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/type
 
 import { Account, BuildSendTxInput } from '../../types'
 import { ChainAdapterArgs } from '../UtxoBaseAdapter'
-import * as bitcoincash from './BitcoincashChainAdapter'
+import * as bitcoincash from './BitcoinCashChainAdapter'
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 const VALID_CHAIN_ID = bchChainId

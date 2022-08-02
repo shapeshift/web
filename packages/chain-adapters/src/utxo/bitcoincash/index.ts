@@ -1,1 +1,1 @@
-export * from './BitcoincashChainAdapter'
+export * from './BitcoinCashChainAdapter'

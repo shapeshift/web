@@ -82,7 +82,7 @@ export const useTradeRoutes = (
 
       const buyAsset = assets[buyAssetId]
 
-      if (sellAsset && buyAsset) {
+      if (sellAsset && buyAsset && (!buyTradeAsset?.amount || !sellTradeAsset?.amount)) {
         setValue('buyAsset.asset', buyAsset)
         setValue('sellAsset.asset', sellAsset)
         await updateQuote({
@@ -100,11 +100,13 @@ export const useTradeRoutes = (
     }
   }, [
     assets,
+    buyTradeAsset?.amount,
     defaultBuyAssetId,
     defaultFeeAsset,
     defaultSellAssetId,
     routeBuyAssetId,
     selectedCurrencyToUsdRate,
+    sellTradeAsset?.amount,
     setValue,
     swapperManager,
     updateQuote,

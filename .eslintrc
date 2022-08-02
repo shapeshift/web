@@ -74,6 +74,7 @@
       }
     ],
     "object-shorthand": "error",
-    "eqeqeq": "error"
+    "eqeqeq": "error",
+    "react-hooks/exhaustive-deps": "error"
   }
 }

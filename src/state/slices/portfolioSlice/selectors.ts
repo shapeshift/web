@@ -820,26 +820,13 @@ export const selectPortfolioBridgeAssets = createSelector(
   selectPortfolioAccountRows,
   (portfolioAssets): BridgeAsset[] => {
     return Object.entries(portfolioAssets).map(([_, v]) => {
+      const implementations = undefined // TODO: implement here
       return {
         assetId: v.assetId,
         symbol: v.symbol,
         balance: v.cryptoAmount,
         icon: v.icon,
-        // FIXME
-        implementations: {
-          avalanche: {
-            name: 'Avalanche',
-            balance: '1000',
-            fiatBalance: '2510.00',
-            color: '#E84142',
-          },
-          ethereum: {
-            name: 'Ethereum',
-            balance: '800',
-            fiatBalance: '2000',
-            color: '#627EEA',
-          },
-        },
+        implementations,
       }
     })
   },

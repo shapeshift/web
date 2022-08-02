@@ -49,7 +49,7 @@ type SelectAssetProps = {
   onClick: (asset: BridgeAsset) => void
 } & RouteComponentProps
 
-const getWrappedAxelarAssetIdOnAvalanche = (asset: AssetId): AssetId | undefined => {
+const wrapAxelarAssetIdFromEthereumToAvalanche = (asset: AssetId): AssetId | undefined => {
   const chainId = KnownChainIds.AvalancheMainnet
   const assetNamespace = 'erc20'
   switch (asset) {
@@ -65,11 +65,68 @@ const getWrappedAxelarAssetIdOnAvalanche = (asset: AssetId): AssetId | undefined
   }
 }
 
+const unwrapAxelarAssetIdFromAvalancheToEthereum = (asset: AssetId): AssetId | undefined => {
+  const chainId = KnownChainIds.EthereumMainnet
+  const assetNamespace = 'erc20'
+  switch (asset) {
+    // Axelar-wrapped USDC on Avalanche
+    case 'eip155:43114/erc20:0xfaB550568C688d5D8A52C7d794cb93Edc26eC0eC':
+      return toAssetId({
+        chainId,
+        assetNamespace,
+        assetReference: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      })
+    default:
+      return undefined
+  }
+}
+
 export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) => {
   const assets = useSelector(selectPortfolioBridgeAssets)
-  const supportedAssets = assets.filter(asset => {
-    return !!getWrappedAxelarAssetIdOnAvalanche(asset.assetId)
-  })
+  const supportedAssets = assets
+    .filter(asset => {
+      const maybeWrappedAsset = wrapAxelarAssetIdFromEthereumToAvalanche(asset.assetId)
+      const maybeUnwrappedAsset = unwrapAxelarAssetIdFromAvalancheToEthereum(asset.assetId)
+      // If we can wrap or unwrap the asset, we support it
+      return !!(maybeWrappedAsset || maybeUnwrappedAsset)
+    })
+    .map(filteredAsset => {
+      const maybeUnwrappedAsset = unwrapAxelarAssetIdFromAvalancheToEthereum(filteredAsset.assetId)
+      const implementations = maybeUnwrappedAsset
+        ? {
+            avalanche: {
+              name: 'Avalanche',
+              balance: filteredAsset.balance,
+              fiatBalance: 'TODO',
+              color: '#E84142',
+            },
+            ethereum: {
+              name: 'Ethereum',
+              balance: 'TODO',
+              fiatBalance: 'TODO',
+              color: '#627EEA',
+            },
+          }
+        : {
+            avalanche: {
+              name: 'Avalanche',
+              balance: 'TODO',
+              fiatBalance: 'TODO',
+              color: '#E84142',
+            },
+            ethereum: {
+              name: 'Ethereum',
+              balance: filteredAsset.balance,
+              fiatBalance: 'TODO',
+              color: '#627EEA',
+            },
+          }
+
+      return {
+        ...filteredAsset,
+        implementations,
+      }
+    })
 
   const handleBack = () => {
     history.push(BridgeRoutePaths.Input)

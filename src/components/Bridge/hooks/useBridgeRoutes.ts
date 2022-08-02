@@ -1,8 +1,16 @@
+import { avalancheChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { BridgeAsset, BridgeChain, BridgeRoutePaths, BridgeState } from '../types'
+import {
+  AXELAR_CHAIN_NAMES,
+  BridgeAsset,
+  BridgeChain,
+  BridgeRoutePaths,
+  BridgeState,
+} from '../types'
 
 export const useBridgeRoutes = (): {
   handleAssetClick: (asset: BridgeAsset) => Promise<void>
@@ -11,26 +19,47 @@ export const useBridgeRoutes = (): {
 } => {
   const history = useHistory()
   const { setValue } = useFormContext<BridgeState>()
+  const {
+    state: { walletInfo },
+  } = useWallet()
+
+  const getAxelarChainNameFromBridgeAsset = (asset: BridgeAsset) => {
+    const chainId = fromAssetId(asset.assetId).chainId
+    switch (chainId) {
+      case ethChainId:
+        return AXELAR_CHAIN_NAMES.Ethereum
+      case avalancheChainId:
+        return AXELAR_CHAIN_NAMES.Avalanche
+      default:
+        throw new Error(`chainId ${chainId} is not supported`)
+    }
+  }
 
   const handleAssetClick = useCallback(
     async (asset: BridgeAsset) => {
+      const fromChainLabel = getAxelarChainNameFromBridgeAsset(asset)
+      const fromChain = asset.implementations?.[fromChainLabel.toLowerCase()]
       try {
         const { implementations } = asset
         const chains = Object.keys(implementations ?? {})
         setValue('asset', asset, { shouldValidate: true })
-        setValue('address', '0xe21d837cd1437305632ac1660a94c64b1ecd3151')
-        setValue('fromChain', undefined, { shouldValidate: true })
-        setValue('toChain', undefined, { shouldValidate: true })
-        if (chains.length > 1) {
-          history.push(BridgeRoutePaths.ChainFromSelect)
+        setValue('address', walletInfo?.meta?.address)
+        setValue('fromChain', fromChain, { shouldValidate: true })
+        if (chains.length === 2) {
+          // There is only one option left for the toChain, select it automatically
+          const toChainLabel = chains.filter(chain => chain !== fromChainLabel)[0]
+          const toChain = asset.implementations?.[toChainLabel.toLowerCase()]
+          setValue('toChain', toChain, { shouldValidate: true })
         } else {
-          history.push(BridgeRoutePaths.Input)
+          // Let the user pick
+          setValue('toChain', undefined, { shouldValidate: true })
         }
+        history.push(BridgeRoutePaths.Input)
       } catch (e) {
         console.warn(e)
       }
     },
-    [setValue, history],
+    [setValue, walletInfo?.meta?.address, history],
   )
 
   const handleFromChainClick = useCallback(

@@ -6,6 +6,24 @@ export enum BridgeAmountInputField {
   FIAT = 'FIAT',
 }
 
+export const AXELAR_CHAIN_NAMES = {
+  Avalanche: 'Avalanche',
+  Ethereum: 'Ethereum',
+  Fantom: 'Fantom',
+  Moonbeam: 'Moonbeam',
+  Polygon: 'Polygon',
+  Axelarnet: 'Axelarnet',
+  Cosmoshub: 'cosmoshub',
+  Crescent: 'crescent',
+  Emoney: 'e-money',
+  Injective: 'injective',
+  Juno: 'juno',
+  Kujira: 'kujira',
+  Osmosis: 'osmosis',
+  Secret: 'secret',
+  Terra2: 'terra-2',
+}
+
 export type BridgeChain = {
   name: string
   balance: string

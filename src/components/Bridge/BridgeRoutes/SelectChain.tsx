@@ -18,11 +18,11 @@ export const SelectChain: React.FC<SelectAssetProps> = ({ onClick, history }) =>
     history.push(BridgeRoutePaths.Input)
   }
   const { control } = useFormContext<BridgeState>()
-  const sellAsset = useWatch({ control, name: 'asset' })
-  const implmentations = sellAsset?.implementations
-  const chains = Object.keys(sellAsset?.implementations ?? {})
+  const bridgeAsset = useWatch({ control, name: 'asset' })
+  const implementations = bridgeAsset?.implementations
+  const chains = Object.keys(bridgeAsset?.implementations ?? {})
 
-  if (!implmentations) return null
+  if (!implementations) return null
 
   return (
     <SlideTransition>
@@ -37,7 +37,7 @@ export const SelectChain: React.FC<SelectAssetProps> = ({ onClick, history }) =>
         <Card.Body p={0} height='400px' display='flex' flexDir='column'>
           <Stack width='full'>
             {chains.map(chainName => {
-              const chain = implmentations[chainName]
+              const chain = implementations[chainName]
               return (
                 <Stack
                   as={Button}
@@ -59,7 +59,7 @@ export const SelectChain: React.FC<SelectAssetProps> = ({ onClick, history }) =>
                     <Amount.Crypto
                       color='gray.500'
                       value={chain.balance}
-                      symbol={sellAsset.symbol}
+                      symbol={bridgeAsset.symbol}
                     />
                   </Stack>
                 </Stack>

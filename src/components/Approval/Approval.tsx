@@ -152,7 +152,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`https://etherscan.io/address/${quote.allowanceContract}`}
+                href={`${quote.sellAsset.explorerAddressLink}${quote.allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal

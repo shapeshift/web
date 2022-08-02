@@ -82,7 +82,14 @@ export const Approve = ({
         <Stack>
           <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
           <CText color='gray.500'>
-            <Link href={`https://etherscan.io/address/${contractAddress}`}>Contract</Link>
+            <Link
+              href={`${asset.explorerAddressLink}${contractAddress}`}
+              color='blue.500'
+              me={1}
+              isExternal
+            >
+              {translate('modals.approve.routerName')}
+            </Link>
             {translate('modals.approve.body', { asset: asset.name })}
           </CText>
           <Link color='blue.500' href={learnMoreLink} isExternal>

@@ -14,6 +14,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,6 +57,10 @@ const StatusInfo = {
   },
 }
 
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Cosmos', 'ClaimStatus'],
+})
+
 export const ClaimStatus = () => {
   const { history: browserHistory } = useBrowserRouter()
   const translate = useTranslate()
@@ -78,7 +83,7 @@ export const ClaimStatus = () => {
           txStatus: txid ? TxStatus.SUCCESS : TxStatus.FAILED,
         })
       } catch (error) {
-        console.error('CosmosClaim:useEffect error:', error)
+        moduleLogger.error(error, 'ClaimStatus error')
         setState({
           ...state,
           txStatus: TxStatus.FAILED,

@@ -25,6 +25,7 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -35,6 +36,10 @@ type ClaimConfirmProps = {
   chainId: ChainId
   onBack: () => void
 }
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Cosmos', 'ClaimConfirm'],
+})
 
 export const ClaimConfirm = ({
   assetId,
@@ -92,7 +97,7 @@ export const ClaimConfirm = ({
         chainId,
       })
     } catch (error) {
-      console.error('ClaimWithdraw:handleConfirm error', error)
+      moduleLogger.error(error, { fn: 'handleConfirm' }, 'ClaimWithdraw:handleConfirm error')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -120,7 +125,7 @@ export const ClaimConfirm = ({
         setEstimatedGas(gasEstimate)
       } catch (error) {
         // TODO: handle client side errors
-        console.error('CosmosClaim error:', error)
+        moduleLogger.error(error, 'ClaimConfirm error')
       }
     })()
   }, [

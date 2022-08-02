@@ -23,6 +23,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -32,6 +33,10 @@ import { useAppSelector } from 'state/store'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Cosmos', 'Withdraw', 'Confirm'],
+})
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const [gasLimit, setGasLimit] = useState<string | null>(null)
@@ -116,7 +121,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
       dispatch({ type: CosmosWithdrawActionType.SET_TXID, payload: broadcastTxId })
     } catch (error) {
-      console.error('CosmosWithdraw:handleConfirm error', error)
+      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm')
     } finally {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)

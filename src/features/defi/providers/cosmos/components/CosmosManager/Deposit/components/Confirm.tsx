@@ -20,6 +20,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -29,6 +30,10 @@ import { useAppSelector } from 'state/store'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Cosmos', 'Deposit', 'Confirm'],
+})
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(DepositContext)
@@ -94,7 +99,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
       dispatch({ type: CosmosDepositActionType.SET_TXID, payload: broadcastTxId })
     } catch (error) {
-      console.error('CosmosDeposit:handleDeposit error', error)
+      moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

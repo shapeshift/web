@@ -17,6 +17,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -60,6 +61,10 @@ const StatusInfo = {
   },
 }
 
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Foxy', 'Overview', 'ClaimStatus'],
+})
+
 export const ClaimStatus = () => {
   const { history: browserHistory } = useBrowserRouter()
   const { foxy } = useFoxy()
@@ -98,7 +103,7 @@ export const ClaimStatus = () => {
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
         })
       } catch (error) {
-        console.error('FoxyClaim:useEffect error:', error)
+        moduleLogger.error(error, 'FoxyClaim error:')
         setState({
           ...state,
           txStatus: TxStatus.FAILED,

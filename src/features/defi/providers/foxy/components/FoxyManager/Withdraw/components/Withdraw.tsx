@@ -181,8 +181,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       ])
       return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
     } catch (error) {
-      console.error('FoxyWithdraw:getApproveEstimate error:', error)
-      moduleLogger.error({ fn: 'getApproveEstimate', error }, 'Error getting gas approval estimate')
+      moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),

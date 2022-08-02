@@ -9,9 +9,9 @@ import { type Plugins } from 'plugins/types'
 export default function register(): Plugins {
   return [
     [
-      'bitcoincashChainAdapter',
+      'bitcoinCashChainAdapter',
       {
-        name: 'bitcoincashChainAdapter',
+        name: 'bitcoinCashChainAdapter',
         providers: {
           chainAdapters: [
             [
@@ -29,7 +29,7 @@ export default function register(): Plugins {
 
                 return new bitcoincash.ChainAdapter({
                   providers: { http, ws },
-                  coinName: 'Bitcoincash',
+                  coinName: 'BitcoinCash',
                 }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly
               },
             ],

@@ -59,7 +59,7 @@ export const assetApi = createApi({
     getAssets: build.query<AssetsState, void>({
       // all assets
       queryFn: async (_, { getState }) => {
-        const { Avalanche, Bitcoincash, Osmosis, Litecoin } = selectFeatureFlags(
+        const { Avalanche, BitcoinCash, Osmosis, Litecoin } = selectFeatureFlags(
           getState() as ReduxState,
         )
 
@@ -67,9 +67,7 @@ export const assetApi = createApi({
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!Avalanche && asset.chainId === avalancheChainId) return prev
-            if (!Bitcoincash && asset.chainId === bchChainId) {
-              return prev
-            }
+            if (!BitcoinCash && asset.chainId === bchChainId) return prev
             if (!Osmosis && asset.chainId === osmosisChainId) return prev
             if (!Litecoin && asset.chainId === ltcChainId) return prev
             prev[assetId] = asset

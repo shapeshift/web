@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.5.1...@shapeshiftoss/unchained-client-v9.6.0) (2022-08-02)
+
+
+### Features
+
+* add bitcoincash ([#932](https://github.com/shapeshift/lib/issues/932)) ([85080ed](https://github.com/shapeshift/lib/commit/85080ed065027d3e9fe6d28799a0c171ac7ea39c))
+
 # [@shapeshiftoss/unchained-client-v9.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.5.0...@shapeshiftoss/unchained-client-v9.5.1) (2022-07-29)
 
 # [@shapeshiftoss/unchained-client-v9.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.4.0...@shapeshiftoss/unchained-client-v9.5.0) (2022-07-29)

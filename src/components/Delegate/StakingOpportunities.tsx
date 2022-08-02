@@ -8,7 +8,7 @@ import {
   isOsmosisChainId,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
 import { Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -88,19 +88,22 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
 
   const rows = stakingOpportunitiesData
 
-  const handleClick = (values: Row<OpportunitiesDataFull>) => {
-    const { chainId, assetReference } = fromAssetId(assetId)
-    const provider = chainIdToLabel(chainId)
-    history.push({
-      search: qs.stringify({
-        provider,
-        chainId,
-        contractAddress: values.original.address,
-        assetReference,
-        modal: 'overview',
-      }),
-    })
-  }
+  const handleClick = useCallback(
+    (values: Row<OpportunitiesDataFull>) => {
+      const { chainId, assetReference } = fromAssetId(assetId)
+      const provider = chainIdToLabel(chainId)
+      history.push({
+        search: qs.stringify({
+          provider,
+          chainId,
+          contractAddress: values.original.address,
+          assetReference,
+          modal: 'overview',
+        }),
+      })
+    },
+    [assetId, history],
+  )
 
   const columns = useMemo(
     () => [

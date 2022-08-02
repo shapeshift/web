@@ -1,8 +1,9 @@
-import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { Button, Divider, Flex, Image, Link, SkeletonCircle, Text as CText } from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -35,6 +36,7 @@ export const Approval = () => {
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const { fiatRate } = location.state
+  const translate = useTranslate()
 
   const {
     getValues,
@@ -148,11 +150,17 @@ export const Approval = () => {
               textAlign='center'
               translation={['trade.approveAsset', { symbol }]}
             />
-            <Text
-              color='gray.500'
-              textAlign='center'
-              translation={['trade.needPermission', { symbol }]}
-            />
+            <CText color='gray.500' textAlign='center'>
+              <Link
+                href={`https://etherscan.io/address/${quote.allowanceContract}`}
+                color='blue.500'
+                me={1}
+                isExternal
+              >
+                {fees?.tradeFeeSource}
+              </Link>
+              {translate('trade.needPermission', { symbol })}
+            </CText>
             <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
               <Text color='blue.500' translation='trade.whyNeedThis' />
             </Link>

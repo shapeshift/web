@@ -32,7 +32,7 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, contractAddress } = query
   const { yearn: yearnInvestor } = useYearn()
   const opportunity = state?.opportunity
 
@@ -157,6 +157,7 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
+      contractAddress={contractAddress}
     />
   )
 }

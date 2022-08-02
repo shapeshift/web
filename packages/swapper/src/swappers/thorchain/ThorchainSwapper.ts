@@ -31,11 +31,21 @@ import { thorService } from './utils/thorService'
 
 export class ThorchainSwapper implements Swapper<ChainId> {
   readonly name = 'Thorchain'
-  private swapSupportedChainIds: Record<ChainId, boolean> = {
+  private sellSupportedChainIds: Record<ChainId, boolean> = {
     [KnownChainIds.EthereumMainnet]: true,
     [KnownChainIds.BitcoinMainnet]: true
   }
-  private supportedAssetIds: AssetId[] = []
+
+  private buySupportedChainIds: Record<ChainId, boolean> = {
+    [KnownChainIds.EthereumMainnet]: true,
+    [KnownChainIds.BitcoinMainnet]: true,
+    [KnownChainIds.DogecoinMainnet]: true,
+    [KnownChainIds.LitecoinMainnet]: true,
+    [KnownChainIds.CosmosMainnet]: true
+  }
+
+  private supportedSellAssetIds: AssetId[] = []
+  private supportedBuyAssetIds: AssetId[] = []
   deps: ThorchainSwapperDeps
 
   constructor(deps: ThorchainSwapperDeps) {
@@ -48,14 +58,19 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         `${this.deps.midgardUrl}/pools`
       )
 
-      const supportedAssetIds = responseData.reduce<AssetId[]>((acc, midgardPool) => {
+      this.supportedSellAssetIds = responseData.reduce<AssetId[]>((acc, midgardPool) => {
         const assetId = adapters.poolAssetIdToAssetId(midgardPool.asset)
-        if (!assetId || !this.swapSupportedChainIds[fromAssetId(assetId).chainId]) return acc
+        if (!assetId || !this.sellSupportedChainIds[fromAssetId(assetId).chainId]) return acc
         acc.push(assetId)
         return acc
       }, [])
 
-      this.supportedAssetIds = supportedAssetIds
+      this.supportedBuyAssetIds = responseData.reduce<AssetId[]>((acc, midgardPool) => {
+        const assetId = adapters.poolAssetIdToAssetId(midgardPool.asset)
+        if (!assetId || !this.buySupportedChainIds[fromAssetId(assetId).chainId]) return acc
+        acc.push(assetId)
+        return acc
+      }, [])
     } catch (e) {
       throw new SwapError('[thorchainInitialize]: initialize failed to set supportedAssetIds', {
         code: SwapErrorTypes.INITIALIZE_FAILED,
@@ -86,14 +101,14 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
-    if (!this.supportedAssetIds.includes(sellAssetId)) return []
+    if (!this.supportedSellAssetIds.includes(sellAssetId)) return []
     return assetIds.filter(
-      (assetId) => this.supportedAssetIds.includes(assetId) && assetId !== sellAssetId
+      (assetId) => this.supportedBuyAssetIds.includes(assetId) && assetId !== sellAssetId
     )
   }
 
   filterAssetIdsBySellable(): AssetId[] {
-    return this.supportedAssetIds
+    return this.supportedSellAssetIds
   }
 
   async buildTrade(input: BuildTradeInput): Promise<Trade<ChainId>> {

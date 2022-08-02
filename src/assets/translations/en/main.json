@@ -610,7 +610,7 @@
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully staked your %{opportunity}.",
-        "failed": "There was an issue with your stake."
+        "failed": "There was an issue with your staking transaction."
       }
     },
     "withdraw": {

@@ -90,10 +90,8 @@
     "title": "암호화폐 거래하기",
     "titleMessage": "ShapeShift에서는 암호화폐의 원활한 매매를 위해 여러 fiat-on-ramp 서비스 제공 업체들과 제휴 중입니다.",
     "gem": "GEM",
-    "gemMessage": "Gem으로 암호화폐 거래하기",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
-    "banxaMessage": "Banxa를 이용해 암호화폐 거래하기",
     "comingSoon": "개발 중입니다 - 나중에 확인해주세요",
     "buy": "구매",
     "sell": "판매",
@@ -1127,10 +1125,10 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Coinbase에서 %{assetSymbol} 구입하기",
       "totalFoxValue": "총 Fox 가치",
       "foxToken": "ShapeShift %{assetSymbol} 토큰",
       "getAsset": "%{assetSymbol} 가져오기",
-      "buyAssetOnCoinbase": "Coinbase에서 %{assetSymbol} 구입하기",
       "trade": "거래",
       "receive": "수신",
       "mainStakingTitle": "%{assetSymbol} 토큰 스테이킹",

@@ -9,9 +9,9 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/chain-adapters'
 import { Trade } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -36,7 +36,7 @@ export const AssetToAsset = ({
   const buyAssetColor = '#2775CA'
   const {
     number: { toCrypto },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const gray = useColorModeValue('white', 'gray.750')
   const red = useColorModeValue('white', 'red.500')
   const green = useColorModeValue('white', 'green.500')

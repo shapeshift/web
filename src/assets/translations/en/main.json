@@ -100,14 +100,9 @@
     "title": "Buy or Sell Crypto",
     "titleMessage": "ShapeShift has partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
     "gem": "GEM",
-    "gemMessage": "Buy or Sell Crypto with Gem",
     "junoPay": "JunoPay",
-    "junoPayMessage": "Buy Crypto with JunoPay",
     "banxa": "Banxa",
-    "banxaMessage": "Buy or Sell Crypto with Banxa",
     "comingSoon": "Coming Soon ...",
-    "coinbasePay": "Coinbase Pay",
-    "coinbasePayMessage": "Buy Crypto with Coinbase Pay",
     "buy": "Buy",
     "sell": "Sell",
     "assetToBuy": "Asset to Buy",
@@ -635,7 +630,7 @@
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully withdrawn from %{opportunity}.",
-        "failed": "There was an issue with your deposit."
+        "failed": "There was an issue with your withdraw."
       },
       "info": {
         "delayed": "The delayed withdrawal has two transactions:",
@@ -705,6 +700,7 @@
     "settings": {
       "settings": "Settings",
       "currency": "Currency",
+      "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "Hide balances below this value",
@@ -1198,11 +1194,11 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "totalFoxValue": "Total Fox Value",
       "foxToken": "ShapeShift %{assetSymbol} Token",
       "foxDescription": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.",
       "getAsset": "Get %{assetSymbol}",
-      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "trade": "Trade",
       "receive": "Receive",
       "mainStakingTitle": "%{assetSymbol} Token Staking",
@@ -1231,8 +1227,7 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized",
-      "purchaseFox": "Purchase the agile FOX token on Coinbase directly into your ShapeShift-compatible wallet."
+      "centralized": "Centralized"
     },
     "analytics": {
       "optInModal": {

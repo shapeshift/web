@@ -7,7 +7,7 @@ import {
   isOsmosisChainId,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 // @ts-ignore this will fail at 'file differs in casing' error
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -98,7 +98,7 @@ export const validatorDataApi = createApi({
           ? portfolioAccount.validatorIds
           : [validatorAddress]
 
-        const chainAdapters = getChainAdapters()
+        const chainAdapters = getChainAdapterManager()
         const adapter = chainAdapters.get(chainId) as cosmos.ChainAdapter | undefined
         if (!adapter) {
           return {

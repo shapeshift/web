@@ -1,26 +1,30 @@
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   AccountId,
+  accountIdToChainId,
   AssetId,
+  avalancheChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   ChainId,
-  chainIdToFeeAssetId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
   fromAccountId,
   fromAssetId,
   fromChainId,
+  ltcChainId,
   osmosisChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { Asset, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -79,35 +83,39 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   const chainId = fromAccountId(accountId).chainId
   const specifier = accountIdToSpecifier(accountId)
   switch (chainId) {
-    case ethChainId: {
+    case avalancheChainId:
+    case ethChainId:
       // this will be the 0x account
       return firstFourLastFour(specifier)
-    }
-    case btcChainId: {
+    case btcChainId:
       // TODO(0xdef1cafe): translations
       if (specifier.startsWith('xpub')) return 'LEGACY'
       if (specifier.startsWith('ypub')) return 'SEGWIT'
       if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
       return ''
-    }
-    case cosmosChainId: {
+    case cosmosChainId:
       return 'Cosmos'
-    }
-    case osmosisChainId: {
+    case osmosisChainId:
       return 'Osmosis'
-    }
-    case dogeChainId: {
+    case dogeChainId:
       return 'Dogecoin'
-    }
+    case ltcChainId:
+      // TODO: translations
+      if (specifier.startsWith('Ltub')) return 'LEGACY'
+      if (specifier.startsWith('Mtub')) return 'SEGWIT'
+      if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
+      return ''
     default: {
       return ''
     }
   }
 }
 
-// note - this is not really a selector, more of a util
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
-  chainIdToFeeAssetId(fromAccountId(accountId).chainId)
+  // the only way we get an accountId, is from a chainAdapter that supports that chain
+  // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter
+  // and we can safely non-null assert that it will exist
+  getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
@@ -115,6 +123,8 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
   if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
   if (pubkeyVariant?.startsWith('dgub')) return UtxoAccountType.P2pkh // doge
+  if (pubkeyVariant?.startsWith('Ltub')) return UtxoAccountType.P2pkh // ltc
+  if (pubkeyVariant?.startsWith('Mtub')) return UtxoAccountType.SegwitP2sh // ltc
   return null
 }
 

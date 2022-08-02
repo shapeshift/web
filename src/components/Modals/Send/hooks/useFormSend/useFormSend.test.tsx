@@ -6,7 +6,8 @@ import { renderHook } from '@testing-library/react'
 import * as reactRedux from 'react-redux'
 import { ethAssetId, ethChainId } from 'test/mocks/accounts'
 import { EthSend } from 'test/mocks/txs'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
@@ -28,9 +29,11 @@ jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn(),
 }))
 
+jest.mock('context/PluginProvider/chainAdapterSingleton')
 jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('hooks/useModal/useModal')
 jest.mock('hooks/useWallet/useWallet')
+jest.mock('hooks/useEvm/useEvm')
 
 jest.mock('lib/address/ens')
 
@@ -125,6 +128,9 @@ describe.each([
         },
       },
     })
+    ;(useEvm as jest.Mock<unknown>).mockImplementation(() => ({
+      supportedEvmChainIds: [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet],
+    }))
   })
 
   it('handles successfully sending a tx with ETH address', async () => {
@@ -153,7 +159,7 @@ describe.each([
       getChainId: () => KnownChainIds.EthereumMainnet,
     }
 
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -201,7 +207,7 @@ describe.each([
       getChainId: () => KnownChainIds.EthereumMainnet,
     }
 
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -246,7 +252,7 @@ describe.each([
       getChainId: () => KnownChainIds.EthereumMainnet,
     }
 
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -296,7 +302,7 @@ describe.each([
       getChainId: () => KnownChainIds.EthereumMainnet,
     }
 
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -336,7 +342,7 @@ describe.each([
       getChainId: () => KnownChainIds.EthereumMainnet,
     }
 
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],

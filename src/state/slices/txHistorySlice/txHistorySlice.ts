@@ -7,7 +7,7 @@ import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import {
   AccountSpecifier,
@@ -275,7 +275,7 @@ export const txHistoryApi = createApi({
         if (chainId !== accountChainId) return { data: [] }
 
         // setup chain adapters
-        const adapters = getChainAdapters()
+        const adapters = getChainAdapterManager()
         if (![...adapters.keys()].includes(KnownChainIds.EthereumMainnet)) {
           const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${KnownChainIds.EthereumMainnet}`
           const status = 400
@@ -325,7 +325,7 @@ export const txHistoryApi = createApi({
           const txHistories = await Promise.allSettled(
             Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
               const accountSpecifier = toAccountId({ chainId, account: pubkey })
-              const adapter = getChainAdapters().get(chainId)
+              const adapter = getChainAdapterManager().get(chainId)
               if (!adapter)
                 return {
                   error: {
@@ -334,13 +334,29 @@ export const txHistoryApi = createApi({
                   },
                 }
 
+              const pageSize = (() => {
+                switch (chainId) {
+                  case KnownChainIds.AvalancheMainnet:
+                    /**
+                     * as of writing, the data source upstream from unchained can choke and timeout
+                     * on a page size of 100 for avalanche tx history.
+                     *
+                     * using a larger number of smaller requests is a stopgap to prevent timeouts
+                     * until we can address the root cause upstream.
+                     */
+                    return 10
+                  default:
+                    return 100
+                }
+              })()
+
               let currentCursor: string = ''
               try {
                 do {
                   const { cursor, transactions } = await adapter.getTxHistory({
                     cursor: currentCursor,
                     pubkey,
-                    pageSize: 100,
+                    pageSize,
                   })
 
                   currentCursor = cursor

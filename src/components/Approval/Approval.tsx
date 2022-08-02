@@ -17,6 +17,8 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { selectFiatToUsdRate } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { theme } from 'theme/theme'
 
 type ApprovalParams = {
@@ -42,7 +44,7 @@ export const Approval = () => {
   const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const {
     state: { isConnected },
     dispatch,
@@ -51,6 +53,7 @@ export const Approval = () => {
   const { quote, fees } = getValues()
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
   const approve = async () => {
     try {
@@ -176,7 +179,11 @@ export const Approval = () => {
                   <Text color='gray.500' translation='trade.estimatedGasFee' />
                 </Row.Label>
                 <Row.Value textAlign='right'>
-                  <RawText>{toFiat(bnOrZero(fee).times(fiatRate).toNumber())}</RawText>
+                  <RawText>
+                    {toFiat(
+                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
+                    )}
+                  </RawText>
                   <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
                 </Row.Value>
               </Row>

@@ -3,7 +3,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { FeeData } from '@shapeshiftoss/chain-adapters/dist/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -21,6 +21,7 @@ jest.mock('react-polyglot', () => ({
 }))
 
 jest.mock('context/PluginProvider/PluginProvider')
+jest.mock('context/PluginProvider/chainAdapterSingleton')
 jest.mock('hooks/useModal/useModal')
 jest.mock('hooks/useWallet/useWallet')
 
@@ -126,7 +127,7 @@ describe('useFormSend', () => {
       getType: () => KnownChainIds.CosmosMainnet,
       getChainId: () => KnownChainIds.CosmosMainnet,
     }
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
           [KnownChainIds.BitcoinMainnet, mockAdapter],
@@ -152,7 +153,7 @@ describe('useFormSend', () => {
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: () => ({
         buildSendTransaction: () => Promise.reject('All these calls failed'),
         signTransaction: () => Promise.reject('All these calls failed'),

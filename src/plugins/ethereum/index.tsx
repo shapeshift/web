@@ -3,9 +3,10 @@ import { ChainAdapter, ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
-import { Plugins } from 'plugins'
+import { type Plugins } from 'plugins/types'
 
-export function register(): Plugins {
+// eslint-disable-next-line import/no-default-export
+export default function register(): Plugins {
   return [
     [
       'ethereumChainAdapter',
@@ -22,7 +23,7 @@ export function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.ethereum.EthereumTx>(
+                const ws = new unchained.ws.Client<unchained.ethereum.Tx>(
                   getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
                 )
 

@@ -1,28 +1,32 @@
+import { createStandaloneToast } from '@chakra-ui/react'
 import {
-  btcChainId,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
   cosmosChainId,
-  dogeChainId,
   ethChainId,
+  fromChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import {
-  bitcoin,
   convertXpubVersion,
-  dogecoin,
   toRootDerivationPath,
   utxoAccountParams,
+  UtxoBaseAdapter,
+  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -50,9 +54,6 @@ import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
-// used by AssetChart, Portfolio, and this file to prefetch price history
-export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
-
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
  * market data, and portfolio fetching, and we don't want to over or under fetch data,
@@ -64,8 +65,10 @@ export const DEFAULT_HISTORY_TIMEFRAME = HistoryTimeframe.MONTH
  *
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const { ToastContainer } = createStandaloneToast()
   const dispatch = useDispatch()
-  const { chainAdapterManager, supportedChains } = usePlugins()
+  const { supportedChains } = usePlugins()
+  const chainAdapterManager = getChainAdapterManager()
   const {
     state: {
       wallet,
@@ -132,75 +135,56 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const adapter = chainAdapterManager.get(chainId)
           if (!adapter) continue
 
-          switch (chainId) {
-            case ethChainId: {
-              if (!supportsETH(wallet)) continue
-              const pubkey = await adapter.getAddress({ wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              break
-            }
-            case btcChainId: {
+          const { chainNamespace, chainReference } = fromChainId(chainId)
+
+          switch (chainNamespace) {
+            case CHAIN_NAMESPACE.Bitcoin: {
               if (!supportsBTC(wallet)) continue
-              const supportedAccountTypes = (
-                adapter as unknown as bitcoin.ChainAdapter
-              ).getSupportedAccountTypes()
-              for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(chainId, accountType, 0)
-                const { bip44Params, scriptType } = accountParams
+
+              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
+
+              for (const accountType of utxoAdapter.getSupportedAccountTypes()) {
+                const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
                 const pubkeys = await wallet.getPublicKeys([
                   {
-                    coin: 'bitcoin',
+                    coin: utxoAdapter.getCoinName(),
                     addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                     curve: 'secp256k1',
                     scriptType,
                   },
                 ])
-                if (!pubkeys?.[0]?.xpub) {
-                  throw new Error(`usePubkeys: error getting bitcoin xpub`)
-                }
-                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
+                if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
+
+                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
                 if (!pubkey) continue
+
                 acc.push({ [chainId]: pubkey })
               }
               break
             }
-            case dogeChainId: {
-              if (!supportsBTC(wallet)) continue
-              const supportedAccountTypes = (
-                adapter as unknown as dogecoin.ChainAdapter
-              ).getSupportedAccountTypes()
-              for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(chainId, accountType, 0)
-                const { bip44Params, scriptType } = accountParams
-                const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))
-                const pubkeys = await wallet.getPublicKeys([
-                  {
-                    coin: 'dogecoin',
-                    addressNList,
-                    curve: 'secp256k1',
-                    scriptType,
-                  },
-                ])
-                if (!pubkeys?.[0]?.xpub) {
-                  throw new Error(`usePubkeys: error getting dogecoin xpub`)
-                }
-                const pubkey = pubkeys[0].xpub
-                if (!pubkey) continue
-                acc.push({ [chainId]: pubkey })
+
+            case CHAIN_NAMESPACE.Ethereum: {
+              if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
+                if (!supportsETH(wallet)) continue
               }
-              break
-            }
-            case cosmosChainId: {
-              if (!supportsCosmos(wallet)) continue
+              if (chainReference === CHAIN_REFERENCE.AvalancheCChain) {
+                if (!supportsEthSwitchChain(wallet)) continue
+              }
+
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              acc.push({ [chainId]: pubkey })
+              acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
-            case osmosisChainId: {
-              if (!supportsOsmosis(wallet)) continue
+            case CHAIN_NAMESPACE.Cosmos: {
+              if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
+                if (!supportsCosmos(wallet)) continue
+              }
+              if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
+                if (!supportsOsmosis(wallet)) continue
+              }
+
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey })
@@ -326,5 +310,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist
-  return assetIds.length ? <>{children}</> : <></>
+  return (
+    <>
+      <ToastContainer />
+      {Boolean(assetIds.length) && children}
+    </>
+  )
 }

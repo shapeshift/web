@@ -1,7 +1,7 @@
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
-import { Plugins } from 'plugins'
 import { VisitorDataManager } from 'plugins/pendo/visitorData'
+import { type Plugins } from 'plugins/types'
 import { logger } from 'lib/logger'
 
 import { OptInIcon } from './components/OptInModal/OptInIcon'
@@ -44,7 +44,8 @@ export const launch = memoize(() => {
   launcher.launch(config.REACT_APP_PENDO_VISITOR_ID_PREFIX)
 })
 
-export function register(): Plugins {
+// eslint-disable-next-line import/no-default-export
+export default function register(): Plugins {
   return [
     [
       'pendoAnalytics',

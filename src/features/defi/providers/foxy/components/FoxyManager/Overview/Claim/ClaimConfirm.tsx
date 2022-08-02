@@ -20,7 +20,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -44,12 +44,14 @@ export const ClaimConfirm = ({
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
-  const chainAdapterManager = useChainAdapters()
+  const [canClaim, setCanClaim] = useState<boolean>(false)
   const { foxy } = useFoxy()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
   const claimAmount = bnOrZero(amount).toString()
   const history = useHistory()
+
+  const chainAdapterManager = getChainAdapterManager()
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -101,7 +103,7 @@ export const ClaimConfirm = ({
         if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
-        const [gasLimit, gasPrice] = await Promise.all([
+        const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
           foxy.estimateClaimWithdrawGas({
             claimAddress: userAddress,
             userAddress,
@@ -109,7 +111,10 @@ export const ClaimConfirm = ({
             wallet: walletState.wallet,
           }),
           foxy.getGasPrice(),
+          foxy.canClaimWithdraw({ contractAddress, userAddress }),
         ])
+
+        setCanClaim(canClaimWithdraw)
         const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         setEstimatedGas(gasEstimate)
       } catch (error) {
@@ -193,7 +198,13 @@ export const ClaimConfirm = ({
             <Button size='lg' onClick={onBack}>
               {translate('common.cancel')}
             </Button>
-            <Button size='lg' colorScheme='blue' onClick={handleConfirm} isLoading={loading}>
+            <Button
+              size='lg'
+              colorScheme='blue'
+              isDisabled={!canClaim}
+              onClick={handleConfirm}
+              isLoading={loading}
+            >
               {translate('defi.modals.claim.confirmClaim')}
             </Button>
           </Stack>

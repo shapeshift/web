@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
@@ -16,9 +16,8 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const assetIds = useAppSelector(state =>
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
-  // @TODO: This filters for ETH to not show tokens component on tokens
-  const { assetReference } = fromAssetId(assetId)
-  if (!(assetReference === ASSET_REFERENCE.Ethereum) || assetIds.length === 0) return null
+  const { chainNamespace } = fromAssetId(assetId)
+  if (!(chainNamespace === CHAIN_NAMESPACE.Ethereum) || assetIds.length === 0) return null
 
   return (
     <Card>

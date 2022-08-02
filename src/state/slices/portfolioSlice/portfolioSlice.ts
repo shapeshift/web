@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { ChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
-import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { ReduxState } from 'state/reducer'
@@ -94,7 +94,7 @@ export const portfolioApi = createApi({
         // 0xdef1cafe: be careful with this, RTK query can't type this correctly
         const untypedState = getState()
         const assetIds = (untypedState as ReduxState).assets.ids
-        const chainAdapters = getChainAdapters()
+        const chainAdapters = getChainAdapterManager()
         const [chainId, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
           ChainId,
           string,

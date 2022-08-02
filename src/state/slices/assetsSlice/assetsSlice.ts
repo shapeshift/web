@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { AssetId, avalancheChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { AssetId, avalancheChainId, ltcChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -53,13 +53,14 @@ export const assetApi = createApi({
     getAssets: build.query<AssetsState, void>({
       // all assets
       queryFn: async (_, { getState }) => {
-        const { Avalanche, Osmosis } = selectFeatureFlags(getState() as ReduxState)
+        const { Avalanche, Osmosis, Litecoin } = selectFeatureFlags(getState() as ReduxState)
 
         const service = await getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!Avalanche && asset.chainId === avalancheChainId) return prev
             if (!Osmosis && asset.chainId === osmosisChainId) return prev
+            if (!Litecoin && asset.chainId === ltcChainId) return prev
             prev[assetId] = asset
             return prev
           },

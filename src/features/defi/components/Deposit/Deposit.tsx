@@ -1,5 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset, MarketData } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'

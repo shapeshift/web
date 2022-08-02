@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -20,7 +20,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
-import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
+import {
+  selectFiatToUsdRate,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
@@ -38,8 +41,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     formState: { errors, isDirty, isValid, isSubmitting },
   } = useFormContext<TradeState<KnownChainIds>>()
   const {
-    number: { localeParts },
-  } = useLocaleFormatter({ fiatType: 'USD' })
+    number: { localeParts, toFiat },
+  } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
   const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
@@ -47,6 +50,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const {
     state: { wallet },
   } = useWallet()
@@ -149,6 +153,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           feeAsset,
           action: TradeAmountInputField.SELL,
           amount: maxSendAmount,
+          selectedCurrencyToUsdRate,
         })
       } else {
         fnLogger.error(
@@ -183,6 +188,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: currentSellAsset.asset,
         feeAsset,
         action: TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
       })
     } catch (e) {
       showErrorToast(e)
@@ -220,9 +226,27 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: buyTradeAsset.asset,
         feeAsset,
         action,
+        selectedCurrencyToUsdRate,
       })
     }
   }
+
+  // force update quote when the fiat currency changes
+  useEffect(() => {
+    if (sellTradeAsset?.asset && buyTradeAsset?.asset && bnOrZero(sellTradeAsset.amount).gt(0)) {
+      updateQuote({
+        forceQuote: true,
+        amount: bnOrZero(sellTradeAsset.amount).toString(),
+        sellAsset: sellTradeAsset.asset,
+        buyAsset: buyTradeAsset.asset,
+        feeAsset,
+        action: TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
+      })
+    }
+    // only dependency of this hook is the fiat currency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCurrencyToUsdRate])
 
   return (
     <SlideTransition>
@@ -247,7 +271,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     customInput={FlexibleInputContainer}
                     variant='unstyled'
                     textAlign='center'
-                    placeholder='$0.00'
+                    placeholder={toFiat(0)}
                     mb={6}
                     fontSize='5xl'
                     isNumericString={true}
@@ -260,6 +284,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                           buyAsset: buyTradeAsset.asset,
                           feeAsset,
                           action: TradeAmountInputField.FIAT,
+                          selectedCurrencyToUsdRate,
                         })
                       }
                     }}

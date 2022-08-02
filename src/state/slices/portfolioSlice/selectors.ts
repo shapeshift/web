@@ -1,17 +1,19 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { Asset } from '@shapeshiftoss/asset-service'
 import {
   AccountId,
   AssetId,
+  avalancheAssetId,
   btcAssetId,
   ChainId,
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
   fromAssetId,
+  ltcAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
 import head from 'lodash/head'
@@ -79,7 +81,15 @@ const selectParamFromFilterOptional =
     filter?.[param] ?? ''
 
 // We should prob change this once we add more chains
-const FEE_ASSET_IDS = [ethAssetId, btcAssetId, cosmosAssetId, osmosisAssetId, dogeAssetId]
+const FEE_ASSET_IDS = [
+  ethAssetId,
+  btcAssetId,
+  cosmosAssetId,
+  osmosisAssetId,
+  dogeAssetId,
+  ltcAssetId,
+  avalancheAssetId,
+]
 
 const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
@@ -672,7 +682,6 @@ export const selectPortfolioAssetIdsByAccountId = createSelector(
   (accounts, accountId) => Object.keys(accounts[accountId]),
 )
 
-// @TODO: remove this assets check once we filter the portfolio on the way in
 export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqualOutputSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAccountIdParamFromFilter,

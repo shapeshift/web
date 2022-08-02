@@ -1,3 +1,4 @@
+import qs from 'qs'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -22,30 +23,23 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiParams, DefiQueryParams, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiParams, DefiQueryParams, DefiStep, DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
   const { idle: idleInvestor } = useIdle()
   const opportunity = state?.opportunity
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
-  // Asset info
-  // const underlyingAssetId = toAssetId({
-  //   chainId,
-  //   assetNamespace,
-  //   assetReference,
-  // })
-  // const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+
   const assetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference: vaultAddress,
   })
-  // const asset = useAppSelector(state => selectAssetById(state, assetId))
   
   const feeAssetId = toAssetId({
     chainId,
@@ -61,6 +55,50 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const feeAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
+
+  useEffect(() => {
+    ;(async () => {
+      if (!dispatch || !state.userAddress || !idleInvestor) {
+        return
+      }
+      
+      dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
+
+      const idleOpportunity = await idleInvestor.findByOpportunityId(assetId)
+      if (!idleOpportunity) throw new Error('No opportunity')
+
+      const preparedTx = await idleOpportunity.prepareClaimTokens(state.userAddress)
+      const estimatedGasCrypto = bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
+
+      dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
+      dispatch({ type: IdleClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto }})
+    })()
+  }, [state.userAddress, dispatch, idleInvestor, assetId])
+
+  let renderAssets: any[] = []
+  let claimableTokensTotalBalance = bnOrZero(0);
+
+  useAppSelector( selectorState => {
+    if (state && state.claimableTokens){
+      state.claimableTokens.forEach( token => {
+        const asset = selectAssetById(selectorState, token.assetId)
+        if (asset) {
+          claimableTokensTotalBalance = claimableTokensTotalBalance.plus(token.amount)
+          renderAssets.push((
+            <Stack direction='row' alignItems='center' justifyContent='center' key={token.assetId}>
+              <AssetIcon boxSize='8' src={asset.icon} />
+              <Amount.Crypto
+                fontSize='lg'
+                fontWeight='medium'
+                value={bnOrZero(token.amount).div(`1e+${asset.precision}`).toString()}
+                symbol={asset?.symbol}
+              />
+            </Stack>
+          ))
+        }
+      })
+    }
+  })
 
   if (!state || !dispatch) return null
 
@@ -97,54 +135,14 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     }
   }
 
-  useEffect(() => {
-    ;(async () => {
-      if (!state.userAddress || !idleInvestor) {
-        return
-      }
-      
-      dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
-
-      const idleOpportunity = await idleInvestor.findByOpportunityId(assetId)
-      if (!idleOpportunity) throw new Error('No opportunity')
-
-      const preparedTx = await idleOpportunity.prepareClaimTokens(state.userAddress)
-      const estimatedGasCrypto = bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-
-      dispatch({
-        type: IdleClaimActionType.SET_CLAIM,
-        payload: { estimatedGasCrypto },
-      })
-
-      dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
-    })()
-  }, [state.userAddress, vaultAddress])
-
-  let renderAssets: any[] = []
-  let claimableTokensTotalBalance = bnOrZero(0);
-
-  useAppSelector( selectorState => {
-    state.claimableTokens.forEach( token => {
-      const asset = selectAssetById(selectorState, token.assetId)
-      if (asset) {
-        claimableTokensTotalBalance = claimableTokensTotalBalance.plus(token.amount)
-        renderAssets.push((
-          <Stack direction='row' alignItems='center' justifyContent='center' key={token.assetId}>
-            <AssetIcon boxSize='8' src={asset.icon} />
-            <Amount.Crypto
-              fontSize='lg'
-              fontWeight='medium'
-              value={bnOrZero(token.amount).div(`1e+${asset.precision}`).toString()}
-              symbol={asset?.symbol}
-            />
-          </Stack>
-        ))
-      }
-    })
-  })
-
   const handleCancel = () => {
-    
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Overview,
+      }),
+    })
   }
 
   const hasEnoughBalanceForGas = state.claim.estimatedGasCrypto && bnOrZero(feeAssetBalance).minus(bnOrZero(state.claim.estimatedGasCrypto).div(`1e+${feeAsset.precision}`)).gte(0)

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.10.0...@shapeshiftoss/caip-v6.11.0) (2022-08-02)
+
+
+### Features
+
+* add bitcoincash ([#932](https://github.com/shapeshift/lib/issues/932)) ([85080ed](https://github.com/shapeshift/lib/commit/85080ed065027d3e9fe6d28799a0c171ac7ea39c))
+
 # [@shapeshiftoss/caip-v6.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.9.1...@shapeshiftoss/caip-v6.10.0) (2022-08-02)
 
 

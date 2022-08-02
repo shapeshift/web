@@ -169,7 +169,7 @@
         "cta": "Start Staking",
         "learnMore": "Learn More",
         "withdrawals": "Unstaking",
-        "emptyWithdraws": "Pending unstakings will show here.",
+        "emptyWithdraws": "Pending unstaking requests will show here.",
         "availableDate": "available %{date}"
       },
       "foxyOverview": {
@@ -610,7 +610,7 @@
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully staked your %{opportunity}.",
-        "failed": "There was an issue with your stake."
+        "failed": "There was an issue with your staking transaction."
       }
     },
     "withdraw": {

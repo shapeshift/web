@@ -8,7 +8,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import {
   FOX_TOKEN_CONTRACT_ADDRESS,
-  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+  UNIV2_WETH_FOX_POOL_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from '../const'
 import { calculateAPRFromToken0, getEthersProvider } from '../utils'
@@ -30,7 +30,7 @@ export const useLpApr = () => {
   const [loaded, setLoaded] = useState(false)
   const blockNumber = useCurrentBlockNumber()
 
-  const liquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
+  const liquidityContractAddress = UNIV2_WETH_FOX_POOL_ADDRESS
   const uniswapLPContract = useMemo(
     () => new Contract(liquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
     [liquidityContractAddress],

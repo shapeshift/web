@@ -1184,6 +1184,7 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Acheter du %{assetSymbol} sur Coinbase",
       "totalFoxValue": "Valeur totale des FOX",
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
       "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",

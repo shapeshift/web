@@ -300,6 +300,9 @@
       },
       "confirm": {
         "title": "Confirm"
+      },
+      "status": {
+        "title": "Status"
       }
     }
   },

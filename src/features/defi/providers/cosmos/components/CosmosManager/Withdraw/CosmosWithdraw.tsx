@@ -108,7 +108,7 @@ export const CosmosWithdraw = () => {
         component: Confirm,
       },
       [DefiStep.Status]: {
-        label: 'Status',
+        label: translate('defi.steps.status.title'),
         component: Status,
       },
     }

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.14.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.14.0...@shapeshiftoss/chain-adapters-v7.14.1) (2022-08-02)
+
+
+### Bug Fixes
+
+* disable segwit for litecoin and use correct bitcoincash parser ([#941](https://github.com/shapeshift/lib/issues/941)) ([6377811](https://github.com/shapeshift/lib/commit/63778117f869700bae44d18764901584bf643f0d))
+
 # [@shapeshiftoss/chain-adapters-v7.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.13.1...@shapeshiftoss/chain-adapters-v7.14.0) (2022-08-02)
 
 

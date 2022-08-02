@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.3.2...@shapeshiftoss/swapper-v9.4.0) (2022-08-02)
+
+
+### Features
+
+* additonal thorchain asset support ([#935](https://github.com/shapeshift/lib/issues/935)) ([0b1a492](https://github.com/shapeshift/lib/commit/0b1a492b4f6c1f69674f3114f284caa0b5b8e1ce))
+
 # [@shapeshiftoss/swapper-v9.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.3.1...@shapeshiftoss/swapper-v9.3.2) (2022-08-02)
 
 

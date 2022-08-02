@@ -71,7 +71,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const chainAdapterManager = getChainAdapterManager()
   const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const bitcoinChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinMainnet)
-  const bitcoincashChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoincashMainnet)
+  const bitcoincashChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinCashMainnet)
   const dogecoinChainAdapter = chainAdapterManager.get(KnownChainIds.DogecoinMainnet)
   const litecoinChainAdapter = chainAdapterManager.get(KnownChainIds.LitecoinMainnet)
   const cosmosChainAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet)

@@ -15,7 +15,7 @@ export default function register(): Plugins {
         providers: {
           chainAdapters: [
             [
-              KnownChainIds.BitcoincashMainnet,
+              KnownChainIds.BitcoinCashMainnet,
               () => {
                 const http = new unchained.bitcoincash.V1Api(
                   new unchained.bitcoincash.Configuration({

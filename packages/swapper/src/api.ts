@@ -26,6 +26,9 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
       byteCount: string
       satsPerByte: string
     }
+    [KnownChainIds.CosmosMainnet]: {
+      estimatedGas: string
+    }
   }
 >
 

@@ -2,10 +2,8 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorTypes } from '../../../../../api'
-import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../../utils/bignumber'
 import { InboundResponse, ThorchainSwapperDeps } from '../../../types'
-import { getTradeRate } from '../../../utils/getTradeRate/getTradeRate'
-import { THORCHAIN_FIXED_PRECISION } from '../../constants'
+import { getLimit } from '../../getLimit/getLimit'
 import { makeSwapMemo } from '../../makeSwapMemo/makeSwapMemo'
 import { thorService } from '../../thorService'
 import { deposit } from '../routerCalldata'
@@ -54,35 +52,22 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
         details: { inboundAddresses }
       })
 
-    const tradeRate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)
-
-    const expectedBuyAmountPrecision8 = toBaseUnit(
-      fromBaseUnit(bnOrZero(sellAmount).times(tradeRate), sellAsset.precision),
-      THORCHAIN_FIXED_PRECISION
-    )
-
-    const tradeFeePrecision8 = toBaseUnit(bnOrZero(tradeFee), THORCHAIN_FIXED_PRECISION)
-
-    const isValidSlippageRange =
-      bnOrZero(slippageTolerance).gte(0) && bnOrZero(slippageTolerance).lte(1)
-    if (bnOrZero(expectedBuyAmountPrecision8).lt(0) || !isValidSlippageRange)
-      throw new SwapError('[makeTradeTx]: bad expected buy amount or bad slippage tolerance', {
-        code: SwapErrorTypes.BUILD_TRADE_FAILED,
-        details: { expectedBuyAmountPrecision8, slippageTolerance }
-      })
-
-    const limit = bnOrZero(expectedBuyAmountPrecision8)
-      .times(bn(1).minus(slippageTolerance))
-      .minus(bnOrZero(tradeFeePrecision8))
-      .decimalPlaces(0)
-      .toString()
+    const limit = await getLimit({
+      buyAssetId: buyAsset.assetId,
+      destinationAddress,
+      sellAmount,
+      sellAsset,
+      buyAsset,
+      slippageTolerance,
+      deps,
+      tradeFee
+    })
 
     const memo = makeSwapMemo({
       buyAssetId: buyAsset.assetId,
       destinationAddress,
       limit
     })
-
     const data = await deposit(
       router,
       vault,

@@ -1,4 +1,5 @@
 import { ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { GetTradeQuoteInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
@@ -43,8 +44,8 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
   try {
     const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
 
-    const adapter = deps.adapterManager.get(chainId)
-    if (!adapter)
+    const sellAdapter = deps.adapterManager.get(chainId)
+    if (!sellAdapter)
       throw new SwapError(`[getThorTradeQuote] - No chain adapter found for ${chainId}.`, {
         code: SwapErrorTypes.UNSUPPORTED_CHAIN,
         details: { chainId }
@@ -131,6 +132,22 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             ...commonQuoteFields,
             allowanceContract: '0x0', // not applicable to bitcoin
             feeData
+          }
+        })()
+      case KnownChainIds.CosmosMainnet:
+        return (async (): Promise<TradeQuote<KnownChainIds.CosmosMainnet>> => {
+          const feeData = await (
+            sellAdapter as ChainAdapter<KnownChainIds.CosmosMainnet>
+          ).getFeeData({})
+
+          return {
+            ...commonQuoteFields,
+            allowanceContract: '0x0', // not applicable to bitcoin
+            feeData: {
+              fee: feeData.fast.txFee,
+              tradeFee,
+              chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit }
+            }
           }
         })()
       default:

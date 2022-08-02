@@ -1,7 +1,7 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { adapters, AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { bitcoin, ethereum } from '@shapeshiftoss/chain-adapters'
-import { BTCSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { bitcoin, cosmos, ethereum } from '@shapeshiftoss/chain-adapters'
+import { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import {
@@ -33,7 +33,8 @@ export class ThorchainSwapper implements Swapper<ChainId> {
   readonly name = 'Thorchain'
   private sellSupportedChainIds: Record<ChainId, boolean> = {
     [KnownChainIds.EthereumMainnet]: true,
-    [KnownChainIds.BitcoinMainnet]: true
+    [KnownChainIds.BitcoinMainnet]: true,
+    [KnownChainIds.CosmosMainnet]: true
   }
 
   private buySupportedChainIds: Record<ChainId, boolean> = {
@@ -141,6 +142,13 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       } else if (trade.sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
         const signedTx = await (adapter as unknown as bitcoin.ChainAdapter).signTransaction({
           txToSign: (trade as ThorTrade<KnownChainIds.BitcoinMainnet>).txData as BTCSignTx,
+          wallet
+        })
+        const txid = await adapter.broadcastTransaction(signedTx)
+        return { tradeId: txid }
+      } else if (trade.sellAsset.chainId === KnownChainIds.CosmosMainnet) {
+        const signedTx = await (adapter as unknown as cosmos.ChainAdapter).signTransaction({
+          txToSign: (trade as ThorTrade<KnownChainIds.CosmosMainnet>).txData as CosmosSignTx,
           wallet
         })
         const txid = await adapter.broadcastTransaction(signedTx)

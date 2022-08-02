@@ -1,5 +1,5 @@
 import { ChainId } from '@shapeshiftoss/caip'
-import { bitcoin, ethereum } from '@shapeshiftoss/chain-adapters'
+import { bitcoin, cosmos, ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { BuildTradeInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
@@ -7,6 +7,7 @@ import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { ThorchainSwapperDeps, ThorTrade } from '../types'
 import { getThorTxInfo as getBtcThorTxInfo } from '../utils/bitcoin/utils/getThorTxData'
+import { cosmosTxData } from '../utils/cosmos/cosmosTxData'
 import { makeTradeTx } from '../utils/ethereum/makeTradeTx'
 
 export const buildTrade = async ({
@@ -99,6 +100,26 @@ export const buildTrade = async ({
         ...quote,
         receiveAddress: destinationAddress,
         txData: buildTxResponse.txToSign
+      }
+    } else if (input.chainId === KnownChainIds.CosmosMainnet) {
+      const txData = await cosmosTxData({
+        deps,
+        sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,
+        sellAmount,
+        sellAsset,
+        slippageTolerance,
+        chainId: input.chainId,
+        buyAsset,
+        wallet,
+        destinationAddress,
+        quote: quote as TradeQuote<KnownChainIds.CosmosMainnet>
+      })
+
+      return {
+        chainId: KnownChainIds.CosmosMainnet,
+        ...quote,
+        receiveAddress: destinationAddress,
+        txData
       }
     } else {
       throw new SwapError('[buildTrade]: unsupported chain id', {

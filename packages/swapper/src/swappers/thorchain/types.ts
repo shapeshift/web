@@ -1,6 +1,6 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { BTCSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 
@@ -46,4 +46,9 @@ export interface EthThorTrade<C extends ChainId> extends Trade<C> {
   txData: ETHSignTx
 }
 
-export type ThorTrade<C extends ChainId> = BtcThorTrade<C> | EthThorTrade<C>
+export interface CosmosThorTrade<C extends ChainId> extends Trade<C> {
+  chainId: KnownChainIds.CosmosMainnet
+  txData: CosmosSignTx
+}
+
+export type ThorTrade<C extends ChainId> = BtcThorTrade<C> | EthThorTrade<C> | CosmosThorTrade<C>

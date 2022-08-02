@@ -1,13 +1,19 @@
 import { GasToken } from '@axelar-network/axelarjs-sdk'
 import { Button, Stack } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { RouteComponentProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
-import { getAxelarSdk } from 'components/Bridge/axelarSdkSingleton'
-import { chainNameToAxelarEvmChain, chainNameToAxelarGasToken } from 'components/Bridge/utils'
+import { getAxelarAssetTransferSdk } from 'components/Bridge/axelarAssetTransferSdkSingleton'
+import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
+import {
+  chainIdToChainName,
+  chainNameToAxelarEvmChain,
+  chainNameToAxelarGasToken,
+} from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -26,35 +32,39 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   const [gasFeeUsdc, setGasFeeUsdc] = useState<string>()
   const [gasFeeCrypto, setGasFeeCrypto] = useState<string>()
   const [isLoadingFeeEstimates, setIsLoadingFeeEstimates] = useState(true)
+
+  const axelarAssetTransferSdk = getAxelarAssetTransferSdk()
+  const axelarQuerySdk = getAxelarQuerySdk()
+
   const handleBack = () => {
     history.push(BridgeRoutePaths.Input)
   }
 
   const { control } = useFormContext<BridgeState>()
 
-  const [asset, cryptoAmount, fromChain, toChain] = useWatch({
+  const [asset, cryptoAmount, fromChain, toChain, address] = useWatch({
     control,
-    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain'],
+    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'address'],
   })
 
-  const axelarSdk = getAxelarSdk()
   const sourceChainName = chainNameToAxelarEvmChain(fromChain?.name ?? '')
   const destinationChainName = chainNameToAxelarEvmChain(toChain?.name ?? '')
   const sourceChainTokenSymbol = chainNameToAxelarGasToken(fromChain?.name ?? '')
 
+  // Get total fee estimate, including gas and Axelar fees
   useEffect(() => {
     ;(async () => {
       try {
         const estimateGasUsed = 400000
 
-        const gasFeeCrypto = await axelarSdk.estimateGasFee(
+        const gasFeeCrypto = await axelarQuerySdk.estimateGasFee(
           sourceChainName,
           destinationChainName,
           sourceChainTokenSymbol,
           estimateGasUsed,
         )
 
-        const gasFeeUsdc = await axelarSdk.estimateGasFee(
+        const gasFeeUsdc = await axelarQuerySdk.estimateGasFee(
           sourceChainName,
           destinationChainName,
           GasToken.USDC,
@@ -67,9 +77,34 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
         console.error('GasFee error', e)
       }
     })()
-  }, [axelarSdk, fromChain?.name, toChain?.name])
+  }, [
+    axelarQuerySdk,
+    destinationChainName,
+    fromChain?.name,
+    sourceChainName,
+    sourceChainTokenSymbol,
+    toChain?.name,
+  ])
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    try {
+      const chainId = fromAssetId(asset?.assetId ?? '').chainId
+      const chainName = chainIdToChainName(chainId).toLowerCase() // the sdk uses lower case names for some reason
+      const symbol = asset?.symbol ?? ''
+      const assetDenom = await axelarQuerySdk.getDenomFromSymbol(symbol, chainName)
+
+      const depositAddress = await axelarAssetTransferSdk.getDepositAddress(
+        sourceChainName,
+        destinationChainName,
+        address ?? '',
+        assetDenom ?? '',
+      )
+      console.log('depositAddress', depositAddress)
+
+      // todo: handleSend
+    } catch (e) {
+      console.error('GasFee error', e)
+    }
     history.push(BridgeRoutePaths.Status)
   }
 

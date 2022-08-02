@@ -1,7 +1,7 @@
 import { EvmChain, GasToken } from '@axelar-network/axelarjs-sdk'
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, avalancheChainId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AXELAR_CHAIN_NAMES } from 'components/Bridge/types'
+import { AXELAR_CHAIN_NAMES, AxelarChainName } from 'components/Bridge/types'
 
 export const wrapAxelarAssetIdFromEthereumToAvalanche = (asset: AssetId): AssetId | undefined => {
   const chainId = KnownChainIds.AvalancheMainnet
@@ -12,7 +12,7 @@ export const wrapAxelarAssetIdFromEthereumToAvalanche = (asset: AssetId): AssetI
       return toAssetId({
         chainId,
         assetNamespace,
-        assetReference: '0xfaB550568C688d5D8A52C7d794cb93Edc26eC0eC',
+        assetReference: '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664',
       })
     default:
       return undefined
@@ -24,7 +24,7 @@ export const unwrapAxelarAssetIdFromAvalancheToEthereum = (asset: AssetId): Asse
   const assetNamespace = 'erc20'
   switch (asset) {
     // Axelar-wrapped USDC on Avalanche
-    case 'eip155:43114/erc20:0xfaB550568C688d5D8A52C7d794cb93Edc26eC0eC':
+    case 'eip155:43114/erc20:0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664':
       return toAssetId({
         chainId,
         assetNamespace,
@@ -54,5 +54,16 @@ export const chainNameToAxelarGasToken = (name: string): GasToken => {
       return GasToken.AVAX
     default:
       throw new Error(`chainNameToAxelarGasToken: name ${name} not supported`)
+  }
+}
+
+export const chainIdToChainName = (chainId: ChainId): AxelarChainName => {
+  switch (chainId) {
+    case ethChainId:
+      return AXELAR_CHAIN_NAMES.Ethereum
+    case avalancheChainId:
+      return AXELAR_CHAIN_NAMES.Avalanche
+    default:
+      throw new Error(`chainIdToChainName: chainId ${chainId} not supported`)
   }
 }

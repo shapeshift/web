@@ -23,7 +23,9 @@ export const AXELAR_CHAIN_NAMES = {
   Osmosis: 'osmosis',
   Secret: 'secret',
   Terra2: 'terra-2',
-}
+} as const
+
+export type AxelarChainName = typeof AXELAR_CHAIN_NAMES[keyof typeof AXELAR_CHAIN_NAMES]
 
 export type BridgeChain = {
   name: string

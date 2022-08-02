@@ -6,6 +6,7 @@ export enum BridgeAmountInputField {
   FIAT = 'FIAT',
 }
 
+// https://docs.axelar.dev/dev/build/chain-names/mainnet
 export const AXELAR_CHAIN_NAMES = {
   Avalanche: 'Avalanche',
   Ethereum: 'Ethereum',

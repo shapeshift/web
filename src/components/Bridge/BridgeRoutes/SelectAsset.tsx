@@ -1,10 +1,12 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, Circle, Stack } from '@chakra-ui/react'
-import { AssetId, toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { useSelector } from 'react-redux'
 import { RouteComponentProps } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
+import {
+  unwrapAxelarAssetIdFromAvalancheToEthereum,
+  wrapAxelarAssetIdFromEthereumToAvalanche,
+} from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -48,38 +50,6 @@ const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
 type SelectAssetProps = {
   onClick: (asset: BridgeAsset) => void
 } & RouteComponentProps
-
-const wrapAxelarAssetIdFromEthereumToAvalanche = (asset: AssetId): AssetId | undefined => {
-  const chainId = KnownChainIds.AvalancheMainnet
-  const assetNamespace = 'erc20'
-  switch (asset) {
-    // USDC on Ethereum
-    case 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48':
-      return toAssetId({
-        chainId,
-        assetNamespace,
-        assetReference: '0xfaB550568C688d5D8A52C7d794cb93Edc26eC0eC',
-      })
-    default:
-      return undefined
-  }
-}
-
-const unwrapAxelarAssetIdFromAvalancheToEthereum = (asset: AssetId): AssetId | undefined => {
-  const chainId = KnownChainIds.EthereumMainnet
-  const assetNamespace = 'erc20'
-  switch (asset) {
-    // Axelar-wrapped USDC on Avalanche
-    case 'eip155:43114/erc20:0xfaB550568C688d5D8A52C7d794cb93Edc26eC0eC':
-      return toAssetId({
-        chainId,
-        assetNamespace,
-        assetReference: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      })
-    default:
-      return undefined
-  }
-}
 
 export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) => {
   const assets = useSelector(selectPortfolioBridgeAssets)

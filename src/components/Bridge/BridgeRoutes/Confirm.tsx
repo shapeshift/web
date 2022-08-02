@@ -1,13 +1,18 @@
+import { GasToken } from '@axelar-network/axelarjs-sdk'
 import { Button, Stack } from '@chakra-ui/react'
 import { Summary } from 'features/defi/components/Summary'
+import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { RouteComponentProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
+import { getAxelarSdk } from 'components/Bridge/axelarSdkSingleton'
+import { chainNameToAxelarEvmChain, chainNameToAxelarGasToken } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { EditableAddress } from '../components/EditableAddress'
 import { BridgeAsset, BridgeRoutePaths, BridgeState } from '../types'
@@ -18,6 +23,9 @@ type SelectAssetProps = {
 } & RouteComponentProps
 
 export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
+  const [gasFeeUsdc, setGasFeeUsdc] = useState<string>()
+  const [gasFeeCrypto, setGasFeeCrypto] = useState<string>()
+  const [isLoadingFeeEstimates, setIsLoadingFeeEstimates] = useState(true)
   const handleBack = () => {
     history.push(BridgeRoutePaths.Input)
   }
@@ -28,6 +36,38 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     control,
     name: ['asset', 'cryptoAmount', 'fromChain', 'toChain'],
   })
+
+  const axelarSdk = getAxelarSdk()
+  const sourceChainName = chainNameToAxelarEvmChain(fromChain?.name ?? '')
+  const destinationChainName = chainNameToAxelarEvmChain(toChain?.name ?? '')
+  const sourceChainTokenSymbol = chainNameToAxelarGasToken(fromChain?.name ?? '')
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const estimateGasUsed = 400000
+
+        const gasFeeCrypto = await axelarSdk.estimateGasFee(
+          sourceChainName,
+          destinationChainName,
+          sourceChainTokenSymbol,
+          estimateGasUsed,
+        )
+
+        const gasFeeUsdc = await axelarSdk.estimateGasFee(
+          sourceChainName,
+          destinationChainName,
+          GasToken.USDC,
+          estimateGasUsed,
+        )
+        setGasFeeUsdc(bnOrZero(gasFeeUsdc).dividedBy(bn(10).exponentiatedBy(16)).toFixed(2))
+        setGasFeeCrypto(bnOrZero(gasFeeCrypto).dividedBy(bn(10).exponentiatedBy(16)).toFixed(10))
+        setIsLoadingFeeEstimates(false)
+      } catch (e) {
+        console.error('GasFee error', e)
+      }
+    })()
+  }, [axelarSdk, fromChain?.name, toChain?.name])
 
   const handleContinue = () => {
     history.push(BridgeRoutePaths.Status)
@@ -110,14 +150,29 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                 </Row.Label>
                 <Row.Value>
                   <Stack textAlign='right' spacing={0}>
-                    <Amount.Fiat fontWeight='bold' value={'7.00'} />
-                    <Amount.Crypto color='gray.500' value={'0.02'} symbol={asset?.symbol ?? ''} />
+                    {isLoadingFeeEstimates ? (
+                      <p>Loading...</p>
+                    ) : (
+                      <>
+                        <Amount.Fiat fontWeight='bold' value={gasFeeUsdc ?? 0} />
+                        <Amount.Crypto
+                          color='gray.500'
+                          value={gasFeeCrypto ?? '0'}
+                          symbol={sourceChainTokenSymbol ?? ''}
+                        />
+                      </>
+                    )}
                   </Stack>
                 </Row.Value>
               </Row>
             </Stack>
           </Summary>
-          <Button size='lg' colorScheme='blue' onClick={handleContinue}>
+          <Button
+            size='lg'
+            colorScheme='blue'
+            onClick={handleContinue}
+            disabled={isLoadingFeeEstimates}
+          >
             Start Bridge
           </Button>
         </Stack>

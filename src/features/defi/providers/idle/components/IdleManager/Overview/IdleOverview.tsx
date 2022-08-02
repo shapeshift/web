@@ -85,6 +85,27 @@ export const IdleOverview = () => {
     )
   }
 
+  const menu = [
+    {
+      label: 'common.deposit',
+      icon: <ArrowUpIcon />,
+      action: DefiAction.Deposit,
+    },
+    {
+      label: 'common.withdraw',
+      icon: <ArrowDownIcon />,
+      action: DefiAction.Withdraw,
+    }
+  ]
+
+  if (!opportunity.metadata.cdoAddress){
+    menu.push({
+      label: 'common.claim',
+      icon: <ArrowDownIcon />,
+      action: DefiAction.Claim,
+    })
+  }
+
   return (
     <Overview
       asset={asset}
@@ -105,23 +126,7 @@ export const IdleOverview = () => {
       }}
       tvl={opportunity.tvl.balanceUsdc.toFixed(2)}
       apy={opportunity.apy.toString()}
-      menu={[
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-        },
-        {
-          label: 'common.withdraw',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Withdraw,
-        },
-        {
-          label: 'common.claim',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Claim,
-        },
-      ]}
+      menu={menu}
     />
   )
 }

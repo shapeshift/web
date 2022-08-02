@@ -1,16 +1,16 @@
+import { IdleClaim } from './Claim/IdleClaim'
+import { AnimatePresence } from 'framer-motion'
+import { IdleDeposit } from './Deposit/IdleDeposit'
+import { IdleOverview } from './Overview/IdleOverview'
+import { IdleWithdraw } from './Withdraw/IdleWithdraw'
+import { SlideTransition } from 'components/SlideTransition'
 import {
   DefiAction,
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { AnimatePresence } from 'framer-motion'
-import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
-import { Claim } from './Claim/Claim'
-import { IdleDeposit } from './Deposit/IdleDeposit'
-import { IdleOverview } from './Overview/IdleOverview'
-import { IdleWithdraw } from './Withdraw/IdleWithdraw'
 
 export const IdleManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -35,7 +35,7 @@ export const IdleManager = () => {
       )}
       {modal === DefiAction.Claim && (
         <SlideTransition key={DefiAction.Claim}>
-          <Claim />
+          <IdleClaim />
         </SlideTransition>
       )}
     </AnimatePresence>

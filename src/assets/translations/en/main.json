@@ -303,7 +303,7 @@
       "claim": {
         "info": {
           "title": "Claim Info",
-          "description": "Rewards you'll receive"
+          "description": "Withdraw the accrued farmed tokens"
         }
       },
       "approve": {
@@ -615,6 +615,9 @@
         "failed": "There was an issue with your deposit."
       }
     },
+    "claim": {
+      "claimFrom": "Claim From %{opportunity}"
+    },
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
       "withdrawFrom": "Withdraw From %{opportunity}",
@@ -663,6 +666,7 @@
       "withdrawTo": "Withdraw To",
       "amountToDeposit": "Amount To Deposit",
       "amountToWithdraw": "Amount To Withdraw",
+      "amountToClaim": "Amount To Claim",
       "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",

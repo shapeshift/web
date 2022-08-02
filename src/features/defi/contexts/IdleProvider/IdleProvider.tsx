@@ -3,7 +3,7 @@ import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 type IdleContextProps = {
   loading: boolean
@@ -21,7 +21,7 @@ export const useIdle = () => {
 export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [idle, setIdle] = useState<IdleInvestor | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const { chainAdapterManager } = usePlugins()
+  const chainAdapterManager = getChainAdapterManager()
 
   useEffect(() => {
     ;(async () => {

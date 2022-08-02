@@ -64,11 +64,11 @@ export const Status = () => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'pending' && dispatch) {
+    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
         type: IdleWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: confirmedTransaction.status === 'confirmed' ? 'success' : 'failed',
+          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
           usedGasFee: confirmedTransaction.fee?.value,
         },
       })

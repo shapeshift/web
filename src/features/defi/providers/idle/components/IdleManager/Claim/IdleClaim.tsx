@@ -15,7 +15,7 @@ import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -55,7 +55,7 @@ export const IdleClaim = () => {
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
   // user info
-  const chainAdapterManager = useChainAdapters()
+  const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
 

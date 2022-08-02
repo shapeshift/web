@@ -164,16 +164,16 @@ export const useFarmingApr = () => {
               if (!shouldUseEIP1559Fees && gasPrice === undefined) {
                 throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
               }
-              return await (adapter as unknown as ethereum.ChainAdapter).buildSendTransaction({
+              return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
                 to: UNISWAP_V2_ROUTER_ADDRESS,
                 value,
                 wallet,
-                chainSpecific: {
-                  contractData: data,
-                  erc20ContractAddress: FOX_TOKEN_CONTRACT_ADDRESS,
-                  gasLimit,
-                  ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-                },
+                data,
+                gasLimit,
+                bip44Params: adapter.buildBIP44Params({
+                  accountNumber: 0,
+                }),
+                ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
               })
             } else {
               throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)

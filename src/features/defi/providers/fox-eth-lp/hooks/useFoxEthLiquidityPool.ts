@@ -10,7 +10,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import IUniswapV2Router02ABI from '@uniswap/v2-periphery/build/IUniswapV2Router02.json'
-import { FOX_TOKEN_CONTRACT_ADDRESS, UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'plugins/foxPage/const'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -20,7 +20,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectFirstAccountSpecifierByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { UNISWAP_V2_ROUTER_ADDRESS } from '../const'
+import { UNISWAP_V2_ROUTER_ADDRESS, UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from '../const'
 
 const ethersProvider = getEthersProvider()
 function calculateSlippageMargin(amount: string | null) {

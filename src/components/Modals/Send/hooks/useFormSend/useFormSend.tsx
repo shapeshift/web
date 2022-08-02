@@ -2,12 +2,13 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import {
+  type ChainAdapter,
+  type EvmBaseAdapter,
   type EvmChainId,
   type FeeData,
-  bitcoin,
-  ChainAdapter,
-  dogecoin,
-  ethereum,
+  type UtxoBaseAdapter,
+  type UtxoChainId,
+  utxoChainIds,
 } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -40,16 +41,17 @@ export const useFormSend = () => {
       try {
         const adapter = chainAdapterManager.get(data.asset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter) throw new Error(`useFormSend: no adapter available for ${data.asset.chainId}`)
+
         const value = bnOrZero(data.cryptoAmount)
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
-        const adapterType = adapter.getChainId()
+        const chainId = adapter.getChainId()
 
         const { estimatedFees, feeType, address: to } = data
 
         const result = await (async () => {
-          if (supportedEvmChainIds.includes(adapterType)) {
+          if (supportedEvmChainIds.includes(chainId)) {
             if (!supportsETH(wallet))
               throw new Error(`useFormSend: wallet does not support ethereum`)
             const fees = estimatedFees[feeType] as FeeData<EvmChainId>
@@ -66,7 +68,7 @@ export const useFormSend = () => {
             const erc20ContractAddress = tokenOrUndefined(
               fromAssetId(data.asset.assetId).assetReference,
             )
-            return await (adapter as unknown as ethereum.ChainAdapter).buildSendTransaction({
+            return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
               to,
               value,
               wallet,
@@ -77,8 +79,10 @@ export const useFormSend = () => {
               },
               sendMax: data.sendMax,
             })
-          } else if (adapterType === KnownChainIds.BitcoinMainnet) {
-            const fees = estimatedFees[feeType] as FeeData<KnownChainIds.BitcoinMainnet>
+          }
+
+          if (utxoChainIds.some(utxoChainId => utxoChainId === chainId)) {
+            const fees = estimatedFees[feeType] as FeeData<UtxoChainId>
 
             const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
 
@@ -94,7 +98,7 @@ export const useFormSend = () => {
               )
             }
 
-            return await (adapter as unknown as bitcoin.ChainAdapter).buildSendTransaction({
+            return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
               to,
               value,
               wallet,
@@ -105,37 +109,11 @@ export const useFormSend = () => {
               },
               sendMax: data.sendMax,
             })
-          } else if (adapterType === KnownChainIds.DogecoinMainnet) {
-            const fees = estimatedFees[feeType] as FeeData<KnownChainIds.DogecoinMainnet>
-
-            const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
-            if (!accountType) {
-              throw new Error(
-                `useFormSend: could not get dogecoin accountType from accountId: ${data.accountId}`,
-              )
-            }
-
-            if (!utxoParams) {
-              throw new Error(
-                `useFormSend: could not get dogecoin utxoParams from accountId: ${data.accountId}`,
-              )
-            }
-
-            return await (adapter as unknown as dogecoin.ChainAdapter).buildSendTransaction({
-              to,
-              value,
-              wallet,
-              bip44Params: utxoParams.bip44Params,
-              chainSpecific: {
-                satoshiPerByte: fees.chainSpecific.satoshiPerByte,
-                accountType,
-              },
-              sendMax: data.sendMax,
-            })
-          } else {
-            throw new Error('unsupported adapterType')
           }
+
+          throw new Error(`${chainId} not supported`)
         })()
+
         const txToSign = result.txToSign
 
         const broadcastTXID = await (async () => {

@@ -1,6 +1,5 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Flex, IconButton, Stack } from '@chakra-ui/react'
-import { useHistory, useParams } from 'react-router'
+import { Flex, Stack } from '@chakra-ui/react'
+import { useParams } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
@@ -17,7 +16,6 @@ type AssetSelectProps = {
 
 export const AssetSelect: React.FC<AssetSelectProps> = props => {
   const { fiatRampProvider, onAssetSelect, selectAssetTranslation } = props
-  const { goBack } = useHistory()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const { loading, sellList, buyList } = useFiatRampCurrencyList(fiatRampProvider)
 
@@ -25,15 +23,6 @@ export const AssetSelect: React.FC<AssetSelectProps> = props => {
     <SlideTransition>
       <Stack height='338px'>
         <Flex>
-          <IconButton
-            icon={<ArrowBackIcon />}
-            aria-label={selectAssetTranslation}
-            size='sm'
-            onClick={goBack}
-            isRound
-            variant='ghost'
-            mr={2}
-          />
           <Text alignSelf='center' translation={selectAssetTranslation} />
         </Flex>
         <AssetSearch

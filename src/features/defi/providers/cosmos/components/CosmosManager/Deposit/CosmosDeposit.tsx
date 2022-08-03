@@ -115,8 +115,7 @@ export const CosmosDeposit = () => {
         component: Status,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset.symbol])
+  }, [asset.symbol, translate])
 
   if (loading || !asset || !marketData) {
     return (

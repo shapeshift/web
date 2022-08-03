@@ -111,8 +111,7 @@ export const ClaimStatus = () => {
         })
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [estimatedGas, foxy, state, txid])
 
   return (
     <SlideTransition>

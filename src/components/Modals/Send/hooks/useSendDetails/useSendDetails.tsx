@@ -1,9 +1,4 @@
-import {
-  CHAIN_NAMESPACE,
-  ChainId,
-  fromAccountId,
-  fromAssetId,
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   EvmBaseAdapter,
   EvmChainId,

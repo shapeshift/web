@@ -59,13 +59,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     dispatch,
   } = useWallet()
   const { chainId: buyAssetChainId } = trade.buyAsset
-  const accountSpecifier = useAppSelector(state =>
+  const buyAssetAccountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, buyAssetChainId),
   )
 
   const parsedTxId = useMemo(
-    () => serializeTxIndex(accountSpecifier, txid, trade.receiveAddress),
-    [accountSpecifier, trade.receiveAddress, txid],
+    () => serializeTxIndex(buyAssetAccountSpecifier, txid, trade.receiveAddress),
+    [buyAssetAccountSpecifier, trade.receiveAddress, txid],
   )
   const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
 

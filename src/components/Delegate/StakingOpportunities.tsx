@@ -1,20 +1,21 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import {
   isCosmosChainId,
   isOsmosisChainId,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useMemo } from 'react'
-import { NavLink } from 'react-router-dom'
+import qs from 'qs'
+import { useCallback, useMemo } from 'react'
+import { NavLink, useHistory } from 'react-router-dom'
 import { Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   OpportunitiesDataFull,
@@ -69,6 +70,7 @@ export const ValidatorName = ({
 }
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
+  const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -85,14 +87,23 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   )
 
   const rows = stakingOpportunitiesData
-  const { cosmosStaking } = useModal()
 
-  const handleClick = (values: Row<OpportunitiesDataFull>) => {
-    cosmosStaking.open({
-      assetId,
-      validatorAddress: values.original.address,
-    })
-  }
+  const handleClick = useCallback(
+    (values: Row<OpportunitiesDataFull>) => {
+      const { chainId, assetReference } = fromAssetId(assetId)
+      const provider = chainIdToLabel(chainId)
+      history.push({
+        search: qs.stringify({
+          provider,
+          chainId,
+          contractAddress: values.original.address,
+          assetReference,
+          modal: 'overview',
+        }),
+      })
+    },
+    [assetId, history],
+  )
 
   const columns = useMemo(
     () => [

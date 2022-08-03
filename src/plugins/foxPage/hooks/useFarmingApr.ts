@@ -6,8 +6,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import {
   FOX_TOKEN_CONTRACT_ADDRESS,
-  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-  UNISWAP_V4_WETH_FOX_FARMING_REWARDS_ADDRESS,
+  UNISWAP_WETH_FOX_FARMING_REWARDS_V4_ADDRESS,
+  UNIV2_WETH_FOX_POOL_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from '../const'
 import farmingAbi from '../farmingAbi.json'
@@ -21,7 +21,7 @@ export const useFarmingApr = () => {
   const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState(false)
   const blockNumber = useCurrentBlockNumber()
 
-  const uniV2LiquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
+  const uniV2LiquidityContractAddress = UNIV2_WETH_FOX_POOL_ADDRESS
 
   const uniV2LPContract = useMemo(
     () => new Contract(uniV2LiquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
@@ -29,7 +29,7 @@ export const useFarmingApr = () => {
   )
 
   const farmingRewardsContractV4 = useMemo(
-    () => new Contract(UNISWAP_V4_WETH_FOX_FARMING_REWARDS_ADDRESS, farmingAbi, ethersProvider),
+    () => new Contract(UNISWAP_WETH_FOX_FARMING_REWARDS_V4_ADDRESS, farmingAbi, ethersProvider),
     [],
   )
 

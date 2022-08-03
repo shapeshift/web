@@ -68,6 +68,8 @@ const chainIdFeeAssetReferenceMap = (
         switch (chainReference) {
           case CHAIN_REFERENCE.BitcoinMainnet:
             return ASSET_REFERENCE.Bitcoin
+          case CHAIN_REFERENCE.BitcoinCashMainnet:
+            return ASSET_REFERENCE.BitcoinCash
           case CHAIN_REFERENCE.DogecoinMainnet:
             return ASSET_REFERENCE.Dogecoin
           case CHAIN_REFERENCE.LitecoinMainnet:

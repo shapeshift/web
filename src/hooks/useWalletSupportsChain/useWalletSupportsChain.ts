@@ -1,5 +1,6 @@
 import {
   avalancheChainId,
+  bchChainId,
   btcChainId,
   ChainId,
   cosmosChainId,
@@ -25,6 +26,7 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
   if (!wallet) return false
   switch (chainId) {
     case btcChainId:
+    case bchChainId:
     case dogeChainId:
     case ltcChainId:
       return supportsBTC(wallet)

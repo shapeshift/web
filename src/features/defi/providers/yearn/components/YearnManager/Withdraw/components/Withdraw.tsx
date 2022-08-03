@@ -76,7 +76,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'YearnWithdraw error:')
+      moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error:')
     }
   }
 

@@ -103,7 +103,7 @@ export const ClaimStatus = () => {
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
         })
       } catch (error) {
-        moduleLogger.error(error, 'FoxyClaim error:')
+        moduleLogger.error(error, 'ClaimStatus error')
         setState({
           ...state,
           txStatus: TxStatus.FAILED,

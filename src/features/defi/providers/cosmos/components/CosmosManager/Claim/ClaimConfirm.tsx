@@ -97,7 +97,7 @@ export const ClaimConfirm = ({
         chainId,
       })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'ClaimWithdraw:handleConfirm error')
+      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

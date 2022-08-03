@@ -75,7 +75,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
       return returVal
     } catch (error) {
-      moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'FoxyWithdraw error')
+      moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error')
       const fundsError =
         error instanceof Error && error.message.includes('Not enough funds in reserve')
       toast({
@@ -122,7 +122,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       })
       onNext(DefiStep.Confirm)
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleApprove' }, 'FoxyWithdraw error')
+      moduleLogger.error(error, { fn: 'handleApprove' }, 'handleApprove error')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

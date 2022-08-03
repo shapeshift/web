@@ -121,7 +121,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
       dispatch({ type: CosmosWithdrawActionType.SET_TXID, payload: broadcastTxId })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm')
+      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)

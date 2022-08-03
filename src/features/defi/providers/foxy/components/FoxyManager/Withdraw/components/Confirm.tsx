@@ -116,7 +116,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       })
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'FoxyWithdraw error')
+      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
   }
 

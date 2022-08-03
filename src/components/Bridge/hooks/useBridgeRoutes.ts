@@ -47,7 +47,7 @@ export const useBridgeRoutes = (): {
         setValue('fromChain', fromChain, { shouldValidate: true })
         if (chains.length === 2) {
           // There is only one option left for the toChain, select it automatically
-          const toChainLabel = chains.filter(chain => chain !== fromChainLabel)[0]
+          const toChainLabel = chains.filter(chain => chain !== fromChainLabel.toLowerCase())[0]
           const toChain = asset.implementations?.[toChainLabel.toLowerCase()]
           setValue('toChain', toChain, { shouldValidate: true })
         } else {

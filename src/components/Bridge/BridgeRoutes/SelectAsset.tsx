@@ -1,9 +1,11 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, Circle, Stack } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useSelector } from 'react-redux'
 import { RouteComponentProps } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import {
+  chainIdToChainName,
   unwrapAxelarAssetIdFromAvalancheToEthereum,
   wrapAxelarAssetIdFromEthereumToAvalanche,
 } from 'components/Bridge/utils'
@@ -20,7 +22,8 @@ type AssetRowProps = {
 } & BridgeAsset
 
 const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
-  const { symbol, icon, balance, implementations } = rest
+  const { symbol, icon, balance, implementations, assetId } = rest
+  const { chainId } = fromAssetId(assetId)
   const chains = Object.keys(implementations ?? {})
   return (
     <Button
@@ -34,7 +37,7 @@ const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
       <Stack direction='row' alignItems='center' width='full'>
         <AssetIcon src={icon} size='sm' />
         <Stack spacing={0} width='full' justifyContent='center' alignItems='flex-start'>
-          <RawText>{symbol}</RawText>
+          <RawText>{`${symbol} on ${chainIdToChainName(chainId)}`}</RawText>
           <RawText color='gray.500'>{`${balance} available`}</RawText>
         </Stack>
         {chains.length > 1 && (

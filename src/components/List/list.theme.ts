@@ -8,7 +8,7 @@ export const ListStyle = {
   sizes: {},
   // Styles for the visual style variations
   variants: {
-    rounded: (props: Record<string, any>) => ({
+    'rounded-divider': (props: Record<string, any>) => ({
       container: {
         borderRadius: 'lg',
         '> *': {
@@ -23,6 +23,19 @@ export const ListStyle = {
           borderBottomRadius: 'lg',
           borderTopRadius: 'none',
           borderBottomWidth: 0,
+        },
+      },
+    }),
+    rounded: () => ({
+      container: {
+        borderRadius: 'lg',
+        '> :first-of-type': {
+          borderTopRadius: 'lg',
+          borderBottomRadius: 'none',
+        },
+        '> :last-child': {
+          borderBottomRadius: 'lg',
+          borderTopRadius: 'none',
         },
       },
     }),

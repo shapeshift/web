@@ -1,5 +1,5 @@
-import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Button, ButtonProps, List, Stack } from '@chakra-ui/react'
+import { ArrowDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import { Button, ButtonProps, Divider, IconButton, List, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -30,7 +30,7 @@ const ChainButton: React.FC<ChainButtonProps> = ({
   return (
     <Button
       display='flex'
-      bg='gray.850'
+      bg='transparent'
       width='full'
       _hover={{ bg: 'gray.900' }}
       _disabled={{ opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }}
@@ -39,27 +39,28 @@ const ChainButton: React.FC<ChainButtonProps> = ({
         zIndex: 1,
         position: 'relative',
       }}
-      justifyContent='space-between'
+      justifyContent='center'
       columnGap={4}
       px={4}
       py={2}
       minHeight={14}
-      maxHeight={14}
-      alignItems='center'
+      height='auto'
+      maxHeight='auto'
+      alignItems='flex-start'
+      flexDirection='column'
       fontSize='sm'
       {...rest}
     >
-      <RawText width='35px' textAlign='left'>
-        {label}
-      </RawText>
-      {chain && symbol ? (
-        <ChainRow labelProps={{ fontSize: 'sm' }} iconProps={{ size: 6 }} {...chain} />
-      ) : (
-        <RawText flex={1} color='gray.500' textAlign='left'>
-          Select Chain
-        </RawText>
-      )}
-      <ChevronRightIcon boxSize={4} />
+      <Stack direction='row' width='full' alignItems='center'>
+        {chain && symbol ? (
+          <ChainRow labelProps={{ fontSize: 'sm' }} iconProps={{ size: 6 }} {...chain} />
+        ) : (
+          <RawText flex={1} color='gray.500' textAlign='left'>
+            Select Chain
+          </RawText>
+        )}
+        <ChevronRightIcon boxSize={4} />
+      </Stack>
     </Button>
   )
 }
@@ -162,20 +163,28 @@ export const BridgeInput = () => {
           onMaxClick={handlePercentClick}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
         />
-        <List variant='rounded' borderColor='gray.750' borderWidth={1}>
+        <List bg='gray.850' variant='rounded' borderColor='gray.750' borderWidth={1}>
           <ChainButton
             label='From'
             chain={fromChain.value}
             symbol={asset.value?.symbol}
             isDisabled={!asset.value}
             onClick={() => history.push(BridgeRoutePaths.ChainFromSelect)}
+            pt={4}
+            pb={5}
           />
+          <Stack direction='row' alignItems='center' ml={4} my={-3} position='relative' zIndex={3}>
+            <IconButton size='xs' aria-label='Switch Chains' icon={<ArrowDownIcon />} />
+            <Divider />
+          </Stack>
           <ChainButton
             label='To'
             chain={toChain.value}
             symbol={asset.value?.symbol}
             isDisabled={!asset.value}
             onClick={() => history.push(BridgeRoutePaths.ChainToSelect)}
+            pb={4}
+            pt={5}
           />
         </List>
         <Button

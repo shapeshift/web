@@ -19,6 +19,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { StakingTable } from './StakingTable'
@@ -32,6 +33,7 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
+  const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalance()
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
@@ -50,6 +52,7 @@ export const AllEarnOpportunities = () => {
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
+    foxEthLpOpportunity,
   })
 
   const handleClick = useCallback(

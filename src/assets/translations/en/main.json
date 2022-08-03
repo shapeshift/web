@@ -73,6 +73,12 @@
       "downloadCta": "Download Update"
     }
   },
+  "multiCurrency": {
+    "toast": {
+      "title": "Error loading data for %{symbol}",
+      "description": "Your currency has been reset to USD"
+    }
+  },
   "dashboard": {
     "portfolio": {
       "addAsset": "Add Asset",

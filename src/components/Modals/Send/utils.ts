@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import {
   EvmBaseAdapter,
   EvmChainId,
@@ -7,7 +7,6 @@ import {
   UtxoBaseAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -37,12 +36,12 @@ export const estimateFees = ({
   const adapter = chainAdapterManager.get(asset.chainId)
   if (!adapter) throw new Error(`No adapter available for ${asset.chainId}`)
 
-  switch (asset.chainId) {
-    case KnownChainIds.CosmosMainnet:
-    case KnownChainIds.OsmosisMainnet:
+  const { chainNamespace } = fromChainId(asset.chainId)
+
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Cosmos:
       return adapter.getFeeData({})
-    case KnownChainIds.EthereumMainnet:
-    case KnownChainIds.AvalancheMainnet:
+    case CHAIN_NAMESPACE.Ethereum:
       return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: address,
         value,
@@ -52,9 +51,7 @@ export const estimateFees = ({
         },
         sendMax,
       })
-    case KnownChainIds.BitcoinMainnet:
-    case KnownChainIds.DogecoinMainnet:
-    case KnownChainIds.LitecoinMainnet: {
+    case CHAIN_NAMESPACE.Bitcoin: {
       return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
         to: address,
         value,
@@ -63,6 +60,6 @@ export const estimateFees = ({
       })
     }
     default:
-      throw new Error('unsupported chain type')
+      throw new Error(`${chainNamespace} not supported`)
   }
 }

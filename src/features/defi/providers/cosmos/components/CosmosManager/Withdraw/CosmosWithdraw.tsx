@@ -16,6 +16,7 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   MergedActiveStakingOpportunity,
   useCosmosSdkStakingBalances,
@@ -29,6 +30,10 @@ import { Withdraw } from './components/Withdraw'
 import { CosmosWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosWithdraw'],
+})
 
 export const CosmosWithdraw = () => {
   const translate = useTranslate()
@@ -89,7 +94,7 @@ export const CosmosWithdraw = () => {
         })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('CosmosWithdraw error:', error)
+        moduleLogger.error(error, 'CosmosWithdraw error')
       }
     })()
   }, [cosmosOpportunity, chainAdapter, contractAddress, walletState.wallet])

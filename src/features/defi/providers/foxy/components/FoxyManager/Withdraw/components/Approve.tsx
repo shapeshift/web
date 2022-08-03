@@ -15,12 +15,17 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Approve'],
+})
 
 export const Approve = ({ onNext }: StepComponentProps) => {
   const { foxy: api } = useFoxy()
@@ -70,7 +75,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
       return returVal
     } catch (error) {
-      console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
+      moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error')
       const fundsError =
         error instanceof Error && error.message.includes('Not enough funds in reserve')
       toast({
@@ -117,7 +122,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       })
       onNext(DefiStep.Confirm)
     } catch (error) {
-      console.error('FoxyWithdraw:handleApprove error:', error)
+      moduleLogger.error(error, { fn: 'handleApprove' }, 'handleApprove error')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

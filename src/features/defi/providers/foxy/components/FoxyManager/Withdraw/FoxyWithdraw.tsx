@@ -20,6 +20,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -34,6 +35,10 @@ import { Withdraw } from './components/Withdraw'
 import { FoxyWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Foxy', 'FoxyWithdraw'],
+})
 
 export const FoxyWithdraw = () => {
   const { foxy: api } = useFoxy()
@@ -97,7 +102,7 @@ export const FoxyWithdraw = () => {
         })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('FoxyWithdraw error:', error)
+        moduleLogger.error(error, 'FoxyWithdraw error:')
       }
     })()
   }, [api, chainAdapter, contractAddress, walletState.wallet])

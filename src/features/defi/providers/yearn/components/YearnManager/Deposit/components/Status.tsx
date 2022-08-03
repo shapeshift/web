@@ -68,7 +68,7 @@ export const Status = () => {
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
-  }, [[browserHistory]])
+  }, [browserHistory])
 
   const handleCancel = () => {
     browserHistory.goBack()

@@ -49,7 +49,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch)) return
+      if (!(state && state.userAddress?.length && dispatch && api)) return
 
       const getApproveGasEstimate = async () => {
         if (!state.userAddress || !assetReference || !api) return

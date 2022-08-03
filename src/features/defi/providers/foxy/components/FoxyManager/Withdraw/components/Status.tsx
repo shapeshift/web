@@ -54,11 +54,11 @@ export const Status = () => {
       : '0'
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
-  if (!state || !dispatch) return null
-
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
   }, [browserHistory])
+
+  if (!state || !dispatch) return null
 
   const handleCancel = () => {
     browserHistory.goBack()

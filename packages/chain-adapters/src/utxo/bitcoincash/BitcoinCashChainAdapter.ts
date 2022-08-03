@@ -12,7 +12,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinCashMainn
   public static readonly defaultUtxoAccountType = UtxoAccountType.P2pkh
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
-    coinType: Number(ASSET_REFERENCE.Bitcoincash),
+    coinType: Number(ASSET_REFERENCE.BitcoinCash),
     accountNumber: 0
   }
 

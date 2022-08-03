@@ -86,7 +86,7 @@ export const utxoAccountParams = (
         scriptType: BTCInputScriptType.SpendAddress,
         bip44Params: {
           purpose: 44,
-          coinType: Number(ASSET_REFERENCE.Bitcoincash),
+          coinType: Number(ASSET_REFERENCE.BitcoinCash),
           accountNumber
         }
       }

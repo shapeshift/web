@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
- * Test BitcoincashChainAdapter
+ * Test BitcoinCashChainAdapter
  * @group unit
  */
 
@@ -150,7 +150,7 @@ describe('BitcoinCashChainAdapter', () => {
         http: {} as any,
         ws: {} as any
       },
-      coinName: 'Bitcoincash',
+      coinName: 'BitcoinCash',
       chainId: KnownChainIds.BitcoinCashMainnet
     }
   })
@@ -231,7 +231,7 @@ describe('BitcoinCashChainAdapter', () => {
 
       const bip44Params: BIP44Params = {
         purpose: 44,
-        coinType: Number(ASSET_REFERENCE.Bitcoincash),
+        coinType: Number(ASSET_REFERENCE.BitcoinCash),
         accountNumber: 0,
         isChange: false
       }
@@ -249,7 +249,7 @@ describe('BitcoinCashChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(txInput)).resolves.toStrictEqual({
         txToSign: {
-          coin: 'Bitcoincash',
+          coin: 'BitcoinCash',
           inputs: [
             {
               addressNList: [2147483692, 2147483793, 2147483648, 0, 1],
@@ -298,7 +298,7 @@ describe('BitcoinCashChainAdapter', () => {
       const adapter = new bitcoincash.ChainAdapter(args)
 
       const txToSign: BTCSignTx = {
-        coin: 'Bitcoincash',
+        coin: 'BitcoinCash',
         inputs: [
           {
             addressNList: [2147483692, 2147483793, 2147483648, 0, 1],
@@ -379,7 +379,7 @@ describe('BitcoinCashChainAdapter', () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
       const bip44Params: BIP44Params = {
-        coinType: Number(ASSET_REFERENCE.Bitcoincash),
+        coinType: Number(ASSET_REFERENCE.BitcoinCash),
         purpose: 44,
         accountNumber: 0,
         isChange: false,
@@ -398,7 +398,7 @@ describe('BitcoinCashChainAdapter', () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
       const bip44Params: BIP44Params = {
-        coinType: Number(ASSET_REFERENCE.Bitcoincash),
+        coinType: Number(ASSET_REFERENCE.BitcoinCash),
         purpose: 44,
         accountNumber: 0,
         index: 1,
@@ -416,7 +416,7 @@ describe('BitcoinCashChainAdapter', () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
       const bip44Params: BIP44Params = {
-        coinType: Number(ASSET_REFERENCE.Bitcoincash),
+        coinType: Number(ASSET_REFERENCE.BitcoinCash),
         purpose: 44,
         accountNumber: 0,
         index: 0,
@@ -434,7 +434,7 @@ describe('BitcoinCashChainAdapter', () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
       const bip44Params: BIP44Params = {
-        coinType: Number(ASSET_REFERENCE.Bitcoincash),
+        coinType: Number(ASSET_REFERENCE.BitcoinCash),
         purpose: 44,
         accountNumber: 1,
         index: 0,
@@ -454,7 +454,7 @@ describe('BitcoinCashChainAdapter', () => {
 
       const adapter = new bitcoincash.ChainAdapter(args)
       const bip44Params: BIP44Params = {
-        coinType: Number(ASSET_REFERENCE.Bitcoincash),
+        coinType: Number(ASSET_REFERENCE.BitcoinCash),
         purpose: 44,
         accountNumber: 1,
         index: 0,
@@ -465,7 +465,7 @@ describe('BitcoinCashChainAdapter', () => {
 
       expect(wallet.btcGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483793, 2147483649, 0, 0],
-        coin: 'Bitcoincash',
+        coin: 'BitcoinCash',
         scriptType: 'p2pkh',
         showDisplay: false
       })

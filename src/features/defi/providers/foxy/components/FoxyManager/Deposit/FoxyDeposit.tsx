@@ -110,8 +110,7 @@ export const FoxyDeposit = () => {
         component: Status,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset.symbol])
+  }, [translate, asset.symbol])
 
   if (loading || !asset || !marketData) {
     return (

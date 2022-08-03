@@ -129,8 +129,7 @@ export const FoxyWithdraw = () => {
         component: Status,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [underlyingAsset.symbol])
+  }, [translate, underlyingAsset.symbol])
 
   const handleBack = () => {
     history.push({

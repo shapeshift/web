@@ -90,8 +90,7 @@ export const ClaimStatus = () => {
         })
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [state, txid])
 
   return (
     <SlideTransition>

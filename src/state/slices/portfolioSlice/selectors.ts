@@ -824,7 +824,6 @@ export const selectPortfolioBridgeAssets = createSelector(
       return {
         assetId: v.assetId,
         symbol: v.symbol,
-        balance: v.cryptoAmount,
         icon: v.icon,
         name: v.name,
         cryptoAmount: v.cryptoAmount,

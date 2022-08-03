@@ -31,13 +31,13 @@ export type BridgeChain = {
   name: string
   balance: string
   fiatBalance: string
+  symbol: string
   color: string
 }
 
 export type BridgeAsset = {
   assetId: string
   symbol: string
-  balance: string
   icon: string
   name: string
   cryptoAmount: string

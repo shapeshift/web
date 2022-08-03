@@ -1,14 +1,22 @@
 import { EvmChain, GasToken } from '@axelar-network/axelarjs-sdk'
-import { AssetId, avalancheChainId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  avalancheChainId,
+  ChainId,
+  ethChainId,
+  fromAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AXELAR_CHAIN_NAMES, AxelarChainName } from 'components/Bridge/types'
 
-export const wrapAxelarAssetIdFromEthereumToAvalanche = (asset: AssetId): AssetId | undefined => {
+export const wrapAxelarAssetIdFromEthereumToAvalanche = (assetId: AssetId): AssetId | undefined => {
   const chainId = KnownChainIds.AvalancheMainnet
   const assetNamespace = 'erc20'
-  switch (asset) {
+  switch (assetId) {
     // USDC on Ethereum
     case 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48':
+      // axlUSDC on Avalanche
       return toAssetId({
         chainId,
         assetNamespace,
@@ -19,17 +27,32 @@ export const wrapAxelarAssetIdFromEthereumToAvalanche = (asset: AssetId): AssetI
   }
 }
 
-export const unwrapAxelarAssetIdFromAvalancheToEthereum = (asset: AssetId): AssetId | undefined => {
+export const unwrapAxelarAssetIdFromAvalancheToEthereum = (
+  assetId: AssetId,
+): AssetId | undefined => {
   const chainId = KnownChainIds.EthereumMainnet
   const assetNamespace = 'erc20'
-  switch (asset) {
-    // Axelar-wrapped USDC on Avalanche (axlUSDC)
+  switch (assetId) {
+    // axlUSDC on Avalanche
     case 'eip155:43114/erc20:0xfab550568c688d5d8a52c7d794cb93edc26ec0ec':
+      // USDC on Ethereum
       return toAssetId({
         chainId,
         assetNamespace,
         assetReference: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
       })
+    default:
+      return undefined
+  }
+}
+
+export const getBridgeDestinationAsset = (assetId: AssetId): AssetId | undefined => {
+  const { chainId } = fromAssetId(assetId)
+  switch (chainId) {
+    case ethChainId:
+      return wrapAxelarAssetIdFromEthereumToAvalanche(assetId)
+    case avalancheChainId:
+      return unwrapAxelarAssetIdFromAvalancheToEthereum(assetId)
     default:
       return undefined
   }

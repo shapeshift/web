@@ -6,8 +6,8 @@ import { RouteComponentProps } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import {
   chainIdToChainName,
+  getBridgeDestinationAsset,
   unwrapAxelarAssetIdFromAvalancheToEthereum,
-  wrapAxelarAssetIdFromEthereumToAvalanche,
 } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
@@ -22,9 +22,11 @@ type AssetRowProps = {
 } & BridgeAsset
 
 const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
-  const { symbol, icon, balance, implementations, assetId } = rest
+  const { icon, cryptoAmount, implementations, assetId } = rest
   const { chainId } = fromAssetId(assetId)
   const chains = Object.keys(implementations ?? {})
+  const chainName = chainIdToChainName(chainId)
+  const symbol = implementations?.[chainName.toLowerCase()].symbol ?? ''
   return (
     <Button
       variant='ghost'
@@ -37,8 +39,8 @@ const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
       <Stack direction='row' alignItems='center' width='full'>
         <AssetIcon src={icon} size='sm' />
         <Stack spacing={0} width='full' justifyContent='center' alignItems='flex-start'>
-          <RawText>{`${symbol} on ${chainIdToChainName(chainId)}`}</RawText>
-          <RawText color='gray.500'>{`${balance} available`}</RawText>
+          <RawText>{`${symbol} on ${chainName}`}</RawText>
+          <RawText color='gray.500'>{`${cryptoAmount} available`}</RawText>
         </Stack>
         {chains.length > 1 && (
           <Circle size={8} ml='auto' borderWidth={2} borderColor='gray.700'>
@@ -57,40 +59,42 @@ type SelectAssetProps = {
 export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) => {
   const assets = useSelector(selectPortfolioBridgeAssets)
   const supportedAssets = assets
-    .filter(asset => {
-      const maybeWrappedAsset = wrapAxelarAssetIdFromEthereumToAvalanche(asset.assetId)
-      const maybeUnwrappedAsset = unwrapAxelarAssetIdFromAvalancheToEthereum(asset.assetId)
-      // If we can wrap or unwrap the asset, we support it
-      return !!(maybeWrappedAsset || maybeUnwrappedAsset)
-    })
+    .filter(asset => !!getBridgeDestinationAsset(asset.assetId))
     .map(filteredAsset => {
+      const destinationAssetId = getBridgeDestinationAsset(filteredAsset.assetId)
+      const destinationAsset = assets.find(a => a.assetId === destinationAssetId)
+      console.log('destinationAsset', destinationAsset)
       const maybeUnwrappedAsset = unwrapAxelarAssetIdFromAvalancheToEthereum(filteredAsset.assetId)
       const implementations = maybeUnwrappedAsset
         ? {
             avalanche: {
               name: 'Avalanche',
-              balance: filteredAsset.balance,
-              fiatBalance: 'TODO',
+              balance: filteredAsset.cryptoAmount,
+              fiatBalance: filteredAsset.fiatAmount,
+              symbol: filteredAsset.symbol,
               color: '#E84142',
             },
             ethereum: {
               name: 'Ethereum',
-              balance: 'TODO', // balance of maybeUnwrappedAsset
-              fiatBalance: 'TODO',
+              balance: destinationAsset?.cryptoAmount ?? '0',
+              fiatBalance: destinationAsset?.fiatAmount ?? '0',
+              symbol: destinationAsset?.symbol ?? '',
               color: '#627EEA',
             },
           }
         : {
             avalanche: {
               name: 'Avalanche',
-              balance: 'TODO',
-              fiatBalance: 'TODO',
+              balance: destinationAsset?.cryptoAmount ?? '0',
+              fiatBalance: destinationAsset?.fiatAmount ?? '0',
+              symbol: destinationAsset?.symbol ?? '',
               color: '#E84142',
             },
             ethereum: {
               name: 'Ethereum',
-              balance: filteredAsset.balance,
-              fiatBalance: 'TODO',
+              balance: filteredAsset.cryptoAmount,
+              fiatBalance: filteredAsset.fiatAmount,
+              symbol: filteredAsset.symbol,
               color: '#627EEA',
             },
           }

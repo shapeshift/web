@@ -63,7 +63,6 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
     .map(filteredAsset => {
       const destinationAssetId = getBridgeDestinationAsset(filteredAsset.assetId)
       const destinationAsset = assets.find(a => a.assetId === destinationAssetId)
-      console.log('destinationAsset', destinationAsset)
       const maybeUnwrappedAsset = unwrapAxelarAssetIdFromAvalancheToEthereum(filteredAsset.assetId)
       const implementations = maybeUnwrappedAsset
         ? {

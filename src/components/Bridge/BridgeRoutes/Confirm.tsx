@@ -1,7 +1,7 @@
-import { GasToken } from '@axelar-network/axelarjs-sdk'
 import { Button, Stack } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import axios from 'axios'
 import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -11,10 +11,9 @@ import { WrappedIcon } from 'components/AssetIcon'
 import { getAxelarAssetTransferSdk } from 'components/Bridge/axelarAssetTransferSdkSingleton'
 import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
 import {
-  chainIdToChainName,
   chainNameToAxelarEvmChain,
   chainNameToAxelarGasToken,
-  getAxelarAsset,
+  getDenomFromBridgeAsset,
 } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { SendInput } from 'components/Modals/Send/Form'
@@ -24,7 +23,7 @@ import { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
@@ -77,41 +76,29 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   const sourceChainName = chainNameToAxelarEvmChain(fromChain?.name ?? '')
   const destinationChainName = chainNameToAxelarEvmChain(toChain?.name ?? '')
   const sourceChainTokenSymbol = chainNameToAxelarGasToken(fromChain?.name ?? '')
+  const assetDenom = getDenomFromBridgeAsset(bridgeAsset)
 
   // TODO: move to custom hook
   // Get total fee estimate, including gas and Axelar fees
   useEffect(() => {
     ;(async () => {
       try {
-        const estimateGasUsed = 400000
+        // We can't use axelarQuerySdk.getTransferFee() because of a CORS issue with the SDK
+        const url = `https://axelartest-lcd.quickapi.com/axelar/nexus/v1beta1/transfer_fee?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=100uusd`
+        const {
+          data: {
+            fee: { amount },
+          },
+        } = await axios.get(`${url}`)
+        setValue('gasFeeUsdc', fromBaseUnit(amount, 4))
 
-        const gasFeeCrypto = await axelarQuerySdk.estimateGasFee(
-          sourceChainName,
-          destinationChainName,
-          sourceChainTokenSymbol,
-          estimateGasUsed,
-        )
-
-        const gasFeeUsdc = await axelarQuerySdk.estimateGasFee(
-          sourceChainName,
-          destinationChainName,
-          GasToken.USDC,
-          estimateGasUsed,
-        )
-        setValue(
-          'gasFeeUsdc',
-          bnOrZero(gasFeeUsdc).dividedBy(bn(10).exponentiatedBy(16)).toFixed(2),
-        )
-        setValue(
-          'gasFeeCrypto',
-          bnOrZero(gasFeeCrypto).dividedBy(bn(10).exponentiatedBy(16)).toFixed(10),
-        )
         setIsLoadingFeeEstimates(false)
       } catch (e) {
         console.error('GasFee error', e)
       }
     })()
   }, [
+    assetDenom,
     axelarQuerySdk,
     destinationChainName,
     fromChain?.name,
@@ -124,11 +111,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   const handleContinue = async () => {
     setIsExecutingTransaction(true)
     try {
-      const chainId = fromAssetId(bridgeAsset?.assetId ?? '').chainId
-      const chainName = chainIdToChainName(chainId).toLowerCase() // the sdk uses lower case names for some reason
-      const symbol = bridgeAsset?.symbol ?? ''
-      const axelarAsset = getAxelarAsset(symbol, chainId)
-      const assetDenom = await axelarQuerySdk.getDenomFromSymbol(axelarAsset, chainName)
+      const assetDenom = getDenomFromBridgeAsset(bridgeAsset)
 
       const depositAddress = await axelarAssetTransferSdk.getDepositAddress(
         sourceChainName,
@@ -195,18 +178,18 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                 <Stack direction='row' alignItems='center'>
                   <WrappedIcon size='sm' src={bridgeAsset?.icon} wrapColor={fromChain?.color} />
                   <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
-                    <RawText>{bridgeAsset?.symbol}</RawText>
+                    <RawText>{fromChain?.symbol}</RawText>
                     <RawText fontSize='sm' color='gray.500'>
                       {fromChain?.name}
                     </RawText>
                   </Stack>
                 </Stack>
-                {bridgeAsset?.symbol && (
+                {fromChain?.symbol && (
                   <Row.Value color='red.400'>
                     <Amount.Crypto
                       prefix='-'
                       value={cryptoAmount ?? '0'}
-                      symbol={bridgeAsset.symbol}
+                      symbol={fromChain?.symbol}
                     />
                   </Row.Value>
                 )}
@@ -220,19 +203,15 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                 <Stack direction='row' alignItems='center'>
                   <WrappedIcon size='sm' src={bridgeAsset?.icon} wrapColor={toChain?.color} />
                   <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
-                    <RawText>{bridgeAsset?.symbol}</RawText>
+                    <RawText>{toChain?.symbol}</RawText>
                     <RawText fontSize='sm' color='gray.500'>
                       {toChain?.name}
                     </RawText>
                   </Stack>
                 </Stack>
-                {bridgeAsset?.symbol && (
+                {toChain?.symbol && (
                   <Row.Value color='green.200'>
-                    <Amount.Crypto
-                      prefix='+'
-                      value={cryptoAmount ?? '0'}
-                      symbol={bridgeAsset.symbol}
-                    />
+                    <Amount.Crypto prefix='+' value={cryptoAmount ?? '0'} symbol={toChain.symbol} />
                   </Row.Value>
                 )}
               </Row>
@@ -263,11 +242,12 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                     ) : (
                       <>
                         <Amount.Fiat fontWeight='bold' value={gasFeeUsdc ?? '0'} />
-                        <Amount.Crypto
-                          color='gray.500'
-                          value={gasFeeCrypto ?? '0'}
-                          symbol={sourceChainTokenSymbol ?? ''}
-                        />
+                        <RawText>Subtracted as {sourceChainTokenSymbol} from source chain</RawText>
+                        {/*<Amount.Crypto*/}
+                        {/*  color='gray.500'*/}
+                        {/*  value={gasFeeCrypto ?? '0'}*/}
+                        {/*  symbol={sourceChainTokenSymbol ?? ''}*/}
+                        {/*/>*/}
                       </>
                     )}
                   </Stack>

@@ -56,11 +56,7 @@ export const SelectChain: React.FC<SelectAssetProps> = ({ onClick, history }) =>
                   </Stack>
                   <Stack spacing={0} ml='auto' alignItems='flex-end' fontSize='sm'>
                     <Amount.Fiat value={chain.fiatBalance} />
-                    <Amount.Crypto
-                      color='gray.500'
-                      value={chain.balance}
-                      symbol={bridgeAsset.symbol}
-                    />
+                    <Amount.Crypto color='gray.500' value={chain.balance} symbol={chain.symbol} />
                   </Stack>
                 </Stack>
               )

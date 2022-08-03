@@ -7,6 +7,8 @@ import { useHistory } from 'react-router'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { ChainRow } from '../components/ChainRow'
 import { BridgeChain, BridgeRoutePaths, BridgeState } from '../types'
@@ -51,12 +53,7 @@ const ChainButton: React.FC<ChainButtonProps> = ({
         {label}
       </RawText>
       {chain && symbol ? (
-        <ChainRow
-          symbol={symbol}
-          labelProps={{ fontSize: 'sm' }}
-          iconProps={{ size: 6 }}
-          {...chain}
-        />
+        <ChainRow labelProps={{ fontSize: 'sm' }} iconProps={{ size: 6 }} {...chain} />
       ) : (
         <RawText flex={1} color='gray.500' textAlign='left'>
           Select Chain
@@ -121,7 +118,7 @@ export const BridgeInput = () => {
     defaultValue: '',
   })
 
-  const price = 2.51
+  const { price } = useAppSelector(state => selectMarketDataById(state, asset.value?.assetId ?? ''))
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {

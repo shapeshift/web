@@ -8,7 +8,8 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AXELAR_CHAIN_NAMES, AxelarChainName } from 'components/Bridge/types'
+import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
+import { AXELAR_CHAIN_NAMES, AxelarChainName, BridgeAsset } from 'components/Bridge/types'
 
 export const wrapAxelarAssetIdFromEthereumToAvalanche = (assetId: AssetId): AssetId | undefined => {
   const chainId = KnownChainIds.AvalancheMainnet
@@ -111,4 +112,13 @@ export const getAxelarAsset = (symbol: string, chainId: ChainId): string => {
     default:
       throw new Error(`getAxelarAsset: symbol ${symbol} on chainId ${chainId} not supported`)
   }
+}
+
+export const getDenomFromBridgeAsset = (asset: BridgeAsset | undefined): string | null => {
+  const axelarQuerySdk = getAxelarQuerySdk()
+  const chainId = fromAssetId(asset?.assetId ?? '').chainId
+  const chainName = chainIdToChainName(chainId).toLowerCase() // the sdk uses lower case names for some reason
+  const symbol = asset?.symbol ?? ''
+  const axelarAsset = getAxelarAsset(symbol, chainId)
+  return axelarQuerySdk.getDenomFromSymbol(axelarAsset, chainName)
 }

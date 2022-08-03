@@ -297,10 +297,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   /**
    * fetch forex spot and history for user's selected currency
    */
-  const symbol = useAppSelector(state => selectSelectedCurrency(state))
+  const currency = useAppSelector(state => selectSelectedCurrency(state))
   const timeframe = DEFAULT_HISTORY_TIMEFRAME
-  const priceHistoryArgs = useMemo(() => ({ symbol, timeframe }), [symbol, timeframe])
-  const { error: priceHistoryError } = useFindPriceHistoryByFiatSymbolQuery(priceHistoryArgs)
+  const priceHistoryArgs = useMemo(() => ({ symbol: currency, timeframe }), [currency, timeframe])
+  const { error: fiatPriceHistoryError } = useFindPriceHistoryByFiatSymbolQuery(priceHistoryArgs)
   const { error: forexRateError } = useFindByFiatSymbolQuery(priceHistoryArgs)
 
   useEffect(() => {
@@ -308,22 +308,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
      * crypto market data is denominated in USD and is the "safe" condition we can
      * recover from failures on
      */
-    if (symbol === 'USD') return
-    if (priceHistoryError || forexRateError) {
-      const { setSelectedCurrency } = preferences.actions
+    if (currency === 'USD') return
+    if (fiatPriceHistoryError || forexRateError) {
       toast({
         position: 'top-right',
-        title: translate('multiCurrency.toast.title', { symbol }),
+        title: translate('multiCurrency.toast.title', { symbol: currency }),
         description: translate('multiCurrency.toast.description'),
         status: 'error',
         duration: null, // don't auto-dismiss
         isClosable: true,
       })
-      dispatch(setSelectedCurrency({ currency: 'USD' }))
+      dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
     }
     // setting symbol causes infinite render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, priceHistoryError, forexRateError, toast])
+  }, [dispatch, fiatPriceHistoryError, forexRateError, toast])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route

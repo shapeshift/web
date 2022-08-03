@@ -1,4 +1,11 @@
-import { btcAssetId, cosmosAssetId, dogeAssetId, ethAssetId, ltcAssetId } from '../../constants'
+import {
+  bchAssetId,
+  btcAssetId,
+  cosmosAssetId,
+  dogeAssetId,
+  ethAssetId,
+  ltcAssetId
+} from '../../constants'
 import { AssetId } from './../../assetId/assetId'
 
 // derived from https://midgard.thorchain.info/v2/pools
@@ -52,8 +59,8 @@ const thorPoolIdAssetIdSymbolMap: Record<string, AssetId> = {
   'ETH.ETH': ethAssetId,
   'LTC.LTC': ltcAssetId,
   'DOGE.DOGE': dogeAssetId,
-  'GAIA.ATOM': cosmosAssetId
-  //  'BCH.BCH': bchAssetId // uncomment when we support bch
+  'GAIA.ATOM': cosmosAssetId,
+  'BCH.BCH': bchAssetId
 }
 
 const invert = <T extends Record<string, string>>(data: T) =>

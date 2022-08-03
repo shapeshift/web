@@ -25,7 +25,7 @@ import { buildTrade } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded/thorTradeApprovalNeeded'
 import { thorTradeApproveInfinite } from './thorTradeApproveInfinite/thorTradeApproveInfinite'
-import { PoolResponse, ThorchainSwapperDeps, ThorTrade } from './types'
+import { MidgardActionsResponse, PoolResponse, ThorchainSwapperDeps, ThorTrade } from './types'
 import { getUsdRate } from './utils/getUsdRate/getUsdRate'
 import { thorService } from './utils/thorService'
 
@@ -42,6 +42,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.BitcoinMainnet]: true,
     [KnownChainIds.DogecoinMainnet]: true,
     [KnownChainIds.LitecoinMainnet]: true,
+    [KnownChainIds.BitcoinCashMainnet]: true,
     [KnownChainIds.CosmosMainnet]: true
   }
 
@@ -169,10 +170,40 @@ export class ThorchainSwapper implements Swapper<ChainId> {
   }
 
   async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
-    // TODO poll midgard for the correct buyTxid
-    return {
-      sellTxid: tradeResult.tradeId,
-      buyTxid: tradeResult.tradeId
+    try {
+      const midgardTxid = tradeResult.tradeId.startsWith('0x')
+        ? tradeResult.tradeId.slice(2)
+        : tradeResult.tradeId
+
+      const { data: responseData } = await thorService.get<MidgardActionsResponse>(
+        `${this.deps.midgardUrl}/actions?txid=${midgardTxid}`
+      )
+
+      const buyTxid =
+        responseData?.actions[0]?.status === 'success' && responseData?.actions[0]?.type === 'swap'
+          ? responseData?.actions[0].out[0].txID
+          : ''
+
+      // This will detect all the errors I have seen.
+      if (
+        responseData?.actions[0]?.status === 'success' &&
+        responseData?.actions[0]?.type !== 'swap'
+      )
+        throw new SwapError('[getTradeTxs]: trade failed', {
+          code: SwapErrorTypes.TRADE_FAILED,
+          cause: responseData
+        })
+
+      return {
+        sellTxid: tradeResult.tradeId,
+        buyTxid: buyTxid.toLowerCase()
+      }
+    } catch (e) {
+      if (e instanceof SwapError) throw e
+      throw new SwapError('[getTradeTxs]: error', {
+        code: SwapErrorTypes.GET_TRADE_TXS_FAILED,
+        cause: e
+      })
     }
   }
 }

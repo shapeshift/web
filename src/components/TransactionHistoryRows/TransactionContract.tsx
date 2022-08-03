@@ -14,7 +14,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import { TransactionRowProps } from './TransactionRow'
-import { AssetTypes, parseRelevantAssetFromTx } from './utils'
+import { AssetTypes, isTokenMetadata, parseRelevantAssetFromTx } from './utils'
 
 export const TransactionContract = ({
   txDetails,
@@ -41,7 +41,9 @@ export const TransactionContract = ({
       : 'transactionRow.unknown',
   )
 
-  const asset = useAppSelector(s => selectAssetById(s, (txDetails.tx.data as any).assetId! ?? ''))
+  const asset = useAppSelector(state =>
+    selectAssetById(state, isTokenMetadata(txDetails.tx.data) ? txDetails.tx.data.assetId! : ''),
+  )
   const symbol = asset?.symbol ?? ''
   const title = symbol ? `${titlePrefix} ${symbol}` : titlePrefix
 

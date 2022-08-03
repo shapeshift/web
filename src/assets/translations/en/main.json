@@ -1194,6 +1194,7 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
       "totalFoxValue": "Total Fox Value",
       "foxToken": "ShapeShift %{assetSymbol} Token",
       "foxDescription": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.",

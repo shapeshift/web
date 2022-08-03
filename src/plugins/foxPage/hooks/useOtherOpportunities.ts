@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const { farmingAprV2, farmingAprV4, isFarmingAprV2Loaded, isFarmingAprV4Loaded } = useFarmingApr()
+  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
   const { lpApr, loaded: isLpAprLoaded } = useLpApr()
 
   const otherOpportunities = useMemo(() => {
@@ -79,15 +79,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }
 
     return opportunities[assetId]
-  }, [
-    lpApr,
-    farmingAprV4,
-    farmingAprV2,
-    assetId,
-    isLpAprLoaded,
-    isFarmingAprV2Loaded,
-    isFarmingAprV4Loaded,
-  ])
+  }, [lpApr, farmingAprV4, assetId, isLpAprLoaded, isFarmingAprV4Loaded])
 
   return otherOpportunities
 }

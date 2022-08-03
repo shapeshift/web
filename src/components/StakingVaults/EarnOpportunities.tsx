@@ -1,24 +1,22 @@
-import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import qs from 'qs'
+import { Text } from 'components/Text'
+import { Card } from 'components/Card/Card'
+import { useAppSelector } from 'state/store'
+import { StakingTable } from './StakingTable'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
-import qs from 'qs'
-import { NavLink, useHistory, useLocation } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
-import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { Box, Button, HStack } from '@chakra-ui/react'
+import { selectAssetById } from 'state/slices/selectors'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-// import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
+import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { StakingTable } from './StakingTable'
 
 type EarnOpportunitiesProps = {
   tokenId?: string
@@ -35,7 +33,6 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  // const vaults = useYearnVaults()
   const { vaults } = useVaultBalances()
   const { opportunities: foxyRows } = useFoxyBalances()
   //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account

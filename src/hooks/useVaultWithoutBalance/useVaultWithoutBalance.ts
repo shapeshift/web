@@ -1,7 +1,6 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import filter from 'lodash/filter'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -27,44 +26,60 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const [vaults, setVaults] = useState<MergedSerializableOpportunity[]>([])
   const dispatch = useDispatch()
 
-  const { idle, loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
+  const { idle, loading: idleLoading, enabled: idleEnabled } = useIdle()
 
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!(wallet && yearn && idle) || yearnLoading || idleLoading) return
+    if (!(wallet && yearn && (idle || !idleEnabled)) || yearnLoading || idleLoading) return
     ;(async () => {
       setLoading(true)
       try {
-        const [idleVaults, yearnVaults] = await Promise.all([idle.findAll(), yearn.findAll()])
+        const providers = {
+          [DefiProvider.Idle]: idle,
+          [DefiProvider.Yearn]: yearn,
+        }
 
-        // Filter out all vaults with 0 USDC TVL value
-        const yearnVaultsWithTVL = filter(yearnVaults, vault =>
-          bnOrZero(vault.tvl.balanceUsdc).gt(0),
+        const allVaults: MergedSerializableOpportunity[] = []
+        const providersVaults = await Promise.all(
+          Object.values(providers).map(p => (p ? p.findAll() : null)),
         )
-        const idleVaultsWithTVL = filter(idleVaults, vault => bnOrZero(vault.tvl.balanceUsdc).gt(0))
 
-        const vaults = [
-          ...yearnVaultsWithTVL.map(v => ({
-            ...v,
-            provider: DefiProvider.Yearn,
-          })),
-          ...idleVaultsWithTVL.map(v => ({
-            ...v,
-            provider: DefiProvider.Idle,
-          })),
-        ]
+        providersVaults.forEach((providerVaults, index) => {
+          if (!providerVaults) return
+          const vaultsWithTvl: MergedSerializableOpportunity[] = Object.values(
+            providerVaults,
+          ).filter((vault: MergedSerializableOpportunity) => {
+            return bnOrZero(vault.tvl.balanceUsdc).gt(0)
+          })
+          allVaults.push(
+            ...vaultsWithTvl.map(vault => ({
+              ...vault,
+              provider: Object.keys(providers)[index],
+            })),
+          )
+        })
 
-        setVaults(vaults)
+        setVaults(allVaults)
       } catch (error) {
         console.error('error getting supported yearn vaults', error)
       } finally {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, idle])
+  }, [
+    balances,
+    dispatch,
+    wallet,
+    balancesLoading,
+    yearnLoading,
+    yearn,
+    idleLoading,
+    idle,
+    idleEnabled,
+  ])
 
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(

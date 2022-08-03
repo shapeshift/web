@@ -134,6 +134,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         ])
 
         const allVaults = { ...idleVaults, ...yearnVaults }
+
         setVaults(allVaults)
       } catch (error) {
         console.error('error', error)

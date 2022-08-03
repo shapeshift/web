@@ -35,9 +35,9 @@ export type SerializableOpportunity = Omit<
   | 'allowance'
   | 'prepareApprove'
   | 'prepareDeposit'
+  | 'signAndBroadcast'
   | 'prepareWithdrawal'
   | 'prepareClaimTokens'
-  | 'signAndBroadcast'
   | 'getClaimableTokens'
 >
 

@@ -4,9 +4,12 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type IdleContextProps = {
   loading: boolean
+  enabled: boolean
   idle: IdleInvestor | null
 }
 
@@ -22,11 +25,13 @@ export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [idle, setIdle] = useState<IdleInvestor | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapterManager = getChainAdapterManager()
+  const featureFlags = useAppSelector(selectFeatureFlags)
+  const enabled = featureFlags.IdleFinance
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
+        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet) || !enabled) return
         setLoading(true)
         const chainAdapter = chainAdapterManager.get(
           KnownChainIds.EthereumMainnet,
@@ -43,7 +48,7 @@ export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
         setLoading(false)
       }
     })()
-  }, [chainAdapterManager])
+  }, [chainAdapterManager, enabled])
 
-  return <IdleContext.Provider value={{ idle, loading }}>{children}</IdleContext.Provider>
+  return <IdleContext.Provider value={{ idle, loading, enabled }}>{children}</IdleContext.Provider>
 }

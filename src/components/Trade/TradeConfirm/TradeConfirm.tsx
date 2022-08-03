@@ -3,6 +3,7 @@ import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -57,9 +58,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const { chainId } = trade.sellAsset
+  const { chainId: buyAssetChainId } = trade.buyAsset
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, chainId),
+    selectFirstAccountSpecifierByChainId(state, buyAssetChainId),
   )
 
   const parsedTxId = useMemo(
@@ -143,7 +144,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           <Card.Header px={0} pt={0}>
             <WithBackButton handleBack={handleBack}>
               <Card.Heading textAlign='center'>
-                <Text translation={txid ? 'trade.complete' : 'trade.confirmDetails'} />
+                <Text
+                  translation={
+                    status === TxStatus.Confirmed ? 'trade.complete' : 'trade.confirmDetails'
+                  }
+                />
               </Card.Heading>
             </WithBackButton>
             <AssetToAsset

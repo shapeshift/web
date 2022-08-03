@@ -370,14 +370,6 @@ export const selectStakingDataByAccountSpecifier = createSelector(
   },
 )
 
-export const selectAllStakingDataByValidator = createSelector(
-  selectPortfolioAccounts,
-  selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts, accountSpecifier) => {
-    return portfolioAccounts?.[accountSpecifier]?.stakingDataByValidatorId
-  },
-)
-
 export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
@@ -849,7 +841,7 @@ export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
 )
 
 export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSelector(
-  selectAllStakingDataByValidator,
+  selectStakingDataByAccountSpecifier,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
   (stakingDataByValidator, validatorAddress, assetId): cosmos.UndelegationEntry[] => {
@@ -920,7 +912,7 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
   selectValidatorIds,
   selectValidators,
-  selectAllStakingDataByValidator,
+  selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
   (validatorIds, validatorsData, stakingDataByValidator, assetId): OpportunitiesDataFull[] =>
     validatorIds.map(validatorId => {

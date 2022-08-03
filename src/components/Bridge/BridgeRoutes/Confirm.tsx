@@ -53,19 +53,12 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
 
   const { control, setValue } = useFormContext<BridgeState>()
 
-  const [bridgeAsset, cryptoAmount, fromChain, toChain, receiveAddress, gasFeeUsdc, gasFeeCrypto] =
-    useWatch({
+  const [bridgeAsset, cryptoAmount, fromChain, toChain, receiveAddress, transferFeeUsdc] = useWatch(
+    {
       control,
-      name: [
-        'asset',
-        'cryptoAmount',
-        'fromChain',
-        'toChain',
-        'receiveAddress',
-        'gasFeeUsdc',
-        'gasFeeCrypto',
-      ],
-    })
+      name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'receiveAddress', 'transferFeeUsdc'],
+    },
+  )
 
   const asset = useAppSelector(state => selectAssetById(state, bridgeAsset?.assetId ?? ''))
   const { assetReference } = fromAssetId(bridgeAsset?.assetId ?? '')
@@ -78,8 +71,6 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   const sourceChainTokenSymbol = chainNameToAxelarGasToken(fromChain?.name ?? '')
   const assetDenom = getDenomFromBridgeAsset(bridgeAsset)
 
-  // TODO: move to custom hook
-  // Get total fee estimate, including gas and Axelar fees
   useEffect(() => {
     ;(async () => {
       try {
@@ -90,7 +81,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
             fee: { amount },
           },
         } = await axios.get(`${url}`)
-        setValue('gasFeeUsdc', fromBaseUnit(amount, 4))
+        setValue('transferFeeUsdc', fromBaseUnit(amount, 4))
 
         setIsLoadingFeeEstimates(false)
       } catch (e) {
@@ -241,8 +232,10 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                       <p>Loading...</p>
                     ) : (
                       <>
-                        <Amount.Fiat fontWeight='bold' value={gasFeeUsdc ?? '0'} />
-                        <RawText>Subtracted as {sourceChainTokenSymbol} from source chain</RawText>
+                        <Amount.Fiat fontWeight='bold' value={transferFeeUsdc ?? '0'} />
+                        <RawText>
+                          Paid in {fromChain?.symbol} on {fromChain?.name}.
+                        </RawText>
                         {/*<Amount.Crypto*/}
                         {/*  color='gray.500'*/}
                         {/*  value={gasFeeCrypto ?? '0'}*/}

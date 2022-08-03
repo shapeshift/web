@@ -59,8 +59,7 @@ export type BridgeState = {
   toChain: BridgeChain | undefined
   receiveAddress: string | undefined
   depositAddress: string | undefined
-  gasFeeUsdc: string | undefined
-  gasFeeCrypto: string | undefined
+  transferFeeUsdc: string | undefined
 }
 
 export enum BridgeRoutePaths {

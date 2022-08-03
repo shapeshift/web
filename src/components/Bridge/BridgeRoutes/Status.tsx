@@ -13,7 +13,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
-import { chainNameToAxelarGasToken } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -21,7 +20,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 
-import { AXELAR_CHAIN_NAMES, BridgeRoutePaths, BridgeState } from '../types'
+import { BridgeRoutePaths, BridgeState } from '../types'
 
 export const Status = () => {
   const { reset } = useFormContext<BridgeState>()
@@ -31,29 +30,16 @@ export const Status = () => {
   const { isOpen, onToggle } = useDisclosure()
   const { control } = useFormContext<BridgeState>()
 
-  const [asset, cryptoAmount, fromChain, toChain, gasFeeUsdc, gasFeeCrypto, receiveAddress] =
-    useWatch({
-      control,
-      name: [
-        'asset',
-        'cryptoAmount',
-        'fromChain',
-        'toChain',
-        'gasFeeUsdc',
-        'gasFeeCrypto',
-        'receiveAddress',
-      ],
-    })
+  const [asset, cryptoAmount, fromChain, toChain, transferFeeUsdc, receiveAddress] = useWatch({
+    control,
+    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'transferFeeUsdc', 'receiveAddress'],
+  })
 
   useEffect(() => {
     setTimeout(() => {
       setStatus('success')
     }, 4000)
   }, [])
-
-  const sourceChainTokenSymbol = chainNameToAxelarGasToken(
-    fromChain?.name ?? AXELAR_CHAIN_NAMES.Ethereum,
-  )
 
   const { statusIcon, statusText, statusBg } = (() => {
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
@@ -203,12 +189,10 @@ export const Status = () => {
                     </Row.Label>
                     <Row.Value>
                       <Stack textAlign='right' spacing={0}>
-                        <Amount.Fiat fontWeight='bold' value={gasFeeUsdc ?? '0'} />
-                        <Amount.Crypto
-                          color='gray.500'
-                          value={gasFeeCrypto ?? '0'}
-                          symbol={sourceChainTokenSymbol ?? ''}
-                        />
+                        <Amount.Fiat fontWeight='bold' value={transferFeeUsdc ?? '0'} />
+                        <RawText>
+                          Paid in {fromChain?.symbol} on {fromChain?.name}.
+                        </RawText>
                       </Stack>
                     </Row.Value>
                   </Row>

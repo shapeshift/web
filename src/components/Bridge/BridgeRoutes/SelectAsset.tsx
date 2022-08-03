@@ -120,9 +120,13 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
         </Card.Header>
         <Card.Body p={0} height='400px' display='flex' flexDir='column'>
           <Stack>
-            {supportedAssets.map(asset => (
-              <AssetRow key={asset.assetId} onClick={onClick} {...asset} />
-            ))}
+            {supportedAssets.length ? (
+              supportedAssets.map(asset => (
+                <AssetRow key={asset.assetId} onClick={onClick} {...asset} />
+              ))
+            ) : (
+              <RawText>No supported assets in portfolio.</RawText>
+            )}
           </Stack>
         </Card.Body>
       </Card>

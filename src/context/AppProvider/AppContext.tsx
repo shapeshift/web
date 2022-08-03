@@ -25,6 +25,7 @@ import {
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -72,6 +73,7 @@ const moduleLogger = logger.child({ namespace: ['AppContext'] })
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
+  const translate = useTranslate()
   const dispatch = useDispatch()
   const { supportedChains } = usePlugins()
   const chainAdapterManager = getChainAdapterManager()
@@ -311,13 +313,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const { setSelectedCurrency } = preferences.actions
       toast({
         position: 'top-right',
-        title: `Error loading data for ${symbol}`,
-        description: 'Your currency has been reset to USD',
+        title: translate('multiCurrency.toast.title', { symbol }),
+        description: translate('multiCurrency.toast.description'),
         status: 'error',
         duration: null, // don't auto-dismiss
         isClosable: true,
       })
-      debugger
       dispatch(setSelectedCurrency({ currency: 'USD' }))
     }
     // setting symbol causes infinite render

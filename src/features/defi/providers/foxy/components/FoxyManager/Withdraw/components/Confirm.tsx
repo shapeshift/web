@@ -21,6 +21,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
@@ -31,6 +32,10 @@ import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
+})
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { foxy: api } = useFoxy()
@@ -111,7 +116,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       })
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
-      console.error('FoxyWithdraw:handleConfirm error', error)
+      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
   }
 

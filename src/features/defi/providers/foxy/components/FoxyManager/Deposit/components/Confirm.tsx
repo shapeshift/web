@@ -20,6 +20,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
@@ -30,6 +31,10 @@ import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Foxy', 'Deposit', 'Confirm'],
+})
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { foxy: api } = useFoxy()
@@ -94,7 +99,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         },
       })
     } catch (error) {
-      console.error('FoxyDeposit:handleDeposit error', error)
+      moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

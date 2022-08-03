@@ -18,6 +18,7 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -32,6 +33,10 @@ import { Status } from './components/Status'
 import { YearnDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Yearn', 'YearnDeposit'],
+})
 
 export const YearnDeposit = () => {
   const { yearn: api } = useYearn()
@@ -75,7 +80,7 @@ export const YearnDeposit = () => {
         dispatch({ type: YearnDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('YearnDeposit error:', error)
+        moduleLogger.error(error, 'YearnDeposit error')
       }
     })()
   }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
@@ -110,8 +115,7 @@ export const YearnDeposit = () => {
         component: Status,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset.symbol])
+  }, [asset.symbol, translate])
 
   if (loading || !asset || !marketData || !api) {
     return (

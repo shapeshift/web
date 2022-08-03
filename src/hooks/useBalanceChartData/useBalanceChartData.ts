@@ -184,7 +184,8 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) return acc
     const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
-    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date })
+    // fallback to 1 if fiat data is missing, note || required over ?? here
+    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance
       .div(bn(10).exponentiatedBy(precision))
@@ -402,7 +403,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const hasNoDeviceId = isNil(walletInfo?.deviceId)
     const hasNoAssetIds = !assetIds.length
-    const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData?.length
+    const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData
     if (hasNoDeviceId || hasNoAssetIds || hasNoPriceHistoryData || cryptoPriceHistoryDataLoading) {
       return setBalanceChartDataLoading(true)
     }

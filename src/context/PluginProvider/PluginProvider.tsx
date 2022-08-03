@@ -119,6 +119,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Osmosis && chainId === KnownChainIds.OsmosisMainnet) return false
       if (!featureFlags.Avalanche && chainId === KnownChainIds.AvalancheMainnet) return false
       if (!featureFlags.Litecoin && chainId === KnownChainIds.LitecoinMainnet) return false
+      if (!featureFlags.BitcoinCash && chainId === KnownChainIds.BitcoinCashMainnet) return false
       return true
     })
 

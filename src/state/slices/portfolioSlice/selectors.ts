@@ -4,6 +4,7 @@ import {
   AccountId,
   AssetId,
   avalancheAssetId,
+  bchAssetId,
   btcAssetId,
   ChainId,
   cosmosAssetId,
@@ -85,6 +86,7 @@ const selectParamFromFilterOptional =
 const FEE_ASSET_IDS = [
   ethAssetId,
   btcAssetId,
+  bchAssetId,
   cosmosAssetId,
   osmosisAssetId,
   dogeAssetId,
@@ -902,6 +904,8 @@ export const selectRewardsByValidator = createDeepEqualOutputSelector(
   selectAssetIdParamFromFilter,
   (allPortfolioAccounts, validatorAddress, accountSpecifier, assetId): string => {
     const cosmosAccount = allPortfolioAccounts?.[accountSpecifier]
+
+    if (!cosmosAccount) return '0'
 
     const rewards =
       cosmosAccount.stakingDataByValidatorId?.[validatorAddress]?.[assetId]?.rewards?.[0]?.amount ??

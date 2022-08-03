@@ -90,7 +90,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       const txs = await poll({
         fn: async () => {
           try {
-            return {...await getTradeTxs(result)}
+            return { ...(await getTradeTxs(result)) }
           } catch (e) {
             return { sellTxid: '', buyTxid: '', e }
           }
@@ -108,7 +108,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       reset()
       setTxid('')
       history.push(TradeRoutePaths.Input)
-  }
+    }
   }
 
   const handleBack = () => {

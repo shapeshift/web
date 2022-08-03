@@ -13,6 +13,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import {
+  bchChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
@@ -39,6 +40,7 @@ import { middleEllipsis } from '../utils'
 type GenerateAddressProps = {
   selectedAsset: FiatRampAsset | null
   btcAddress: string
+  bchAddress: string
   dogeAddress: string
   ltcAddress: string
   ethAddress: string
@@ -64,8 +66,16 @@ type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEll
 type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
 
 const generateAddresses: GenerateAddresses = props => {
-  const { selectedAsset, btcAddress, dogeAddress, ltcAddress, ethAddress, ensName, cosmosAddress } =
-    props
+  const {
+    selectedAsset,
+    btcAddress,
+    bchAddress,
+    dogeAddress,
+    ltcAddress,
+    ethAddress,
+    ensName,
+    cosmosAddress,
+  } = props
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
@@ -75,6 +85,8 @@ const generateAddresses: GenerateAddresses = props => {
       return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
     case btcChainId:
       return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
+    case bchChainId:
+      return [bchAddress, bchAddress, middleEllipsis(bchAddress, 11)]
     case dogeChainId:
       return [dogeAddress, dogeAddress, middleEllipsis(dogeAddress, 11)]
     case ltcChainId:
@@ -93,6 +105,7 @@ export const Overview: React.FC<OverviewProps> = ({
   supportsAddressVerifying,
   setSupportsAddressVerifying,
   btcAddress,
+  bchAddress,
   dogeAddress,
   ltcAddress,
   ethAddress,
@@ -117,6 +130,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
     btcAddress,
+    bchAddress,
     ltcAddress,
     dogeAddress,
     ethAddress,

@@ -12,7 +12,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -81,88 +81,96 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
 
-  if (!state || !dispatch) return null
+  const handleCancel = useCallback(() => {
+    browserHistory.goBack()
+  }, [browserHistory])
 
-  const getWithdrawGasEstimate = async () => {
-    if (!state.userAddress) return
-
-    const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
-
-    try {
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getWithdrawGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      const fundsError =
-        error instanceof Error && error.message.includes('Not enough funds in reserve')
-      toast({
-        position: 'top-right',
-        description: fundsError
-          ? translate('defi.notEnoughFundsInReserve')
-          : translate('common.somethingWentWrong'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman)
+        .times(percent)
+        .dp(asset.precision, BigNumber.ROUND_DOWN)
+      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), {
+        shouldValidate: true,
       })
-    }
-  }
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+        shouldValidate: true,
+      })
+    },
+    [asset.precision, cryptoStakeBalanceHuman, marketData.price, setValue],
+  )
 
-  const handleContinue = async (formValues: CosmosWithdrawValues) => {
-    if (!state.userAddress) return
-    // set withdraw state for future use
-    dispatch({
-      type: CosmosWithdrawActionType.SET_WITHDRAW,
-      payload: formValues,
-    })
-    dispatch({
-      type: CosmosWithdrawActionType.SET_LOADING,
-      payload: true,
-    })
-    try {
-      const estimatedGasCrypto = await getWithdrawGasEstimate()
+  const handleContinue = useCallback(
+    async (formValues: CosmosWithdrawValues) => {
+      if (!state) return
 
-      if (!estimatedGasCrypto) return
+      const getWithdrawGasEstimate = async () => {
+        if (!state.userAddress) return
+
+        const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
+
+        try {
+          return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+        } catch (error) {
+          moduleLogger.error(
+            { fn: 'getWithdrawGasEstimate', error },
+            'Error getting deposit gas estimate',
+          )
+          const fundsError =
+            error instanceof Error && error.message.includes('Not enough funds in reserve')
+          toast({
+            position: 'top-right',
+            description: fundsError
+              ? translate('defi.notEnoughFundsInReserve')
+              : translate('common.somethingWentWrong'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
+
+      if (!state?.userAddress || !dispatch) return
+      // set withdraw state for future use
       dispatch({
         type: CosmosWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: formValues,
       })
-      onNext(DefiStep.Confirm)
       dispatch({
         type: CosmosWithdrawActionType.SET_LOADING,
-        payload: false,
+        payload: true,
       })
-    } catch (error) {
-      moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
-      dispatch({
-        type: CosmosWithdrawActionType.SET_LOADING,
-        payload: false,
-      })
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
+      try {
+        const estimatedGasCrypto = await getWithdrawGasEstimate()
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: CosmosWithdrawActionType.SET_WITHDRAW,
+          payload: { estimatedGasCrypto },
+        })
+        onNext(DefiStep.Confirm)
+        dispatch({
+          type: CosmosWithdrawActionType.SET_LOADING,
+          payload: false,
+        })
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+        dispatch({
+          type: CosmosWithdrawActionType.SET_LOADING,
+          payload: false,
+        })
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+      }
+    },
+    [dispatch, asset, marketData.price, onNext, state, toast, translate],
+  )
 
-  const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman)
-      .times(percent)
-      .dp(asset.precision, BigNumber.ROUND_DOWN)
-    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    setValue(Field.FiatAmount, fiatAmount.toString(), {
-      shouldValidate: true,
-    })
-    setValue(Field.CryptoAmount, cryptoAmount.toString(), {
-      shouldValidate: true,
-    })
-  }
+  if (!state || !dispatch) return null
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(bn(cryptoStakeBalance).div(`1e+${asset.precision}`))

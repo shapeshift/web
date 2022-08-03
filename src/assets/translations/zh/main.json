@@ -153,19 +153,6 @@
           "learnMore": "了解更多"
         }
       },
-      "staking": {
-        "estimateDisclaimer": "*预估值会随着市场情况而波动。",
-        "byContinuing": "继续操作，即表示您接受",
-        "risks": "风险",
-        "ofParticipating": "使用此功能并同意",
-        "terms": "条款",
-        "stakingYourTokens": "质押你的代币",
-        "unstakingYourTokens": "取消质押你的代币",
-        "tooltip": {
-          "validator": "验证者负责处理交易、存储数据并将区块添加到区块链网络之中。",
-          "gasFees": "%{networkName} 上的 Gas 费用远低于以太坊主网上的 Gas 费用。这笔费用直接支付给保护和运营网络的验证者，而不是支付给 ShapeShift 平台。"
-        }
-      },
       "foxyOverview": {
         "header": "存入 FOX 来获取 FOXy 收益",
         "body": "FOXy 是与 FOX 价格挂钩的锚定代币。 FOXy 可跨不同的 DeFi 协议工作，以获取尽可能好的收益。",

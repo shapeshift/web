@@ -20,6 +20,7 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -34,6 +35,10 @@ import { Status } from './components/Status'
 import { FoxyDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Foxy', 'FoxyDeposit'],
+})
 
 export const FoxyDeposit = () => {
   const { foxy: api } = useFoxy()
@@ -70,7 +75,7 @@ export const FoxyDeposit = () => {
         })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('FoxyDeposit error:', error)
+        moduleLogger.error(error, 'FoxyDeposit error')
       }
     })()
   }, [api, chainAdapterManager, contractAddress, walletState.wallet, foxyApr, isFoxyAprLoaded])

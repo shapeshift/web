@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.5.0...@shapeshiftoss/swapper-v9.6.0) (2022-08-03)
+
+
+### Features
+
+* detect completed txs and throw error on fail ([#939](https://github.com/shapeshift/lib/issues/939)) ([f85e1fb](https://github.com/shapeshift/lib/commit/f85e1fbbda37da37849a154693a64a5e6c4aa35f))
+
 # [@shapeshiftoss/swapper-v9.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.4.0...@shapeshiftoss/swapper-v9.5.0) (2022-08-02)
 
 

@@ -95,10 +95,10 @@ export const IdleOverview = () => {
       label: 'common.withdraw',
       icon: <ArrowDownIcon />,
       action: DefiAction.Withdraw,
-    }
+    },
   ]
 
-  if (!opportunity.metadata.cdoAddress){
+  if (!opportunity.metadata.cdoAddress) {
     menu.push({
       label: 'common.claim',
       icon: <ArrowDownIcon />,

@@ -1,12 +1,12 @@
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import filter from 'lodash/filter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { selectPortfolioAssetBalances, selectPortfolioLoading } from 'state/slices/selectors'
 
 export type VaultWithUnderlyingTokenBalance = MergedSerializableOpportunity & {
@@ -41,7 +41,9 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
         const [idleVaults, yearnVaults] = await Promise.all([idle.findAll(), yearn.findAll()])
 
         // Filter out all vaults with 0 USDC TVL value
-        const yearnVaultsWithTVL = filter(yearnVaults, vault => bnOrZero(vault.tvl.balanceUsdc).gt(0))
+        const yearnVaultsWithTVL = filter(yearnVaults, vault =>
+          bnOrZero(vault.tvl.balanceUsdc).gt(0),
+        )
         const idleVaultsWithTVL = filter(idleVaults, vault => bnOrZero(vault.tvl.balanceUsdc).gt(0))
 
         const vaults = [

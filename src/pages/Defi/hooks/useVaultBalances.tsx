@@ -1,18 +1,17 @@
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useDispatch, useSelector } from 'react-redux'
+import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { Account } from '@shapeshiftoss/chain-adapters'
 import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { SerializableOpportunity as YearnSerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { SerializableOpportunity as IdleSerializableOpportunity } from 'features/defi/providers/idle/components/IdleManager/Deposit/DepositCommon'
-
+import { SerializableOpportunity as YearnSerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectMarketData,

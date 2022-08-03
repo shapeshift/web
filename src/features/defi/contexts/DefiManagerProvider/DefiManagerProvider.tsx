@@ -1,8 +1,9 @@
 import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { IdleProvider } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { IdleProvider } from 'features/defi/contexts/IdleProvider/IdleProvider'
+
 import { DefiModal } from '../../components/DefiModal/DefiModal'
 import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
 import { IdleManager } from '../../providers/idle/components/IdleManager/IdleManager'

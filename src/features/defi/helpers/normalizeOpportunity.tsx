@@ -5,10 +5,11 @@ import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
-import { useVaultBalances, MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
+import { MergedSerializableOpportunity, useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
-import { chainIdToLabel } from './utils'
+
 import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
+import { chainIdToLabel } from './utils'
 
 export type EarnOpportunityType = {
   type?: string

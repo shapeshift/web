@@ -1,13 +1,14 @@
-import { useMemo } from 'react'
 import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
+import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxyBalances } from './useFoxyBalances'
-import { useVaultBalances, MergedEarnVault } from './useVaultBalances'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+
+import { useFoxyBalances } from './useFoxyBalances'
+import { MergedEarnVault, useVaultBalances } from './useVaultBalances'
 
 export type UseEarnBalancesReturn = {
   opportunities: EarnOpportunityType[]

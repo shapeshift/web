@@ -3,9 +3,10 @@
  */
 
 import { renderHook } from '@testing-library/react'
-import { useSortedVaults } from './useSortedVaults'
 import { mockVault, mockVaultWithBalance } from 'test/mocks/vaults'
 import { MergedEarnVault, MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
+
+import { useSortedVaults } from './useSortedVaults'
 
 const addressWithBalance1 = '0xa696a63cc78dffa1a63e9e50587c197387ff6c7e'
 const addressWithBalance2 = '0xd9788f3931ede4d5018184e198699dc6d66c1915'

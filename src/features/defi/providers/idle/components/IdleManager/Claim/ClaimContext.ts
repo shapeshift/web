@@ -1,6 +1,7 @@
 import { createContext } from 'react'
-import { initialState } from './ClaimReducer'
+
 import { IdleClaimActions, IdleClaimState } from './ClaimCommon'
+import { initialState } from './ClaimReducer'
 
 interface IClaimContext {
   state: IdleClaimState

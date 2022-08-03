@@ -18,17 +18,14 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  selectAssetById,
-  selectMarketDataById
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Confirm } from './components/Confirm'
-import { Status } from './components/Status'
 import { IdleClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
 import { initialState, reducer } from './ClaimReducer'
+import { Confirm } from './components/Confirm'
+import { Status } from './components/Status'
 
 export const IdleClaim = () => {
   const { idle: idleInvestor } = useIdle()

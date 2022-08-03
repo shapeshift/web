@@ -15,10 +15,7 @@ export const initialState: IdleDepositState = {
   },
 }
 
-export const reducer = (
-  state: IdleDepositState,
-  action: IdleDepositActions,
-): IdleDepositState => {
+export const reducer = (state: IdleDepositState, action: IdleDepositActions): IdleDepositState => {
   switch (action.type) {
     case IdleDepositActionType.SET_OPPORTUNITY:
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }

@@ -13,10 +13,7 @@ export const initialState: IdleClaimState = {
   },
 }
 
-export const reducer = (
-  state: IdleClaimState,
-  action: IdleClaimActions,
-): IdleClaimState => {
+export const reducer = (state: IdleClaimState, action: IdleClaimActions): IdleClaimState => {
   switch (action.type) {
     case IdleClaimActionType.SET_OPPORTUNITY:
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }

@@ -75,6 +75,28 @@ export const Status = () => {
     }
   }, [confirmedTransaction, dispatch])
 
+  let renderAssets: any[] = []
+  useAppSelector(selectorState => {
+    if (state && state.claimableTokens) {
+      state.claimableTokens.forEach(token => {
+        const asset = selectAssetById(selectorState, token.assetId)
+        if (asset) {
+          renderAssets.push(
+            <Stack direction='row' alignItems='center' justifyContent='center' key={token.assetId}>
+              <AssetIcon boxSize='8' src={asset.icon} />
+              <Amount.Crypto
+                fontSize='lg'
+                fontWeight='medium'
+                value={bnOrZero(token.amount).div(`1e+${asset.precision}`).toString()}
+                symbol={asset?.symbol}
+              />
+            </Stack>,
+          )
+        }
+      })
+    }
+  })
+
   const handleViewPosition = () => {
     browserHistory.push('/defi')
   }
@@ -113,26 +135,6 @@ export const Status = () => {
     }
   })()
 
-  let renderAssets: any[] = []
-  useAppSelector( selectorState => {
-    state.claimableTokens.forEach( token => {
-      const asset = selectAssetById(selectorState, token.assetId)
-      if (asset) {
-        renderAssets.push((
-          <Stack direction='row' alignItems='center' justifyContent='center' key={token.assetId}>
-            <AssetIcon boxSize='8' src={asset.icon} />
-            <Amount.Crypto
-              fontSize='lg'
-              fontWeight='medium'
-              value={bnOrZero(token.amount).div(`1e+${asset.precision}`).toString()}
-              symbol={asset?.symbol}
-            />
-          </Stack>
-        ))
-      }
-    })
-  })
-
   return (
     <TxStatus
       onClose={handleCancel}
@@ -150,7 +152,13 @@ export const Status = () => {
             <Text translation='modals.confirm.amountToClaim' />
           </Row.Label>
           <Row px={0} fontWeight='medium'>
-            <Stack width='100%' direction='column' alignItems='flex-start' justifyContent='center' as='form'>
+            <Stack
+              width='100%'
+              direction='column'
+              alignItems='flex-start'
+              justifyContent='center'
+              as='form'
+            >
               {renderAssets}
             </Stack>
           </Row>

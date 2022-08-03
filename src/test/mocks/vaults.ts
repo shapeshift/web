@@ -1,5 +1,5 @@
-import BigNumber from 'bignumber.js'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import BigNumber from 'bignumber.js'
 import { MergedEarnVault, MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
 
 export const mockVault = (obj: {

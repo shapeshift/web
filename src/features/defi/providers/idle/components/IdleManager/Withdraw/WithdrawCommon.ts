@@ -28,7 +28,13 @@ type IdleWithdrawValues = WithdrawValues &
 // Redux only stores things that are serializable. Class methods are removed when put in state.
 type SerializableOpportunity = Omit<
   IdleOpportunity,
-  'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'prepareClaimTokens' | 'signAndBroadcast' | 'getClaimableTokens'
+  | 'allowance'
+  | 'prepareApprove'
+  | 'prepareDeposit'
+  | 'prepareWithdrawal'
+  | 'prepareClaimTokens'
+  | 'signAndBroadcast'
+  | 'getClaimableTokens'
 >
 
 export type IdleWithdrawState = {

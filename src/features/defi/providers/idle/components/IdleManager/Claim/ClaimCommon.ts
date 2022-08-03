@@ -1,4 +1,4 @@
-import { IdleOpportunity, ClaimableToken } from '@shapeshiftoss/investor-idle'
+import { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
 
 export enum ClaimPath {
   Claim = '/',
@@ -16,14 +16,20 @@ type EstimatedGas = {
 }
 
 type IdleClaimValues = EstimatedGas & {
-    txStatus: string
-    usedGasFee: string
-  }
+  txStatus: string
+  usedGasFee: string
+}
 
 // Redux only stores things that are serializable. Class methods are removed when put in state.
 type SerializableOpportunity = Omit<
   IdleOpportunity,
-  'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'prepareClaimTokens' | 'signAndBroadcast' | 'getClaimableTokens'
+  | 'allowance'
+  | 'prepareApprove'
+  | 'prepareDeposit'
+  | 'prepareWithdrawal'
+  | 'prepareClaimTokens'
+  | 'signAndBroadcast'
+  | 'getClaimableTokens'
 >
 
 export type IdleClaimState = {

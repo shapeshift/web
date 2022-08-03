@@ -100,18 +100,15 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
 
-      if (txs.e) {
-        showErrorToast(txs.e)
-        reset()
-        setTxid('')
-        history.push(TradeRoutePaths.Input)
-        return
-      }
+      if (txs.e) throw txs.e
       if (!txs?.buyTxid) throw new Error('No buyTxid from getTradeTxs')
       setTxid(txs.buyTxid)
     } catch (e) {
       showErrorToast(e)
-    }
+      reset()
+      setTxid('')
+      history.push(TradeRoutePaths.Input)
+  }
   }
 
   const handleBack = () => {

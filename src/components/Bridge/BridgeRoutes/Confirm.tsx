@@ -14,6 +14,7 @@ import {
   chainIdToChainName,
   chainNameToAxelarEvmChain,
   chainNameToAxelarGasToken,
+  getAxelarAsset,
 } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { SendInput } from 'components/Modals/Send/Form'
@@ -38,9 +39,8 @@ type SelectAssetProps = {
 } & RouteComponentProps
 
 export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
-  const [gasFeeUsdc, setGasFeeUsdc] = useState<string>()
-  const [gasFeeCrypto, setGasFeeCrypto] = useState<string>()
   const [isLoadingFeeEstimates, setIsLoadingFeeEstimates] = useState(true)
+  const [isExecutingTransaction, setIsExecutingTransaction] = useState(false)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const { handleSend } = useFormSend()
   const { estimateFees } = useSendDetails()
@@ -52,12 +52,21 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     history.push(BridgeRoutePaths.Input)
   }
 
-  const { control } = useFormContext<BridgeState>()
+  const { control, setValue } = useFormContext<BridgeState>()
 
-  const [bridgeAsset, cryptoAmount, fromChain, toChain, address] = useWatch({
-    control,
-    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'address'],
-  })
+  const [bridgeAsset, cryptoAmount, fromChain, toChain, receiveAddress, gasFeeUsdc, gasFeeCrypto] =
+    useWatch({
+      control,
+      name: [
+        'asset',
+        'cryptoAmount',
+        'fromChain',
+        'toChain',
+        'receiveAddress',
+        'gasFeeUsdc',
+        'gasFeeCrypto',
+      ],
+    })
 
   const asset = useAppSelector(state => selectAssetById(state, bridgeAsset?.assetId ?? ''))
   const { assetReference } = fromAssetId(bridgeAsset?.assetId ?? '')
@@ -89,8 +98,14 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
           GasToken.USDC,
           estimateGasUsed,
         )
-        setGasFeeUsdc(bnOrZero(gasFeeUsdc).dividedBy(bn(10).exponentiatedBy(16)).toFixed(2))
-        setGasFeeCrypto(bnOrZero(gasFeeCrypto).dividedBy(bn(10).exponentiatedBy(16)).toFixed(10))
+        setValue(
+          'gasFeeUsdc',
+          bnOrZero(gasFeeUsdc).dividedBy(bn(10).exponentiatedBy(16)).toFixed(2),
+        )
+        setValue(
+          'gasFeeCrypto',
+          bnOrZero(gasFeeCrypto).dividedBy(bn(10).exponentiatedBy(16)).toFixed(10),
+        )
         setIsLoadingFeeEstimates(false)
       } catch (e) {
         console.error('GasFee error', e)
@@ -100,25 +115,28 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     axelarQuerySdk,
     destinationChainName,
     fromChain?.name,
+    setValue,
     sourceChainName,
     sourceChainTokenSymbol,
     toChain?.name,
   ])
 
   const handleContinue = async () => {
+    setIsExecutingTransaction(true)
     try {
       const chainId = fromAssetId(bridgeAsset?.assetId ?? '').chainId
       const chainName = chainIdToChainName(chainId).toLowerCase() // the sdk uses lower case names for some reason
       const symbol = bridgeAsset?.symbol ?? ''
-      const assetDenom = await axelarQuerySdk.getDenomFromSymbol(symbol, chainName)
+      const axelarAsset = getAxelarAsset(symbol, chainId)
+      const assetDenom = await axelarQuerySdk.getDenomFromSymbol(axelarAsset, chainName)
 
       const depositAddress = await axelarAssetTransferSdk.getDepositAddress(
         sourceChainName,
         destinationChainName,
-        address ?? '',
+        receiveAddress ?? '',
         assetDenom ?? '',
       )
-      console.log('xx depositAddress', depositAddress)
+      setValue('depositAddress', depositAddress)
 
       const estimateFeesArgs: EstimateFeesInput = {
         cryptoAmount,
@@ -148,10 +166,11 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
       }
 
       await handleSend(handleSendArgs)
+      history.push(BridgeRoutePaths.Status)
     } catch (e) {
       console.error('GasFee error', e)
+      setIsExecutingTransaction(false)
     }
-    history.push(BridgeRoutePaths.Status)
   }
 
   if (!bridgeAsset && !fromChain && !toChain) return null
@@ -243,7 +262,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                       <p>Loading...</p>
                     ) : (
                       <>
-                        <Amount.Fiat fontWeight='bold' value={gasFeeUsdc ?? 0} />
+                        <Amount.Fiat fontWeight='bold' value={gasFeeUsdc ?? '0'} />
                         <Amount.Crypto
                           color='gray.500'
                           value={gasFeeCrypto ?? '0'}
@@ -260,7 +279,8 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
             size='lg'
             colorScheme='blue'
             onClick={handleContinue}
-            disabled={isLoadingFeeEstimates}
+            disabled={isLoadingFeeEstimates || isExecutingTransaction}
+            isLoading={isExecutingTransaction}
           >
             Start Bridge
           </Button>

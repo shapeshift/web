@@ -39,6 +39,9 @@ export type BridgeAsset = {
   symbol: string
   balance: string
   icon: string
+  name: string
+  cryptoAmount: string
+  fiatAmount: string
   implementations?: {
     [key in string]: BridgeChain
   }
@@ -54,7 +57,10 @@ export type BridgeState = {
   cryptoAmount: string
   fromChain: BridgeChain | undefined
   toChain: BridgeChain | undefined
-  address: string | undefined
+  receiveAddress: string | undefined
+  depositAddress: string | undefined
+  gasFeeUsdc: string | undefined
+  gasFeeCrypto: string | undefined
 }
 
 export enum BridgeRoutePaths {

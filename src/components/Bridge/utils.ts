@@ -12,7 +12,7 @@ export const wrapAxelarAssetIdFromEthereumToAvalanche = (asset: AssetId): AssetI
       return toAssetId({
         chainId,
         assetNamespace,
-        assetReference: '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664',
+        assetReference: '0xfab550568c688d5d8a52c7d794cb93edc26ec0ec',
       })
     default:
       return undefined
@@ -23,8 +23,8 @@ export const unwrapAxelarAssetIdFromAvalancheToEthereum = (asset: AssetId): Asse
   const chainId = KnownChainIds.EthereumMainnet
   const assetNamespace = 'erc20'
   switch (asset) {
-    // Axelar-wrapped USDC on Avalanche
-    case 'eip155:43114/erc20:0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664':
+    // Axelar-wrapped USDC on Avalanche (axlUSDC)
+    case 'eip155:43114/erc20:0xfab550568c688d5d8a52c7d794cb93edc26ec0ec':
       return toAssetId({
         chainId,
         assetNamespace,
@@ -65,5 +65,27 @@ export const chainIdToChainName = (chainId: ChainId): AxelarChainName => {
       return AXELAR_CHAIN_NAMES.Avalanche
     default:
       throw new Error(`chainIdToChainName: chainId ${chainId} not supported`)
+  }
+}
+
+// TODO: use import { loadAssets } from '@axelar-network/axelarjs-sdk'
+export const getAxelarAsset = (symbol: string, chainId: ChainId): string => {
+  switch (chainId) {
+    case ethChainId:
+      switch (symbol) {
+        case 'USDC':
+          return symbol
+        default:
+          throw new Error(`getAxelarAsset: symbol ${symbol} on chainId ${chainId} not supported`)
+      }
+    case avalancheChainId:
+      switch (symbol) {
+        case 'AXLUSDC':
+          return 'axlUSDC'
+        default:
+          throw new Error(`getAxelarAsset: symbol ${symbol} on chainId ${chainId} not supported`)
+      }
+    default:
+      throw new Error(`getAxelarAsset: symbol ${symbol} on chainId ${chainId} not supported`)
   }
 }

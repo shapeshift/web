@@ -43,7 +43,7 @@ export const useBridgeRoutes = (): {
         const { implementations } = asset
         const chains = Object.keys(implementations ?? {})
         setValue('asset', asset, { shouldValidate: true })
-        setValue('address', walletInfo?.meta?.address)
+        setValue('receiveAddress', walletInfo?.meta?.address)
         setValue('fromChain', fromChain, { shouldValidate: true })
         if (chains.length === 2) {
           // There is only one option left for the toChain, select it automatically

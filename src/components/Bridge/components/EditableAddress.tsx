@@ -36,7 +36,7 @@ const EditControls: React.FC<{ value: string }> = ({ value }) => {
 
 export const EditableAddress = () => {
   const { control } = useFormContext<BridgeState>()
-  const { field } = useController({ name: 'address', control })
+  const { field } = useController({ name: 'receiveAddress', control })
   return (
     <Editable {...field}>
       <Input as={EditableInput} />

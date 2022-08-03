@@ -13,13 +13,15 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
+import { chainNameToAxelarGasToken } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 
-import { BridgeRoutePaths, BridgeState } from '../types'
+import { AXELAR_CHAIN_NAMES, BridgeRoutePaths, BridgeState } from '../types'
 
 export const Status = () => {
   const { reset } = useFormContext<BridgeState>()
@@ -29,16 +31,29 @@ export const Status = () => {
   const { isOpen, onToggle } = useDisclosure()
   const { control } = useFormContext<BridgeState>()
 
-  const [asset, cryptoAmount, fromChain, toChain] = useWatch({
-    control,
-    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain'],
-  })
+  const [asset, cryptoAmount, fromChain, toChain, gasFeeUsdc, gasFeeCrypto, receiveAddress] =
+    useWatch({
+      control,
+      name: [
+        'asset',
+        'cryptoAmount',
+        'fromChain',
+        'toChain',
+        'gasFeeUsdc',
+        'gasFeeCrypto',
+        'receiveAddress',
+      ],
+    })
 
   useEffect(() => {
     setTimeout(() => {
       setStatus('success')
     }, 4000)
   }, [])
+
+  const sourceChainTokenSymbol = chainNameToAxelarGasToken(
+    fromChain?.name ?? AXELAR_CHAIN_NAMES.Ethereum,
+  )
 
   const { statusIcon, statusText, statusBg } = (() => {
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
@@ -178,7 +193,9 @@ export const Status = () => {
                   </Row>
                   <Row variant='gutter'>
                     <Row.Label>Receive Address</Row.Label>
-                    <Row.Value>123</Row.Value>
+                    <Row.Value>
+                      <MiddleEllipsis address={receiveAddress ?? ''} />
+                    </Row.Value>
                   </Row>
                   <Row variant='gutter'>
                     <Row.Label>
@@ -186,11 +203,11 @@ export const Status = () => {
                     </Row.Label>
                     <Row.Value>
                       <Stack textAlign='right' spacing={0}>
-                        <Amount.Fiat fontWeight='bold' value={'7.00'} />
+                        <Amount.Fiat fontWeight='bold' value={gasFeeUsdc ?? '0'} />
                         <Amount.Crypto
                           color='gray.500'
-                          value={'0.02'}
-                          symbol={asset?.symbol ?? ''}
+                          value={gasFeeCrypto ?? '0'}
+                          symbol={sourceChainTokenSymbol ?? ''}
                         />
                       </Stack>
                     </Row.Value>

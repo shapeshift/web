@@ -75,7 +75,7 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
             },
             ethereum: {
               name: 'Ethereum',
-              balance: 'TODO',
+              balance: 'TODO', // balance of maybeUnwrappedAsset
               fiatBalance: 'TODO',
               color: '#627EEA',
             },

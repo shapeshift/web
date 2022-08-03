@@ -33,7 +33,7 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, assetReference } = query
   const { yearn: yearnInvestor } = useYearn()
   const opportunity = state?.opportunity
 

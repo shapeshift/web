@@ -44,10 +44,9 @@ const STEP_TO_ELEMENTS_MAPPING = [
 
 type LearnMoreProps = {
   assetId: AssetId
-  onClose: () => void
 }
 
-export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
+export const LearnMore = ({ assetId }: LearnMoreProps) => {
   const history = useHistory()
   const assetName = useAppSelector(state => selectAssetNameById(state, assetId))
   const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
@@ -61,7 +60,7 @@ export const LearnMore = ({ assetId, onClose }: LearnMoreProps) => {
   const isLastStep = activeStep === stepsLength
 
   const handleNextOrCloseClick = () => {
-    if (isLastStep) return onClose()
+    if (isLastStep) return
 
     nextStep()
   }

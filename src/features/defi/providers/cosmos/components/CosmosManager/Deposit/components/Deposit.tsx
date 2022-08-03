@@ -6,7 +6,7 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getStakingFees } from 'plugins/cosmos/utils'
+import { getFormFees } from 'plugins/cosmos/utils'
 import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -51,7 +51,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const getStakingGasEstimate = async () => {
     if (!state.userAddress || !assetReference) return
 
-    const { gasLimit, gasPrice } = await getStakingFees(asset, marketData.price)
+    const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 
     try {
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)

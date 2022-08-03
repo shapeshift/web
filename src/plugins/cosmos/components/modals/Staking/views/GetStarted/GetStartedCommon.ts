@@ -8,7 +8,6 @@ export type GetStartedManagerProps = {
 export type GetStartedRouterProps = {
   assetId: AssetId
   stakingRouterHistory: History
-  onClose: () => void
 }
 
 export enum GetStartedManagerRoutes {

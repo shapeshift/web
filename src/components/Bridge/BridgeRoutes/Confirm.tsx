@@ -231,13 +231,15 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                     </RawText>
                   </Stack>
                 </Stack>
-                {toChain?.symbol && (
+                {isLoadingRelayerFee ? (
+                  <RawText>Loading...</RawText>
+                ) : (
                   <Row.Value color='green.200'>
                     {isSendAmountGreaterThanFee && (
                       <Amount.Crypto
                         prefix='+'
                         value={receiveAmount ?? '0'}
-                        symbol={toChain.symbol}
+                        symbol={toChain?.symbol ?? ''}
                       />
                     )}
                   </Row.Value>

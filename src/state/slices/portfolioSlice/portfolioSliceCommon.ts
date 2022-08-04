@@ -31,7 +31,7 @@ export type Staking = {
   rewards: cosmos.Reward[]
 }
 
-type StakingDataParsedByAccountSpecifier = Record<string, Staking>
+type StakingDataParsedByAccountSpecifier = Record<AccountSpecifier, Staking>
 export type StakingDataByValidatorId = Record<PubKey, StakingDataParsedByAccountSpecifier>
 
 export type PortfolioAccount = {

@@ -15,6 +15,7 @@ import {
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
 import head from 'lodash/head'
@@ -481,23 +482,26 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     ): PortfolioBalancesById => {
       const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
       // includes delegation, redelegation, and undelegation balances
-      const totalBalancesIncludingAllDelegationStates: PortfolioBalancesById = Object.entries(
+      const totalBalancesIncludingAllDelegationStates: PortfolioBalancesById = Object.values(
         portfolioAccounts,
-      ).reduce((acc, [accountSpecifier, account]) => {
-        Object.entries(account?.stakingDataByValidatorId ?? {}).forEach(
-          ([_validatorPubKey, stakingDataByAccountSpecifier]) => {
-            const stakingData = stakingDataByAccountSpecifier[accountSpecifier]
-            const { delegations, redelegations, undelegations } = stakingData
-            const redelegationEntries = redelegations.flatMap(redelegation => redelegation.entries)
-            const combined = [...delegations, ...redelegationEntries, ...undelegations]
-            combined.forEach(entry => {
-              const { assetId, amount } = entry
-              acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
+      ).reduce((acc, account) => {
+        Object.values(account?.stakingDataByValidatorId ?? {}).forEach(
+          stakingDataByAccountSpecifier => {
+            Object.values(stakingDataByAccountSpecifier).forEach(stakingData => {
+              const { delegations, redelegations, undelegations } = stakingData
+              const redelegationEntries = redelegations.flatMap(
+                redelegation => redelegation.entries,
+              )
+              const combined = [...delegations, ...redelegationEntries, ...undelegations]
+              combined.forEach(entry => {
+                const { assetId, amount } = entry
+                acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
+              })
             })
           },
         )
         return acc
-      }, rawBalances)
+      }, cloneDeep(rawBalances))
       const aboveThresholdBalances = Object.entries(
         totalBalancesIncludingAllDelegationStates,
       ).reduce<PortfolioAssetBalances['byId']>((acc, [assetId, baseUnitBalance]) => {

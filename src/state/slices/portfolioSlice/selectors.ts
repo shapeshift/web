@@ -15,6 +15,7 @@ import {
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
 import head from 'lodash/head'
@@ -50,6 +51,7 @@ import {
   PortfolioAssetBalances,
   PortfolioAssets,
   PortfolioBalancesById,
+  StakingDataByValidatorId,
 } from './portfolioSliceCommon'
 import {
   findAccountsByAssetId,
@@ -364,16 +366,8 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
 export const selectStakingDataByAccountSpecifier = createSelector(
   selectPortfolioAccounts,
   selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts, accountSpecifier) => {
+  (portfolioAccounts, accountSpecifier): StakingDataByValidatorId | null => {
     return portfolioAccounts?.[accountSpecifier]?.stakingDataByValidatorId || null
-  },
-)
-
-export const selectAllStakingDataByValidator = createSelector(
-  selectPortfolioAccounts,
-  selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts, accountSpecifier) => {
-    return portfolioAccounts?.[accountSpecifier]?.stakingDataByValidatorId
   },
 )
 
@@ -382,7 +376,7 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEq
   selectAssetIdParamFromFilter,
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  (stakingData, assetId) => {
+  (stakingData, assetId): string => {
     const delegations = Object.values(stakingData || {})
       .flatMap(validatorStaking => validatorStaking[assetId]?.delegations?.[0])
       .filter(Boolean)
@@ -459,24 +453,58 @@ export const selectTotalCryptoBalanceWithDelegations = createSelector(
   },
 )
 
-export const selectPortfolioCryptoBalancesByAccountIdAboveThreshold = createDeepEqualOutputSelector(
-  selectAssets,
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
-  selectMarketData,
-  selectBalanceThreshold,
-  (_state: ReduxState, accountId?: string) => accountId,
-  (
-    assetsById,
-    accountBalances,
-    assetBalances,
-    marketData,
-    balanceThreshold,
-    accountId,
-  ): PortfolioBalancesById => {
-    const balances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
-    const aboveThresholdBalances = Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
-      (acc, [assetId, baseUnitBalance]) => {
+/**
+ * this selector is very specific; we need to consider
+ * - raw account balances, that are
+ * - above a threshold, including
+ *   - delegations
+ *   - redelegations
+ *   - undelegations
+ *   as delegations don't show in account balances, but we want them included in the total
+ */
+export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
+  createDeepEqualOutputSelector(
+    selectAssets,
+    selectPortfolioAccountBalances,
+    selectPortfolioAssetBalances,
+    selectMarketData,
+    selectBalanceThreshold,
+    selectPortfolioAccounts,
+    (_state: ReduxState, accountId?: string) => accountId,
+    (
+      assetsById,
+      accountBalances,
+      assetBalances,
+      marketData,
+      balanceThreshold,
+      portfolioAccounts,
+      accountId,
+    ): PortfolioBalancesById => {
+      const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
+      // includes delegation, redelegation, and undelegation balances
+      const totalBalancesIncludingAllDelegationStates: PortfolioBalancesById = Object.values(
+        portfolioAccounts,
+      ).reduce((acc, account) => {
+        Object.values(account?.stakingDataByValidatorId ?? {}).forEach(
+          stakingDataByAccountSpecifier => {
+            Object.values(stakingDataByAccountSpecifier).forEach(stakingData => {
+              const { delegations, redelegations, undelegations } = stakingData
+              const redelegationEntries = redelegations.flatMap(
+                redelegation => redelegation.entries,
+              )
+              const combined = [...delegations, ...redelegationEntries, ...undelegations]
+              combined.forEach(entry => {
+                const { assetId, amount } = entry
+                acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
+              })
+            })
+          },
+        )
+        return acc
+      }, cloneDeep(rawBalances))
+      const aboveThresholdBalances = Object.entries(
+        totalBalancesIncludingAllDelegationStates,
+      ).reduce<PortfolioAssetBalances['byId']>((acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
@@ -485,12 +513,10 @@ export const selectPortfolioCryptoBalancesByAccountIdAboveThreshold = createDeep
         // if it's above the threshold set the original object key and value to result
         acc[assetId] = baseUnitBalance
         return acc
-      },
-      {},
-    )
-    return aboveThresholdBalances
-  },
-)
+      }, {})
+      return aboveThresholdBalances
+    },
+  )
 
 export const selectPortfolioCryptoBalanceByFilter = createSelector(
   selectPortfolioAccountBalances,
@@ -843,7 +869,7 @@ export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
 )
 
 export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSelector(
-  selectAllStakingDataByValidator,
+  selectStakingDataByAccountSpecifier,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
   (stakingDataByValidator, validatorAddress, assetId): cosmos.UndelegationEntry[] => {
@@ -914,7 +940,7 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
   selectValidatorIds,
   selectValidators,
-  selectAllStakingDataByValidator,
+  selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
   (validatorIds, validatorsData, stakingDataByValidator, assetId): OpportunitiesDataFull[] =>
     validatorIds.map(validatorId => {

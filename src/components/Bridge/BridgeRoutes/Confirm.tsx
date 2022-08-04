@@ -23,6 +23,7 @@ import { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -38,7 +39,7 @@ type SelectAssetProps = {
 } & RouteComponentProps
 
 export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
-  const [isLoadingFeeEstimates, setIsLoadingFeeEstimates] = useState(true)
+  const [isLoadingRelayerFee, setIsLoadingRelayerFee] = useState(true)
   const [isExecutingTransaction, setIsExecutingTransaction] = useState(false)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const { handleSend } = useFormSend()
@@ -53,12 +54,26 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
 
   const { control, setValue } = useFormContext<BridgeState>()
 
-  const [bridgeAsset, cryptoAmount, fromChain, toChain, receiveAddress, transferFeeUsdc] = useWatch(
-    {
-      control,
-      name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'receiveAddress', 'transferFeeUsdc'],
-    },
-  )
+  const [
+    bridgeAsset,
+    cryptoAmount,
+    fromChain,
+    toChain,
+    receiveAddress,
+    transferFeeUsdc,
+    fiatAmount,
+  ] = useWatch({
+    control,
+    name: [
+      'asset',
+      'cryptoAmount',
+      'fromChain',
+      'toChain',
+      'receiveAddress',
+      'transferFeeUsdc',
+      'fiatAmount',
+    ],
+  })
 
   const asset = useAppSelector(state => selectAssetById(state, bridgeAsset?.assetId ?? ''))
   const { assetReference } = fromAssetId(bridgeAsset?.assetId ?? '')
@@ -83,7 +98,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
         } = await axios.get(url)
         setValue('transferFeeUsdc', fromBaseUnit(amount, 7))
 
-        setIsLoadingFeeEstimates(false)
+        setIsLoadingRelayerFee(false)
       } catch (e) {
         console.error('GasFee error', e)
       }
@@ -148,6 +163,10 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   }
 
   if (!bridgeAsset && !fromChain && !toChain) return null
+
+  const isSendAmountGreaterThanFee = transferFeeUsdc
+    ? bnOrZero(fiatAmount).isGreaterThan(bnOrZero(transferFeeUsdc))
+    : true
 
   return (
     <SlideTransition>
@@ -224,11 +243,11 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
               </Row>
               <Row variant='gutter'>
                 <Row.Label>
-                  <Text translation='modals.confirm.estimatedGas' />
+                  <Text translation='common.relayerGasFee' />
                 </Row.Label>
                 <Row.Value>
                   <Stack textAlign='right' spacing={0}>
-                    {isLoadingFeeEstimates ? (
+                    {isLoadingRelayerFee ? (
                       <p>Loading...</p>
                     ) : (
                       <>
@@ -250,12 +269,12 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
           </Summary>
           <Button
             size='lg'
-            colorScheme='blue'
             onClick={handleContinue}
-            disabled={isLoadingFeeEstimates || isExecutingTransaction}
+            disabled={isLoadingRelayerFee || isExecutingTransaction || !isSendAmountGreaterThanFee}
             isLoading={isExecutingTransaction}
+            colorScheme={isSendAmountGreaterThanFee ? 'blue' : 'red'}
           >
-            Start Bridge
+            {isSendAmountGreaterThanFee ? 'Start Bridge' : 'Fee exceeds send amount'}
           </Button>
         </Stack>
       </Card>

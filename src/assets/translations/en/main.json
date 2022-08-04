@@ -15,6 +15,7 @@
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
+    "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",

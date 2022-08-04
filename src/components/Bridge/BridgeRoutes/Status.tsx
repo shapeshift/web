@@ -185,7 +185,7 @@ export const Status = () => {
                   </Row>
                   <Row variant='gutter'>
                     <Row.Label>
-                      <Text translation='modals.confirm.estimatedGas' />
+                      <Text translation='common.relayerGasFee' />
                     </Row.Label>
                     <Row.Value>
                       <Stack textAlign='right' spacing={0}>

@@ -13,7 +13,6 @@ import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -42,6 +41,7 @@ import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
+import { selectTxHistoryStatus } from './../../state/slices/txHistorySlice/selectors'
 import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
@@ -359,12 +359,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
 
-  // we can't tell if txs are finished loading over the websocket, so
-  // debounce a bit before doing expensive computations
-  const txs = useDebounce(
-    useAppSelector(state => selectTxsByFilter(state, txFilter)),
-    500,
-  )
+  const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
+  const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   // rebasing token balances can be adjusted by rebase events rather than txs
   // and we need to account for this in charts
@@ -404,7 +400,14 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     const hasNoDeviceId = isNil(walletInfo?.deviceId)
     const hasNoAssetIds = !assetIds.length
     const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData
-    if (hasNoDeviceId || hasNoAssetIds || hasNoPriceHistoryData || cryptoPriceHistoryDataLoading) {
+    const hasNotFinishedLoadingTxHistory = txHistoryStatus === 'loading'
+    if (
+      hasNoDeviceId ||
+      hasNoAssetIds ||
+      hasNoPriceHistoryData ||
+      cryptoPriceHistoryDataLoading ||
+      hasNotFinishedLoadingTxHistory
+    ) {
       return setBalanceChartDataLoading(true)
     }
 
@@ -445,6 +448,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     walletInfo?.deviceId,
     rebases,
     delegationTotal,
+    txHistoryStatus,
   ])
 
   return { balanceChartData, balanceChartDataLoading }

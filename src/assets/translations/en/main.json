@@ -443,7 +443,8 @@
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
       },
-      "generalError": "A trade error has occurred"
+      "generalError": "A trade error has occurred",
+      "tradeFailed": "Trade failed. Assets returned minus gas fee"
     }
   },
   "modals": {

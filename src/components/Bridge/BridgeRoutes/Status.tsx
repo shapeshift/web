@@ -19,6 +19,9 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { BridgeRoutePaths, BridgeState } from '../types'
 
@@ -30,10 +33,16 @@ export const Status = () => {
   const { isOpen, onToggle } = useDisclosure()
   const { control } = useFormContext<BridgeState>()
 
-  const [asset, cryptoAmount, fromChain, toChain, transferFeeUsdc, receiveAddress] = useWatch({
-    control,
-    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'transferFeeUsdc', 'receiveAddress'],
-  })
+  const [bridgeAsset, cryptoAmount, fromChain, toChain, transferFeeUsdc, receiveAddress] = useWatch(
+    {
+      control,
+      name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'transferFeeUsdc', 'receiveAddress'],
+    },
+  )
+
+  const { price: bridgeTokenPrice } = useAppSelector(state =>
+    selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
+  )
 
   useEffect(() => {
     setTimeout(() => {
@@ -63,6 +72,10 @@ export const Status = () => {
     history.push(BridgeRoutePaths.Input)
   }
 
+  const transferFeeNativeToken = bnOrZero(transferFeeUsdc)
+    .dividedBy(bnOrZero(bridgeTokenPrice))
+    .valueOf()
+
   return (
     <SlideTransition>
       <Card variant='unstyled'>
@@ -74,7 +87,7 @@ export const Status = () => {
         <Stack spacing={0} justifyContent='center'>
           <Stack py={8} spacing={6}>
             <Stack direction='row' alignItems='center' justifyContent='center'>
-              <WrappedIcon glow size='md' src={asset?.icon} wrapColor={fromChain?.color} />
+              <WrappedIcon glow size='md' src={bridgeAsset?.icon} wrapColor={fromChain?.color} />
               <Divider width='50px' />
               <CircularProgress isIndeterminate={true} size={8}>
                 <Circle bg={statusBg} size={8} position='absolute' top={0} left={0} fontSize='md'>
@@ -82,13 +95,13 @@ export const Status = () => {
                 </Circle>
               </CircularProgress>
               <Divider width='50px' />
-              <WrappedIcon glow size='md' src={asset?.icon} wrapColor={toChain?.color} />
+              <WrappedIcon glow size='md' src={bridgeAsset?.icon} wrapColor={toChain?.color} />
             </Stack>
             <Stack justifyContent='center' alignItems='center' spacing={0}>
               <Amount.Crypto
                 fontSize='xl'
                 value={cryptoAmount ?? '0'}
-                symbol={asset?.symbol ?? ''}
+                symbol={bridgeAsset?.symbol ?? ''}
               />
               <Stack direction='row' justifyContent='center' alignItems='center' color='gray.500'>
                 <RawText>{fromChain?.name}</RawText>
@@ -124,20 +137,25 @@ export const Status = () => {
                   </Row.Label>
                   <Row px={0} fontWeight='medium'>
                     <Stack direction='row' alignItems='center'>
-                      <WrappedIcon glow size='sm' src={asset?.icon} wrapColor={fromChain?.color} />
+                      <WrappedIcon
+                        glow
+                        size='sm'
+                        src={bridgeAsset?.icon}
+                        wrapColor={fromChain?.color}
+                      />
                       <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
-                        <RawText>{asset?.symbol}</RawText>
+                        <RawText>{bridgeAsset?.symbol}</RawText>
                         <RawText fontSize='sm' color='gray.500'>
                           {fromChain?.name}
                         </RawText>
                       </Stack>
                     </Stack>
-                    {asset?.symbol && (
+                    {bridgeAsset?.symbol && (
                       <Row.Value color='red.400'>
                         <Amount.Crypto
                           prefix='-'
                           value={cryptoAmount ?? '0'}
-                          symbol={asset.symbol}
+                          symbol={bridgeAsset.symbol}
                         />
                       </Row.Value>
                     )}
@@ -149,20 +167,25 @@ export const Status = () => {
                   </Row.Label>
                   <Row px={0} fontWeight='medium' alignItems='center'>
                     <Stack direction='row' alignItems='center'>
-                      <WrappedIcon glow size='sm' src={asset?.icon} wrapColor={toChain?.color} />
+                      <WrappedIcon
+                        glow
+                        size='sm'
+                        src={bridgeAsset?.icon}
+                        wrapColor={toChain?.color}
+                      />
                       <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
-                        <RawText>{asset?.symbol}</RawText>
+                        <RawText>{bridgeAsset?.symbol}</RawText>
                         <RawText fontSize='sm' color='gray.500'>
                           {toChain?.name}
                         </RawText>
                       </Stack>
                     </Stack>
-                    {asset?.symbol && (
+                    {bridgeAsset?.symbol && (
                       <Row.Value color='green.200'>
                         <Amount.Crypto
                           prefix='+'
                           value={cryptoAmount ?? '0'}
-                          symbol={asset.symbol}
+                          symbol={bridgeAsset.symbol}
                         />
                       </Row.Value>
                     )}
@@ -190,9 +213,11 @@ export const Status = () => {
                     <Row.Value>
                       <Stack textAlign='right' spacing={0}>
                         <Amount.Fiat fontWeight='bold' value={transferFeeUsdc ?? '0'} />
-                        <RawText>
-                          Paid in {fromChain?.symbol} on {fromChain?.name}.
-                        </RawText>
+                        <Amount.Crypto
+                          color='gray.500'
+                          value={transferFeeNativeToken ?? '0'}
+                          symbol={bridgeAsset?.symbol ?? ''}
+                        />
                       </Stack>
                     </Row.Value>
                   </Row>

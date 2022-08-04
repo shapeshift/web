@@ -27,6 +27,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -76,6 +77,9 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   })
 
   const asset = useAppSelector(state => selectAssetById(state, bridgeAsset?.assetId ?? ''))
+  const { price: bridgeTokenPrice } = useAppSelector(state =>
+    selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
+  )
   const { assetReference } = fromAssetId(bridgeAsset?.assetId ?? '')
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
@@ -168,6 +172,14 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     ? bnOrZero(fiatAmount).isGreaterThan(bnOrZero(transferFeeUsdc))
     : true
 
+  const transferFeeNativeToken = bnOrZero(transferFeeUsdc)
+    .dividedBy(bnOrZero(bridgeTokenPrice))
+    .valueOf()
+  const receiveAmount = bnOrZero(cryptoAmount)
+    .minus(bnOrZero(transferFeeNativeToken))
+    .decimalPlaces(4)
+    .valueOf()
+
   return (
     <SlideTransition>
       <Card variant='unstyled'>
@@ -221,7 +233,13 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                 </Stack>
                 {toChain?.symbol && (
                   <Row.Value color='green.200'>
-                    <Amount.Crypto prefix='+' value={cryptoAmount ?? '0'} symbol={toChain.symbol} />
+                    {isSendAmountGreaterThanFee && (
+                      <Amount.Crypto
+                        prefix='+'
+                        value={receiveAmount ?? '0'}
+                        symbol={toChain.symbol}
+                      />
+                    )}
                   </Row.Value>
                 )}
               </Row>
@@ -252,14 +270,11 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                     ) : (
                       <>
                         <Amount.Fiat fontWeight='bold' value={transferFeeUsdc ?? '0'} />
-                        <RawText>
-                          Paid in {fromChain?.symbol} on {fromChain?.name}.
-                        </RawText>
-                        {/*<Amount.Crypto*/}
-                        {/*  color='gray.500'*/}
-                        {/*  value={gasFeeCrypto ?? '0'}*/}
-                        {/*  symbol={sourceChainTokenSymbol ?? ''}*/}
-                        {/*/>*/}
+                        <Amount.Crypto
+                          color='gray.500'
+                          value={transferFeeNativeToken ?? '0'}
+                          symbol={bridgeAsset?.symbol ?? ''}
+                        />
                       </>
                     )}
                   </Stack>

@@ -44,6 +44,7 @@
     "@ethersproject/providers": "^5.5.3",
     "@shapeshiftoss/caip": "^6.7.0",
     "@shapeshiftoss/types": "^8.1.0",
+    "@shapeshiftoss/investor-idle": "^1.0.0",
     "@types/node-polyglot": "^2.4.2",
     "@yfi/sdk": "^1.0.30",
     "colorthief": "^2.3.2",

@@ -9,6 +9,7 @@
       "@shapeshiftoss/chain-adapters/*": ["packages/chain-adapters"],
       "@shapeshiftoss/investory-foxy/*": ["packages/investory-foxy"],
       "@shapeshiftoss/investory-yearn/*": ["packages/investory-yearn"],
+      "@shapeshiftoss/investory-idle/*": ["packages/investory-idle"],
       "@shapeshiftoss/logger/*": ["packages/logger"],
       "@shapeshiftoss/errors/*": ["packages/errors"],
       "@shapeshiftoss/market-service/*": ["packages/market-service"],

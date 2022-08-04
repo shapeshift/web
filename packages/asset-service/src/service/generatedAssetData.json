@@ -1235,6 +1235,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x014550a34149231b8432b8dd210fadd81b1d2668": {
+    "assetId": "eip155:1/erc20:0x014550a34149231b8432b8dd210fadd81b1d2668",
+    "chainId": "eip155:1",
+    "name": "SHEESHETH",
+    "precision": 18,
+    "color": "#ECA434",
+    "icon": "https://assets.coingecko.com/coins/images/26678/thumb/LOGO.png?1659522896",
+    "symbol": "SHEESH",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x014a543f767b3b06e31a811b0a75483ee8dfd72d": {
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -2569,6 +2581,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x05fc938cc60fb71381514877d66478bab7e2e1ce": {
+    "assetId": "eip155:1/erc20:0x05fc938cc60fb71381514877d66478bab7e2e1ce",
+    "chainId": "eip155:1",
+    "name": "SUPERCATS",
+    "precision": 8,
+    "color": "#161929",
+    "icon": "https://assets.coingecko.com/coins/images/26675/thumb/Supercats_logo.png?1659517034",
+    "symbol": "S-CATS",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x05fcc72cfb4150abae415c885f7a433ff523296f": {
     "assetId": "eip155:1/erc20:0x05fcc72cfb4150abae415c885f7a433ff523296f",
     "chainId": "eip155:1",
@@ -2577,6 +2601,19 @@
     "color": "#CE4C3C",
     "icon": "https://assets.coingecko.com/coins/images/12425/thumb/YOKcoin_200x200.png?1599732314",
     "symbol": "YOK",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x060a53bcfdc0452f35ebd2196c6914e0152379a6": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/STECRV.svg",
+    "name": "Convex STECRV Senior Tranche",
+    "precision": 18,
+    "symbol": "STECRV",
+    "tokenId": "0x060a53bcfdc0452f35ebd2196c6914e0152379a6",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x060a53bcfdc0452f35ebd2196c6914e0152379a6",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -6221,16 +6258,16 @@
     "assetId": "eip155:1/erc20:0x1443e7c1cce72662545d94779120c59251447e91"
   },
   "eip155:1/erc20:0x144e3b02e08e644ffbb7ff652763f5b72ee22701": {
-    "assetId": "eip155:1/erc20:0x144e3b02e08e644ffbb7ff652763f5b72ee22701",
-    "chainId": "eip155:1",
-    "name": "DiamondDAO",
-    "precision": 9,
-    "color": "#131262",
-    "icon": "https://assets.coingecko.com/coins/images/22067/thumb/ezgif-3-a4ac424c7a.jpg?1640745397",
-    "symbol": "DMND",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
+    "explorerTxLink": "https://etherscan.io/tx/",
+    "color": "#131262",
+    "icon": "https://assets.yearn.network/tokens/ethereum/0x144e3b02e08e644ffbb7ff652763f5b72ee22701.png",
+    "name": "DMND",
+    "precision": 9,
+    "symbol": "DMND",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x144e3b02e08e644ffbb7ff652763f5b72ee22701"
   },
   "eip155:1/erc20:0x1453dbb8a29551ade11d89825ca812e05317eaeb": {
     "assetId": "eip155:1/erc20:0x1453dbb8a29551ade11d89825ca812e05317eaeb",
@@ -6568,6 +6605,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x15794da4dcf34e674c18bbfaf4a67ff6189690f5": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/FRAX3CRV.svg",
+    "name": "Convex FRAX3CRV Senior Tranche",
+    "precision": 18,
+    "symbol": "FRAX3CRV",
+    "tokenId": "0x15794da4dcf34e674c18bbfaf4a67ff6189690f5",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x15794da4dcf34e674c18bbfaf4a67ff6189690f5",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x15874d65e649880c2614e7a480cb7c9a55787ff6": {
     "assetId": "eip155:1/erc20:0x15874d65e649880c2614e7a480cb7c9a55787ff6",
     "chainId": "eip155:1",
@@ -6576,6 +6626,19 @@
     "color": "#1C2454",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x15874d65e649880c2614e7a480cb7c9A55787FF6/logo.png",
     "symbol": "EMAX",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x158e04225777bbea34d2762b5df9ebd695c158d2": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/3EURCRV.svg",
+    "name": "Convex 3EURCRV Senior Tranche",
+    "precision": 18,
+    "symbol": "3EURCRV",
+    "tokenId": "0x158e04225777bbea34d2762b5df9ebd695c158d2",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x158e04225777bbea34d2762b5df9ebd695c158d2",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -7158,6 +7221,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x173e552bf97bbd50b455514ac52991ef639ba703": {
+    "assetId": "eip155:1/erc20:0x173e552bf97bbd50b455514ac52991ef639ba703",
+    "chainId": "eip155:1",
+    "name": "Shido",
+    "precision": 9,
+    "color": "#4A5F71",
+    "icon": "https://assets.coingecko.com/coins/images/26674/thumb/1_Transparent_200x200.png?1659514531",
+    "symbol": "SHIDO",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x174afe7a032b5a33a3270a9f6c30746e25708532": {
     "assetId": "eip155:1/erc20:0x174afe7a032b5a33a3270a9f6c30746e25708532",
     "chainId": "eip155:1",
@@ -7562,6 +7637,19 @@
     "color": "#7F1AC4",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x18aAA7115705e8be94bfFEBDE57Af9BFc265B998/logo.png",
     "symbol": "AUDIO",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x18cf59480d8c16856701f66028444546b7041307": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/FRAX3CRV.svg",
+    "name": "Convex FRAX3CRV Junior Tranche",
+    "precision": 18,
+    "symbol": "FRAX3CRV",
+    "tokenId": "0x18cf59480d8c16856701f66028444546b7041307",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x18cf59480d8c16856701f66028444546b7041307",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -8286,18 +8374,6 @@
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0x1b890fd37cd50bea59346fc2f8ddb7cd9f5fabd5": {
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/",
-    "color": "#FCFA5B",
-    "icon": "https://assets.yearn.network/tokens/ethereum/0x1b890fd37cd50bea59346fc2f8ddb7cd9f5fabd5.png",
-    "name": "NEWO",
-    "precision": 18,
-    "symbol": "NEWO",
-    "chainId": "eip155:1",
-    "assetId": "eip155:1/erc20:0x1b890fd37cd50bea59346fc2f8ddb7cd9f5fabd5"
   },
   "eip155:1/erc20:0x1b905331f7de2748f4d6a0678e1521e20347643f": {
     "color": "#68E0D5",
@@ -9029,6 +9105,19 @@
     "color": "#FAF8F9",
     "icon": "https://assets.coingecko.com/coins/images/18758/thumb/kEpQ95VG_400x400.jpg?1633350594",
     "symbol": "PICIPO",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x1e095cbf663491f15cc1bdb5919e701b27dde90c": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/USDC.svg",
+    "name": "Euler USDC Senior Tranche",
+    "precision": 18,
+    "symbol": "USDC",
+    "tokenId": "0x1e095cbf663491f15cc1bdb5919e701b27dde90c",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x1e095cbf663491f15cc1bdb5919e701b27dde90c",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -10750,6 +10839,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x2490d810bf6429264397ba721a488b0c439aa745": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/FEI.svg",
+    "name": "Idle FEI Junior Tranche",
+    "precision": 18,
+    "symbol": "FEI",
+    "tokenId": "0x2490d810bf6429264397ba721a488b0c439aa745",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x2490d810bf6429264397ba721a488b0c439aa745",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x2494a68c1484376fef880b4c24d91f049d29b02a": {
     "assetId": "eip155:1/erc20:0x2494a68c1484376fef880b4c24d91f049d29b02a",
     "chainId": "eip155:1",
@@ -11410,6 +11512,19 @@
     "symbol": "FUD",
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x2688213fedd489762a281a67ae4f2295d8e17ecc"
+  },
+  "eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/STETH.svg",
+    "name": "Lido STETH Senior Tranche",
+    "precision": 18,
+    "symbol": "STETH",
+    "tokenId": "0x2688fc68c4eac90d9e5e1b94776cf14eade8d877",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0x26946ada5ecb57f3a1f91605050ce45c482c9eb1": {
     "assetId": "eip155:1/erc20:0x26946ada5ecb57f3a1f91605050ce45c482c9eb1",
@@ -13864,6 +13979,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x3061c652b49ae901bbecf622624cc9f633d01bbd": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/3EURCRV.svg",
+    "name": "Convex 3EURCRV Junior Tranche",
+    "precision": 18,
+    "symbol": "3EURCRV",
+    "tokenId": "0x3061c652b49ae901bbecf622624cc9f633d01bbd",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x3061c652b49ae901bbecf622624cc9f633d01bbd",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x30680ac0a8a993088223925265fd7a76beb87e7f": {
     "assetId": "eip155:1/erc20:0x30680ac0a8a993088223925265fd7a76beb87e7f",
     "chainId": "eip155:1",
@@ -14016,6 +14144,18 @@
     "color": "#080808",
     "icon": "https://assets.coingecko.com/coins/images/20658/thumb/sd.png?1642927667",
     "symbol": "SD",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x30dcba0405004cf124045793e1933c798af9e66a": {
+    "assetId": "eip155:1/erc20:0x30dcba0405004cf124045793e1933c798af9e66a",
+    "chainId": "eip155:1",
+    "name": "Yieldification",
+    "precision": 18,
+    "color": "#F0A124",
+    "icon": "https://assets.coingecko.com/coins/images/26699/thumb/logo.png?1659609811",
+    "symbol": "YDF",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -15079,16 +15219,16 @@
     "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0x3431f91b3a388115f00c5ba9fdb899851d005fb5": {
-    "assetId": "eip155:1/erc20:0x3431f91b3a388115f00c5ba9fdb899851d005fb5",
-    "chainId": "eip155:1",
-    "name": "GeroWallet",
-    "precision": 18,
-    "color": "#18817F",
-    "icon": "https://assets.coingecko.com/coins/images/15602/thumb/PdAQXY8t_400x400.jpg?1621307751",
-    "symbol": "GERO",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
+    "explorerTxLink": "https://etherscan.io/tx/",
+    "color": "#18817F",
+    "icon": "https://assets.yearn.network/tokens/ethereum/0x3431f91b3a388115f00c5ba9fdb899851d005fb5.png",
+    "name": "GERO",
+    "precision": 18,
+    "symbol": "GERO",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x3431f91b3a388115f00c5ba9fdb899851d005fb5"
   },
   "eip155:1/erc20:0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0": {
     "assetId": "eip155:1/erc20:0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0",
@@ -15437,6 +15577,18 @@
     "symbol": "MWBTC",
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x3521c85c3000bff57eac04489eb05bbd3193a531"
+  },
+  "eip155:1/erc20:0x3540abe4f288b280a0740ad5121aec337c404d15": {
+    "assetId": "eip155:1/erc20:0x3540abe4f288b280a0740ad5121aec337c404d15",
+    "chainId": "eip155:1",
+    "name": "TPRO",
+    "precision": 18,
+    "color": "#0C1420",
+    "icon": "https://assets.coingecko.com/coins/images/26694/thumb/tpro-logo-200x200.png?1659607453",
+    "symbol": "TPRO",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0x3541a5c1b04adaba0b83f161747815cd7b1516bc": {
     "assetId": "eip155:1/erc20:0x3541a5c1b04adaba0b83f161747815cd7b1516bc",
@@ -16447,6 +16599,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x3872418402d1e967889ac609731fc9e11f438de5": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/PBTCCRV.svg",
+    "name": "Convex PBTCCRV Junior Tranche",
+    "precision": 18,
+    "symbol": "PBTCCRV",
+    "tokenId": "0x3872418402d1e967889ac609731fc9e11f438de5",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x3872418402d1e967889ac609731fc9e11f438de5",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x3873965e73d9a21f88e645ce40b7db187fde4931": {
     "assetId": "eip155:1/erc20:0x3873965e73d9a21f88e645ce40b7db187fde4931",
     "chainId": "eip155:1",
@@ -17020,6 +17185,19 @@
     "color": "#2C2C2C",
     "icon": "https://assets.coingecko.com/coins/images/26601/thumb/Initials.png?1658978710",
     "symbol": "VEN",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/STETH.svg",
+    "name": "Lido STETH Junior Tranche",
+    "precision": 18,
+    "symbol": "STETH",
+    "tokenId": "0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -17831,18 +18009,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0x3ce523bbcf1b29904fcd88278973ba45e4262b9f": {
-    "assetId": "eip155:1/erc20:0x3ce523bbcf1b29904fcd88278973ba45e4262b9f",
-    "chainId": "eip155:1",
-    "name": "MCPEPE",
-    "precision": 9,
-    "color": "#D99B47",
-    "icon": "https://assets.coingecko.com/coins/images/23377/thumb/McPepeLogo.png?1643960384",
-    "symbol": "MCPEPE",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0x3d0293f06daf4311b482564330d57c8db6c10893": {
     "assetId": "eip155:1/erc20:0x3d0293f06daf4311b482564330d57c8db6c10893",
     "chainId": "eip155:1",
@@ -18515,6 +18681,18 @@
     "symbol": "RFY",
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x3f5be50e4651ee184109a0b1b71d344d12e8b603"
+  },
+  "eip155:1/erc20:0x3f5dd1a1538a4f9f82e543098f01f22480b0a3a8": {
+    "assetId": "eip155:1/erc20:0x3f5dd1a1538a4f9f82e543098f01f22480b0a3a8",
+    "chainId": "eip155:1",
+    "name": "KumaDex Token",
+    "precision": 18,
+    "color": "#E78A51",
+    "icon": "https://assets.coingecko.com/coins/images/26693/thumb/dkumaOG02.png?1659606359",
+    "symbol": "DKUMA",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0x3f68e7b44e9bcb486c2feadb7a2289d9cdfc9088": {
     "assetId": "eip155:1/erc20:0x3f68e7b44e9bcb486c2feadb7a2289d9cdfc9088",
@@ -20449,6 +20627,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x4585f56b06d098d4edbfc5e438b8897105991c6a": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/MUSD3CRV.svg",
+    "name": "Convex MUSD3CRV Senior Tranche",
+    "precision": 18,
+    "symbol": "MUSD3CRV",
+    "tokenId": "0x4585f56b06d098d4edbfc5e438b8897105991c6a",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x4585f56b06d098d4edbfc5e438b8897105991c6a",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x4588c3c165a5c66c020997d89c2162814aec9cd6": {
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -20649,6 +20840,19 @@
     "color": "#173452",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x464FdB8AFFC9bac185A7393fd4298137866DCFB8/logo.png",
     "symbol": "REALM",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x4657b96d587c4d46666c244b40216beeea437d0d": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/PBTCCRV.svg",
+    "name": "Convex PBTCCRV Senior Tranche",
+    "precision": 18,
+    "symbol": "PBTCCRV",
+    "tokenId": "0x4657b96d587c4d46666c244b40216beeea437d0d",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x4657b96d587c4d46666c244b40216beeea437d0d",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -22852,6 +23056,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x4d9d9aa17c3fcea05f20a87fc1991a045561167d": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/USDC.svg",
+    "name": "Clearpool USDC Junior Tranche",
+    "precision": 18,
+    "symbol": "USDC",
+    "tokenId": "0x4d9d9aa17c3fcea05f20a87fc1991a045561167d",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x4d9d9aa17c3fcea05f20a87fc1991a045561167d",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x4da08a1bff50be96bded5c7019227164b49c2bfc": {
     "assetId": "eip155:1/erc20:0x4da08a1bff50be96bded5c7019227164b49c2bfc",
     "chainId": "eip155:1",
@@ -24317,6 +24534,19 @@
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x53378825d95281737914a8a2ac0e5a9304ae5ed7"
   },
+  "eip155:1/erc20:0x5346217536852cd30a5266647ccbb6f73449cbd1": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/MIM3CRV.svg",
+    "name": "Convex MIM3CRV Junior Tranche",
+    "precision": 18,
+    "symbol": "MIM3CRV",
+    "tokenId": "0x5346217536852cd30a5266647ccbb6f73449cbd1",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x5346217536852cd30a5266647ccbb6f73449cbd1",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x5362799f2228a180b03a68fd41cd39137dd99c42": {
     "assetId": "eip155:1/erc20:0x5362799f2228a180b03a68fd41cd39137dd99c42",
     "chainId": "eip155:1",
@@ -25325,6 +25555,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x57b59f981730c6257df57cf6f0d98283749a9eeb": {
+    "assetId": "eip155:1/erc20:0x57b59f981730c6257df57cf6f0d98283749a9eeb",
+    "chainId": "eip155:1",
+    "name": "BUILD",
+    "precision": 18,
+    "color": "#EC1C24",
+    "icon": "https://assets.coingecko.com/coins/images/26533/thumb/BUILD.png?1658714842",
+    "symbol": "BUILD",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x57b946008913b82e4df85f501cbaed910e58d26c": {
     "assetId": "eip155:1/erc20:0x57b946008913b82e4df85f501cbaed910e58d26c",
     "chainId": "eip155:1",
@@ -26121,18 +26363,6 @@
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x5acd07353106306a6530ac4d49233271ec372963"
   },
-  "eip155:1/erc20:0x5acd19b9c91e596b1f062f18e3d02da7ed8d1e50": {
-    "assetId": "eip155:1/erc20:0x5acd19b9c91e596b1f062f18e3d02da7ed8d1e50",
-    "chainId": "eip155:1",
-    "name": "BTC Lite",
-    "precision": 8,
-    "color": "#2413FC",
-    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x5acD19b9c91e596b1f062f18e3D02da7eD8D1e50/logo.png",
-    "symbol": "BTCL",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0x5adc961d6ac3f7062d2ea45fefb8d8167d44b190": {
     "assetId": "eip155:1/erc20:0x5adc961d6ac3f7062d2ea45fefb8d8167d44b190",
     "chainId": "eip155:1",
@@ -26586,6 +26816,19 @@
     "color": "#2C3CEE",
     "icon": "https://assets.coingecko.com/coins/images/17583/thumb/logo-64.png?1629277823",
     "symbol": "CART",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x5c960a3dcc01be8a0f49c02a8cebcacf5d07fabe": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/RAI.svg",
+    "name": "RAI",
+    "precision": 18,
+    "symbol": "RAI",
+    "tokenId": "0x5c960a3dcc01be8a0f49c02a8cebcacf5d07fabe",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x5c960a3dcc01be8a0f49c02a8cebcacf5d07fabe",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -28394,6 +28637,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x624dfe05202b66d871b8b7c0e14ab29fc3a5120c": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/AGEUR.svg",
+    "name": "Euler AGEUR Senior Tranche",
+    "precision": 18,
+    "symbol": "AGEUR",
+    "tokenId": "0x624dfe05202b66d871b8b7c0e14ab29fc3a5120c",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x624dfe05202b66d871b8b7c0e14ab29fc3a5120c",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x6251e725cd45fb1af99354035a414a2c0890b929": {
     "assetId": "eip155:1/erc20:0x6251e725cd45fb1af99354035a414a2c0890b929",
     "chainId": "eip155:1",
@@ -29379,18 +29635,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0x660e71483785f66133548b10f6926dc332b06e61": {
-    "assetId": "eip155:1/erc20:0x660e71483785f66133548b10f6926dc332b06e61",
-    "chainId": "eip155:1",
-    "name": "Adelphoi",
-    "precision": 18,
-    "color": "#337B83",
-    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x660e71483785f66133548B10f6926dC332b06e61/logo.png",
-    "symbol": "ADL",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0x66186008c1050627f979d464eabb258860563dbe": {
     "assetId": "eip155:1/erc20:0x66186008c1050627f979d464eabb258860563dbe",
     "chainId": "eip155:1",
@@ -29423,6 +29667,19 @@
     "color": "#F9363F",
     "icon": "https://assets.coingecko.com/coins/images/13224/thumb/bt.png?1606358296",
     "symbol": "BT",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x6629baa8c7c6a84290bf9a885825e3540875219d": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/DAI.svg",
+    "name": "Euler DAI Junior Tranche",
+    "precision": 18,
+    "symbol": "DAI",
+    "tokenId": "0x6629baa8c7c6a84290bf9a885825e3540875219d",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x6629baa8c7c6a84290bf9a885825e3540875219d",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -29868,18 +30125,6 @@
     "color": "#897338",
     "icon": "https://assets.coingecko.com/coins/images/21849/thumb/200_%2815%29.png?1640137716",
     "symbol": "TALI",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0x67689fdb3028fb616f4d71a5b9e2dd53c82cc57b": {
-    "assetId": "eip155:1/erc20:0x67689fdb3028fb616f4d71a5b9e2dd53c82cc57b",
-    "chainId": "eip155:1",
-    "name": "Fubuki",
-    "precision": 9,
-    "color": "#100E0C",
-    "icon": "https://assets.coingecko.com/coins/images/23315/thumb/BIGtJoB.png?1643756047",
-    "symbol": "FUBUKI",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -33264,6 +33509,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x730348a54ba58f64295154f0662a08cbde1225c2": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/DAI.svg",
+    "name": "Idle DAI Junior Tranche",
+    "precision": 18,
+    "symbol": "DAI",
+    "tokenId": "0x730348a54ba58f64295154f0662a08cbde1225c2",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x730348a54ba58f64295154f0662a08cbde1225c2",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x73374ea518de7addd4c2b624c0e8b113955ee041": {
     "assetId": "eip155:1/erc20:0x73374ea518de7addd4c2b624c0e8b113955ee041",
     "chainId": "eip155:1",
@@ -34729,6 +34987,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x790e38d85a364dd03f682f5ecdc88f8ff7299908": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/ALUSD3CRV.svg",
+    "name": "Convex ALUSD3CRV Senior Tranche",
+    "precision": 18,
+    "symbol": "ALUSD3CRV",
+    "tokenId": "0x790e38d85a364dd03f682f5ecdc88f8ff7299908",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x790e38d85a364dd03f682f5ecdc88f8ff7299908",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x79126d32a86e6663f3aaac4527732d0701c1ae6c": {
     "assetId": "eip155:1/erc20:0x79126d32a86e6663f3aaac4527732d0701c1ae6c",
     "chainId": "eip155:1",
@@ -34881,6 +35152,18 @@
     "color": "#E5E5E5",
     "icon": "https://assets.coingecko.com/coins/images/18100/thumb/braintrust.PNG?1630475394",
     "symbol": "BTRST",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x79a06acb8bdd138beeecce0f1605971f3ac7c09b": {
+    "assetId": "eip155:1/erc20:0x79a06acb8bdd138beeecce0f1605971f3ac7c09b",
+    "chainId": "eip155:1",
+    "name": "Lasrever",
+    "precision": 18,
+    "color": "#0A0506",
+    "icon": "https://assets.coingecko.com/coins/images/26681/thumb/E312D296-5EB2-4CF1-B98C-A2E47736BA37.jpeg?1659538133",
+    "symbol": "LSVR",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -35469,18 +35752,6 @@
     "color": "#30A96F",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7bE00ed6796B21656732E8f739Fc1b8F1C53DA0D/logo.png",
     "symbol": "ACXT",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0x7be647634a942e73f8492d15ae492d867ce5245c": {
-    "assetId": "eip155:1/erc20:0x7be647634a942e73f8492d15ae492d867ce5245c",
-    "chainId": "eip155:1",
-    "name": "Feudalz Goldz",
-    "precision": 18,
-    "color": "#40312A",
-    "icon": "https://assets.coingecko.com/coins/images/22316/thumb/XVgLQJ4F_400x400.png?1641453383",
-    "symbol": "GOLDZ",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -37203,18 +37474,6 @@
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x82b0e50478eeafde392d45d1259ed1071b6fda81"
   },
-  "eip155:1/erc20:0x82c323740455925e15936f84c1d3f2b074d37af0": {
-    "assetId": "eip155:1/erc20:0x82c323740455925e15936f84c1d3f2b074d37af0",
-    "chainId": "eip155:1",
-    "name": "UNIVE X",
-    "precision": 8,
-    "color": "#7752D1",
-    "icon": "https://assets.coingecko.com/coins/images/23366/thumb/q8lz.png?1643948363",
-    "symbol": "UNVX",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0x82ca5fcd9ef2d6ceeb49a057bb11c3e091560979": {
     "assetId": "eip155:1/erc20:0x82ca5fcd9ef2d6ceeb49a057bb11c3e091560979",
     "chainId": "eip155:1",
@@ -37885,6 +38144,19 @@
     "color": "#040404",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x8515cD0f00aD81996d24b9A9C35121a3b759D6Cd/logo.png",
     "symbol": "BURN",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x852c4d2823e98930388b5ce1ed106310b942bd5a": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/DAI.svg",
+    "name": "Euler DAI Senior Tranche",
+    "precision": 18,
+    "symbol": "DAI",
+    "tokenId": "0x852c4d2823e98930388b5ce1ed106310b942bd5a",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x852c4d2823e98930388b5ce1ed106310b942bd5a",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -39254,6 +39526,18 @@
     "color": "#3BB3E4",
     "icon": "https://assets.coingecko.com/coins/images/10469/thumb/57414069_286321078958466_8377709696580059136_n.jpg?1579733292",
     "symbol": "DRM",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x89568569da9c83cb35e59f92f5df2f6ca829eeee": {
+    "assetId": "eip155:1/erc20:0x89568569da9c83cb35e59f92f5df2f6ca829eeee",
+    "chainId": "eip155:1",
+    "name": "PYROMATIC",
+    "precision": 6,
+    "color": "#EDEAE5",
+    "icon": "https://assets.coingecko.com/coins/images/26662/thumb/PYRO200.jpg?1659448765",
+    "symbol": "PYRO",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -41302,6 +41586,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x91fb938fea02dfd5303acef5a8a2c0cab62b94c7": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/MUSD.svg",
+    "name": "mStable MUSD Junior Tranche",
+    "precision": 18,
+    "symbol": "MUSD",
+    "tokenId": "0x91fb938fea02dfd5303acef5a8a2c0cab62b94c7",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x91fb938fea02dfd5303acef5a8a2c0cab62b94c7",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x9205c049c231dda51bace0ba569f047e3e1e9979": {
     "assetId": "eip155:1/erc20:0x9205c049c231dda51bace0ba569f047e3e1e9979",
     "chainId": "eip155:1",
@@ -42426,6 +42723,18 @@
     "color": "#424476",
     "icon": "https://assets.coingecko.com/coins/images/7363/thumb/Kronn.jpg?1547044048",
     "symbol": "KREX",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x9590d8c06ba451bbad0893f2ef0d2a8b5acc67d3": {
+    "assetId": "eip155:1/erc20:0x9590d8c06ba451bbad0893f2ef0d2a8b5acc67d3",
+    "chainId": "eip155:1",
+    "name": "SCORCHER",
+    "precision": 6,
+    "color": "#AC644F",
+    "icon": "https://assets.coingecko.com/coins/images/26683/thumb/SCORCHER_LOGO_-_200.png?1659594039",
+    "symbol": "SCOR",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -44220,18 +44529,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0x9bbc9286cdf6eefebf21df19bac71c6bdd7759d4": {
-    "assetId": "eip155:1/erc20:0x9bbc9286cdf6eefebf21df19bac71c6bdd7759d4",
-    "chainId": "eip155:1",
-    "name": "QUEENBEE",
-    "precision": 18,
-    "color": "#4E4E4E",
-    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x9bBc9286cdF6eeFEBF21DF19Bac71c6Bdd7759D4/logo.png",
-    "symbol": "QBZ",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0x9bc72b6358379cd9f71c0b4827f9fc1a0f025eed": {
     "assetId": "eip155:1/erc20:0x9bc72b6358379cd9f71c0b4827f9fc1a0f025eed",
     "chainId": "eip155:1",
@@ -44424,6 +44721,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x9ccf191169a613eca433a249d3f40131178caebc": {
+    "assetId": "eip155:1/erc20:0x9ccf191169a613eca433a249d3f40131178caebc",
+    "chainId": "eip155:1",
+    "name": "MicroChains Gov Token",
+    "precision": 18,
+    "color": "#151BD2",
+    "icon": "https://assets.coingecko.com/coins/images/26663/thumb/B2QwV0BL_400x400.jpeg?1659449087",
+    "symbol": "MCG",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x9cd39da8f25ec50cf2ee260e464ac23ea23f6bb0": {
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -44435,6 +44744,19 @@
     "symbol": "YFT",
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x9cd39da8f25ec50cf2ee260e464ac23ea23f6bb0"
+  },
+  "eip155:1/erc20:0x9ce3a740df498646939bcbb213a66bbfa1440af6": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/FEI.svg",
+    "name": "Idle FEI Senior Tranche",
+    "precision": 18,
+    "symbol": "FEI",
+    "tokenId": "0x9ce3a740df498646939bcbb213a66bbfa1440af6",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0x9ce3a740df498646939bcbb213a66bbfa1440af6",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0x9ce84f6a69986a83d92c324df10bc8e64771030f": {
     "assetId": "eip155:1/erc20:0x9ce84f6a69986a83d92c324df10bc8e64771030f",
@@ -45632,6 +45954,19 @@
     "color": "#3E2D26",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0CF46eb152656C7090e769916eb44a138aaa406/logo.png",
     "symbol": "SPH",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xa0e8c9088afb3fa0f40ecdf8b551071c34aa1aa4": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/ALUSD3CRV.svg",
+    "name": "Convex ALUSD3CRV Junior Tranche",
+    "precision": 18,
+    "symbol": "ALUSD3CRV",
+    "tokenId": "0xa0e8c9088afb3fa0f40ecdf8b551071c34aa1aa4",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xa0e8c9088afb3fa0f40ecdf8b551071c34aa1aa4",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -47219,6 +47554,18 @@
     "color": "#34BCD3",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xa6714a2e5f0B1bdb97b895b0913b4FcD3a775E4D/logo.png",
     "symbol": "PC",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xa67b8e40111a0edd30c3210b77aadb86ad234c43": {
+    "assetId": "eip155:1/erc20:0xa67b8e40111a0edd30c3210b77aadb86ad234c43",
+    "chainId": "eip155:1",
+    "name": "Banana Index",
+    "precision": 9,
+    "color": "#FFFFFF",
+    "icon": "https://assets.coingecko.com/coins/images/26700/thumb/6233e7f496c72994c313a50a_cactusboy90_%282%29-p-1080.png?1659616101",
+    "symbol": "BANDEX",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -50143,6 +50490,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0xb1ec065abf6783bcce003b8d6b9f947129504854": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/USDT.svg",
+    "name": "Euler USDT Junior Tranche",
+    "precision": 18,
+    "symbol": "USDT",
+    "tokenId": "0xb1ec065abf6783bcce003b8d6b9f947129504854",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xb1ec065abf6783bcce003b8d6b9f947129504854",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xb1ec548f296270bc96b8a1b3b3c8f3f04b494215": {
     "assetId": "eip155:1/erc20:0xb1ec548f296270bc96b8a1b3b3c8f3f04b494215",
     "chainId": "eip155:1",
@@ -50298,6 +50658,19 @@
     "symbol": "WRLD",
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0xb2cf3a438acf46275839a38db7594065f64151d3"
+  },
+  "eip155:1/erc20:0xb2d5cb72a621493fe83c6885e4a776279be595bc": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/FEI.svg",
+    "name": "FEI",
+    "precision": 18,
+    "symbol": "FEI",
+    "tokenId": "0xb2d5cb72a621493fe83c6885e4a776279be595bc",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xb2d5cb72a621493fe83c6885e4a776279be595bc",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0xb2dbf14d0b47ed3ba02bdb7c954e05a72deb7544": {
     "assetId": "eip155:1/erc20:0xb2dbf14d0b47ed3ba02bdb7c954e05a72deb7544",
@@ -50889,18 +51262,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0xb52bbd3d5bfa3836bf2b55fe3b7467219280bc2e": {
-    "assetId": "eip155:1/erc20:0xb52bbd3d5bfa3836bf2b55fe3b7467219280bc2e",
-    "chainId": "eip155:1",
-    "name": "StiB",
-    "precision": 8,
-    "color": "#D8F4DD",
-    "icon": "https://assets.coingecko.com/coins/images/10059/thumb/200x200_%281%29.png?1576674116",
-    "symbol": "STI",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0xb52fc0f17df38ad76f290467aab57cabaeeada14": {
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -51149,18 +51510,6 @@
     "color": "#61A5D4",
     "icon": "https://assets.coingecko.com/coins/images/20381/thumb/200x200.png?1658719987",
     "symbol": "HEROS",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0xb624fde1a972b1c89ec1dad691442d5e8e891469": {
-    "assetId": "eip155:1/erc20:0xb624fde1a972b1c89ec1dad691442d5e8e891469",
-    "chainId": "eip155:1",
-    "name": "SporkDAO",
-    "precision": 18,
-    "color": "#928DAD",
-    "icon": "https://assets.coingecko.com/coins/images/23358/thumb/sporkdao.PNG?1643942687",
-    "symbol": "SPORK",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -51617,6 +51966,19 @@
     "color": "#1C1C1C",
     "icon": "https://assets.coingecko.com/coins/images/24954/thumb/streeth.png?1649507723",
     "symbol": "STREETH",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xb86264c21418aa75f7c337b1821ccb4ff4d57673": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/USDC.svg",
+    "name": "Clearpool USDC Senior Tranche",
+    "precision": 18,
+    "symbol": "USDC",
+    "tokenId": "0xb86264c21418aa75f7c337b1821ccb4ff4d57673",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xb86264c21418aa75f7c337b1821ccb4ff4d57673",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -56246,6 +56608,19 @@
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0xc8d674114bac90148d11d3c1d33c61835a0f9dcd"
   },
+  "eip155:1/erc20:0xc8e6ca6e96a326dc448307a5fde90a0b21fd7f80": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/WETH.svg",
+    "name": "WETH",
+    "precision": 18,
+    "symbol": "WETH",
+    "tokenId": "0xc8e6ca6e96a326dc448307a5fde90a0b21fd7f80",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xc8e6ca6e96a326dc448307a5fde90a0b21fd7f80",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xc8ef1460277ea47d179dec66d1c5f8b7f7ae5a28": {
     "assetId": "eip155:1/erc20:0xc8ef1460277ea47d179dec66d1c5f8b7f7ae5a28",
     "chainId": "eip155:1",
@@ -56278,6 +56653,18 @@
     "color": "#043C7C",
     "icon": "https://assets.coingecko.com/coins/images/16329/thumb/multiverse_logo_full_color_rgb_200px_72ppi.png?1652011384",
     "symbol": "AI",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xc91c885580da11ac060bdd692bdaa7ee29cfc976": {
+    "assetId": "eip155:1/erc20:0xc91c885580da11ac060bdd692bdaa7ee29cfc976",
+    "chainId": "eip155:1",
+    "name": "ZKasino",
+    "precision": 18,
+    "color": "#CF2376",
+    "icon": "https://assets.coingecko.com/coins/images/26649/thumb/zkasino.jpeg?1659405528",
+    "symbol": "ZKAS",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -56329,6 +56716,18 @@
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xc9467e453620f16b57a34a770c6bcebece002587": {
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/",
+    "color": "#DC24AC",
+    "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAADAFBMVEUtN0jYJqz///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD0N0bmAAABAHRSTlP/////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf6K/dgAAQItJREFUeNoBgEB/vwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMAAAAAAAAAAAACAgICAgICAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgICAgICAgEBAQEBAQECAgICAgICAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgICAgICAgEBAQEBAQEBAwMDAwMDAwMDAwMDAwICAgICAgIDAwMDAwMDAwMDAwMDAwMAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAgICAgICAgMBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAQMDAwMDAwMBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAQMDAwMDAwMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwEBAQEBAQEBAQEBAQECAgICAgICAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgICAgICAgEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAwAAAAAAAAAAAAAAAAAAAAAAAAEBAgICAgICAgMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAQMDAwMDAwMBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQECAgICAgICAgICAgICAgICAgICAgICAgICAgICAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQICAgICAgIDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAwMDAwMDAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEDAwMDAwMDAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExLMY8ytfYqAAAAAElFTkSuQmCC",
+    "name": "PBTCCRV",
+    "precision": 18,
+    "symbol": "PBTCCRV",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xc9467e453620f16b57a34a770c6bcebece002587"
   },
   "eip155:1/erc20:0xc949fc82a15964fb5b97e5cf8f9ffed139086821": {
     "assetId": "eip155:1/erc20:0xc949fc82a15964fb5b97e5cf8f9ffed139086821",
@@ -57880,6 +58279,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0xcf5fd05f72ca777d71fb3e38f296aad7ce735cb7": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/AGEUR.svg",
+    "name": "Euler AGEUR Junior Tranche",
+    "precision": 18,
+    "symbol": "AGEUR",
+    "tokenId": "0xcf5fd05f72ca777d71fb3e38f296aad7ce735cb7",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xcf5fd05f72ca777d71fb3e38f296aad7ce735cb7",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xcf78c7dd70d6f30f6e3609e905e78305da98c863": {
     "assetId": "eip155:1/erc20:0xcf78c7dd70d6f30f6e3609e905e78305da98c863",
     "chainId": "eip155:1",
@@ -58083,6 +58495,18 @@
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xd01ef7c0a5d8c432fc2d1a85c66cf2327362e5c6": {
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/",
+    "color": "#046CFC",
+    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xD01ef7C0A5d8c432fc2d1a85c66cF2327362E5C6/logo.png",
+    "name": "aETHb",
+    "precision": 18,
+    "symbol": "aETHb",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xd01ef7c0a5d8c432fc2d1a85c66cf2327362e5c6"
   },
   "eip155:1/erc20:0xd0345d30fd918d7682398acbcdf139c808998709": {
     "assetId": "eip155:1/erc20:0xd0345d30fd918d7682398acbcdf139c808998709",
@@ -60185,6 +60609,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0xd83246d2bcbc00e85e248a6e9aa35d0a1548968e": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/STECRV.svg",
+    "name": "Convex STECRV Junior Tranche",
+    "precision": 18,
+    "symbol": "STECRV",
+    "tokenId": "0xd83246d2bcbc00e85e248a6e9aa35d0a1548968e",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xd83246d2bcbc00e85e248a6e9aa35d0a1548968e",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xd83ae04c9ed29d6d3e6bf720c71bc7beb424393e": {
     "assetId": "eip155:1/erc20:0xd83ae04c9ed29d6d3e6bf720c71bc7beb424393e",
     "chainId": "eip155:1",
@@ -61884,16 +62321,16 @@
     "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0xdef1fac7bf08f173d286bbbdcbeeade695129840": {
-    "assetId": "eip155:1/erc20:0xdef1fac7bf08f173d286bbbdcbeeade695129840",
-    "chainId": "eip155:1",
-    "name": "Cerby",
-    "precision": 18,
-    "color": "#071838",
-    "icon": "https://assets.coingecko.com/coins/images/15792/thumb/cerby.png?1638785791",
-    "symbol": "CERBY",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
+    "explorerTxLink": "https://etherscan.io/tx/",
+    "color": "#071838",
+    "icon": "https://assets.yearn.network/tokens/ethereum/0xdef1fac7bf08f173d286bbbdcbeeade695129840.png",
+    "name": "CERBY",
+    "precision": 18,
+    "symbol": "CERBY",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xdef1fac7bf08f173d286bbbdcbeeade695129840"
   },
   "eip155:1/erc20:0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202": {
     "assetId": "eip155:1/erc20:0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202",
@@ -61939,18 +62376,6 @@
     "color": "#04FAFA",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdf09a216Fac5ADC3e640Db418C0b956076509503/logo.png",
     "symbol": "PKN",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0xdf1338fbafe7af1789151627b886781ba556ef9a": {
-    "assetId": "eip155:1/erc20:0xdf1338fbafe7af1789151627b886781ba556ef9a",
-    "chainId": "eip155:1",
-    "name": "Kuende",
-    "precision": 18,
-    "color": "#ED4145",
-    "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdf1338FbAfe7aF1789151627B886781ba556eF9a/logo.png",
-    "symbol": "KUE",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -62555,6 +62980,19 @@
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0xe0e4839e0c7b2773c58764f9ec3b9622d01a0428"
   },
+  "eip155:1/erc20:0xe0f126236d2a5b13f26e72cbb1d1ff5f297dda07": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/USDT.svg",
+    "name": "Euler USDT Senior Tranche",
+    "precision": 18,
+    "symbol": "USDT",
+    "tokenId": "0xe0f126236d2a5b13f26e72cbb1d1ff5f297dda07",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xe0f126236d2a5b13f26e72cbb1d1ff5f297dda07",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xe1005bfbbc9a17d5d844c7a4371cbf6b2b387380": {
     "assetId": "eip155:1/erc20:0xe1005bfbbc9a17d5d844c7a4371cbf6b2b387380",
     "chainId": "eip155:1",
@@ -62587,6 +63025,19 @@
     "color": "#04C4FB",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xe11609b9a51CAF7d32A55896386aC52ED90e66F1/logo.png",
     "symbol": "CMIT",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xe11679cdb4587fee907d69e9ec4a7d3f0c2bcf3b": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/USDC.svg",
+    "name": "Euler USDC Junior Tranche",
+    "precision": 18,
+    "symbol": "USDC",
+    "tokenId": "0xe11679cdb4587fee907d69e9ec4a7d3f0c2bcf3b",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xe11679cdb4587fee907d69e9ec4a7d3f0c2bcf3b",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -64899,6 +65350,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0xe9ada97bdb86d827ecbaacca63ebcd8201d8b12e": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/DAI.svg",
+    "name": "Idle DAI Senior Tranche",
+    "precision": 18,
+    "symbol": "DAI",
+    "tokenId": "0xe9ada97bdb86d827ecbaacca63ebcd8201d8b12e",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xe9ada97bdb86d827ecbaacca63ebcd8201d8b12e",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xe9cb6838902ccf711f16a9ea5a1170f8e9853c02": {
     "assetId": "eip155:1/erc20:0xe9cb6838902ccf711f16a9ea5a1170f8e9853c02",
     "chainId": "eip155:1",
@@ -65676,18 +66140,6 @@
     "color": "#ECE5E7",
     "icon": "https://assets.coingecko.com/coins/images/9990/thumb/47010860_203643113858754_2966343352238211072_n.jpg?1574373395",
     "symbol": "NTRS",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
-  "eip155:1/erc20:0xecd20f0ebc3da5e514b4454e3dc396e7da18ca6a": {
-    "assetId": "eip155:1/erc20:0xecd20f0ebc3da5e514b4454e3dc396e7da18ca6a",
-    "chainId": "eip155:1",
-    "name": "Cudl Finance",
-    "precision": 18,
-    "color": "#F7D472",
-    "icon": "https://assets.coingecko.com/coins/images/17479/thumb/cudl.PNG?1627950486",
-    "symbol": "CUDL",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -67073,16 +67525,16 @@
     "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0xf1a91c7d44768070f711c68f33a7ca25c8d30268": {
-    "assetId": "eip155:1/erc20:0xf1a91c7d44768070f711c68f33a7ca25c8d30268",
-    "chainId": "eip155:1",
-    "name": "Charli3",
-    "precision": 18,
-    "color": "#E42E2E",
-    "icon": "https://assets.coingecko.com/coins/images/15052/thumb/Charli3-Profile-Icon-1.png?1642643567",
-    "symbol": "C3",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
+    "explorerTxLink": "https://etherscan.io/tx/",
+    "color": "#E42E2E",
+    "icon": "https://assets.yearn.network/tokens/ethereum/0xf1a91c7d44768070f711c68f33a7ca25c8d30268.png",
+    "name": "C3",
+    "precision": 18,
+    "symbol": "C3",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xf1a91c7d44768070f711c68f33a7ca25c8d30268"
   },
   "eip155:1/erc20:0xf1acfb5d95bc090bc55d8ae58a8df4081d73e009": {
     "assetId": "eip155:1/erc20:0xf1acfb5d95bc090bc55d8ae58a8df4081d73e009",
@@ -69561,6 +70013,19 @@
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0xfafdf0c4c1cb09d430bf88c75d88bb46dae09967"
   },
+  "eip155:1/erc20:0xfb08404617b6afab0b19f6ceb2ef9e07058d043c": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/MUSD3CRV.svg",
+    "name": "Convex MUSD3CRV Junior Tranche",
+    "precision": 18,
+    "symbol": "MUSD3CRV",
+    "tokenId": "0xfb08404617b6afab0b19f6ceb2ef9e07058d043c",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xfb08404617b6afab0b19f6ceb2ef9e07058d043c",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xfb130d93e49dca13264344966a611dc79a456bc5": {
     "assetId": "eip155:1/erc20:0xfb130d93e49dca13264344966a611dc79a456bc5",
     "chainId": "eip155:1",
@@ -69910,6 +70375,19 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0xfc558914b53be1dfad084fa5da7f281f798227e7": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/MUSD.svg",
+    "name": "mStable MUSD Senior Tranche",
+    "precision": 18,
+    "symbol": "MUSD",
+    "tokenId": "0xfc558914b53be1dfad084fa5da7f281f798227e7",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xfc558914b53be1dfad084fa5da7f281f798227e7",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xfc82bb4ba86045af6f327323a46e80412b91b27d": {
     "assetId": "eip155:1/erc20:0xfc82bb4ba86045af6f327323a46e80412b91b27d",
     "chainId": "eip155:1",
@@ -69918,6 +70396,19 @@
     "color": "#1E1A27",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xfc82bb4ba86045Af6F327323a46E80412b91b27d/logo.png",
     "symbol": "PROM",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0xfc96989b3df087c96c806318436b16e44c697102": {
+    "color": "#FFFFFF",
+    "icon": "https://raw.githubusercontent.com/Idle-Labs/idle-dashboard/master/public/images/tokens/MIM3CRV.svg",
+    "name": "Convex MIM3CRV Senior Tranche",
+    "precision": 18,
+    "symbol": "MIM3CRV",
+    "tokenId": "0xfc96989b3df087c96c806318436b16e44c697102",
+    "chainId": "eip155:1",
+    "assetId": "eip155:1/erc20:0xfc96989b3df087c96c806318436b16e44c697102",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -71203,6 +71694,18 @@
     "color": "#5958FC",
     "icon": "https://assets.coingecko.com/coins/images/16786/thumb/mimlogopng.png?1624979612",
     "symbol": "MIM",
+    "explorer": "https://snowtrace.io",
+    "explorerAddressLink": "https://snowtrace.io/address/",
+    "explorerTxLink": "https://snowtrace.io/tx/"
+  },
+  "eip155:43114/erc20:0x1337bedc9d22ecbe766df105c9623922a27963ec": {
+    "assetId": "eip155:43114/erc20:0x1337bedc9d22ecbe766df105c9623922a27963ec",
+    "chainId": "eip155:43114",
+    "name": "LP 3pool Curve on Avalanche",
+    "precision": 18,
+    "color": "#18E87A",
+    "icon": "https://assets.coingecko.com/coins/images/12972/thumb/3pool_128.png?1603948039",
+    "symbol": "3CRV",
     "explorer": "https://snowtrace.io",
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
@@ -72755,6 +73258,18 @@
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
   },
+  "eip155:43114/erc20:0x5f018e73c185ab23647c82bd039e762813877f0e": {
+    "assetId": "eip155:43114/erc20:0x5f018e73c185ab23647c82bd039e762813877f0e",
+    "chainId": "eip155:43114",
+    "name": "BUILD on Avalanche",
+    "precision": 18,
+    "color": "#EC1C24",
+    "icon": "https://assets.coingecko.com/coins/images/26533/thumb/BUILD.png?1658714842",
+    "symbol": "BUILD",
+    "explorer": "https://snowtrace.io",
+    "explorerAddressLink": "https://snowtrace.io/address/",
+    "explorerTxLink": "https://snowtrace.io/tx/"
+  },
   "eip155:43114/erc20:0x5fc17416925789e0852fbfcd81c490ca4abc51f9": {
     "assetId": "eip155:43114/erc20:0x5fc17416925789e0852fbfcd81c490ca4abc51f9",
     "chainId": "eip155:43114",
@@ -73315,18 +73830,6 @@
     "color": "#EEE1E7",
     "icon": "https://assets.coingecko.com/coins/images/21483/thumb/kittyicon-white.d1fdf9f3.png?1639360102",
     "symbol": "KITTY",
-    "explorer": "https://snowtrace.io",
-    "explorerAddressLink": "https://snowtrace.io/address/",
-    "explorerTxLink": "https://snowtrace.io/tx/"
-  },
-  "eip155:43114/erc20:0x78bf833aae77ebf62c21a9a5a6993a691810f2e1": {
-    "assetId": "eip155:43114/erc20:0x78bf833aae77ebf62c21a9a5a6993a691810f2e1",
-    "chainId": "eip155:43114",
-    "name": "Ice Dao",
-    "precision": 9,
-    "color": "#FB5455",
-    "icon": "https://assets.coingecko.com/coins/images/21361/thumb/ICEDAO-modified.png?1639013823",
-    "symbol": "ICY",
     "explorer": "https://snowtrace.io",
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
@@ -75311,6 +75814,18 @@
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
   },
+  "eip155:43114/erc20:0xd39016475200ab8957e9c772c949ef54bda69111": {
+    "assetId": "eip155:43114/erc20:0xd39016475200ab8957e9c772c949ef54bda69111",
+    "chainId": "eip155:43114",
+    "name": "deUSDC",
+    "precision": 18,
+    "color": "#DB6B8A",
+    "icon": "https://assets.coingecko.com/coins/images/26669/thumb/deUSDC.png?1659509853",
+    "symbol": "DEUSDC",
+    "explorer": "https://snowtrace.io",
+    "explorerAddressLink": "https://snowtrace.io/address/",
+    "explorerTxLink": "https://snowtrace.io/tx/"
+  },
   "eip155:43114/erc20:0xd3df6106346ac91ce76d1adf291a68581d3fa782": {
     "assetId": "eip155:43114/erc20:0xd3df6106346ac91ce76d1adf291a68581d3fa782",
     "chainId": "eip155:43114",
@@ -75523,18 +76038,6 @@
     "color": "#D4A454",
     "icon": "https://assets.coingecko.com/coins/images/16217/thumb/Icon-1000x1000.png?1623316471",
     "symbol": "GEM",
-    "explorer": "https://snowtrace.io",
-    "explorerAddressLink": "https://snowtrace.io/address/",
-    "explorerTxLink": "https://snowtrace.io/tx/"
-  },
-  "eip155:43114/erc20:0xdef1fac7bf08f173d286bbbdcbeeade695129840": {
-    "assetId": "eip155:43114/erc20:0xdef1fac7bf08f173d286bbbdcbeeade695129840",
-    "chainId": "eip155:43114",
-    "name": "Cerby on Avalanche",
-    "precision": 18,
-    "color": "#071838",
-    "icon": "https://assets.coingecko.com/coins/images/15792/thumb/cerby.png?1638785791",
-    "symbol": "CERBY",
     "explorer": "https://snowtrace.io",
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
@@ -75875,18 +76378,6 @@
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"
   },
-  "eip155:43114/erc20:0xf14f4ce569cb3679e99d5059909e23b07bd2f387": {
-    "assetId": "eip155:43114/erc20:0xf14f4ce569cb3679e99d5059909e23b07bd2f387",
-    "chainId": "eip155:43114",
-    "name": "NXUSD",
-    "precision": 18,
-    "color": "#0566DC",
-    "icon": "https://assets.coingecko.com/coins/images/25101/thumb/nxusd-logo.png?1650286304",
-    "symbol": "NXUSD",
-    "explorer": "https://snowtrace.io",
-    "explorerAddressLink": "https://snowtrace.io/address/",
-    "explorerTxLink": "https://snowtrace.io/tx/"
-  },
   "eip155:43114/erc20:0xf30c5083a1479865c9a8916dec6ddadd82e8907b": {
     "assetId": "eip155:43114/erc20:0xf30c5083a1479865c9a8916dec6ddadd82e8907b",
     "chainId": "eip155:43114",
@@ -75955,6 +76446,18 @@
     "color": "#AA9070",
     "icon": "https://assets.coingecko.com/coins/images/22419/thumb/VoltToken.png?1641807414",
     "symbol": "VOLT",
+    "explorer": "https://snowtrace.io",
+    "explorerAddressLink": "https://snowtrace.io/address/",
+    "explorerTxLink": "https://snowtrace.io/tx/"
+  },
+  "eip155:43114/erc20:0xf6557bc62ac67744961479ea6c131b61444714d6": {
+    "assetId": "eip155:43114/erc20:0xf6557bc62ac67744961479ea6c131b61444714d6",
+    "chainId": "eip155:43114",
+    "name": "Vacus Finance",
+    "precision": 18,
+    "color": "#F9E4C4",
+    "icon": "https://assets.coingecko.com/coins/images/26666/thumb/logo200.png?1659500028",
+    "symbol": "VCS",
     "explorer": "https://snowtrace.io",
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"

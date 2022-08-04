@@ -1,0 +1,52 @@
+{
+  "name": "@shapeshiftoss/investor-idle",
+  "version": "1.0.0",
+  "description": "An api layer for interaction with the ShapeShift Idle Router Contract and the Idle Vault contracts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist",
+    "src": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=14.18.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json",
+    "dev": "tsc --watch",
+    "prepare": "yarn build",
+    "test": "jest --coverage",
+    "cli": "yarn build && node ./dist/idlecli.js"
+  },
+  "dependencies": {
+    "@ethersproject/providers": "^5.5.3",
+    "bignumber.js": "^9.0.2",
+    "lodash": "^4.17.21",
+    "web3": "1.7.4",
+    "web3-core": "1.7.4",
+    "web3-utils": "1.7.4"
+  },
+  "peerDependencies": {
+    "@shapeshiftoss/caip": "^6.7.0",
+    "@shapeshiftoss/chain-adapters": "^7.13.0",
+    "@shapeshiftoss/hdwallet-core": "^1.23.0",
+    "@shapeshiftoss/investor": "^1.0.1",
+    "@shapeshiftoss/types": "^8.1.0"
+  },
+  "devDependencies": {
+    "@shapeshiftoss/caip": "^6.7.0",
+    "@shapeshiftoss/chain-adapters": "^7.13.0",
+    "@shapeshiftoss/hdwallet-core": "^1.23.0",
+    "@shapeshiftoss/investor": "^1.0.1",
+    "@shapeshiftoss/types": "^8.1.0",
+    "@shapeshiftoss/unchained-client": "^9.5.0"
+  }
+}

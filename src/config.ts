@@ -17,6 +17,8 @@ const validators = {
   REACT_APP_UNCHAINED_AVALANCHE_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
+  REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_BITCOINCASH_WS_URL: url(),
   REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_DOGECOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_LITECOIN_HTTP_URL: url(),
@@ -50,6 +52,7 @@ const validators = {
   REACT_APP_FEATURE_THOR: bool({ default: false }),
   REACT_APP_FEATURE_LITECOIN: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
+  REACT_APP_FEATURE_BITCOINCASH: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier

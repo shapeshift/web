@@ -12,6 +12,8 @@ export enum DefiProvider {
   Idle = 'idle',
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
+  Cosmos = 'Cosmos',
+  Osmosis = 'Osmosis',
 }
 
 export enum DefiAction {

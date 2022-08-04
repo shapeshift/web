@@ -4,6 +4,7 @@ import {
   accountIdToChainId,
   AssetId,
   avalancheChainId,
+  bchChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   ChainId,
@@ -93,6 +94,8 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
       if (specifier.startsWith('ypub')) return 'SEGWIT'
       if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
       return ''
+    case bchChainId:
+      return 'Bitcoin Cash'
     case cosmosChainId:
       return 'Cosmos'
     case osmosisChainId:

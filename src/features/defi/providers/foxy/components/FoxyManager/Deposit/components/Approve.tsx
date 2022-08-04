@@ -152,6 +152,7 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
       }
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
+      contractAddress={contractAddress}
     />
   )
 }

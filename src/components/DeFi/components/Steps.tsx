@@ -12,6 +12,7 @@ type StepConfig = {
   label: string
   component: React.ElementType<StepComponentProps>
   description?: string
+  props?: Record<string, any>
 }
 
 export type DefiStepProps = { [key in DefiStep]?: StepConfig }
@@ -54,7 +55,7 @@ export const Steps: React.FC<StepsProps> = ({
                 isComplete={currentStep > index}
                 isActive={currentStep === index}
               >
-                <Component onNext={handleNext} />
+                <Component onNext={handleNext} {...Step.props} />
               </StepRow>
             )
           })}

@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { ssRouterContractAddress } from '@shapeshiftoss/investor-yearn'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import {
@@ -157,6 +158,7 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
+      contractAddress={ssRouterContractAddress}
     />
   )
 }

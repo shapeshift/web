@@ -1,4 +1,4 @@
-import { AssetId, cosmosAssetId, cosmosChainId, toAccountId } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { HistoryData, HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -26,7 +26,6 @@ import {
   PortfolioBalancesById,
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
-  selectAccountSpecifiers,
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
@@ -34,7 +33,6 @@ import {
   selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPriceHistoriesLoadingByAssetTimeframe,
-  selectTotalStakingDelegationCryptoByAccountSpecifier,
   selectTxsByFilter,
 } from 'state/slices/selectors'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
@@ -42,7 +40,7 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { selectTxHistoryStatus } from './../../state/slices/txHistorySlice/selectors'
-import { includeStakedBalance, includeTransaction } from './cosmosUtils'
+import { includeTransaction } from './cosmosUtils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
@@ -201,26 +199,15 @@ type CalculateBucketPricesArgs = {
   portfolioAssets: PortfolioAssets
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
-  delegationTotal: string
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const {
-    assetIds,
-    buckets,
-    portfolioAssets,
-    cryptoPriceHistoryData,
-    fiatPriceHistoryData,
-    delegationTotal,
-  } = args
+  const { assetIds, buckets, portfolioAssets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
 
   const startingBucket = buckets[buckets.length - 1]
-
-  // add total cosmos staked balance to starting balance if cosmos is in assetIds
-  buckets[buckets.length - 1] = includeStakedBalance(startingBucket, delegationTotal, assetIds)
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -315,12 +302,8 @@ type UseBalanceChartDataArgs = {
 type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDataReturn
 
 /*
-  this whole implementation is kind of jank, but it's the data we have to work with
   we take the current asset balances, and work backwards, updating crypto
   balances and fiat prices for each time interval (bucket) of the chart
-
-  this can leave residual value at the beginning of charts, or inaccuracies
-  especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
@@ -331,25 +314,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   const balances = useAppSelector(state =>
     selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
-  )
-
-  // Get total delegation
-  // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const accountSpecifiers = useSelector(selectAccountSpecifiers)
-  const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
-    if (accountSpecifier[cosmosChainId]) {
-      acc = accountSpecifier[cosmosChainId]
-    }
-    return acc
-  }, '')
-
-  const cosmosAccountSpecifier = account ? toAccountId({ chainId: cosmosChainId, account }) : ''
-
-  const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
-      accountSpecifier: cosmosAccountSpecifier,
-      assetId: cosmosAssetId,
-    }),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)
@@ -423,7 +387,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
       portfolioAssets,
-      delegationTotal,
     })
 
     debugCharts({ assets, calculatedBuckets, timeframe, txs })
@@ -447,7 +410,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     portfolioAssets,
     walletInfo?.deviceId,
     rebases,
-    delegationTotal,
     txHistoryStatus,
   ])
 

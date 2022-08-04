@@ -453,9 +453,13 @@ export const selectTotalCryptoBalanceWithDelegations = createSelector(
 )
 
 /**
- * this selector is very specific
- * we need to consider balances above a threshold, and including delegations
- * as delegations don't show in account balances, but we want them included in the total
+ * this selector is very specific; we need to consider
+ * - raw account balances, that are
+ * - above a threshold, including
+ *   - delegations
+ *   - redelegations
+ *   - undelegations
+ *   as delegations don't show in account balances, but we want them included in the total
  */
 export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
   createDeepEqualOutputSelector(
@@ -464,6 +468,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectPortfolioAssetBalances,
     selectMarketData,
     selectBalanceThreshold,
+    selectPortfolioAccounts,
     (_state: ReduxState, accountId?: string) => accountId,
     (
       assetsById,
@@ -471,12 +476,31 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       assetBalances,
       marketData,
       balanceThreshold,
+      portfolioAccounts,
       accountId,
     ): PortfolioBalancesById => {
-      const balances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
-      const aboveThresholdBalances = Object.entries(balances).reduce<
-        PortfolioAssetBalances['byId']
-      >((acc, [assetId, baseUnitBalance]) => {
+      const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
+      // includes delegation, redelegation, and undelegation balances
+      const totalBalancesIncludingAllDelegationStates: PortfolioBalancesById = Object.entries(
+        portfolioAccounts,
+      ).reduce((acc, [accountSpecifier, account]) => {
+        Object.entries(account?.stakingDataByValidatorId ?? {}).forEach(
+          ([_validatorPubKey, stakingDataByAccountSpecifier]) => {
+            const stakingData = stakingDataByAccountSpecifier[accountSpecifier]
+            const { delegations, redelegations, undelegations } = stakingData
+            const redelegationEntries = redelegations.flatMap(redelegation => redelegation.entries)
+            const combined = [...delegations, ...redelegationEntries, ...undelegations]
+            combined.forEach(entry => {
+              const { assetId, amount } = entry
+              acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
+            })
+          },
+        )
+        return acc
+      }, rawBalances)
+      const aboveThresholdBalances = Object.entries(
+        totalBalancesIncludingAllDelegationStates,
+      ).reduce<PortfolioAssetBalances['byId']>((acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)

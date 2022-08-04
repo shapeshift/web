@@ -75,13 +75,13 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     ;(async () => {
       try {
         // We can't use axelarQuerySdk.getTransferFee() because of a CORS issue with the SDK
-        const url = `https://axelartest-lcd.quickapi.com/axelar/nexus/v1beta1/transfer_fee?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=100uusd`
+        const url = `https://9bo26t9rjb.execute-api.ap-southeast-2.amazonaws.com/apotheosis?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=100uusd`
         const {
           data: {
             fee: { amount },
           },
-        } = await axios.get(`${url}`)
-        setValue('transferFeeUsdc', fromBaseUnit(amount, 4))
+        } = await axios.get(url)
+        setValue('transferFeeUsdc', fromBaseUnit(amount, 7))
 
         setIsLoadingFeeEstimates(false)
       } catch (e) {

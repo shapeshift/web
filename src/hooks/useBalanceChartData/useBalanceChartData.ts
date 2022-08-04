@@ -1,6 +1,6 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryData, HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -222,10 +222,9 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
       if (tx.fee && assetIds.includes(tx.fee.assetId)) {
-        // balance history being built in descending order, so fee means we had more before
-        // TODO(0xdef1cafe): this is awful but gets us out of trouble
-        // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
-        if (tx.chain !== KnownChainIds.BitcoinMainnet) {
+        // don't count fees for UTXO chains
+        if (fromChainId(tx.chain).chainNamespace !== CHAIN_NAMESPACE.Bitcoin) {
+          // balance history being built in descending order, so fee means we had more before
           bucket.balance.crypto[tx.fee.assetId] = bucket.balance.crypto[tx.fee.assetId].plus(
             bnOrZero(tx.fee.value),
           )

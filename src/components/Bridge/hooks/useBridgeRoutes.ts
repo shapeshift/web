@@ -2,6 +2,7 @@ import { avalancheChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import {
@@ -20,8 +21,10 @@ export const useBridgeRoutes = (): {
   const history = useHistory()
   const { setValue } = useFormContext<BridgeState>()
   const {
-    state: { walletInfo },
+    state: { wallet },
   } = useWallet()
+
+  const chainAdapterManager = getChainAdapterManager()
 
   const getAxelarChainNameFromBridgeAsset = (asset: BridgeAsset) => {
     const chainId = fromAssetId(asset.assetId).chainId
@@ -37,13 +40,20 @@ export const useBridgeRoutes = (): {
 
   const handleAssetClick = useCallback(
     async (asset: BridgeAsset) => {
+      const chainId = fromAssetId(asset.assetId).chainId
+      const chainAdapter = chainAdapterManager.get(chainId)
+      if (!(wallet && chainAdapter)) return
+      const accountAddress = await chainAdapter.getAddress({
+        wallet,
+      })
+
       const fromChainLabel = getAxelarChainNameFromBridgeAsset(asset)
       const fromChain = asset.implementations?.[fromChainLabel.toLowerCase()]
       try {
         const { implementations } = asset
         const chains = Object.keys(implementations ?? {})
         setValue('asset', asset, { shouldValidate: true })
-        setValue('receiveAddress', walletInfo?.meta?.address)
+        setValue('receiveAddress', accountAddress)
         setValue('fromChain', fromChain, { shouldValidate: true })
         if (chains.length === 2) {
           // There is only one option left for the toChain, select it automatically
@@ -59,7 +69,7 @@ export const useBridgeRoutes = (): {
         console.warn(e)
       }
     },
-    [setValue, walletInfo?.meta?.address, history],
+    [chainAdapterManager, wallet, setValue, history],
   )
 
   const handleFromChainClick = useCallback(

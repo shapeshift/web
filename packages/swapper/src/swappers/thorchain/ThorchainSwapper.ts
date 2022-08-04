@@ -194,9 +194,13 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           cause: responseData
         })
 
+      const standardBuyTxid = responseData?.actions[0]?.out[0]?.coins[0]?.asset.startsWith('ETH.')
+        ? `0x${buyTxid}`
+        : buyTxid
+
       return {
         sellTxid: tradeResult.tradeId,
-        buyTxid: buyTxid.toLowerCase()
+        buyTxid: standardBuyTxid.toLowerCase()
       }
     } catch (e) {
       if (e instanceof SwapError) throw e

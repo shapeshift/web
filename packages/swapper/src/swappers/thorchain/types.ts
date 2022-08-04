@@ -21,7 +21,11 @@ export type PoolResponse = {
   volume24h: string
 }
 
+type MidardCoins = {
+  asset: string
+}[]
 type MidgardActionOut = {
+  coins: MidardCoins
   txID: string
 }
 type MidgardAction = {

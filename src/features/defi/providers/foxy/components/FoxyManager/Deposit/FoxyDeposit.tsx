@@ -113,7 +113,7 @@ export const FoxyDeposit = () => {
         component: Status,
       },
     }
-  }, [translate, asset.symbol])
+  }, [contractAddress, translate, asset.symbol])
 
   if (loading || !asset || !marketData) {
     return (

@@ -40,7 +40,7 @@ import {
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { includeTransaction } from './cosmosUtils'
+import { excludeTransaction } from './cosmosUtils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
@@ -231,14 +231,14 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         }
       }
 
-      // Identify Special cases where we should not include cosmos delegate/undelegate txs in chart balance
-      const includeTx = includeTransaction(tx)
+      // Identify Special cases where we should exclude cosmos delegate/undelegate/claim txs in chart balance
+      const excludeTx = excludeTransaction(tx)
 
       tx.transfers.forEach(transfer => {
         const asset = transfer.assetId
 
         if (!assetIds.includes(asset)) return
-        if (!includeTx) return
+        if (excludeTx) return
         if (tx.status === TxStatus.Failed) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])

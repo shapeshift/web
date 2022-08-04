@@ -395,7 +395,7 @@
     "confirmAndTrade": "Confirm and Trade",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
-    "needPermission": "We need your permission to use your %{symbol}",
+    "needPermission": "needs your permission to use your %{symbol}",
     "whyNeedThis": "Why do I need to do this?",
     "estimatedGasFee": "Estimated Gas Fee",
     "approvingAsset": "Approving %{symbol}",
@@ -652,7 +652,8 @@
     },
     "approve": {
       "header": "Allow ShapeShift DAO Router to use your %{asset}",
-      "body": "We need your permission to use your %{asset}",
+      "routerName": "ShapeShift DAO Router",
+      "body": "needs your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be a separate gas fee to deposit.",
       "estimatedGas": "Estimated Gas Fee",

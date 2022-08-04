@@ -119,6 +119,9 @@ export const FoxyWithdraw = () => {
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: Approve,
+        props: {
+          contractAddress,
+        },
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

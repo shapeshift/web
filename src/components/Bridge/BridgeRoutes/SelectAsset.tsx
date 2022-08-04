@@ -12,6 +12,7 @@ import {
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioBridgeAssets } from 'state/slices/portfolioSlice/selectors'
 
 import { BridgeAsset, BridgeRoutePaths } from '../types'
@@ -57,12 +58,15 @@ type SelectAssetProps = {
 } & RouteComponentProps
 
 export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) => {
-  const assets = useSelector(selectPortfolioBridgeAssets)
-  const supportedAssets = assets
+  // FIXME: clean up - this whole section is utter garbage
+  const portfolioAssets = useSelector(selectPortfolioBridgeAssets)
+  const allAssets = useSelector(selectAssets)
+  const supportedAssets = portfolioAssets
     .filter(asset => !!getBridgeDestinationAsset(asset.assetId))
     .map(filteredAsset => {
       const destinationAssetId = getBridgeDestinationAsset(filteredAsset.assetId)
-      const destinationAsset = assets.find(a => a.assetId === destinationAssetId)
+      const destinationAsset = destinationAssetId ? allAssets[destinationAssetId] : undefined
+      const destinationBridgeAsset = portfolioAssets.find(a => a.assetId === destinationAssetId)
       const maybeUnwrappedAsset = unwrapAxelarAssetIdFromAvalancheToEthereum(filteredAsset.assetId)
       const implementations = maybeUnwrappedAsset
         ? {
@@ -75,8 +79,8 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
             },
             ethereum: {
               name: 'Ethereum',
-              balance: destinationAsset?.cryptoAmount ?? '0',
-              fiatBalance: destinationAsset?.fiatAmount ?? '0',
+              balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmount : '0',
+              fiatBalance: destinationBridgeAsset ? destinationBridgeAsset.fiatAmount : '0',
               symbol: destinationAsset?.symbol ?? '',
               color: '#627EEA',
             },
@@ -84,8 +88,8 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
         : {
             avalanche: {
               name: 'Avalanche',
-              balance: destinationAsset?.cryptoAmount ?? '0',
-              fiatBalance: destinationAsset?.fiatAmount ?? '0',
+              balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmount : '0',
+              fiatBalance: destinationBridgeAsset ? destinationBridgeAsset.fiatAmount : '0',
               symbol: destinationAsset?.symbol ?? '',
               color: '#E84142',
             },

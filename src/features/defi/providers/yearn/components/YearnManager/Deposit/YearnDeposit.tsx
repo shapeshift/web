@@ -118,7 +118,7 @@ export const YearnDeposit = () => {
         component: Status,
       },
     }
-  }, [asset.symbol, translate])
+  }, [vaultAddress, asset.symbol, translate])
 
   if (loading || !asset || !marketData || !api) {
     return (

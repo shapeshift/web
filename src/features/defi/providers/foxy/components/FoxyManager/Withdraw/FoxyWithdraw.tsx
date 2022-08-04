@@ -132,7 +132,7 @@ export const FoxyWithdraw = () => {
         component: Status,
       },
     }
-  }, [translate, underlyingAsset.symbol])
+  }, [contractAddress, translate, underlyingAsset.symbol])
 
   const handleBack = () => {
     history.push({

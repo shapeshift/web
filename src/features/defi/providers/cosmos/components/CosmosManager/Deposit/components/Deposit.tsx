@@ -7,7 +7,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -46,54 +46,58 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
+  const handleContinue = useCallback(
+    async (formValues: DepositValues) => {
+      if (!(state && dispatch && state.userAddress)) return
+
+      const getStakingGasEstimate = async () => {
+        if (!state.userAddress || !assetReference) return
+
+        const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
+
+        try {
+          return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+        } catch (error) {
+          moduleLogger.error(
+            { fn: 'getStakingGasEstimate', error },
+            'Error getting deposit gas estimate',
+          )
+          toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
+
+      // set deposit state for future use
+      dispatch({ type: CosmosDepositActionType.SET_DEPOSIT, payload: formValues })
+      dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
+      try {
+        const estimatedGasCrypto = await getStakingGasEstimate()
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: CosmosDepositActionType.SET_DEPOSIT,
+          payload: { estimatedGasCrypto },
+        })
+        onNext(DefiStep.Confirm)
+        dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+        dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+      }
+    },
+    [asset, assetReference, dispatch, marketData.price, onNext, state, toast, translate],
+  )
+
   if (!state || !dispatch) return null
-
-  const getStakingGasEstimate = async () => {
-    if (!state.userAddress || !assetReference) return
-
-    const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
-
-    try {
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getStakingGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
-  const handleContinue = async (formValues: DepositValues) => {
-    if (!state.userAddress) return
-    // set deposit state for future use
-    dispatch({ type: CosmosDepositActionType.SET_DEPOSIT, payload: formValues })
-    dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
-    try {
-      const estimatedGasCrypto = await getStakingGasEstimate()
-      if (!estimatedGasCrypto) return
-      dispatch({
-        type: CosmosDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
-      })
-      onNext(DefiStep.Confirm)
-      dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
-    } catch (error) {
-      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-      dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
-    }
-  }
 
   const handleCancel = history.goBack
 

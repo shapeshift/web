@@ -4,7 +4,7 @@ import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -66,9 +66,9 @@ export const Status = () => {
     }
   }, [confirmedTransaction, dispatch])
 
-  const handleViewPosition = () => {
+  const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
-  }
+  }, [browserHistory])
 
   const handleCancel = () => {
     browserHistory.goBack()

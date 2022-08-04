@@ -1,22 +1,23 @@
-import qs from 'qs'
-import { Text } from 'components/Text'
-import { Card } from 'components/Card/Card'
-import { useAppSelector } from 'state/store'
-import { StakingTable } from './StakingTable'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Box, Button, HStack } from '@chakra-ui/react'
+import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
-import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { Box, Button, HStack } from '@chakra-ui/react'
-import { selectAssetById } from 'state/slices/selectors'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
+import { Card } from 'components/Card/Card'
+import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+import { StakingTable } from './StakingTable'
 
 type EarnOpportunitiesProps = {
   tokenId?: string

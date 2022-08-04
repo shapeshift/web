@@ -15,6 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
@@ -23,6 +24,10 @@ import {
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Yearn', 'YearnOverview'],
+})
 
 export const YearnOverview = () => {
   const { yearn: api } = useYearn()
@@ -73,7 +78,7 @@ export const YearnOverview = () => {
         setOpportunity(opportunity)
       } catch (error) {
         // TODO: handle client side errors
-        console.error('YearnDeposit error:', error)
+        moduleLogger.error(error, 'YearnDeposit error')
       }
     })()
   }, [api, vaultAddress, chainId, toast, translate])

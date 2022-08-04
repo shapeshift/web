@@ -4,7 +4,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -39,15 +39,15 @@ export const Status = () => {
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  if (!state || !dispatch) return null
-
-  const handleViewPosition = () => {
+  const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
-  }
+  }, [browserHistory])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
+
+  if (!state || !dispatch) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {

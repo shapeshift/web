@@ -1,4 +1,4 @@
-import { createStandaloneToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -24,7 +24,8 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -36,8 +37,14 @@ import {
   accountSpecifiers,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  marketApi,
+  useFindAllQuery,
+  useFindByFiatSymbolQuery,
+  useFindPriceHistoryByFiatSymbolQuery,
+} from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
@@ -65,7 +72,8 @@ const moduleLogger = logger.child({ namespace: ['AppContext'] })
  *
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const { ToastContainer } = createStandaloneToast()
+  const toast = useToast()
+  const translate = useTranslate()
   const dispatch = useDispatch()
   const { supportedChains } = usePlugins()
   const chainAdapterManager = getChainAdapterManager()
@@ -289,31 +297,42 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   /**
    * fetch forex spot and history for user's selected currency
    */
-  const selectedCurrency = useAppSelector(state => selectSelectedCurrency(state))
+  const currency = useAppSelector(state => selectSelectedCurrency(state))
+  const timeframe = DEFAULT_HISTORY_TIMEFRAME
+  const priceHistoryArgs = useMemo(() => ({ symbol: currency, timeframe }), [currency, timeframe])
+  const { error: fiatPriceHistoryError } = useFindPriceHistoryByFiatSymbolQuery(priceHistoryArgs)
+  const { error: forexRateError } = useFindByFiatSymbolQuery(priceHistoryArgs)
+
   useEffect(() => {
-    const symbol = selectedCurrency
-    const timeframe = DEFAULT_HISTORY_TIMEFRAME
-    const getFiatPriceHistory = marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate
-    const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
-    dispatch(getFiatPriceHistory({ symbol, timeframe }))
-    dispatch(fetchForexRate({ symbol }))
-  }, [dispatch, selectedCurrency])
+    /**
+     * crypto market data is denominated in USD and is the "safe" condition we can
+     * recover from failures on
+     */
+    if (currency === 'USD') return
+    if (fiatPriceHistoryError || forexRateError) {
+      toast({
+        position: 'top-right',
+        title: translate('multiCurrency.toast.title', { symbol: currency }),
+        description: translate('multiCurrency.toast.description'),
+        status: 'error',
+        duration: null, // don't auto-dismiss
+        isClosable: true,
+      })
+      dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
+    }
+    // setting symbol causes infinite render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, fiatPriceHistoryError, forexRateError, toast])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route
   useEffect(() => {
     // early return for routes that don't contain an assetId, no need to refetch marketData granularly
     if (!routeAssetId) return
-
     dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist
-  return (
-    <>
-      <ToastContainer />
-      {Boolean(assetIds.length) && children}
-    </>
-  )
+  return <>{Boolean(assetIds.length) && children}</>
 }

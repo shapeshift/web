@@ -1,9 +1,18 @@
+/**
+ * use demo wallet seed from @tshifty at https://iancoleman.io/bip39/ to generate
+ *
+ * under "Derivation Path" section, use bip32 with a custom derivation path
+ */
 export const PublicWalletXpubs = [
   'xpub661MyMwAqRbcH2gnL9ViCgCpEiBmM7URHsDUGm6jLm7dhXA6ezQZfdCvoehbzn45TQC9iCcUmEFfYrpQXwJhUFYRG1RZfVyXQ8Y9Ffc13oK', // demo seed root key
   'xpub684Yh5UsSGwgDtrEoLqJxtWdRJeYnpsVvYML9RhgrLHifLrqHqsYrqTm65C2PoyBuxCuruMYDoJ3nrkrxMcRCFDHBV5MDsoD7ryYwGGHwzY', // demo seed m/44'
   'xpub6AbTXd2k7UBDcm6o9iYiZ1oGjCiE9GbDvHQnRmEMk5vV1bBEnSchSGgd2sySQQew7TtJusRq7TuTWeFkAc69ddH87cxM8bHXfq9SgQexgFH', // demo seed m/44'/0'
   'xpub6CqdGe3Jt9L1HNxgCkUSjemBoLiXUGvHQykJ6xgZXgWDHP15vQLJPV66ivRbspUsULrsFwfD431qhTzBMuUtBXx8L6VpK5ECaroyzNvddES', // demo seed m/44'/0'/0'
   'dgub8q7H7P5LeZYdu3bsuQbjFyxHVNLgCenTypQwCdUKvhJMg6NoKK6aUZUM7G7oidvYyXPbsWbb9WWTgZLVf1jgmaYKBE77qApCmdXqTtnJ7DX', // demo seed m/44'/3'
+  'xpub6AbTXd2k7UBKxtDYCt3Hw962WpGKHebzMk4DvaXn2TdiLs4PwgLwTpMKaGqr11ChNiUkxbvcftQEayPt9s4nGcinzwCuhJHqyPoFukp2Gba', // demo seed m/44'/145'    BCH
+  'xpub6CNfjXxiDDT9s8MZT3rWxhboqXNr6CseFRWh9DpgnKQK9n2j9kDLbeWuFbnbQp5Etvg4BszAorUkdRLe75J1YH5xqzHExXNUtYFYNBBZjrV', // demo seed m/44'/145'/0'
+  'Ltub2X2ZzGEmzuVDvyR4Yxbji5HKJJDXvEx1jhpXDEj65xkW67zs4F9rPs248VsP6UpU9m23vAxPkZNCW3sXiDGeivs8nKovkxqpkNdXavgWBaM', // demo seed m/44'/2'      LTC
+  'Ltub2YRbEesEiQFya2jAqSiqL4pdLXYtG1sHuY34rbPYnSSNBVyVcbdBRVWLUAoDZ5kMwUH3pctUf2oniLCu52c3xqXs4NqeeJ6KndA7VeuE8of', // demo seed m/44'/2'/0'
   'dgub8sRkD1szAxkru3oo3fhoXNjvaKDLagf2VvTw58ngHQK8jiSJ7d9gYpT2MU6fyHtBDsbUzSXTkv7UXaTZJiZeUijuc3MUXbfrCJMXW58CUwf', // demo seed m/44'/3'/0'
   'xpub6AbTXd2k7UBGDLSazXMo4vVY18W8iW8PXMz4tFnu9if2FN7pTvTrNujEfikeZZDtjLrPNKkB9TR8igUgkgLQ8PVPgUgpf1DRMMaVFa6ruXq', // demo seed m/44'/60'
   'xpub6CAWCBLnE7AFtoAcfjcms1M636qotvdaaDHb75kwGAduwV7rQe7qFzCLZyefLJPchro2ejuuJjPQNhyBvcgKzFzfnVTeoqxA83LmoWfreNT', // demo seed m/44'/60'/0'

@@ -18,6 +18,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import {
   selectAssetById,
@@ -33,6 +34,10 @@ import { Status } from './components/Status'
 import { CosmosDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosDeposit'],
+})
 
 export const CosmosDeposit = () => {
   const translate = useTranslate()
@@ -79,7 +84,7 @@ export const CosmosDeposit = () => {
         })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('CosmosDeposit error:', error)
+        moduleLogger.error(error, 'CosmosDeposit error')
       }
     })()
   }, [chainId, cosmosOpportunity, apr, contractAddress, walletState.wallet])
@@ -110,8 +115,7 @@ export const CosmosDeposit = () => {
         component: Status,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset.symbol])
+  }, [asset.symbol, translate])
 
   if (loading || !asset || !marketData) {
     return (

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.6.0...@shapeshiftoss/swapper-v9.6.1) (2022-08-04)
+
+
+### Bug Fixes
+
+* fix bch swaps and fix detecting swaps into eth assets ([#945](https://github.com/shapeshift/lib/issues/945)) ([1d9b8d8](https://github.com/shapeshift/lib/commit/1d9b8d8b0cae1ea2bba92f737c8851d43f222c36))
+
 # [@shapeshiftoss/swapper-v9.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.5.0...@shapeshiftoss/swapper-v9.6.0) (2022-08-03)
 
 

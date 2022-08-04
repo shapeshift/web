@@ -33,13 +33,13 @@ import {
   selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPriceHistoriesLoadingByAssetTimeframe,
+  selectRebasesByFilter,
+  selectTxHistoryStatus,
   selectTxsByFilter,
 } from 'state/slices/selectors'
-import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { selectTxHistoryStatus } from './../../state/slices/txHistorySlice/selectors'
 import { includeTransaction } from './cosmosUtils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
@@ -328,15 +328,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // rebasing token balances can be adjusted by rebase events rather than txs
   // and we need to account for this in charts
   const rebases = useAppSelector(state => selectRebasesByFilter(state, txFilter))
-
-  // the portfolio page is simple - consider all txs and all portfolio asset ids
-  // across all accounts - just don't filter for accounts
-
-  // there are a few different situations for
-  // - top level asset pages - zero or more account ids
-  // - an asset account page, e.g. show me the eth for 0xfoo - a single account id
-  // - an account asset page, e.g. show me the fox for 0xbar - a single account id
-  // this may seem complicated, but we just need txs filtered by account ids
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })

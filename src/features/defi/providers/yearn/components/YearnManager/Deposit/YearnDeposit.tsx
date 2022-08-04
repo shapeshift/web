@@ -105,6 +105,9 @@ export const YearnDeposit = () => {
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: Approve,
+        props: {
+          contractAddress: vaultAddress,
+        },
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
@@ -115,7 +118,7 @@ export const YearnDeposit = () => {
         component: Status,
       },
     }
-  }, [asset.symbol, translate])
+  }, [vaultAddress, asset.symbol, translate])
 
   if (loading || !asset || !marketData || !api) {
     return (

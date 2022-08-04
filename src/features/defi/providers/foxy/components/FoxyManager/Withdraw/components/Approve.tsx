@@ -159,6 +159,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       }
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
+      contractAddress={contractAddress}
     />
   )
 }

@@ -1,0 +1,7 @@
+/* our default color-scheme: dark is applied by chakra to the html element by default
+ * this is inherited by two zendesk iframes - launcher and webWidget
+ * unsetting these causes it to render correctly
+ */
+#launcher, #webWidget {
+	color-scheme: none;
+}

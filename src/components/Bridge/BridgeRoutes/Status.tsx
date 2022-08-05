@@ -42,6 +42,7 @@ export const Status = () => {
     selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
   )
 
+  // TODO: Actually wait for TX to complete
   useEffect(() => {
     setTimeout(() => {
       setStatus('success')
@@ -191,15 +192,15 @@ export const Status = () => {
                 </Row>
                 <Stack spacing={0}>
                   <Row variant='gutter'>
-                    <Row.Label>Approx. Wait Time</Row.Label>
-                    <Row.Value>~5-10 minutes</Row.Value>
+                    <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+                    <Row.Value>{translate('bridge.waitTimeValue')}</Row.Value>
                   </Row>
                   <Row variant='gutter'>
-                    <Row.Label>Route</Row.Label>
+                    <Row.Label>{translate('bridge.route')}</Row.Label>
                     <Row.Value>Axelar</Row.Value>
                   </Row>
                   <Row variant='gutter'>
-                    <Row.Label>Receive Address</Row.Label>
+                    <Row.Label>{translate('bridge.receiveAddress')}</Row.Label>
                     <Row.Value>
                       <MiddleEllipsis address={receiveAddress ?? ''} />
                     </Row.Value>

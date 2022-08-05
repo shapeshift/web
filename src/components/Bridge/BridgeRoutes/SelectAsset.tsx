@@ -130,7 +130,7 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
                 <AssetRow key={asset.assetId} onClick={onClick} {...asset} />
               ))
             ) : (
-              <RawText>No supported assets in portfolio.</RawText>
+              <Text translation='bridge.noSupportedAssets' />
             )}
           </Stack>
         </Card.Body>

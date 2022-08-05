@@ -5,6 +5,7 @@ import axios from 'axios'
 import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
@@ -45,6 +46,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const { handleSend } = useFormSend()
   const { estimateFees } = useSendDetails()
+  const translate = useTranslate()
 
   const axelarAssetTransferSdk = getAxelarAssetTransferSdk()
   const axelarQuerySdk = getAxelarQuerySdk()
@@ -111,6 +113,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   }, [
     assetDenom,
     axelarQuerySdk,
+    cryptoAmount,
     destinationChainName,
     fromChain?.name,
     setValue,
@@ -233,7 +236,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                   </Stack>
                 </Stack>
                 {isLoadingRelayerFee ? (
-                  <RawText>Loading...</RawText>
+                  <Text translation='common.loadingText' />
                 ) : (
                   <Row.Value color='green.200'>
                     {isSendAmountGreaterThanFee && (
@@ -249,15 +252,15 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
             </Row>
             <Stack spacing={0}>
               <Row variant='gutter'>
-                <Row.Label>Approx. Wait Time</Row.Label>
-                <Row.Value>~5-10 minutes</Row.Value>
+                <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+                <Row.Value>{translate('bridge.waitTimeValue')}</Row.Value>
               </Row>
               <Row variant='gutter'>
-                <Row.Label>Route</Row.Label>
+                <Row.Label>{translate('bridge.route')}</Row.Label>
                 <Row.Value>Axelar</Row.Value>
               </Row>
               <Row variant='gutter' alignItems='center'>
-                <Row.Label>Receive Address</Row.Label>
+                <Row.Label>{translate('bridge.receiveAddress')}</Row.Label>
                 <Row.Value>
                   <EditableAddress />
                 </Row.Value>
@@ -269,7 +272,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                 <Row.Value>
                   <Stack textAlign='right' spacing={0}>
                     {isLoadingRelayerFee ? (
-                      <p>Loading...</p>
+                      <Text translation='common.loadingText' />
                     ) : (
                       <>
                         <Amount.Fiat fontWeight='bold' value={relayerFeeUsdc ?? '0'} />
@@ -292,7 +295,11 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
             isLoading={isExecutingTransaction}
             colorScheme={isSendAmountGreaterThanFee ? 'blue' : 'red'}
           >
-            {isSendAmountGreaterThanFee ? 'Start Bridge' : 'Fee exceeds send amount'}
+            <Text
+              translation={
+                isSendAmountGreaterThanFee ? 'bridge.startBridge' : 'bridge.feeExceedsSend'
+              }
+            />
           </Button>
         </Stack>
       </Card>

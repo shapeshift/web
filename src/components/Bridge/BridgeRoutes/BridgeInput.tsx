@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -55,9 +55,7 @@ const ChainButton: React.FC<ChainButtonProps> = ({
         {chain && symbol ? (
           <ChainRow labelProps={{ fontSize: 'sm' }} iconProps={{ size: 6 }} {...chain} />
         ) : (
-          <RawText flex={1} color='gray.500' textAlign='left'>
-            Select Chain
-          </RawText>
+          <Text flex={1} color='gray.500' textAlign='left' translation='bridge.selectChain' />
         )}
         <ChevronRightIcon boxSize={4} />
       </Stack>

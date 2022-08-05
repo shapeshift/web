@@ -63,7 +63,8 @@
     "generalError": "An error has occurred",
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
-    "walletSupportsETHOnly": "Ethereum Only"
+    "walletSupportsETHOnly": "Ethereum Only",
+    "loadingText": "Loading..."
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -389,11 +390,18 @@
     "confirm": "Confirm Bridge",
     "selectChain": "Select Chain",
     "selectAsset": "Select Asset",
+    "startBridge": "Start Bridge",
     "confirmBridge": "Confirm Bridge",
     "preview": "Preview Bridge",
     "transferring": "Transferring",
     "transferComplete": "Transfer Complete",
-    "bridgeAnother": "Bridge another asset"
+    "bridgeAnother": "Bridge another asset",
+    "feeExceedsSend": "Fee exceeds send amount",
+    "receiveAddress": "Receive Address",
+    "route": "Route",
+    "waitTimeLabel": "Approx. Wait Time",
+    "waitTimeValue": "~5-10 minutes",
+    "noSupportedAssets": "No supported assets in portfolio."
   },
   "trade": {
     "searchingRate": "Searching for best rate...",
@@ -785,7 +793,6 @@
         "button": "Save PIN"
       },
       "settings": {
-        "loadingText": "Loading...",
         "menuLabels": {
           "bootloader": "Bootloader",
           "firmware": "Firmware",

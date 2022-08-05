@@ -1,5 +1,7 @@
-import { cosmos, FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { cosmos, cosmossdk, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export type FeePriceValueHuman = {
@@ -11,11 +13,8 @@ export type FeePrice = {
   [key in FeeDataKey]: FeePriceValueHuman
 }
 
-export const getFormFees = (
-  feeData: FeeDataEstimate<KnownChainIds.CosmosMainnet>,
-  precision: number,
-  fiatRate: string,
-) => {
+export const getFormFees = async (asset: Asset, fiatRate: string) => {
+  // We don't use all of these fields for the return value but this is our standard FeeDataEstimate fees, for consistency
   const initialFees = {
     slow: {
       fiatFee: '',
@@ -39,13 +38,35 @@ export const getFormFees = (
       },
     },
   }
-  return (Object.keys(feeData) as FeeDataKey[]).reduce<FeePrice>((acc: any, key: FeeDataKey) => {
-    const chainSpecific = feeData[key].chainSpecific
-    const txFee = bnOrZero(feeData[key].txFee)
-      .dividedBy(bnOrZero(`1e+${precision}`))
-      .toPrecision()
-    const fiatFee = bnOrZero(txFee).times(fiatRate).toPrecision()
-    acc[key] = { txFee, fiatFee, chainSpecific }
-    return acc
-  }, initialFees)
+
+  const chainAdapterManager = getChainAdapterManager()
+  const adapter = chainAdapterManager.get(fromAssetId(asset.assetId).chainId) as unknown as
+    | cosmossdk.cosmos.ChainAdapter
+    | cosmossdk.osmosis.ChainAdapter
+
+  const feeData = await adapter.getFeeData({})
+
+  if (!adapter)
+    return {
+      gasLimit: initialFees.average.chainSpecific.gasLimit,
+      gasPrice: initialFees.average.txFee,
+    }
+
+  const adapterFees = (Object.keys(feeData) as FeeDataKey[]).reduce<FeePrice>(
+    (acc: any, key: FeeDataKey) => {
+      const chainSpecific = feeData[key].chainSpecific
+      const txFee = bnOrZero(feeData[key].txFee)
+        .dividedBy(bnOrZero(`1e+${asset.precision}`))
+        .toPrecision()
+      const fiatFee = bnOrZero(txFee).times(fiatRate).toPrecision()
+      acc[key] = { txFee, fiatFee, chainSpecific }
+      return acc
+    },
+    initialFees,
+  )
+
+  return {
+    gasLimit: adapterFees.average.chainSpecific.gasLimit,
+    gasPrice: adapterFees.average.txFee,
+  }
 }

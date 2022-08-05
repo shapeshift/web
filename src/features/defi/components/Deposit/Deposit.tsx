@@ -2,6 +2,7 @@ import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
+import { useCallback } from 'react'
 import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -36,7 +37,7 @@ type DepositProps = {
   onCancel(): void
 }
 
-enum Field {
+export enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
   Slippage = 'slippage',
@@ -114,16 +115,22 @@ export const Deposit = ({
     }
   }
 
-  const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    setValue(Field.FiatAmount, fiatAmount.toString(), {
-      shouldValidate: true,
-    })
-    setValue(Field.CryptoAmount, cryptoAmount.toString(), {
-      shouldValidate: true,
-    })
-  }
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      const cryptoAmount =
+        percent === 1
+          ? cryptoAmountAvailable
+          : bnOrZero(cryptoAmountAvailable).times(percent).precision(asset.precision)
+      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), {
+        shouldValidate: true,
+      })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+        shouldValidate: true,
+      })
+    },
+    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+  )
 
   const onSubmit = (values: DepositValues) => {
     onContinue(values)

@@ -23,7 +23,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
@@ -59,7 +58,6 @@ export const OpportunityCard = ({
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const { cosmosStaking } = useModal()
   const { assetReference } = fromAssetId(assetId)
 
   const assets = useAppSelector(selectAssets)
@@ -71,14 +69,6 @@ export const OpportunityCard = ({
 
   const handleClick = () => {
     if (isConnected) {
-      if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
-        cosmosStaking.open({
-          assetId,
-          validatorAddress: contractAddress,
-        })
-        return
-      }
-
       history.push({
         pathname: '/defi',
         search: qs.stringify({

@@ -19,6 +19,7 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -32,6 +33,10 @@ import { Withdraw } from './components/Withdraw'
 import { YearnWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Yearn', 'YearnWithdraw'],
+})
 
 export const YearnWithdraw = () => {
   const { yearn: api } = useYearn()
@@ -85,7 +90,7 @@ export const YearnWithdraw = () => {
         dispatch({ type: YearnWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('YearnWithdraw error:', error)
+        moduleLogger.error(error, 'YearnWithdraw error')
       }
     })()
   }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
@@ -118,9 +123,7 @@ export const YearnWithdraw = () => {
         component: Status,
       },
     }
-    // We only need this to update on symbol change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [underlyingAsset.symbol])
+  }, [translate, underlyingAsset.symbol])
 
   if (loading || !asset || !marketData)
     return (

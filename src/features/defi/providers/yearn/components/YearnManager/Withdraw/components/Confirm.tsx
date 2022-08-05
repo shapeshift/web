@@ -19,6 +19,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -28,6 +29,10 @@ import { useAppSelector } from 'state/store'
 
 import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
+})
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -98,7 +103,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
-      console.error('YearnWithdraw:handleConfirm error', error)
+      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     }

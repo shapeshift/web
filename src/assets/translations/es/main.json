@@ -166,19 +166,6 @@
           "learnMore": "Aprende más"
         }
       },
-      "staking": {
-        "estimateDisclaimer": "*Las estimaciones fluctúan con las condiciones del mercado.",
-        "byContinuing": "Al continuar, usted acepta el",
-        "risks": "riesgos",
-        "ofParticipating": "de participar en esta función y aceptar las",
-        "terms": "términos",
-        "stakingYourTokens": "Staking sus tokens",
-        "unstakingYourTokens": "Retirar sus tokens de Staking",
-        "tooltip": {
-          "validator": "El Validador es responsable de procesar transacciones, almacenar datos y agregar bloques a la cadena de bloques.",
-          "gasFees": "Las tarifas de gas en %{networkName} son mucho más bajas que las de Ethereum Mainnet. Esta tarifa se paga directamente a los validadores que aseguran y operan la red. No se paga a ShapeShift."
-        }
-      },
       "foxyOverview": {
         "header": "Deposite FOX para ganar FOXy",
         "body": "FOXy es un token de rebase vinculado al precio de FOX. FOXy se pone a trabajar en diferentes protocolos DeFi para obtener el mejor rendimiento posible.",
@@ -1190,6 +1177,7 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
       "totalFoxValue": "Valor total de Fox",
       "foxToken": "Token ShapeShift %{assetSymbol} ",
       "foxDescription": "Desde 2019, nuestro token FOX que cambia de forma ha estado ofreciendo a los usuarios un mundo de utilidades y ventajas en constante expansión. Hoy, nuestro token de gobierno ERC-20 no solo le permite influir en el futuro de ShapeShift a través de su voto, sino que también tiene un universo en constante expansión de oportunidades de inversión. Invierta, rastree y administre sus tenencias de FOX aquí.",

@@ -164,19 +164,6 @@
           "learnMore": "En savoir plus"
         }
       },
-      "staking": {
-        "estimateDisclaimer": "*Les estimations fluctuent en fonction des conditions du marché.",
-        "byContinuing": "En continuant, vous acceptez les",
-        "risks": "risques",
-        "ofParticipating": "de participer à cette fonctionnalité et d'accepter les",
-        "terms": "conditions",
-        "stakingYourTokens": "Miser vos jetons",
-        "unstakingYourTokens": "Démiser vos jetons",
-        "tooltip": {
-          "validator": "Le Validateur est chargé de traiter les transactions, de stocker les données et d'ajouter des blocs à la blockchain.",
-          "gasFees": "Les frais de carburant sur %{networkName} sont beaucoup plus bas que ceux sur Ethereum Mainnet. Ces frais sont versés directement aux validateurs qui sécurisent et exploitent le réseau et ne sont pas versés à ShapeShift."
-        }
-      },
       "foxyOverview": {
         "header": "Déposer du FOX pour obtenir du FOXy afin de gagner",
         "body": "FOXy est un jeton de rebasage indexé sur le prix de FOX. FOXy utilisé sur différents protocoles DeFi pour obtenir le meilleur rendement possible.",
@@ -1184,6 +1171,7 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Acheter du %{assetSymbol} sur Coinbase",
       "totalFoxValue": "Valeur totale des FOX",
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
       "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",

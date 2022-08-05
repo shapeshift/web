@@ -66,10 +66,16 @@ const chainIdFeeAssetReferenceMap = (
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Bitcoin:
         switch (chainReference) {
+          case CHAIN_REFERENCE.BitcoinMainnet:
+            return ASSET_REFERENCE.Bitcoin
+          case CHAIN_REFERENCE.BitcoinCashMainnet:
+            return ASSET_REFERENCE.BitcoinCash
           case CHAIN_REFERENCE.DogecoinMainnet:
             return ASSET_REFERENCE.Dogecoin
+          case CHAIN_REFERENCE.LitecoinMainnet:
+            return ASSET_REFERENCE.Litecoin
           default:
-            return ASSET_REFERENCE.Bitcoin
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.Ethereum:
         switch (chainReference) {

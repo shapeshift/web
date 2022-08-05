@@ -1,13 +1,17 @@
-import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  bitcoin,
-  cosmos,
-  dogecoin,
+  CHAIN_NAMESPACE,
+  ChainId,
+  fromAccountId,
+  fromAssetId,
+  fromChainId,
+} from '@shapeshiftoss/caip'
+import {
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
+  UtxoBaseAdapter,
+  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -122,12 +126,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     const adapter = chainAdapterManager.get(values.asset.chainId)
     if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
 
-    switch (values.asset.chainId) {
-      case KnownChainIds.CosmosMainnet:
-      case KnownChainIds.OsmosisMainnet:
+    const { chainNamespace } = fromChainId(values.asset.chainId)
+
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Cosmos:
         return adapter.getFeeData({})
-      case KnownChainIds.EthereumMainnet:
-      case KnownChainIds.AvalancheMainnet:
+      case CHAIN_NAMESPACE.Ethereum:
         return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
           to: values.address,
           value,
@@ -137,18 +141,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           },
           sendMax: values.sendMax,
         })
-      case KnownChainIds.BitcoinMainnet: {
-        const bitcoinChainAdapter = adapter as unknown as bitcoin.ChainAdapter
-        return bitcoinChainAdapter.getFeeData({
-          to: values.address,
-          value,
-          chainSpecific: { pubkey: account },
-          sendMax: values.sendMax,
-        })
-      }
-      case KnownChainIds.DogecoinMainnet: {
-        const dogecoinChainAdapter = adapter as unknown as dogecoin.ChainAdapter
-        return dogecoinChainAdapter.getFeeData({
+      case CHAIN_NAMESPACE.Bitcoin: {
+        return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
           to: values.address,
           value,
           chainSpecific: { pubkey: account },
@@ -156,7 +150,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })
       }
       default:
-        throw new Error('unsupported chain type')
+        throw new Error(`${chainNamespace} not supported`)
     }
   }, [accountSpecifier, chainAdapterManager, contractAddress, getValues, wallet])
 
@@ -277,20 +271,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { chainId, account } = fromAccountId(accountSpecifier)
+        const { chainId, chainNamespace, account } = fromAccountId(accountSpecifier)
         const adapter = chainAdapterManager.get(chainId)
         if (!adapter) throw new Error(`No adapter available for ${chainId}`)
 
         const { fastFee, adapterFees } = await (async () => {
-          switch (chainId) {
-            case KnownChainIds.CosmosMainnet: {
-              const cosmosAdapter = adapter as unknown as cosmos.ChainAdapter
-              const adapterFees = await cosmosAdapter.getFeeData({})
+          switch (chainNamespace) {
+            case CHAIN_NAMESPACE.Cosmos: {
+              const adapterFees = await adapter.getFeeData({})
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case KnownChainIds.EthereumMainnet:
-            case KnownChainIds.AvalancheMainnet: {
+            case CHAIN_NAMESPACE.Ethereum: {
               const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
               const adapterFees = await evmAdapter.getFeeData({
                 to,
@@ -301,26 +293,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case KnownChainIds.BitcoinMainnet: {
-              const btcAdapter = adapter as unknown as bitcoin.ChainAdapter
-              const adapterFees = await btcAdapter.getFeeData({
+            case CHAIN_NAMESPACE.Bitcoin: {
+              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
+              const adapterFees = await utxoAdapter.getFeeData({
                 to,
                 value: assetBalance,
                 chainSpecific: { pubkey: account },
                 sendMax: true,
               })
               const fastFee = adapterFees.fast.txFee
-              return { adapterFees, fastFee }
-            }
-            case KnownChainIds.DogecoinMainnet: {
-              const dogeAdapter = adapter as unknown as dogecoin.ChainAdapter
-              const adapterFees = await dogeAdapter.getFeeData({
-                to,
-                value: assetBalance,
-                chainSpecific: { pubkey: account },
-                sendMax: true,
-              })
-              const fastFee = adapterFees.fast.txFee // this is actually average fee for doge
               return { adapterFees, fastFee }
             }
             default: {

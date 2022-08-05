@@ -10,11 +10,14 @@ dayjs.extend(localizedFormat)
 export type FeatureFlags = {
   Osmosis: boolean
   MultiCurrency: boolean
+  FoxLP: boolean
+  FoxFarming: boolean
   Avalanche: boolean
   Thor: boolean
   CowSwap: boolean
   Pendo: boolean
-  Dogecoin: boolean
+  Litecoin: boolean
+  BitcoinCash: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -36,11 +39,14 @@ const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     MultiCurrency: getConfig().REACT_APP_FEATURE_MULTI_CURRENCY,
+    FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
+    FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
-    Dogecoin: getConfig().REACT_APP_FEATURE_DOGECOIN,
+    Litecoin: getConfig().REACT_APP_FEATURE_LITECOIN,
+    BitcoinCash: getConfig().REACT_APP_FEATURE_BITCOINCASH,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

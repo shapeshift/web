@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const { farmingAprV2, farmingAprV4, isFarmingAprV2Loaded, isFarmingAprV4Loaded } = useFarmingApr()
+  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
   const { lpApr, loaded: isLpAprLoaded } = useLpApr()
 
   const otherOpportunities = useMemo(() => {
@@ -32,16 +32,6 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           type: OpportunityTypes.Farming,
           title: 'plugins.foxPage.farming',
           opportunities: [
-            {
-              title: 'ETH-FOX UNI V2 Farm',
-              isLoaded: isFarmingAprV2Loaded,
-              apy: isFarmingAprV2Loaded ? farmingAprV2 : null,
-              link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/staking/0x212ebf9FD3c10F371557b08E993eAaB385c3932b/get-started',
-              icons: [
-                'https://assets.coincap.io/assets/icons/eth@2x.png',
-                'https://assets.coincap.io/assets/icons/fox@2x.png',
-              ],
-            },
             {
               title: 'ETH-FOX UNI V4 Farm',
               isLoaded: isFarmingAprV4Loaded,
@@ -89,15 +79,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }
 
     return opportunities[assetId]
-  }, [
-    lpApr,
-    farmingAprV4,
-    farmingAprV2,
-    assetId,
-    isLpAprLoaded,
-    isFarmingAprV2Loaded,
-    isFarmingAprV4Loaded,
-  ])
+  }, [lpApr, farmingAprV4, assetId, isLpAprLoaded, isFarmingAprV4Loaded])
 
   return otherOpportunities
 }

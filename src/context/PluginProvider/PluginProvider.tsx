@@ -118,6 +118,8 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(chainId => {
       if (!featureFlags.Osmosis && chainId === KnownChainIds.OsmosisMainnet) return false
       if (!featureFlags.Avalanche && chainId === KnownChainIds.AvalancheMainnet) return false
+      if (!featureFlags.Litecoin && chainId === KnownChainIds.LitecoinMainnet) return false
+      if (!featureFlags.BitcoinCash && chainId === KnownChainIds.BitcoinCashMainnet) return false
       return true
     })
 

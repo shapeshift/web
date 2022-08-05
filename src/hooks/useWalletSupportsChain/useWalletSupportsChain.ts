@@ -1,10 +1,12 @@
 import {
   avalancheChainId,
+  bchChainId,
   btcChainId,
   ChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  ltcChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import {
@@ -23,24 +25,19 @@ type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet }) => {
   if (!wallet) return false
   switch (chainId) {
-    case ethChainId: {
+    case btcChainId:
+    case bchChainId:
+    case dogeChainId:
+    case ltcChainId:
+      return supportsBTC(wallet)
+    case ethChainId:
       return supportsETH(wallet)
-    }
-    case btcChainId: {
-      return supportsBTC(wallet)
-    }
-    case cosmosChainId: {
-      return supportsCosmos(wallet)
-    }
-    case dogeChainId: {
-      return supportsBTC(wallet)
-    }
-    case osmosisChainId: {
-      return supportsOsmosis(wallet)
-    }
-    case avalancheChainId: {
+    case avalancheChainId:
       return supportsEthSwitchChain(wallet)
-    }
+    case cosmosChainId:
+      return supportsCosmos(wallet)
+    case osmosisChainId:
+      return supportsOsmosis(wallet)
     default: {
       console.error(`useWalletSupportsChain: unknown chain id ${chainId}`)
       return false

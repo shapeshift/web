@@ -6,7 +6,6 @@ import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiM
 import {
   isCosmosAssetId,
   isOsmosisAssetId,
-  StakeRoutes,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -26,19 +25,13 @@ type GetStartedProps = {
   stakingRouterHistory: History
 }
 
-export const GetStarted = ({ assetId, stakingRouterHistory }: GetStartedProps) => {
+export const GetStarted = ({ assetId }: GetStartedProps) => {
   const history = useHistory()
   const location = useLocation()
+
   const handleLearnMoreClick = () => {
     history.push({
       pathname: GetStartedManagerRoutes.LearnMore,
-      state: { background: location },
-    })
-  }
-
-  const handleStartStakingClick = () => {
-    stakingRouterHistory?.push({
-      pathname: StakeRoutes.Stake,
       state: { background: location },
     })
   }
@@ -81,13 +74,7 @@ export const GetStarted = ({ assetId, stakingRouterHistory }: GetStartedProps) =
             />
           </Box>
           <VStack spacing={4} align='center' width='100%'>
-            <Button
-              size='lg'
-              zIndex={1}
-              width='100%'
-              colorScheme='blue'
-              onClick={handleStartStakingClick}
-            >
+            <Button size='lg' zIndex={1} width='100%' colorScheme='blue'>
               <Text translation='defi.modals.getStarted.cta.startStaking' />
             </Button>
             <Button

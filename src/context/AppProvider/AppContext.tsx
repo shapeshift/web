@@ -1,18 +1,18 @@
-import { createStandaloneToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import {
-  avalancheChainId,
-  btcChainId,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
   cosmosChainId,
-  dogeChainId,
   ethChainId,
+  fromChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import {
-  bitcoin,
   convertXpubVersion,
-  dogecoin,
   toRootDerivationPath,
   utxoAccountParams,
+  UtxoBaseAdapter,
+  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
@@ -24,7 +24,8 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -36,8 +37,14 @@ import {
   accountSpecifiers,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  marketApi,
+  useFindAllQuery,
+  useFindByFiatSymbolQuery,
+  useFindPriceHistoryByFiatSymbolQuery,
+} from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
@@ -65,7 +72,8 @@ const moduleLogger = logger.child({ namespace: ['AppContext'] })
  *
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const { ToastContainer } = createStandaloneToast()
+  const toast = useToast()
+  const translate = useTranslate()
   const dispatch = useDispatch()
   const { supportedChains } = usePlugins()
   const chainAdapterManager = getChainAdapterManager()
@@ -135,82 +143,56 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const adapter = chainAdapterManager.get(chainId)
           if (!adapter) continue
 
-          switch (chainId) {
-            case ethChainId: {
-              if (!supportsETH(wallet)) continue
-              const pubkey = await adapter.getAddress({ wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              break
-            }
-            case avalancheChainId: {
-              if (!supportsEthSwitchChain(wallet)) continue
-              const pubkey = await adapter.getAddress({ wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              break
-            }
-            case btcChainId: {
+          const { chainNamespace, chainReference } = fromChainId(chainId)
+
+          switch (chainNamespace) {
+            case CHAIN_NAMESPACE.Bitcoin: {
               if (!supportsBTC(wallet)) continue
-              const supportedAccountTypes = (
-                adapter as unknown as bitcoin.ChainAdapter
-              ).getSupportedAccountTypes()
-              for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(chainId, accountType, 0)
-                const { bip44Params, scriptType } = accountParams
+
+              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
+
+              for (const accountType of utxoAdapter.getSupportedAccountTypes()) {
+                const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
                 const pubkeys = await wallet.getPublicKeys([
                   {
-                    coin: 'bitcoin',
+                    coin: utxoAdapter.getCoinName(),
                     addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                     curve: 'secp256k1',
                     scriptType,
                   },
                 ])
-                if (!pubkeys?.[0]?.xpub) {
-                  throw new Error(`usePubkeys: error getting bitcoin xpub`)
-                }
-                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
+                if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
+
+                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
                 if (!pubkey) continue
+
                 acc.push({ [chainId]: pubkey })
               }
               break
             }
-            case dogeChainId: {
-              if (!supportsBTC(wallet)) continue
-              const supportedAccountTypes = (
-                adapter as unknown as dogecoin.ChainAdapter
-              ).getSupportedAccountTypes()
-              for (const accountType of supportedAccountTypes) {
-                const accountParams = utxoAccountParams(chainId, accountType, 0)
-                const { bip44Params, scriptType } = accountParams
-                const addressNList = bip32ToAddressNList(toRootDerivationPath(bip44Params))
-                const pubkeys = await wallet.getPublicKeys([
-                  {
-                    coin: 'dogecoin',
-                    addressNList,
-                    curve: 'secp256k1',
-                    scriptType,
-                  },
-                ])
-                if (!pubkeys?.[0]?.xpub) {
-                  throw new Error(`usePubkeys: error getting dogecoin xpub`)
-                }
-                const pubkey = pubkeys[0].xpub
-                if (!pubkey) continue
-                acc.push({ [chainId]: pubkey })
+
+            case CHAIN_NAMESPACE.Ethereum: {
+              if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
+                if (!supportsETH(wallet)) continue
               }
-              break
-            }
-            case cosmosChainId: {
-              if (!supportsCosmos(wallet)) continue
+              if (chainReference === CHAIN_REFERENCE.AvalancheCChain) {
+                if (!supportsEthSwitchChain(wallet)) continue
+              }
+
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
-              acc.push({ [chainId]: pubkey })
+              acc.push({ [chainId]: pubkey.toLowerCase() })
               break
             }
-            case osmosisChainId: {
-              if (!supportsOsmosis(wallet)) continue
+            case CHAIN_NAMESPACE.Cosmos: {
+              if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
+                if (!supportsCosmos(wallet)) continue
+              }
+              if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
+                if (!supportsOsmosis(wallet)) continue
+              }
+
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey })
@@ -315,31 +297,42 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   /**
    * fetch forex spot and history for user's selected currency
    */
-  const selectedCurrency = useAppSelector(state => selectSelectedCurrency(state))
+  const currency = useAppSelector(state => selectSelectedCurrency(state))
+  const timeframe = DEFAULT_HISTORY_TIMEFRAME
+  const priceHistoryArgs = useMemo(() => ({ symbol: currency, timeframe }), [currency, timeframe])
+  const { error: fiatPriceHistoryError } = useFindPriceHistoryByFiatSymbolQuery(priceHistoryArgs)
+  const { error: forexRateError } = useFindByFiatSymbolQuery(priceHistoryArgs)
+
   useEffect(() => {
-    const symbol = selectedCurrency
-    const timeframe = DEFAULT_HISTORY_TIMEFRAME
-    const getFiatPriceHistory = marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate
-    const fetchForexRate = marketApi.endpoints.findByFiatSymbol.initiate
-    dispatch(getFiatPriceHistory({ symbol, timeframe }))
-    dispatch(fetchForexRate({ symbol }))
-  }, [dispatch, selectedCurrency])
+    /**
+     * crypto market data is denominated in USD and is the "safe" condition we can
+     * recover from failures on
+     */
+    if (currency === 'USD') return
+    if (fiatPriceHistoryError || forexRateError) {
+      toast({
+        position: 'top-right',
+        title: translate('multiCurrency.toast.title', { symbol: currency }),
+        description: translate('multiCurrency.toast.description'),
+        status: 'error',
+        duration: null, // don't auto-dismiss
+        isClosable: true,
+      })
+      dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
+    }
+    // setting symbol causes infinite render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, fiatPriceHistoryError, forexRateError, toast])
 
   // market data single-asset fetch, will use cached version if available
   // This uses the assetId from /assets route
   useEffect(() => {
     // early return for routes that don't contain an assetId, no need to refetch marketData granularly
     if (!routeAssetId) return
-
     dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist
-  return (
-    <>
-      <ToastContainer />
-      {assetIds.length && children}
-    </>
-  )
+  return <>{Boolean(assetIds.length) && children}</>
 }

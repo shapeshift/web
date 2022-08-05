@@ -310,11 +310,16 @@ export const useSwapper = () => {
           sendMax: false,
           receiveAddress,
         })
-      } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
+      } else if (
+        sellAsset.chainId === KnownChainIds.BitcoinMainnet ||
+        sellAsset.chainId === KnownChainIds.LitecoinMainnet
+      ) {
         const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
-          chainId: KnownChainIds.BitcoinMainnet,
+          chainId: sellAsset.chainId as
+            | KnownChainIds.BitcoinMainnet
+            | KnownChainIds.LitecoinMainnet,
           sellAmount: amount,
           sellAsset,
           buyAsset,
@@ -390,10 +395,12 @@ export const useSwapper = () => {
   // We are defaulting temporarily for development
   const getBtcUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
     const btcAccountSpecifiers = accountSpecifiersList.find(
-      specifiers => specifiers[KnownChainIds.BitcoinMainnet],
+      specifiers => specifiers[sellAsset.chainId],
     )
+
+    console.log('btcAccountSpecifiers', btcAccountSpecifiers)
     if (!btcAccountSpecifiers) throw new Error('no btc account specifiers')
-    const btcAccountSpecifier = btcAccountSpecifiers[KnownChainIds.BitcoinMainnet]
+    const btcAccountSpecifier = btcAccountSpecifiers[sellAsset.chainId]
     if (!btcAccountSpecifier) throw new Error('no btc account specifier')
 
     const btcAccountId = toAccountId({
@@ -458,11 +465,19 @@ export const useSwapper = () => {
                 wallet,
                 receiveAddress,
               })
-            } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
+            } else if (
+              sellAsset.chainId === KnownChainIds.BitcoinMainnet ||
+              sellAsset.chainId === KnownChainIds.LitecoinMainnet
+            ) {
               const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
+
+              console.log('accountType', accountType)
+              console.log('utxoParams', utxoParams)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
-                chainId: KnownChainIds.BitcoinMainnet,
+                chainId: sellAsset.chainId as
+                  | KnownChainIds.BitcoinMainnet
+                  | KnownChainIds.LitecoinMainnet,
                 sellAsset,
                 buyAsset,
                 sellAmount,
@@ -610,15 +625,19 @@ export const useSwapper = () => {
         break
       }
       case KnownChainIds.BitcoinMainnet:
+      case KnownChainIds.LitecoinMainnet:
         {
-          const btcTrade = trade as Trade<KnownChainIds.BitcoinMainnet>
+          const btcTrade = trade as Trade<
+            KnownChainIds.BitcoinMainnet | KnownChainIds.LitecoinMainnet
+          >
 
-          const fees: DisplayFeeData<KnownChainIds.BitcoinMainnet> = {
-            fee,
-            chainSpecific: btcTrade.feeData.chainSpecific,
-            tradeFee: btcTrade.feeData.tradeFee,
-            tradeFeeSource,
-          }
+          const fees: DisplayFeeData<KnownChainIds.BitcoinMainnet | KnownChainIds.LitecoinMainnet> =
+            {
+              fee,
+              chainSpecific: btcTrade.feeData.chainSpecific,
+              tradeFee: btcTrade.feeData.tradeFee,
+              tradeFeeSource,
+            }
           setValue('fees', fees)
         }
         break

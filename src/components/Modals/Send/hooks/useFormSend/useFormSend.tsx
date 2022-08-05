@@ -177,6 +177,7 @@ export const useFormSend = () => {
           isClosable: true,
           position: 'top-right',
         })
+        throw new Error('useFormSend: transaction rejected')
       } finally {
         send.close()
       }

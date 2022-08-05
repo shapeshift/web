@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/button'
-import { Box, Link, Stack } from '@chakra-ui/layout'
+import { Box, Link, Stack, Text as CText } from '@chakra-ui/layout'
 import { Divider, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { FaExchangeAlt } from 'react-icons/fa'
@@ -21,6 +21,7 @@ type ApproveProps = {
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
+  contractAddress: string
   preFooter?: React.ReactNode
   onConfirm(): Promise<void>
   onCancel(): void
@@ -36,6 +37,7 @@ export const Approve = ({
   loading,
   loadingText,
   preFooter,
+  contractAddress,
   onCancel,
   onConfirm,
 }: ApproveProps) => {
@@ -79,7 +81,17 @@ export const Approve = ({
         </Stack>
         <Stack>
           <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
-          <Text color='gray.500' translation={['modals.approve.body', { asset: asset.name }]} />
+          <CText color='gray.500'>
+            <Link
+              href={`${asset.explorerAddressLink}${contractAddress}`}
+              color='blue.500'
+              me={1}
+              isExternal
+            >
+              {translate('modals.approve.routerName')}
+            </Link>
+            {translate('modals.approve.body', { asset: asset.name })}
+          </CText>
           <Link color='blue.500' href={learnMoreLink} isExternal>
             {translate('modals.approve.learnMore')}
           </Link>

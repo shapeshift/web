@@ -10,7 +10,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -60,51 +60,67 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+    },
+    [cryptoAmountAvailable, marketData.price, setValue],
+  )
+
+  const handleContinue = useCallback(
+    async (formValues: WithdrawValues) => {
+      if (!(state?.userAddress && opportunity && dispatch)) return
+
+      const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
+        if (!(state.userAddress && opportunity && assetReference)) return
+        try {
+          const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+            opportunity?.positionAsset.assetId,
+          )
+          if (!yearnOpportunity) throw new Error('No opportunity')
+          const preparedTx = await yearnOpportunity.prepareWithdrawal({
+            amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+            address: state.userAddress,
+          })
+          return bnOrZero(preparedTx.gasPrice)
+            .times(preparedTx.estimatedGas)
+            .integerValue()
+            .toString()
+        } catch (error) {
+          // TODO: handle client side errors maybe add a toast?
+          moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'YearnWithdraw error:')
+        }
+      }
+
+      // set withdraw state for future use
+      dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
+      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
+      const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+      if (!estimatedGasCrypto) return
+      dispatch({
+        type: YearnWithdrawActionType.SET_WITHDRAW,
+        payload: { estimatedGasCrypto },
+      })
+      onNext(DefiStep.Confirm)
+      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
+    },
+    [
+      dispatch,
+      asset.precision,
+      assetReference,
+      onNext,
+      opportunity,
+      state?.userAddress,
+      yearnInvestor,
+    ],
+  )
+
   if (!state || !dispatch) return null
 
-  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!(state.userAddress && opportunity && assetReference)) return
-    try {
-      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
-        opportunity?.positionAsset.assetId,
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedTx = await yearnOpportunity.prepareWithdrawal({
-        amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
-      })
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      // TODO: handle client side errors maybe add a toast?
-      moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error:')
-    }
-  }
-
-  const handleContinue = async (formValues: WithdrawValues) => {
-    if (!(state.userAddress && opportunity)) return
-    // set withdraw state for future use
-    dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
-    dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
-    const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-    if (!estimatedGasCrypto) return
-    dispatch({
-      type: YearnWithdrawActionType.SET_WITHDRAW,
-      payload: { estimatedGasCrypto },
-    })
-    onNext(DefiStep.Confirm)
-    dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
-  }
-
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
-
-  const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-    setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-  }
+  const handleCancel = browserHistory.goBack
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)

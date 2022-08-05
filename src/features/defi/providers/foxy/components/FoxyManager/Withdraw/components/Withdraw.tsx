@@ -12,7 +12,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -70,142 +70,162 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
 
-  if (!state || !dispatch) return null
+  const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
+  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
 
-  const getWithdrawGasEstimate = async (withdraw: FoxyWithdrawValues) => {
-    if (!state.userAddress || !rewardId || !api) return
-    try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateWithdrawGas({
-          tokenContractAddress: rewardId,
-          contractAddress,
-          amountDesired: bnOrZero(
-            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
-          ).decimalPlaces(0),
-          userAddress: state.userAddress,
-          type: withdraw.withdrawType,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getWithdrawGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      const fundsError =
-        error instanceof Error && error.message.includes('Not enough funds in reserve')
-      toast({
-        position: 'top-right',
-        description: fundsError
-          ? translate('defi.notEnoughFundsInReserve')
-          : translate('common.somethingWentWrong'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      const cryptoAmount = bnOrZero(cryptoAmountAvailable)
+        .times(percent)
+        .dp(asset.precision, BigNumber.ROUND_DOWN)
+      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), {
+        shouldValidate: true,
       })
-    }
-  }
-
-  const handleContinue = async (formValues: FoxyWithdrawValues) => {
-    if (!state.userAddress || !api) return
-    // set withdraw state for future use
-    dispatch({
-      type: FoxyWithdrawActionType.SET_WITHDRAW,
-      payload: formValues,
-    })
-    dispatch({
-      type: FoxyWithdrawActionType.SET_LOADING,
-      payload: true,
-    })
-    try {
-      // Check is approval is required for user address
-      const _allowance = await api.allowance({
-        tokenContractAddress: rewardId,
-        contractAddress,
-        userAddress: state.userAddress,
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+        shouldValidate: true,
       })
+    },
+    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+  )
 
-      const allowance = bnOrZero(bn(_allowance).div(`1e+${asset.precision}`))
+  const handleContinue = useCallback(
+    async (formValues: FoxyWithdrawValues) => {
+      if (!state?.userAddress || !dispatch || !rewardId || !api) return
 
-      // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowance.gte(formValues.cryptoAmount)) {
-        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: FoxyWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCrypto },
-        })
-        onNext(DefiStep.Confirm)
-        dispatch({
-          type: FoxyWithdrawActionType.SET_LOADING,
-          payload: false,
-        })
-      } else {
-        const estimatedGasCrypto = await getApproveGasEstimate()
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: FoxyWithdrawActionType.SET_APPROVE,
-          payload: { estimatedGasCrypto },
-        })
-        onNext(DefiStep.Approve)
-        dispatch({
-          type: FoxyWithdrawActionType.SET_LOADING,
-          payload: false,
-        })
+      const getApproveGasEstimate = async () => {
+        if (!state.userAddress) return
+
+        try {
+          const [gasLimit, gasPrice] = await Promise.all([
+            api.estimateApproveGas({
+              tokenContractAddress: rewardId,
+              contractAddress,
+              userAddress: state.userAddress,
+            }),
+            api.getGasPrice(),
+          ])
+          return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+        } catch (error) {
+          moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
+          toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
       }
-    } catch (error) {
-      moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+
+      const getWithdrawGasEstimate = async (withdraw: FoxyWithdrawValues) => {
+        if (!state.userAddress) return
+
+        try {
+          const [gasLimit, gasPrice] = await Promise.all([
+            api.estimateWithdrawGas({
+              tokenContractAddress: rewardId,
+              contractAddress,
+              amountDesired: bnOrZero(
+                bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+              ).decimalPlaces(0),
+              userAddress: state.userAddress,
+              type: withdraw.withdrawType,
+            }),
+            api.getGasPrice(),
+          ])
+          return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+        } catch (error) {
+          moduleLogger.error(
+            { fn: 'getWithdrawGasEstimate', error },
+            'Error getting deposit gas estimate',
+          )
+          const fundsError =
+            error instanceof Error && error.message.includes('Not enough funds in reserve')
+          toast({
+            position: 'top-right',
+            description: fundsError
+              ? translate('defi.notEnoughFundsInReserve')
+              : translate('common.somethingWentWrong'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
+
+      // set withdraw state for future use
+      dispatch({
+        type: FoxyWithdrawActionType.SET_WITHDRAW,
+        payload: formValues,
+      })
       dispatch({
         type: FoxyWithdrawActionType.SET_LOADING,
-        payload: false,
+        payload: true,
       })
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
-  const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !rewardId || !api) return
-    try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateApproveGas({
+      try {
+        // Check is approval is required for user address
+        const _allowance = await api.allowance({
           tokenContractAddress: rewardId,
           contractAddress,
           userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
-    } catch (error) {
-      moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
+        })
+
+        const allowance = bnOrZero(bn(_allowance).div(`1e+${asset.precision}`))
+
+        // Skip approval step if user allowance is greater than requested deposit amount
+        if (allowance.gte(formValues.cryptoAmount)) {
+          const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: FoxyWithdrawActionType.SET_WITHDRAW,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Confirm)
+          dispatch({
+            type: FoxyWithdrawActionType.SET_LOADING,
+            payload: false,
+          })
+        } else {
+          const estimatedGasCrypto = await getApproveGasEstimate()
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: FoxyWithdrawActionType.SET_APPROVE,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Approve)
+          dispatch({
+            type: FoxyWithdrawActionType.SET_LOADING,
+            payload: false,
+          })
+        }
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+        dispatch({
+          type: FoxyWithdrawActionType.SET_LOADING,
+          payload: false,
+        })
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+      }
+    },
+    [
+      api,
+      asset.precision,
+      contractAddress,
+      dispatch,
+      onNext,
+      rewardId,
+      state?.userAddress,
+      toast,
+      translate,
+    ],
+  )
 
   const handleCancel = () => {
     browserHistory.goBack()
-  }
-
-  const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable)
-      .times(percent)
-      .dp(asset.precision, BigNumber.ROUND_DOWN)
-    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-    setValue(Field.FiatAmount, fiatAmount.toString(), {
-      shouldValidate: true,
-    })
-    setValue(Field.CryptoAmount, cryptoAmount.toString(), {
-      shouldValidate: true,
-    })
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -225,8 +245,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
-  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
+  if (!state || !dispatch) return null
 
   return (
     <FormProvider {...methods}>

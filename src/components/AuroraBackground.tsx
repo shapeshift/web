@@ -185,14 +185,16 @@ export const AuroraBackground: React.FC<{}> = props => {
       drawRays()
       renderCanvas()
 
-      animationFrameId = window.requestAnimationFrame(draw)
+      const isFirefox = window.navigator.userAgent.toLowerCase().includes('firefox')
+      // firefox performs poorly, disable animation
+      if (!isFirefox) animationFrameId = window.requestAnimationFrame(draw)
     }
     setup()
 
     window.addEventListener('resize', resize)
 
     return () => {
-      window.cancelAnimationFrame(animationFrameId)
+      animationFrameId && window.cancelAnimationFrame(animationFrameId)
       window.removeEventListener('resize', resize)
     }
   }, [])

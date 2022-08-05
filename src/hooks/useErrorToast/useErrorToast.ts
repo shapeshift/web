@@ -21,6 +21,7 @@ const ErrorTranslationMap: Record<string, string> = {
   [SwapErrorTypes.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedChain',
   [SwapErrorTypes.VALIDATION_FAILED]: 'trade.errors.generalError',
   [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.generalError',
+  [SwapErrorTypes.TRADE_FAILED]: 'trade.errors.tradeFailed',
 }
 
 const getTranslationFromError = (error: unknown) => {

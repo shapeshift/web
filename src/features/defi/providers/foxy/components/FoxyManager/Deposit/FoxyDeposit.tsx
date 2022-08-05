@@ -100,6 +100,9 @@ export const FoxyDeposit = () => {
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: Approve,
+        props: {
+          contractAddress,
+        },
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
@@ -110,7 +113,7 @@ export const FoxyDeposit = () => {
         component: Status,
       },
     }
-  }, [translate, asset.symbol])
+  }, [contractAddress, translate, asset.symbol])
 
   if (loading || !asset || !marketData) {
     return (

@@ -61,7 +61,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     fromChain,
     toChain,
     receiveAddress,
-    transferFeeUsdc,
+    relayerFeeUsdc,
     fiatAmount,
   ] = useWatch({
     control,
@@ -71,7 +71,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
       'fromChain',
       'toChain',
       'receiveAddress',
-      'transferFeeUsdc',
+      'relayerFeeUsdc',
       'fiatAmount',
     ],
   })
@@ -94,13 +94,14 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     ;(async () => {
       try {
         // We can't use axelarQuerySdk.getTransferFee() because of a CORS issue with the SDK
-        const url = `https://9bo26t9rjb.execute-api.ap-southeast-2.amazonaws.com/apotheosis?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=100uusd`
+        const baseUrl = 'https://9bo26t9rjb.execute-api.ap-southeast-2.amazonaws.com/apotheosis'
+        const requestUrl = `${baseUrl}?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=${cryptoAmount}${assetDenom}`
         const {
           data: {
             fee: { amount },
           },
-        } = await axios.get(url)
-        setValue('transferFeeUsdc', fromBaseUnit(amount, 7))
+        } = await axios.get(requestUrl)
+        setValue('relayerFeeUsdc', fromBaseUnit(amount, 6))
 
         setIsLoadingRelayerFee(false)
       } catch (e) {
@@ -168,11 +169,11 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
 
   if (!bridgeAsset && !fromChain && !toChain) return null
 
-  const isSendAmountGreaterThanFee = transferFeeUsdc
-    ? bnOrZero(fiatAmount).isGreaterThan(bnOrZero(transferFeeUsdc))
+  const isSendAmountGreaterThanFee = relayerFeeUsdc
+    ? bnOrZero(fiatAmount).isGreaterThan(bnOrZero(relayerFeeUsdc))
     : true
 
-  const transferFeeNativeToken = bnOrZero(transferFeeUsdc)
+  const transferFeeNativeToken = bnOrZero(relayerFeeUsdc)
     .dividedBy(bnOrZero(bridgeTokenPrice))
     .valueOf()
   const receiveAmount = bnOrZero(cryptoAmount)
@@ -271,7 +272,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
                       <p>Loading...</p>
                     ) : (
                       <>
-                        <Amount.Fiat fontWeight='bold' value={transferFeeUsdc ?? '0'} />
+                        <Amount.Fiat fontWeight='bold' value={relayerFeeUsdc ?? '0'} />
                         <Amount.Crypto
                           color='gray.500'
                           value={transferFeeNativeToken ?? '0'}

@@ -68,6 +68,7 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
       const destinationAsset = destinationAssetId ? allAssets[destinationAssetId] : undefined
       const destinationBridgeAsset = portfolioAssets.find(a => a.assetId === destinationAssetId)
       const maybeUnwrappedAsset = unwrapAxelarAssetIdFromAvalancheToEthereum(filteredAsset.assetId)
+      // FIXME: Lord have mercy
       const implementations = maybeUnwrappedAsset
         ? {
             avalanche: {

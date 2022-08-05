@@ -33,12 +33,10 @@ export const Status = () => {
   const { isOpen, onToggle } = useDisclosure()
   const { control } = useFormContext<BridgeState>()
 
-  const [bridgeAsset, cryptoAmount, fromChain, toChain, transferFeeUsdc, receiveAddress] = useWatch(
-    {
-      control,
-      name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'transferFeeUsdc', 'receiveAddress'],
-    },
-  )
+  const [bridgeAsset, cryptoAmount, fromChain, toChain, relayerFeeUsdc, receiveAddress] = useWatch({
+    control,
+    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'relayerFeeUsdc', 'receiveAddress'],
+  })
 
   const { price: bridgeTokenPrice } = useAppSelector(state =>
     selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
@@ -72,7 +70,7 @@ export const Status = () => {
     history.push(BridgeRoutePaths.Input)
   }
 
-  const transferFeeNativeToken = bnOrZero(transferFeeUsdc)
+  const transferFeeNativeToken = bnOrZero(relayerFeeUsdc)
     .dividedBy(bnOrZero(bridgeTokenPrice))
     .valueOf()
 
@@ -212,7 +210,7 @@ export const Status = () => {
                     </Row.Label>
                     <Row.Value>
                       <Stack textAlign='right' spacing={0}>
-                        <Amount.Fiat fontWeight='bold' value={transferFeeUsdc ?? '0'} />
+                        <Amount.Fiat fontWeight='bold' value={relayerFeeUsdc ?? '0'} />
                         <Amount.Crypto
                           color='gray.500'
                           value={transferFeeNativeToken ?? '0'}

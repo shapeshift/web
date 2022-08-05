@@ -1,11 +1,3 @@
-import { AssetId } from '@shapeshiftoss/caip'
-
-export enum BridgeAmountInputField {
-  BUY = 'BUY',
-  SELL = 'SELL',
-  FIAT = 'FIAT',
-}
-
 // https://docs.axelar.dev/dev/build/chain-names/mainnet
 export const AXELAR_CHAIN_NAMES = {
   Avalanche: 'Avalanche',
@@ -47,10 +39,6 @@ export type BridgeAsset = {
   }
 }
 
-export type BridgeProps = {
-  defaultBuyAssetId: AssetId
-}
-
 export type BridgeState = {
   asset: BridgeAsset | undefined
   fiatAmount: string
@@ -59,14 +47,13 @@ export type BridgeState = {
   toChain: BridgeChain | undefined
   receiveAddress: string | undefined
   depositAddress: string | undefined
-  transferFeeUsdc: string | undefined
+  relayerFeeUsdc: string | undefined
 }
 
 export enum BridgeRoutePaths {
   Input = '/trade/input',
   Confirm = '/trade/confirm',
   Approval = '/trade/approval',
-  SellSelect = '/trade/select/sell',
   SelectAsset = '/trade/select/asset',
   ChainFromSelect = '/trade/select/chain/from',
   ChainToSelect = '/trade/select/chain/to',

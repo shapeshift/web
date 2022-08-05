@@ -98,8 +98,6 @@ export const useFormSend = () => {
               )
             }
 
-            console.log('doing send for utxoParams', utxoParams)
-            console.log('doing send for accountType', accountType)
             return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
               to,
               value,

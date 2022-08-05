@@ -18,6 +18,7 @@ export type FeatureFlags = {
   Axelar: boolean
   Zendesk: boolean
   Yat: boolean
+  RainbowCharts: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -47,6 +48,7 @@ const initialState: Preferences = {
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
+    RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

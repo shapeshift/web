@@ -465,7 +465,7 @@ export const useSwapper = () => {
                 receiveAddress,
               })
             } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-              const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
+              const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
 
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({

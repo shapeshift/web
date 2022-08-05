@@ -3,5 +3,5 @@
  * unsetting these causes it to render correctly
  */
 #launcher, #webWidget {
-	color-scheme: none;
+  color-scheme: none;
 }

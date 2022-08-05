@@ -1,16 +1,23 @@
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+const chainIdFromEthNetwork = (ethNetwork: string | null, supportedEvmChainIds: ChainId[]) => {
+  if (!ethNetwork) return
+
+  return supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork)
+}
+
 export const useEvm = () => {
   const { state } = useWallet()
   const [ethNetwork, setEthNetwork] = useState<string | null>(null)
   const featureFlags = useAppSelector(selectFeatureFlags)
+
   const supportedEvmChainIds = useMemo(
     () =>
       Array.from(getChainAdapterManager().keys()).filter(
@@ -21,6 +28,11 @@ export const useEvm = () => {
     [featureFlags],
   )
 
+  const getChainIdFromEthNetwork = useCallback(
+    (ethNetwork: string) => chainIdFromEthNetwork(ethNetwork, supportedEvmChainIds),
+    [supportedEvmChainIds],
+  )
+
   useEffect(() => {
     ;(async () => {
       const ethNetwork = await (state.wallet as ETHWallet)?.ethGetChainId?.()
@@ -29,9 +41,9 @@ export const useEvm = () => {
   }, [state])
 
   const connectedChainId = useMemo(
-    () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork),
+    () => chainIdFromEthNetwork(ethNetwork, supportedEvmChainIds),
     [ethNetwork, supportedEvmChainIds],
   )
 
-  return { supportedEvmChainIds, connectedChainId, setEthNetwork }
+  return { supportedEvmChainIds, getChainIdFromEthNetwork, connectedChainId, setEthNetwork }
 }

@@ -2,15 +2,23 @@ import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { ChainId, fromChainId } from '@shapeshiftoss/caip'
+import { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { ETHWallet, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
+import { utils } from 'ethers'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { store } from 'state/store'
+
+const moduleLogger = logger.child({
+  namespace: ['Layout', 'Header', 'NavBar', 'ChainMenu'],
+})
 
 const ChainMenuItem: React.FC<{
   chainId: ChainId
@@ -44,16 +52,49 @@ const ChainMenuItem: React.FC<{
 }
 export const ChainMenu = () => {
   const { state, load } = useWallet()
-  const { supportedEvmChainIds, connectedChainId, setEthNetwork } = useEvm()
+  const { supportedEvmChainIds, connectedChainId, getChainIdFromEthNetwork, setEthNetwork } =
+    useEvm()
   const chainAdapterManager = getChainAdapterManager()
 
-  const handleChainClick = async (chainId: ChainId) => {
+  const handleChainClick = async (requestedEthNetwork: string) => {
     try {
-      await (state.wallet as ETHWallet).ethSwitchChain?.(Number(chainId))
-      setEthNetwork(chainId)
+      const requestedChainId = getChainIdFromEthNetwork(requestedEthNetwork)
+
+      if (!requestedChainId) {
+        throw new Error(`Unsupported EVM network: ${requestedEthNetwork}`)
+      }
+
+      const requestedChainChainAdapter = chainAdapterManager.get(requestedChainId) as unknown as
+        | EvmBaseAdapter<EvmChainId>
+        | undefined
+
+      if (!requestedChainChainAdapter) {
+        throw new Error(`No chain adapter found for: ${requestedChainId}`)
+      }
+
+      const requestedChainFeeAssetId = requestedChainChainAdapter.getFeeAssetId()
+      const requestedChainFeeAsset = selectAssetById(store.getState(), requestedChainFeeAssetId)
+
+      const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
+      await (state.wallet as ETHWallet).ethSwitchChain?.({
+        chainId: utils.hexValue(Number(requestedEthNetwork)),
+        chainName: requestedChainChainAdapter.getDisplayName(),
+        nativeCurrency: {
+          name: requestedChainFeeAsset.name,
+          symbol: requestedChainFeeAsset.symbol,
+          decimals: 18,
+        },
+        rpcUrls: [requestedChainRpcUrl],
+        blockExplorerUrls: [requestedChainFeeAsset.explorer],
+      })
+      setEthNetwork(requestedEthNetwork)
       load()
     } catch (e) {
-      // TODO: Handle me after https://github.com/shapeshift/hdwallet/pull/551 is published
+      moduleLogger.error(
+        e,
+        { fn: 'handleChainClick' },
+        `Error switching to chain: ${requestedEthNetwork}`,
+      )
     }
   }
 

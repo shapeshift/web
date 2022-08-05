@@ -314,7 +314,7 @@ export const useSwapper = () => {
           receiveAddress,
         })
       } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-        const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
+        const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
           chainId: sellAsset.chainId as SwapSupportedUtxoChainIds,
@@ -389,22 +389,22 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  // TODO btcAccountSpecifier must come from the btc account selection modal
+  // TODO accountSpecifier must come from dropdown furing asset selection
   // We are defaulting temporarily for development
-  const getBtcUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
-    const btcAccountSpecifiers = accountSpecifiersList.find(
+  const getUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
+    const accountSpecifiers = accountSpecifiersList.find(
       specifiers => specifiers[sellAsset.chainId],
     )
 
-    if (!btcAccountSpecifiers) throw new Error('no btc account specifiers')
-    const btcAccountSpecifier = btcAccountSpecifiers[sellAsset.chainId]
-    if (!btcAccountSpecifier) throw new Error('no btc account specifier')
+    if (!accountSpecifiers) throw new Error('no btc account specifiers')
+    const accountSpecifier = accountSpecifiers[sellAsset.chainId]
+    if (!accountSpecifier) throw new Error('no btc account specifier')
 
-    const btcAccountId = toAccountId({
+    const accountId = toAccountId({
       chainId: sellAsset.chainId,
-      account: btcAccountSpecifier,
+      account: accountSpecifier,
     })
-    return accountIdToUtxoParams(btcAccountId, 0)
+    return accountIdToUtxoParams(accountId, 0)
   }
 
   const updateQuoteDebounced = useRef(
@@ -618,12 +618,12 @@ export const useSwapper = () => {
       }
       case CHAIN_NAMESPACE.Bitcoin:
         {
-          const btcTrade = trade as Trade<SwapSupportedUtxoChainIds>
+          const utxoTrade = trade as Trade<SwapSupportedUtxoChainIds>
 
           const fees: DisplayFeeData<SwapSupportedUtxoChainIds> = {
             fee,
-            chainSpecific: btcTrade.feeData.chainSpecific,
-            tradeFee: btcTrade.feeData.tradeFee,
+            chainSpecific: utxoTrade.feeData.chainSpecific,
+            tradeFee: utxoTrade.feeData.tradeFee,
             tradeFeeSource,
           }
           setValue('fees', fees)

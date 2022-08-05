@@ -21,7 +21,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { UNISWAP_V2_ROUTER_ADDRESS, UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from '../const'
+import erc20abi from '../abis/erc20abi.json'
+import {
+  MAX_ALLOWANCE,
+  UNISWAP_V2_ROUTER_ADDRESS,
+  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+} from '../const'
 
 const ethersProvider = getEthersProvider()
 function calculateSlippageMargin(amount: string | null) {
@@ -54,6 +59,11 @@ export const useFoxEthLiquidityPool = () => {
 
   const uniswapRouterContract = useMemo(
     () => new Contract(UNISWAP_V2_ROUTER_ADDRESS, IUniswapV2Router02ABI.abi, ethersProvider),
+    [],
+  )
+
+  const foxContract = useMemo(
+    () => new Contract(FOX_TOKEN_CONTRACT_ADDRESS, erc20abi, ethersProvider),
     [],
   )
 
@@ -283,10 +293,40 @@ export const useFoxEthLiquidityPool = () => {
     }
   }, [ethAsset.precision, ethPrice, uniV2LPContract])
 
+  const allowance = useCallback(async () => {
+    const _allowance = await foxContract.allowance(
+      connectedWalletEthAddress,
+      UNISWAP_V2_ROUTER_ADDRESS,
+    )
+    console.info(_allowance)
+    return _allowance
+  }, [connectedWalletEthAddress, foxContract])
+
+  const getApproveGasData = useCallback(async () => {
+    if (adapter && connectedWalletEthAddress && foxContract) {
+      const data = foxContract.interface.encodeFunctionData('approve', [
+        UNISWAP_V2_ROUTER_ADDRESS,
+        MAX_ALLOWANCE,
+      ])
+      const fees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        to: FOX_TOKEN_CONTRACT_ADDRESS,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: connectedWalletEthAddress,
+          contractAddress: FOX_TOKEN_CONTRACT_ADDRESS,
+        },
+      })
+      return fees
+    }
+  }, [adapter, connectedWalletEthAddress, foxContract])
+
   return {
     addLiquidity,
     removeLiquidity,
     calculateHoldings,
     getLpTVL,
+    allowance,
+    getApproveGasData,
   }
 }

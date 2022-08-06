@@ -18,7 +18,7 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@axelar-network/axelarjs-sdk@0.6.18":
+"@axelar-network/axelarjs-sdk@^0.6.18":
   version "0.6.18"
   resolved "https://registry.yarnpkg.com/@axelar-network/axelarjs-sdk/-/axelarjs-sdk-0.6.18.tgz#132d3195c4373383eb02ab313dca45c1790b4659"
   integrity sha512-p4VaPC9W7hTJDezlbQrYDKhMZ71GWwdQE5VdjxYC9aLD1OQ6TFVCmrZIMT+jEEY24byXGM7M4xcdCEfCnjNVXQ==

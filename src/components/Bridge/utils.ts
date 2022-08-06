@@ -9,7 +9,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
-import { AXELAR_CHAIN_NAMES, AxelarChainName, BridgeAsset } from 'components/Bridge/types'
+import { AxelarChainName, AxelarChainNames, BridgeAsset } from 'components/Bridge/types'
 
 export const wrapAxelarAssetIdFromEthereumToAvalanche = (assetId: AssetId): AssetId | undefined => {
   const chainId = KnownChainIds.AvalancheMainnet
@@ -61,9 +61,9 @@ export const getBridgeDestinationAsset = (assetId: AssetId): AssetId | undefined
 
 export const chainNameToAxelarEvmChain = (name: string): EvmChain => {
   switch (name) {
-    case AXELAR_CHAIN_NAMES.Ethereum:
+    case AxelarChainNames.Ethereum:
       return EvmChain.ETHEREUM
-    case AXELAR_CHAIN_NAMES.Avalanche:
+    case AxelarChainNames.Avalanche:
       return EvmChain.AVALANCHE
     default:
       throw new Error(`chainNameToAxelarEvmChain: name ${name} not supported`)
@@ -72,9 +72,9 @@ export const chainNameToAxelarEvmChain = (name: string): EvmChain => {
 
 export const chainNameToAxelarGasToken = (name: string): GasToken => {
   switch (name) {
-    case AXELAR_CHAIN_NAMES.Ethereum:
+    case AxelarChainNames.Ethereum:
       return GasToken.ETH
-    case AXELAR_CHAIN_NAMES.Avalanche:
+    case AxelarChainNames.Avalanche:
       return GasToken.AVAX
     default:
       throw new Error(`chainNameToAxelarGasToken: name ${name} not supported`)
@@ -84,9 +84,9 @@ export const chainNameToAxelarGasToken = (name: string): GasToken => {
 export const chainIdToChainName = (chainId: ChainId): AxelarChainName => {
   switch (chainId) {
     case ethChainId:
-      return AXELAR_CHAIN_NAMES.Ethereum
+      return AxelarChainNames.Ethereum
     case avalancheChainId:
-      return AXELAR_CHAIN_NAMES.Avalanche
+      return AxelarChainNames.Avalanche
     default:
       throw new Error(`chainIdToChainName: chainId ${chainId} not supported`)
   }

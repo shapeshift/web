@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.6.0...@shapeshiftoss/unchained-client-v9.7.0) (2022-08-06)
+
+
+### Features
+
+* improve chain adapter types to expose relevant data ([#944](https://github.com/shapeshift/lib/issues/944)) ([944c8d1](https://github.com/shapeshift/lib/commit/944c8d12dc8380734fe197a8c7555c9c1ce903f7))
+
 # [@shapeshiftoss/unchained-client-v9.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.5.1...@shapeshiftoss/unchained-client-v9.6.0) (2022-08-02)
 
 

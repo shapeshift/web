@@ -2,3 +2,5 @@ export { EvmChainId, isEvmChainId, evmChainIds, EvmBaseAdapter } from './EvmBase
 
 export * as ethereum from './ethereum'
 export * as avalanche from './avalanche'
+
+export * as evm from './types'

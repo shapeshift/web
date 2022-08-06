@@ -343,7 +343,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse<T>> {
+  async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
     if (!this.accountAddresses[input.pubkey]) {
       await this.getAccount(input.pubkey)
     }
@@ -419,7 +419,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async subscribeTxs(
     input: SubscribeTxsInput,
-    onMessage: (msg: Transaction<T>) => void,
+    onMessage: (msg: Transaction) => void,
     onError: (err: SubscribeError) => void
   ): Promise<void> {
     const {
@@ -445,11 +445,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           blockHeight: tx.blockHeight,
           blockTime: tx.blockTime,
           chainId: tx.chainId,
-          chain: this.getType(),
           confirmations: tx.confirmations,
           fee: tx.fee,
           status: tx.status,
-          tradeDetails: tx.trade,
+          trade: tx.trade,
           transfers: tx.transfers.map((transfer) => ({
             assetId: transfer.assetId,
             from: transfer.from,

@@ -71,7 +71,7 @@ export interface BaseTxMetadata {
 }
 
 export interface StandardTxMetadata extends BaseTxMetadata {
-  parser: TxParser
+  parser: `${TxParser}`
 }
 
 export interface StandardTx {

@@ -3,7 +3,6 @@ import { ChainId as YearnChainId, Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
-import { TxParser } from '../../../types'
 import { getSigHash, SubParser, TxSpecific } from '../../parser'
 import shapeShiftRouter from './abi/shapeShiftRouter'
 import yearnVault from './abi/yearnVault'
@@ -82,7 +81,7 @@ export class Parser implements SubParser<Tx> {
     return {
       data: {
         method: decoded.name,
-        parser: TxParser.Yearn
+        parser: 'yearn'
       }
     }
   }

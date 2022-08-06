@@ -2,7 +2,7 @@ import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
-import { TransferType, TxParser } from '../../../types'
+import { TransferType } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import WETH_ABI from './abi/weth'
 import { WETH_CONTRACT_MAINNET, WETH_CONTRACT_ROPSTEN } from './constants'
@@ -104,7 +104,7 @@ export class Parser implements SubParser<Tx> {
     return {
       transfers,
       data: {
-        parser: TxParser.WETH,
+        parser: 'weth',
         method: decoded.name
       }
     }

@@ -2,7 +2,7 @@ import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
-import { TransferType, TxParser } from '../../../types'
+import { TransferType } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import ERC20_ABI from '../../parser/abi/erc20'
 import UNIV2_ABI from './abi/uniV2'
@@ -132,7 +132,7 @@ export class Parser implements SubParser<Tx> {
     return {
       transfers,
       data: {
-        parser: TxParser.UniV2,
+        parser: 'uniV2',
         method: decoded.name
       }
     }
@@ -153,7 +153,7 @@ export class Parser implements SubParser<Tx> {
 
     return {
       data: {
-        parser: TxParser.UniV2,
+        parser: 'uniV2',
         method: decoded.name
       }
     }

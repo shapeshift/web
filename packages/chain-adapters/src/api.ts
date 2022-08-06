@@ -47,7 +47,7 @@ export type ChainAdapter<T extends ChainId> = {
 
   buildBIP44Params(params: Partial<BIP44Params>): BIP44Params
 
-  getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse<T>>
+  getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse>
 
   buildSendTransaction(input: BuildSendTxInput<T>): Promise<{
     txToSign: ChainTxType<T>
@@ -67,7 +67,7 @@ export type ChainAdapter<T extends ChainId> = {
 
   subscribeTxs(
     input: SubscribeTxsInput,
-    onMessage: (msg: Transaction<T>) => void,
+    onMessage: (msg: Transaction) => void,
     onError?: (err: SubscribeError) => void
   ): Promise<void>
 

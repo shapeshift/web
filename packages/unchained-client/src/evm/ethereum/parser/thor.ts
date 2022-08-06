@@ -2,8 +2,14 @@ import { ChainId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
-import { Dex, TradeType, TxParser } from '../../../types'
-import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
+import { Dex, TradeType } from '../../../types'
+import {
+  getSigHash,
+  SubParser,
+  txInteractsWithContract,
+  TxMetadata,
+  TxSpecific
+} from '../../parser'
 import THOR_ABI from './abi/thor'
 import { THOR_ROUTER_CONTRACT_MAINNET, THOR_ROUTER_CONTRACT_ROPSTEN } from './constants'
 
@@ -51,9 +57,9 @@ export class Parser implements SubParser<Tx> {
     // failed to decode input data
     if (!decoded) return
 
-    const data = {
+    const data: TxMetadata = {
       method: decoded.name,
-      parser: TxParser.Thor
+      parser: 'thor'
     }
 
     const [type] = decoded.args.memo.split(':')

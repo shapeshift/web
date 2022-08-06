@@ -7,7 +7,7 @@ import {
   OsmosisSignTx
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import * as unchained from '@shapeshiftoss/unchained-client'
 
 import * as cosmos from './cosmossdk/cosmos'
 import * as osmosis from './cosmossdk/osmosis'
@@ -85,43 +85,22 @@ export type SubscribeTxsInput = {
   accountType?: UtxoAccountType
 }
 
-export type TxFee = {
-  assetId: string
-  value: string
-}
+export type TransferType = unchained.TransferType
+export type TradeType = unchained.TradeType
 
-export type Transaction<T extends ChainId> = {
-  address: string
-  blockHash?: string
-  blockHeight: number
-  blockTime: number
-  chain: T
-  chainId: string
-  confirmations: number
-  txid: string
-  fee?: TxFee
-  status: TxStatus
-  tradeDetails?: TradeDetails
+type TransactionData =
+  | unchained.StandardTxMetadata
+  | unchained.evm.TxMetadata
+  | unchained.cosmos.TxMetadata
+
+export type Transaction = Omit<unchained.StandardTx, 'transfers'> & {
   transfers: Array<TxTransfer>
-  data?: TxMetadata
+  data?: TransactionData
 }
 
-export type TradeDetails = {
-  dexName: string
-  memo?: string
-  type: TradeType
-}
+export type TransactionMetadata = unchained.StandardTxMetadata
 
-export interface TxMetadata {
-  method?: string
-  parser: string
-}
-
-export type TxTransfer = {
-  assetId: string
-  from: string
-  to: string
-  type: TransferType
+export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue' | 'token'> & {
   value: string
 }
 
@@ -129,10 +108,10 @@ export type SubscribeError = {
   message: string
 }
 
-export type TxHistoryResponse<T extends ChainId> = {
+export type TxHistoryResponse = {
   cursor: string
   pubkey: string
-  transactions: Array<Transaction<T>>
+  transactions: Array<Transaction>
 }
 
 type ChainTxTypeInner = {

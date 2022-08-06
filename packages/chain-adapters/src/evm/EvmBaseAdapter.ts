@@ -203,7 +203,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse<T>> {
+  async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
     const { data } = await this.providers.http.getTxHistory({
       pubkey: input.pubkey,
       pageSize: input.pageSize,
@@ -309,7 +309,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async subscribeTxs(
     input: SubscribeTxsInput,
-    onMessage: (msg: Transaction<T>) => void,
+    onMessage: (msg: Transaction) => void,
     onError: (err: SubscribeError) => void
   ): Promise<void> {
     const { wallet, bip44Params = this.defaultBIP44Params } = input
@@ -329,11 +329,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           blockHeight: tx.blockHeight,
           blockTime: tx.blockTime,
           chainId: tx.chainId,
-          chain: this.getType(),
           confirmations: tx.confirmations,
           fee: tx.fee,
           status: tx.status,
-          tradeDetails: tx.trade,
+          trade: tx.trade,
           transfers: tx.transfers.map((transfer) => ({
             assetId: transfer.assetId,
             from: transfer.from,

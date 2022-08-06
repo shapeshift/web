@@ -1,3 +1,4 @@
+import * as unchained from '@shapeshiftoss/unchained-client'
 export type BuildTxInput = {
   gas: string
   fee: string
@@ -67,3 +68,5 @@ export type Account = {
 export type FeeData = {
   gasLimit: string
 }
+
+export type TransactionMetadata = unchained.cosmos.TxMetadata

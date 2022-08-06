@@ -1,3 +1,5 @@
+import * as unchained from '@shapeshiftoss/unchained-client'
+
 import { AssetBalance } from '../types'
 
 export type Account = {
@@ -34,3 +36,5 @@ export type GetFeeDataInput = {
   from: string
   contractData?: string
 }
+
+export type TransactionMetadata = unchained.evm.ERC20TxMetadata

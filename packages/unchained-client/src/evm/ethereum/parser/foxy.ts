@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
-import { TxParser } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import FOXY_STAKING_ABI from './abi/foxyStaking'
 import { FOXY_STAKING_CONTRACT } from './constants'
@@ -32,7 +31,7 @@ export class Parser implements SubParser<Tx> {
     return {
       data: {
         method: decoded.name,
-        parser: TxParser.Foxy
+        parser: 'foxy'
       }
     }
   }

@@ -1,16 +1,23 @@
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy/dist/utils/bignumber'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/const'
+import {
+  foxAssetId,
+  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+} from 'features/defi/providers/fox-eth-lp/const'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioAssetBalances, selectPortfolioLoading } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export type UseFoxEthLpBalanceReturn = {
   opportunity: EarnOpportunityType
   balance: string
+  foxBalance: string | null
+  ethBalance: string | null
   loading: boolean
 }
 
@@ -31,39 +38,63 @@ export function useFoxEthLpBalance(): UseFoxEthLpBalanceReturn {
   const {
     state: { wallet },
   } = useWallet()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [foxBalance, setFoxBalance] = useState<string | null>(null)
+  const [ethBalance, setEthBalance] = useState<string | null>(null)
   const [opportunity, setOpportunity] = useState<EarnOpportunityType>(defaultOpportunity)
   const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool()
   const { lpApr } = useLpApr()
-
-  const balances = useSelector(selectPortfolioAssetBalances)
-  const balancesLoading = useSelector(selectPortfolioLoading)
+  const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
+  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const lpAssetPrecision = useAppSelector(state =>
+    selectAssetById(state, opportunity.assetId),
+  ).precision
 
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
       setLoading(true)
       try {
-        const lpBalance = await calculateHoldings()
-        const totalSupply = await getLpTVL()
-        setOpportunity({
-          ...defaultOpportunity,
-          cryptoAmount: lpBalance,
-          isLoaded: true,
-          apy: lpApr ?? undefined,
-          tvl: totalSupply ?? '',
-        })
+        const balances = await calculateHoldings()
+        if (balances) {
+          const { lpBalance, foxBalance, ethBalance } = balances
+          setFoxBalance(foxBalance.toString())
+          setEthBalance(ethBalance.toString())
+          const totalLpBalance = bnOrZero(lpBalance).div(`1e${lpAssetPrecision}`)
+          const ethValue = ethBalance.times(ethMarketData.price)
+          const foxValue = foxBalance.times(foxMarketData.price)
+          const fiatAmount = ethValue.plus(foxValue).toFixed(2)
+          const totalSupply = await getLpTVL()
+          setOpportunity({
+            ...defaultOpportunity,
+            cryptoAmount: totalLpBalance?.toString() ?? '0',
+            fiatAmount,
+            isLoaded: true,
+            apy: lpApr ?? undefined,
+            tvl: totalSupply ?? '',
+          })
+        }
       } catch (error) {
         console.error('error', error)
       } finally {
         setLoading(false)
       }
     })()
-  }, [balances, wallet, balancesLoading, calculateHoldings, lpApr, getLpTVL])
+  }, [
+    wallet,
+    calculateHoldings,
+    lpApr,
+    getLpTVL,
+    foxMarketData.price,
+    ethMarketData.price,
+    lpAssetPrecision,
+  ])
 
   return {
     opportunity,
     balance: opportunity.cryptoAmount,
-    loading: loading || balancesLoading,
+    loading: loading || !opportunity.apy,
+    foxBalance,
+    ethBalance,
   }
 }

@@ -1,18 +1,24 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect, useMemo } from 'react'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/const'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -26,32 +32,46 @@ import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
+  const [userAddress, setUserAddres] = useState<string | null>(null)
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
+  const { opportunity } = useFoxEthLpBalance()
+  const {
+    state: { wallet },
+  } = useWallet()
 
-  const assetId = ethAssetId
-
-  // TODO: We need to get the fee asset from the Opportunity
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
+  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
 
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, chainId),
   )
 
+  useEffect(() => {
+    const chainAdapterManager = getChainAdapterManager()
+    const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
+    if (wallet && adapter) {
+      ;(async () => {
+        const address = await adapter.getAddress({ wallet })
+        setUserAddres(address)
+      })()
+    }
+  }, [ethAsset.chainId, wallet])
+
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && state?.userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, state.userAddress)
-  }, [state?.txid, state?.userAddress, accountSpecifier])
+    if (!(state?.txid && userAddress)) return ''
+    return serializeTxIndex(accountSpecifier, state.txid, userAddress)
+  }, [state?.txid, userAddress, accountSpecifier])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
@@ -60,11 +80,13 @@ export const Status = () => {
         type: FoxEthLpDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee?.value,
+          usedGasFee: confirmedTransaction.fee
+            ? bnOrZero(confirmedTransaction.fee.value).div(`1e${ethAsset.precision}`).toString()
+            : '0',
         },
       })
     }
-  }, [confirmedTransaction, dispatch])
+  }, [confirmedTransaction, dispatch, ethAsset.precision])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')
@@ -83,7 +105,7 @@ export const Status = () => {
           statusText: StatusTextEnum.success,
           statusIcon: <CheckIcon color='white' />,
           statusBody: translate('modals.deposit.status.success', {
-            opportunity: `${asset.name} Vault`,
+            opportunity: `FOX/ETH LP`,
           }),
           statusBg: 'green.500',
         }
@@ -96,7 +118,7 @@ export const Status = () => {
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusIcon: <AssetIcon size='xs' src={lpAsset?.icon} />,
           statusText: StatusTextEnum.pending,
           statusBody: translate('modals.deposit.status.pending'),
           statusBg: 'transparent',
@@ -122,11 +144,20 @@ export const Status = () => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={asset.icon} />
-              <RawText>{asset.name}</RawText>
+              <AssetIcon size='xs' src={foxAsset.icon} />
+              <RawText>{foxAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmount1} symbol={foxAsset.symbol} />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={ethAsset.icon} />
+              <RawText>{ethAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.deposit.cryptoAmount2} symbol={ethAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -149,7 +180,6 @@ export const Status = () => {
                     ? state.deposit.estimatedGasCrypto
                     : state.deposit.usedGasFee,
                 )
-                  .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
@@ -159,9 +189,7 @@ export const Status = () => {
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCrypto
                     : state.deposit.usedGasFee,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                ).toFixed(5)}
                 symbol='ETH'
               />
             </Box>
@@ -175,7 +203,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={`${ethAsset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

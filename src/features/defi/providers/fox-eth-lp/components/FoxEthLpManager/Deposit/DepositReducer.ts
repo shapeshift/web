@@ -11,9 +11,10 @@ export const initialState: FoxEthLpDepositState = {
   loading: false,
   approve: {},
   deposit: {
-    fiatAmount: '',
-    cryptoAmount: '',
-    slippage: '',
+    fiatAmount1: '',
+    cryptoAmount1: '',
+    fiatAmount2: '',
+    cryptoAmount2: '',
     txStatus: 'pending',
     usedGasFee: '',
   },

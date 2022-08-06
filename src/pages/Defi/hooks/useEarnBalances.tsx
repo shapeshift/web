@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
+import { useFoxEthLpBalance } from './useFoxEthLpBalance'
 import { useFoxyBalances } from './useFoxyBalances'
 import { useVaultBalances } from './useVaultBalances'
 
@@ -35,6 +36,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useCosmosSdkStakingBalances({
     assetId: osmosisAssetId,
   })
+  const { opportunity: foxEthLpOpportunity, loading: lpLoading } = useFoxEthLpBalance()
 
   const opportunities = useNormalizeOpportunities({
     vaultArray,
@@ -42,12 +44,14 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
       osmosisStakingOpportunities,
     ),
+    foxEthLpOpportunity,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
     .plus(totalFoxyBalance)
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
+    .plus(foxEthLpOpportunity.fiatAmount)
     .toString()
-  return { opportunities, totalEarningBalance, loading: vaultsLoading || foxyLoading }
+  return { opportunities, totalEarningBalance, loading: vaultsLoading || foxyLoading || lpLoading }
 }

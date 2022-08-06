@@ -1,20 +1,16 @@
 import { useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-// import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
-  DefiParams,
-  DefiQueryParams,
-  DefiStep,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/const'
+import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-// import { poll } from 'lib/poll/poll'
+import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,99 +26,51 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  // const { FoxEthLp: FoxEthLpInvestor } = useFoxEthLp()
+  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool()
   const opportunity = state?.opportunity
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   // user info
-  const { state: walletState } = useWallet()
+  const {
+    state: { wallet },
+  } = useWallet()
 
   // notify
   const toast = useToast()
 
   if (!state || !dispatch) return null
 
-  // const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-  //   if (!(state.userAddress && state.opportunity && assetReference && FoxEthLpInvestor)) return
-  //   try {
-  //     const FoxEthLpOpportunity = await FoxEthLpInvestor.findByOpportunityId(
-  //       state.opportunity?.positionAsset.assetId ?? '',
-  //     )
-  //     if (!FoxEthLpOpportunity) throw new Error('No opportunity')
-  //     const preparedTx = await FoxEthLpOpportunity.prepareDeposit({
-  //       amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-  //       address: state.userAddress,
-  //     })
-  //     // TODO(theobold): Figure out a better way for the safety factor
-  //     return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-  //   } catch (error) {
-  //     moduleLogger.error(
-  //       { fn: 'getDepositGasEstimate', error },
-  //       'Error getting deposit gas estimate',
-  //     )
-  //     toast({
-  //       position: 'top-right',
-  //       description: translate('common.somethingWentWrongBody'),
-  //       title: translate('common.somethingWentWrong'),
-  //       status: 'error',
-  //     })
-  //   }
-  // }
-
   const handleApprove = async () => {
-    if (
-      !(
-        assetReference &&
-        state.userAddress &&
-        walletState.wallet &&
-        supportsETH(walletState.wallet) &&
-        opportunity
-      )
-    )
-      return
+    if (!opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
-      // const FoxEthLpOpportunity = await FoxEthLpInvestor?.findByOpportunityId(
-      //   state.opportunity?.positionAsset.assetId ?? '',
-      // )
-      // if (!FoxEthLpOpportunity) throw new Error('No opportunity')
-      // const tx = await FoxEthLpOpportunity.prepareApprove(state.userAddress)
-      // await FoxEthLpOpportunity.signAndBroadcast({
-      //   wallet: walletState.wallet,
-      //   tx,
-      //   // TODO: allow user to choose fee priority
-      //   feePriority: undefined,
-      // })
-      // const address = state.userAddress
-      // await poll({
-      //   fn: () => FoxEthLpOpportunity.allowance(address),
-      //   validate: (result: string) => {
-      //     const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-      //     return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
-      //   },
-      //   interval: 15000,
-      //   maxAttempts: 30,
-      // })
-      // // Get deposit gas estimate
-      // const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
-      // if (!estimatedGasCrypto) return
-      // dispatch({
-      //   type: FoxEthLpDepositActionType.SET_DEPOSIT,
-      //   payload: { estimatedGasCrypto },
-      // })
+      await approve()
+      await poll({
+        fn: () => allowance(),
+        validate: (result: string) => {
+          const allowance = bnOrZero(result).div(`1e+${foxAsset.precision}`)
+          return bnOrZero(allowance).gt(bnOrZero(state.deposit.cryptoAmount1))
+        },
+        interval: 15000,
+        maxAttempts: 30,
+      })
+      // Get deposit gas estimate
+      const gasData = await getDepositGasData(
+        state.deposit.cryptoAmount1,
+        state.deposit.cryptoAmount2,
+      )
+      if (!gasData) return
+      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+        .div(`1e${feeAsset.precision}`)
+        .toPrecision()
+      dispatch({
+        type: FoxEthLpDepositActionType.SET_DEPOSIT,
+        payload: { estimatedGasCrypto },
+      })
 
       onNext(DefiStep.Confirm)
     } catch (error) {
@@ -140,14 +88,11 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
 
   return (
     <ReusableApprove
-      asset={asset}
+      asset={foxAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
-        .toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
       disableAction
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}

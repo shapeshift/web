@@ -1,4 +1,4 @@
-import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 
 type EstimatedGas = {

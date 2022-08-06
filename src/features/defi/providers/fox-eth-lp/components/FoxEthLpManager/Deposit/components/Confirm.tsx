@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -8,6 +8,8 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/const'
+import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -35,18 +37,17 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  // TODO: Allow user to set fee priority
+  const { addLiquidity } = useFoxEthLiquidityPool()
   const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference } = query
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
@@ -64,36 +65,16 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const handleDeposit = async () => {
     try {
-      if (
-        !(
-          state.userAddress &&
-          assetReference &&
-          walletState.wallet &&
-          supportsETH(walletState.wallet) &&
-          opportunity
-        )
-      )
+      if (!(assetReference && walletState.wallet && supportsETH(walletState.wallet) && opportunity))
         return
 
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
-      // const FoxEthLpOpportunity = await FoxEthLpInvestor?.findByOpportunityId(
-      //   state.opportunity?.positionAsset.assetId ?? '',
-      // )
-      // if (!FoxEthLpOpportunity) throw new Error('No opportunity')
-      // const tx = await FoxEthLpOpportunity.prepareDeposit({
-      //   address: state.userAddress,
-      //   amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-      // })
-      // const txid = await FoxEthLpOpportunity.signAndBroadcast({
-      //   wallet: walletState.wallet,
-      //   tx,
-      //   // TODO: allow user to choose fee priority
-      //   feePriority: undefined,
-      // })
-      // dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
+      const txid = await addLiquidity(state.deposit.cryptoAmount1, state.deposit.cryptoAmount2)
+      if (!txid) throw new Error('addLiquidity failed')
+      dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
-      moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
+      moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -129,11 +110,20 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={asset.icon} />
-              <RawText>{asset.name}</RawText>
+              <AssetIcon size='xs' src={foxAsset.icon} />
+              <RawText>{foxAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmount1} symbol={foxAsset.symbol} />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={ethAsset.icon} />
+              <RawText>{ethAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.deposit.cryptoAmount2} symbol={ethAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -146,15 +136,12 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                value={bnOrZero(state.deposit.estimatedGasCrypto).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

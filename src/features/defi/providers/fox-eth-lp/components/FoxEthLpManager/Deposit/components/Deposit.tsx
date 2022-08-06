@@ -36,7 +36,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
-  const { allowance, getApproveGasData } = useFoxEthLiquidityPool()
+  const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool()
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -60,8 +60,10 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   if (!state || !dispatch) return null
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference)) return
     try {
+      const gasData = await getDepositGasData(deposit.cryptoAmount1, deposit.cryptoAmount2)
+      if (!gasData) return
+      return bnOrZero(gasData.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
     } catch (error) {
       moduleLogger.error(
         { fn: 'getDepositGasEstimate', error },
@@ -73,6 +75,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
         title: translate('common.somethingWentWrong'),
         status: 'error',
       })
+      dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
     }
   }
 
@@ -83,10 +86,10 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     try {
       // Check if approval is required for user address
       const lpAllowance = await allowance()
-      const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
+      const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${foxAsset.precision}`)
 
       // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowanceAmount.gt(formValues.cryptoAmount1)) {
+      if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount1))) {
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         dispatch({
@@ -97,7 +100,6 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
         dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
       } else {
         const estimatedGasCrypto = await getApproveGasData()
-        console.info(estimatedGasCrypto)
         if (!estimatedGasCrypto) return
         dispatch({
           type: FoxEthLpDepositActionType.SET_APPROVE,

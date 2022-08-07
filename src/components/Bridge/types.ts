@@ -41,7 +41,7 @@ export type BridgeAsset = {
   cryptoAmount: string
   fiatAmount: string
   implementations?: {
-    [key in string]: BridgeChain
+    [key: string]: BridgeChain
   }
 }
 

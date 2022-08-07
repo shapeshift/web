@@ -61,9 +61,9 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
   // FIXME: clean up - this whole section is utter garbage
   const portfolioAssets = useSelector(selectPortfolioBridgeAssets)
   const allAssets = useSelector(selectAssets)
-  const supportedAssets = portfolioAssets
+  const supportedAssets: BridgeAsset[] = portfolioAssets
     .filter(asset => !!getBridgeDestinationAsset(asset.assetId))
-    .map(filteredAsset => {
+    .map<BridgeAsset>(filteredAsset => {
       const destinationAssetId = getBridgeDestinationAsset(filteredAsset.assetId)
       const destinationAsset = destinationAssetId ? allAssets[destinationAssetId] : undefined
       const destinationBridgeAsset = portfolioAssets.find(a => a.assetId === destinationAssetId)

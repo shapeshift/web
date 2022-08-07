@@ -12,8 +12,8 @@ import { WrappedIcon } from 'components/AssetIcon'
 import { getAxelarAssetTransferSdk } from 'components/Bridge/axelarAssetTransferSdkSingleton'
 import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
 import {
-  chainNameToAxelarEvmChain,
-  chainNameToAxelarGasToken,
+  chainNameToEvmChain,
+  chainNameToGasToken,
   getDenomFromBridgeAsset,
 } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
@@ -87,9 +87,9 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
-  const sourceChainName = chainNameToAxelarEvmChain(fromChain?.name ?? '')
-  const destinationChainName = chainNameToAxelarEvmChain(toChain?.name ?? '')
-  const sourceChainTokenSymbol = chainNameToAxelarGasToken(fromChain?.name ?? '')
+  const sourceChainName = fromChain?.name ? chainNameToEvmChain(fromChain.name) : undefined
+  const destinationChainName = toChain?.name ? chainNameToEvmChain(toChain.name) : undefined
+  const sourceChainTokenSymbol = fromChain?.name ? chainNameToGasToken(fromChain.name) : undefined
   const assetDenom = getDenomFromBridgeAsset(bridgeAsset)
 
   useEffect(() => {
@@ -128,8 +128,8 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
       const assetDenom = getDenomFromBridgeAsset(bridgeAsset)
 
       const depositAddress = await axelarAssetTransferSdk.getDepositAddress(
-        sourceChainName,
-        destinationChainName,
+        sourceChainName ?? '',
+        destinationChainName ?? '',
         receiveAddress ?? '',
         assetDenom ?? '',
       )

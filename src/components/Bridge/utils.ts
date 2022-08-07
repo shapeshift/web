@@ -59,25 +59,25 @@ export const getBridgeDestinationAsset = (assetId: AssetId): AssetId | undefined
   }
 }
 
-export const chainNameToAxelarEvmChain = (name: string): EvmChain => {
+export const chainNameToEvmChain = (name: AxelarChainName): EvmChain => {
   switch (name) {
     case AxelarChainNames.Ethereum:
       return EvmChain.ETHEREUM
     case AxelarChainNames.Avalanche:
       return EvmChain.AVALANCHE
     default:
-      throw new Error(`chainNameToAxelarEvmChain: name ${name} not supported`)
+      throw new Error(`chainNameToEvmChain: name ${name} not supported`)
   }
 }
 
-export const chainNameToAxelarGasToken = (name: string): GasToken => {
+export const chainNameToGasToken = (name: AxelarChainName): GasToken => {
   switch (name) {
     case AxelarChainNames.Ethereum:
       return GasToken.ETH
     case AxelarChainNames.Avalanche:
       return GasToken.AVAX
     default:
-      throw new Error(`chainNameToAxelarGasToken: name ${name} not supported`)
+      throw new Error(`chainNameToGasToken: name ${name} not supported`)
   }
 }
 

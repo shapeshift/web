@@ -42,6 +42,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
         data={balanceChartData}
         loading={balanceChartDataLoading}
         isLoaded={!balanceChartDataLoading}
+        rainbow={true}
       />
     </Card.Body>
   )

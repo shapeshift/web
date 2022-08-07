@@ -5,20 +5,34 @@ import { useMemo } from 'react'
 
 import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
+import { RainbowChart } from './RainbowChart/RainbowChart'
 
 type GraphProps = {
   data: HistoryData[] | null
   isLoaded?: boolean
   loading?: boolean
   color?: string
+  rainbow?: boolean
 }
 
-export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
-  return useMemo(
-    () => (
+export const Graph = ({ data, isLoaded, loading, color, rainbow }: GraphProps) => {
+  return useMemo(() => {
+    return (
       <ParentSize debounceTime={10}>
-        {parent =>
-          loading || !isLoaded ? (
+        {parent => {
+          const primaryChartProps = {
+            data: data ?? [],
+            height: parent.height,
+            width: parent.width,
+            color,
+            margin: {
+              top: 16,
+              right: 0,
+              bottom: 60,
+              left: 0,
+            },
+          }
+          return loading || !isLoaded ? (
             <Fade in={loading || !isLoaded}>
               <Center width='full' height={parent.height} overflow='hidden'>
                 <GraphLoading />
@@ -26,23 +40,15 @@ export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
             </Fade>
           ) : data?.length ? (
             <SlideFade in={!loading}>
-              <PrimaryChart
-                data={data ?? []}
-                height={parent.height}
-                width={parent.width}
-                color={color}
-                margin={{
-                  top: 16,
-                  right: 0,
-                  bottom: 60,
-                  left: 0,
-                }}
-              />
+              {rainbow ? (
+                <RainbowChart {...primaryChartProps} />
+              ) : (
+                <PrimaryChart {...primaryChartProps} />
+              )}
             </SlideFade>
           ) : null
-        }
+        }}
       </ParentSize>
-    ),
-    [color, data, isLoaded, loading],
-  )
+    )
+  }, [color, data, isLoaded, loading, rainbow])
 }

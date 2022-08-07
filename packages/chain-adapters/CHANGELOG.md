@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.15.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.15.0...@shapeshiftoss/chain-adapters-v7.15.1) (2022-08-07)
+
+
+### Bug Fixes
+
+* **Transaction type:** tradeDetails -> trade ([#950](https://github.com/shapeshift/lib/issues/950)) ([ef9fb1d](https://github.com/shapeshift/lib/commit/ef9fb1dcb7e834d7a33d90e3d487eaee45eb07a7))
+
 # [@shapeshiftoss/chain-adapters-v7.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.14.2...@shapeshiftoss/chain-adapters-v7.15.0) (2022-08-06)
 
 

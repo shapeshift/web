@@ -144,7 +144,7 @@ export const PairDeposit = ({
       })
       if (syncPair) {
         setValue(otherFiatInput, value, { shouldValidate: true })
-        setValue(otherCryptoInput, bnOrZero(value).div(otherAssetMarketData.price).toFixed(2), {
+        setValue(otherCryptoInput, bnOrZero(value).div(otherAssetMarketData.price).toString(), {
           shouldValidate: true,
         })
       }
@@ -160,7 +160,7 @@ export const PairDeposit = ({
         setValue(otherFiatInput, fiatValue, {
           shouldValidate: true,
         })
-        setValue(otherCryptoInput, bnOrZero(fiatValue).div(otherAssetMarketData.price).toFixed(2), {
+        setValue(otherCryptoInput, bnOrZero(fiatValue).div(otherAssetMarketData.price).toString(), {
           shouldValidate: true,
         })
       }

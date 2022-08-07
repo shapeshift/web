@@ -3,7 +3,10 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/const'
+import {
+  foxAssetId,
+  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+} from 'features/defi/providers/fox-eth-lp/const'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -102,6 +105,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
+      contractAddress={UNISWAP_V2_WETH_FOX_POOL_ADDRESS}
     />
   )
 }

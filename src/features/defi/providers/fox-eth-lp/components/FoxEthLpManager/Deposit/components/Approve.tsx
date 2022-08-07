@@ -5,6 +5,7 @@ import { Approve as ReusableApprove } from 'features/defi/components/Approve/App
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxAssetId } from 'features/defi/providers/fox-eth-lp/const'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -101,6 +102,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
+      contractAddress={FOX_TOKEN_CONTRACT_ADDRESS}
     />
   )
 }

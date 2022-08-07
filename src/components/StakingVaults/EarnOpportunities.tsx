@@ -16,7 +16,7 @@ import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
@@ -39,13 +39,14 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   const vaults = useYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
   const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalance()
+  const featureFlags = useAppSelector(selectFeatureFlags)
   //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
     foxyArray: foxyRows,
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity,
+    foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||

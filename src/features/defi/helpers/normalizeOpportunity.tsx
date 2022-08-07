@@ -161,8 +161,8 @@ export const useNormalizeOpportunities = ({
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
     ...transformFoxy(foxyArray),
-    ...(foxEthLpOpportunity ? [foxEthLpOpportunity] : []),
     ...useTransformCosmosStaking(cosmosSdkStakingOpportunities),
+    ...(foxEthLpOpportunity ? [foxEthLpOpportunity] : []),
     ...useTransformVault(vaultArray),
   ]
 }

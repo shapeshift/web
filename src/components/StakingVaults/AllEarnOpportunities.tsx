@@ -21,6 +21,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
@@ -44,7 +46,7 @@ export const AllEarnOpportunities = () => {
       assetId: osmosisAssetId,
     })
   const { cosmosStaking } = useModal()
-
+  const featureFlags = useAppSelector(selectFeatureFlags)
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
@@ -52,7 +54,7 @@ export const AllEarnOpportunities = () => {
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
-    foxEthLpOpportunity,
+    foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
   })
 
   const handleClick = useCallback(

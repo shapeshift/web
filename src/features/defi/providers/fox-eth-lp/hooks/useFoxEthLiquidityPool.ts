@@ -10,7 +10,6 @@ import {
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import IUniswapV2Router02ABI from '@uniswap/v2-periphery/build/IUniswapV2Router02.json'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -22,6 +21,7 @@ import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import erc20abi from '../abis/erc20abi.json'
+import IUniswapV2Router02ABI from '../abis/IUniswapV2Router02.json'
 import {
   foxAssetId,
   foxEthLpAssetId,

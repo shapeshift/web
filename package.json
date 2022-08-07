@@ -107,7 +107,6 @@
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^9.5.1",
     "@uniswap/sdk": "^3.0.3",
-    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "@unstoppabledomains/resolution": "^7.1.4",
     "@visx/axis": "^2.10.0",
     "@visx/brush": "^2.10.1",

@@ -159,11 +159,10 @@ export const useNormalizeOpportunities = ({
   cosmosSdkStakingOpportunities = [],
   foxEthLpOpportunity,
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
-  const normalizedOpportunities = [
+  return [
     ...transformFoxy(foxyArray),
+    ...(foxEthLpOpportunity ? [foxEthLpOpportunity] : []),
     ...useTransformCosmosStaking(cosmosSdkStakingOpportunities),
     ...useTransformVault(vaultArray),
   ]
-  if (foxEthLpOpportunity) normalizedOpportunities.unshift(foxEthLpOpportunity)
-  return normalizedOpportunities
 }

@@ -1,10 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
+import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/const'
 import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -45,7 +46,12 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
     foxyArray: foxyRows,
     cosmosSdkStakingOpportunities: [],
     foxEthLpOpportunity,
-  }).filter(row => row.assetId.toLowerCase() === asset.assetId.toLowerCase())
+  }).filter(
+    row =>
+      row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
+      // show FOX_ETH LP token on FOX and ETH pages
+      (row.assetId === foxEthLpAssetId && [ethAssetId, foxAssetId].includes(asset.assetId)),
+  )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
     const { provider, contractAddress, chainId, assetId, rewardAddress } = opportunity

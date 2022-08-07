@@ -225,7 +225,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           txid: parsedTx.txid,
           fee: parsedTx.fee,
           status: parsedTx.status,
-          tradeDetails: parsedTx.trade,
+          trade: parsedTx.trade,
           transfers: parsedTx.transfers.map((transfer) => ({
             assetId: transfer.assetId,
             from: transfer.from,

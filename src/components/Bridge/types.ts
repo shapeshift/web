@@ -21,10 +21,6 @@ export enum AxelarChainNames {
 
 export type AxelarChainName = `${AxelarChainNames}`
 
-export const isAxelarChainName = (chainName: any): chainName is AxelarChainName => {
-  return Object.values(AxelarChainNames).includes(chainName as AxelarChainNames)
-}
-
 export type BridgeChain = {
   name: AxelarChainName
   balance: string

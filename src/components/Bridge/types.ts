@@ -46,14 +46,14 @@ export type BridgeAsset = {
 }
 
 export type BridgeState = {
-  asset: BridgeAsset | undefined
+  asset: BridgeAsset
   fiatAmount: string
   cryptoAmount: string
   fromChain: BridgeChain | undefined
   toChain: BridgeChain | undefined
-  receiveAddress: string | undefined
-  depositAddress: string | undefined
-  relayerFeeUsdc: string | undefined
+  receiveAddress: string
+  depositAddress: string
+  relayerFeeUsdc: string
 }
 
 export enum BridgeRoutePaths {

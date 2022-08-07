@@ -81,7 +81,15 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const handleContinue = async (formValues: DepositValues) => {
     // set deposit state for future use
-    dispatch({ type: FoxEthLpDepositActionType.SET_DEPOSIT, payload: formValues })
+    dispatch({
+      type: FoxEthLpDepositActionType.SET_DEPOSIT,
+      payload: {
+        foxCryptoAmount: formValues.cryptoAmount1,
+        foxFiatAmount: formValues.fiatAmount1,
+        ethCryptoAmount: formValues.cryptoAmount2,
+        ethFiatAmount: formValues.fiatAmount2,
+      },
+    })
     dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
     try {
       // Check if approval is required for user address

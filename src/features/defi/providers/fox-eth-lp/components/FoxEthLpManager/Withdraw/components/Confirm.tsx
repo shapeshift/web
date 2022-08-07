@@ -1,14 +1,11 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
-import {
-  DefiParams,
-  DefiQueryParams,
-  DefiStep,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/const'
+import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -16,7 +13,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -26,81 +22,46 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnWithdrawActionType } from '../WithdrawCommon'
+import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { yearn: yearnInvestor } = useYearn()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
+  const { removeLiquidity } = useFoxEthLiquidityPool()
 
-  const assetNamespace = 'erc20'
-  // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
   // user info
   const { state: walletState } = useWallet()
 
   const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: ethAsset?.assetId ?? '' }),
   )
 
   if (!state || !dispatch) return null
 
   const handleConfirm = async () => {
     try {
-      if (
-        !(
-          state.userAddress &&
-          assetReference &&
-          walletState.wallet &&
-          supportsETH(walletState.wallet) &&
-          opportunity
-        )
+      if (!(walletState.wallet && supportsETH(walletState.wallet) && opportunity)) return
+      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
+
+      const txid = await removeLiquidity(
+        state.withdraw.lpAmount,
+        state.withdraw.foxAmount,
+        state.withdraw.ethAmount,
       )
-        return
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
-      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const tx = await yearnOpportunity.prepareWithdrawal({
-        address: state.userAddress,
-        amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-      })
-      const txid = await yearnOpportunity.signAndBroadcast({
-        wallet: walletState.wallet,
-        tx,
-        // TODO: allow user to choose fee priority
-        feePriority: undefined,
-      })
-      dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
+      if (!txid) throw new Error(`Transaction failed`)
+      dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
-      console.error('YearnWithdraw:handleConfirm error', error)
+      console.error('FoxEthLpWithdraw:handleConfirm error', error)
     } finally {
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
+      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
     }
   }
 
@@ -109,7 +70,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${ethAsset.precision}`))
     .gte(0)
 
   return (
@@ -128,11 +89,34 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={lpAsset.icon} />
+              <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.lpAmount} symbol={lpAsset.symbol} />
+            </Row.Value>
+          </Row>
+        </Row>
+        <Row variant='vertical' p={4}>
+          <Row.Label>
+            <Text translation='common.receive' />
+          </Row.Label>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={foxAsset.icon} />
+              <RawText>{foxAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.foxAmount} symbol={foxAsset.symbol} />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={ethAsset.icon} />
+              <RawText>{ethAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.ethAmount} symbol={ethAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -145,16 +129,13 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
+                  .times(ethMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
-                symbol={feeAsset.symbol}
+                value={bnOrZero(state.withdraw.estimatedGasCrypto).toFixed(5)}
+                symbol={ethAsset.symbol}
               />
             </Box>
           </Row.Value>
@@ -162,7 +143,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: ethAsset.symbol }]} />
           </Alert>
         )}
       </Summary>

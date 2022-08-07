@@ -1,8 +1,14 @@
-import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
+}
+
+type DepositValues = {
+  foxFiatAmount: string
+  foxCryptoAmount: string
+  ethFiatAmount: string
+  ethCryptoAmount: string
 }
 
 type FoxEthLpDepositValues = DepositValues &

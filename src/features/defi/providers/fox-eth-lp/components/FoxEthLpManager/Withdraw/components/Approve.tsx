@@ -14,19 +14,19 @@ import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxEthLpDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
+import { WithdrawContext } from '../WithdrawContext'
 
 type FoxEthLpApproveProps = {
   onNext: (arg: DefiStep) => void
 }
 
-const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
+const moduleLogger = logger.child({ namespace: ['FoxEthLpWithdraw:Approve'] })
 
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
-  const { state, dispatch } = useContext(DepositContext)
+  const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool()
+  const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool()
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -47,28 +47,29 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     if (!opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
-      dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
-      await approve()
+      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
+      await approve(true)
       await poll({
-        fn: () => allowance(),
+        fn: () => allowance(true),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${foxAsset.precision}`)
-          return bnOrZero(allowance).gt(bnOrZero(state.deposit.foxCryptoAmount))
+          return bnOrZero(allowance).gt(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const gasData = await getDepositGasData(
-        state.deposit.foxCryptoAmount,
-        state.deposit.ethCryptoAmount,
+      const gasData = await getWithdrawGasData(
+        state.withdraw.lpAmount,
+        state.withdraw.foxAmount,
+        state.withdraw.ethAmount,
       )
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
         .div(`1e${feeAsset.precision}`)
         .toPrecision()
       dispatch({
-        type: FoxEthLpDepositActionType.SET_DEPOSIT,
+        type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCrypto },
       })
 
@@ -82,7 +83,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
         status: 'error',
       })
     } finally {
-      dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
+      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
     }
   }
 

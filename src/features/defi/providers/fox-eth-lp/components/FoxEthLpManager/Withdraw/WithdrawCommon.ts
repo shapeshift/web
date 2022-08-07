@@ -1,68 +1,74 @@
-import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
-import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
 }
 
-type YearnWithdrawValues = WithdrawValues &
+type WithdrawValues = {
+  lpAmount: string
+  foxAmount: string
+  ethAmount: string
+}
+
+type FoxEthLpWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
   }
 
-// Redux only stores things that are serializable. Class methods are removed when put in state.
-type SerializableOpportunity = Omit<
-  YearnOpportunity,
-  'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'signAndBroadcast'
->
-
-export type YearnWithdrawState = {
-  opportunity: SerializableOpportunity | null
+export type FoxEthLpWithdrawState = {
+  opportunity: EarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
-  withdraw: YearnWithdrawValues
+  withdraw: FoxEthLpWithdrawValues
   loading: boolean
   txid: string | null
 }
 
-export enum YearnWithdrawActionType {
+export enum FoxEthLpWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
+  SET_APPROVE = 'SET_APPROVE',
   SET_TXID = 'SET_TXID',
   SET_TX_STATUS = 'SET_TX_STATUS',
 }
 
 type SetOpportunityAction = {
-  type: YearnWithdrawActionType.SET_OPPORTUNITY
-  payload: YearnOpportunity
+  type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY
+  payload: EarnOpportunityType
 }
 
 type SetWithdraw = {
-  type: YearnWithdrawActionType.SET_WITHDRAW
-  payload: Partial<YearnWithdrawValues>
+  type: FoxEthLpWithdrawActionType.SET_WITHDRAW
+  payload: Partial<FoxEthLpWithdrawValues>
 }
 
 type SetUserAddress = {
-  type: YearnWithdrawActionType.SET_USER_ADDRESS
+  type: FoxEthLpWithdrawActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: YearnWithdrawActionType.SET_LOADING
+  type: FoxEthLpWithdrawActionType.SET_LOADING
   payload: boolean
 }
 
 type SetTxid = {
-  type: YearnWithdrawActionType.SET_TXID
+  type: FoxEthLpWithdrawActionType.SET_TXID
   payload: string
 }
 
-export type YearnWithdrawActions =
+type SetApprove = {
+  type: FoxEthLpWithdrawActionType.SET_APPROVE
+  payload: EstimatedGas
+}
+
+export type FoxEthLpWithdrawActions =
   | SetOpportunityAction
   | SetWithdraw
   | SetUserAddress
+  | SetApprove
   | SetLoading
   | SetTxid

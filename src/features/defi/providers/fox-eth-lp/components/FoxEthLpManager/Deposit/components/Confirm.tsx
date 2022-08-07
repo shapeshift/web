@@ -69,7 +69,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
         return
 
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
-      const txid = await addLiquidity(state.deposit.cryptoAmount1, state.deposit.cryptoAmount2)
+      const txid = await addLiquidity(state.deposit.foxCryptoAmount, state.deposit.ethCryptoAmount)
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
@@ -114,7 +114,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
               <RawText>{foxAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount1} symbol={foxAsset.symbol} />
+              <Amount.Crypto value={state.deposit.foxCryptoAmount} symbol={foxAsset.symbol} />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
@@ -123,7 +123,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
               <RawText>{ethAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount2} symbol={ethAsset.symbol} />
+              <Amount.Crypto value={state.deposit.ethCryptoAmount} symbol={ethAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>

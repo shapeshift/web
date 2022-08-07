@@ -4,6 +4,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   foxAssetId,
+  foxEthLpAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/const'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
@@ -26,7 +27,7 @@ const defaultOpportunity: EarnOpportunityType = {
   contractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
   rewardAddress: '',
   tvl: '',
-  assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+  assetId: foxEthLpAssetId,
   fiatAmount: '',
   cryptoAmount: '',
   chainId: 'eip155:1',

@@ -148,7 +148,7 @@ export const Status = () => {
               <RawText>{foxAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount1} symbol={foxAsset.symbol} />
+              <Amount.Crypto value={state.deposit.foxCryptoAmount} symbol={foxAsset.symbol} />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
@@ -157,7 +157,7 @@ export const Status = () => {
               <RawText>{ethAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount2} symbol={ethAsset.symbol} />
+              <Amount.Crypto value={state.deposit.ethCryptoAmount} symbol={ethAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -203,7 +203,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${ethAsset.explorerTxLink}/${state.txid}`}
+            href={`${ethAsset.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

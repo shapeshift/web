@@ -24,6 +24,7 @@ import { useAppSelector } from 'state/store'
 import erc20abi from '../abis/erc20abi.json'
 import {
   foxAssetId,
+  foxEthLpAssetId,
   MAX_ALLOWANCE,
   UNISWAP_V2_ROUTER_ADDRESS,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -31,11 +32,15 @@ import {
 
 const ethersProvider = getEthersProvider()
 
-function calculateSlippageMargin(amount: string | null) {
+function calculateSlippageMargin(amount: string | null, precision: number) {
   if (!amount) throw new Error('Amount not given for slippage')
   const percentage = 3
   const remainingPercentage = (100 - percentage) / 100
-  return bnOrZero(amount).times(bnOrZero(remainingPercentage)).decimalPlaces(0).toFixed()
+  return bnOrZero(amount)
+    .times(bnOrZero(10).exponentiatedBy(precision))
+    .times(bnOrZero(remainingPercentage))
+    .decimalPlaces(0)
+    .toFixed()
 }
 
 export const useFoxEthLiquidityPool = () => {
@@ -43,6 +48,7 @@ export const useFoxEthLiquidityPool = () => {
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
   const {
     state: { wallet },
   } = useWallet()
@@ -70,11 +76,9 @@ export const useFoxEthLiquidityPool = () => {
     [],
   )
 
-  const uniV2LiquidityContractAddress = UNISWAP_V2_WETH_FOX_POOL_ADDRESS
-
   const uniV2LPContract = useMemo(
-    () => new Contract(uniV2LiquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
-    [uniV2LiquidityContractAddress],
+    () => new Contract(UNISWAP_V2_WETH_FOX_POOL_ADDRESS, IUniswapV2Pair.abi, ethersProvider),
+    [],
   )
 
   const addLiquidity = useCallback(
@@ -89,8 +93,8 @@ export const useFoxEthLiquidityPool = () => {
         const data = uniswapRouterContract?.interface.encodeFunctionData('addLiquidityETH', [
           FOX_TOKEN_CONTRACT_ADDRESS,
           bnOrZero(foxAmount).times(bnOrZero(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
-          calculateSlippageMargin(foxAmount),
-          calculateSlippageMargin(ethAmount),
+          calculateSlippageMargin(foxAmount, foxAsset.precision),
+          calculateSlippageMargin(ethAmount, ethAsset.precision),
           connectedWalletEthAddress,
           Date.now() + 1200000,
         ])
@@ -177,32 +181,28 @@ export const useFoxEthLiquidityPool = () => {
   )
 
   const removeLiquidity = useCallback(
-    async (foxAmount: string, ethAmount: string, lpAmount: string) => {
+    async (lpAmount: string, foxAmount: string, ethAmount: string) => {
       try {
         if (!connectedWalletEthAddress || !uniswapRouterContract || !wallet) return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
-        const value = bnOrZero(ethAmount)
-          .times(bnOrZero(10).exponentiatedBy(ethAsset.precision))
-          .toFixed(0)
         const data = uniswapRouterContract?.interface.encodeFunctionData('removeLiquidityETH', [
           FOX_TOKEN_CONTRACT_ADDRESS,
-          lpAmount,
-          calculateSlippageMargin(foxAmount),
-          calculateSlippageMargin(ethAmount),
+          bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+          calculateSlippageMargin(foxAmount, foxAsset.precision),
+          calculateSlippageMargin(ethAmount, ethAsset.precision),
           connectedWalletEthAddress,
           Date.now() + 1200000,
         ])
         const adapterType = adapter.getChainId()
         const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
           to: UNISWAP_V2_ROUTER_ADDRESS,
-          value,
+          value: '0',
           chainSpecific: {
             contractData: data,
             from: connectedWalletEthAddress,
-            contractAddress: FOX_TOKEN_CONTRACT_ADDRESS,
           },
         })
         const result = await (async () => {
@@ -222,7 +222,7 @@ export const useFoxEthLiquidityPool = () => {
             }
             return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
               to: UNISWAP_V2_ROUTER_ADDRESS,
-              value,
+              value: '0',
               wallet,
               data,
               gasLimit,
@@ -270,6 +270,8 @@ export const useFoxEthLiquidityPool = () => {
       connectedWalletEthAddress,
       ethAsset.chainId,
       ethAsset.precision,
+      foxAsset.precision,
+      lpAsset.precision,
       supportedEvmChainIds,
       uniswapRouterContract,
       wallet,
@@ -310,33 +312,41 @@ export const useFoxEthLiquidityPool = () => {
     }
   }, [ethAsset.precision, ethPrice, uniV2LPContract])
 
-  const allowance = useCallback(async () => {
-    if (!connectedWalletEthAddress || !foxContract) return
-    const _allowance = await foxContract.allowance(
-      connectedWalletEthAddress,
-      UNISWAP_V2_ROUTER_ADDRESS,
-    )
-    return _allowance.toString()
-  }, [connectedWalletEthAddress, foxContract])
-
-  const getApproveGasData = useCallback(async () => {
-    if (adapter && connectedWalletEthAddress && foxContract) {
-      const data = foxContract.interface.encodeFunctionData('approve', [
+  const allowance = useCallback(
+    async (forWithdrawal?: boolean) => {
+      const contract = forWithdrawal ? uniV2LPContract : foxContract
+      if (!connectedWalletEthAddress || !contract) return
+      const _allowance = await contract.allowance(
+        connectedWalletEthAddress,
         UNISWAP_V2_ROUTER_ADDRESS,
-        MAX_ALLOWANCE,
-      ])
-      const fees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-        to: FOX_TOKEN_CONTRACT_ADDRESS,
-        value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: connectedWalletEthAddress,
-          contractAddress: FOX_TOKEN_CONTRACT_ADDRESS,
-        },
-      })
-      return fees
-    }
-  }, [adapter, connectedWalletEthAddress, foxContract])
+      )
+      return _allowance.toString()
+    },
+    [connectedWalletEthAddress, foxContract, uniV2LPContract],
+  )
+
+  const getApproveGasData = useCallback(
+    async (forWithdrawal?: boolean) => {
+      const contract = forWithdrawal ? uniV2LPContract : foxContract
+      if (adapter && connectedWalletEthAddress && contract) {
+        const data = contract.interface.encodeFunctionData('approve', [
+          UNISWAP_V2_ROUTER_ADDRESS,
+          MAX_ALLOWANCE,
+        ])
+        const fees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+          to: contract.address,
+          value: '0',
+          chainSpecific: {
+            contractData: data,
+            from: connectedWalletEthAddress,
+            contractAddress: contract.address,
+          },
+        })
+        return fees
+      }
+    },
+    [adapter, connectedWalletEthAddress, foxContract, uniV2LPContract],
+  )
 
   const getDepositGasData = useCallback(
     async (foxAmount: string, ethAmount: string) => {
@@ -347,8 +357,8 @@ export const useFoxEthLiquidityPool = () => {
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
         bnOrZero(foxAmount).times(bnOrZero(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
-        calculateSlippageMargin(foxAmount),
-        calculateSlippageMargin(ethAmount),
+        calculateSlippageMargin(foxAmount, foxAsset.precision),
+        calculateSlippageMargin(ethAmount, ethAsset.precision),
         connectedWalletEthAddress,
         Date.now() + 1200000,
       ])
@@ -371,65 +381,101 @@ export const useFoxEthLiquidityPool = () => {
     ],
   )
 
-  const approve = useCallback(async () => {
-    if (!wallet) return
-    const data = foxContract.interface.encodeFunctionData('approve', [
-      UNISWAP_V2_ROUTER_ADDRESS,
-      MAX_ALLOWANCE,
-    ])
-    const gasData = await getApproveGasData()
-    if (!gasData) return
-    const fees = gasData.average as FeeData<EvmChainId>
-    const {
-      chainSpecific: { gasPrice, gasLimit },
-    } = fees
-    if (gasPrice === undefined) {
-      throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
-    }
-    const result = await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
-      to: FOX_TOKEN_CONTRACT_ADDRESS,
-      value: '0x00',
-      wallet,
-      data,
-      gasLimit,
-      bip44Params: adapter.buildBIP44Params({
-        accountNumber: 0,
-      }),
-      gasPrice,
-    })
-    const txToSign = result.txToSign
+  const getWithdrawGasData = useCallback(
+    async (lpAmount: string, foxAmount: string, ethAmount: string) => {
+      if (!connectedWalletEthAddress || !uniswapRouterContract) return
+      const data = uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
+        FOX_TOKEN_CONTRACT_ADDRESS,
+        bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+        calculateSlippageMargin(foxAmount, foxAsset.precision),
+        calculateSlippageMargin(ethAmount, ethAsset.precision),
+        connectedWalletEthAddress,
+        Date.now() + 1200000,
+      ])
+      const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        to: UNISWAP_V2_ROUTER_ADDRESS,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: connectedWalletEthAddress,
+        },
+      })
+      return estimatedFees
+    },
+    [
+      adapter,
+      connectedWalletEthAddress,
+      ethAsset.precision,
+      foxAsset.precision,
+      lpAsset.precision,
+      uniswapRouterContract,
+    ],
+  )
 
-    const broadcastTXID = await (async () => {
-      if (wallet.supportsOfflineSigning()) {
-        const signedTx = await adapter.signTransaction({
-          txToSign,
-          wallet,
-        })
-        return adapter.broadcastTransaction(signedTx)
-      } else if (wallet.supportsBroadcast()) {
-        /**
-         * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-         * Check and see if it exists; if so, call and make sure a txhash is returned
-         */
-        if (!adapter.signAndBroadcastTransaction) {
-          throw new Error('signAndBroadcastTransaction undefined for wallet')
-        }
-        return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-      } else {
-        throw new Error('Bad hdwallet config')
+  const approve = useCallback(
+    async (forWithdrawal?: boolean) => {
+      if (!wallet) return
+      const contract = forWithdrawal ? uniV2LPContract : foxContract
+      const data = contract.interface.encodeFunctionData('approve', [
+        UNISWAP_V2_ROUTER_ADDRESS,
+        MAX_ALLOWANCE,
+      ])
+      const gasData = await getApproveGasData(forWithdrawal)
+      if (!gasData) return
+      const fees = gasData.average as FeeData<EvmChainId>
+      const {
+        chainSpecific: { gasPrice, gasLimit },
+      } = fees
+      if (gasPrice === undefined) {
+        throw new Error(`approve: missing gasPrice for non-EIP-1559 tx`)
       }
-    })()
-    return broadcastTXID
-  }, [adapter, foxContract.interface, getApproveGasData, wallet])
+      const result = await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
+        to: contract.address,
+        value: '0x00',
+        wallet,
+        data,
+        gasLimit,
+        bip44Params: adapter.buildBIP44Params({
+          accountNumber: 0,
+        }),
+        gasPrice,
+      })
+      const txToSign = result.txToSign
+
+      const broadcastTXID = await (async () => {
+        if (wallet.supportsOfflineSigning()) {
+          const signedTx = await adapter.signTransaction({
+            txToSign,
+            wallet,
+          })
+          return adapter.broadcastTransaction(signedTx)
+        } else if (wallet.supportsBroadcast()) {
+          /**
+           * signAndBroadcastTransaction is an optional method on the HDWallet interface.
+           * Check and see if it exists; if so, call and make sure a txhash is returned
+           */
+          if (!adapter.signAndBroadcastTransaction) {
+            throw new Error('signAndBroadcastTransaction undefined for wallet')
+          }
+          return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
+        } else {
+          throw new Error('Bad hdwallet config')
+        }
+      })()
+      return broadcastTXID
+    },
+    [adapter, foxContract, getApproveGasData, uniV2LPContract, wallet],
+  )
 
   return {
-    approve,
     addLiquidity,
-    removeLiquidity,
-    calculateHoldings,
-    getLpTVL,
     allowance,
+    approve,
+    calculateHoldings,
     getApproveGasData,
     getDepositGasData,
+    getLpTVL,
+    getWithdrawGasData,
+    removeLiquidity,
   }
 }

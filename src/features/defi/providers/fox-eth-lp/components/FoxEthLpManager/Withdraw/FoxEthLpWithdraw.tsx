@@ -1,6 +1,5 @@
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import {
@@ -9,16 +8,15 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -26,18 +24,17 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
-import { YearnWithdrawActionType } from './WithdrawCommon'
+import { FoxEthLpWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
 export const FoxEthLpWithdraw = () => {
-  const { yearn: api } = useYearn()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
@@ -57,38 +54,16 @@ export const FoxEthLpWithdraw = () => {
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
+  const { opportunity } = useFoxEthLpBalance()
+
   // user info
-  const chainAdapterManager = getChainAdapterManager()
-  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && vaultAddress && api && chainAdapter)) return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
-        if (!opportunity) {
-          return toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
-        dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
-      } catch (error) {
-        // TODO: handle client side errors
-        console.error('YearnWithdraw error:', error)
-      }
-    })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+    if (!walletState) return
+    dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
+  }, [opportunity, walletState])
 
   const handleBack = () => {
     history.push({
@@ -108,6 +83,10 @@ export const FoxEthLpWithdraw = () => {
           asset: underlyingAsset.symbol,
         }),
         component: Withdraw,
+      },
+      [DefiStep.Approve]: {
+        label: translate('defi.steps.approve.title'),
+        component: Approve,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
@@ -134,7 +113,7 @@ export const FoxEthLpWithdraw = () => {
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: underlyingAsset.symbol,
           })}
           onBack={handleBack}
         />

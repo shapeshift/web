@@ -1,17 +1,22 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect, useMemo } from 'react'
+import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/const'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
@@ -22,58 +27,57 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { YearnWithdrawActionType } from '../WithdrawCommon'
+import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
+  const [userAddress, setUserAddres] = useState<string | null>(null)
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId } = query
+  const {
+    state: { wallet },
+  } = useWallet()
 
-  const assetNamespace = 'erc20'
-  // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, chainId),
   )
+  useEffect(() => {
+    const chainAdapterManager = getChainAdapterManager()
+    const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
+    if (wallet && adapter) {
+      ;(async () => {
+        const address = await adapter.getAddress({ wallet })
+        setUserAddres(address)
+      })()
+    }
+  }, [ethAsset.chainId, wallet])
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && state?.userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, state.userAddress)
-  }, [state?.txid, state?.userAddress, accountSpecifier])
+    if (!(state?.txid && userAddress)) return ''
+    return serializeTxIndex(accountSpecifier, state.txid, userAddress)
+  }, [state?.txid, userAddress, accountSpecifier])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
-        type: YearnWithdrawActionType.SET_WITHDRAW,
+        type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee?.value,
+          usedGasFee: confirmedTransaction.fee
+            ? bnOrZero(confirmedTransaction.fee.value).div(`1e${ethAsset.precision}`).toString()
+            : '0',
         },
       })
     }
-  }, [confirmedTransaction, dispatch])
+  }, [confirmedTransaction, dispatch, ethAsset.precision])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')
@@ -93,7 +97,7 @@ export const Status = () => {
           statusIcon: <CheckIcon color='white' />,
           statusBg: 'green.500',
           statusBody: translate('modals.withdraw.status.success', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: lpAsset.symbol,
           }),
         }
       case 'failed':
@@ -105,7 +109,7 @@ export const Status = () => {
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusIcon: <AssetIcon size='xs' src={lpAsset.icon} />,
           statusText: StatusTextEnum.pending,
           statusBg: 'transparent',
           statusBody: translate('modals.withdraw.status.pending'),
@@ -125,17 +129,40 @@ export const Status = () => {
       statusBody={statusBody}
     >
       <Summary spacing={0} mx={6} mb={4}>
-        <Row variant='vert-gutter'>
+        <Row variant='vertical' p={4}>
           <Row.Label>
             <Text translation='modals.confirm.amountToWithdraw' />
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={lpAsset.icon} />
+              <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.lpAmount} symbol={lpAsset.symbol} />
+            </Row.Value>
+          </Row>
+        </Row>
+        <Row variant='vertical' p={4}>
+          <Row.Label>
+            <Text translation='common.receive' />
+          </Row.Label>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={foxAsset.icon} />
+              <RawText>{foxAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.foxAmount} symbol={foxAsset.symbol} />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={ethAsset.icon} />
+              <RawText>{ethAsset.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.ethAmount} symbol={ethAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -158,8 +185,7 @@ export const Status = () => {
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
                 )
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
+                  .times(ethMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
@@ -168,9 +194,7 @@ export const Status = () => {
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                ).toFixed(5)}
                 symbol='ETH'
               />
             </Box>
@@ -184,7 +208,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={`${ethAsset.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

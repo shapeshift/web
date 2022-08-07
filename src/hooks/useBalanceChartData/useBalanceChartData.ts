@@ -1,6 +1,6 @@
-import { AssetId, cosmosAssetId, cosmosChainId, toAccountId } from '@shapeshiftoss/caip'
+import { AssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryData, HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -13,7 +13,6 @@ import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -27,22 +26,21 @@ import {
   PortfolioBalancesById,
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
-  selectAccountSpecifiers,
   selectAssets,
+  selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoriesLoadingByTimeframe,
   selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
-  selectTotalStakingDelegationCryptoByAccountSpecifier,
+  selectRebasesByFilter,
+  selectTxHistoryStatus,
   selectTxsByFilter,
 } from 'state/slices/selectors'
-import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { includeStakedBalance, includeTransaction } from './cosmosUtils'
+import { excludeTransaction } from './cosmosUtils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
@@ -184,7 +182,8 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const portfolioAsset = portfolioAssets[assetId]
     if (!portfolioAsset) return acc
     const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
-    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date })
+    // fallback to 1 if fiat data is missing, note || required over ?? here
+    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance
       .div(bn(10).exponentiatedBy(precision))
@@ -200,26 +199,15 @@ type CalculateBucketPricesArgs = {
   portfolioAssets: PortfolioAssets
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
-  delegationTotal: string
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const {
-    assetIds,
-    buckets,
-    portfolioAssets,
-    cryptoPriceHistoryData,
-    fiatPriceHistoryData,
-    delegationTotal,
-  } = args
+  const { assetIds, buckets, portfolioAssets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
 
   const startingBucket = buckets[buckets.length - 1]
-
-  // add total cosmos staked balance to starting balance if cosmos is in assetIds
-  buckets[buckets.length - 1] = includeStakedBalance(startingBucket, delegationTotal, assetIds)
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -234,24 +222,23 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
       if (tx.fee && assetIds.includes(tx.fee.assetId)) {
-        // balance history being built in descending order, so fee means we had more before
-        // TODO(0xdef1cafe): this is awful but gets us out of trouble
-        // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
-        if (tx.chain !== KnownChainIds.BitcoinMainnet) {
+        // don't count fees for UTXO chains
+        if (fromChainId(tx.chainId).chainNamespace !== CHAIN_NAMESPACE.Bitcoin) {
+          // balance history being built in descending order, so fee means we had more before
           bucket.balance.crypto[tx.fee.assetId] = bucket.balance.crypto[tx.fee.assetId].plus(
             bnOrZero(tx.fee.value),
           )
         }
       }
 
-      // Identify Special cases where we should not include cosmos delegate/undelegate txs in chart balance
-      const includeTx = includeTransaction(tx)
+      // Identify Special cases where we should exclude cosmos delegate/undelegate/claim txs in chart balance
+      const excludeTx = excludeTransaction(tx)
 
       tx.transfers.forEach(transfer => {
         const asset = transfer.assetId
 
         if (!assetIds.includes(asset)) return
-        if (!includeTx) return
+        if (excludeTx) return
         if (tx.status === TxStatus.Failed) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
@@ -314,12 +301,8 @@ type UseBalanceChartDataArgs = {
 type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDataReturn
 
 /*
-  this whole implementation is kind of jank, but it's the data we have to work with
   we take the current asset balances, and work backwards, updating crypto
   balances and fiat prices for each time interval (bucket) of the chart
-
-  this can leave residual value at the beginning of charts, or inaccuracies
-  especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, accountId, timeframe } = args
@@ -327,28 +310,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  // dummy assetId - we're only filtering on account
+
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId),
-  )
-
-  // Get total delegation
-  // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
-  const accountSpecifiers = useSelector(selectAccountSpecifiers)
-  const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
-    if (accountSpecifier[cosmosChainId]) {
-      acc = accountSpecifier[cosmosChainId]
-    }
-    return acc
-  }, '')
-
-  const cosmosAccountSpecifier = account ? toAccountId({ chainId: cosmosChainId, account }) : ''
-
-  const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, {
-      accountSpecifier: cosmosAccountSpecifier,
-      assetId: cosmosAssetId,
-    }),
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)
@@ -358,25 +322,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
 
-  // we can't tell if txs are finished loading over the websocket, so
-  // debounce a bit before doing expensive computations
-  const txs = useDebounce(
-    useAppSelector(state => selectTxsByFilter(state, txFilter)),
-    500,
-  )
+  const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
+  const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   // rebasing token balances can be adjusted by rebase events rather than txs
   // and we need to account for this in charts
   const rebases = useAppSelector(state => selectRebasesByFilter(state, txFilter))
-
-  // the portfolio page is simple - consider all txs and all portfolio asset ids
-  // across all accounts - just don't filter for accounts
-
-  // there are a few different situations for
-  // - top level asset pages - zero or more account ids
-  // - an asset account page, e.g. show me the eth for 0xfoo - a single account id
-  // - an account asset page, e.g. show me the fox for 0xbar - a single account id
-  // this may seem complicated, but we just need txs filtered by account ids
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
@@ -402,8 +353,15 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const hasNoDeviceId = isNil(walletInfo?.deviceId)
     const hasNoAssetIds = !assetIds.length
-    const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData?.length
-    if (hasNoDeviceId || hasNoAssetIds || hasNoPriceHistoryData || cryptoPriceHistoryDataLoading) {
+    const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData
+    const hasNotFinishedLoadingTxHistory = txHistoryStatus === 'loading'
+    if (
+      hasNoDeviceId ||
+      hasNoAssetIds ||
+      hasNoPriceHistoryData ||
+      cryptoPriceHistoryDataLoading ||
+      hasNotFinishedLoadingTxHistory
+    ) {
       return setBalanceChartDataLoading(true)
     }
 
@@ -419,7 +377,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
       portfolioAssets,
-      delegationTotal,
     })
 
     debugCharts({ assets, calculatedBuckets, timeframe, txs })
@@ -443,7 +400,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     portfolioAssets,
     walletInfo?.deviceId,
     rebases,
-    delegationTotal,
+    txHistoryStatus,
   ])
 
   return { balanceChartData, balanceChartDataLoading }

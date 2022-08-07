@@ -17,6 +17,8 @@ export type FeatureFlags = {
   CowSwap: boolean
   Pendo: boolean
   Litecoin: boolean
+  BitcoinCash: boolean
+  Axelar: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -45,6 +47,8 @@ const initialState: Preferences = {
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     Litecoin: getConfig().REACT_APP_FEATURE_LITECOIN,
+    BitcoinCash: getConfig().REACT_APP_FEATURE_BITCOINCASH,
+    Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

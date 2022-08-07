@@ -252,11 +252,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
         <Card variant='unstyled'>
-          <Card.Header textAlign='center' px={0} pt={0}>
-            <Card.Heading>
-              <Text translation='assets.assetCards.assetActions.trade' />
-            </Card.Heading>
-          </Card.Header>
           <Card.Body pb={0} px={0}>
             <FormControl isInvalid={!!errors.fiatSellAmount}>
               <Controller

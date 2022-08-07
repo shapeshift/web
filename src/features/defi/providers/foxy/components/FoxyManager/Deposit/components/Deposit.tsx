@@ -7,7 +7,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -47,105 +47,122 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  const handleContinue = useCallback(
+    async (formValues: DepositValues) => {
+      if (!(state && state.userAddress?.length && dispatch && api)) return
 
-  const getDepositGasEstimate = async (deposit: DepositValues) => {
-    if (!state.userAddress || !assetReference || !api) return
-    try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateDepositGas({
+      const getApproveGasEstimate = async () => {
+        if (!state.userAddress || !assetReference || !api) return
+        try {
+          const [gasLimit, gasPrice] = await Promise.all([
+            api.estimateApproveGas({
+              tokenContractAddress: assetReference,
+              contractAddress,
+              userAddress: state.userAddress,
+            }),
+            api.getGasPrice(),
+          ])
+          return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+        } catch (error) {
+          moduleLogger.error(
+            { fn: 'getApproveEstimate', error },
+            'Error getting approval gas estimate',
+          )
+          toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
+
+      const getDepositGasEstimate = async (deposit: DepositValues) => {
+        if (!state.userAddress || !assetReference || !api) return
+        try {
+          const [gasLimit, gasPrice] = await Promise.all([
+            api.estimateDepositGas({
+              tokenContractAddress: assetReference,
+              contractAddress,
+              amountDesired: bnOrZero(deposit.cryptoAmount)
+                .times(`1e+${asset.precision}`)
+                .decimalPlaces(0),
+              userAddress: state.userAddress,
+            }),
+            api.getGasPrice(),
+          ])
+          return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+        } catch (error) {
+          moduleLogger.error(
+            { fn: 'getDepositGasEstimate', error },
+            'Error getting deposit gas estimate',
+          )
+          toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
+
+      // set deposit state for future use
+      dispatch({ type: FoxyDepositActionType.SET_DEPOSIT, payload: formValues })
+      dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
+      try {
+        // Check is approval is required for user address
+        const _allowance = await api.allowance({
           tokenContractAddress: assetReference,
           contractAddress,
-          amountDesired: bnOrZero(deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
           userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
-  const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !assetReference || !api) return
-    try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateApproveGas({
-          tokenContractAddress: assetReference,
-          contractAddress,
-          userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-    } catch (error) {
-      moduleLogger.error({ fn: 'getApproveEstimate', error }, 'Error getting approval gas estimate')
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
-  const handleContinue = async (formValues: DepositValues) => {
-    if (!state.userAddress || !api) return
-    // set deposit state for future use
-    dispatch({ type: FoxyDepositActionType.SET_DEPOSIT, payload: formValues })
-    dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
-    try {
-      // Check is approval is required for user address
-      const _allowance = await api.allowance({
-        tokenContractAddress: assetReference,
-        contractAddress,
-        userAddress: state.userAddress,
-      })
-      const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
-
-      // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowance.gt(formValues.cryptoAmount)) {
-        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: FoxyDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto },
         })
-        onNext(DefiStep.Confirm)
-        dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
-      } else {
-        const estimatedGasCrypto = await getApproveGasEstimate()
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: FoxyDepositActionType.SET_APPROVE,
-          payload: { estimatedGasCrypto },
+        const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+
+        // Skip approval step if user allowance is greater than requested deposit amount
+        if (allowance.gt(formValues.cryptoAmount)) {
+          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: FoxyDepositActionType.SET_DEPOSIT,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Confirm)
+          dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
+        } else {
+          const estimatedGasCrypto = await getApproveGasEstimate()
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: FoxyDepositActionType.SET_APPROVE,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Approve)
+          dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
+        }
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
         })
-        onNext(DefiStep.Approve)
         dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
       }
-    } catch (error) {
-      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-      dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
-    }
-  }
+    },
+    [
+      api,
+      asset.precision,
+      assetReference,
+      contractAddress,
+      dispatch,
+      onNext,
+      state,
+      toast,
+      translate,
+    ],
+  )
+
+  if (!state || !dispatch) return null
 
   const handleCancel = history.goBack
 

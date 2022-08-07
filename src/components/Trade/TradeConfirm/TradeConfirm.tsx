@@ -1,8 +1,9 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, fromChainId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { osmosisAssetId } from '@shapeshiftoss/caip'
 import { TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -57,14 +58,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const { chainId } = trade.sellAsset
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, chainId),
+  const { chainId: buyAssetChainId } = trade.buyAsset
+  const buyAssetAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, buyAssetChainId),
   )
 
   const parsedTxId = useMemo(
-    () => serializeTxIndex(accountSpecifier, txid, trade.receiveAddress),
-    [accountSpecifier, trade.receiveAddress, txid],
+    () => serializeTxIndex(buyAssetAccountSpecifier, txid, trade.receiveAddress),
+    [buyAssetAccountSpecifier, trade.receiveAddress, txid],
   )
   const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
 
@@ -87,15 +88,26 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
       const txs = await poll({
-        fn: () => getTradeTxs(result),
-        validate: (txs: TradeTxs) => !!txs.buyTxid,
+        fn: async () => {
+          try {
+            return { ...(await getTradeTxs(result)) }
+          } catch (e) {
+            return { sellTxid: '', buyTxid: '', e }
+          }
+        },
+        validate: (txs: TradeTxs & { e: Error }) => !!txs.buyTxid || !!txs.e,
         interval: 10000, // 10 seconds
         maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
-      if (!txs.buyTxid) throw new Error('No buyTxid from getTradeTxs')
-      setTxid(txs.buyTxid)
+
+      if (txs.e) throw txs.e
+      if (!txs?.sellTxid) throw new Error('No sellTxid from getTradeTxs')
+      setTxid(txs.sellTxid)
     } catch (e) {
       showErrorToast(e)
+      reset()
+      setTxid('')
+      history.push(TradeRoutePaths.Input)
     }
   }
 
@@ -129,7 +141,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
   const txLink = useMemo(() => {
-    if (fromChainId(trade.sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Cosmos) {
+    if (trade.sources[0].name === 'Osmosis') {
       return `${osmosisAsset?.explorerTxLink}${txid}`
     } else {
       return `${trade.sellAsset?.explorerTxLink}${txid}`
@@ -143,7 +155,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           <Card.Header px={0} pt={0}>
             <WithBackButton handleBack={handleBack}>
               <Card.Heading textAlign='center'>
-                <Text translation={txid ? 'trade.complete' : 'trade.confirmDetails'} />
+                <Text
+                  translation={
+                    status === TxStatus.Confirmed ? 'trade.complete' : 'trade.confirmDetails'
+                  }
+                />
               </Card.Heading>
             </WithBackButton>
             <AssetToAsset

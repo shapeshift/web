@@ -1,4 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { MarketData } from '@shapeshiftoss/types'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
@@ -140,20 +141,22 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const [ensTo, setEnsTo] = useState<string>()
 
   useEffect(() => {
+    if (tx.chainId !== ethChainId) return
     ;(async () => {
       const reverseFromLookup = await ensReverseLookup(from)
       const reverseToLookup = await ensReverseLookup(to)
       !reverseFromLookup.error && setEnsFrom(reverseFromLookup.name)
       !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
-  }, [from, to])
+  }, [from, to, tx.chainId])
+
   const tradeType =
     buyTransfer && sellTransfer && isTradeContract(buyTransfer, sellTransfer)
       ? TradeType.Trade
       : undefined
   const type = isSupportedContract(tx)
     ? TransferType.Contract
-    : standardTx?.type ?? tx.tradeDetails?.type ?? tradeType ?? ''
+    : standardTx?.type ?? tx.trade?.type ?? tradeType ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
   const explorerTxLink =

@@ -5,7 +5,7 @@ import { WithdrawType } from '@shapeshiftoss/types'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -54,11 +54,11 @@ export const Status = () => {
       : '0'
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
-  if (!state || !dispatch) return null
-
-  const handleViewPosition = () => {
+  const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
-  }
+  }, [browserHistory])
+
+  if (!state || !dispatch) return null
 
   const handleCancel = () => {
     browserHistory.goBack()

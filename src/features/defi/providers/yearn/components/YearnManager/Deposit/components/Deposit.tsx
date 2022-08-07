@@ -9,7 +9,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -48,110 +48,125 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  const handleContinue = useCallback(
+    async (formValues: DepositValues) => {
+      if (!(state && dispatch && state.userAddress && opportunity)) return
 
-  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference && yearnInvestor)) return
-    try {
-      const yearnOpportunity = await yearnInvestor.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedTx = await yearnOpportunity.prepareDeposit({
-        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
-      })
-      // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
+      const getApproveGasEstimate = async (): Promise<string | undefined> => {
+        if (!(state.userAddress && assetReference && opportunity)) return
+        try {
+          const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+            state.opportunity?.positionAsset.assetId ?? '',
+          )
+          if (!yearnOpportunity) throw new Error('No opportunity')
+          const preparedApproval = await yearnOpportunity.prepareApprove(state.userAddress)
+          return bnOrZero(preparedApproval.gasPrice)
+            .times(preparedApproval.estimatedGas)
+            .integerValue()
+            .toString()
+        } catch (error) {
+          moduleLogger.error(
+            { fn: 'getApproveEstimate', error },
+            'Error getting deposit approval gas estimate',
+          )
+          toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
 
-  const getApproveGasEstimate = async (): Promise<string | undefined> => {
-    if (!(state.userAddress && assetReference && opportunity)) return
-    try {
-      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedApproval = await yearnOpportunity.prepareApprove(state.userAddress)
-      return bnOrZero(preparedApproval.gasPrice)
-        .times(preparedApproval.estimatedGas)
-        .integerValue()
-        .toString()
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getApproveEstimate', error },
-        'Error getting deposit approval gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
+      const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
+        if (!(state.userAddress && state.opportunity && assetReference && yearnInvestor)) return
+        try {
+          const yearnOpportunity = await yearnInvestor.findByOpportunityId(
+            state.opportunity?.positionAsset.assetId ?? '',
+          )
+          if (!yearnOpportunity) throw new Error('No opportunity')
+          const preparedTx = await yearnOpportunity.prepareDeposit({
+            amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+            address: state.userAddress,
+          })
+          // TODO(theobold): Figure out a better way for the safety factor
+          return bnOrZero(preparedTx.gasPrice)
+            .times(preparedTx.estimatedGas)
+            .integerValue()
+            .toString()
+        } catch (error) {
+          moduleLogger.error(
+            { fn: 'getDepositGasEstimate', error },
+            'Error getting deposit gas estimate',
+          )
+          toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
 
-  const handleContinue = async (formValues: DepositValues) => {
-    if (!(state.userAddress && opportunity)) return
-    // set deposit state for future use
-    dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
-    dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
-    try {
-      // Check is approval is required for user address
-      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const _allowance = await yearnOpportunity.allowance(state.userAddress)
-      const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+      // set deposit state for future use
+      dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
+      try {
+        // Check is approval is required for user address
+        const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
+          state.opportunity?.positionAsset.assetId ?? '',
+        )
+        if (!yearnOpportunity) throw new Error('No opportunity')
+        const _allowance = await yearnOpportunity.allowance(state.userAddress)
+        const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
-      // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowance.gt(formValues.cryptoAmount)) {
-        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: YearnDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto },
+        // Skip approval step if user allowance is greater than requested deposit amount
+        if (allowance.gt(formValues.cryptoAmount)) {
+          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: YearnDepositActionType.SET_DEPOSIT,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Confirm)
+          dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
+        } else {
+          const estimatedGasCrypto = await getApproveGasEstimate()
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: YearnDepositActionType.SET_APPROVE,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Approve)
+          dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
+        }
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
         })
-        onNext(DefiStep.Confirm)
-        dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
-      } else {
-        const estimatedGasCrypto = await getApproveGasEstimate()
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: YearnDepositActionType.SET_APPROVE,
-          payload: { estimatedGasCrypto },
-        })
-        onNext(DefiStep.Approve)
         dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
       }
-    } catch (error) {
-      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
-    }
-  }
+    },
+    [
+      asset.precision,
+      assetReference,
+      dispatch,
+      onNext,
+      opportunity,
+      state,
+      toast,
+      translate,
+      yearnInvestor,
+    ],
+  )
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+  if (!state || !dispatch) return null
+
+  const handleCancel = browserHistory.goBack
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)

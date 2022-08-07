@@ -1,17 +1,16 @@
-import { ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  cosmos,
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
   UtxoBaseAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { estimateFees, EstimateFeesInput } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -41,6 +40,7 @@ type UseSendDetailsReturnType = {
   toggleCurrency(): void
   cryptoHumanBalance: BigNumber
   fiatBalance: BigNumber
+  estimateFees: (input: EstimateFeesInput) => Promise<FeeDataEstimate<ChainId>>
 }
 
 const moduleLogger = logger.child({
@@ -106,51 +106,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { assetReference } = fromAssetId(assetId)
   const contractAddress = tokenOrUndefined(assetReference)
 
-  const adapter = chainAdapterManager.get(asset.chainId)
-  if (!adapter) throw new Error(`No adapter available for ${asset.chainId}`)
-
   const estimateFormFees = useCallback(async (): Promise<FeeDataEstimate<ChainId>> => {
-    const values = getValues()
+    const { cryptoAmount, asset, address, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
-
-    const { account } = fromAccountId(accountSpecifier)
-
-    const value = bnOrZero(values.cryptoAmount)
-      .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
-      .toFixed(0)
-
-    const adapter = chainAdapterManager.get(values.asset.chainId)
-    if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
-
-    switch (values.asset.chainId) {
-      case KnownChainIds.CosmosMainnet:
-      case KnownChainIds.OsmosisMainnet:
-        return adapter.getFeeData({})
-      case KnownChainIds.EthereumMainnet:
-      case KnownChainIds.AvalancheMainnet:
-        return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-          to: values.address,
-          value,
-          chainSpecific: {
-            from: account,
-            contractAddress,
-          },
-          sendMax: values.sendMax,
-        })
-      case KnownChainIds.BitcoinMainnet:
-      case KnownChainIds.DogecoinMainnet:
-      case KnownChainIds.LitecoinMainnet: {
-        return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
-          to: values.address,
-          value,
-          chainSpecific: { pubkey: account },
-          sendMax: values.sendMax,
-        })
-      }
-      default:
-        throw new Error('unsupported chain type')
-    }
-  }, [accountSpecifier, chainAdapterManager, contractAddress, getValues, wallet])
+    return estimateFees({ cryptoAmount, asset, address, sendMax, accountId, contractAddress })
+  }, [contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
@@ -269,20 +229,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { chainId, account } = fromAccountId(accountSpecifier)
+        const { chainId, chainNamespace, account } = fromAccountId(accountSpecifier)
         const adapter = chainAdapterManager.get(chainId)
         if (!adapter) throw new Error(`No adapter available for ${chainId}`)
 
         const { fastFee, adapterFees } = await (async () => {
-          switch (chainId) {
-            case KnownChainIds.CosmosMainnet: {
-              const cosmosAdapter = adapter as unknown as cosmos.ChainAdapter
-              const adapterFees = await cosmosAdapter.getFeeData({})
+          switch (chainNamespace) {
+            case CHAIN_NAMESPACE.Cosmos: {
+              const adapterFees = await adapter.getFeeData({})
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case KnownChainIds.EthereumMainnet:
-            case KnownChainIds.AvalancheMainnet: {
+            case CHAIN_NAMESPACE.Ethereum: {
               const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
               const adapterFees = await evmAdapter.getFeeData({
                 to,
@@ -293,9 +251,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case KnownChainIds.BitcoinMainnet:
-            case KnownChainIds.DogecoinMainnet:
-            case KnownChainIds.LitecoinMainnet: {
+            case CHAIN_NAMESPACE.Bitcoin: {
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
               const adapterFees = await utxoAdapter.getFeeData({
                 to,
@@ -428,5 +384,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleInputChange,
     loading,
     toggleCurrency,
+    estimateFees,
   }
 }

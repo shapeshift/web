@@ -1,17 +1,35 @@
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
+import { useSelector } from 'react-redux'
+import { Bridge } from 'components/Bridge/Bridge'
 import { Card } from 'components/Card/Card'
 import { Trade } from 'components/Trade/Trade'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 type TradeCardProps = {
   defaultBuyAssetId?: AssetId
 }
 
 export const TradeCard = ({ defaultBuyAssetId }: TradeCardProps) => {
+  const { Axelar } = useSelector(selectFeatureFlags)
   return (
     <Card flex={1} variant='outline'>
-      <Card.Body>
-        <Trade defaultBuyAssetId={defaultBuyAssetId} />
-      </Card.Body>
+      <Tabs isFitted variant='enclosed'>
+        <TabList>
+          <Tab>Trade</Tab>
+          {Axelar && <Tab>Bridge</Tab>}
+        </TabList>
+        <TabPanels>
+          <TabPanel py={4} px={6}>
+            <Trade defaultBuyAssetId={defaultBuyAssetId} />
+          </TabPanel>
+          {Axelar && (
+            <TabPanel py={4} px={6}>
+              <Bridge />
+            </TabPanel>
+          )}
+        </TabPanels>
+      </Tabs>
     </Card>
   )
 }

@@ -187,9 +187,12 @@ export const marketApi = createApi({
           baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
           return { data }
         } catch (e) {
-          const data = `findByFiatSymbol: no market data for ${symbol}`
-          moduleLogger.error(e, data)
-          const error = { data, status: 404 }
+          const err = `findByFiatSymbol: no market data for ${symbol}`
+          moduleLogger.error(e, err)
+          // set dummy data on error
+          const data = { [symbol]: [] }
+          baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
+          const error = { data: err, status: 404 }
           return { error }
         }
       },
@@ -203,6 +206,10 @@ export const marketApi = createApi({
           dispatch(marketData.actions.setFiatPriceHistory(payload))
           return { data }
         } catch (e) {
+          // set dummy data on error
+          const data: HistoryData[] = []
+          const payload = { args, data }
+          dispatch(marketData.actions.setFiatPriceHistory(payload))
           const error = {
             data: `findPriceHistoryByFiatSymbol: error fetching price history for ${symbol}`,
             status: 400,
@@ -214,4 +221,5 @@ export const marketApi = createApi({
   }),
 })
 
-export const { useFindAllQuery } = marketApi
+export const { useFindAllQuery, useFindByFiatSymbolQuery, useFindPriceHistoryByFiatSymbolQuery } =
+  marketApi

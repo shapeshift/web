@@ -5,6 +5,7 @@ import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
+import { CosmosManager } from '../../providers/cosmos/components/CosmosManager/CosmosManager'
 import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 import {
@@ -21,6 +22,8 @@ const DefiModules = {
   [DefiProvider.Yearn]: YearnManager,
   [DefiProvider.ShapeShift]: FoxyManager,
   [DefiProvider.FoxEthLP]: FoxEthLpManager,
+  [DefiProvider.Cosmos]: CosmosManager,
+  [DefiProvider.Osmosis]: CosmosManager,
 }
 
 /*

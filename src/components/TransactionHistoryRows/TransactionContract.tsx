@@ -59,9 +59,9 @@ export const TransactionContract = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          {txDetails.tx.tradeDetails && (
+          {txDetails.tx.trade && (
             <Row title='transactionType'>
-              <Text value={txDetails.tx.tradeDetails.dexName} />
+              <Text value={txDetails.tx.trade.dexName} />
             </Row>
           )}
           {txDetails.feeAsset && (

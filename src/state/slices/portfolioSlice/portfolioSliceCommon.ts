@@ -31,15 +31,17 @@ export type Staking = {
   rewards: cosmos.Reward[]
 }
 
+type StakingDataParsedByAccountSpecifier = Record<AccountSpecifier, Staking>
+export type StakingDataByValidatorId = Record<PubKey, StakingDataParsedByAccountSpecifier>
+
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */
   assetIds: AssetId[]
   /** The list of validators this account is delegated to */
   validatorIds?: PubKey[]
   /** The staking data for per validator, so we can do a join from validatorDataSlice */
-  stakingDataByValidatorId?: Record<PubKey, StakingDataParsedByAccountSpecifier>
+  stakingDataByValidatorId?: StakingDataByValidatorId
 }
-type StakingDataParsedByAccountSpecifier = Record<string, Staking>
 
 export type PortfolioAccounts = {
   byId: {

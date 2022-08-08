@@ -34,11 +34,14 @@ export const useTradeRoutes = (
   const assets = useSelector(selectAssets)
   const {
     state: { wallet },
+    state,
   } = useWallet()
 
-  const { connectedChainId } = useEvm()
+  const { connectedEvmChainId } = useEvm()
 
-  const swapperChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : connectedChainId
+  const swapperChainId = routeBuyAssetId
+    ? fromAssetId(routeBuyAssetId).chainId
+    : connectedEvmChainId
   const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(swapperChainId)
 
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
@@ -129,7 +132,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [connectedChainId, setDefaultAssets])
+  }, [connectedEvmChainId, setDefaultAssets])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

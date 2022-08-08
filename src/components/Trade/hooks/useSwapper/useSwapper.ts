@@ -4,8 +4,10 @@ import {
   avalancheAssetId,
   avalancheChainId,
   ChainId,
+  cosmosAssetId,
   ethChainId,
   fromAssetId,
+  osmosisAssetId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import { avalanche, ChainAdapter, ethereum, EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -209,6 +211,10 @@ export const useSwapper = () => {
     switch (connectedChainId) {
       case KnownChainIds.AvalancheMainnet:
         return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
+      case KnownChainIds.CosmosMainnet:
+        return [cosmosAssetId, osmosisAssetId]
+      case KnownChainIds.OsmosisMainnet:
+        return [osmosisAssetId, cosmosAssetId]
       case KnownChainIds.EthereumMainnet:
       default:
         // eth & fox

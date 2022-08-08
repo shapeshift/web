@@ -1,14 +1,25 @@
 import { avalancheAssetId, avalancheChainId } from '@shapeshiftoss/caip'
 
-import { TransferType, TxStatus } from '../../../../types'
-import { ParsedTx, TxParser as EvmTxParser } from '../../../parser'
+import {
+  Dex,
+  Trade,
+  TradeType,
+  Transfer,
+  TransferType,
+  TxParser,
+  TxStatus
+} from '../../../../types'
+import { ParsedTx, ParsedTx as Tx, TxParser as EvmTxParser } from '../../../parser'
 import { TransactionParser } from '../index'
 import avaxSelfSend from './mockData/avaxSelfSend'
 import avaxStandard from './mockData/avaxStandard'
 import erc20Approve from './mockData/erc20Approve'
-import { usdcToken } from './mockData/tokens'
+import { usdcToken, wrappedBitcoin, wrappedEther } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
+import zrxTradeAvaxToWeth from './mockData/zrxTradeAvaxToWeth'
+import zrxTradeWethToAvax from './mockData/zrxTradeWethToAvax'
+import zrxTradeWethToWbtc from './mockData/zrxTradeWethToWbtc'
 
 const txParser = new TransactionParser({ rpcUrl: '', chainId: avalancheChainId })
 
@@ -194,8 +205,6 @@ describe('parseTx', () => {
     it('should be able to parse token mempool receive', async () => {
       const { txMempool } = tokenStandard
       const address = '0x64e13a11b87A9025F6F4fcB0c61563984f3D58Df'
-
-      console.log({ txMempool })
 
       const expected: ParsedTx = {
         txid: txMempool.txid,
@@ -444,6 +453,193 @@ describe('parseTx', () => {
       const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
+    })
+  })
+
+  describe('zrx trade', () => {
+    it('should be able to parse token -> avax', async () => {
+      const { tx } = zrxTradeWethToAvax
+      const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
+      const trade: Trade = {
+        dexName: Dex.Zrx,
+        type: TradeType.Trade
+      }
+      const buyTransfer: Transfer = {
+        assetId: avalancheAssetId,
+        components: [
+          {
+            value: '1419200313588432512'
+          }
+        ],
+        from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        token: undefined,
+        totalValue: '1419200313588432512',
+        type: TransferType.Receive
+      }
+
+      const sellTransfer: Transfer = {
+        assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+        components: [
+          {
+            value: '20000000000000000'
+          }
+        ],
+        from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        token: wrappedEther,
+        totalValue: '20000000000000000',
+        type: TransferType.Send
+      }
+
+      const expected: Tx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: avalancheChainId,
+        confirmations: tx.confirmations,
+        data: {
+          method: undefined,
+          parser: TxParser.ZRX
+        },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '6626525000000000',
+          assetId: avalancheAssetId
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse avax -> token', async () => {
+      const { tx } = zrxTradeAvaxToWeth
+      const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
+      const trade: Trade = {
+        dexName: Dex.Zrx,
+        type: TradeType.Trade
+      }
+
+      const buyTransfer: Transfer = {
+        assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+        components: [
+          {
+            value: '819115016056635'
+          }
+        ],
+        from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        token: wrappedEther,
+        totalValue: '819115016056635',
+        type: TransferType.Receive
+      }
+
+      const sellTransfer: Transfer = {
+        assetId: avalancheAssetId,
+        components: [
+          {
+            value: '50000000000000000'
+          }
+        ],
+        from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+        token: undefined,
+        totalValue: '50000000000000000',
+        type: TransferType.Send
+      }
+
+      const expected: Tx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: avalancheChainId,
+        confirmations: tx.confirmations,
+        data: {
+          method: undefined,
+          parser: TxParser.ZRX
+        },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '6346125000000000',
+          assetId: avalancheAssetId
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse token -> token', async () => {
+      const { tx } = zrxTradeWethToWbtc
+      const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
+      const trade: Trade = {
+        dexName: Dex.Zrx,
+        type: TradeType.Trade
+      }
+
+      const buyTransfer: Transfer = {
+        assetId: 'eip155:43114/erc20:0x50b7545627a5162f82a992c33b87adc75187b218',
+        components: [
+          {
+            value: '14605'
+          }
+        ],
+        from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        token: wrappedBitcoin,
+        totalValue: '14605',
+        type: TransferType.Receive
+      }
+
+      const sellTransfer: Transfer = {
+        assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+        components: [
+          {
+            value: '2000000000000000'
+          }
+        ],
+        from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        token: wrappedEther,
+        totalValue: '2000000000000000',
+        type: TransferType.Send
+      }
+
+      const expected: Tx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: avalancheChainId,
+        confirmations: tx.confirmations,
+        data: {
+          method: undefined,
+          parser: TxParser.ZRX
+        },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '8329875000000000',
+          assetId: avalancheAssetId
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
     })
   })
 })

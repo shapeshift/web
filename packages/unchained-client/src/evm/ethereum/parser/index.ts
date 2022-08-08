@@ -2,13 +2,13 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 
 import { Tx } from '../../../generated/ethereum'
 import { BaseTransactionParser, TransactionParserArgs } from '../../parser'
+import * as zrx from '../../parser/zrx'
 import * as cowswap from './cowswap'
 import * as foxy from './foxy'
 import * as thor from './thor'
 import * as uniV2 from './uniV2'
 import * as weth from './weth'
 import * as yearn from './yearn'
-import * as zrx from './zrx'
 
 export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: TransactionParserArgs) {

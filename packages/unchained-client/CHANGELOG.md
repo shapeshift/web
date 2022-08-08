@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.7.0...@shapeshiftoss/unchained-client-v9.8.0) (2022-08-08)
+
+
+### Features
+
+* **unchained-client:** parse Avalanche 0x transactions ([#952](https://github.com/shapeshift/lib/issues/952)) ([ef004fb](https://github.com/shapeshift/lib/commit/ef004fbac9fb066803d772cc08318dccea842d93))
+
 # [@shapeshiftoss/unchained-client-v9.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.6.0...@shapeshiftoss/unchained-client-v9.7.0) (2022-08-06)
 
 

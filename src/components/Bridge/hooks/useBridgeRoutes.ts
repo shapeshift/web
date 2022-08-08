@@ -5,13 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import {
-  AXELAR_CHAIN_NAMES,
-  BridgeAsset,
-  BridgeChain,
-  BridgeRoutePaths,
-  BridgeState,
-} from '../types'
+import { AxelarChainNames, BridgeAsset, BridgeChain, BridgeRoutePaths, BridgeState } from '../types'
 
 export const useBridgeRoutes = (): {
   handleAssetClick: (asset: BridgeAsset) => Promise<void>
@@ -30,9 +24,9 @@ export const useBridgeRoutes = (): {
     const chainId = fromAssetId(asset.assetId).chainId
     switch (chainId) {
       case ethChainId:
-        return AXELAR_CHAIN_NAMES.Ethereum
+        return AxelarChainNames.Ethereum
       case avalancheChainId:
-        return AXELAR_CHAIN_NAMES.Avalanche
+        return AxelarChainNames.Avalanche
       default:
         throw new Error(`chainId ${chainId} is not supported`)
     }

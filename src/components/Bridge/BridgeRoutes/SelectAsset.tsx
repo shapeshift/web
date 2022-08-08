@@ -15,7 +15,7 @@ import { RawText, Text } from 'components/Text'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioBridgeAssets } from 'state/slices/portfolioSlice/selectors'
 
-import { BridgeAsset, BridgeRoutePaths } from '../types'
+import { AxelarChainNames, BridgeAsset, BridgeRoutePaths } from '../types'
 import { WithBackButton } from './WithBackButton'
 
 type AssetRowProps = {
@@ -61,9 +61,9 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
   // FIXME: clean up - this whole section is utter garbage
   const portfolioAssets = useSelector(selectPortfolioBridgeAssets)
   const allAssets = useSelector(selectAssets)
-  const supportedAssets = portfolioAssets
+  const supportedAssets: BridgeAsset[] = portfolioAssets
     .filter(asset => !!getBridgeDestinationAsset(asset.assetId))
-    .map(filteredAsset => {
+    .map<BridgeAsset>(filteredAsset => {
       const destinationAssetId = getBridgeDestinationAsset(filteredAsset.assetId)
       const destinationAsset = destinationAssetId ? allAssets[destinationAssetId] : undefined
       const destinationBridgeAsset = portfolioAssets.find(a => a.assetId === destinationAssetId)
@@ -72,14 +72,14 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
       const implementations = maybeUnwrappedAsset
         ? {
             avalanche: {
-              name: 'Avalanche',
+              name: AxelarChainNames.Avalanche,
               balance: filteredAsset.cryptoAmount,
               fiatBalance: filteredAsset.fiatAmount,
               symbol: filteredAsset.symbol,
               color: '#E84142',
             },
             ethereum: {
-              name: 'Ethereum',
+              name: AxelarChainNames.Ethereum,
               balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmount : '0',
               fiatBalance: destinationBridgeAsset ? destinationBridgeAsset.fiatAmount : '0',
               symbol: destinationAsset?.symbol ?? '',
@@ -88,14 +88,14 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
           }
         : {
             avalanche: {
-              name: 'Avalanche',
+              name: AxelarChainNames.Avalanche,
               balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmount : '0',
               fiatBalance: destinationBridgeAsset ? destinationBridgeAsset.fiatAmount : '0',
               symbol: destinationAsset?.symbol ?? '',
               color: '#E84142',
             },
             ethereum: {
-              name: 'Ethereum',
+              name: AxelarChainNames.Ethereum,
               balance: filteredAsset.cryptoAmount,
               fiatBalance: filteredAsset.fiatAmount,
               symbol: filteredAsset.symbol,

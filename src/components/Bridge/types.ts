@@ -1,26 +1,28 @@
 // https://docs.axelar.dev/dev/build/chain-names/mainnet
-export const AXELAR_CHAIN_NAMES = {
-  Avalanche: 'Avalanche',
-  Ethereum: 'Ethereum',
-  Fantom: 'Fantom',
-  Moonbeam: 'Moonbeam',
-  Polygon: 'Polygon',
-  Axelarnet: 'Axelarnet',
-  Cosmoshub: 'cosmoshub',
-  Crescent: 'crescent',
-  Emoney: 'e-money',
-  Injective: 'injective',
-  Juno: 'juno',
-  Kujira: 'kujira',
-  Osmosis: 'osmosis',
-  Secret: 'secret',
-  Terra2: 'terra-2',
-} as const
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
-export type AxelarChainName = typeof AXELAR_CHAIN_NAMES[keyof typeof AXELAR_CHAIN_NAMES]
+export enum AxelarChainNames {
+  Avalanche = 'Avalanche',
+  Ethereum = 'Ethereum',
+  Fantom = 'Fantom',
+  Moonbeam = 'Moonbeam',
+  Polygon = 'Polygon',
+  Axelarnet = 'Axelarnet',
+  Cosmoshub = 'cosmoshub',
+  Crescent = 'crescent',
+  Emoney = 'e-money',
+  Injective = 'injective',
+  Juno = 'juno',
+  Kujira = 'kujira',
+  Osmosis = 'osmosis',
+  Secret = 'secret',
+  Terra2 = 'terra-2',
+}
+
+export type AxelarChainName = `${AxelarChainNames}`
 
 export type BridgeChain = {
-  name: string
+  name: AxelarChainName
   balance: string
   fiatBalance: string
   symbol: string
@@ -28,26 +30,26 @@ export type BridgeChain = {
 }
 
 export type BridgeAsset = {
-  assetId: string
+  assetId: AccountSpecifier
   symbol: string
   icon: string
   name: string
   cryptoAmount: string
   fiatAmount: string
   implementations?: {
-    [key in string]: BridgeChain
+    [key: string]: BridgeChain
   }
 }
 
 export type BridgeState = {
-  asset: BridgeAsset | undefined
+  asset: BridgeAsset
   fiatAmount: string
   cryptoAmount: string
   fromChain: BridgeChain | undefined
   toChain: BridgeChain | undefined
-  receiveAddress: string | undefined
-  depositAddress: string | undefined
-  relayerFeeUsdc: string | undefined
+  receiveAddress: string
+  depositAddress: string
+  relayerFeeUsdc: string
 }
 
 export enum BridgeRoutePaths {

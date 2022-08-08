@@ -142,10 +142,7 @@ export const BridgeInput = () => {
     setValue('cryptoAmount', cryptoAmount.toString(), { shouldValidate: true })
   }
 
-  const onSubmit = (values: BridgeState) => {
-    console.info(values)
-    history.push(BridgeRoutePaths.Confirm)
-  }
+  const onSubmit = () => history.push(BridgeRoutePaths.Confirm)
 
   return (
     <SlideTransition>

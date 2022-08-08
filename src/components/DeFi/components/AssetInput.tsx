@@ -93,6 +93,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       <Stack direction='row' alignItems='center' px={4}>
         <Button
           onClick={onAssetClick}
+          size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}
           leftIcon={<AssetIcon src={assetIcon} size='xs' />}
           rightIcon={onAssetClick && <ChevronDownIcon />}
@@ -156,7 +157,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (
-        <Stack px={4} py={2} mt={2} borderTopWidth={1} borderColor={borderColor}>
+        <Stack mt={2} borderTopWidth={1} borderColor={borderColor}>
           {children}
         </Stack>
       )}

@@ -72,7 +72,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const standardTx = getStandardTx(transaction)
       const TxType = isSupportedContract(transaction)
         ? TransferType.Contract
-        : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
+        : standardTx?.type ?? transaction.trade?.type ?? ''
       const buyTransfer = getBuyTransfer(transaction)
       const sellTransfer = getSellTransfer(transaction)
       const feeAsset = assets.find(asset => asset.assetId === transaction.fee?.assetId)

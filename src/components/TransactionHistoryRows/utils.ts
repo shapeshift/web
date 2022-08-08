@@ -1,3 +1,4 @@
+import { cosmos, evm, TransactionMetadata } from '@shapeshiftoss/chain-adapters'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 
 export enum AssetTypes {
@@ -10,6 +11,17 @@ const fallback = {
   symbol: ' N/A',
   precision: 18,
 }
+
+export const isTokenMetadata = (
+  txMetadata:
+    | TransactionMetadata
+    | evm.TransactionMetadata
+    | cosmos.TransactionMetadata
+    | undefined,
+): txMetadata is evm.TransactionMetadata | cosmos.TransactionMetadata =>
+  Boolean(
+    txMetadata && (txMetadata as evm.TransactionMetadata | cosmos.TransactionMetadata).assetId,
+  )
 
 export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetTypes | null) => {
   switch (assetType) {

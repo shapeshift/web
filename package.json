@@ -71,6 +71,7 @@
     }
   },
   "dependencies": {
+    "@axelar-network/axelarjs-sdk": "^0.6.18",
     "@chakra-ui/icons": "^2.0.2",
     "@chakra-ui/react": "^2.2.1",
     "@chakra-ui/system": "^2.1.3",
@@ -86,7 +87,7 @@
     "@reduxjs/toolkit": "^1.8.2",
     "@shapeshiftoss/asset-service": "^7.2.0",
     "@shapeshiftoss/caip": "^6.12.0",
-    "@shapeshiftoss/chain-adapters": "^7.14.2",
+    "@shapeshiftoss/chain-adapters": "^7.15.1",
     "@shapeshiftoss/errors": "^1.1.2",
     "@shapeshiftoss/hdwallet-core": "^1.29.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.29.0",
@@ -103,9 +104,9 @@
     "@shapeshiftoss/investor-yearn": "^4.0.7",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^6.5.0",
-    "@shapeshiftoss/swapper": "9.6.0",
+    "@shapeshiftoss/swapper": "^9.6.1",
     "@shapeshiftoss/types": "^8.2.0",
-    "@shapeshiftoss/unchained-client": "^9.6.0",
+    "@shapeshiftoss/unchained-client": "^9.7.0",
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^7.1.4",
     "@visx/axis": "^2.10.0",

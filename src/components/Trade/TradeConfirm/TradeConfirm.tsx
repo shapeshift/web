@@ -209,12 +209,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </HelperTooltip>
                   <Row.Value>
                     {bn(trade.feeAmountInSellToken)
-                      .div(`1e+${trade.sellAsset.precision}`)
+                      .div(bn(10).pow(trade.sellAsset.precision))
                       .toString()}{' '}
                     ≃{' '}
                     {toFiat(
                       bn(trade.feeAmountInSellToken)
-                        .div(`1e+${trade.sellAsset.precision}`)
+                        .div(bn(10).pow(trade.sellAsset.precision))
                         .times(sellAssetFiatRate)
                         .times(selectedCurrencyToUsdRate)
                         .toString(),

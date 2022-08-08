@@ -7,7 +7,7 @@ import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
 import { AreaStack, Bar, Line } from '@visx/shape'
 import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
-import { XYChart } from '@visx/xychart'
+import { AnimatedAreaSeries, AnimatedAreaStack, AreaSeries, XYChart } from '@visx/xychart'
 import { bisector, extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
 import numeral from 'numeral'
@@ -132,10 +132,10 @@ export const RainbowChart = ({
         />
 
         <XYChart>
-          <AreaStack>
-            <AreaSeries data={data} fillOpacity={0.5} />
-            <AreaSeries data={data} fillOpacity={0.5} />
-          </AreaStack>
+          <AnimatedAreaStack>
+            <AnimatedAreaSeries dataKey={'price'} xAccessor={''} data={data} fillOpacity={0.5} />
+            <AnimatedAreaSeries data={data} fillOpacity={0.5} />
+          </AnimatedAreaStack>
         </XYChart>
         {/* fill */}
         {/* <AreaChart

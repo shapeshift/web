@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.6.1...@shapeshiftoss/swapper-v9.7.0) (2022-08-08)
+
+
+### Features
+
+* **swapper:** export CowSwapper types ([#953](https://github.com/shapeshift/lib/issues/953)) ([1ccab10](https://github.com/shapeshift/lib/commit/1ccab10051cb45e4fcb9d86dc021c67d7c91283a))
+
 # [@shapeshiftoss/swapper-v9.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.6.0...@shapeshiftoss/swapper-v9.6.1) (2022-08-04)
 
 

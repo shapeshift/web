@@ -4026,7 +4026,7 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^9.3.1":
+"@shapeshiftoss/swapper@^9.6.1":
   version "9.6.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.6.1.tgz#9794c4d892edb3e5aff3385a7cc1265361813742"
   integrity sha512-gh9RUAeD5hJDP16Ce9dX3Zm2MrguwPbgRgWBhGW3LpZzDa8/aIB/XiznxsMIubGp4vTVh9jg5VTKxAcEs08tDw==

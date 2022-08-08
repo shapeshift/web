@@ -10,6 +10,7 @@ import { GetAllowanceRequiredArgs } from '../../utils/helpers/helpers'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowTrade } from '../types'
+import { DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
@@ -78,7 +79,7 @@ const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
 }
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
-  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  appData: DEFAULT_APP_DATA,
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: 'address11',
   kind: 'sell',
@@ -90,7 +91,7 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
-  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  appData: DEFAULT_APP_DATA,
   buyToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   from: 'address11',
   kind: 'sell',
@@ -102,7 +103,7 @@ const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
-  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  appData: DEFAULT_APP_DATA,
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   from: 'address11',
   kind: 'sell',

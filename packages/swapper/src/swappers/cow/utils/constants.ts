@@ -1,11 +1,11 @@
-import { AddressZero, HashZero } from '@ethersproject/constants'
+import { AddressZero } from '@ethersproject/constants'
 
 export const MAX_ALLOWANCE = '100000000000000000000000000'
 export const MAX_COWSWAP_TRADE = '100000000000000000000000000'
 export const MIN_COWSWAP_VALUE_USD = 20
 export const DEFAULT_SOURCE = [{ name: 'CowSwap', proportion: '1' }]
 export const DEFAULT_ADDRESS = AddressZero
-export const DEFAULT_APP_DATA = HashZero
+export const DEFAULT_APP_DATA = '0x68a7b5781dfe48bd5d7aeb11261c17517f5c587da682e4fade9b6a00a59b8970'
 export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
 export const COW_SWAP_SETTLEMENT_ADDRESS = '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
 export const WETH_ASSET_ID = 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'

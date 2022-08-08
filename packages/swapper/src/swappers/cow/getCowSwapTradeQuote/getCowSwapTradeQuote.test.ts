@@ -7,6 +7,7 @@ import Web3 from 'web3'
 import { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
+import { DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
@@ -80,7 +81,7 @@ const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
 }
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
-  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  appData: DEFAULT_APP_DATA,
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -92,7 +93,7 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
-  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  appData: DEFAULT_APP_DATA,
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -104,7 +105,7 @@ const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
 }
 
 const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
-  appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  appData: DEFAULT_APP_DATA,
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',

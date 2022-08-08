@@ -160,7 +160,7 @@ describe('utils', () => {
         sellAmount: '20200000000000000',
         buyAmount: '272522025311597443544',
         validTo: 1656667297,
-        appData: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        appData: DEFAULT_APP_DATA,
         feeAmount: '3514395197690019',
         kind: 'sell',
         partiallyFillable: false,
@@ -171,7 +171,7 @@ describe('utils', () => {
 
       const orderDigest = hashOrder(domain(1, '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'), order)
       expect(orderDigest).toEqual(
-        '0xaf1d4f80d997d0cefa325dd6e003e5b5940247694eaba507b793c7ec60db10a0'
+        '0x4a3f1f235892ceb8df4a4ab3f3e22e13364251aeb0d1dde4c2ce66f8c27af757'
       )
     })
   })

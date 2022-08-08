@@ -103,4 +103,5 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   }
 }
 
+export * from './utils'
 export * from './types'

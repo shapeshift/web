@@ -25,6 +25,7 @@ import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { BridgeAsset } from 'components/Bridge/types'
 import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -840,6 +841,24 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
       [],
     )
     return assetRows
+  },
+)
+
+export const selectPortfolioBridgeAssets = createSelector(
+  selectPortfolioAccountRows,
+  (portfolioAssets): BridgeAsset[] => {
+    return Object.entries(portfolioAssets).map(([_, v]) => {
+      const implementations = undefined // TODO: implement here
+      return {
+        assetId: v.assetId,
+        symbol: v.symbol,
+        icon: v.icon,
+        name: v.name,
+        cryptoAmount: v.cryptoAmount,
+        fiatAmount: v.fiatAmount,
+        implementations,
+      }
+    })
   },
 )
 

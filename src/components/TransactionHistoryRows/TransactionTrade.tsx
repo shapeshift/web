@@ -52,14 +52,14 @@ export const TransactionTrade = ({
               />
             </Row>
           )}
-          {txDetails.tx.tradeDetails && (
+          {txDetails.tx.trade && (
             <Row title='orderRoute'>
-              <Text value={txDetails.tx.tradeDetails.dexName} />
+              <Text value={txDetails.tx.trade.dexName} />
             </Row>
           )}
-          {txDetails.tx.tradeDetails && (
+          {txDetails.tx.trade && (
             <Row title='transactionType'>
-              <Text value={txDetails.tx.tradeDetails.type} />
+              <Text value={txDetails.tx.trade.type} />
             </Row>
           )}
         </TxGrid>

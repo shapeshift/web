@@ -1,7 +1,7 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
 import { osmosisAssetId } from '@shapeshiftoss/caip'
-import { TradeTxs } from '@shapeshiftoss/swapper'
+import { isCowTrade, TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
@@ -18,7 +18,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
@@ -200,6 +200,28 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   )}
                 </Box>
               </Row>
+              {isCowTrade(trade) && (
+                <Row>
+                  <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+                    <Row.Label>
+                      <Text translation='trade.protocolFee' />
+                    </Row.Label>
+                  </HelperTooltip>
+                  <Row.Value>
+                    {bn(trade.feeAmountInSellToken)
+                      .div(bn(10).pow(trade.sellAsset.precision))
+                      .toString()}{' '}
+                    ≃{' '}
+                    {toFiat(
+                      bn(trade.feeAmountInSellToken)
+                        .div(bn(10).pow(trade.sellAsset.precision))
+                        .times(sellAssetFiatRate)
+                        .times(selectedCurrencyToUsdRate)
+                        .toString(),
+                    )}
+                  </Row.Value>
+                </Row>
+              )}
               <Row>
                 <HelperTooltip label={translate('trade.tooltip.minerFee')}>
                   <Row.Label>

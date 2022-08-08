@@ -213,7 +213,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                       .toString()}{' '}
                     ≃{' '}
                     {toFiat(
-                      bnOrZero(trade.feeAmountInSellToken)
+                      bn(trade.feeAmountInSellToken)
                         .div(`1e+${trade.sellAsset.precision}`)
                         .times(sellAssetFiatRate)
                         .times(selectedCurrencyToUsdRate)

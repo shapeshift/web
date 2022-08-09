@@ -1,6 +1,12 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, cosmosChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import {
+  AssetId,
+  cosmosChainId,
+  ethChainId,
+  fromAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -46,6 +52,7 @@ export const useTradeRoutes = (
     if (!wallet) return
     if (supportsETH(wallet)) return ethChainId
     if (supportsCosmos(wallet)) return cosmosChainId
+    if (supportsOsmosis(wallet)) return osmosisChainId
   })()
 
   // Use the ChainId of the route's AssetId if we have one, else use the wallet's fallback ChainId

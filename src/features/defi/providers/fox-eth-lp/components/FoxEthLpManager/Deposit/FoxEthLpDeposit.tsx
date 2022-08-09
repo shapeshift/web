@@ -22,6 +22,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
@@ -90,7 +91,7 @@ export const FoxEthLpDeposit = () => {
     <DepositContext.Provider value={{ state, dispatch }}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: 'ETH-FOX UNI V2' })}
+          title={translate('modals.deposit.depositInto', { opportunity: foxEthLpOpportunityName })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

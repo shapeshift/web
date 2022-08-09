@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react'
 import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import {
   isCosmosChainId,
   isOsmosisChainId,
@@ -22,6 +21,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
+import { getOverrideNameFromAssetId } from 'components/StakingVaults/utils'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -91,7 +91,8 @@ export const OpportunityCard = ({
   if (!asset) return null
 
   const getOpportunityName = () => {
-    if (assetId === foxEthLpAssetId) return 'ETH-FOX UNI V2'
+    const overridenName = getOverrideNameFromAssetId(assetId)
+    if (overridenName) return overridenName
     if (!isCosmosChainId(chainId) && !isOsmosisChainId(chainId))
       return `${asset.symbol} ${type?.replace('_', ' ')}`
     if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) return moniker

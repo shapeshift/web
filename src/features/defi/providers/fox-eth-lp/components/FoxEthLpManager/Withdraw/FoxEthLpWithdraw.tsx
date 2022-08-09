@@ -24,6 +24,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -113,7 +114,7 @@ export const FoxEthLpWithdraw = () => {
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: 'ETH-FOX UNI V2',
+            opportunity: foxEthLpOpportunityName,
           })}
           onBack={handleBack}
         />

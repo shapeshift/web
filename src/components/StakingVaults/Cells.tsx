@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { debounce } from 'lodash'
 import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -21,6 +20,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
+import { getOverrideNameFromAssetId } from './utils'
 
 type AssetCellProps = {
   assetId: AssetId
@@ -32,9 +32,8 @@ type AssetCellProps = {
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
-  if (asset.assetId === foxEthLpAssetId) {
-    return 'ETH-FOX UNI V2'
-  }
+  const overridenName = getOverrideNameFromAssetId(asset.assetId)
+  if (overridenName) return overridenName
 
   if (showAssetSymbol && postFix) {
     return `${asset.symbol} ${postFix}`

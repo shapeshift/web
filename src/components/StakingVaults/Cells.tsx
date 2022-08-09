@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { debounce } from 'lodash'
 import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -29,6 +30,10 @@ type AssetCellProps = {
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
+  if (asset.assetId === foxEthLpAssetId) {
+    return 'ETH-FOX UNI V2'
+  }
+
   if (showAssetSymbol && postFix) {
     return `${asset.symbol} ${postFix}`
   }

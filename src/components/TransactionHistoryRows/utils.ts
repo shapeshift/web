@@ -96,6 +96,8 @@ export const getTradeFees = memoize(
       priceHistoryData: buyAssetPriceHistoryData,
     })
 
+    if (bn(sellAssetPriceAtDate).isZero() || bn(buyAssetPriceAtDate).isZero()) return null
+
     const sellAmountFiat = bnOrZero(sellAmount)
       .div(bn(10).pow(sellAsset.precision))
       .times(bnOrZero(sellAssetPriceAtDate))

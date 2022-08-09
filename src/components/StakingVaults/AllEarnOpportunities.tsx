@@ -14,7 +14,10 @@ import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
@@ -27,6 +30,7 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
+  const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalances()
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
@@ -36,7 +40,7 @@ export const AllEarnOpportunities = () => {
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
     })
-
+  const featureFlags = useAppSelector(selectFeatureFlags)
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
     foxyArray: foxyRows,
@@ -44,6 +48,7 @@ export const AllEarnOpportunities = () => {
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
+    foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
   })
 
   const handleClick = useCallback(

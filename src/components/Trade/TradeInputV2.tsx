@@ -25,7 +25,7 @@ export const TradeInput = () => {
     formState: { isValid },
   } = useFormContext<TradeState<KnownChainIds>>()
   const { sellAsset, buyAsset, quote, feeAssetFiatRate, fees } = useWatch({ control })
-  const { updateQuote, feeAsset, updateTrade } = useSwapper()
+  const { updateQuote, feeAsset, updateTrade, checkApprovalNeeded } = useSwapper()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const { field: sellCryptoAmount } = useController({
     name: 'sellAsset.amount',
@@ -80,12 +80,21 @@ export const TradeInput = () => {
 
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
     console.info(values)
-    await updateTrade({
-      sellAsset: values.quote.sellAsset,
-      buyAsset: values.quote.buyAsset,
-      amount: values.quote.sellAmount,
-    })
-    history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
+    try {
+      const approveNeeded = await checkApprovalNeeded()
+      if (approveNeeded) {
+        history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
+        return
+      }
+      await updateTrade({
+        sellAsset: values.quote.sellAsset,
+        buyAsset: values.quote.buyAsset,
+        amount: values.quote.sellAmount,
+      })
+      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   return (

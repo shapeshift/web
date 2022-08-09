@@ -35,6 +35,7 @@ import { useSelector } from 'react-redux'
 import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -177,7 +178,7 @@ export const useSwapper = () => {
     state: { wallet },
   } = useWallet()
 
-  const flags = store.getState().preferences.featureFlags
+  const osmosisEnabled = useFeatureFlag('Osmosis')
 
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
@@ -217,15 +218,15 @@ export const useSwapper = () => {
         case KnownChainIds.AvalancheMainnet:
           return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
         case KnownChainIds.CosmosMainnet:
-          return flags.Osmosis ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
+          return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
         case KnownChainIds.OsmosisMainnet:
-          return flags.Osmosis ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
+          return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
         case KnownChainIds.EthereumMainnet:
         default:
           return ethFoxPair
       }
     },
-    [flags.Osmosis],
+    [osmosisEnabled],
   )
 
   const sellAssetBalance = useAppSelector(state =>

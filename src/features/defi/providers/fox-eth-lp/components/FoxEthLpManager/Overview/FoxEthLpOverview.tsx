@@ -9,7 +9,7 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { foxAssetId } from '../../../const'
+import { foxAssetId } from '../../../constants'
 
 export const FoxEthLpOverview = () => {
   const { loading, opportunity, foxBalance, ethBalance } = useFoxEthLpBalances()
@@ -34,7 +34,7 @@ export const FoxEthLpOverview = () => {
   return (
     <Overview
       asset={lpAsset}
-      name='FOX-ETH LP tokens'
+      name='ETH-FOX UNI V2'
       opportunityFiatBalance={opportunity.fiatAmount}
       underlyingAssets={[
         { ...foxAsset, cryptoBalance: foxBalance ?? '0', allocationPercentage: '0.50' },

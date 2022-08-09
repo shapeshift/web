@@ -90,7 +90,7 @@ export const FoxEthLpDeposit = () => {
     <DepositContext.Provider value={{ state, dispatch }}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: asset.symbol })}
+          title={translate('modals.deposit.depositInto', { opportunity: 'ETH-FOX UNI V2' })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

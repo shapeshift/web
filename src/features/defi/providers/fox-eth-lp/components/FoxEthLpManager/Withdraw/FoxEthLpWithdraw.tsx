@@ -113,7 +113,7 @@ export const FoxEthLpWithdraw = () => {
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: underlyingAsset.symbol,
+            opportunity: 'ETH-FOX UNI V2',
           })}
           onBack={handleBack}
         />

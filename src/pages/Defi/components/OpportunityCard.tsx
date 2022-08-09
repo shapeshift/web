@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import {
   isCosmosChainId,
   isOsmosisChainId,
@@ -88,6 +89,13 @@ export const OpportunityCard = ({
 
   if (!asset) return null
 
+  const getOpportunityName = () => {
+    if (assetId === foxEthLpAssetId) return 'ETH-FOX UNI V2'
+    if (!isCosmosChainId(chainId) && !isOsmosisChainId(chainId))
+      return `${asset.symbol} ${type?.replace('_', ' ')}`
+    if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) return moniker
+  }
+
   return (
     <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
       <Card.Body>
@@ -104,10 +112,7 @@ export const OpportunityCard = ({
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosChainId(chainId) &&
-                  !isOsmosisChainId(chainId) &&
-                  `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {(isCosmosChainId(chainId) || isOsmosisChainId(chainId)) && `${moniker}`}
+                {getOpportunityName()}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

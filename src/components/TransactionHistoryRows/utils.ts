@@ -1,8 +1,8 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { cosmos, evm, TransactionMetadata } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { memoize } from 'lodash'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 
@@ -97,11 +97,11 @@ export const getTradeFees = memoize(
     })
 
     const sellAmountFiat = bnOrZero(sellAmount)
-      .div(`1e+${sellAsset.precision}`)
+      .div(bn(10).pow(sellAsset.precision))
       .times(bnOrZero(sellAssetPriceAtDate))
 
     const buyAmountFiat = bnOrZero(buyAmount)
-      .div(`1e+${buyAsset.precision}`)
+      .div(bn(10).pow(buyAsset.precision))
       .times(bnOrZero(buyAssetPriceAtDate))
 
     const sellTokenFee = sellAmountFiat.minus(buyAmountFiat).div(sellAssetPriceAtDate)

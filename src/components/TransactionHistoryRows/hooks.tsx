@@ -57,7 +57,7 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     const tradeFees = getTradeFees({
       sellAsset,
       buyAsset,
-      blockTime: dayjs(txDetails.tx.blockTime * 1000).valueOf(),
+      blockTime: dayjs(txDetails.tx.blockTime * 1000).valueOf(), // unchained uses seconds
       sellAmount: txDetails.sellTransfer.value,
       buyAmount: txDetails.buyTransfer.value,
       cryptoPriceHistoryData,

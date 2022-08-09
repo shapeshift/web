@@ -1,5 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, cosmosChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -34,15 +35,21 @@ export const useTradeRoutes = (
   const assets = useSelector(selectAssets)
   const {
     state: { wallet },
-    state,
   } = useWallet()
 
   const { connectedEvmChainId } = useEvm()
 
-  const swapperChainId = routeBuyAssetId
-    ? fromAssetId(routeBuyAssetId).chainId
-    : connectedEvmChainId
-  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(swapperChainId)
+  // Used for wallets that don't have the concept of a connected chain
+  const defaultWalletChainId = (() => {
+    if (!wallet) return
+    if (supportsETH(wallet)) return ethChainId
+    if (supportsCosmos(wallet)) return cosmosChainId
+  })()
+
+  const walletChainId = connectedEvmChainId ?? defaultWalletChainId
+
+  const buyAssetChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : walletChainId
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(buyAssetChainId)
 
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
   const defaultFeeAssetId = getChainAdapterManager().get(defaultSellChainId)!.getFeeAssetId()

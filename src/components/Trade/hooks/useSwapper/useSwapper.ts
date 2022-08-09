@@ -5,6 +5,7 @@ import {
   avalancheChainId,
   ChainId,
   cosmosAssetId,
+  ethAssetId,
   ethChainId,
   fromAssetId,
   osmosisAssetId,
@@ -207,8 +208,8 @@ export const useSwapper = () => {
     [swapperManager, sellTradeAsset],
   )
 
-  const getDefaultPair = useCallback((connectedChainId: ChainId | undefined) => {
-    switch (connectedChainId) {
+  const getDefaultPair = useCallback((buyAssetChainId: ChainId | undefined) => {
+    switch (buyAssetChainId) {
       case KnownChainIds.AvalancheMainnet:
         return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
       case KnownChainIds.CosmosMainnet:
@@ -217,8 +218,7 @@ export const useSwapper = () => {
         return [osmosisAssetId, cosmosAssetId]
       case KnownChainIds.EthereumMainnet:
       default:
-        // eth & fox
-        return ['eip155:1/slip44:60', 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+        return [ethAssetId, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
     }
   }, [])
 
@@ -230,7 +230,7 @@ export const useSwapper = () => {
 
   // TODO: rename to sellFeeAsset
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? 'eip155:1/slip44:60'),
+    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
   const { showErrorToast } = useErrorHandler()
 

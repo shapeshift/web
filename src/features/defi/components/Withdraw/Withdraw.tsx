@@ -96,7 +96,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   isLoading,
   percentOptions,
   children,
-  onInputChange = undefined,
+  onInputChange,
 }) => {
   const translate = useTranslate()
   const {

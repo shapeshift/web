@@ -1,4 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
+import { foxEthLpOpportunityName } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
@@ -17,7 +18,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
-              title: 'ETH-FOX UNI V2',
+              title: foxEthLpOpportunityName,
               isLoaded: isLpAprLoaded,
               apy: isLpAprLoaded ? lpApr : null,
               link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/lp-add',

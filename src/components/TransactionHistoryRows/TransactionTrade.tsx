@@ -66,7 +66,7 @@ export const TransactionTrade = ({
               <Row title='transactionType'>
                 <Text value={txDetails.tx.trade.type} />
               </Row>
-              <Row title='fees'>
+              <Row title='fee'>
                 <Text value={tradeFees} />
               </Row>
             </>

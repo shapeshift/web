@@ -30,6 +30,8 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
   useEffect(() => {
     if (
       !(
+        buyAsset &&
+        sellAsset &&
         txDetails?.tx?.trade &&
         txDetails.sellAsset &&
         txDetails.buyAsset &&

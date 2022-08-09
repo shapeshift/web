@@ -1,5 +1,7 @@
+import { Amount } from 'components/Amount/Amount'
+
 import { useTradeFees } from './hooks'
-import { Amount } from './TransactionDetails/Amount'
+import { Amount as TransactionAmount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
 import { Status } from './TransactionDetails/Status'
@@ -49,7 +51,7 @@ export const TransactionTrade = ({
           </Row>
           {txDetails.feeAsset && (
             <Row title='minerFee'>
-              <Amount
+              <TransactionAmount
                 value={txDetails.tx.fee?.value ?? '0'}
                 precision={txDetails.feeAsset.precision}
                 symbol={txDetails.feeAsset.symbol}
@@ -62,14 +64,14 @@ export const TransactionTrade = ({
             </Row>
           )}
           {txDetails.tx.trade && (
-            <>
-              <Row title='transactionType'>
-                <Text value={txDetails.tx.trade.type} />
-              </Row>
-              <Row title='fee'>
-                <Text value={tradeFees} />
-              </Row>
-            </>
+            <Row title='transactionType'>
+              <Text value={txDetails.tx.trade.type} />
+            </Row>
+          )}
+          {txDetails.tx.trade && txDetails.sellAsset && tradeFees && (
+            <Row title='fee'>
+              <Amount.Crypto value={tradeFees} symbol={txDetails.sellAsset.symbol} />
+            </Row>
           )}
         </TxGrid>
       </TransactionDetailsContainer>

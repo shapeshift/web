@@ -84,7 +84,7 @@ export const getTradeFees = memoize(
     const sellAssetPriceHistoryData = cryptoPriceHistoryData[sellAsset.assetId]
     const buyAssetPriceHistoryData = cryptoPriceHistoryData[buyAsset.assetId]
 
-    if (!sellAssetPriceHistoryData || !buyAssetPriceHistoryData) return ''
+    if (!sellAssetPriceHistoryData || !buyAssetPriceHistoryData) return null
 
     const sellAssetPriceAtDate = priceAtDate({
       date: blockTime,
@@ -106,6 +106,6 @@ export const getTradeFees = memoize(
 
     const sellTokenFee = sellAmountFiat.minus(buyAmountFiat).div(sellAssetPriceAtDate)
 
-    return `${sellTokenFee.toString()} ${sellAsset.symbol}`
+    return sellTokenFee.toString()
   },
 )

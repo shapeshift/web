@@ -11,7 +11,7 @@ import { useAppSelector } from 'state/store'
 import { getTradeFees } from './utils'
 
 export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
-  const [tradeFees, setTradeFees] = useState<string>('')
+  const [tradeFees, setTradeFees] = useState<string | null>(null)
 
   const dispatch = useDispatch()
   const cryptoPriceHistoryData = useAppSelector(state =>

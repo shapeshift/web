@@ -55,6 +55,7 @@ export const OpportunityCard = ({
   expired,
   moniker,
   assetId,
+  icons,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
@@ -102,14 +103,28 @@ export const OpportunityCard = ({
         <Flex alignItems='center'>
           <Flex>
             <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon
-                src={getOverrideIconFromAssetId(assetId, assets)}
-                boxSize='10'
-                zIndex={2}
-              />
+              {icons ? (
+                <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
+                  {icons.map((iconSrc, i) => (
+                    <AssetIcon
+                      key={iconSrc}
+                      src={iconSrc}
+                      boxSize='9'
+                      mr={i === icons.length - 1 ? 2 : 0}
+                      ml={i === 0 ? '0' : '-4'}
+                    />
+                  ))}
+                </Flex>
+              ) : (
+                <AssetIcon
+                  src={getOverrideIconFromAssetId(assetId, assets)}
+                  boxSize='10'
+                  zIndex={2}
+                />
+              )}
             </SkeletonCircle>
           </Flex>
-          <Box ml={4}>
+          <Box ml={icons ? 6 : 4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
                 {getOpportunityName()}

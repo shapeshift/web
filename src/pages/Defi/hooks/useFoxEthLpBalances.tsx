@@ -33,6 +33,10 @@ const defaultOpportunity: EarnOpportunityType = {
   chainId: ethChainId,
   isLoaded: false,
   type: DefiType.LiquidityPool,
+  icons: [
+    'https://assets.coincap.io/assets/icons/eth@2x.png',
+    'https://assets.coincap.io/assets/icons/fox@2x.png',
+  ],
 }
 
 export function useFoxEthLpBalances(): UseFoxEthLpBalancesReturn {

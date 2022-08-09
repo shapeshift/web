@@ -16,12 +16,12 @@ import {
   OsmosisSwapper,
   Swapper,
   SwapperManager,
-  SwapSupportedUtxoChainIds,
   ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
+  UtxoSupportedChainIds,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -317,7 +317,7 @@ export const useSwapper = () => {
         const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
-          chainId: sellAsset.chainId as SwapSupportedUtxoChainIds,
+          chainId: sellAsset.chainId as UtxoSupportedChainIds,
           sellAmount: amount,
           sellAsset,
           buyAsset,
@@ -469,7 +469,7 @@ export const useSwapper = () => {
 
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
-                chainId: sellAsset.chainId as SwapSupportedUtxoChainIds,
+                chainId: sellAsset.chainId as UtxoSupportedChainIds,
                 sellAsset,
                 buyAsset,
                 sellAmount,
@@ -618,9 +618,9 @@ export const useSwapper = () => {
       }
       case CHAIN_NAMESPACE.Bitcoin:
         {
-          const utxoTrade = trade as Trade<SwapSupportedUtxoChainIds>
+          const utxoTrade = trade as Trade<UtxoSupportedChainIds>
 
-          const fees: DisplayFeeData<SwapSupportedUtxoChainIds> = {
+          const fees: DisplayFeeData<UtxoSupportedChainIds> = {
             fee,
             chainSpecific: utxoTrade.feeData.chainSpecific,
             tradeFee: utxoTrade.feeData.tradeFee,

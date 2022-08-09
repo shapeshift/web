@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v7.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.3.0...@shapeshiftoss/asset-service-v7.4.0) (2022-08-09)
+
+
+### Features
+
+* idle-investor final ([#955](https://github.com/shapeshift/lib/issues/955)) ([564ba23](https://github.com/shapeshift/lib/commit/564ba23a92ce4086917bac366e1bd6d419de3306))
+
 # [@shapeshiftoss/asset-service-v7.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.2.2...@shapeshiftoss/asset-service-v7.3.0) (2022-08-04)
 
 

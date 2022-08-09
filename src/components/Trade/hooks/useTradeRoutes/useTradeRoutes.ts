@@ -39,15 +39,16 @@ export const useTradeRoutes = (
 
   const { connectedEvmChainId } = useEvm()
 
-  // Used for wallets that don't have the concept of a connected chain
-  const defaultWalletChainId = (() => {
+  // If the wallet is connected to a chain, use that ChainId
+  // Else, return a prioritized ChainId based on the wallet's supported chains
+  const walletChainId = (() => {
+    if (connectedEvmChainId) return connectedEvmChainId
     if (!wallet) return
     if (supportsETH(wallet)) return ethChainId
     if (supportsCosmos(wallet)) return cosmosChainId
   })()
 
-  const walletChainId = connectedEvmChainId ?? defaultWalletChainId
-
+  // Use the ChainId of the route's AssetId if we have one, else use the wallet's fallback ChainId
   const buyAssetChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : walletChainId
   const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(buyAssetChainId)
 

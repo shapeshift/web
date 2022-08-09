@@ -40,7 +40,12 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
       return
     if (txDetails.tx.trade.dexName !== Dex.CowSwap) return
 
-    if (!Object.keys(cryptoPriceHistoryData).length) {
+    if (
+      !(
+        cryptoPriceHistoryData[txDetails.buyAsset.assetId] &&
+        cryptoPriceHistoryData[txDetails.sellAsset.assetId]
+      )
+    ) {
       const [sellAssetId, buyAssetId] = [txDetails.sellAsset.assetId, txDetails.buyAsset.assetId]
 
       // Fetch / use cached price history by assetId

@@ -14,12 +14,20 @@ export const Balance: React.FC<AssetBalanceProps> = ({
   isFiat,
 }) => {
   return isFiat ? (
-    <Amount.Fiat lineHeight={1} color='gray.500' fontSize='sm' prefix={label} value={fiatBalance} />
+    <Amount.Fiat
+      flex={1}
+      lineHeight={1}
+      color='gray.500'
+      fontSize='sm'
+      prefix={label}
+      value={fiatBalance}
+    />
   ) : (
     <Amount.Crypto
       lineHeight={1}
       color='gray.500'
       fontSize='sm'
+      flex={1}
       symbol={symbol}
       prefix={label}
       value={cryptoBalance}

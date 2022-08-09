@@ -1,3 +1,4 @@
+import { useTradeFees } from './hooks'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -21,6 +22,9 @@ export const TransactionTrade = ({
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
   if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
+
+  const { tradeFees } = useTradeFees({ txDetails })
+
   return (
     <>
       <TransactionGenericRow
@@ -58,9 +62,14 @@ export const TransactionTrade = ({
             </Row>
           )}
           {txDetails.tx.trade && (
-            <Row title='transactionType'>
-              <Text value={txDetails.tx.trade.type} />
-            </Row>
+            <>
+              <Row title='transactionType'>
+                <Text value={txDetails.tx.trade.type} />
+              </Row>
+              <Row title='fee'>
+                <Text value={tradeFees} />
+              </Row>
+            </>
           )}
         </TxGrid>
       </TransactionDetailsContainer>

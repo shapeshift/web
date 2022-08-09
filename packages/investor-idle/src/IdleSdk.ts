@@ -1,12 +1,13 @@
-// import https from 'https'
-import { availableTokens, IdleVault } from './constants'
+import axios from 'axios'
+
+import { apiKey, baseUrl, IdleVault } from './constants'
 
 export class IdleSdk {
   async getVaults(): Promise<IdleVault[]> {
-    // const vaults = await makeRequest('http://localhost:3333/pools?api-key=bPrtC2bfnAvapyXLgdvzVzW8u8igKv6E');
-    // if (vaults){
-    // this.#vaults = JSON.parse(vaults);
-    // }
-    return availableTokens
+    const results = await axios.get(`${baseUrl}pools?api-key=${apiKey}`)
+    if (results && results.data) {
+      return results.data.filter((data: IdleVault) => !!data.externalIntegration)
+    }
+    return []
   }
 }

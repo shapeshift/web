@@ -10,7 +10,6 @@ import {
 import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
-import isNil from 'lodash/isNil'
 import toLower from 'lodash/toLower'
 import Web3 from 'web3'
 import { Contract } from 'web3-eth-contract'
@@ -22,6 +21,7 @@ import {
   idleTokenV4Abi,
   IdleVault,
   MAX_ALLOWANCE,
+  referralAddress,
   ssRouterContractAddress
 } from './constants'
 import { bnOrZero, normalizeAmount, toPath } from './utils'
@@ -187,39 +187,6 @@ export class IdleOpportunity
     }
   }
 
-  private checksumAddress(address: string): string {
-    return this.#internals.web3.utils.toChecksumAddress(address)
-  }
-
-  /**
-   * From the token contract address and vault address, we need to get the vault id. The router
-   * contract needs the vault id to know which vault it is dealing with when depositing, since it
-   * takes a token address and a vault id.
-   */
-  private async getVaultId({
-    underlyingAssetAddress,
-    vaultAddress
-  }: {
-    underlyingAssetAddress: string
-    vaultAddress: string
-  }): Promise<number> {
-    const numVaults = await this.#internals.routerContract.methods
-      .numVaults(this.checksumAddress(underlyingAssetAddress))
-      .call()
-    let id: number | null = null
-    for (let i = 0; i <= numVaults && isNil(id); i++) {
-      const result = await this.#internals.routerContract.methods
-        .vaults(this.checksumAddress(underlyingAssetAddress), i)
-        .call()
-      if (result === this.checksumAddress(vaultAddress)) id = i
-    }
-    if (isNil(id))
-      throw new Error(
-        `Could not find vault id for token: ${underlyingAssetAddress} vault: ${vaultAddress}`
-      )
-    return id
-  }
-
   /**
    * Prepare an unsigned withdrawal transaction
    *
@@ -239,7 +206,7 @@ export class IdleOpportunity
     // Handle Tranche Withdraw
     if (this.metadata.cdoAddress) {
       vaultContract = new this.#internals.web3.eth.Contract(idleCdoAbi, this.metadata.cdoAddress)
-      const trancheType = this.metadata.strategy.match(/senior/i) ? 'AA' : 'BB'
+      const trancheType = /senior/i.test(this.metadata.strategy) ? 'AA' : 'BB'
       methodName = `withdraw${trancheType}`
     } else {
       vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
@@ -327,23 +294,24 @@ export class IdleOpportunity
     // In order to properly earn affiliate revenue, we must deposit to the vault through the SS
     // router contract. This is not necessary for withdraws. We can withdraw directly from the vault
     // without affecting the DAOs affiliate revenue.
-    const tokenChecksum = this.#internals.web3.utils.toChecksumAddress(
-      this.metadata.underlyingAddress
-    )
-    const userChecksum = this.#internals.web3.utils.toChecksumAddress(address)
-    const vaultIndex = await this.getVaultId({
-      underlyingAssetAddress: this.metadata.underlyingAddress,
-      vaultAddress: this.metadata.cdoAddress || this.metadata.address
-    })
 
-    // console.log('prepareDeposit - getVaultId', vaultIndex)
+    let methodName: string
+    let methodParams: string[]
+    let vaultContract: Contract
 
-    const preDeposit = await this.#internals.routerContract.methods.deposit(
-      tokenChecksum,
-      userChecksum,
-      amount.toFixed(),
-      vaultIndex
-    )
+    // Handle Tranche Withdraw
+    if (this.metadata.cdoAddress) {
+      vaultContract = this.#internals.routerContract
+      const trancheType = /senior/i.test(this.metadata.strategy) ? 'AA' : 'BB'
+      methodName = `deposit${trancheType}`
+      methodParams = [this.metadata.cdoAddress, amount.toFixed()]
+    } else {
+      methodName = 'mintIdleToken'
+      methodParams = [amount.toFixed(), 'true', referralAddress]
+      vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+    }
+
+    const preDeposit = await vaultContract.methods[methodName](...methodParams)
 
     // console.log('prepareDeposit - routerContract.deposit', preDeposit)
 
@@ -369,7 +337,7 @@ export class IdleOpportunity
       estimatedGas,
       gasPrice,
       nonce: String(nonce),
-      to: ssRouterContractAddress,
+      to: vaultContract.options.address,
       value: '0'
     }
   }
@@ -421,8 +389,18 @@ export class IdleOpportunity
       erc20Abi,
       this.metadata.underlyingAddress
     )
+
+    let vaultContract: Contract
+
+    // Handle Tranche Withdraw
+    if (this.metadata.cdoAddress) {
+      vaultContract = this.#internals.routerContract
+    } else {
+      vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+    }
+
     const allowance = await depositTokenContract.methods
-      .allowance(address, this.#internals.routerContract.options.address)
+      .allowance(address, vaultContract.options.address)
       .call()
 
     return bnOrZero(allowance)
@@ -433,8 +411,18 @@ export class IdleOpportunity
       erc20Abi,
       this.metadata.underlyingAddress
     )
+
+    let vaultContractAddress: string
+
+    // Handle Tranche Withdraw
+    if (this.metadata.cdoAddress) {
+      vaultContractAddress = ssRouterContractAddress
+    } else {
+      vaultContractAddress = this.id
+    }
+
     const preApprove = await depositTokenContract.methods.approve(
-      ssRouterContractAddress,
+      vaultContractAddress,
       MAX_ALLOWANCE
     )
     const data = await preApprove.encodeABI({ from: address })

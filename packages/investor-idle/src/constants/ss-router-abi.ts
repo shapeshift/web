@@ -3,15 +3,22 @@ import { AbiItem } from 'web3-utils'
 /* eslint-disable */
 export const ssRouterAbi: AbiItem[] = [
   {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
         "internalType": "address",
-        "name": "yearnRegistry",
+        "name": "newRegistry",
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    "name": "IdleRegistryUpdated",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -36,33 +43,17 @@ export const ssRouterAbi: AbiItem[] = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
+        "name": "_cdo",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "vaultId",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "name": "deposit",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "depositAA",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -70,43 +61,26 @@ export const ssRouterAbi: AbiItem[] = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
+        "name": "_cdo",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "name": "deposit",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "depositBB",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "latestVault",
+    "inputs": [],
+    "name": "idleRegistry",
     "outputs": [
       {
-        "internalType": "contract VaultAPI",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -118,96 +92,13 @@ export const ssRouterAbi: AbiItem[] = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "token",
+        "name": "_idleRegistry",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
       }
     ],
-    "name": "migrate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "initialize",
+    "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "migrate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "firstVaultId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastVaultId",
-        "type": "uint256"
-      }
-    ],
-    "name": "migrate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "numVaults",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -216,19 +107,6 @@ export const ssRouterAbi: AbiItem[] = [
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "registry",
-    "outputs": [
-      {
-        "internalType": "contract RegistryAPI",
         "name": "",
         "type": "address"
       }
@@ -247,119 +125,13 @@ export const ssRouterAbi: AbiItem[] = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "yearnRegistry",
+        "name": "_idleRegistry",
         "type": "address"
       }
     ],
-    "name": "setRegistry",
+    "name": "setIdleRegistry",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "firstVaultId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastVaultId",
-        "type": "uint256"
-      }
-    ],
-    "name": "totalAssets",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "assets",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "totalAssets",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "totalVaultBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "firstVaultId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastVaultId",
-        "type": "uint256"
-      }
-    ],
-    "name": "totalVaultBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "balance",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -379,62 +151,17 @@ export const ssRouterAbi: AbiItem[] = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "token",
+        "name": "_trancheTokenAA",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "deploymentId",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "name": "vaults",
-    "outputs": [
-      {
-        "internalType": "contract VaultAPI",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "firstVaultId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastVaultId",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdraw",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "withdrawAA",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -442,52 +169,17 @@ export const ssRouterAbi: AbiItem[] = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
+        "name": "_trancheTokenBB",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "name": "withdraw",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "withdraw",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "withdrawBB",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   }

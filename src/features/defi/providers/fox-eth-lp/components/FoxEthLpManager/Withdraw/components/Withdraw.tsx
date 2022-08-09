@@ -18,7 +18,7 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -32,7 +32,7 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { opportunity, foxBalance, ethBalance, loading } = useFoxEthLpBalance()
+  const { opportunity, foxBalance, ethBalance, loading } = useFoxEthLpBalances()
 
   const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool()
   const [foxAmount, setFoxAmount] = useState('0')

@@ -18,7 +18,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -37,7 +37,7 @@ export const Status = () => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { opportunity } = useFoxEthLpBalance()
+  const { opportunity } = useFoxEthLpBalances()
   const {
     state: { wallet },
   } = useWallet()
@@ -92,9 +92,7 @@ export const Status = () => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+  const handleCancel = browserHistory.goBack
 
   if (!state) return null
 

@@ -16,7 +16,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -54,7 +54,7 @@ export const FoxEthLpWithdraw = () => {
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const { opportunity } = useFoxEthLpBalance()
+  const { opportunity } = useFoxEthLpBalances()
 
   // user info
   const { state: walletState } = useWallet()

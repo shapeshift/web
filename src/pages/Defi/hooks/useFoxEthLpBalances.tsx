@@ -1,5 +1,4 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy/dist/utils/bignumber'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
@@ -11,10 +10,11 @@ import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export type UseFoxEthLpBalanceReturn = {
+export type UseFoxEthLpBalancesReturn = {
   opportunity: EarnOpportunityType
   balance: string
   foxBalance: string | null
@@ -35,7 +35,7 @@ const defaultOpportunity: EarnOpportunityType = {
   type: DefiType.LiquidityPool,
 }
 
-export function useFoxEthLpBalance(): UseFoxEthLpBalanceReturn {
+export function useFoxEthLpBalances(): UseFoxEthLpBalancesReturn {
   const {
     state: { wallet },
   } = useWallet()

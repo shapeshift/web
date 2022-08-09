@@ -10,7 +10,7 @@ import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakin
 import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useFoxEthLpBalance } from './useFoxEthLpBalance'
+import { useFoxEthLpBalances } from './useFoxEthLpBalances'
 import { useFoxyBalances } from './useFoxyBalances'
 import { useVaultBalances } from './useVaultBalances'
 
@@ -38,7 +38,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useCosmosSdkStakingBalances({
     assetId: osmosisAssetId,
   })
-  const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalance()
+  const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalances()
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({

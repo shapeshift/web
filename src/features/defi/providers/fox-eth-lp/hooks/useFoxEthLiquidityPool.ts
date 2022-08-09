@@ -124,7 +124,8 @@ export const useFoxEthLiquidityPool = () => {
             }
             return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
               to: UNISWAP_V2_ROUTER_ADDRESS,
-              value,
+              // the eth value need to be starting with 0x and be base 16
+              value: '0x' + bnOrZero(value).toString(16),
               wallet,
               data,
               gasLimit,

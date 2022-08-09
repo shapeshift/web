@@ -14,7 +14,7 @@ import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -30,7 +30,7 @@ export const AllEarnOpportunities = () => {
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
-  const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalance()
+  const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalances()
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,

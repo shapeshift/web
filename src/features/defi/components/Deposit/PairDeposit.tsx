@@ -2,6 +2,7 @@ import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
+import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -57,10 +58,6 @@ export type DepositValues = {
   [Field.CryptoAmount1]: string
   [Field.FiatAmount2]: string
   [Field.CryptoAmount2]: string
-}
-
-function calculateYearlyYield(apy: string, amount: string = '') {
-  return bnOrZero(amount).times(apy).toString()
 }
 
 export const PairDeposit = ({

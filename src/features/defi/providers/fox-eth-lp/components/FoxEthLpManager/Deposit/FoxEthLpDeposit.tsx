@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -34,7 +34,7 @@ export const FoxEthLpDeposit = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { opportunity } = useFoxEthLpBalance()
+  const { opportunity } = useFoxEthLpBalances()
 
   const asset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, opportunity.assetId))

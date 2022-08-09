@@ -4,7 +4,7 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxEthLpBalance } from 'pages/Defi/hooks/useFoxEthLpBalance'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -12,7 +12,7 @@ import { useAppSelector } from 'state/store'
 import { foxAssetId } from '../../../const'
 
 export const FoxEthLpOverview = () => {
-  const { loading, opportunity, foxBalance, ethBalance } = useFoxEthLpBalance()
+  const { loading, opportunity, foxBalance, ethBalance } = useFoxEthLpBalances()
 
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))

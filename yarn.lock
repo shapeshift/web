@@ -4047,10 +4047,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.2.0.tgz#9800dc9673f9ab7571d9d74c0d0d701a41efc942"
   integrity sha512-Khu5Byomu3d4Nb9XmqG50C1XyWe188vZ8v6laXQbqJEQkqbB9MQjZ/nQJDcMUeTfooPGGdJnFeyDKKX3WjwclQ==
 
-"@shapeshiftoss/unchained-client@^9.7.0":
-  version "9.7.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.7.0.tgz#81834af2bcf882350de430df73f54935d290c33e"
-  integrity sha512-HfpVPkd78vVu27nTktS+ds/t78wlnGwWXAC2b+Q+PwhAVZEnTOr86C/Qf0ZBuRDuKYdYZBPNe69FDp97WhVMAg==
+"@shapeshiftoss/unchained-client@^9.8.1":
+  version "9.8.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.8.1.tgz#17f40dc64358a5a7daa6a1c540775afc859f1e7c"
+  integrity sha512-RH3m1Lvbxql+RmowfePkcKamwEQ0QWKFJsMvRxSFyvZP5IDjxtM5vPkz9uMeP3D8/mqufhgn1Z5iQNpVzjwt7w==
   dependencies:
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"

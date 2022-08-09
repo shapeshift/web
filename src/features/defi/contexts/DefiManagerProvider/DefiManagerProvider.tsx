@@ -1,5 +1,6 @@
 import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { FoxEthLpManager } from 'features/defi/providers/fox-eth-lp/components/FoxEthLpManager/FoxEthLpManager'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
@@ -20,6 +21,7 @@ const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(n
 const DefiModules = {
   [DefiProvider.Yearn]: YearnManager,
   [DefiProvider.ShapeShift]: FoxyManager,
+  [DefiProvider.FoxEthLP]: FoxEthLpManager,
   [DefiProvider.Cosmos]: CosmosManager,
   [DefiProvider.Osmosis]: CosmosManager,
 }

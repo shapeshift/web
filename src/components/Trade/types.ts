@@ -1,6 +1,7 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import { CowTrade } from '@shapeshiftoss/swapper'
 
 export enum TradeAmountInputField {
   BUY = 'BUY',
@@ -29,7 +30,7 @@ export type TradeState<C extends ChainId> = {
   fees?: DisplayFeeData<C>
   action?: TradeAmountInputField
   quote: TradeQuote<C>
-  trade: Trade<C>
+  trade: Trade<C> | CowTrade<C>
 }
 
 export enum TradeRoutePaths {

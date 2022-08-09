@@ -1,5 +1,8 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useTranslate } from 'react-polyglot'
 import { ContractMethod } from 'hooks/useTxDetails/useTxDetails'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
@@ -11,7 +14,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import { TransactionRowProps } from './TransactionRow'
-import { AssetTypes, parseRelevantAssetFromTx } from './utils'
+import { AssetTypes, isTokenMetadata, parseRelevantAssetFromTx } from './utils'
 
 export const TransactionContract = ({
   txDetails,
@@ -24,6 +27,7 @@ export const TransactionContract = ({
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
   if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
+  const translate = useTranslate()
   const isReceive = txDetails.tradeTx?.type === TransferType.Receive
   const interactsWithWithdrawMethod = txDetails.tx.data?.method === ContractMethod.Withdraw
   const isSend = txDetails.tradeTx?.type === TransferType.Send
@@ -31,17 +35,25 @@ export const TransactionContract = ({
     isReceive && !txDetails.tx.data?.method ? txDetails.tradeTx?.type : txDetails.tx.data?.method
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
+  const titlePrefix = translate(
+    txDetails.tx.data?.parser
+      ? `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`
+      : 'transactionRow.unknown',
+  )
+
+  const asset = useAppSelector(state =>
+    selectAssetById(state, isTokenMetadata(txDetails.tx.data) ? txDetails.tx.data.assetId! : ''),
+  )
+  const symbol = asset?.symbol ?? ''
+  const title = symbol ? `${titlePrefix} ${symbol}` : titlePrefix
+
   return (
     <>
       <TransactionGenericRow
         type={txDetails.direction || ''}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
-        title={
-          txDetails.tx.data
-            ? `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`
-            : 'transactionRow.unknown'
-        }
+        title={title}
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
         assets={assets}
@@ -59,9 +71,9 @@ export const TransactionContract = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          {txDetails.tx.tradeDetails && (
+          {txDetails.tx.trade && (
             <Row title='transactionType'>
-              <Text value={txDetails.tx.tradeDetails.dexName} />
+              <Text value={txDetails.tx.trade.dexName} />
             </Row>
           )}
           {txDetails.feeAsset && (

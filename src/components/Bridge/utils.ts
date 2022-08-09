@@ -9,9 +9,9 @@ import {
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
-import { AXELAR_CHAIN_NAMES, AxelarChainName, BridgeAsset } from 'components/Bridge/types'
+import { AxelarChainName, AxelarChainNames, BridgeAsset } from 'components/Bridge/types'
 
-export const wrapAxelarAssetIdFromEthereumToAvalanche = (assetId: AssetId): AssetId | undefined => {
+export const wrapAxelarAssetIdFromEthereumToAvalanche = (assetId: AssetId): AssetId | null => {
   const chainId = KnownChainIds.AvalancheMainnet
   const assetNamespace = 'erc20'
   switch (assetId) {
@@ -24,13 +24,11 @@ export const wrapAxelarAssetIdFromEthereumToAvalanche = (assetId: AssetId): Asse
         assetReference: '0xfab550568c688d5d8a52c7d794cb93edc26ec0ec',
       })
     default:
-      return undefined
+      return null
   }
 }
 
-export const unwrapAxelarAssetIdFromAvalancheToEthereum = (
-  assetId: AssetId,
-): AssetId | undefined => {
+export const unwrapAxelarAssetIdFromAvalancheToEthereum = (assetId: AssetId): AssetId | null => {
   const chainId = KnownChainIds.EthereumMainnet
   const assetNamespace = 'erc20'
   switch (assetId) {
@@ -43,11 +41,11 @@ export const unwrapAxelarAssetIdFromAvalancheToEthereum = (
         assetReference: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
       })
     default:
-      return undefined
+      return null
   }
 }
 
-export const getBridgeDestinationAsset = (assetId: AssetId): AssetId | undefined => {
+export const getBridgeDestinationAsset = (assetId: AssetId): AssetId | null => {
   const { chainId } = fromAssetId(assetId)
   switch (chainId) {
     case ethChainId:
@@ -55,38 +53,38 @@ export const getBridgeDestinationAsset = (assetId: AssetId): AssetId | undefined
     case avalancheChainId:
       return unwrapAxelarAssetIdFromAvalancheToEthereum(assetId)
     default:
-      return undefined
+      return null
   }
 }
 
-export const chainNameToAxelarEvmChain = (name: string): EvmChain => {
+export const chainNameToEvmChain = (name: AxelarChainName): EvmChain => {
   switch (name) {
-    case AXELAR_CHAIN_NAMES.Ethereum:
+    case AxelarChainNames.Ethereum:
       return EvmChain.ETHEREUM
-    case AXELAR_CHAIN_NAMES.Avalanche:
+    case AxelarChainNames.Avalanche:
       return EvmChain.AVALANCHE
     default:
-      throw new Error(`chainNameToAxelarEvmChain: name ${name} not supported`)
+      throw new Error(`chainNameToEvmChain: name ${name} not supported`)
   }
 }
 
-export const chainNameToAxelarGasToken = (name: string): GasToken => {
+export const chainNameToGasToken = (name: AxelarChainName): GasToken => {
   switch (name) {
-    case AXELAR_CHAIN_NAMES.Ethereum:
+    case AxelarChainNames.Ethereum:
       return GasToken.ETH
-    case AXELAR_CHAIN_NAMES.Avalanche:
+    case AxelarChainNames.Avalanche:
       return GasToken.AVAX
     default:
-      throw new Error(`chainNameToAxelarGasToken: name ${name} not supported`)
+      throw new Error(`chainNameToGasToken: name ${name} not supported`)
   }
 }
 
 export const chainIdToChainName = (chainId: ChainId): AxelarChainName => {
   switch (chainId) {
     case ethChainId:
-      return AXELAR_CHAIN_NAMES.Ethereum
+      return AxelarChainNames.Ethereum
     case avalancheChainId:
-      return AXELAR_CHAIN_NAMES.Avalanche
+      return AxelarChainNames.Avalanche
     default:
       throw new Error(`chainIdToChainName: chainId ${chainId} not supported`)
   }

@@ -12,8 +12,8 @@ import { WrappedIcon } from 'components/AssetIcon'
 import { getAxelarAssetTransferSdk } from 'components/Bridge/axelarAssetTransferSdkSingleton'
 import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
 import {
-  chainNameToAxelarEvmChain,
-  chainNameToAxelarGasToken,
+  chainNameToEvmChain,
+  chainNameToGasToken,
   getDenomFromBridgeAsset,
 } from 'components/Bridge/utils'
 import { Card } from 'components/Card/Card'
@@ -87,16 +87,16 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
-  const sourceChainName = chainNameToAxelarEvmChain(fromChain?.name ?? '')
-  const destinationChainName = chainNameToAxelarEvmChain(toChain?.name ?? '')
-  const sourceChainTokenSymbol = chainNameToAxelarGasToken(fromChain?.name ?? '')
+  const sourceChainName = fromChain?.name ? chainNameToEvmChain(fromChain.name) : undefined
+  const destinationChainName = toChain?.name ? chainNameToEvmChain(toChain.name) : undefined
+  const sourceChainTokenSymbol = fromChain?.name ? chainNameToGasToken(fromChain.name) : undefined
   const assetDenom = getDenomFromBridgeAsset(bridgeAsset)
 
   useEffect(() => {
     ;(async () => {
       try {
         // We can't use axelarQuerySdk.getTransferFee() because of a CORS issue with the SDK
-        const baseUrl = 'https://9bo26t9rjb.execute-api.ap-southeast-2.amazonaws.com/apotheosis'
+        const baseUrl = 'https://axelar-lcd.quickapi.com/axelar/nexus/v1beta1/transfer_fee'
         const requestUrl = `${baseUrl}?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=${cryptoAmount}${assetDenom}`
         const {
           data: {
@@ -128,8 +128,8 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
       const assetDenom = getDenomFromBridgeAsset(bridgeAsset)
 
       const depositAddress = await axelarAssetTransferSdk.getDepositAddress(
-        sourceChainName,
-        destinationChainName,
+        sourceChainName ?? '',
+        destinationChainName ?? '',
         receiveAddress ?? '',
         assetDenom ?? '',
       )

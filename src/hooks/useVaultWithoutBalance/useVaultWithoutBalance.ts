@@ -1,18 +1,19 @@
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
-import filter from 'lodash/filter'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
 import { selectPortfolioAssetBalances, selectPortfolioLoading } from 'state/slices/selectors'
 
-export type YearnVaultWithUnderlyingTokenBalance = SerializableOpportunity & {
+export type VaultWithUnderlyingTokenBalance = MergedSerializableOpportunity & {
   underlyingTokenBalanceUsdc: string
 }
 
 export type UseVaultWithoutBalanceReturn = {
-  vaultsWithoutBalance: Record<string, SerializableOpportunity>
+  vaultsWithoutBalance: Record<string, MergedSerializableOpportunity>
   vaultsWithoutBalanceLoading: boolean
 }
 
@@ -22,33 +23,67 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
     state: { wallet },
   } = useWallet()
   const [loading, setLoading] = useState(false)
-  const [vaults, setVaults] = useState<SerializableOpportunity[]>([])
+  const [vaults, setVaults] = useState<MergedSerializableOpportunity[]>([])
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()
+  const { idle, loading: idleLoading, enabled: idleEnabled } = useIdle()
+
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!(wallet && yearn) || yearnLoading) return
+    if (!(wallet && yearn && (idle || !idleEnabled)) || yearnLoading || idleLoading) return
     ;(async () => {
       setLoading(true)
       try {
-        const yearnVaults = await yearn.findAll()
-        // Filter out all vaults with 0 USDC TVL value
-        const vaultsWithTVL = filter(yearnVaults, vault => bnOrZero(vault.tvl.balanceUsdc).gt(0))
-        setVaults(vaultsWithTVL)
+        const providers = {
+          [DefiProvider.Idle]: idle,
+          [DefiProvider.Yearn]: yearn,
+        }
+
+        const allVaults: MergedSerializableOpportunity[] = []
+        const providersVaults = await Promise.all(
+          Object.values(providers).map(p => (p ? p.findAll() : null)),
+        )
+
+        providersVaults.forEach((providerVaults, index) => {
+          if (!providerVaults) return
+          const vaultsWithTvl: MergedSerializableOpportunity[] = Object.values(
+            providerVaults,
+          ).filter((vault: MergedSerializableOpportunity) => {
+            return bnOrZero(vault.tvl.balanceUsdc).gt(0)
+          })
+          allVaults.push(
+            ...vaultsWithTvl.map(vault => ({
+              ...vault,
+              provider: Object.keys(providers)[index],
+            })),
+          )
+        })
+
+        setVaults(allVaults)
       } catch (error) {
         console.error('error getting supported yearn vaults', error)
       } finally {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn])
+  }, [
+    balances,
+    dispatch,
+    wallet,
+    balancesLoading,
+    yearnLoading,
+    yearn,
+    idleLoading,
+    idle,
+    idleEnabled,
+  ])
 
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
-      (acc: Record<string, YearnVaultWithUnderlyingTokenBalance>, [_, vault]) => {
+      (acc: Record<string, VaultWithUnderlyingTokenBalance>, [_, vault]) => {
         acc[vault.id] = {
           ...vault,
           underlyingTokenBalanceUsdc: bnOrZero(vault?.tvl.balanceUsdc)
@@ -63,6 +98,6 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
 
   return {
     vaultsWithoutBalance: mergedVaults,
-    vaultsWithoutBalanceLoading: loading || yearnLoading || balancesLoading,
+    vaultsWithoutBalanceLoading: loading || yearnLoading || balancesLoading || idleLoading,
   }
 }

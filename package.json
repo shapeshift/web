@@ -102,6 +102,7 @@
     "@shapeshiftoss/hdwallet-xdefi": "^1.29.0",
     "@shapeshiftoss/investor-foxy": "^4.1.0",
     "@shapeshiftoss/investor-yearn": "^4.1.0",
+    "@shapeshiftoss/investor-idle": "^1.1.0",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^6.5.0",
     "@shapeshiftoss/swapper": "^9.17.0",

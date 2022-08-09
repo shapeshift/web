@@ -3,7 +3,6 @@ import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -12,7 +11,7 @@ import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFoxyBalances } from './useFoxyBalances'
-import { useVaultBalances } from './useVaultBalances'
+import { MergedEarnVault, useVaultBalances } from './useVaultBalances'
 
 export type UseEarnBalancesReturn = {
   opportunities: EarnOpportunityType[]
@@ -20,10 +19,12 @@ export type UseEarnBalancesReturn = {
   loading: boolean
 }
 
+export type SerializableOpportuniy = MergedEarnVault
+
 export function useEarnBalances(): UseEarnBalancesReturn {
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
-  const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
+  const vaultArray: SerializableOpportuniy[] = useMemo(() => Object.values(vaults), [vaults])
   const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
     useCosmosSdkStakingBalances({
       assetId: cosmosAssetId,

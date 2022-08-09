@@ -1,15 +1,14 @@
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
 import { useVaultWithoutBalance } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import { MergedSerializableOpportunity, useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
-export type YearnVaultWithFiatAmount = SerializableOpportunity & {
+export type VaultWithFiatAmount = MergedSerializableOpportunity & {
   fiatAmount?: string
 }
 
-export function useSortedYearnVaults(): SerializableOpportunity[] {
+export function useSortedVaults(): MergedSerializableOpportunity[] {
   const { vaults, loading } = useVaultBalances()
   const { vaultsWithoutBalance, vaultsWithoutBalanceLoading } = useVaultWithoutBalance()
   const TVL10M: number = 10_000_000
@@ -20,7 +19,7 @@ export function useSortedYearnVaults(): SerializableOpportunity[] {
       return []
     }
 
-    const updatedVaults: YearnVaultWithFiatAmount[] = Object.values(vaultsWithoutBalance).map(x =>
+    const updatedVaults: VaultWithFiatAmount[] = Object.values(vaultsWithoutBalance).map(x =>
       vaults[x.id]
         ? {
             ...x,
@@ -71,10 +70,7 @@ export function useSortedYearnVaults(): SerializableOpportunity[] {
     })
   }, [vaults, vaultsWithoutBalance, loading, vaultsWithoutBalanceLoading])
 
-  function compareVaultApy(
-    vaultA: YearnVaultWithFiatAmount,
-    vaultB: YearnVaultWithFiatAmount,
-  ): number {
+  function compareVaultApy(vaultA: VaultWithFiatAmount, vaultB: VaultWithFiatAmount): number {
     return bnOrZero(vaultA.apy).gt(bnOrZero(vaultB.apy)) ? -1 : 1
   }
 

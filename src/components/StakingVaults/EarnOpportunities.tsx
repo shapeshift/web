@@ -5,7 +5,7 @@ import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
-import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/const'
+import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'

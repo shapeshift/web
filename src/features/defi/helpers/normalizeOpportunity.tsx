@@ -28,6 +28,7 @@ export type EarnOpportunityType = {
   moniker?: string
   showAssetSymbol?: boolean
   isLoaded: boolean
+  icons?: Array<string>
 }
 
 const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityType[] => {

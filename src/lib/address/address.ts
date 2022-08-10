@@ -1,4 +1,6 @@
 import { btcChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import axios from 'axios'
+import { toChecksumAddress } from 'web3-utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
@@ -6,6 +8,7 @@ import {
   reverseLookupUnstoppableDomain,
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
+import { validateYat } from 'lib/address/yat'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -134,6 +137,28 @@ export type ParseAddressInputReturn = {
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
 export const parseAddressInput: ParseAddressInput = async args => {
+  const isYat = await validateYat(args)
+  if (isYat) {
+    const { data } = await axios.get(
+      `https://octopus-app-mkjlj.ondigitalocean.app/emoji_id/${args.value}`,
+    )
+    if (data.error) return { address: '', vanityAddress: '' }
+
+    const found = data.result.find(
+      (emoji: { data: string; tag: string; hash: string }) => emoji.tag === '0x1004', // 0x1004 is eth address
+    )
+
+    if (!found) return { address: '', vanityAddress: '' }
+    // data format: address|description|signature|default
+    const yatAddress = toChecksumAddress(found.data.split('|')[0])
+
+    const vanityAddress = await reverseLookupVanityAddress({
+      value: yatAddress,
+      chainId: args.chainId,
+    })
+
+    return { address: yatAddress, vanityAddress }
+  }
   const isValidAddress = await validateAddress(args)
   // we're dealing with a valid address
   if (isValidAddress) {
@@ -143,9 +168,11 @@ export const parseAddressInput: ParseAddressInput = async args => {
   }
   // at this point it's not a valid address, but may not be a vanity address
   const isVanityAddress = await validateVanityAddress(args)
-  // it's neither a valid address nor a vanity address
-  if (!isVanityAddress) return { address: '', vanityAddress: '' }
   // at this point it's a valid vanity address, let's resolve it
-  const address = await resolveVanityAddress(args)
-  return { address, vanityAddress: args.value }
+  if (isVanityAddress) {
+    const address = await resolveVanityAddress(args)
+    return { address, vanityAddress: args.value }
+  }
+  // it's neither a valid address nor a vanity address
+  return { address: '', vanityAddress: '' }
 }

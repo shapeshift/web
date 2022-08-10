@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.9.0...@shapeshiftoss/swapper-v9.10.0) (2022-08-10)
+
+
+### Features
+
+* thorswap utxo support ([#949](https://github.com/shapeshift/lib/issues/949)) ([1f63ad9](https://github.com/shapeshift/lib/commit/1f63ad9fe2870472ad6ca5a70d652743d3c1c9ee))
+
 # [@shapeshiftoss/swapper-v9.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.8.0...@shapeshiftoss/swapper-v9.9.0) (2022-08-08)
 
 

@@ -34,6 +34,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
             <AssetCell
               assetId={row.original.assetId}
               subText={row.original.provider}
+              icons={row.original.icons}
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
               postFix={row.original.version && `(${row.original.version})`}

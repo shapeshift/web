@@ -1,5 +1,6 @@
 import {
   Box,
+  Flex,
   HStack,
   Popover,
   PopoverTrigger,
@@ -19,6 +20,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
+import { getOverrideNameFromAssetId } from './utils'
 
 type AssetCellProps = {
   assetId: AssetId
@@ -26,9 +28,13 @@ type AssetCellProps = {
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
+  icons?: Array<string>
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
+  const overridenName = getOverrideNameFromAssetId(asset.assetId)
+  if (overridenName) return overridenName
+
   if (showAssetSymbol && postFix) {
     return `${asset.symbol} ${postFix}`
   }
@@ -50,6 +56,7 @@ export const AssetCell = ({
   showTeaser,
   showAssetSymbol,
   postFix,
+  icons,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -75,7 +82,21 @@ export const AssetCell = ({
       )}
       <HStack flex={1}>
         <SkeletonCircle isLoaded={!!asset}>
-          <AssetIcon src={asset.icon} boxSize='8' />
+          {icons ? (
+            <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
+              {icons.map((iconSrc, i) => (
+                <AssetIcon
+                  key={iconSrc}
+                  src={iconSrc}
+                  boxSize='8'
+                  mr={i === icons.length - 1 ? 2 : 0}
+                  ml={i === 0 ? '-3.5' : '-4'}
+                />
+              ))}
+            </Flex>
+          ) : (
+            <AssetIcon src={asset.icon} boxSize='8' />
+          )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
           <Stack spacing={0} flex={1}>

@@ -4,7 +4,7 @@ import { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 
-import { Trade } from '../../api'
+import { Trade, UtxoSupportedChainIds } from '../../api'
 
 export type PoolResponse = {
   asset: string
@@ -56,7 +56,7 @@ export type ThorchainSwapperDeps = {
 }
 
 export interface BtcThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: KnownChainIds.BitcoinMainnet
+  chainId: UtxoSupportedChainIds
   txData: BTCSignTx
 }
 

@@ -1,6 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { adapters, AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { bitcoin, cosmos, ethereum } from '@shapeshiftoss/chain-adapters'
+import { adapters, AssetId, CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { cosmos, EvmBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
@@ -10,6 +10,7 @@ import {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
+  EvmSupportedChainIds,
   ExecuteTradeInput,
   GetTradeQuoteInput,
   SwapError,
@@ -19,7 +20,8 @@ import {
   Trade,
   TradeQuote,
   TradeResult,
-  TradeTxs
+  TradeTxs,
+  UtxoSupportedChainIds
 } from '../../api'
 import { buildTrade } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
@@ -29,11 +31,16 @@ import { MidgardActionsResponse, PoolResponse, ThorchainSwapperDeps, ThorTrade }
 import { getUsdRate } from './utils/getUsdRate/getUsdRate'
 import { thorService } from './utils/thorService'
 
+export * from './types'
+
 export class ThorchainSwapper implements Swapper<ChainId> {
   readonly name = 'Thorchain'
   private sellSupportedChainIds: Record<ChainId, boolean> = {
     [KnownChainIds.EthereumMainnet]: true,
     [KnownChainIds.BitcoinMainnet]: true,
+    [KnownChainIds.DogecoinMainnet]: true,
+    [KnownChainIds.LitecoinMainnet]: true,
+    [KnownChainIds.BitcoinCashMainnet]: true,
     [KnownChainIds.CosmosMainnet]: true
   }
 
@@ -133,21 +140,27 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           fn: 'executeTrade'
         })
 
-      if (trade.sellAsset.chainId === KnownChainIds.EthereumMainnet) {
-        const signedTx = await (adapter as unknown as ethereum.ChainAdapter).signTransaction({
+      const { chainNamespace } = fromAssetId(trade.sellAsset.assetId)
+
+      if (chainNamespace === CHAIN_NAMESPACE.Ethereum) {
+        const signedTx = await (
+          adapter as unknown as EvmBaseAdapter<EvmSupportedChainIds>
+        ).signTransaction({
           txToSign: (trade as ThorTrade<KnownChainIds.EthereumMainnet>).txData as ETHSignTx,
           wallet
         })
         const txid = await adapter.broadcastTransaction(signedTx)
         return { tradeId: txid }
-      } else if (trade.sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
-        const signedTx = await (adapter as unknown as bitcoin.ChainAdapter).signTransaction({
-          txToSign: (trade as ThorTrade<KnownChainIds.BitcoinMainnet>).txData as BTCSignTx,
+      } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+        const signedTx = await (
+          adapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+        ).signTransaction({
+          txToSign: (trade as ThorTrade<UtxoSupportedChainIds>).txData as BTCSignTx,
           wallet
         })
         const txid = await adapter.broadcastTransaction(signedTx)
         return { tradeId: txid }
-      } else if (trade.sellAsset.chainId === KnownChainIds.CosmosMainnet) {
+      } else if (chainNamespace === CHAIN_NAMESPACE.Cosmos) {
         const signedTx = await (adapter as unknown as cosmos.ChainAdapter).signTransaction({
           txToSign: (trade as ThorTrade<KnownChainIds.CosmosMainnet>).txData as CosmosSignTx,
           wallet

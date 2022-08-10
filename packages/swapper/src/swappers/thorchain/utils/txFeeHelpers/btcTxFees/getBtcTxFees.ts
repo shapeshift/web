@@ -1,37 +1,26 @@
-import { bitcoin, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { QuoteFeeData, SwapError, SwapErrorTypes } from '../../../../../api'
+import { QuoteFeeData, SwapError, SwapErrorTypes, UtxoSupportedChainIds } from '../../../../../api'
 import { bn } from '../../../../utils/bignumber'
 
 export const getBtcTxFees = async ({
   opReturnData,
   vault,
   sellAmount,
-  adapterManager,
+  sellAdapter,
   pubkey,
   tradeFee
 }: {
   opReturnData: string
   vault: string
   sellAmount: string
-  adapterManager: ChainAdapterManager
+  sellAdapter: UtxoBaseAdapter<UtxoSupportedChainIds>
   pubkey: string
   tradeFee: string
-}): Promise<QuoteFeeData<KnownChainIds.BitcoinMainnet>> => {
+}): Promise<QuoteFeeData<UtxoSupportedChainIds>> => {
   try {
-    const adapter = adapterManager.get('bip122:000000000019d6689c085ae165831e93') as
-      | bitcoin.ChainAdapter
-      | undefined
-    if (!adapter)
-      throw new SwapError(
-        `[getBtcTxFees] - No chain adapter found for bip122:000000000019d6689c085ae165831e93.`,
-        {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-          details: { chainId: 'bip122:000000000019d6689c085ae165831e93' }
-        }
-      )
-    const feeDataOptions = await adapter.getFeeData({
+    const feeDataOptions = await sellAdapter.getFeeData({
       to: vault,
       value: sellAmount,
       chainSpecific: { pubkey, opReturnData }
@@ -39,11 +28,22 @@ export const getBtcTxFees = async ({
 
     const feeData = feeDataOptions['fast']
 
+    // BCH specific hack:
+    // For some reason when sats per byte comes back as 1 (which is very common for bch)
+    // broadcast will fail because it thinks the intrinsic fee is too low
+    // it feels like possibly an off by-a-few-bytes bug with how we are using coinselect with opReturnData
+    // Bumping BCH fees here resolves this for now until we have time to find a better solution
+    const isFromBch = sellAdapter.getChainId() === KnownChainIds.BitcoinCashMainnet
+    const feeMultiplier = isFromBch ? bn(1.5) : bn(1)
+
+    const fee = feeMultiplier.times(feeData.txFee).dp(0).toString()
+    const satsPerByte = feeMultiplier.times(feeData.chainSpecific.satoshiPerByte).dp(0).toString()
+
     return {
-      fee: feeData.txFee,
+      fee,
       tradeFee,
       chainSpecific: {
-        satsPerByte: feeData.chainSpecific.satoshiPerByte,
+        satsPerByte,
         byteCount: bn(feeData.txFee)
           .dividedBy(feeData.chainSpecific.satoshiPerByte)
           .dp(0)

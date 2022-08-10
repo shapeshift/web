@@ -1,8 +1,15 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { bitcoin, cosmos, ethereum } from '@shapeshiftoss/chain-adapters'
+import { CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { cosmos, ethereum, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { BuildTradeInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
+import {
+  BuildTradeInput,
+  GetUtxoTradeQuoteInput,
+  SwapError,
+  SwapErrorTypes,
+  TradeQuote,
+  UtxoSupportedChainIds
+} from '../../../api'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { ThorchainSwapperDeps, ThorTrade } from '../types'
@@ -37,11 +44,13 @@ export const buildTrade = async ({
         fn: 'buildTrade',
         details: { sellAsset }
       })
-    const sellAssetBip44Params = sellAdapter.buildBIP44Params({
-      accountNumber: sellAssetAccountNumber
-    })
 
-    if (input.chainId === KnownChainIds.EthereumMainnet) {
+    const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
+    if (chainNamespace === CHAIN_NAMESPACE.Ethereum) {
+      const sellAssetBip44Params = sellAdapter.buildBIP44Params({
+        accountNumber: sellAssetAccountNumber
+      })
       const ethTradeTx = await makeTradeTx({
         wallet,
         slippageTolerance,
@@ -67,7 +76,7 @@ export const buildTrade = async ({
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign
       }
-    } else if (input.chainId === KnownChainIds.BitcoinMainnet) {
+    } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
       const { vault, opReturnData } = await getBtcThorTxInfo({
         deps,
         sellAsset,
@@ -76,19 +85,20 @@ export const buildTrade = async ({
         slippageTolerance,
         destinationAddress,
         wallet,
-        bip44Params: sellAssetBip44Params,
-        accountType: input.accountType,
+        bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
+        accountType: (input as GetUtxoTradeQuoteInput).accountType,
         tradeFee: quote.feeData.tradeFee
       })
 
       const buildTxResponse = await (
-        sellAdapter as unknown as bitcoin.ChainAdapter
+        sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
       ).buildSendTransaction({
         value: sellAmount,
         wallet,
         to: vault,
+        bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
         chainSpecific: {
-          accountType: input.accountType,
+          accountType: (input as GetUtxoTradeQuoteInput).accountType,
           satoshiPerByte: (quote as TradeQuote<KnownChainIds.BitcoinMainnet>).feeData.chainSpecific
             .satsPerByte,
           opReturnData
@@ -96,12 +106,12 @@ export const buildTrade = async ({
       })
 
       return {
-        chainId: KnownChainIds.BitcoinMainnet,
+        chainId: sellAsset.chainId as UtxoSupportedChainIds,
         ...quote,
         receiveAddress: destinationAddress,
         txData: buildTxResponse.txToSign
       }
-    } else if (input.chainId === KnownChainIds.CosmosMainnet) {
+    } else if (chainNamespace === CHAIN_NAMESPACE.Cosmos) {
       const txData = await cosmosTxData({
         deps,
         sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,

@@ -26,6 +26,18 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
       byteCount: string
       satsPerByte: string
     }
+    [KnownChainIds.DogecoinMainnet]: {
+      byteCount: string
+      satsPerByte: string
+    }
+    [KnownChainIds.LitecoinMainnet]: {
+      byteCount: string
+      satsPerByte: string
+    }
+    [KnownChainIds.BitcoinCashMainnet]: {
+      byteCount: string
+      satsPerByte: string
+    }
     [KnownChainIds.CosmosMainnet]: {
       estimatedGas: string
     }
@@ -69,6 +81,12 @@ export type EvmSupportedChainAdapters = ethereum.ChainAdapter | avalanche.ChainA
 
 export type CosmosSdkSupportedChainAdapters = cosmos.ChainAdapter | osmosis.ChainAdapter
 
+export type UtxoSupportedChainIds =
+  | KnownChainIds.BitcoinMainnet
+  | KnownChainIds.DogecoinMainnet
+  | KnownChainIds.LitecoinMainnet
+  | KnownChainIds.BitcoinCashMainnet
+
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
   chainId: EvmSupportedChainIds
 }
@@ -77,15 +95,15 @@ export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkSupportedChainIds
 }
 
-type GetBtcTradeQuoteInput = CommonTradeInput & {
-  chainId: KnownChainIds.BitcoinMainnet
+export type GetUtxoTradeQuoteInput = CommonTradeInput & {
+  chainId: UtxoSupportedChainIds
   accountType: UtxoAccountType
   bip44Params: BIP44Params
   wallet: HDWallet
 }
 
 export type GetTradeQuoteInput =
-  | GetBtcTradeQuoteInput
+  | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
@@ -187,7 +205,6 @@ export enum SwapErrorTypes {
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
   TRADE_FAILED = 'TRADE_FAILED'
 }
-
 export interface Swapper<T extends ChainId> {
   /** Human readable swapper name */
   readonly name: string

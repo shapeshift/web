@@ -29,7 +29,7 @@ export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsPr
         <AssetTransactionHistory assetId={assetId} accountId={accountId} />
       </Stack>
       <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-        <TradeCard defaultBuyAssetId={assetId} />
+        <TradeCard />
         <AssetMarketData assetId={assetId} />
         <AssetDescription assetId={assetId} />
       </Stack>

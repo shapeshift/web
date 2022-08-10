@@ -72,7 +72,8 @@
     "keepKey": {
       "title": "KeepKey Update Available",
       "newUpdateAvailable": "A new KeepKey update is available.",
-      "downloadCta": "Download Update"
+      "downloadCta": "Download Update",
+      "updateRequiredForFeature": "This update is required to support %{feature}"
     }
   },
   "multiCurrency": {

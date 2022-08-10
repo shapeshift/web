@@ -4026,10 +4026,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.9.0.tgz#d7f87850ac2ae36d197416d6dd8413cfeb15cb21"
-  integrity sha512-cXnONo1XoLQ9VjEBWWyAQ7kU4/6CTqDsEd6WEIbbLsDKzMh05Ir1yWSUyHGec8oTdB7yWXoUwZIG7IrLX2lkcw==
+"@shapeshiftoss/swapper@^9.9.1":
+  version "9.10.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.10.1.tgz#7103146bedc77478ac122883ac33033cfb2198b2"
+  integrity sha512-BIt7b2IFrkGu5ApbKdUayO7Cn6fWiXfBaDqRh3cK6f0ZRMsMQ3gudluKYnIo+qujeZTtH5Iwb2FgXFfjPG42Zw==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -5801,6 +5801,11 @@
   integrity sha512-Da66lEIFeIz9ltsdMZcpQvmrmmoqrfju8pm1BH8WbYjZSwUgCwXLb9C+9XYogwBITnbsSaMdVPb2ekf7TV+03w==
   dependencies:
     "@types/node" "*"
+
+"@types/semver@^7.3.10":
+  version "7.3.10"
+  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.10.tgz#5f19ee40cbeff87d916eedc8c2bfe2305d957f73"
+  integrity sha512-zsv3fsC7S84NN6nPK06u79oWgrPVd0NvOyqgghV1haPaFcVxIrP4DLomRwGAXk0ui4HZA7mOcSFL98sMVW9viw==
 
 "@types/serve-index@^1.9.1":
   version "1.9.1"

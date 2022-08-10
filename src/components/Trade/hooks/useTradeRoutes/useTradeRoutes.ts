@@ -71,7 +71,7 @@ export const useTradeRoutes = (
     // wait for assets to be loaded and swappers to be initialized
     if (isEmpty(assets) || !defaultFeeAsset || !bestSwapper) return
     try {
-      const sellAsset = assets[defaultSellAssetId]
+      const routeDefaultSellAsset = assets[defaultSellAssetId]
 
       const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
 
@@ -98,22 +98,21 @@ export const useTradeRoutes = (
 
       const buyAssetId = isSupportedPair ? buyAssetToCheckId : defaultBuyAssetId
 
-      const buyAsset = assets[buyAssetId]
+      const routeDefaultBuyAsset = assets[buyAssetId]
 
-      if (sellAsset && buyAsset) {
-        setValue('buyAsset.asset', buyAsset)
-        setValue('sellAsset.asset', sellAsset)
-        if (!buyTradeAsset?.amount || !sellTradeAsset?.amount) {
-          await updateQuote({
-            forceQuote: true,
-            amount: '0',
-            sellAsset,
-            buyAsset,
-            feeAsset: defaultFeeAsset,
-            action: TradeAmountInputField.SELL,
-            selectedCurrencyToUsdRate,
-          })
-        }
+      // If we don't have a quote already, get one for the route's default assets
+      if (routeDefaultSellAsset && routeDefaultBuyAsset && !(buyTradeAsset || sellTradeAsset)) {
+        setValue('buyAsset.asset', routeDefaultBuyAsset)
+        setValue('sellAsset.asset', routeDefaultSellAsset)
+        await updateQuote({
+          forceQuote: true,
+          amount: '0',
+          sellAsset: routeDefaultSellAsset,
+          buyAsset: routeDefaultBuyAsset,
+          feeAsset: defaultFeeAsset,
+          action: TradeAmountInputField.SELL,
+          selectedCurrencyToUsdRate,
+        })
       }
     } catch (e) {
       console.warn(e)

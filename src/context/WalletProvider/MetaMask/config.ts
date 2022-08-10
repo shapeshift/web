@@ -1,9 +1,10 @@
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
+import { SupportedWalletInfo } from 'context/WalletProvider/config'
 
-export const MetaMaskConfig = {
+export const MetaMaskConfig: Omit<SupportedWalletInfo, 'routes'> = {
   adapter: MetaMaskAdapter,
-  mobileEnabled: true,
+  supportsMobile: 'browser',
   icon: MetaMaskIcon,
   name: 'MetaMask',
 }

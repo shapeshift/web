@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.10.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.10.0...@shapeshiftoss/swapper-v9.10.1) (2022-08-10)
+
+
+### Bug Fixes
+
+* always return 0 tradeFee for cow swaps ([#963](https://github.com/shapeshift/lib/issues/963)) ([e388614](https://github.com/shapeshift/lib/commit/e38861494ccf09c600e2218a95bacc08de8ab359))
+
 # [@shapeshiftoss/swapper-v9.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.9.0...@shapeshiftoss/swapper-v9.10.0) (2022-08-10)
 
 

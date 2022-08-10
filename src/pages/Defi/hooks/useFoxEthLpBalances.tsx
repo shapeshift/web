@@ -1,11 +1,11 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   foxAssetId,
   foxEthLpAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from 'features/defi/providers/fox-eth-lp/const'
+} from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useEffect, useState } from 'react'
@@ -30,9 +30,13 @@ const defaultOpportunity: EarnOpportunityType = {
   assetId: foxEthLpAssetId,
   fiatAmount: '',
   cryptoAmount: '',
-  chainId: 'eip155:1',
+  chainId: ethChainId,
   isLoaded: false,
   type: DefiType.LiquidityPool,
+  icons: [
+    'https://assets.coincap.io/assets/icons/eth@2x.png',
+    'https://assets.coincap.io/assets/icons/fox@2x.png',
+  ],
 }
 
 export function useFoxEthLpBalances(): UseFoxEthLpBalancesReturn {

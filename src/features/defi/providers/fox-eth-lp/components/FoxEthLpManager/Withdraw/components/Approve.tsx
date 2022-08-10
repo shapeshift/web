@@ -6,7 +6,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from 'features/defi/providers/fox-eth-lp/const'
+} from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'

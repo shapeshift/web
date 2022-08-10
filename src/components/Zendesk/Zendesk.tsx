@@ -80,23 +80,23 @@ export const Zendesk = () => {
      */
     const SIXTY_FPS = 1000 / 60 // run this at 60fps to avoid a flicker if possible
     const id = setInterval(() => {
-      document.querySelectorAll('iframe').forEach(iframe => {
-        if (iframe.id !== 'launcher') return
-        const icon = iframe.contentDocument?.querySelector<HTMLSpanElement>(
-          'span[data-testid="Icon"]',
-        )
-        const button = iframe.contentDocument?.querySelector<HTMLButtonElement>(
-          'button[data-testid="launcher"]',
-        )
-        if (icon && button) {
-          // monkey patch css of icon because of zero-width space to avoid lopsided icon
-          icon.style.paddingRight = '0'
-          button.style.paddingRight = '0.92857rem'
-          button.style.paddingLeft = '0.92857rem'
-          moduleLogger.trace('Zendesk icon monkey styled')
-          clearInterval(id)
-        }
-      })
+      const maybeIframe = document.getElementById('launcher')
+      if (!maybeIframe) return
+      const iframe: HTMLIFrameElement = maybeIframe as HTMLIFrameElement
+      const icon = iframe.contentDocument?.querySelector<HTMLSpanElement>(
+        'span[data-testid="Icon"]',
+      )
+      const button = iframe.contentDocument?.querySelector<HTMLButtonElement>(
+        'button[data-testid="launcher"]',
+      )
+      if (icon && button) {
+        // monkey patch css of icon because of zero-width space to avoid lopsided icon
+        icon.style.paddingRight = '0'
+        button.style.paddingRight = '0.92857rem'
+        button.style.paddingLeft = '0.92857rem'
+        moduleLogger.trace('Zendesk icon monkey styled')
+        clearInterval(id)
+      }
     }, SIXTY_FPS)
 
     // everything is setup, add the script

@@ -14,6 +14,8 @@ import { KeepKeyRecoverySentenceInvalid } from 'context/WalletProvider/KeepKey/c
 import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
 import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
+import { MobileStart } from 'context/WalletProvider/MobileWallet/components/MobileStart'
+import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 import { DemoConfig } from './DemoWallet/config'
@@ -65,6 +67,10 @@ export interface SupportedWalletInfo {
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
+  [KeyManager.Mobile]: {
+    ...MobileConfig,
+    routes: [{ path: '/mobile/connect', component: MobileStart }],
+  },
   [KeyManager.Native]: {
     ...NativeConfig,
     routes: [

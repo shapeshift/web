@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId, ChainId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter, Transaction } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
@@ -19,7 +19,7 @@ import { addToIndex, getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITE
 const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
 export type TxId = string
-export type Tx = Transaction<ChainId> & { accountType?: UtxoAccountType }
+export type Tx = Transaction & { accountType?: UtxoAccountType }
 
 export type TxHistoryById = {
   [k: TxId]: Tx
@@ -88,7 +88,7 @@ export type TxHistory = {
 
 export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
 export type TxsMessage = {
-  payload: { txs: Transaction<ChainId>[]; accountSpecifier: string }
+  payload: { txs: Transaction[]; accountSpecifier: string }
 }
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
@@ -307,7 +307,7 @@ export const txHistoryApi = createApi({
         return { data: [] }
       },
     }),
-    getAllTxHistory: build.query<Transaction<ChainId>[], AllTxHistoryArgs>({
+    getAllTxHistory: build.query<Transaction[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifiersList }, { dispatch }) => {
         if (!accountSpecifiersList.length) {
           return { error: { data: 'getAllTxHistory: no account specifiers provided', status: 400 } }

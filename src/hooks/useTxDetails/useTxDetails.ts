@@ -156,7 +156,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       : undefined
   const type = isSupportedContract(tx)
     ? TransferType.Contract
-    : standardTx?.type ?? tx.tradeDetails?.type ?? tradeType ?? ''
+    : standardTx?.type ?? tx.trade?.type ?? tradeType ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
   const explorerTxLink =

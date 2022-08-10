@@ -15,6 +15,7 @@
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
+    "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
@@ -62,7 +63,8 @@
     "generalError": "An error has occurred",
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
-    "walletSupportsETHOnly": "Ethereum Only"
+    "walletSupportsETHOnly": "Ethereum Only",
+    "loadingText": "Loading..."
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -384,11 +386,29 @@
     },
     "unknown": "Transaction"
   },
+  "bridge": {
+    "confirm": "Confirm Bridge",
+    "selectChain": "Select Chain",
+    "selectAsset": "Select Asset",
+    "startBridge": "Start Bridge",
+    "confirmBridge": "Confirm Bridge",
+    "preview": "Preview Bridge",
+    "transferring": "Transferring",
+    "transferComplete": "Transfer Complete",
+    "bridgeAnother": "Bridge another asset",
+    "feeExceedsSend": "Fee exceeds send amount",
+    "receiveAddress": "Receive Address",
+    "route": "Route",
+    "waitTimeLabel": "Approx. Wait Time",
+    "waitTimeValue": "~5-10 minutes",
+    "noSupportedAssets": "No supported assets in portfolio."
+  },
   "trade": {
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "minerFee": "Miner Fee",
+    "protocolFee": "Protocol Fee",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
@@ -403,6 +423,7 @@
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
     "errors": {
@@ -774,7 +795,6 @@
         "button": "Save PIN"
       },
       "settings": {
-        "loadingText": "Loading...",
         "menuLabels": {
           "bootloader": "Bootloader",
           "firmware": "Firmware",

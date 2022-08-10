@@ -1,8 +1,15 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  cosmosChainId,
+  ethChainId,
+  fromAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -36,10 +43,21 @@ export const useTradeRoutes = (
     state: { wallet },
   } = useWallet()
 
-  const { connectedChainId } = useEvm()
+  const { connectedEvmChainId } = useEvm()
 
-  const swapperChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : connectedChainId
-  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(swapperChainId)
+  // If the wallet is connected to a chain, use that ChainId
+  // Else, return a prioritized ChainId based on the wallet's supported chains
+  const walletChainId = useMemo(() => {
+    if (connectedEvmChainId) return connectedEvmChainId
+    if (!wallet) return
+    if (supportsETH(wallet)) return ethChainId
+    if (supportsCosmos(wallet)) return cosmosChainId
+    if (supportsOsmosis(wallet)) return osmosisChainId
+  }, [connectedEvmChainId, wallet])
+
+  // Use the ChainId of the route's AssetId if we have one, else use the wallet's fallback ChainId
+  const buyAssetChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : walletChainId
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(buyAssetChainId)
 
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
   const defaultFeeAssetId = getChainAdapterManager().get(defaultSellChainId)!.getFeeAssetId()
@@ -82,18 +100,20 @@ export const useTradeRoutes = (
 
       const buyAsset = assets[buyAssetId]
 
-      if (sellAsset && buyAsset && (!buyTradeAsset?.amount || !sellTradeAsset?.amount)) {
+      if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
         setValue('sellAsset.asset', sellAsset)
-        await updateQuote({
-          forceQuote: true,
-          amount: '0',
-          sellAsset,
-          buyAsset,
-          feeAsset: defaultFeeAsset,
-          action: TradeAmountInputField.SELL,
-          selectedCurrencyToUsdRate,
-        })
+        if (!buyTradeAsset?.amount || !sellTradeAsset?.amount) {
+          await updateQuote({
+            forceQuote: true,
+            amount: '0',
+            sellAsset,
+            buyAsset,
+            feeAsset: defaultFeeAsset,
+            action: TradeAmountInputField.SELL,
+            selectedCurrencyToUsdRate,
+          })
+        }
       }
     } catch (e) {
       console.warn(e)
@@ -129,7 +149,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [connectedChainId, setDefaultAssets])
+  }, [connectedEvmChainId, setDefaultAssets])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

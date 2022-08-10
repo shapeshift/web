@@ -74,7 +74,7 @@ export const KeepKeyMenu = () => {
               <Text
                 ml={3}
                 mr={3}
-                translation='walletProvider.keepKey.settings.loadingText'
+                translation='common.loadingText'
                 fontSize='sm'
                 color='yellow.500'
               />

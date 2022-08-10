@@ -120,13 +120,13 @@ export const useTradeRoutes = (
     }
   }, [
     assets,
-    buyTradeAsset,
+    buyTradeAsset?.amount,
     defaultBuyAssetId,
     defaultFeeAsset,
     defaultSellAssetId,
     routeBuyAssetId,
     selectedCurrencyToUsdRate,
-    sellTradeAsset,
+    sellTradeAsset?.amount,
     setValue,
     swapperManager,
     updateQuote,

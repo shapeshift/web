@@ -101,7 +101,11 @@ export const useTradeRoutes = (
       const routeDefaultBuyAsset = assets[buyAssetId]
 
       // If we don't have a quote already, get one for the route's default assets
-      if (routeDefaultSellAsset && routeDefaultBuyAsset && !(buyTradeAsset || sellTradeAsset)) {
+      if (
+        routeDefaultSellAsset &&
+        routeDefaultBuyAsset &&
+        !(buyTradeAsset?.amount || sellTradeAsset?.amount)
+      ) {
         setValue('buyAsset.asset', routeDefaultBuyAsset)
         setValue('sellAsset.asset', routeDefaultSellAsset)
         await updateQuote({

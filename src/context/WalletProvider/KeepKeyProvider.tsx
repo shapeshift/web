@@ -5,6 +5,7 @@ import {
   Box,
   CloseButton,
   Link,
+  Text,
   ToastId,
   useToast,
 } from '@chakra-ui/react'
@@ -22,7 +23,6 @@ import React, {
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { RadioOption } from 'components/Radio/Radio'
-import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -179,14 +179,13 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                 <Box>
                   <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
                   <AlertDescription>
-                    <Text translation='updateToast.keepKey.newUpdateAvailable' />
+                    <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
                     {isLitecoinEnabled && !isLTCSupportedFirmwareVersion ? (
-                      <Text
-                        translation={[
-                          'updateToast.keepKey.updateRequiredForFeature',
-                          { feature: 'Litecoin' },
-                        ]}
-                      />
+                      <Text>
+                        {translate('updateToast.keepKey.updateRequiredForFeature', {
+                          feature: 'Litecoin',
+                        })}
+                      </Text>
                     ) : null}
                   </AlertDescription>
                   <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>

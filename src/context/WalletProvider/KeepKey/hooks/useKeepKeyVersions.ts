@@ -4,7 +4,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN } from 'constants/Config'
 import { useEffect, useState } from 'react'
-import semverMinVersion from 'semver/ranges/min-version'
+import semverGte from 'semver/functions/gte'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -79,7 +79,7 @@ export const useKeepKeyVersions = () => {
       const deviceFirmware = await wallet.getFirmwareVersion()
       const latestFirmware = releases.latest.firmware.version
       if (isLitecoinEnabled) {
-        if (semverMinVersion(MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN))
+        if (semverGte(deviceFirmware, MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN))
           setIsLTCSupportedFirmwareVersion(true)
       }
 

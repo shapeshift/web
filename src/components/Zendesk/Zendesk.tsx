@@ -48,6 +48,10 @@ export const Zendesk = () => {
       },
     }
 
+    /**
+     * in the future, if we use zendesk, we can add an additional effect that reacts on
+     * route changes to dynamically update the help center filter
+     */
     ;(window as any).zE('webWidget', 'updateSettings', settings)
   }, [])
 

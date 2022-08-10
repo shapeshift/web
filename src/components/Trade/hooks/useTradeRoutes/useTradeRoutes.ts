@@ -9,7 +9,7 @@ import {
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -47,13 +47,13 @@ export const useTradeRoutes = (
 
   // If the wallet is connected to a chain, use that ChainId
   // Else, return a prioritized ChainId based on the wallet's supported chains
-  const walletChainId = (() => {
+  const walletChainId = useMemo(() => {
     if (connectedEvmChainId) return connectedEvmChainId
     if (!wallet) return
     if (supportsETH(wallet)) return ethChainId
     if (supportsCosmos(wallet)) return cosmosChainId
     if (supportsOsmosis(wallet)) return osmosisChainId
-  })()
+  }, [connectedEvmChainId, wallet])
 
   // Use the ChainId of the route's AssetId if we have one, else use the wallet's fallback ChainId
   const buyAssetChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : walletChainId
@@ -100,31 +100,33 @@ export const useTradeRoutes = (
 
       const buyAsset = assets[buyAssetId]
 
-      if (sellAsset && buyAsset && (!buyTradeAsset?.amount || !sellTradeAsset?.amount)) {
+      if (sellAsset && buyAsset) {
         setValue('buyAsset.asset', buyAsset)
         setValue('sellAsset.asset', sellAsset)
-        await updateQuote({
-          forceQuote: true,
-          amount: '0',
-          sellAsset,
-          buyAsset,
-          feeAsset: defaultFeeAsset,
-          action: TradeAmountInputField.SELL,
-          selectedCurrencyToUsdRate,
-        })
+        if (!buyTradeAsset?.amount || !sellTradeAsset?.amount) {
+          await updateQuote({
+            forceQuote: true,
+            amount: '0',
+            sellAsset,
+            buyAsset,
+            feeAsset: defaultFeeAsset,
+            action: TradeAmountInputField.SELL,
+            selectedCurrencyToUsdRate,
+          })
+        }
       }
     } catch (e) {
       console.warn(e)
     }
   }, [
     assets,
-    buyTradeAsset?.amount,
+    buyTradeAsset,
     defaultBuyAssetId,
     defaultFeeAsset,
     defaultSellAssetId,
     routeBuyAssetId,
     selectedCurrencyToUsdRate,
-    sellTradeAsset?.amount,
+    sellTradeAsset,
     setValue,
     swapperManager,
     updateQuote,

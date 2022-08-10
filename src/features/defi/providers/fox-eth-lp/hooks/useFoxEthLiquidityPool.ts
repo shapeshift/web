@@ -28,7 +28,7 @@ import {
   MAX_ALLOWANCE,
   UNISWAP_V2_ROUTER_ADDRESS,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from '../const'
+} from '../constants'
 
 const ethersProvider = getEthersProvider()
 

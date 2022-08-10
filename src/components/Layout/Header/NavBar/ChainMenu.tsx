@@ -44,7 +44,7 @@ const ChainMenuItem: React.FC<{
 }
 export const ChainMenu = () => {
   const { state, load } = useWallet()
-  const { supportedEvmChainIds, connectedChainId, setEthNetwork } = useEvm()
+  const { supportedEvmChainIds, connectedEvmChainId, setEthNetwork } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
 
   const handleChainClick = async (chainId: ChainId) => {
@@ -58,14 +58,14 @@ export const ChainMenu = () => {
   }
 
   const currentChainNativeAssetId = useMemo(
-    () => chainAdapterManager.get(connectedChainId ?? '')?.getFeeAssetId(),
-    [chainAdapterManager, connectedChainId],
+    () => chainAdapterManager.get(connectedEvmChainId ?? '')?.getFeeAssetId(),
+    [chainAdapterManager, connectedEvmChainId],
   )
   const currentChainNativeAsset = useAppSelector(state =>
     selectAssetById(state, currentChainNativeAssetId ?? ''),
   )
 
-  if (!state.wallet || !connectedChainId || !currentChainNativeAsset) return null
+  if (!state.wallet || !connectedEvmChainId || !currentChainNativeAsset) return null
   if (!supportsEthSwitchChain(state.wallet)) return null
 
   // don't show the menu if there is only one chain
@@ -81,7 +81,7 @@ export const ChainMenu = () => {
         <Flex alignItems='center'>
           <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
           {chainAdapterManager
-            .get(supportedEvmChainIds.find(chainId => chainId === connectedChainId) ?? '')
+            .get(supportedEvmChainIds.find(chainId => chainId === connectedEvmChainId) ?? '')
             ?.getDisplayName() ?? ''}
         </Flex>
       </MenuButton>
@@ -89,7 +89,7 @@ export const ChainMenu = () => {
         <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
           {supportedEvmChainIds.map(chainId => (
             <ChainMenuItem
-              isConnected={chainId === connectedChainId}
+              isConnected={chainId === connectedEvmChainId}
               key={chainId}
               chainId={chainId}
               onClick={handleChainClick}

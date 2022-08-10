@@ -2,12 +2,14 @@ import './zendesk.css'
 
 import { getConfig } from 'config'
 import { useCallback, useEffect } from 'react'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['Zendesk'] })
 
 // https://support.zendesk.com/hc/en-us/articles/4500748175258
 export const Zendesk = () => {
+  const isZendeskEnabled = useFeatureFlag('Zendesk')
   const zendeskKey = getConfig().REACT_APP_ZENDESK_KEY
 
   const onload = useCallback(() => {
@@ -50,12 +52,12 @@ export const Zendesk = () => {
   }, [])
 
   useEffect(() => {
-    // key is not set for private, is set for app
-    if (!zendeskKey) return
+    if (!isZendeskEnabled) return
     // paranoia check
     if (window.location.hostname.includes('private.shapeshift.com')) {
-      moduleLogger.error(null, 'Zendesk key is set on wrong environment, change this immediately!')
-      return
+      const err = 'Zendesk is enabled on wrong environment, change this immediately!'
+      moduleLogger.error(null, err)
+      throw new Error(err)
     }
 
     const scriptId = 'ze-snippet'
@@ -95,7 +97,7 @@ export const Zendesk = () => {
 
     // everything is setup, add the script
     document.head.appendChild(script)
-  }, [zendeskKey, onload])
+  }, [isZendeskEnabled, zendeskKey, onload])
 
   return null
 }

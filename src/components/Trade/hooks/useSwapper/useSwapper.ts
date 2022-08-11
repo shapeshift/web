@@ -404,7 +404,7 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  // TODO accountSpecifier must come from dropdown furing asset selection
+  // TODO accountSpecifier must come from dropdown during asset selection
   // We are defaulting temporarily for development
   const getUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
     const accountSpecifiers = accountSpecifiersList.find(

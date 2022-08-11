@@ -34,6 +34,7 @@ export const FoxEthLpOverview = () => {
   return (
     <Overview
       asset={lpAsset}
+      icons={opportunity.icons}
       name={foxEthLpOpportunityName}
       opportunityFiatBalance={opportunity.fiatAmount}
       underlyingAssets={[

@@ -66,6 +66,8 @@ type GetQuoteInput = {
   selectedCurrencyToUsdRate: BigNumber
 }
 
+let _getQuoteArgs: GetQuoteInput
+
 type DebouncedQuoteInput = {
   swapper: Swapper<ChainId>
   amount: string
@@ -517,15 +519,17 @@ export const useSwapper = () => {
   )
 
   const updateQuote = useCallback(
-    async ({
-      amount,
-      sellAsset,
-      buyAsset,
-      feeAsset,
-      action,
-      forceQuote,
-      selectedCurrencyToUsdRate,
-    }: GetQuoteInput) => {
+    async (args: GetQuoteInput) => {
+      _getQuoteArgs = args
+      const {
+        amount,
+        sellAsset,
+        buyAsset,
+        feeAsset,
+        action,
+        forceQuote,
+        selectedCurrencyToUsdRate,
+      } = args
       if (!wallet || !accountSpecifiersList.length) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       if (!Array.from(swapperManager.swappers.keys()).length) return
@@ -576,6 +580,10 @@ export const useSwapper = () => {
       translate,
     ],
   )
+
+  const refreshQuote = useCallback(async () => {
+    if (_getQuoteArgs) await updateQuote(_getQuoteArgs)
+  }, [updateQuote])
 
   const setFormFees = async ({
     trade,
@@ -680,6 +688,7 @@ export const useSwapper = () => {
     swapperManager,
     updateQuote,
     updateTrade,
+    refreshQuote,
     executeQuote,
     getSupportedBuyAssetsFromSellAsset,
     getSupportedSellableAssets,

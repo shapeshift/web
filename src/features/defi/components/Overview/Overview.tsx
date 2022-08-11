@@ -20,6 +20,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 
 import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
+import { PairIcons } from '../PairIcons/PairIcons'
 
 type AssetWithBalance = {
   cryptoBalance: string
@@ -36,6 +37,7 @@ type OverviewProps = {
   provider: string
   tvl?: string
   apy?: string
+  icons?: string[]
 } & DefiActionButtonProps &
   PropsWithChildren
 
@@ -48,6 +50,7 @@ export const Overview: React.FC<OverviewProps> = ({
   provider,
   tvl,
   apy,
+  icons,
   description,
   menu,
   children,
@@ -92,7 +95,7 @@ export const Overview: React.FC<OverviewProps> = ({
           <Stack p={8} spacing={6}>
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               <Stack direction='row' alignItems='center' spacing={2}>
-                <AssetIcon src={asset.icon} size='md' />
+                {icons ? <PairIcons icons={icons} /> : <AssetIcon src={asset.icon} size='md' />}
                 <Stack spacing={0}>
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}

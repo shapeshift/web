@@ -15,6 +15,7 @@ import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useInterval } from 'hooks/useInterval/useInterval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -47,7 +48,14 @@ export const TradeInput = ({ history }: RouterProps) => {
   const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
   }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
-  const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
+  const {
+    updateQuote,
+    checkApprovalNeeded,
+    getSendMaxAmount,
+    updateTrade,
+    feeAsset,
+    refreshQuote,
+  } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -247,6 +255,9 @@ export const TradeInput = ({ history }: RouterProps) => {
     // only dependency of this hook is the fiat currency
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCurrencyToUsdRate])
+
+  // Update the quote every 30 seconds
+  useInterval(async () => await refreshQuote(), 1000 * 30)
 
   return (
     <SlideTransition>

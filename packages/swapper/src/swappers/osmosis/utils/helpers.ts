@@ -33,7 +33,7 @@ const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
     if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return 'success'
     if (txResponse?.data?.codespace) return 'failed'
   } catch (e) {
-    console.error('Failed to get status')
+    console.warn('Retrying to retrieve status')
   }
   return 'not found'
 }
@@ -41,7 +41,7 @@ const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
 // TODO: leverage chain-adapters websockets
 export const pollForComplete = async (txid: string, baseUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const timeout = 120000 // 2 mins
+    const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 
@@ -81,7 +81,7 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
     )
     toAtomChannelBalance = Number(amount)
   } catch (e) {
-    console.error('no channel balance')
+    console.warn('Retrying to get ibc balance')
   }
   return toAtomChannelBalance
 }
@@ -91,7 +91,7 @@ export const pollForAtomChannelBalance = async (
   osmoUrl: string
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const timeout = 120000 // 2 mins
+    const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 

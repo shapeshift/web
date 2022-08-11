@@ -45,7 +45,8 @@ export class TransactionParser {
     const { from, to, data, value, origin } = valuesFromMsgEvents(
       tx.messages[0],
       tx.events,
-      this.assetId
+      this.assetId,
+      address
     )
 
     parsedTx.data = data

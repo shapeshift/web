@@ -75,6 +75,7 @@ export interface InitialState {
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
+  isDemoWallet: boolean
   isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
@@ -92,6 +93,7 @@ const initialState: InitialState = {
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
+  isDemoWallet: false,
   isLocked: false,
   modal: false,
   isLoadingLocalWallet: false,
@@ -119,6 +121,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
+    case WalletActions.SET_IS_DEMO_WALLET:
+      return { ...state, isDemoWallet: action.payload }
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_IS_LOCKED:
@@ -583,6 +587,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         meta: { label: name },
       },
     })
+    dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: true })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
   }, [state.keyring])

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.10.1...@shapeshiftoss/swapper-v9.11.0) (2022-08-11)
+
+
+### Features
+
+* **swapper:** populate CowSwap `sellTxid` ([#964](https://github.com/shapeshift/lib/issues/964)) ([df0d66e](https://github.com/shapeshift/lib/commit/df0d66ea3c0b22dd17af190189281cbe2a8facc5))
+
 # [@shapeshiftoss/swapper-v9.10.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.10.0...@shapeshiftoss/swapper-v9.10.1) (2022-08-10)
 
 

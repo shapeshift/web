@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
-import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
@@ -32,14 +31,12 @@ export const Routes = () => {
     if (!matchDemoPath && shouldRedirectDemoRoute) return setShouldRedirectDemoRoute(false)
     if (!matchDemoPath || state.isLoadingLocalWallet) return
 
-    state.walletInfo?.deviceId === DemoConfig.name
-      ? setShouldRedirectDemoRoute(true)
-      : connectDemo()
+    state.isDemoWallet ? setShouldRedirectDemoRoute(true) : connectDemo()
   }, [
     matchDemoPath,
     shouldRedirectDemoRoute,
     location.pathname,
-    state.walletInfo?.deviceId,
+    state.isDemoWallet,
     state.isLoadingLocalWallet,
     connectDemo,
   ])

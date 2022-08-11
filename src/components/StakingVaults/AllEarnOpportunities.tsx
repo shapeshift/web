@@ -10,7 +10,6 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
@@ -25,7 +24,7 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const {
-    state: { isConnected, walletInfo },
+    state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
@@ -55,7 +54,7 @@ export const AllEarnOpportunities = () => {
     (opportunity: EarnOpportunityType) => {
       const { provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference } = fromAssetId(assetId)
-      if (!isConnected && walletInfo?.deviceId !== DemoConfig.name) {
+      if (!isConnected && isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }

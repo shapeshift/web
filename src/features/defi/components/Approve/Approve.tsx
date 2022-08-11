@@ -1,8 +1,10 @@
 import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack, Text as CText } from '@chakra-ui/layout'
-import { Divider, useColorModeValue } from '@chakra-ui/react'
+import { Divider, Icon, Switch, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import isUndefined from 'lodash/isUndefined'
 import { FaExchangeAlt } from 'react-icons/fa'
+import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -18,11 +20,13 @@ type ApproveProps = {
   cryptoEstimatedGasFee: string
   disableAction?: boolean
   fiatEstimatedGasFee: string
+  isExactAllowance?: boolean
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
   contractAddress: string
   preFooter?: React.ReactNode
+  onSwitch?(): void
   onConfirm(): Promise<void>
   onCancel(): void
 }
@@ -33,11 +37,13 @@ export const Approve = ({
   feeAsset,
   providerIcon,
   fiatEstimatedGasFee,
+  isExactAllowance,
   learnMoreLink,
   loading,
   loadingText,
   preFooter,
   contractAddress,
+  onSwitch,
   onCancel,
   onConfirm,
 }: ApproveProps) => {
@@ -96,6 +102,31 @@ export const Approve = ({
             {translate('modals.approve.learnMore')}
           </Link>
         </Stack>
+        {!isUndefined(isExactAllowance) && (
+          <Row justifyContent='space-between'>
+            <Row.Label display='flex' alignItems='center'>
+              <Text color='gray.500' translation='trade.allowance' />
+              <Tooltip label={translate('trade.allowanceTooltip')}>
+                <Box ml={1}>
+                  <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                </Box>
+              </Tooltip>
+            </Row.Label>
+            <Row.Value textAlign='right' display='flex' alignItems='center'>
+              <Text
+                color={isExactAllowance ? 'gray.500' : 'white'}
+                translation='trade.unlimited'
+                fontWeight='bold'
+              />
+              <Switch size='sm' mx={2} isChecked={isExactAllowance} onChange={onSwitch} />
+              <Text
+                color={isExactAllowance ? 'white' : 'gray.500'}
+                translation='trade.exact'
+                fontWeight='bold'
+              />
+            </Row.Value>
+          </Row>
+        )}
         <Stack justifyContent='space-between'>
           <Button
             onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}

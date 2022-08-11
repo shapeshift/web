@@ -101,7 +101,10 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
         state.opportunity?.positionAsset.assetId ?? '',
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
-      const tx = await yearnOpportunity.prepareApprove(state.userAddress)
+      const tx = await yearnOpportunity.prepareApprove(
+        state.userAddress,
+        state.isExactAllowance ? state.deposit.cryptoAmount : undefined,
+      )
       await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,
@@ -153,6 +156,13 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
+      isExactAllowance={state.isExactAllowance}
+      onSwitch={() =>
+        dispatch({
+          type: YearnDepositActionType.SET_EXACT_ALLOWANCE,
+          payload: !state.isExactAllowance,
+        })
+      }
       loadingText={translate('common.approveOnWallet')}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'

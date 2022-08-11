@@ -29,6 +29,7 @@ export type TradeState<C extends ChainId> = {
   feeAssetFiatRate: string
   fees?: DisplayFeeData<C>
   action?: TradeAmountInputField
+  isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
 }

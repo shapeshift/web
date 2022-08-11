@@ -1,8 +1,21 @@
-import { Button, Divider, Flex, Image, Link, SkeletonCircle, Text as CText } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Icon,
+  Image,
+  Link,
+  SkeletonCircle,
+  Switch,
+  Text as CText,
+  Tooltip,
+} from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -40,10 +53,11 @@ export const Approval = () => {
 
   const {
     getValues,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useFormContext<TradeState<KnownChainIds.EthereumMainnet>>()
-  const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
+  const { checkApprovalNeeded, updateTrade, approve } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -53,11 +67,12 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
+  const [isExactAllowance] = useWatch({ name: ['isExactAllowance'] })
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
-  const approve = async () => {
+  const approveContract = async () => {
     try {
       if (!isConnected) {
         /**
@@ -71,7 +86,7 @@ export const Approval = () => {
       const fnLogger = logger.child({ name: 'approve' })
       fnLogger.trace('Attempting Approval...')
 
-      const txId = await approveInfinite()
+      const txId = await approve()
 
       setApprovalTxId(txId)
 
@@ -124,7 +139,7 @@ export const Approval = () => {
             flexDirection='column'
             width='full'
             as='form'
-            onSubmit={handleSubmit(approve)}
+            onSubmit={handleSubmit(approveContract)}
           >
             <CountdownCircleTimer
               isPlaying={!!approvalTxId || isSubmitting}
@@ -183,16 +198,31 @@ export const Approval = () => {
                 </Row>
               )}
               <Row>
-                <Row.Label>
-                  <Text color='gray.500' translation='trade.estimatedGasFee' />
+                <Row.Label display='flex' alignItems='center'>
+                  <Text color='gray.500' translation='trade.allowance' />
+                  <Tooltip label={translate('trade.allowanceTooltip')}>
+                    <Box ml={1}>
+                      <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                    </Box>
+                  </Tooltip>
                 </Row.Label>
-                <Row.Value textAlign='right'>
-                  <RawText>
-                    {toFiat(
-                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
-                    )}
-                  </RawText>
-                  <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+                <Row.Value textAlign='right' display='flex' alignItems='center'>
+                  <Text
+                    color={isExactAllowance ? 'gray.500' : 'white'}
+                    translation='trade.unlimited'
+                    fontWeight='bold'
+                  />
+                  <Switch
+                    size='sm'
+                    mx={2}
+                    isChecked={isExactAllowance}
+                    onChange={() => setValue('isExactAllowance', !isExactAllowance)}
+                  />
+                  <Text
+                    color={isExactAllowance ? 'white' : 'gray.500'}
+                    translation='trade.exact'
+                    fontWeight='bold'
+                  />
                 </Row.Value>
               </Row>
               <Button
@@ -209,6 +239,20 @@ export const Approval = () => {
                   <Text translation='common.reject' />
                 </Button>
               )}
+              <Divider my={4} />
+              <Row>
+                <Row.Label>
+                  <Text color='gray.500' translation='trade.estimatedGasFee' />
+                </Row.Label>
+                <Row.Value textAlign='right'>
+                  <RawText>
+                    {toFiat(
+                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
+                    )}
+                  </RawText>
+                  <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+                </Row.Value>
+              </Row>
             </Flex>
           </Flex>
         </Card.Body>

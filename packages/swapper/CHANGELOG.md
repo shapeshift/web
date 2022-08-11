@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.11.0...@shapeshiftoss/swapper-v9.11.1) (2022-08-11)
+
+
+### Bug Fixes
+
+* osmo parser fixes ([#948](https://github.com/shapeshift/lib/issues/948)) ([cd1db39](https://github.com/shapeshift/lib/commit/cd1db3942a55e01e674bdededbcede2b0b787863))
+
 # [@shapeshiftoss/swapper-v9.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.10.1...@shapeshiftoss/swapper-v9.11.0) (2022-08-11)
 
 

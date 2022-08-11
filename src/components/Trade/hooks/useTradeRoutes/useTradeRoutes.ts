@@ -101,11 +101,7 @@ export const useTradeRoutes = (
       const routeDefaultBuyAsset = assets[buyAssetId]
 
       // If we don't have a quote already, get one for the route's default assets
-      if (
-        routeDefaultSellAsset &&
-        routeDefaultBuyAsset &&
-        !(buyTradeAsset?.amount || sellTradeAsset?.amount)
-      ) {
+      if (routeDefaultSellAsset && routeDefaultBuyAsset && !(buyTradeAsset || sellTradeAsset)) {
         setValue('buyAsset.asset', routeDefaultBuyAsset)
         setValue('sellAsset.asset', routeDefaultSellAsset)
         await updateQuote({
@@ -123,13 +119,13 @@ export const useTradeRoutes = (
     }
   }, [
     assets,
-    buyTradeAsset?.amount,
+    buyTradeAsset,
     defaultBuyAssetId,
     defaultFeeAsset,
     defaultSellAssetId,
     routeBuyAssetId,
     selectedCurrencyToUsdRate,
-    sellTradeAsset?.amount,
+    sellTradeAsset,
     setValue,
     swapperManager,
     updateQuote,

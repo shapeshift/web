@@ -71,11 +71,9 @@ const FoxFarmCTA = () => {
             <Skeleton display='inline-block' isLoaded={isFarmingAprV4Loaded && isLpAprLoaded}>
               <Amount.Percent
                 as='span'
-                value={
-                  bnOrZero(farmingAprV4)
-                    .plus(lpApr ?? 0)
-                    .toString() ?? ''
-                }
+                value={bnOrZero(farmingAprV4)
+                  .plus(lpApr ?? 0)
+                  .toString()}
               />
             </Skeleton>
             {translate('defi.byFarming')}

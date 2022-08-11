@@ -4026,10 +4026,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^9.9.1":
-  version "9.10.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.10.1.tgz#7103146bedc77478ac122883ac33033cfb2198b2"
-  integrity sha512-BIt7b2IFrkGu5ApbKdUayO7Cn6fWiXfBaDqRh3cK6f0ZRMsMQ3gudluKYnIo+qujeZTtH5Iwb2FgXFfjPG42Zw==
+"@shapeshiftoss/swapper@^9.11.0":
+  version "9.11.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.11.0.tgz#ab7910ea3ae3ca3bd3245b94cd59e24b94b82f7c"
+  integrity sha512-gMfGikYfYPMGs2h81zK1TVEbqzfNVhTTICL//ALCSmip9VGPpl4mDfG1egnQ/ls5fupc1oOmfjRkue/97hVglA==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"

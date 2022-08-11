@@ -1,8 +1,15 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  AssetId,
+  cosmosChainId,
+  ethChainId,
+  fromAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -36,10 +43,21 @@ export const useTradeRoutes = (
     state: { wallet },
   } = useWallet()
 
-  const { connectedChainId } = useEvm()
+  const { connectedEvmChainId } = useEvm()
 
-  const swapperChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : connectedChainId
-  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(swapperChainId)
+  // If the wallet is connected to a chain, use that ChainId
+  // Else, return a prioritized ChainId based on the wallet's supported chains
+  const walletChainId = useMemo(() => {
+    if (connectedEvmChainId) return connectedEvmChainId
+    if (!wallet) return
+    if (supportsETH(wallet)) return ethChainId
+    if (supportsCosmos(wallet)) return cosmosChainId
+    if (supportsOsmosis(wallet)) return osmosisChainId
+  }, [connectedEvmChainId, wallet])
+
+  // Use the ChainId of the route's AssetId if we have one, else use the wallet's fallback ChainId
+  const buyAssetChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : walletChainId
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(buyAssetChainId)
 
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
   const defaultFeeAssetId = getChainAdapterManager().get(defaultSellChainId)!.getFeeAssetId()
@@ -53,7 +71,7 @@ export const useTradeRoutes = (
     // wait for assets to be loaded and swappers to be initialized
     if (isEmpty(assets) || !defaultFeeAsset || !bestSwapper) return
     try {
-      const sellAsset = assets[defaultSellAssetId]
+      const routeDefaultSellAsset = assets[defaultSellAssetId]
 
       const preBuyAssetToCheckId = routeBuyAssetId ?? defaultBuyAssetId
 
@@ -80,16 +98,17 @@ export const useTradeRoutes = (
 
       const buyAssetId = isSupportedPair ? buyAssetToCheckId : defaultBuyAssetId
 
-      const buyAsset = assets[buyAssetId]
+      const routeDefaultBuyAsset = assets[buyAssetId]
 
-      if (sellAsset && buyAsset && (!buyTradeAsset?.amount || !sellTradeAsset?.amount)) {
-        setValue('buyAsset.asset', buyAsset)
-        setValue('sellAsset.asset', sellAsset)
+      // If we don't have a quote already, get one for the route's default assets
+      if (routeDefaultSellAsset && routeDefaultBuyAsset && !(buyTradeAsset || sellTradeAsset)) {
+        setValue('buyAsset.asset', routeDefaultBuyAsset)
+        setValue('sellAsset.asset', routeDefaultSellAsset)
         await updateQuote({
           forceQuote: true,
           amount: '0',
-          sellAsset,
-          buyAsset,
+          sellAsset: routeDefaultSellAsset,
+          buyAsset: routeDefaultBuyAsset,
           feeAsset: defaultFeeAsset,
           action: TradeAmountInputField.SELL,
           selectedCurrencyToUsdRate,
@@ -100,13 +119,13 @@ export const useTradeRoutes = (
     }
   }, [
     assets,
-    buyTradeAsset?.amount,
+    buyTradeAsset,
     defaultBuyAssetId,
     defaultFeeAsset,
     defaultSellAssetId,
     routeBuyAssetId,
     selectedCurrencyToUsdRate,
-    sellTradeAsset?.amount,
+    sellTradeAsset,
     setValue,
     swapperManager,
     updateQuote,
@@ -129,7 +148,7 @@ export const useTradeRoutes = (
 
   useEffect(() => {
     setDefaultAssets()
-  }, [connectedChainId, setDefaultAssets])
+  }, [connectedEvmChainId, setDefaultAssets])
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

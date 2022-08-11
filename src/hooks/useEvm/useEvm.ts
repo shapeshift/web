@@ -28,10 +28,10 @@ export const useEvm = () => {
     })()
   }, [state])
 
-  const connectedChainId = useMemo(
+  const connectedEvmChainId = useMemo(
     () => supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork),
     [ethNetwork, supportedEvmChainIds],
   )
 
-  return { supportedEvmChainIds, connectedChainId, setEthNetwork }
+  return { supportedEvmChainIds, connectedEvmChainId, setEthNetwork }
 }

@@ -15,6 +15,7 @@ import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useInterval } from 'hooks/useInterval/useInterval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -247,6 +248,21 @@ export const TradeInput = ({ history }: RouterProps) => {
     // only dependency of this hook is the fiat currency
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCurrencyToUsdRate])
+
+  // Update the quote every 30 seconds
+  useInterval(async () => {
+    if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
+      await updateQuote({
+        forceQuote: true,
+        amount: bnOrZero(sellTradeAsset.amount).toString(),
+        sellAsset: sellTradeAsset.asset,
+        buyAsset: buyTradeAsset.asset,
+        feeAsset,
+        action: TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
+      })
+    }
+  }, 1000 * 30) // 30 seconds
 
   return (
     <SlideTransition>

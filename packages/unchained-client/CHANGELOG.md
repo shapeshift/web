@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.8.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.8.1...@shapeshiftoss/unchained-client-v9.8.2) (2022-08-11)
+
+
+### Bug Fixes
+
+* osmo parser fixes ([#948](https://github.com/shapeshift/lib/issues/948)) ([cd1db39](https://github.com/shapeshift/lib/commit/cd1db3942a55e01e674bdededbcede2b0b787863))
+
 # [@shapeshiftoss/unchained-client-v9.8.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.8.0...@shapeshiftoss/unchained-client-v9.8.1) (2022-08-08)
 
 # [@shapeshiftoss/unchained-client-v9.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.7.0...@shapeshiftoss/unchained-client-v9.8.0) (2022-08-08)

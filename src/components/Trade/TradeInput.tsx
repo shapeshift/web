@@ -48,7 +48,14 @@ export const TradeInput = ({ history }: RouterProps) => {
   const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
   }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
-  const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
+  const {
+    updateQuote,
+    checkApprovalNeeded,
+    getSendMaxAmount,
+    updateTrade,
+    feeAsset,
+    refreshQuote,
+  } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -250,19 +257,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }, [selectedCurrencyToUsdRate])
 
   // Update the quote every 30 seconds
-  useInterval(async () => {
-    if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-      await updateQuote({
-        forceQuote: true,
-        amount: bnOrZero(sellTradeAsset.amount).toString(),
-        sellAsset: sellTradeAsset.asset,
-        buyAsset: buyTradeAsset.asset,
-        feeAsset,
-        action: TradeAmountInputField.SELL,
-        selectedCurrencyToUsdRate,
-      })
-    }
-  }, 1000 * 30) // 30 seconds
+  useInterval(async () => await refreshQuote(), 1000 * 30)
 
   return (
     <SlideTransition>

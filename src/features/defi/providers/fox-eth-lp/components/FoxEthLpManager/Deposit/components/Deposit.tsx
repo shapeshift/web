@@ -176,6 +176,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     <PairDeposit
       asset1={foxAsset}
       asset2={ethAsset}
+      icons={opportunity?.icons}
       destAsset={asset}
       apy={opportunity?.apy?.toString() ?? ''}
       cryptoAmountAvailable1={foxCryptoAmountAvailable.toPrecision()}

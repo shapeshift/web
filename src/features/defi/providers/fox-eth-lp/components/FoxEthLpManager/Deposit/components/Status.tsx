@@ -47,7 +47,6 @@ export const Status = () => {
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
-  const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
 
@@ -101,7 +100,7 @@ export const Status = () => {
       case 'success':
         return {
           statusText: StatusTextEnum.success,
-          statusIcon: <CheckIcon color='white' />,
+          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
           statusBody: translate('modals.deposit.status.success', {
             opportunity: `FOX/ETH LP`,
           }),
@@ -110,13 +109,13 @@ export const Status = () => {
       case 'failed':
         return {
           statusText: StatusTextEnum.failed,
-          statusIcon: <CloseIcon color='white' />,
+          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
           statusBody: translate('modals.deposit.status.failed'),
           statusBg: 'red.500',
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={lpAsset?.icon} />,
+          statusIcon: null,
           statusText: StatusTextEnum.pending,
           statusBody: translate('modals.deposit.status.pending'),
           statusBg: 'transparent',
@@ -134,6 +133,7 @@ export const Status = () => {
       statusBody={statusBody}
       statusBg={statusBg}
       continueText='modals.status.position'
+      pairIcons={opportunity.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vert-gutter'>

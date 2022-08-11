@@ -156,6 +156,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     <FormProvider {...methods}>
       <ReusableWithdraw
         asset={asset}
+        icons={opportunity.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,

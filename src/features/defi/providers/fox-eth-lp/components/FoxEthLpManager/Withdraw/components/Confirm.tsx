@@ -2,6 +2,7 @@ import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
@@ -15,6 +16,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -28,7 +30,7 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const opportunity = state?.opportunity
+  const { opportunity } = useFoxEthLpBalances()
   const { removeLiquidity } = useFoxEthLiquidityPool()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -89,7 +91,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={lpAsset.icon} />
+              <PairIcons icons={opportunity.icons!} isSmall />
               <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>

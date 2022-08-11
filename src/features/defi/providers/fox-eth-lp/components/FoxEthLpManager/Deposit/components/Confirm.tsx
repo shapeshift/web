@@ -91,7 +91,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.deposit.estimatedGasCrypto))
     .gte(0)
 
   return (

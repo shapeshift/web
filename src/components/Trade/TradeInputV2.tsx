@@ -1,5 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Button, IconButton, Stack } from '@chakra-ui/react'
+import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -13,10 +13,12 @@ import { useAppSelector } from 'state/store'
 import { RateGasRow } from './Components/RateGasRow'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { useSwapper } from './hooks/useSwapper/useSwapper'
+import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
 export const TradeInput = () => {
   const history = useHistory()
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
     control,
     setValue,
@@ -100,7 +102,7 @@ export const TradeInput = () => {
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Stack>
+        <Stack spacing={0}>
           <TradeAssetInput
             assetId={sellAsset?.asset?.assetId as AssetId}
             assetSymbol={sellAsset?.asset?.symbol ?? ''}
@@ -119,6 +121,10 @@ export const TradeInput = () => {
             <IconButton
               onClick={handleToggle}
               isRound
+              my={-3}
+              size='sm'
+              position='relative'
+              zIndex={1}
               aria-label='Switch Assets'
               icon={<ArrowDownIcon />}
             />
@@ -134,15 +140,25 @@ export const TradeInput = () => {
             }}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
+          ></TradeAssetInput>
+        </Stack>
+        <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
+          <RateGasRow
+            sellSymbol={sellAsset?.asset?.symbol}
+            buySymbol={buyAsset?.asset?.symbol}
+            gasFee={bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()}
+            rate={quote?.rate}
+          />
+          <ReceiveSummary
+            isLoading={!quote}
+            symbol={buyAsset?.asset?.symbol ?? ''}
+            amount={buyCryptoAmount?.value ?? ''}
+            beforeFees='100'
+            protocolFee='10'
+            shapeShiftFee='0'
+            minAmountAfterSlippage={buyCryptoAmount?.value ?? ''}
           />
         </Stack>
-        <RateGasRow
-          sellSymbol={sellAsset?.asset?.symbol}
-          buySymbol={buyAsset?.asset?.symbol}
-          gasFee={bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()}
-          rate={quote?.rate}
-        />
-
         <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>
           Preview Trade
         </Button>

@@ -18,15 +18,18 @@ type RateGasRowProps = {
 export const RateGasRow: React.FC<RateGasRowProps> = ({ sellSymbol, buySymbol, rate, gasFee }) => {
   const translate = useTranslate()
   return !rate ? (
-    <Stack direction='row' alignItems='center' fontSize='sm' px={2}>
+    <Stack direction='row' alignItems='center' fontSize='sm'>
       <CircularProgress size='16px' />
       <Text translation={'trade.searchingRate'} />
     </Stack>
   ) : (
-    <Stack px={2} direction='row'>
+    <Stack direction='row' fontWeight='medium'>
       <Row fontSize='sm' flex={1}>
-        <Row.Value fontWeight='medium' fontSize='sm'>
-          <HelperTooltip label={translate('trade.tooltip.rate')}>
+        <Row.Value fontSize='sm'>
+          <HelperTooltip
+            label={translate('trade.tooltip.rate')}
+            flexProps={{ flexDirection: 'row-reverse' }}
+          >
             <Stack width='full' direction='row' spacing={1}>
               <Amount.Crypto fontSize='sm' value='1' symbol={sellSymbol ?? ''} suffix='=' />
               <Amount.Crypto
@@ -39,7 +42,7 @@ export const RateGasRow: React.FC<RateGasRowProps> = ({ sellSymbol, buySymbol, r
         </Row.Value>
       </Row>
       <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
-        <Row.Label>
+        <Row.Label fontSize='sm'>
           <FaGasPump />
         </Row.Label>
         <Row.Value>

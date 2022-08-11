@@ -130,7 +130,13 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 
       {showFiatAmount && (
         <Stack width='full' alignItems='flex-end' px={4} pb={2}>
-          <Button onClick={() => setIsFiat(!isFiat)} size='xs' variant='link' colorScheme='blue'>
+          <Button
+            onClick={() => setIsFiat(!isFiat)}
+            size='xs'
+            fontWeight='medium'
+            variant='link'
+            color='gray.500'
+          >
             {isFiat ? (
               <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
             ) : (

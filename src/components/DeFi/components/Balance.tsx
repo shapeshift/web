@@ -19,6 +19,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
       lineHeight={1}
       color='gray.500'
       fontSize='sm'
+      fontWeight='medium'
       prefix={label}
       value={fiatBalance}
     />
@@ -26,6 +27,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
     <Amount.Crypto
       lineHeight={1}
       color='gray.500'
+      fontWeight='medium'
       fontSize='sm'
       flex={1}
       symbol={symbol}

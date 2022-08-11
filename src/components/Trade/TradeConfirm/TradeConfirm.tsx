@@ -43,6 +43,7 @@ import { useAppSelector } from 'state/store'
 import { TradeRoutePaths, TradeState } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
+import { ReceiveSummary } from './ReceiveSummary'
 
 type TradeConfirmParams = {
   fiatRate: string
@@ -202,18 +203,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Amount.Fiat color='gray.500' value={tradeFiatAmount} prefix='≈' />
                   </Row.Value>
                 </Row>
-                <Row>
-                  <Row.Label>Receive (incl. fee)</Row.Label>
-                  <Row.Value textAlign='right'>
-                    <Amount.Crypto
-                      value={Number(
-                        fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0),
-                      ).toString()}
-                      symbol={trade.buyAsset.symbol}
-                    />
-                    <Amount.Fiat color='gray.500' value={tradeFiatAmount} prefix='≈' />
-                  </Row.Value>
-                </Row>
+                <ReceiveSummary
+                  symbol={trade.buyAsset.symbol ?? ''}
+                  amount={Number(
+                    fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0),
+                  ).toString()}
+                  fiatAmount={tradeFiatAmount}
+                  beforeFees='100'
+                  protocolFee='10'
+                  shapeShiftFee='0'
+                  minAmountAfterSlippage={Number(
+                    fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0),
+                  ).toString()}
+                />
               </Stack>
               <Stack spacing={4}>
                 {txid && (

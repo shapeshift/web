@@ -1,6 +1,6 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
 
 import { GetTradeQuoteInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
@@ -157,6 +157,17 @@ export async function getCowSwapTradeQuote(
       sellAssetAccountNumber
     }
   } catch (e) {
+    if (
+      axios.isAxiosError(e) &&
+      e.response?.status === 400 &&
+      (e as AxiosError<{ errorType: string }>).response?.data.errorType ===
+        'SellAmountDoesNotCoverFee'
+    ) {
+      throw new SwapError('[getCowSwapTradeQuote]', {
+        cause: e,
+        code: SwapErrorTypes.TRADE_QUOTE_INPUT_LOWER_THAN_FEES
+      })
+    }
     if (e instanceof SwapError) throw e
     throw new SwapError('[getCowSwapTradeQuote]', {
       cause: e,

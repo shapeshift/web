@@ -19,7 +19,13 @@ import {
   toAccountId,
 } from '@shapeshiftoss/caip'
 import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import {
+  HDWallet,
+  supportsBTC,
+  supportsCosmos,
+  supportsETH,
+  supportsEthSwitchChain,
+} from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
@@ -424,6 +430,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
   if (!assetId) return false
   const { chainId } = fromAssetId(assetId)
   switch (chainId) {
+    case avalancheChainId:
+      return supportsEthSwitchChain(wallet)
     case ethChainId:
       return supportsETH(wallet)
     case btcChainId:

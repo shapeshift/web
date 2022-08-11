@@ -25,7 +25,7 @@ export async function cowGetTradeTxs(deps: CowSwapperDeps, input: TradeResult): 
     )
 
     return {
-      sellTxid: '',
+      sellTxid: input.tradeId,
       buyTxid: getTradesResponse.data[0].txHash
     }
   } catch (e) {

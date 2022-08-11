@@ -64,7 +64,7 @@ describe('cowGetTradeTxs', () => {
 
     const result = await cowGetTradeTxs(deps, input)
 
-    expect(result).toEqual({ sellTxid: '', buyTxid: '123txHash456' })
+    expect(result).toEqual({ sellTxid: 'tradeId1112345', buyTxid: '123txHash456' })
     expect(cowService.get).toHaveBeenNthCalledWith(
       1,
       'https://api.cow.fi/mainnet/api/v1/orders/tradeId1112345'

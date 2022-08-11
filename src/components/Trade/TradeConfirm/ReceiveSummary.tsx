@@ -76,7 +76,9 @@ export const ReceiveSummary: React.FC<ReceiveSummaryProps> = ({
         >
           {beforeFees && (
             <Row>
-              <Row.Label>Before Fees</Row.Label>
+              <Row.Label>
+                <Text translation='trade.beforeFees' />
+              </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
                   <Amount.Crypto value={beforeFees} symbol={symbol} />

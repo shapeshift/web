@@ -422,6 +422,7 @@
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "expectedAmount": "Expected Amount",
+    "beforeFees": "Before Fees",
     "minAmountAfterSlippage": "Min. expected amount after slippage (%{slippage}%)",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",

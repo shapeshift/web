@@ -124,6 +124,13 @@ export const TradeInput = () => {
               my={-3}
               size='sm'
               position='relative'
+              borderColor={useColorModeValue('gray.100', 'gray.750')}
+              borderWidth={1}
+              boxShadow={`0 0 0 3px var(${useColorModeValue(
+                '--chakra-colors-white',
+                '--chakra-colors-gray-785',
+              )})`}
+              bg={useColorModeValue('white', 'gray.850')}
               zIndex={1}
               aria-label='Switch Assets'
               icon={<ArrowDownIcon />}

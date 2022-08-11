@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.11.1...@shapeshiftoss/swapper-v9.12.0) (2022-08-11)
+
+
+### Features
+
+* **cowSwapper:** handle SellAmountDoesNotCoverFee Cow.fi error ([#965](https://github.com/shapeshift/lib/issues/965)) ([c69fad3](https://github.com/shapeshift/lib/commit/c69fad3ac8a486c707ca77862859b78ce86e4ca2))
+
 # [@shapeshiftoss/swapper-v9.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.11.0...@shapeshiftoss/swapper-v9.11.1) (2022-08-11)
 
 

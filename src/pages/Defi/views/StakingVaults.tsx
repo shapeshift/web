@@ -9,6 +9,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
+import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -16,6 +17,7 @@ import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -31,6 +33,7 @@ const DefiHeader = () => {
 const FoxFarmCTA = () => {
   const translate = useTranslate()
   const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
+  const { lpApr, isLpAprLoaded } = useLpApr()
   const ethAsset = useAppSelector(state => selectAssetById(state, 'eip155:1/slip44:60'))
   const foxAsset = useAppSelector(state =>
     selectAssetById(state, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'),
@@ -65,8 +68,15 @@ const FoxFarmCTA = () => {
           <CText ml='5' fontWeight='normal' fontSize={{ base: 'md', md: 'lg' }}>
             {translate('defi.clickHereToEarn')}
             <span> </span>
-            <Skeleton display='inline-block' isLoaded={isFarmingAprV4Loaded}>
-              <Amount.Percent as='span' value={farmingAprV4 ?? ''} />
+            <Skeleton display='inline-block' isLoaded={isFarmingAprV4Loaded && isLpAprLoaded}>
+              <Amount.Percent
+                as='span'
+                value={
+                  bnOrZero(farmingAprV4)
+                    .plus(lpApr ?? 0)
+                    .toString() ?? ''
+                }
+              />
             </Skeleton>
             {translate('defi.byFarming')}
           </CText>

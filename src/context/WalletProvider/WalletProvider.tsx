@@ -587,9 +587,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         meta: { label: name },
       },
     })
-    dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: true })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+    dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: true })
   }, [state.keyring])
 
   const create = useCallback(async (type: KeyManager) => {

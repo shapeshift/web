@@ -15,22 +15,6 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [FOX_ASSET_ID]: [
         {
-          type: OpportunityTypes.LiquidityPool,
-          title: 'plugins.foxPage.liquidityPools',
-          opportunities: [
-            {
-              title: foxEthLpOpportunityName,
-              isLoaded: isLpAprLoaded,
-              apy: isLpAprLoaded ? lpApr : null,
-              link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/lp-add',
-              icons: [
-                'https://assets.coincap.io/assets/icons/eth@2x.png',
-                'https://assets.coincap.io/assets/icons/fox@2x.png',
-              ],
-            },
-          ],
-        },
-        {
           type: OpportunityTypes.Farming,
           title: 'plugins.foxPage.farming',
           opportunities: [
@@ -44,6 +28,22 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                       .toString()
                   : null,
               link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/staking/0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0/get-started',
+              icons: [
+                'https://assets.coincap.io/assets/icons/eth@2x.png',
+                'https://assets.coincap.io/assets/icons/fox@2x.png',
+              ],
+            },
+          ],
+        },
+        {
+          type: OpportunityTypes.LiquidityPool,
+          title: 'plugins.foxPage.liquidityPools',
+          opportunities: [
+            {
+              title: foxEthLpOpportunityName,
+              isLoaded: isLpAprLoaded,
+              apy: isLpAprLoaded ? lpApr : null,
+              link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/lp-add',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/fox@2x.png',

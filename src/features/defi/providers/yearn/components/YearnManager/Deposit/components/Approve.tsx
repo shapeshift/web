@@ -103,7 +103,9 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
       if (!yearnOpportunity) throw new Error('No opportunity')
       const tx = await yearnOpportunity.prepareApprove(
         state.userAddress,
-        state.isExactAllowance ? state.deposit.cryptoAmount : undefined,
+        state.isExactAllowance
+          ? bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString()
+          : undefined,
       )
       await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,

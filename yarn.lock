@@ -3757,10 +3757,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^6.14.0":
-  version "6.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-6.14.0.tgz#47ff845a94df48394a6160e825fb086fa1f95a1f"
-  integrity sha512-wlPJEJ2QpvzFXPclwEeAMxVmEqCWdChgygZt//Ua1ufUO3MEhRDLdV6zmRS2OUmsKLrTtiB5C6UQ3JG8Hd5IXA==
+"@shapeshiftoss/caip@^6.15.0":
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-6.15.0.tgz#cfe74627892e52bc88ffcd15c7f5b7f3ea1c22d2"
+  integrity sha512-OfyhWjzBDbB62+3UZdTrUeg+7OXXY5imYZ9H6Pxb6DM5SO8dhZDUr1tuuoXPBTIazxcHV7aS+SuLw9HC+u+bzA==
 
 "@shapeshiftoss/chain-adapters@^7.15.2":
   version "7.15.2"
@@ -4026,10 +4026,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^9.13.0":
-  version "9.13.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.13.0.tgz#26ce3a4154d2477ac91390220f166b3b8186c777"
-  integrity sha512-IqimBXC0JMLTzMKMXU4QPS4dQ/MXWuAilKvyN+9SUL06ZIJBHVrXOaGgg+1Klw1pmH2DH6V4fFcdJ+foRkJY3w==
+"@shapeshiftoss/swapper@^9.14.0":
+  version "9.14.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.14.0.tgz#6c09dba90c1957b629cedea827180c2ba7fc831b"
+  integrity sha512-CMuk8u0rNAbsUOtitDB8du+KpDME2oDQPRh/6tP4SKq2OKj2YYtiomClthT+FwoRDSjK117qhniuev6ZyYKTyQ==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"

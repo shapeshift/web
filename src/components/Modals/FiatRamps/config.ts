@@ -2,6 +2,7 @@ import { adapters, AssetId, btcAssetId } from '@shapeshiftoss/caip'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
+import mtPelerinLogo from 'assets/mtpelerin.jpeg'
 import junoPayLogo from 'assets/junoPay.svg'
 import { logger } from 'lib/logger'
 
@@ -37,7 +38,7 @@ export interface SupportedFiatRampConfig {
   supportsSell: boolean
 }
 
-export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay'
+export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay' | 'MtPelerin'
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
@@ -112,4 +113,17 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       }
     },
   },
+  MtPelerin: {
+    label: 'fiatRamps.mtPelerin',
+    logo: mtPelerinLogo,
+    isImplemented: true,
+    supportsBuy: true,
+    supportsSell: true,
+    getBuyAndSellList: async () => {
+      return [[], []]
+    },
+    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+      moduleLogger.error({ fn: 'MtPelerin onSubmit' }, 'Not implemented')
+    },
+  }
 }

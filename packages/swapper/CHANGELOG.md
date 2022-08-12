@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.12.1...@shapeshiftoss/swapper-v9.13.0) (2022-08-12)
+
+
+### Features
+
+* **swapper:** add TRADE_QUOTE_AMOUNT_TOO_SMALL error ([#970](https://github.com/shapeshift/lib/issues/970)) ([f4cab36](https://github.com/shapeshift/lib/commit/f4cab3691f5ef85af159b6e766c1a1e62175fa07))
+
 # [@shapeshiftoss/swapper-v9.12.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.12.0...@shapeshiftoss/swapper-v9.12.1) (2022-08-12)
 
 

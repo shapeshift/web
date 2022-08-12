@@ -18,6 +18,7 @@ export const useHasAppUpdated = () => {
       if (isLocalhost) return {} // need to return dummy value
       try {
         // dummy query param to bypass the browser cache.
+        // just return this promise instead of try/catching and catch below
         const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
         return data
       } catch (e) {
@@ -49,6 +50,7 @@ export const useHasAppUpdated = () => {
 
   useInterval(async () => {
     if (isLocalhost) return
+    // catch here, and don't set hasUpdated to true if there's an error
     const [currentManifestJs, currentEnvJs] = await Promise.all([
       fetchData(assetManifestUrl),
       fetchData(envUrl),

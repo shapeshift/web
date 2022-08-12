@@ -15,6 +15,7 @@ import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useInterval } from 'hooks/useInterval/useInterval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -47,7 +48,14 @@ export const TradeInput = ({ history }: RouterProps) => {
   const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
     name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
   }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
-  const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
+  const {
+    updateQuote,
+    checkApprovalNeeded,
+    getSendMaxAmount,
+    updateTrade,
+    feeAsset,
+    refreshQuote,
+  } = useSwapper()
   const toast = useToast()
   const translate = useTranslate()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -90,7 +98,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
     if (bnOrZero(quote.sellAmount).lt(minSellAmount)) {
       toast({
-        description: translate('trade.errors.amountToSmall', {
+        description: translate('trade.errors.amountTooSmall', {
           minLimit: `${quote.minimum} ${quote.sellAsset.symbol}`,
         }),
         status: 'error',
@@ -212,11 +220,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.insufficientAmountForGas'
     }
 
-    return error ?? 'trade.previewTrade'
+    return 'trade.previewTrade'
   }
-
-  // TODO:(ryankk) fix error handling
-  const error = null
 
   const onTokenRowInputChange = (action: TradeAmountInputField) => (amount: string) => {
     if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
@@ -247,6 +252,9 @@ export const TradeInput = ({ history }: RouterProps) => {
     // only dependency of this hook is the fiat currency
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCurrencyToUsdRate])
+
+  // Update the quote every 30 seconds
+  useInterval(async () => await refreshQuote(), 1000 * 30)
 
   return (
     <SlideTransition>
@@ -344,7 +352,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
-                isLoading={!!(!quote || error)}
+                isLoading={!!!quote}
                 _loading={{ color: 'blue.500' }}
                 data-test='swap-assets-button'
               />
@@ -355,8 +363,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fontSize='sm'
                 data-test='trade-rate-quote'
               >
-                {!quote || error ? (
-                  <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
+                {!quote ? (
+                  <Text translation={'trade.searchingRate'} />
                 ) : (
                   <>
                     <RawText whiteSpace={'pre'}>{`1 ${sellTradeAsset?.asset?.symbol} = `}</RawText>
@@ -395,7 +403,6 @@ export const TradeInput = ({ history }: RouterProps) => {
               width='full'
               colorScheme={
                 errors.quote ||
-                error ||
                 (isValid &&
                   (!hasEnoughBalanceForGas || !hasValidTradeBalance) &&
                   hasValidSellAmount)

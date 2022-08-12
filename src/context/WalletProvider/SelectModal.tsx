@@ -52,7 +52,8 @@ export const SelectModal = () => {
                 : null
 
               // some wallets (e.g. tally ho, keepkey etc) do not exist on mobile
-              if (isMobile && !option.mobileEnabled) return false
+              if (isMobile && !['both', 'browser'].includes(String(option.supportsMobile)))
+                return false
 
               return (
                 <Button

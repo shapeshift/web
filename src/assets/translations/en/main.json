@@ -53,6 +53,7 @@
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
     "settings": "Settings",
+    "joinDiscord": "Join Discord",
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
     "confirmOnWallet": "Confirm On Wallet",
@@ -121,7 +122,8 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
+    "usOnly": "US-Only"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -430,7 +432,8 @@
     "errors": {
       "title": "Something went wrong",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
-      "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
+      "amountTooSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
+      "sellAmountDoesNotCoverFee": "Amount too small. The sell amount for this pair is lower than the fee.",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
@@ -1122,7 +1125,8 @@
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
         "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
-        "availableSupply": "Available Supply"
+        "availableSupply": "Available Supply",
+        "marketData": "Market Data"
       },
       "assetDescription": {
         "showMore": "Show More",

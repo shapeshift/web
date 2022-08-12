@@ -392,7 +392,7 @@
     "errors": {
       "title": "Algo salió mal",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
-      "amountToSmall": "Cantidad demasiado pequeña. El monto mínimo de operación para este par es %{minLimit}.",
+      "amountTooSmall": "Cantidad demasiado pequeña. El monto mínimo de operación para este par es %{minLimit}.",
       "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
       "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
       "insufficientFunds": "Fondos insuficientes para la tarifa y el monto del minero",

@@ -49,7 +49,7 @@ import { XDEFIConfig } from './XDEFI/config'
 
 export interface SupportedWalletInfo {
   adapter: any
-  mobileEnabled: boolean
+  supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   routes: RouteProps[]

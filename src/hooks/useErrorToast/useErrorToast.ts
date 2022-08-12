@@ -16,6 +16,7 @@ const ErrorTranslationMap: Record<string, string> = {
   [SwapErrorTypes.MIN_MAX_FAILED]: 'trade.errors.minMaxError',
   [SwapErrorTypes.SIGN_AND_BROADCAST_FAILED]: 'trade.errors.broadcastFailed',
   [SwapErrorTypes.TRADE_QUOTE_FAILED]: 'trade.errors.quoteFailed',
+  [SwapErrorTypes.TRADE_QUOTE_INPUT_LOWER_THAN_FEES]: 'trade.errors.sellAmountDoesNotCoverFee',
   [SwapErrorTypes.UNSUPPORTED_PAIR]: 'trade.errors.unsupportedPair',
   [SwapErrorTypes.USD_RATE_FAILED]: 'trade.errors.rateError',
   [SwapErrorTypes.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedChain',

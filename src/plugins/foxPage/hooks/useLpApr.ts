@@ -27,7 +27,7 @@ const fetchPairData = memoize(
 
 export const useLpApr = () => {
   const [lpApr, setLpApr] = useState<string | null>(null)
-  const [loaded, setLoaded] = useState(false)
+  const [isLpAprLoaded, setIsLpAprLoaded] = useState(false)
   const blockNumber = useCurrentBlockNumber()
 
   const liquidityContractAddress = UNIV2_WETH_FOX_POOL_ADDRESS
@@ -53,9 +53,9 @@ export const useLpApr = () => {
         uniswapLPContract,
       })
       setLpApr(bnOrZero(apr).div(100).toString())
-      setLoaded(true)
+      setIsLpAprLoaded(true)
     })()
   }, [blockNumber, uniswapLPContract])
 
-  return { loaded, lpApr }
+  return { isLpAprLoaded, lpApr }
 }

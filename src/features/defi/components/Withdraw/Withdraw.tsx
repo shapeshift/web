@@ -65,6 +65,7 @@ type WithdrawProps = {
   onContinue(values: FieldValues): void
   onCancel(): void
   onInputChange?: (value: string, isFiat?: boolean) => void
+  icons?: string[]
 } & PropsWithChildren
 
 export enum Field {
@@ -97,6 +98,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   percentOptions,
   children,
   onInputChange,
+  icons,
 }) => {
   const translate = useTranslate()
   const {
@@ -174,6 +176,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           onMaxClick={value => handlePercentClick(value)}
           percentOptions={percentOptions}
           isReadOnly={disableInput}
+          icons={icons}
         />
       </FormField>
       {children}

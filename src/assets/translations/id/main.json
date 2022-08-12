@@ -349,7 +349,7 @@
     "errors": {
       "title": "Ada yang salah",
       "notEnoughEth": "Tidak cukup ETH untuk biaya gas pada transaksi ini.",
-      "amountToSmall": "Jumlahnya terlalu kecil. Jumlah perdagangan minimum untuk pasangan ini adalah %{minLimit}.",
+      "amountTooSmall": "Jumlahnya terlalu kecil. Jumlah perdagangan minimum untuk pasangan ini adalah %{minLimit}.",
       "negativeMax": "Tidak cukup dana untuk biaya penambang pada transaksi ini. Biaya estimasi penambang %{estimatedMinerFee}",
       "invalidMax": "Jumlah Tidak Valid. Jumlah perdagangan maksimum untuk pasangan ini adalah %{maxLimit}.",
       "insufficientFunds": "Dana tidak cukup untuk biaya dan jumlah penambang",

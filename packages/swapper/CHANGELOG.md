@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.12.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.12.0...@shapeshiftoss/swapper-v9.12.1) (2022-08-12)
+
+
+### Bug Fixes
+
+* **swapper:** thorchainSwapper quote inversion ([#969](https://github.com/shapeshift/lib/issues/969)) ([150e041](https://github.com/shapeshift/lib/commit/150e041e866e92eb39fdc0978c4de541eb0ea2d6))
+
 # [@shapeshiftoss/swapper-v9.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.11.1...@shapeshiftoss/swapper-v9.12.0) (2022-08-11)
 
 

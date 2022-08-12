@@ -42,7 +42,7 @@ describe('estimateTradeFee', () => {
       .mockReturnValueOnce(Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }))
     const estimatedTradeFee = await estimateTradeFee(deps, FOX)
 
-    const expectedResult = '856.785841407056721352948224'
+    const expectedResult = '0.000005270675333037554496'
     expect(estimatedTradeFee).toEqual(expectedResult)
   })
   it('should throw if trying to get fee data for an unsupported buy asset', async () => {

@@ -5,6 +5,7 @@ import { ThorchainSwapperDeps } from '../../types'
 import { ethMidgardPool, foxMidgardPool } from '../test-data/midgardResponse'
 import { thorService } from '../thorService'
 import { getPriceRatio } from './getPriceRatio'
+
 jest.mock('../thorService')
 
 describe('getPriceRatio', () => {
@@ -23,7 +24,7 @@ describe('getPriceRatio', () => {
 
     const ratio = await getPriceRatio(deps, { buyAssetId: foxId, sellAssetId: ethId })
 
-    const expectedRatio = '0.00007843266864639218'
+    const expectedRatio = '12749.78930665262978203792'
 
     expect(ratio).toEqual(expectedRatio)
   })

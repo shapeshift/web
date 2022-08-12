@@ -40,7 +40,7 @@ const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
     chainSpecific: { estimatedGas: '100000', approvalFee: '700000', gasPrice: '7' },
     tradeFee: '0.00024'
   },
-  rate: '12755.10204081632653061224',
+  rate: '0.0000784',
   sources: [{ name: 'thorchain', proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,

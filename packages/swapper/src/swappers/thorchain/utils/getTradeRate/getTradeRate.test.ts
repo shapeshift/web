@@ -59,7 +59,7 @@ describe('getTradeRate', () => {
     expect(rate).toEqual(expectedRate)
   })
 
-  it('should throw if trying to caculate a rate for an unsupported asset', async () => {
+  it('should throw if trying to calculate a rate for an unsupported asset', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] })
     )

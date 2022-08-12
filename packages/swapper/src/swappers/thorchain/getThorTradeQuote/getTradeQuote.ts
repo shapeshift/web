@@ -58,17 +58,16 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         details: { chainId }
       })
 
-    const tradeRate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)
-    const rate = bnOrZero(1).div(tradeRate).toString()
+    const rate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)
 
     const buyAmount = toBaseUnit(
-      bnOrZero(fromBaseUnit(sellAmount, sellAsset.precision)).times(tradeRate),
+      bnOrZero(fromBaseUnit(sellAmount, sellAsset.precision)).times(rate),
       buyAsset.precision
     )
 
     const tradeFee = await estimateTradeFee(deps, buyAsset)
 
-    const sellAssetTradeFee = bnOrZero(tradeFee).times(bnOrZero(rate))
+    const sellAssetTradeFee = bnOrZero(tradeFee).dividedBy(bnOrZero(rate))
 
     // minimum is tradeFee padded by an amount to be sure they get something back
     // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate

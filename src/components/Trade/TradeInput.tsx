@@ -220,11 +220,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.insufficientAmountForGas'
     }
 
-    return error ?? 'trade.previewTrade'
+    return 'trade.previewTrade'
   }
-
-  // TODO:(ryankk) fix error handling
-  const error = null
 
   const onTokenRowInputChange = (action: TradeAmountInputField) => (amount: string) => {
     if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
@@ -355,7 +352,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
-                isLoading={!!(!quote || error)}
+                isLoading={!!!quote}
                 _loading={{ color: 'blue.500' }}
                 data-test='swap-assets-button'
               />
@@ -366,8 +363,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fontSize='sm'
                 data-test='trade-rate-quote'
               >
-                {!quote || error ? (
-                  <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
+                {!quote ? (
+                  <Text translation={'trade.searchingRate'} />
                 ) : (
                   <>
                     <RawText whiteSpace={'pre'}>{`1 ${sellTradeAsset?.asset?.symbol} = `}</RawText>
@@ -406,7 +403,6 @@ export const TradeInput = ({ history }: RouterProps) => {
               width='full'
               colorScheme={
                 errors.quote ||
-                error ||
                 (isValid &&
                   (!hasEnoughBalanceForGas || !hasValidTradeBalance) &&
                   hasValidSellAmount)

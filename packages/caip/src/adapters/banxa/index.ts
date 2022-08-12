@@ -3,11 +3,27 @@ import toLower from 'lodash/toLower'
 
 import { fromAssetId } from '../../assetId/assetId'
 import { ChainId } from '../../chainId/chainId'
+import {
+  avalancheAssetId,
+  avalancheChainId,
+  btcAssetId,
+  btcChainId,
+  cosmosAssetId,
+  cosmosChainId,
+  ethAssetId,
+  ethChainId
+} from '../../constants'
+import { AssetId } from './../../assetId/assetId'
 
+/**
+ * https://docs.google.com/spreadsheets/d/1KU6J1Hl4vxBTIWCwWdrFfSadNltuFheQRoJyPrd0LMQ/edit#gid=631982242
+ * source of truth per banxa
+ */
 const AssetIdToBanxaTickerMap = {
-  'bip122:000000000019d6689c085ae165831e93/slip44:0': 'btc',
-  'cosmos:cosmoshub-4/slip44:118': 'atom',
-  'eip155:1/slip44:60': 'eth',
+  [btcAssetId]: 'btc',
+  [cosmosAssetId]: 'atom',
+  [ethAssetId]: 'eth',
+  [avalancheAssetId]: 'avax',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',
@@ -33,7 +49,7 @@ const AssetIdToBanxaTickerMap = {
   'eip155:1/erc20:0x8e870d67f660d95d5be530380d0ec0bd388289e1': 'usdp',
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': 'usdt',
   'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc'
-} as Record<string, string>
+} as Record<AssetId, string>
 
 const invert = <T extends Record<string, string>>(data: T) =>
   Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
@@ -55,11 +71,15 @@ export const getSupportedBanxaAssets = () =>
  * map ChainIds to Banxa blockchain codes (ETH, BTC, COSMOS),
  * since some Banxa assets could be on multiple chains and their default
  * chain won't be exactly the same as ours.
+ *
+ * https://docs.google.com/spreadsheets/d/1KU6J1Hl4vxBTIWCwWdrFfSadNltuFheQRoJyPrd0LMQ/edit#gid=631982242
+ * source of truth per banxa
  */
 const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
-  'eip155:1': 'ETH',
-  'bip122:000000000019d6689c085ae165831e93': 'BTC',
-  'cosmos:cosmoshub-4': 'COSMOS'
+  [ethChainId]: 'ETH',
+  [btcChainId]: 'BTC',
+  [cosmosChainId]: 'COSMOS',
+  [avalancheChainId]: 'AVAX-C' // note - the AVAX-C chain is not the same as the AVAX "ticker" on the banxa side
 } as const
 
 /**

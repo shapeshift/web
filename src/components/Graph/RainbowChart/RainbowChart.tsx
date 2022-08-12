@@ -8,7 +8,7 @@ import { ScaleSVG } from '@visx/responsive'
 // import { scaleTime } from '@visx/scale'
 // import { Line } from '@visx/shape'
 // import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
-import { AreaSeries, AreaStack, buildChartTheme, XYChart } from '@visx/xychart'
+import { AreaSeries, buildChartTheme, XYChart } from '@visx/xychart'
 // import { bisector, extent, max, min } from 'd3-array'
 // import dayjs from 'dayjs'
 import { omit } from 'lodash'
@@ -61,12 +61,12 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const data: ChartData[] = useMemo(
     () => [
       {
-        date: '100',
+        date: '1660341414822',
         [ethAssetId]: '1',
         [btcAssetId]: '2',
       },
       {
-        date: '200',
+        date: '1660347414822',
         [ethAssetId]: '3',
         [btcAssetId]: '5',
       },
@@ -86,15 +86,14 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
 
   type Accessor = (d: ChartData) => string
   const accessors = useMemo(() => {
-    const dataWithoutDate = omit(data, 'date')
+    const dataWithoutDate = omit(data[0], 'date')
     const initial: Record<string, Accessor> = {}
-    const x = Object.keys(dataWithoutDate).reduce((acc, cur) => {
-      acc[cur] = (d: ChartData) => d[cur]
+    const x = Object.keys(data[0]).reduce((acc, cur) => {
+      acc[cur] = (d: ChartData) => d.date
       return acc
     }, initial)
-    const getDate = (d: ChartData) => d.date
-    const y = Object.keys(data).reduce((acc, cur) => {
-      acc[cur] = getDate
+    const y = Object.keys(dataWithoutDate).reduce((acc, cur) => {
+      acc[cur] = (d: ChartData) => d[cur]
       return acc
     }, initial)
     return { x, y }
@@ -169,10 +168,14 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     tickLength: 8,
   })
 
+  const xScale = { type: 'band', paddingInner: 0.3 } as const
+  const yScale = { type: 'linear' } as const
+
   const areaLines = useMemo(() => {
     return assetIds.map(assetId => {
       return (
         <AreaSeries
+          key={assetId}
           dataKey={assetId}
           xAccessor={accessors.x[assetId]}
           yAccessor={accessors.y[assetId]}
@@ -203,8 +206,8 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
           }}
         /> */}
 
-        <XYChart height={height} width={width} theme={theme}>
-          <AreaStack>{areaLines}</AreaStack>
+        <XYChart height={height} width={width} theme={theme} xScale={xScale} yScale={yScale}>
+          {areaLines}
         </XYChart>
         {/* fill */}
         {/* <AreaChart

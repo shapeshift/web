@@ -293,7 +293,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const signTxInput = await buildTradeTx({
       osmoAddress,
       adapter: osmosisAdapter,
-      trade,
       buyAssetDenom,
       sellAssetDenom,
       sellAmount: ibcSellAmount ?? sellAmount,
@@ -332,7 +331,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         this.deps.cosmosUrl,
         buyAssetDenom,
         OSMO_COSMO_CHANNEL,
-        trade.feeData.fee,
+        '0',
         ibcAccountNumber,
         ibcSequence,
         gas

@@ -1,4 +1,4 @@
-import { CHAIN_REFERENCE, ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { osmosis, toPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import axios from 'axios'
@@ -8,7 +8,6 @@ import {
   CosmosSdkSupportedChainAdapters,
   SwapError,
   SwapErrorTypes,
-  Trade,
   TradeResult
 } from '../../../index'
 import { bn, bnOrZero } from '../../utils/bignumber'
@@ -277,7 +276,6 @@ export const performIbcTransfer = async (
 export const buildTradeTx = async ({
   osmoAddress,
   adapter,
-  trade,
   buyAssetDenom,
   sellAssetDenom,
   sellAmount,
@@ -286,7 +284,6 @@ export const buildTradeTx = async ({
 }: {
   osmoAddress: string
   adapter: osmosis.ChainAdapter
-  trade: Trade<ChainId>
   buyAssetDenom: string
   sellAssetDenom: string
   sellAmount: string
@@ -309,7 +306,7 @@ export const buildTradeTx = async ({
     fee: {
       amount: [
         {
-          amount: trade.feeData.fee.toString(),
+          amount: '0',
           denom: 'uosmo'
         }
       ],

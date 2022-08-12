@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.13.0...@shapeshiftoss/swapper-v9.14.0) (2022-08-12)
+
+
+### Features
+
+* no fee on osmo swapper txs ([#968](https://github.com/shapeshift/lib/issues/968)) ([72d9a96](https://github.com/shapeshift/lib/commit/72d9a966cccdd41742d7b8d44f38584c731d48d4))
+
 # [@shapeshiftoss/swapper-v9.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.12.1...@shapeshiftoss/swapper-v9.13.0) (2022-08-12)
 
 

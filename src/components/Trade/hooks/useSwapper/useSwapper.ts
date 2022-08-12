@@ -414,7 +414,7 @@ export const useSwapper = () => {
     if (!accountSpecifiers)
       throw new Error(`No UTXO account specifiers for chainId: ${sellAsset.chainId}`)
     const accountSpecifier = accountSpecifiers[sellAsset.chainId]
-    if (!accountSpecifier) throw new Error('no btc account specifier')
+    if (!accountSpecifier) throw new Error('No UTXO account specifier')
 
     const accountId = toAccountId({
       chainId: sellAsset.chainId,

@@ -90,6 +90,7 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
         contractAddress,
         userAddress: state.userAddress,
         wallet: walletState.wallet,
+        amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString(),
       })
       await poll({
         fn: () =>
@@ -150,9 +151,16 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
           </AlertDescription>
         </Alert>
       }
+      isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
       contractAddress={contractAddress}
+      onSwitch={() =>
+        dispatch({
+          type: FoxyDepositActionType.SET_EXACT_ALLOWANCE,
+          payload: !state.isExactAllowance,
+        })
+      }
     />
   )
 }

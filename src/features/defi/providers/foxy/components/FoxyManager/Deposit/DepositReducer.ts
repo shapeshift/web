@@ -29,6 +29,7 @@ export const initialState: FoxyDepositState = {
     txStatus: 'pending',
     usedGasFee: '',
   },
+  isExactAllowance: false,
 }
 
 export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => {
@@ -45,6 +46,8 @@ export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => 
       return { ...state, loading: action.payload }
     case FoxyDepositActionType.SET_TXID:
       return { ...state, txid: action.payload }
+    case FoxyDepositActionType.SET_EXACT_ALLOWANCE:
+      return { ...state, isExactAllowance: action.payload }
     default:
       return state
   }

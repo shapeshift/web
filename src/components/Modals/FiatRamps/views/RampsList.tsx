@@ -54,7 +54,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
                     <Text fontWeight='bold' translation={fiatRampConfig.label} />
                     <Text translation={fiatRampConfig.info ?? ''} />
                     {fiatRampConfig.tags?.map(tag => (
-                      <Tag colorScheme='gray' size='xs' mr={2} py={1} px={2} mt={1}>
+                      <Tag key={tag} colorScheme='gray' size='xs' mr={2} py={1} px={2} mt={1}>
                         <Text
                           color={tagColor}
                           fontSize='12px'

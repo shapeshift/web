@@ -1123,7 +1123,8 @@
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
         "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
-        "availableSupply": "Available Supply"
+        "availableSupply": "Available Supply",
+        "marketData": "Market Data"
       },
       "assetDescription": {
         "showMore": "Show More",

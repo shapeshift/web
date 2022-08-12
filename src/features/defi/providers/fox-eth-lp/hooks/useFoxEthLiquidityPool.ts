@@ -223,7 +223,7 @@ export const useFoxEthLiquidityPool = () => {
             }
             return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
               to: UNISWAP_V2_ROUTER_ADDRESS,
-              value: '0',
+              value: '0x00',
               wallet,
               data,
               gasLimit,

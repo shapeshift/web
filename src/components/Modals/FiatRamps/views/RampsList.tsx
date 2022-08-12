@@ -1,5 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, Stack, Tag } from '@chakra-ui/react'
+import { Box, Button, Flex, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -16,6 +16,7 @@ type RampsListProps = {
 
 export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => {
   const history = useHistory()
+  const tagColor = useColorModeValue('gray.600', 'gray.400')
   const ramps = useMemo(() => {
     type Entry = [keyof typeof supportedFiatRamps, SupportedFiatRampConfig]
     const initial: ReactElement[] = []
@@ -52,6 +53,16 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
                   <Box textAlign='left' ml={2}>
                     <Text fontWeight='bold' translation={fiatRampConfig.label} />
                     <Text translation={fiatRampConfig.info ?? ''} />
+                    {fiatRampConfig.tags?.map(tag => (
+                      <Tag colorScheme='gray' size='xs' mr={2} py={1} px={2} mt={1}>
+                        <Text
+                          color={tagColor}
+                          fontSize='12px'
+                          translation={tag}
+                          style={{ textTransform: 'uppercase' }}
+                        />
+                      </Tag>
+                    ))}
                   </Box>
                 </Flex>
                 <Box display={['none', 'block']}>
@@ -101,7 +112,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       initial,
     )
     return result
-  }, [history, setFiatRampProvider])
+  }, [history, setFiatRampProvider, tagColor])
 
   return (
     <Flex justifyContent='center' alignItems='center' width={['100%', '32rem']}>

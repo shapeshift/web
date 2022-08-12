@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.15.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.15.1...@shapeshiftoss/chain-adapters-v7.15.2) (2022-08-12)
+
+
+### Bug Fixes
+
+* support all litecoin account types ([#967](https://github.com/shapeshift/lib/issues/967)) ([9288959](https://github.com/shapeshift/lib/commit/928895941544f3dff2b436f305475ba64e77a8d1))
+
 # [@shapeshiftoss/chain-adapters-v7.15.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.15.0...@shapeshiftoss/chain-adapters-v7.15.1) (2022-08-07)
 
 

@@ -31,7 +31,7 @@ export type TradeState<C extends ChainId> = {
   action?: TradeAmountInputField
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
-  quoteError: string
+  quoteError: string | null
 }
 
 export enum TradeRoutePaths {

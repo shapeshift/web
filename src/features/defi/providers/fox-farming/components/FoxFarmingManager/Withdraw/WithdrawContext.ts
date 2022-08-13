@@ -1,10 +1,10 @@
 import { createContext } from 'react'
 
-import { FoxEthLpWithdrawActions, FoxEthLpWithdrawState } from './WithdrawCommon'
+import { FoxFarmingWithdrawActions, FoxFarmingWithdrawState } from './WithdrawCommon'
 
 interface IWithdrawContext {
-  state: FoxEthLpWithdrawState | null
-  dispatch: React.Dispatch<FoxEthLpWithdrawActions> | null
+  state: FoxFarmingWithdrawState | null
+  dispatch: React.Dispatch<FoxFarmingWithdrawActions> | null
 }
 
 export const WithdrawContext = createContext<IWithdrawContext>({ state: null, dispatch: null })

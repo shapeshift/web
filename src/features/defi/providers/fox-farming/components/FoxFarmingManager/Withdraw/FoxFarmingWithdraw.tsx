@@ -1,5 +1,4 @@
 import { Center } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import {
@@ -14,57 +13,58 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
-import {
-  selectAssetById,
-  selectMarketDataById,
-  selectPortfolioLoading,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { logger } from 'lib/logger'
+import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
+import { selectPortfolioLoading } from 'state/slices/selectors'
 
-import { foxFarmingOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
-import { FoxEthLpWithdrawActionType } from './WithdrawCommon'
+import { FoxFarmingWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'FoxFarming', 'FoxFarmingWithdraw'],
+})
 
 export const FoxFarmingWithdraw = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress } = query
 
-  const assetNamespace = 'erc20'
-  // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
+  const chainAdapterManager = getChainAdapterManager()
+  const chainAdapter = chainAdapterManager.get(chainId)
 
-  const { opportunity } = useFoxEthLpBalances()
+  const { opportunities, loading: foxFarmingLoading } = useFoxFarmingBalances()
+  const opportunity = useMemo(
+    () => opportunities.find(e => e.contractAddress === contractAddress),
+    [contractAddress, opportunities],
+  )
 
   // user info
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!walletState) return
-    dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
-  }, [opportunity, walletState])
+    ;(async () => {
+      try {
+        if (!(walletState.wallet && contractAddress && chainAdapter && opportunity)) return
+        const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
+
+        dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
+      } catch (error) {
+        // TODO: handle client side errors
+        moduleLogger.error(error, 'FoxFarmingWithdraw error')
+      }
+    })()
+  }, [chainAdapter, walletState.wallet, translate, chainId, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({
@@ -81,7 +81,7 @@ export const FoxFarmingWithdraw = () => {
       [DefiStep.Info]: {
         label: translate('defi.steps.withdraw.info.title'),
         description: translate('defi.steps.withdraw.info.description', {
-          asset: underlyingAsset.symbol,
+          asset: opportunity?.opportunityName,
         }),
         component: Withdraw,
       },
@@ -98,11 +98,10 @@ export const FoxFarmingWithdraw = () => {
         component: Status,
       },
     }
-    // We only need this to update on symbol change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [underlyingAsset.symbol])
+  }, [opportunity?.opportunityName])
 
-  if (loading || !asset || !marketData)
+  if (loading || !opportunity || foxFarmingLoading)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -114,7 +113,7 @@ export const FoxFarmingWithdraw = () => {
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: foxFarmingOpportunityName,
+            opportunity: opportunity?.opportunityName,
           })}
           onBack={handleBack}
         />

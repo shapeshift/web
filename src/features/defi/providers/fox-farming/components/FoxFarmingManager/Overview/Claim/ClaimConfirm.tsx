@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -33,10 +33,11 @@ type ClaimConfirmProps = {
   contractAddress: string
   chainId: ChainId
   onBack: () => void
+  opportunity: EarnOpportunityType
 }
 
 const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Overview', 'ClaimConfirm'],
+  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Overview', 'ClaimConfirm'],
 })
 
 export const ClaimConfirm = ({
@@ -45,12 +46,12 @@ export const ClaimConfirm = ({
   contractAddress,
   chainId,
   onBack,
+  opportunity,
 }: ClaimConfirmProps) => {
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
-  const [canClaim, setCanClaim] = useState<boolean>(false)
-  const { foxy } = useFoxy()
+  const [canClaim, setCanClaim] = useState<boolean>(true)
   const { state: walletState } = useWallet()
   const translate = useTranslate()
   const claimAmount = bnOrZero(amount).toString()
@@ -71,17 +72,17 @@ export const ClaimConfirm = ({
   const toast = useToast()
 
   const handleConfirm = async () => {
-    if (!walletState.wallet || !contractAddress || !userAddress || !foxy) return
+    if (!walletState.wallet || !contractAddress || !userAddress) return
     setLoading(true)
     try {
-      const txid = await foxy.claimWithdraw({
-        claimAddress: userAddress,
-        userAddress,
-        wallet: walletState.wallet,
-        contractAddress,
-      })
+      // const txid = await FoxFarming.claimWithdraw({
+      //   claimAddress: userAddress,
+      //   userAddress,
+      //   wallet: walletState.wallet,
+      //   contractAddress,
+      // })
       history.push('/status', {
-        txid,
+        txid: 'txid',
         assetId,
         amount,
         userAddress,
@@ -105,26 +106,26 @@ export const ClaimConfirm = ({
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
+        if (!(walletState.wallet && contractAddress && chainAdapter)) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
-        const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
-          foxy.estimateClaimWithdrawGas({
-            claimAddress: userAddress,
-            userAddress,
-            contractAddress,
-            wallet: walletState.wallet,
-          }),
-          foxy.getGasPrice(),
-          foxy.canClaimWithdraw({ contractAddress, userAddress }),
-        ])
+        // const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
+        //   FoxFarming.estimateClaimWithdrawGas({
+        //     claimAddress: userAddress,
+        //     userAddress,
+        //     contractAddress,
+        //     wallet: walletState.wallet,
+        //   }),
+        //   FoxFarming.getGasPrice(),
+        //   FoxFarming.canClaimWithdraw({ contractAddress, userAddress }),
+        // ])
 
-        setCanClaim(canClaimWithdraw)
-        const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-        setEstimatedGas(gasEstimate)
+        // setCanClaim(canClaimWithdraw)
+        // const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+        // setEstimatedGas(gasEstimate)
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxyClaim error')
+        moduleLogger.error(error, 'FoxFarmingClaim error')
       }
     })()
   }, [
@@ -132,7 +133,6 @@ export const ClaimConfirm = ({
     contractAddress,
     feeAsset.precision,
     feeMarketData.price,
-    foxy,
     walletState.wallet,
   ])
 

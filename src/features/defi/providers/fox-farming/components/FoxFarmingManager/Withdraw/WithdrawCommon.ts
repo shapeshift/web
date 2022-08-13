@@ -6,26 +6,24 @@ type EstimatedGas = {
 
 type WithdrawValues = {
   lpAmount: string
-  foxAmount: string
-  ethAmount: string
 }
 
-type FoxEthLpWithdrawValues = WithdrawValues &
+type FoxFarmingWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
   }
 
-export type FoxEthLpWithdrawState = {
+export type FoxFarmingWithdrawState = {
   opportunity: EarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
-  withdraw: FoxEthLpWithdrawValues
+  withdraw: FoxFarmingWithdrawValues
   loading: boolean
   txid: string | null
 }
 
-export enum FoxEthLpWithdrawActionType {
+export enum FoxFarmingWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
@@ -36,36 +34,36 @@ export enum FoxEthLpWithdrawActionType {
 }
 
 type SetOpportunityAction = {
-  type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY
+  type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY
   payload: EarnOpportunityType
 }
 
 type SetWithdraw = {
-  type: FoxEthLpWithdrawActionType.SET_WITHDRAW
-  payload: Partial<FoxEthLpWithdrawValues>
+  type: FoxFarmingWithdrawActionType.SET_WITHDRAW
+  payload: Partial<FoxFarmingWithdrawValues>
 }
 
 type SetUserAddress = {
-  type: FoxEthLpWithdrawActionType.SET_USER_ADDRESS
+  type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: FoxEthLpWithdrawActionType.SET_LOADING
+  type: FoxFarmingWithdrawActionType.SET_LOADING
   payload: boolean
 }
 
 type SetTxid = {
-  type: FoxEthLpWithdrawActionType.SET_TXID
+  type: FoxFarmingWithdrawActionType.SET_TXID
   payload: string
 }
 
 type SetApprove = {
-  type: FoxEthLpWithdrawActionType.SET_APPROVE
+  type: FoxFarmingWithdrawActionType.SET_APPROVE
   payload: EstimatedGas
 }
 
-export type FoxEthLpWithdrawActions =
+export type FoxFarmingWithdrawActions =
   | SetOpportunityAction
   | SetWithdraw
   | SetUserAddress

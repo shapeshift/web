@@ -313,6 +313,14 @@ export const useFoxEthLiquidityPool = () => {
     }
   }, [ethAsset.precision, ethPrice, uniV2LPContract])
 
+  const getLpTokenPrice = useCallback(async () => {
+    if (uniV2LPContract) {
+      const tvl = await getLpTVL()
+      const totalSupply = await uniV2LPContract.totalSupply()
+      return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(`1e${lpAsset.precision}`))
+    }
+  }, [getLpTVL, lpAsset.precision, uniV2LPContract])
+
   const allowance = useCallback(
     async (forWithdrawal?: boolean) => {
       const contract = forWithdrawal ? uniV2LPContract : foxContract
@@ -478,5 +486,6 @@ export const useFoxEthLiquidityPool = () => {
     getLpTVL,
     getWithdrawGasData,
     removeLiquidity,
+    getLpTokenPrice,
   }
 }

@@ -1,10 +1,10 @@
 import { createContext } from 'react'
 
-import { FoxEthLpDepositActions, FoxEthLpDepositState } from './DepositCommon'
+import { FoxFarmingDepositActions, FoxFarmingDepositState } from './DepositCommon'
 
 interface IDepositContext {
-  state: FoxEthLpDepositState | null
-  dispatch: React.Dispatch<FoxEthLpDepositActions> | null
+  state: FoxFarmingDepositState | null
+  dispatch: React.Dispatch<FoxFarmingDepositActions> | null
 }
 
 export const DepositContext = createContext<IDepositContext>({ state: null, dispatch: null })

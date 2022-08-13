@@ -16,18 +16,19 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import farmAbi from '../abis/farmingAbi.json'
-import IUniswapV2Router02ABI from '../abis/IUniswapV2Router02.json'
 import {
-  FOX_FARMING_CONTRACT_ADDRESS,
   foxEthLpAssetId,
   MAX_ALLOWANCE,
   UNISWAP_V2_ROUTER_ADDRESS,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from '../constants'
+} from '../../fox-eth-lp/constants'
+import { useFoxEthLiquidityPool } from '../../fox-eth-lp/hooks/useFoxEthLiquidityPool'
+import farmAbi from '../abis/farmingAbi.json'
+import IUniswapV2Router02ABI from '../abis/IUniswapV2Router02.json'
+import { FOX_FARMING_CONTRACT_ADDRESS } from '../constants'
 
 const ethersProvider = getEthersProvider()
 
@@ -39,7 +40,7 @@ export const useFoxFarming = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const ethPrice = useAppSelector(state => selectMarketDataById(state, ethAssetId)).price
+  const { getLpTokenPrice } = useFoxEthLiquidityPool()
 
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
@@ -266,17 +267,17 @@ export const useFoxFarming = () => {
   }, [foxFarmingContract, connectedWalletEthAddress])
 
   const getTVL = useCallback(async () => {
-    if (uniV2LPContract) {
-      const reserves = await uniV2LPContract.getReserves()
-      // Amount of Eth in liquidity pool
-      const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(`1e${ethAsset.precision}`)
-
-      // Total market cap of liquidity pool in usdc.
-      // Multiplied by 2 to show equal amount of eth and fox.
-      const totalLiquidity = ethInReserve.times(ethPrice).times(2)
-      return totalLiquidity.toString()
+    if (foxFarmingContract) {
+      const totalSupply = await foxFarmingContract.totalSupply()
+      const lpTokenPrice = await getLpTokenPrice()
+      if (!lpTokenPrice) return ''
+      const totalDeposited = bnOrZero(totalSupply.toString())
+        .div(`1e${lpAsset.precision}`)
+        .times(lpTokenPrice)
+        .toFixed(2)
+      return totalDeposited
     }
-  }, [ethAsset.precision, ethPrice, uniV2LPContract])
+  }, [foxFarmingContract, getLpTokenPrice, lpAsset.precision])
 
   const allowance = useCallback(async () => {
     if (!connectedWalletEthAddress || !uniV2LPContract) return

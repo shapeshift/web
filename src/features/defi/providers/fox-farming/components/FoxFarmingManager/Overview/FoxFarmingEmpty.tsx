@@ -5,33 +5,33 @@ import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverv
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
-type FoxyEmptyProps = {
+type FoxFarmingEmptyProps = {
   assets: Asset[]
   apy: string | undefined
   onClick?: () => void
 }
 
-export const FoxyEmpty = ({ assets, apy, onClick }: FoxyEmptyProps) => {
+export const FoxFarmingEmpty = ({ assets, apy, onClick }: FoxFarmingEmptyProps) => {
   return (
     <DefiModalContent>
       <EmptyOverview
         assets={assets}
         footer={
           <Button width='full' colorScheme='blue' onClick={onClick}>
-            <Text translation='defi.modals.foxyOverview.cta' />
+            <Text translation='defi.modals.FoxFarmingOverview.cta' />
           </Button>
         }
       >
         <Stack direction='row' spacing={1} justifyContent='center' mb={4}>
-          <Text translation='defi.modals.foxyOverview.header' />
+          <Text translation='defi.modals.FoxFarmingOverview.header' />
           <CText color='green.500'>
             <Skeleton isLoaded={Boolean(apy)}>
               <Amount.Percent value={apy ?? ''} suffix='APR' />
             </Skeleton>
           </CText>
         </Stack>
-        <Text color='gray.500' translation='defi.modals.foxyOverview.body' />
-        <Text color='gray.500' translation='defi.modals.foxyOverview.rewards' />
+        <Text color='gray.500' translation='defi.modals.FoxFarmingOverview.body' />
+        <Text color='gray.500' translation='defi.modals.FoxFarmingOverview.rewards' />
       </EmptyOverview>
     </DefiModalContent>
   )

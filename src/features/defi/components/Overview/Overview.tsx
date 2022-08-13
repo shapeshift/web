@@ -25,6 +25,7 @@ import { PairIcons } from '../PairIcons/PairIcons'
 type AssetWithBalance = {
   cryptoBalance: string
   allocationPercentage?: string
+  icons?: string[]
 } & Asset
 
 type OverviewProps = {
@@ -59,7 +60,11 @@ export const Overview: React.FC<OverviewProps> = ({
     return underlyingAssets.map(asset => {
       return (
         <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
-          <AssetIcon src={asset.icon} size='2xs' />
+          {asset.icons ? (
+            <PairIcons icons={asset.icons} isSmall unstyled />
+          ) : (
+            <AssetIcon src={asset.icon} size='2xs' />
+          )}
           <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
           {asset.allocationPercentage && (
             <Amount.Percent color='gray.500' value={asset.allocationPercentage} />

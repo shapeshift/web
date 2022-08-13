@@ -8,15 +8,15 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxyEmpty } from './FoxyEmpty'
+import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-export const FoxyDetails = () => {
-  const { opportunities, loading } = useFoxyBalances()
+export const FoxFarmingDetails = () => {
+  const { opportunities, loading } = useFoxFarmingBalances()
   const {
     query,
     history: browserHistory,
@@ -29,7 +29,7 @@ export const FoxyDetails = () => {
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
-  const foxyBalance = bnOrZero(opportunity?.balance)
+  const FoxFarmingBalance = bnOrZero(opportunity?.balance)
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
@@ -51,9 +51,9 @@ export const FoxyDetails = () => {
       </Center>
     )
   }
-  if (foxyBalance.eq(0) && rewardBalance.eq(0)) {
+  if (FoxFarmingBalance.eq(0) && rewardBalance.eq(0)) {
     return (
-      <FoxyEmpty
+      <FoxFarmingEmpty
         assets={[stakingAsset, rewardAsset]}
         apy={apy ?? ''}
         onClick={() =>
@@ -74,7 +74,7 @@ export const FoxyDetails = () => {
     >
       <ModalBody>
         <Stack alignItems='center' justifyContent='center' py={8}>
-          <Text color='gray.500' translation='defi.modals.foxyOverview.foxyBalance' />
+          <Text color='gray.500' translation='defi.modals.FoxFarmingOverview.FoxFarmingBalance' />
           <Stack direction='row' alignItems='center' justifyContent='center'>
             <AssetIcon boxSize='10' src={rewardAsset.icon} />
             <Amount.Crypto
@@ -93,7 +93,7 @@ export const FoxyDetails = () => {
       </ModalBody>
       <ModalFooter justifyContent='flex-start' alignItems='flex-start' flexDir='column'>
         <Stack width='full'>
-          <Text fontWeight='medium' translation='defi.modals.foxyOverview.withdrawals' />
+          <Text fontWeight='medium' translation='defi.modals.FoxFarmingOverview.withdrawals' />
           <WithdrawCard asset={stakingAsset} {...opportunity.withdrawInfo} />
         </Stack>
       </ModalFooter>

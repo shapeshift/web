@@ -1,4 +1,5 @@
 import { AssetId } from '@shapeshiftoss/caip'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpAssetId,
   foxEthLpOpportunityName,
@@ -9,4 +10,11 @@ export const getOverrideNameFromAssetId = (assetId: AssetId): string | null => {
     [foxEthLpAssetId]: foxEthLpOpportunityName,
   }
   return overrideAssetIdNames[assetId] ?? null
+}
+
+export const getOverrideProviderName = (provider: string): string => {
+  const overrideAssetIdNames: Partial<Record<DefiProvider, string>> = {
+    [DefiProvider.FoxFarming]: 'ShapeShift',
+  }
+  return overrideAssetIdNames[provider as DefiProvider] ?? provider
 }

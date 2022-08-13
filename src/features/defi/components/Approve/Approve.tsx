@@ -11,9 +11,12 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { PairIcons } from './PairIcons'
+
 type ApproveProps = {
   asset: Asset
   providerIcon?: string
+  icons?: string[]
   feeAsset: Asset
   cryptoEstimatedGasFee: string
   disableAction?: boolean
@@ -40,6 +43,7 @@ export const Approve = ({
   contractAddress,
   onCancel,
   onConfirm,
+  icons,
 }: ApproveProps) => {
   const translate = useTranslate()
 
@@ -71,7 +75,7 @@ export const Approve = ({
           color='gray.500'
           pt={6}
         >
-          <AssetIcon src={asset.icon} size='md' />
+          {icons ? <PairIcons icons={icons} /> : <AssetIcon src={asset.icon} size='md' />}
           {providerIcon && (
             <>
               <FaExchangeAlt />

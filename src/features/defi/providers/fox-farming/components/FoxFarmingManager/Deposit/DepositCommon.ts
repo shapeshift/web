@@ -5,28 +5,26 @@ type EstimatedGas = {
 }
 
 type DepositValues = {
-  foxFiatAmount: string
-  foxCryptoAmount: string
-  ethFiatAmount: string
-  ethCryptoAmount: string
+  fiatAmount: string
+  cryptoAmount: string
 }
 
-type FoxEthLpDepositValues = DepositValues &
+type FoxFarmingDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
   }
 
-export type FoxEthLpDepositState = {
+export type FoxFarmingDepositState = {
   opportunity: EarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
-  deposit: FoxEthLpDepositValues
+  deposit: FoxFarmingDepositValues
   loading: boolean
   txid: string | null
 }
 
-export enum FoxEthLpDepositActionType {
+export enum FoxFarmingDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
@@ -36,36 +34,36 @@ export enum FoxEthLpDepositActionType {
 }
 
 type SetOpportunityAction = {
-  type: FoxEthLpDepositActionType.SET_OPPORTUNITY
+  type: FoxFarmingDepositActionType.SET_OPPORTUNITY
   payload: EarnOpportunityType
 }
 
 type SetApprove = {
-  type: FoxEthLpDepositActionType.SET_APPROVE
+  type: FoxFarmingDepositActionType.SET_APPROVE
   payload: EstimatedGas
 }
 
 type SetDeposit = {
-  type: FoxEthLpDepositActionType.SET_DEPOSIT
+  type: FoxFarmingDepositActionType.SET_DEPOSIT
   payload: any
 }
 
 type SetUserAddress = {
-  type: FoxEthLpDepositActionType.SET_USER_ADDRESS
+  type: FoxFarmingDepositActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: FoxEthLpDepositActionType.SET_LOADING
+  type: FoxFarmingDepositActionType.SET_LOADING
   payload: boolean
 }
 
 type SetTxid = {
-  type: FoxEthLpDepositActionType.SET_TXID
+  type: FoxFarmingDepositActionType.SET_TXID
   payload: string
 }
 
-export type FoxEthLpDepositActions =
+export type FoxFarmingDepositActions =
   | SetOpportunityAction
   | SetApprove
   | SetDeposit

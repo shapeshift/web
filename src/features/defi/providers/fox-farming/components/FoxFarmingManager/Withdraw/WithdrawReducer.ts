@@ -1,10 +1,10 @@
 import {
-  FoxEthLpWithdrawActions,
-  FoxEthLpWithdrawActionType,
-  FoxEthLpWithdrawState,
+  FoxFarmingWithdrawActions,
+  FoxFarmingWithdrawActionType,
+  FoxFarmingWithdrawState,
 } from './WithdrawCommon'
 
-export const initialState: FoxEthLpWithdrawState = {
+export const initialState: FoxFarmingWithdrawState = {
   txid: null,
   opportunity: null,
   userAddress: null,
@@ -12,29 +12,27 @@ export const initialState: FoxEthLpWithdrawState = {
   approve: {},
   withdraw: {
     lpAmount: '',
-    foxAmount: '',
-    ethAmount: '',
     txStatus: 'pending',
     usedGasFee: '',
   },
 }
 
 export const reducer = (
-  state: FoxEthLpWithdrawState,
-  action: FoxEthLpWithdrawActions,
-): FoxEthLpWithdrawState => {
+  state: FoxFarmingWithdrawState,
+  action: FoxFarmingWithdrawActions,
+): FoxFarmingWithdrawState => {
   switch (action.type) {
-    case FoxEthLpWithdrawActionType.SET_OPPORTUNITY:
+    case FoxFarmingWithdrawActionType.SET_OPPORTUNITY:
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
-    case FoxEthLpWithdrawActionType.SET_WITHDRAW:
+    case FoxFarmingWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case FoxEthLpWithdrawActionType.SET_USER_ADDRESS:
+    case FoxFarmingWithdrawActionType.SET_USER_ADDRESS:
       return { ...state, userAddress: action.payload }
-    case FoxEthLpWithdrawActionType.SET_LOADING:
+    case FoxFarmingWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case FoxEthLpWithdrawActionType.SET_APPROVE:
+    case FoxFarmingWithdrawActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
-    case FoxEthLpWithdrawActionType.SET_TXID:
+    case FoxFarmingWithdrawActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:
       return state

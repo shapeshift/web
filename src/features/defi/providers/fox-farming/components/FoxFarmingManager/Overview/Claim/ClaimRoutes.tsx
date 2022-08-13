@@ -1,11 +1,11 @@
-import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -26,29 +26,26 @@ type ClaimRouteProps = {
 
 export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference, chainId } = query
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const { opportunities } = useFoxyBalances()
+  const { contractAddress, chainId } = query
+  const { opportunities } = useFoxFarmingBalances()
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const location = useLocation()
 
+  if (!opportunity) return null
+
   return (
     <SlideTransition>
-      <RouteSteps routes={routes} location={location} />
+      <RouteSteps routes={routes} location={location} pt={4} />
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm
-              assetId={stakingAssetId}
+              assetId={foxAssetId}
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={opportunity?.withdrawInfo.amount}
+              amount={'0'}
+              opportunity={opportunity}
             />
           </Route>
           <Route exact path='/status' component={ClaimStatus} />

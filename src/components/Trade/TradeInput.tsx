@@ -350,7 +350,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
-                isLoading={!!!quote}
+                isLoading={!quote}
                 _loading={{ color: 'blue.500' }}
                 data-test='swap-assets-button'
               />

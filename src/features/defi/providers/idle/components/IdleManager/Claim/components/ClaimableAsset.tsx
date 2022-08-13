@@ -1,0 +1,36 @@
+import { Stack } from '@chakra-ui/react'
+import { useAppSelector } from 'state/store'
+import { AssetIcon } from 'components/AssetIcon'
+import { Amount } from 'components/Amount/Amount'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/selectors'
+import { ClaimableToken } from '@shapeshiftoss/investor-idle'
+
+type ClaimableAssetProps = {
+	token:ClaimableToken
+}
+
+export const ClaimableAsset: React.FC<ClaimableAssetProps> = ({token}) => {
+	const asset = useAppSelector( state => selectAssetById(state, token.assetId))
+	if (!asset) return null
+	return (
+	  <Stack direction='row' alignItems='center' justifyContent='center' key={token.assetId}>
+	    <AssetIcon boxSize='8' src={asset.icon} />
+	    <Amount.Crypto
+	      fontSize='lg'
+	      fontWeight='medium'
+	      value={bnOrZero(token.amount).div(`1e+${asset.precision}`).toString()}
+	      symbol={asset?.symbol}
+	    />
+	  </Stack>
+	)
+}
+
+export const getRewardAssetData = (token:ClaimableToken) => {
+	const asset = useAppSelector( state => selectAssetById(state, token.assetId) )
+	if (!asset) return null
+	return {
+	  ...asset,
+	  cryptoBalance: bnOrZero(token.amount).div(`1e+${asset.precision}`).toPrecision(),
+	}
+}

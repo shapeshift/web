@@ -11,10 +11,9 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import qs from 'qs'
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
@@ -30,6 +29,7 @@ import { useAppSelector } from 'state/store'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
+import { ClaimableAsset } from './ClaimableAsset'
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const translate = useTranslate()
@@ -84,30 +84,18 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     })()
   }, [state.userAddress, dispatch, idleInvestor, assetId])
 
-  let renderAssets: any[] = []
-  let claimableTokensTotalBalance = bnOrZero(0)
+  const claimableTokensTotalBalance = useMemo(() => {
+    if (!state.claimableTokens) return bnOrZero(0)
+    return state.claimableTokens.reduce( (total,token) => {
+      total = total.plus(token.amount)
+      return total
+    },bnOrZero(0))
+  },[state.claimableTokens])
 
-  useAppSelector(selectorState => {
-    if (state && state.claimableTokens) {
-      state.claimableTokens.forEach(token => {
-        const asset = selectAssetById(selectorState, token.assetId)
-        if (asset) {
-          claimableTokensTotalBalance = claimableTokensTotalBalance.plus(token.amount)
-          renderAssets.push(
-            <Stack direction='row' alignItems='center' justifyContent='center' key={token.assetId}>
-              <AssetIcon boxSize='8' src={asset.icon} />
-              <Amount.Crypto
-                fontSize='lg'
-                fontWeight='medium'
-                value={bnOrZero(token.amount).div(`1e+${asset.precision}`).toString()}
-                symbol={asset?.symbol}
-              />
-            </Stack>,
-          )
-        }
-      })
-    }
-  })
+  const renderAssets = useMemo(() => {
+    if (!state.claimableTokens) return null
+    return state.claimableTokens.map((token, index) => <ClaimableAsset key={`asset_${index}`} token={token} /> )
+  },[state.claimableTokens])
 
   if (!state || !dispatch) return null
 

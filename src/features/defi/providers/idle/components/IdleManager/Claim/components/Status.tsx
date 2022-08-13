@@ -24,6 +24,7 @@ import { useAppSelector } from 'state/store'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
+import { ClaimableAsset } from './ClaimableAsset'
 
 export const Status = () => {
   const translate = useTranslate()
@@ -75,27 +76,10 @@ export const Status = () => {
     }
   }, [confirmedTransaction, dispatch])
 
-  let renderAssets: any[] = []
-  useAppSelector(selectorState => {
-    if (state && state.claimableTokens) {
-      state.claimableTokens.forEach(token => {
-        const asset = selectAssetById(selectorState, token.assetId)
-        if (asset) {
-          renderAssets.push(
-            <Stack direction='row' alignItems='center' justifyContent='center' key={token.assetId}>
-              <AssetIcon boxSize='8' src={asset.icon} />
-              <Amount.Crypto
-                fontSize='lg'
-                fontWeight='medium'
-                value={bnOrZero(token.amount).div(`1e+${asset.precision}`).toString()}
-                symbol={asset?.symbol}
-              />
-            </Stack>,
-          )
-        }
-      })
-    }
-  })
+  const renderAssets = useMemo(() => {
+    if (!state.claimableTokens) return null
+    return state.claimableTokens.map((token, index) => <ClaimableAsset key={`asset_${index}`} token={token} /> )
+  },[state.claimableTokens])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

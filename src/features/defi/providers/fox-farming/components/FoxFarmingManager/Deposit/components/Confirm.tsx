@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
@@ -8,19 +8,17 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-// import isNil from 'lodash/isNil'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
-// import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-// import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-// import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -40,21 +38,17 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+  const { stake } = useFoxFarming(contractAddress)
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
   const opportunity = state?.opportunity
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   // user info
-  // const { state: walletState } = useWallet()
+  const { state: walletState } = useWallet()
 
   // notify
   const toast = useToast()
@@ -67,36 +61,12 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   const handleDeposit = async () => {
     try {
-      // if (!state.userAddress || !assetReference || !walletState.wallet || !api) return
-      // dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
-      // const [txid, gasPrice] = await Promise.all([
-      //   api.deposit({
-      //     amountDesired: bnOrZero(state.deposit.cryptoAmount)
-      //       .times(`1e+${asset.precision}`)
-      //       .decimalPlaces(0),
-      //     tokenContractAddress: assetReference,
-      //     userAddress: state.userAddress,
-      //     contractAddress,
-      //     wallet: walletState.wallet,
-      //   }),
-      //   api.getGasPrice(),
-      // ])
-      dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: 'txid' })
+      if (!state.userAddress || !assetReference || !walletState.wallet) return
+      dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
+      const txid = await stake(state.deposit.cryptoAmount)
+      if (!txid) throw new Error('Transaction failed')
+      dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-
-      // const transactionReceipt = await poll({
-      //   fn: () => api.getTxReceipt({ txid }),
-      //   validate: (result: TransactionReceipt) => !isNil(result),
-      //   interval: 15000,
-      //   maxAttempts: 30,
-      // })
-      // dispatch({
-      //   type: FoxFarmingDepositActionType.SET_DEPOSIT,
-      //   payload: {
-      //     txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-      //     usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
-      //   },
-      // })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
       toast({
@@ -111,7 +81,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.deposit.estimatedGasCrypto))
     .gte(0)
 
   return (
@@ -147,15 +117,12 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                value={bnOrZero(state.deposit.estimatedGasCrypto).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

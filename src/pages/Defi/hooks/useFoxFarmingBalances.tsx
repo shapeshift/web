@@ -1,16 +1,18 @@
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { getOpportunityData } from 'features/defi/providers/fox-farming/api'
 import { FOX_FARMING_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
-import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useEffect, useState } from 'react'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export type UseFoxFarmingBalancesReturn = {
@@ -40,53 +42,66 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
   const {
     state: { wallet },
   } = useWallet()
-  const [loading, setLoading] = useState<boolean>(true)
-  const [opportunities, setOpportunities] = useState<EarnOpportunityType[]>([defaultOpportunity])
-  const { calculateHoldings, getTVL } = useFoxFarming()
-  const { isFarmingAprV4Loaded, farmingAprV4 } = useFarmingApr()
-  const { isLpAprLoaded, lpApr } = useLpApr()
-  const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
-  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+
+  const chainAdapterManager = getChainAdapterManager()
+  const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
 
   useEffect(() => {
-    if (!wallet) return
+    if (wallet && adapter) {
+      ;(async () => {
+        const address = await adapter.getAddress({ wallet })
+        setConnectedWalletEthAddress(address)
+      })()
+    }
+  }, [adapter, wallet])
+
+  const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [opportunities, setOpportunities] = useState<EarnOpportunityType[]>([defaultOpportunity])
+  const { isLpAprLoaded, lpApr } = useLpApr()
+  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const lpAssetPrecision = useAppSelector(state =>
+    selectAssetById(state, foxEthLpAssetId),
+  ).precision
+
+  useEffect(() => {
+    if (!(wallet && connectedWalletEthAddress && lpApr)) return
     ;(async () => {
       setLoading(true)
       try {
-        const balances = await calculateHoldings()
-        if (balances) {
-          const totalSupply = await getTVL()
-          setOpportunities([
-            {
-              ...defaultOpportunity,
-              isLoaded: isFarmingAprV4Loaded && isLpAprLoaded,
-              apy:
-                farmingAprV4 && lpApr
-                  ? bnOrZero(farmingAprV4)
-                      .plus(lpApr ?? 0)
-                      .toString()
-                  : undefined,
-              tvl: totalSupply ?? '',
-            },
-          ])
-        }
+        const newOpportunities = await Promise.all(
+          opportunities.map(async opportunity => {
+            const data = await getOpportunityData({
+              contractAddress: opportunity.contractAddress,
+              ethAssetPrecision: ethAsset.precision,
+              ethPrice: ethMarketData.price,
+              lpAssetPrecision,
+              address: connectedWalletEthAddress,
+            })
+            if (!data) return opportunity
+            const { tvl, apr } = data
+            return {
+              ...opportunity,
+              isLoaded: isLpAprLoaded,
+              apy: lpApr
+                ? bnOrZero(apr)
+                    .plus(lpApr ?? 0)
+                    .toString()
+                : undefined,
+              tvl,
+            }
+          }),
+        )
+        setOpportunities(newOpportunities)
       } catch (error) {
         console.error('error', error)
       } finally {
         setLoading(false)
       }
     })()
-  }, [
-    wallet,
-    calculateHoldings,
-    foxMarketData.price,
-    ethMarketData.price,
-    getTVL,
-    isFarmingAprV4Loaded,
-    farmingAprV4,
-    isLpAprLoaded,
-    lpApr,
-  ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, connectedWalletEthAddress, lpApr])
 
   return {
     opportunities,

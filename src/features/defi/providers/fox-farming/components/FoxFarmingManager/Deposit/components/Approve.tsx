@@ -7,13 +7,14 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-// import { poll } from 'lib/poll/poll'
+import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,8 +31,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, contractAddress } = query
   const opportunity = state?.opportunity
+  const { allowance, approve, getStakeGasData } = useFoxFarming(contractAddress)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -45,81 +47,39 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info
-  const { state: walletState } = useWallet()
+  const {
+    state: { wallet },
+  } = useWallet()
 
   // notify
   const toast = useToast()
 
   if (!state || !dispatch) return null
 
-  // const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-  //   if (!(state.userAddress && state.opportunity && assetReference && FoxFarmingInvestor)) return
-  //   try {
-  //     const FoxFarmingOpportunity = await FoxFarmingInvestor.findByOpportunityId(
-  //       state.opportunity?.positionAsset.assetId ?? '',
-  //     )
-  //     if (!FoxFarmingOpportunity) throw new Error('No opportunity')
-  //     const preparedTx = await FoxFarmingOpportunity.prepareDeposit({
-  //       amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-  //       address: state.userAddress,
-  //     })
-  //     // TODO(theobold): Figure out a better way for the safety factor
-  //     return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-  //   } catch (error) {
-  //     moduleLogger.error(
-  //       { fn: 'getDepositGasEstimate', error },
-  //       'Error getting deposit gas estimate',
-  //     )
-  //     toast({
-  //       position: 'top-right',
-  //       description: translate('common.somethingWentWrongBody'),
-  //       title: translate('common.somethingWentWrong'),
-  //       status: 'error',
-  //     })
-  //   }
-  // }
-
   const handleApprove = async () => {
-    if (
-      !(
-        assetReference &&
-        state.userAddress &&
-        walletState.wallet &&
-        supportsETH(walletState.wallet) &&
-        opportunity
-      )
-    )
-      return
+    if (!opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
-      // const FoxFarmingOpportunity = await FoxFarmingInvestor?.findByOpportunityId(
-      //   state.opportunity?.positionAsset.assetId ?? '',
-      // )
-      // if (!FoxFarmingOpportunity) throw new Error('No opportunity')
-      // const tx = await FoxFarmingOpportunity.prepareApprove(state.userAddress)
-      // await FoxFarmingOpportunity.signAndBroadcast({
-      //   wallet: walletState.wallet,
-      //   tx,
-      //   // TODO: allow user to choose fee priority
-      //   feePriority: undefined,
-      // })
-      // const address = state.userAddress
-      // await poll({
-      //   fn: () => FoxFarmingOpportunity.allowance(address),
-      //   validate: (result: string) => {
-      //     const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-      //     return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
-      //   },
-      //   interval: 15000,
-      //   maxAttempts: 30,
-      // })
-      // // Get deposit gas estimate
-      // const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
-      // if (!estimatedGasCrypto) return
+      await approve()
+      await poll({
+        fn: () => allowance(),
+        validate: (result: string) => {
+          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
+          return bnOrZero(allowance).gt(bnOrZero(state.deposit.cryptoAmount))
+        },
+        interval: 15000,
+        maxAttempts: 30,
+      })
+      // Get deposit gas estimate
+      const gasData = await getStakeGasData(state.deposit.cryptoAmount)
+      if (!gasData) return
+      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+        .div(`1e${feeAsset.precision}`)
+        .toPrecision()
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto: '0.01' },
+        payload: { estimatedGasCrypto },
       })
 
       onNext(DefiStep.Confirm)

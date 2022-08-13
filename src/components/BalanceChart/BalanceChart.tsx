@@ -28,10 +28,9 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
     timeframe,
   })
 
-  useEffect(
-    () => setPercentChange(calculatePercentChange(balanceChartData)),
-    [balanceChartData, setPercentChange],
-  )
+  const { total, rainbow } = balanceChartData
+
+  useEffect(() => setPercentChange(calculatePercentChange(total)), [total, setPercentChange])
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
@@ -39,7 +38,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
     <Card.Body p={0} height='350px'>
       <Graph
         color={color}
-        data={balanceChartData}
+        data={rainbow}
         loading={balanceChartDataLoading}
         isLoaded={!balanceChartDataLoading}
         rainbow={true}

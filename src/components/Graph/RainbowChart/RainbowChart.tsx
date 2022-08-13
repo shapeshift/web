@@ -1,3 +1,5 @@
+import { curveCardinal } from '@visx/curve'
+import { LinearGradient } from '@visx/gradient'
 import { ScaleSVG } from '@visx/responsive'
 import { AreaSeries, AreaStack, Axis, buildChartTheme, XYChart } from '@visx/xychart'
 import { omit } from 'lodash'
@@ -24,17 +26,12 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
 
   type Accessor = (d: RainbowData) => number
   const accessors = useMemo(() => {
-    const xInitial: Record<string, Accessor> = {}
-    const yInitial: Record<string, Accessor> = {}
-    const x = assetIds.reduce((acc, cur) => {
-      acc[cur] = (d: RainbowData) => d.date
+    const initial: Record<'x' | 'y', Record<string, Accessor>> = { x: {}, y: {} }
+    return assetIds.reduce((acc, cur) => {
+      acc.x[cur] = (d: RainbowData) => d.date
+      acc.y[cur] = (d: RainbowData) => d[cur]
       return acc
-    }, xInitial)
-    const y = assetIds.reduce((acc, cur) => {
-      acc[cur] = (d: RainbowData) => d[cur]
-      return acc
-    }, yInitial)
-    return { x, y }
+    }, initial)
   }, [assetIds])
 
   const theme = buildChartTheme({
@@ -49,28 +46,42 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
   const xScale = { type: 'band', paddingInner: 0.0 } as const
   const yScale = { type: 'linear' } as const
 
-  const areaLines = useMemo(() => {
-    return assetIds.map(assetId => {
-      return (
+  const gradientIds = useMemo(() => assetIds.map(assetId => `#${assetId}`), [assetIds])
+
+  const gradients = useMemo(() => {
+    return assetIds.map((assetId, i) => {
+      const color = assets[assetId].color
+      const from = color
+      const toOpacity = 0.5
+      const id = gradientIds[i]
+      return <LinearGradient id={id} from={from} toOpacity={toOpacity} />
+    })
+  }, [assets, assetIds, gradientIds])
+
+  const areaLines = useMemo(
+    () =>
+      assetIds.map((assetId, i) => (
         <AreaSeries
           data={data}
           dataKey={assetId}
+          stroke={assets[assetId].color}
+          fill={`url('#${gradientIds[i]}')`}
           xAccessor={accessors.x[assetId]}
           yAccessor={accessors.y[assetId]}
-          stroke={assets[assetId].color}
-          fillOpacity={0.5}
         />
-      )
-    })
-  }, [accessors, assets, assetIds, data])
+      )),
+    [accessors, assets, assetIds, data, gradientIds],
+  )
+
+  console.info(gradientIds)
 
   return (
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
         <XYChart height={height} width={width} theme={theme} xScale={xScale} yScale={yScale}>
-          <AreaStack>{areaLines}</AreaStack>
+          {gradients}
+          <AreaStack curve={curveCardinal}>{areaLines}</AreaStack>
           <Axis key={'date'} orientation={'bottom'} numTicks={10} />
-          <Axis key={'price'} orientation={'right'} numTicks={5} />
         </XYChart>
         {/* a transparent ele that track the pointer event, allow us to display tooltup */}
         {/* <Bar

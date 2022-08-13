@@ -208,7 +208,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
     if (Boolean(quoteError)) {
       // Make interpolation arguments to cover all quote error translations that need interpolation
-      const minLimit = `${quote?.minimum} ${quote?.sellAsset.symbol}`
+      const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
       const interpolationArgs = { minLimit }
 
       const translation: [string, InterpolationOptions] = [

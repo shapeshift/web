@@ -86,16 +86,18 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   const claimableTokensTotalBalance = useMemo(() => {
     if (!state.claimableTokens) return bnOrZero(0)
-    return state.claimableTokens.reduce( (total,token) => {
+    return state.claimableTokens.reduce((total, token) => {
       total = total.plus(token.amount)
       return total
-    },bnOrZero(0))
-  },[state.claimableTokens])
+    }, bnOrZero(0))
+  }, [state.claimableTokens])
 
   const renderAssets = useMemo(() => {
     if (!state.claimableTokens) return null
-    return state.claimableTokens.map((token, index) => <ClaimableAsset key={`asset_${index}`} token={token} /> )
-  },[state.claimableTokens])
+    return state.claimableTokens.map((token, index) => (
+      <ClaimableAsset key={`asset_${index}`} token={token} />
+    ))
+  }, [state.claimableTokens])
 
   if (!state || !dispatch) return null
 

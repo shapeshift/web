@@ -78,8 +78,10 @@ export const Status = () => {
 
   const renderAssets = useMemo(() => {
     if (!state.claimableTokens) return null
-    return state.claimableTokens.map((token, index) => <ClaimableAsset key={`asset_${index}`} token={token} /> )
-  },[state.claimableTokens])
+    return state.claimableTokens.map((token, index) => (
+      <ClaimableAsset key={`asset_${index}`} token={token} />
+    ))
+  }, [state.claimableTokens])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

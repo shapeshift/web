@@ -176,17 +176,16 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
       return (
         <AreaSeries
           key={assetId}
+          data={data}
           dataKey={assetId}
           xAccessor={accessors.x[assetId]}
           yAccessor={accessors.y[assetId]}
           stroke={assets[assetId].color}
-          data={data}
           fillOpacity={0.5}
-          width={width}
         />
       )
     })
-  }, [accessors, assets, assetIds, data, width])
+  }, [accessors, assets, assetIds, data])
 
   return (
     <div style={{ position: 'relative' }}>

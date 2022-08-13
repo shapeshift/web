@@ -1,7 +1,7 @@
 import { curveCardinal } from '@visx/curve'
 import { LinearGradient } from '@visx/gradient'
 import { ScaleSVG } from '@visx/responsive'
-import { AreaSeries, AreaStack, Axis, buildChartTheme, XYChart } from '@visx/xychart'
+import { AreaSeries, AreaStack, Axis, XYChart } from '@visx/xychart'
 import { omit } from 'lodash'
 import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -16,13 +16,9 @@ export type RainbowChartProps = {
 }
 
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280
-export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, height }) => {
+export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, height, margin }) => {
   const assetIds = useMemo(() => Object.keys(omit(data[0], 'date')), [data])
   const assets = useSelector(selectAssets)
-  const assetColors = useMemo(
-    () => assetIds.map(assetId => assets[assetId]?.color || 'white'),
-    [assets, assetIds],
-  )
 
   type Accessor = (d: RainbowData) => number
   const accessors = useMemo(() => {
@@ -34,54 +30,50 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
     }, initial)
   }, [assetIds])
 
-  const theme = buildChartTheme({
-    backgroundColor: '#f09ae9',
-    colors: assetColors,
-    gridColor: '#336d88',
-    gridColorDark: '#1d1b38',
-    svgLabelBig: { fill: '#1d1b38' },
-    tickLength: 8,
-  })
-
   const xScale = { type: 'band', paddingInner: 0.0 } as const
   const yScale = { type: 'linear' } as const
 
-  const gradientIds = useMemo(() => assetIds.map(assetId => `#${assetId}`), [assetIds])
-
   const gradients = useMemo(() => {
-    return assetIds.map((assetId, i) => {
+    return assetIds.map(assetId => {
       const color = assets[assetId].color
       const from = color
-      const toOpacity = 0.5
-      const id = gradientIds[i]
-      return <LinearGradient id={id} from={from} toOpacity={toOpacity} />
+      const toOpacity = 0.7
+      const id = `${assetId}`
+      const fromOffset = '30%'
+      return (
+        <LinearGradient
+          id={id}
+          from={from}
+          to={color}
+          toOpacity={toOpacity}
+          fromOffset={fromOffset}
+        />
+      )
     })
-  }, [assets, assetIds, gradientIds])
+  }, [assets, assetIds])
 
   const areaLines = useMemo(
     () =>
-      assetIds.map((assetId, i) => (
+      assetIds.map(assetId => (
         <AreaSeries
           data={data}
           dataKey={assetId}
           stroke={assets[assetId].color}
-          fill={`url('#${gradientIds[i]}')`}
+          fill={`url('#${assetId}')`}
           xAccessor={accessors.x[assetId]}
           yAccessor={accessors.y[assetId]}
         />
       )),
-    [accessors, assets, assetIds, data, gradientIds],
+    [accessors, assets, assetIds, data],
   )
-
-  console.info(gradientIds)
 
   return (
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
-        <XYChart height={height} width={width} theme={theme} xScale={xScale} yScale={yScale}>
+        <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
           {gradients}
           <AreaStack curve={curveCardinal}>{areaLines}</AreaStack>
-          <Axis key={'date'} orientation={'bottom'} numTicks={10} />
+          <Axis key={'date'} orientation={'bottom'} />
         </XYChart>
         {/* a transparent ele that track the pointer event, allow us to display tooltup */}
         {/* <Bar

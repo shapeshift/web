@@ -3,12 +3,12 @@
 // import { localPoint } from '@visx/event'
 // import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
-import { scaleTime } from '@visx/scale'
+// import { scaleTime } from '@visx/scale'
 // import { AreaStack } from '@visx/shape'
 // import { Line } from '@visx/shape'
 // import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
 import { AreaSeries, AreaStack, Axis, buildChartTheme, XYChart } from '@visx/xychart'
-import { bisector, extent, max, min } from 'd3-array'
+// import { bisector, extent, max, min } from 'd3-array'
 // import dayjs from 'dayjs'
 import { omit } from 'lodash'
 // import numeral from 'numeral'
@@ -34,7 +34,7 @@ export type RainbowChartProps = {
 }
 
 // accessors
-const getDate = (d: RainbowData) => new Date(d.date)
+// const getDate = (d: RainbowData) => new Date(d.date)
 // const getDate = (d: RainbowData) => d.date
 // const getStockValue = (d: HistoryData) => d?.price || 0
 // const bisectDate = bisector<HistoryData, Date>(d => new Date(d.date)).left
@@ -44,7 +44,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   data,
   width = 10,
   height,
-  margin = { top: 0, right: 0, bottom: 0, left: 0 },
+  // margin = { top: 0, right: 0, bottom: 0, left: 0 },
 }) => {
   // const selectedLocale = useAppSelector(selectSelectedLocale)
   // const {
@@ -66,7 +66,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   // const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
   // bounds
-  const xMax = Math.max(width - margin.left - margin.right, 0)
+  // const xMax = Math.max(width - margin.left - margin.right, 0)
   // const yMax = Math.max(height - margin.top - margin.bottom, 0)
 
   // const minPrice = Math.min(...data.map(getStockValue))
@@ -77,12 +77,12 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   // const minPriceDate = getDate(data[minPriceIndex])
 
   // scales
-  const dateScale = useMemo(() => {
-    return scaleTime({
-      range: [0, xMax],
-      domain: extent(data, getDate) as [Date, Date],
-    })
-  }, [xMax, data])
+  // const dateScale = useMemo(() => {
+  //   return scaleTime({
+  //     range: [0, xMax],
+  //     domain: extent(data, getDate) as [Date, Date],
+  //   })
+  // }, [xMax, data])
   // const priceScale = useMemo(() => {
   //   return scaleLinear({
   //     range: [yMax + margin.top, margin.top],
@@ -91,23 +91,6 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   //   })
   //   //
   // }, [margin.top, yMax, data])
-
-  type Accessor = (d: RainbowData) => number | string
-  const accessors = useMemo(() => {
-    // const dataWithoutDate = omit(data[0], 'date')
-    const initial: Record<string, Accessor> = {}
-    const x = Object.keys(data[0]).reduce((acc, cur) => {
-      // acc[cur] = (d: RainbowData) => d.date
-      acc[cur] = (d: RainbowData) => dateScale(d.date)
-      return acc
-    }, initial)
-    const y = Object.keys(data[0]).reduce((acc, cur) => {
-      acc[cur] = (d: RainbowData) => d[cur]
-      return acc
-    }, initial)
-    const date = getDate
-    return { x, y, date }
-  }, [data])
 
   // tooltip handler
   // const handleTooltip = useCallback(
@@ -140,6 +123,21 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     () => assetIds.map(assetId => assets[assetId]?.color || 'white'),
     [assets, assetIds],
   )
+
+  type Accessor = (d: RainbowData) => number
+  const accessors = useMemo(() => {
+    const xInitial: Record<string, Accessor> = {}
+    const yInitial: Record<string, Accessor> = {}
+    const x = assetIds.reduce((acc, cur) => {
+      acc[cur] = (d: RainbowData) => d.date
+      return acc
+    }, xInitial)
+    const y = assetIds.reduce((acc, cur) => {
+      acc[cur] = (d: RainbowData) => d[cur]
+      return acc
+    }, yInitial)
+    return { x, y }
+  }, [assetIds])
 
   const theme = buildChartTheme({
     backgroundColor: '#f09ae9',

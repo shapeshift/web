@@ -45,6 +45,8 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
           id={id}
           from={from}
           to={color}
+          strokeWidth={0}
+          strokeOpacity={0}
           toOpacity={toOpacity}
           fromOffset={fromOffset}
         />
@@ -58,13 +60,14 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
         <AreaSeries
           data={data}
           dataKey={assetId}
-          stroke={assets[assetId].color}
+          strokeWidth={0}
+          strokeOpacity={0}
           fill={`url('#${assetId}')`}
           xAccessor={accessors.x[assetId]}
           yAccessor={accessors.y[assetId]}
         />
       )),
-    [accessors, assets, assetIds, data],
+    [accessors, assetIds, data],
   )
 
   return (

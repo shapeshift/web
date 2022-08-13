@@ -70,7 +70,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           isCompact={isCompact}
           as={Link}
           isExternal
-          href='https://discord.gg/shapeshift'
+          href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
           label={translate('common.joinDiscord')}
           leftIcon={<DiscordIcon />}
           data-test='navigation-join-discord-button'

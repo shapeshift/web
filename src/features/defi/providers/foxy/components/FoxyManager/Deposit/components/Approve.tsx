@@ -155,9 +155,9 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
       contractAddress={contractAddress}
-      onSwitch={() =>
+      onToggle={() =>
         dispatch({
-          type: FoxyDepositActionType.SET_EXACT_ALLOWANCE,
+          type: FoxyDepositActionType.SET_IS_EXACT_ALLOWANCE,
           payload: !state.isExactAllowance,
         })
       }

@@ -44,7 +44,7 @@ export enum FoxyDepositActionType {
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
-  SET_EXACT_ALLOWANCE = 'SET_EXACT_ALLOWANCE',
+  SET_IS_EXACT_ALLOWANCE = 'SET_IS_EXACT_ALLOWANCE',
 }
 
 type SetFoxyOpportunitiesAction = {
@@ -77,8 +77,8 @@ type SetTxid = {
   payload: string
 }
 
-type SetExactAllowance = {
-  type: FoxyDepositActionType.SET_EXACT_ALLOWANCE
+type SetIsExactAllowance = {
+  type: FoxyDepositActionType.SET_IS_EXACT_ALLOWANCE
   payload: boolean
 }
 
@@ -89,4 +89,4 @@ export type FoxyDepositActions =
   | SetUserAddress
   | SetLoading
   | SetTxid
-  | SetExactAllowance
+  | SetIsExactAllowance

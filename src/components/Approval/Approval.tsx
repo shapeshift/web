@@ -247,7 +247,7 @@ export const Approval = () => {
                 <Row.Value textAlign='right'>
                   <RawText>
                     {toFiat(
-                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
+                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toString(),
                     )}
                   </RawText>
                   <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>

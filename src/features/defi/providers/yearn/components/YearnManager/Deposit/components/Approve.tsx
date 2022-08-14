@@ -159,9 +159,9 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
         .toFixed(2)}
       loading={state.loading}
       isExactAllowance={state.isExactAllowance}
-      onSwitch={() =>
+      onToggle={() =>
         dispatch({
-          type: YearnDepositActionType.SET_EXACT_ALLOWANCE,
+          type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE,
           payload: !state.isExactAllowance,
         })
       }

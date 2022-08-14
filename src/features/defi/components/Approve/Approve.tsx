@@ -26,7 +26,7 @@ type ApproveProps = {
   loadingText?: string
   contractAddress: string
   preFooter?: React.ReactNode
-  onSwitch?(): void
+  onToggle?(): void
   onConfirm(): Promise<void>
   onCancel(): void
 }
@@ -43,7 +43,7 @@ export const Approve = ({
   loadingText,
   preFooter,
   contractAddress,
-  onSwitch,
+  onToggle,
   onCancel,
   onConfirm,
 }: ApproveProps) => {
@@ -118,7 +118,7 @@ export const Approve = ({
                 translation='trade.unlimited'
                 fontWeight='bold'
               />
-              <Switch size='sm' mx={2} isChecked={isExactAllowance} onChange={onSwitch} />
+              <Switch size='sm' mx={2} isChecked={isExactAllowance} onChange={onToggle} />
               <Text
                 color={isExactAllowance ? 'white' : 'gray.500'}
                 translation='trade.exact'

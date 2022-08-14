@@ -30,7 +30,7 @@ export type YearnDepositState = {
 export enum YearnDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
-  SET_EXACT_ALLOWANCE = 'SET_EXACT_ALLOWANCE',
+  SET_IS_EXACT_ALLOWANCE = 'SET_IS_EXACT_ALLOWANCE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
@@ -47,8 +47,8 @@ type SetApprove = {
   payload: EstimatedGas
 }
 
-type SetExactAllowance = {
-  type: YearnDepositActionType.SET_EXACT_ALLOWANCE
+type SetIsExactAllowance = {
+  type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE
   payload: boolean
 }
 
@@ -79,4 +79,4 @@ export type YearnDepositActions =
   | SetUserAddress
   | SetLoading
   | SetTxid
-  | SetExactAllowance
+  | SetIsExactAllowance

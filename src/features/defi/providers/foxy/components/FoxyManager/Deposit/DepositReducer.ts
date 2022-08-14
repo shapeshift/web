@@ -46,7 +46,7 @@ export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => 
       return { ...state, loading: action.payload }
     case FoxyDepositActionType.SET_TXID:
       return { ...state, txid: action.payload }
-    case FoxyDepositActionType.SET_EXACT_ALLOWANCE:
+    case FoxyDepositActionType.SET_IS_EXACT_ALLOWANCE:
       return { ...state, isExactAllowance: action.payload }
     default:
       return state

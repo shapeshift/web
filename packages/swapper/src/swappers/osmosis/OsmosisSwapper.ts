@@ -42,6 +42,7 @@ import {
   symbolDenomMapping
 } from './utils/helpers'
 import { OsmoSwapperDeps } from './utils/types'
+
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = 'Osmosis'
   supportedAssetIds: string[]
@@ -102,6 +103,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
   async approveInfinite(): Promise<string> {
     throw new SwapError('OsmosisSwapper: approveInfinite unimplemented', {
+      code: SwapErrorTypes.RESPONSE_ERROR
+    })
+  }
+
+  async approveAmount(): Promise<string> {
+    throw new SwapError('Osmosis: approveAmount unimplemented', {
       code: SwapErrorTypes.RESPONSE_ERROR
     })
   }

@@ -142,9 +142,15 @@ export type TradeResult = {
   tradeId: string
 }
 
-export type ApproveInfiniteInput<C extends ChainId> = {
+export type ApproveInput<C extends ChainId> = {
   quote: TradeQuote<C>
   wallet: HDWallet
+}
+
+export type ApproveInfiniteInput<C extends ChainId> = ApproveInput<C>
+
+export type ApproveAmountInput<C extends ChainId> = ApproveInput<C> & {
+  amount?: string
 }
 
 export type ApprovalNeededInput<C extends ChainId> = {
@@ -184,6 +190,7 @@ export type TradeTxs = {
 export enum SwapErrorTypes {
   ALLOWANCE_REQUIRED_FAILED = 'ALLOWANCE_REQUIRED_FAILED',
   APPROVE_INFINITE_FAILED = 'APPROVE_INFINITE_FAILED',
+  APPROVE_AMOUNT_FAILED = 'APPROVE_AMOUNT_FAILED',
   BUILD_TRADE_FAILED = 'BUILD_TRADE_FAILED',
   CHECK_APPROVAL_FAILED = 'CHECK_APPROVAL_FAILED',
   EXECUTE_TRADE_FAILED = 'EXECUTE_TRADE_FAILED',
@@ -208,7 +215,7 @@ export enum SwapErrorTypes {
   TRADE_FAILED = 'TRADE_FAILED'
 }
 export interface Swapper<T extends ChainId> {
-  /** Human readable swapper name */
+  /** Human-readable swapper name */
   readonly name: string
 
   /** perform any necessary async initialization */
@@ -246,6 +253,12 @@ export interface Swapper<T extends ChainId> {
    * Get the txid of an approve infinite transaction
    */
   approveInfinite(args: ApproveInfiniteInput<T>): Promise<string>
+
+  /**
+   * Get the txid of an approve amount transaction
+   * If no amount is specified the sell amount of the quote will be used
+   */
+  approveAmount(args: ApproveAmountInput<T>): Promise<string>
 
   /**
    * Get supported buyAssetId's by sellAssetId

@@ -4,6 +4,8 @@ import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
+  SwapError,
+  SwapErrorTypes,
   Swapper,
   SwapperType,
   Trade,
@@ -47,6 +49,12 @@ export class TestSwapper implements Swapper<ChainId> {
 
   async approveInfinite(): Promise<string> {
     throw new Error('TestSwapper: approveInfinite unimplemented')
+  }
+
+  async approveAmount(): Promise<string> {
+    throw new SwapError('TestSwapper: approveAmount unimplemented', {
+      code: SwapErrorTypes.RESPONSE_ERROR
+    })
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

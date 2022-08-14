@@ -8,6 +8,7 @@ import { toLower } from 'lodash'
 import Web3 from 'web3'
 import { HttpProvider, TransactionReceipt } from 'web3-core/types'
 import { Contract } from 'web3-eth-contract'
+import { numberToHex } from 'web3-utils'
 
 import { erc20Abi } from '../abi/erc20-abi'
 import { foxyAbi } from '../abi/foxy-abi'
@@ -383,6 +384,7 @@ export class FoxyApi {
 
   async approve(input: ApproveInput): Promise<string> {
     const {
+      amount,
       accountNumber = 0,
       dryRun = false,
       tokenContractAddress,
@@ -401,7 +403,7 @@ export class FoxyApi {
     }
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const data: string = depositTokenContract.methods
-      .approve(contractAddress, MAX_ALLOWANCE)
+      .approve(contractAddress, amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE)
       .encodeABI({
         from: userAddress
       })

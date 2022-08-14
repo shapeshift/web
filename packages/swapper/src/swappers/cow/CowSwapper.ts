@@ -12,6 +12,8 @@ import {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
+  SwapError,
+  SwapErrorTypes,
   Swapper,
   SwapperType,
   TradeQuote,
@@ -74,6 +76,12 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>
   ): Promise<string> {
     return cowApproveInfinite(this.deps, args)
+  }
+
+  async approveAmount(): Promise<string> {
+    throw new SwapError('CowSwapper: approveAmount unimplemented', {
+      code: SwapErrorTypes.RESPONSE_ERROR
+    })
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

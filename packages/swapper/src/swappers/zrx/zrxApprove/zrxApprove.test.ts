@@ -4,7 +4,7 @@ import Web3 from 'web3'
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
-import { zrxApproveInfinite } from './/zrxApproveInfinite'
+import { zrxApproveInfinite } from './zrxApprove'
 
 const zrxService = zrxServiceFactory('https://api.0x.org/')
 

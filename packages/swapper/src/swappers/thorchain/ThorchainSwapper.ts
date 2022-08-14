@@ -108,6 +108,12 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return thorTradeApproveInfinite({ deps: this.deps, input })
   }
 
+  async approveAmount(): Promise<string> {
+    throw new SwapError('ThorchainSwapper: approveAmount unimplemented', {
+      code: SwapErrorTypes.RESPONSE_ERROR
+    })
+  }
+
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
     if (!this.supportedSellAssetIds.includes(sellAssetId)) return []

@@ -5,6 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
+  ApproveAmountInput,
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
@@ -23,7 +24,7 @@ import { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from './types'
 import { UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
-import { zrxApproveInfinite } from './zrxApproveInfinite/zrxApproveInfinite'
+import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove/zrxApprove'
 import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
@@ -72,6 +73,10 @@ export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
 
   async approveInfinite(args: ApproveInfiniteInput<T>): Promise<string> {
     return zrxApproveInfinite<T>(this.deps, args)
+  }
+
+  async approveAmount(args: ApproveAmountInput<T>): Promise<string> {
+    return zrxApproveAmount<T>(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

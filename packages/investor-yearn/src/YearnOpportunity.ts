@@ -284,15 +284,17 @@ export class YearnOpportunity
     return bnOrZero(allowance)
   }
 
-  async prepareApprove(address: string): Promise<PreparedTransaction> {
+  async prepareApprove(address: string, amount?: string): Promise<PreparedTransaction> {
     const depositTokenContract = new this.#internals.web3.eth.Contract(
       erc20Abi,
       this.#internals.vault.tokenId
     )
+
     const preApprove = await depositTokenContract.methods.approve(
       ssRouterContractAddress,
-      MAX_ALLOWANCE
+      amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE
     )
+
     const data = await preApprove.encodeABI({ from: address })
     const estimatedGas = bnOrZero(await preApprove.estimateGas({ from: address }))
 

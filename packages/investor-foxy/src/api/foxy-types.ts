@@ -21,6 +21,7 @@ export type AllowanceInput = {
 }
 
 export type ApproveInput = {
+  amount?: string
   accountNumber?: number
   dryRun?: boolean
   tokenContractAddress: string

@@ -11,7 +11,7 @@ import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { setupExecuteTrade } from './utils/test-data/setupZrxSwapQuote'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
-import { zrxApproveInfinite } from './zrxApproveInfinite/zrxApproveInfinite'
+import { zrxApproveInfinite } from './zrxApprove/zrxApprove'
 import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
@@ -36,7 +36,7 @@ jest.mock('./zrxApprovalNeeded/zrxApprovalNeeded', () => ({
   zrxApprovalNeeded: jest.fn()
 }))
 
-jest.mock('./zrxApproveInfinite/zrxApproveInfinite', () => ({
+jest.mock('./zrxApprove/zrxApprove', () => ({
   zrxApproveInfinite: jest.fn()
 }))
 

@@ -53,6 +53,7 @@
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
     "settings": "Settings",
+    "joinDiscord": "Join Discord",
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
     "confirmOnWallet": "Confirm On Wallet",
@@ -121,7 +122,8 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
+    "usOnly": "US-Only"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -465,7 +467,7 @@
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
-      "rateError": "An error occurred getting trade rates",
+      "rateError": "We're not able to get a quote for this pair",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -1127,7 +1129,8 @@
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
         "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
-        "availableSupply": "Available Supply"
+        "availableSupply": "Available Supply",
+        "marketData": "Market Data"
       },
       "assetDescription": {
         "showMore": "Show More",

@@ -3,6 +3,7 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import {
   avalancheAssetId,
   avalancheChainId,
+  CHAIN_NAMESPACE,
   ChainId,
   cosmosAssetId,
   ethAssetId,
@@ -23,6 +24,7 @@ import {
   TradeQuote,
   TradeResult,
   TradeTxs,
+  UtxoSupportedChainIds,
   ZrxSwapper,
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -315,6 +317,7 @@ export const useSwapper = () => {
     })
 
     const tradeQuote = await (async () => {
+      const { chainNamespace } = fromAssetId(sellAsset.assetId)
       if (isSupportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
@@ -326,11 +329,11 @@ export const useSwapper = () => {
           sendMax: false,
           receiveAddress,
         })
-      } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
-        const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
+      } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+        const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
-          chainId: KnownChainIds.BitcoinMainnet,
+          chainId: sellAsset.chainId as UtxoSupportedChainIds,
           sellAmount: amount,
           sellAsset,
           buyAsset,
@@ -402,21 +405,23 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  // TODO btcAccountSpecifier must come from the btc account selection modal
+  // TODO accountSpecifier must come from dropdown during asset selection
   // We are defaulting temporarily for development
-  const getBtcUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
-    const btcAccountSpecifiers = accountSpecifiersList.find(
-      specifiers => specifiers[KnownChainIds.BitcoinMainnet],
+  const getUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
+    const accountSpecifiers = accountSpecifiersList.find(
+      specifiers => specifiers[sellAsset.chainId],
     )
-    if (!btcAccountSpecifiers) throw new Error('no btc account specifiers')
-    const btcAccountSpecifier = btcAccountSpecifiers[KnownChainIds.BitcoinMainnet]
-    if (!btcAccountSpecifier) throw new Error('no btc account specifier')
 
-    const btcAccountId = toAccountId({
+    if (!accountSpecifiers)
+      throw new Error(`No UTXO account specifiers for chainId: ${sellAsset.chainId}`)
+    const accountSpecifier = accountSpecifiers[sellAsset.chainId]
+    if (!accountSpecifier) throw new Error('No UTXO account specifier')
+
+    const accountId = toAccountId({
       chainId: sellAsset.chainId,
-      account: btcAccountSpecifier,
+      account: accountSpecifier,
     })
-    return accountIdToUtxoParams(btcAccountId, 0)
+    return accountIdToUtxoParams(accountId, 0)
   }
 
   const updateQuoteDebounced = useRef(
@@ -462,6 +467,8 @@ export const useSwapper = () => {
             wallet,
           })
 
+          const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
             if (isSupportedSwappingChain(sellAsset.chainId)) {
               return swapper.getTradeQuote({
@@ -474,11 +481,12 @@ export const useSwapper = () => {
                 wallet,
                 receiveAddress,
               })
-            } else if (sellAsset.chainId === KnownChainIds.BitcoinMainnet) {
-              const { accountType, utxoParams } = getBtcUtxoParams(accountSpecifiersList, sellAsset)
+            } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+              const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
+
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
-                chainId: KnownChainIds.BitcoinMainnet,
+                chainId: sellAsset.chainId as UtxoSupportedChainIds,
                 sellAsset,
                 buyAsset,
                 sellAmount,
@@ -615,14 +623,14 @@ export const useSwapper = () => {
       } as unknown as DisplayFeeData<T>
     }
 
-    switch (sellAsset.chainId) {
-      case KnownChainIds.EthereumMainnet:
-      case KnownChainIds.AvalancheMainnet:
+    const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Ethereum:
         const fees = getEvmFees()
         setValue('fees', fees)
         break
-      case KnownChainIds.OsmosisMainnet:
-      case KnownChainIds.CosmosMainnet: {
+      case CHAIN_NAMESPACE.Cosmos: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
           fee,
           tradeFee: trade.feeData.tradeFee,
@@ -631,14 +639,14 @@ export const useSwapper = () => {
         setValue('fees', fees)
         break
       }
-      case KnownChainIds.BitcoinMainnet:
+      case CHAIN_NAMESPACE.Bitcoin:
         {
-          const btcTrade = trade as Trade<KnownChainIds.BitcoinMainnet>
+          const utxoTrade = trade as Trade<UtxoSupportedChainIds>
 
-          const fees: DisplayFeeData<KnownChainIds.BitcoinMainnet> = {
+          const fees: DisplayFeeData<UtxoSupportedChainIds> = {
             fee,
-            chainSpecific: btcTrade.feeData.chainSpecific,
-            tradeFee: btcTrade.feeData.tradeFee,
+            chainSpecific: utxoTrade.feeData.chainSpecific,
+            tradeFee: utxoTrade.feeData.tradeFee,
             tradeFeeSource,
           }
           setValue('fees', fees)

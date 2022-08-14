@@ -13,6 +13,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import {
+  avalancheChainId,
   bchChainId,
   btcChainId,
   cosmosChainId,
@@ -44,6 +45,7 @@ type GenerateAddressProps = {
   dogeAddress: string
   ltcAddress: string
   ethAddress: string
+  avalancheAddress: string
   cosmosAddress: string
   ensName: string
 }
@@ -72,6 +74,7 @@ const generateAddresses: GenerateAddresses = props => {
     bchAddress,
     dogeAddress,
     ltcAddress,
+    avalancheAddress,
     ethAddress,
     ensName,
     cosmosAddress,
@@ -81,6 +84,8 @@ const generateAddresses: GenerateAddresses = props => {
   if (!assetId) return empty
   const chainId = fromAssetId(assetId).chainId
   switch (chainId) {
+    case avalancheChainId:
+      return [avalancheAddress, avalancheAddress, middleEllipsis(avalancheAddress, 11)]
     case ethChainId:
       return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
     case btcChainId:
@@ -109,6 +114,7 @@ export const Overview: React.FC<OverviewProps> = ({
   dogeAddress,
   ltcAddress,
   ethAddress,
+  avalancheAddress,
   cosmosAddress,
   ensName,
   selectedAsset,
@@ -134,6 +140,7 @@ export const Overview: React.FC<OverviewProps> = ({
     ltcAddress,
     dogeAddress,
     ethAddress,
+    avalancheAddress,
     cosmosAddress,
     ensName,
   })

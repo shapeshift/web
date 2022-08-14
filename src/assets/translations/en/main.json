@@ -463,7 +463,7 @@
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
-      "rateError": "An error occurred getting trade rates",
+      "rateError": "We're not able to get a quote for this pair",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"

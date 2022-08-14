@@ -80,9 +80,11 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
               address: connectedWalletEthAddress,
             })
             if (!data) return opportunity
-            const { tvl, apr } = data
+            const { tvl, apr, balances } = data
             return {
               ...opportunity,
+              cryptoAmount: balances.cryptoBalance,
+              fiatAmount: balances.fiatBalance,
               isLoaded: isLpAprLoaded,
               apy: lpApr
                 ? bnOrZero(apr)

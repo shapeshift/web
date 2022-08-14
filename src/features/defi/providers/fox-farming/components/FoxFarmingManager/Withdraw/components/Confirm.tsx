@@ -8,6 +8,7 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -38,6 +39,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = state?.opportunity
+  const { unstake } = useFoxFarming(contractAddress)
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -68,35 +70,9 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     try {
       if (!state.userAddress || !rewardId || !walletState.wallet || state.loading) return
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
-      // const [txid, gasPrice] = await Promise.all([
-      //   api.withdraw({
-      //     tokenContractAddress: rewardId,
-      //     userAddress: state.userAddress,
-      //     contractAddress,
-      //     wallet: walletState.wallet,
-      //     amountDesired: bnOrZero(state.withdraw.cryptoAmount)
-      //       .times(`1e+${asset.precision}`)
-      //       .decimalPlaces(0),
-      //     type: state.withdraw.withdrawType,
-      //   }),
-      //   api.getGasPrice(),
-      // ])
-      // dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
-      // onNext(DefiStep.Status)
-
-      // const transactionReceipt = await poll({
-      //   fn: () => api.getTxReceipt({ txid }),
-      //   validate: (result: TransactionReceipt) => !isNil(result),
-      //   interval: 15000,
-      //   maxAttempts: 30,
-      // })
-      // dispatch({
-      //   type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-      //   payload: {
-      //     txStatus: transactionReceipt.status ? 'success' : 'failed',
-      //     usedGasFee: bnOrZero(bn(gasPrice).times(transactionReceipt.gasUsed)).toFixed(0),
-      //   },
-      // })
+      const txid = await unstake(state.withdraw.lpAmount)
+      if (!txid) throw new Error(`Transaction failed`)
+      dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
@@ -105,7 +81,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.withdraw.estimatedGasCrypto))
     .gte(0)
 
   return (
@@ -141,15 +117,12 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedGasCrypto).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

@@ -18,7 +18,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectMarketDataById, selectSelectedLocale } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 // import { FoxFarmingEmpty } from './FoxFarmingEmpty'
@@ -41,11 +41,8 @@ export const FoxFarmingOverview = () => {
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const rewardAsset = useAppSelector(state => selectAssetById(state, opportunity?.rewardAddress!))
-  const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
-  const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount).div(
-    `1e${stakingAsset.precision}`,
-  )
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
+  const fiatAmountAvailable = bnOrZero(opportunity?.fiatAmount)
   // const hasClaim = bnOrZero(opportunity?.withdrawInfo.amount).gt(0)
   // const claimDisabled = !claimAvailable || !hasClaim
 

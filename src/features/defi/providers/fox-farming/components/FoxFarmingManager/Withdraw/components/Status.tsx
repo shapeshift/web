@@ -5,7 +5,7 @@ import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -14,14 +14,21 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountSpecifierByChainId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
   const translate = useTranslate()
-  const { state } = useContext(WithdrawContext)
+  const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -38,11 +45,35 @@ export const Status = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
+
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
   }, [browserHistory])
 
   const handleCancel = history.goBack
+
+  const serializedTxIndex = useMemo(() => {
+    if (!(state?.txid && state?.userAddress)) return ''
+    return serializeTxIndex(accountSpecifier, state.txid, state?.userAddress)
+  }, [state?.txid, state?.userAddress, accountSpecifier])
+  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
+
+  useEffect(() => {
+    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+      dispatch({
+        type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
+          usedGasFee: confirmedTransaction.fee
+            ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
+            : '0',
+        },
+      })
+    }
+  }, [confirmedTransaction, dispatch, feeAsset.precision])
 
   if (!state) return null
 
@@ -120,7 +151,6 @@ export const Status = () => {
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
                 )
-                  .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
@@ -130,9 +160,7 @@ export const Status = () => {
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                ).toFixed(5)}
                 symbol='ETH'
               />
             </Box>

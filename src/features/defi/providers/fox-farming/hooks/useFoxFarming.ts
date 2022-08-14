@@ -184,7 +184,7 @@ export const useFoxFarming = (contractAddress: string) => {
         const result = await (async () => {
           if (supportedEvmChainIds.includes(adapterType)) {
             if (!supportsETH(wallet))
-              throw new Error(`addLiquidityEthFox: wallet does not support ethereum`)
+              throw new Error(`unstakeEthFoxLp: wallet does not support ethereum`)
             const fees = estimatedFees.average as FeeData<EvmChainId>
             const {
               chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },

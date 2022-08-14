@@ -1,4 +1,4 @@
-// import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import {
   Field,
   Withdraw as ReusableWithdraw,
@@ -9,18 +9,15 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-// import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
-import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useContext, useEffect, useState } from 'react'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
+import { useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-// import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   // selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,11 +25,11 @@ import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
-  const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(WithdrawContext)
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { getLpTokenPrice } = useFoxEthLiquidityPool()
+  const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { contractAddress } = query
   const opportunity = state?.opportunity
+  const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
 
   // const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool()
 
@@ -42,37 +39,25 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   // const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   // const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
-  // const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   // const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   // user info
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: opportunity?.assetId ?? '' }),
-  )
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-  const totalFiatBalance = lpTokenPrice
-    ? bnOrZero(cryptoAmountAvailable).times(lpTokenPrice).toFixed(2)
-    : null
-
-  useEffect(() => {
-    ;(async () => {
-      const lpPrice = await getLpTokenPrice()
-      if (lpPrice) setLpTokenPrice(lpPrice.toString())
-    })()
-  }, [getLpTokenPrice])
+  const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
+  const totalFiatBalance = opportunity?.fiatAmount
 
   if (!state || !dispatch) return null
 
-  // const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-  //   try {
-  //     const fee = await getWithdrawGasData(withdraw.cryptoAmount)
-  //     if (!fee) return
-  //     return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
-  //   } catch (error) {
-  //     // TODO: handle client side errors maybe add a toast?
-  //     console.error('FoxFarmingWithdraw:getWithdrawGasEstimate error:', error)
-  //   }
-  // }
+  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
+    try {
+      const fee = await getUnstakeGasData(withdraw.cryptoAmount)
+      if (!fee) return
+      return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
+    } catch (error) {
+      // TODO: handle client side errors maybe add a toast?
+      console.error('FoxFarmingWithdraw:getWithdrawGasEstimate error:', error)
+    }
+  }
 
   const handleContinue = async (formValues: WithdrawValues) => {
     if (!opportunity) return
@@ -82,36 +67,36 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
       payload: { lpAmount: formValues.cryptoAmount },
     })
-    // const lpAllowance = await allowance(true)
-    // const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
+    const lpAllowance = await allowance()
+    const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
 
     // Skip approval step if user allowance is greater than requested deposit amount
-    // if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount))) {
-    //   const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-    //   if (!estimatedGasCrypto) {
-    //     dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-    //     return
-    //   }
-    //   dispatch({
-    //     type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-    //     payload: { estimatedGasCrypto },
-    //   })
-    //   onNext(DefiStep.Confirm)
-    //   dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-    // } else {
-    //   const estimatedGasCrypto = await getApproveGasData(true)
-    //   if (!estimatedGasCrypto) return
-    //   dispatch({
-    //     type: FoxFarmingWithdrawActionType.SET_APPROVE,
-    //     payload: {
-    //       estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-    //         .div(`1e${ethAsset.precision}`)
-    //         .toPrecision(),
-    //     },
-    //   })
-    onNext(DefiStep.Approve)
-    dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-    // }
+    if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount))) {
+      const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+      if (!estimatedGasCrypto) {
+        dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+        return
+      }
+      dispatch({
+        type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
+        payload: { estimatedGasCrypto },
+      })
+      onNext(DefiStep.Confirm)
+      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+    } else {
+      const estimatedGasCrypto = await getApproveGasData()
+      if (!estimatedGasCrypto) return
+      dispatch({
+        type: FoxFarmingWithdrawActionType.SET_APPROVE,
+        payload: {
+          estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+            .div(`1e${ethAsset.precision}`)
+            .toPrecision(),
+        },
+      })
+      onNext(DefiStep.Approve)
+      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+    }
   }
 
   const handleCancel = () => {
@@ -126,7 +111,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(cryptoAmountAvailable)
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''

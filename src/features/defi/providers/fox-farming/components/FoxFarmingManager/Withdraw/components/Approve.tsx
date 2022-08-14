@@ -1,11 +1,13 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import {
   DefiParams,
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -14,7 +16,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-// import { poll } from 'lib/poll/poll'
+import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -31,6 +33,8 @@ export const Approve = ({ onNext }: StepComponentProps) => {
   const alertText = useColorModeValue('blue.800', 'white')
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
+  const opportunity = state?.opportunity
+  const { allowance, approve, getUnstakeGasData } = useFoxFarming(contractAddress)
   const toast = useToast()
 
   const assetNamespace = 'erc20'
@@ -50,76 +54,41 @@ export const Approve = ({ onNext }: StepComponentProps) => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info
-  const { state: walletState } = useWallet()
+  const {
+    state: { wallet },
+  } = useWallet()
 
   if (!state || !dispatch) return null
 
-  // const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-  //   if (!state.userAddress || !rewardId || !api) return
-  //   try {
-  //     const [gasLimit, gasPrice] = await Promise.all([
-  //       api.estimateWithdrawGas({
-  //         tokenContractAddress: rewardId,
-  //         contractAddress,
-  //         amountDesired: bnOrZero(
-  //           bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
-  //         ).decimalPlaces(0),
-  //         userAddress: state.userAddress,
-  //         type: state.withdraw.withdrawType,
-  //       }),
-  //       api.getGasPrice(),
-  //     ])
-  //     const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
-  //     return returVal
-  //   } catch (error) {
-  //     moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error')
-  //     const fundsError =
-  //       error instanceof Error && error.message.includes('Not enough funds in reserve')
-  //     toast({
-  //       position: 'top-right',
-  //       description: fundsError
-  //         ? translate('defi.notEnoughFundsInReserve')
-  //         : translate('common.somethingWentWrong'),
-  //       title: translate('common.somethingWentWrong'),
-  //       status: 'error',
-  //     })
-  //   }
-  // }
-
   const handleApprove = async () => {
-    if (!rewardId || !state.userAddress || !walletState.wallet) return
+    if (!opportunity || !wallet || !supportsETH(wallet)) return
+
     try {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
-      // await api.approve({
-      //   tokenContractAddress: rewardId,
-      //   contractAddress,
-      //   userAddress: state.userAddress,
-      //   wallet: walletState.wallet,
-      // })
-      // await poll({
-      //   fn: () =>
-      //     api.allowance({
-      //       tokenContractAddress: rewardId,
-      //       contractAddress,
-      //       userAddress: state.userAddress!,
-      //     }),
-      //   validate: (result: string) => {
-      //     const allowance = bnOrZero(bn(result).div(`1e+${asset.precision}`))
-      //     return bnOrZero(allowance).gt(state.withdraw.cryptoAmount)
-      //   },
-      //   interval: 15000,
-      //   maxAttempts: 60,
-      // })
-      // // Get withdraw gas estimate
-      // const estimatedGasCrypto = await getWithdrawGasEstimate(state.withdraw)
-      // if (!estimatedGasCrypto) return
-      // dispatch({
-      //   type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-      //   payload: { estimatedGasCrypto },
-      // })
+      await approve()
+      await poll({
+        fn: () => allowance(),
+        validate: (result: string) => {
+          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
+          return bnOrZero(allowance).gt(bnOrZero(state.withdraw.lpAmount))
+        },
+        interval: 15000,
+        maxAttempts: 30,
+      })
+      // Get withdraw gas estimate
+      const gasData = await getUnstakeGasData(state.withdraw.lpAmount)
+      if (!gasData) return
+      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+        .div(`1e${feeAsset.precision}`)
+        .toPrecision()
+      dispatch({
+        type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
+        payload: { estimatedGasCrypto },
+      })
+
       onNext(DefiStep.Confirm)
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleApprove' }, 'handleApprove error')
+      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -135,12 +104,9 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
-        .toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
       disableAction
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}

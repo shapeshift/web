@@ -60,12 +60,16 @@ export const getOpportunityData = async ({
   const apr = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken))
     .div(100)
     .toString()
+  const stakedAmount = bnOrZero(stakedBalance.toString()).div(`1e${lpAssetPrecision}`)
+  const unclaimedRewardsAmount = bnOrZero(unclaimedRewards.toString()).div(`1e${lpAssetPrecision}`)
+  const totalBalance = stakedAmount.plus(unclaimedRewardsAmount)
+  const fiatBalance = totalBalance.times(lpTokenPrice).toFixed(2)
   return {
     tvl: totalDeposited,
     apr,
     balances: {
-      stakedBalance: bnOrZero(stakedBalance.toString()).toString(),
-      unclaimedRewards: bnOrZero(unclaimedRewards.toString()).toString(),
+      cryptoBalance: totalBalance.toString(),
+      fiatBalance,
     },
   }
 }

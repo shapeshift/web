@@ -1,5 +1,7 @@
-import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-ui/react'
+import { SwapErrorTypes } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { InterpolationOptions } from 'node-polyglot'
 import { useEffect, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
@@ -14,13 +16,13 @@ import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { ErrorTranslationMap, useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useInterval } from 'hooks/useInterval/useInterval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
   selectFiatToUsdRate,
   selectPortfolioCryptoHumanBalanceByAssetId,
@@ -45,9 +47,9 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts, toFiat },
   } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
-    name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
-  }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
+  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate, quoteError] = useWatch({
+    name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate', 'quoteError'],
+  }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate'], TS['quoteError']]
   const {
     updateQuote,
     checkApprovalNeeded,
@@ -56,7 +58,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     feeAsset,
     refreshQuote,
   } = useSwapper()
-  const toast = useToast()
   const translate = useTranslate()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const {
@@ -93,21 +94,6 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
-
-    const minSellAmount = toBaseUnit(quote.minimum, quote.sellAsset.precision)
-
-    if (bnOrZero(quote.sellAmount).lt(minSellAmount)) {
-      toast({
-        description: translate('trade.errors.amountTooSmall', {
-          minLimit: `${quote.minimum} ${quote.sellAsset.symbol}`,
-        }),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
-      return
-    }
 
     try {
       const approvalNeeded = await checkApprovalNeeded()
@@ -218,6 +204,18 @@ export const TradeInput = ({ history }: RouterProps) => {
 
     if (isValid && hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount) {
       return 'common.insufficientAmountForGas'
+    }
+
+    if (Boolean(quoteError)) {
+      // Make interpolation arguments to cover all quote error translations that need interpolation
+      const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
+      const interpolationArgs = { minLimit }
+
+      const translation: [string, InterpolationOptions] = [
+        ErrorTranslationMap[quoteError as SwapErrorTypes],
+        interpolationArgs,
+      ]
+      return translation
     }
 
     return 'trade.previewTrade'
@@ -352,7 +350,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
-                isLoading={!!!quote}
+                isLoading={!quote}
                 _loading={{ color: 'blue.500' }}
                 data-test='swap-assets-button'
               />
@@ -404,7 +402,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               colorScheme={
                 errors.quote ||
                 (isValid &&
-                  (!hasEnoughBalanceForGas || !hasValidTradeBalance) &&
+                  (!hasEnoughBalanceForGas || !hasValidTradeBalance || Boolean(quoteError)) &&
                   hasValidSellAmount)
                   ? 'red'
                   : 'blue'
@@ -418,7 +416,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 !hasEnoughBalanceForGas ||
                 !quote ||
                 !hasValidSellAmount ||
-                !!errors.quote
+                !!errors.quote ||
+                Boolean(quoteError)
               }
               style={{
                 whiteSpace: 'normal',

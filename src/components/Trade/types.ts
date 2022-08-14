@@ -32,6 +32,7 @@ export type TradeState<C extends ChainId> = {
   isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
+  quoteError: string | null
 }
 
 export enum TradeRoutePaths {

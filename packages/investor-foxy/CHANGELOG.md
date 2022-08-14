@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v4.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v4.0.8...@shapeshiftoss/investor-foxy-v4.1.0) (2022-08-14)
+
+
+### Features
+
+* **swapper:** add approveAmount swapper API method ([#962](https://github.com/shapeshift/lib/issues/962)) ([8bf11b1](https://github.com/shapeshift/lib/commit/8bf11b15939d437b4fdd5668e75407d5ede931c8))
+
 # [@shapeshiftoss/investor-foxy-v4.0.8](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v4.0.7...@shapeshiftoss/investor-foxy-v4.0.8) (2022-07-29)
 
 # [@shapeshiftoss/investor-foxy-v4.0.7](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v4.0.6...@shapeshiftoss/investor-foxy-v4.0.7) (2022-07-26)

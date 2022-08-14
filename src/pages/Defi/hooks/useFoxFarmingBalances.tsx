@@ -4,24 +4,29 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { getOpportunityData } from 'features/defi/providers/fox-farming/api'
 import { FOX_FARMING_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+export type FoxFarmingEarnOpportunityType = {
+  unclaimedRewards: string
+} & EarnOpportunityType
+
 export type UseFoxFarmingBalancesReturn = {
-  opportunities: EarnOpportunityType[]
+  opportunities: FoxFarmingEarnOpportunityType[]
   loading: boolean
   totalBalance: string
 }
 
-const defaultOpportunity: EarnOpportunityType = {
+const defaultOpportunity: FoxFarmingEarnOpportunityType = {
   provider: DefiProvider.FoxFarming,
   contractAddress: FOX_FARMING_CONTRACT_ADDRESS,
   rewardAddress: FOX_TOKEN_CONTRACT_ADDRESS,
@@ -29,6 +34,7 @@ const defaultOpportunity: EarnOpportunityType = {
   assetId: foxEthLpAssetId,
   fiatAmount: '',
   cryptoAmount: '',
+  unclaimedRewards: '',
   chainId: ethChainId,
   isLoaded: false,
   type: DefiType.Farming,
@@ -60,14 +66,18 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
   const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [totalBalance, setTotalBalance] = useState<string>('')
-  const [opportunities, setOpportunities] = useState<EarnOpportunityType[]>([defaultOpportunity])
+  const [opportunities, setOpportunities] = useState<FoxFarmingEarnOpportunityType[]>([
+    defaultOpportunity,
+  ])
   const { isLpAprLoaded, lpApr } = useLpApr()
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
+  const foxAssetPrecision = useAppSelector(state => selectAssetById(state, foxAssetId)).precision
   const lpAssetPrecision = useAppSelector(state =>
     selectAssetById(state, foxEthLpAssetId),
   ).precision
 
-  useEffect(() => {
+  useMemo(() => {
     if (!(wallet && connectedWalletEthAddress && lpApr)) return
     ;(async () => {
       setLoading(true)
@@ -80,14 +90,18 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
               ethPrice: ethMarketData.price,
               lpAssetPrecision,
               address: connectedWalletEthAddress,
+              foxPrice: foxMarketData.price,
+              foxAssetPrecision,
             })
             if (!data) return opportunity
-            const { tvl, apr, balances } = data
+            const { tvl, apr, balances, expired } = data
             return {
               ...opportunity,
               cryptoAmount: balances.cryptoBalance,
               fiatAmount: balances.fiatBalance,
               isLoaded: isLpAprLoaded,
+              unclaimedRewards: balances.unclaimedRewards,
+              expired,
               apy: lpApr
                 ? bnOrZero(apr)
                     .plus(lpApr ?? 0)

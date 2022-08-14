@@ -9,7 +9,8 @@ import {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-// import qs from 'qs'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import qs from 'qs'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -27,7 +28,7 @@ import { WithdrawCard } from './WithdrawCard'
 export const FoxFarmingOverview = () => {
   const { opportunities, loading } = useFoxFarmingBalances()
   const translate = useTranslate()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const opportunity = useMemo(
     () => opportunities.find(e => e.contractAddress === contractAddress),
@@ -40,11 +41,11 @@ export const FoxFarmingOverview = () => {
     assetReference,
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const rewardAsset = useAppSelector(state => selectAssetById(state, opportunity?.rewardAddress!))
+  const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
   const fiatAmountAvailable = bnOrZero(opportunity?.fiatAmount)
-  const hasClaim = bnOrZero(opportunity?.withdrawInfo.amount).gt(0)
-  const claimDisabled = !claimAvailable || !hasClaim
+  const rewardAmountAvailable = bnOrZero(opportunity?.unclaimedRewards)
+  const hasClaim = rewardAmountAvailable.gt(0)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -59,11 +60,12 @@ export const FoxFarmingOverview = () => {
     )
   }
 
-  if (FoxFarmingBalance.eq(0) && rewardBalance.eq(0)) {
+  if (cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[stakingAsset, rewardAsset]}
-        apy={apy ?? ''}
+        assets={[{ icons: opportunity.icons }, rewardAsset]}
+        apy={opportunity.apy.toString() ?? ''}
+        opportunityName={opportunity.opportunityName || ''}
         onClick={() =>
           history.push({
             pathname: location.pathname,
@@ -109,7 +111,7 @@ export const FoxFarmingOverview = () => {
           action: DefiAction.Claim,
           variant: 'ghost-filled',
           colorScheme: 'green',
-          // isDisabled: claimDisabled,
+          isDisabled: !hasClaim,
           toolTip: translate('defi.modals.overview.noWithdrawals'),
         },
       ]}
@@ -121,7 +123,7 @@ export const FoxFarmingOverview = () => {
       tvl={opportunity.tvl}
       apy={opportunity.apy?.toString()}
     >
-      <WithdrawCard asset={stakingAsset} {...opportunity.withdrawInfo} />
+      <WithdrawCard asset={rewardAsset} amount={rewardAmountAvailable.toString()} />
     </Overview>
   )
 }

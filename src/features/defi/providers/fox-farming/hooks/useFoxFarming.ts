@@ -19,6 +19,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import IUniswapV2Router02ABI from '../../fox-eth-lp/abis/IUniswapV2Router02.json'
 import {
   foxEthLpAssetId,
   MAX_ALLOWANCE,
@@ -26,7 +27,6 @@ import {
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from '../../fox-eth-lp/constants'
 import farmAbi from '../abis/farmingAbi.json'
-import IUniswapV2Router02ABI from '../abis/IUniswapV2Router02.json'
 
 const ethersProvider = getEthersProvider()
 
@@ -254,7 +254,6 @@ export const useFoxFarming = (contractAddress: string) => {
   )
 
   const allowance = useCallback(async () => {
-    console.info({ connectedWalletEthAddress, uniV2LPContract, contractAddress })
     if (!connectedWalletEthAddress || !uniV2LPContract) return
     const _allowance = await uniV2LPContract.allowance(connectedWalletEthAddress, contractAddress)
     return _allowance.toString()
@@ -382,9 +381,26 @@ export const useFoxFarming = (contractAddress: string) => {
     return broadcastTXID
   }, [adapter, contractAddress, getApproveGasData, uniV2LPContract, wallet])
 
+  const getClaimGasData = useCallback(
+    async (userAddress: string) => {
+      if (!foxFarmingContract || !userAddress) return
+      const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+      const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
+      })
+      return estimatedFees
+    },
+    [adapter, contractAddress, foxFarmingContract],
+  )
+
   const claimRewards = useCallback(async () => {
-    if (!wallet || !uniV2LPContract || !connectedWalletEthAddress) return
-    const data = uniV2LPContract.interface.encodeFunctionData('getReward')
+    if (!wallet || !foxFarmingContract || !connectedWalletEthAddress) return
+    const data = foxFarmingContract.interface.encodeFunctionData('getReward')
     const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
       to: contractAddress,
       value: '0',
@@ -434,16 +450,18 @@ export const useFoxFarming = (contractAddress: string) => {
       }
     })()
     return broadcastTXID
-  }, [adapter, connectedWalletEthAddress, contractAddress, uniV2LPContract, wallet])
+  }, [adapter, connectedWalletEthAddress, contractAddress, foxFarmingContract, wallet])
 
   return {
     allowance,
     approve,
     getApproveGasData,
     getStakeGasData,
+    getClaimGasData,
     getUnstakeGasData,
     stake,
     unstake,
     claimRewards,
+    foxFarmingContract,
   }
 }

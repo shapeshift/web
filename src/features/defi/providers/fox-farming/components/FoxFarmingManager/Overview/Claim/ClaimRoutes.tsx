@@ -32,6 +32,7 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
   const location = useLocation()
 
   if (!opportunity) return null
+  const rewardAmount = opportunity.unclaimedRewards
 
   return (
     <SlideTransition>
@@ -44,8 +45,7 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={'0'}
-              opportunity={opportunity}
+              amount={rewardAmount!}
             />
           </Route>
           <Route exact path='/status' component={ClaimStatus} />

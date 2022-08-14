@@ -1,7 +1,5 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import dayjs from 'dayjs'
 import {
   DefiAction,
   DefiParams,
@@ -19,8 +17,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawCardProps = {
   asset: Asset
-  releaseTime?: string
-} & WithdrawInfo
+  amount: string
+}
 
 export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -28,10 +26,9 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const { amount, releaseTime } = rest
+  const { amount } = rest
   const hasClaim = bnOrZero(amount).gt(0)
   const textColor = useColorModeValue('black', 'white')
-  const isAvailable = dayjs().isAfter(dayjs(releaseTime))
   const successColor = useColorModeValue('green.500', 'green.200')
 
   const handleClick = () => {
@@ -61,7 +58,6 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           alignItems='center'
           justifyContent='flex-start'
           textAlign='left'
-          isDisabled={!isAvailable}
           py={2}
           onClick={() => (isConnected ? handleClick() : handleWalletModalOpen())}
           leftIcon={
@@ -73,34 +69,23 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           <Stack spacing={0}>
             <Text color={textColor} translation='common.withdrawal' />
             <Text
-              color={isAvailable ? successColor : 'yellow.200'}
+              color={successColor}
               fontWeight='normal'
               lineHeight='shorter'
-              translation={isAvailable ? 'common.available' : 'common.pending'}
+              translation='common.available'
             />
           </Stack>
           <Stack spacing={0} ml='auto' textAlign='right'>
             <Amount.Crypto
               color={textColor}
-              value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
+              value={amount}
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />
-            {isAvailable ? (
-              <Stack direction='row' alignItems='center' color='blue.500'>
-                <Text translation='defi.modals.claim.claimNow' />
-                <FaArrowRight />
-              </Stack>
-            ) : (
-              <Text
-                fontWeight='normal'
-                lineHeight='shorter'
-                translation={[
-                  'defi.modals.foxyOverview.availableDate',
-                  { date: dayjs(releaseTime).fromNow() },
-                ]}
-              />
-            )}
+            <Stack direction='row' alignItems='center' color='blue.500'>
+              <Text translation='defi.modals.claim.claimNow' />
+              <FaArrowRight />
+            </Stack>
           </Stack>
         </Button>
       )}

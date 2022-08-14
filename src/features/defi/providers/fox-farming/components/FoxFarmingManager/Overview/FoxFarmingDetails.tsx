@@ -1,6 +1,6 @@
 import { Center, Flex, ModalBody, ModalFooter, Skeleton, Stack, Tag } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { matchPath } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -26,24 +26,12 @@ export const FoxFarmingDetails = () => {
     path: '/defi/:earnType/:provider/:action',
     exact: true,
   })
-  const { chainId, contractAddress, assetReference, rewardId } = query
+  const { contractAddress } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
-  const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
-  const FoxFarmingBalance = bnOrZero(opportunity?.balance)
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const rewardAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
-  const apy = opportunity?.apy
+  const rewardBalance = bnOrZero(opportunity?.unclaimedRewards)
+  const FoxFarmingBalance = bnOrZero(opportunity?.cryptoAmount)
+  const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const apy = opportunity?.apy?.toString()
   if (loading || !opportunity) {
     return (
       <Center minW='350px' minH='350px'>
@@ -54,8 +42,9 @@ export const FoxFarmingDetails = () => {
   if (FoxFarmingBalance.eq(0) && rewardBalance.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[stakingAsset, rewardAsset]}
+        assets={[{ icons: opportunity.icons }, rewardAsset]}
         apy={apy ?? ''}
+        opportunityName={opportunity.opportunityName || ''}
         onClick={() =>
           browserHistory.push({
             ...browserLocation,
@@ -94,7 +83,7 @@ export const FoxFarmingDetails = () => {
       <ModalFooter justifyContent='flex-start' alignItems='flex-start' flexDir='column'>
         <Stack width='full'>
           <Text fontWeight='medium' translation='defi.modals.FoxFarmingOverview.withdrawals' />
-          <WithdrawCard asset={stakingAsset} {...opportunity.withdrawInfo} />
+          <WithdrawCard asset={rewardAsset} amount={rewardBalance.toString()} />
         </Stack>
       </ModalFooter>
     </Flex>

@@ -193,6 +193,16 @@
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}"
       },
+      "foxFarmingOverview": {
+        "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
+        "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
+        "rewards": "The rewards you earn will accrue automatically.",
+        "cta": "Deposit ETH-FOX LP tokens Now",
+        "foxFarmingBalance": "ETH-FOX LP tokens Balance",
+        "withdrawals": "Withdrawals",
+        "emptyWithdraws": "Pending or active withdrawals will show here.",
+        "availableDate": "available %{date}"
+      },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
         "availableRewards": "Available Rewards",

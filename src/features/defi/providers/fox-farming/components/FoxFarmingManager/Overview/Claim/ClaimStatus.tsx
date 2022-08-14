@@ -1,12 +1,9 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import isNil from 'lodash/isNil'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
-import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -17,9 +14,13 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountSpecifierByChainId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 interface ClaimStatusState {
@@ -61,13 +62,8 @@ const StatusInfo = {
   },
 }
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Overview', 'ClaimStatus'],
-})
-
 export const ClaimStatus = () => {
   const { history: browserHistory } = useBrowserRouter()
-  const { foxy } = useFoxy()
   const translate = useTranslate()
   const {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
@@ -86,32 +82,26 @@ export const ClaimStatus = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
+
+  const serializedTxIndex = useMemo(() => {
+    if (!(txid && userAddress)) return ''
+    return serializeTxIndex(accountSpecifier, txid, userAddress)
+  }, [txid, userAddress, accountSpecifier])
+  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
+
   useEffect(() => {
-    ;(async () => {
-      if (!foxy || !txid) return
-      try {
-        const transactionReceipt = await poll({
-          fn: () => foxy.getTxReceipt({ txid }),
-          validate: (result: TransactionReceipt) => !isNil(result),
-          interval: 15000,
-          maxAttempts: 30,
-        })
-        const gasPrice = await foxy.getGasPrice()
-        setState({
-          ...state,
-          txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
-        })
-      } catch (error) {
-        moduleLogger.error(error, 'ClaimStatus error')
-        setState({
-          ...state,
-          txStatus: TxStatus.FAILED,
-          usedGasFee: estimatedGas,
-        })
-      }
-    })()
-  }, [estimatedGas, foxy, state, txid])
+    if (confirmedTransaction && confirmedTransaction.status !== 'Pending') {
+      setState({
+        txStatus: confirmedTransaction.status === 'Confirmed' ? TxStatus.SUCCESS : TxStatus.FAILED,
+        usedGasFee: confirmedTransaction.fee
+          ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
+          : '0',
+      })
+    }
+  }, [confirmedTransaction, feeAsset.precision])
 
   return (
     <SlideTransition>
@@ -155,10 +145,7 @@ export const ClaimStatus = () => {
           <Row>
             <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto
-                value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
-                symbol={asset?.symbol}
-              />
+              <Amount.Crypto value={amount} symbol={asset?.symbol} />
             </Row.Value>
           </Row>
           <Row>
@@ -188,7 +175,6 @@ export const ClaimStatus = () => {
                   value={bnOrZero(
                     state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
                   )
-                    .div(`1e+${feeAsset.precision}`)
                     .times(feeMarketData.price)
                     .toFixed(2)}
                 />
@@ -196,9 +182,7 @@ export const ClaimStatus = () => {
                   color='gray.500'
                   value={bnOrZero(
                     state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
-                  )
-                    .div(`1e+${feeAsset.precision}`)
-                    .toFixed(5)}
+                  ).toFixed(5)}
                   symbol='ETH'
                 />
               </Stack>

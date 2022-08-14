@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -29,11 +29,10 @@ import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
   assetId: AssetId
-  amount?: string
+  amount: string
   contractAddress: string
   chainId: ChainId
   onBack: () => void
-  opportunity: EarnOpportunityType
 }
 
 const moduleLogger = logger.child({
@@ -46,15 +45,14 @@ export const ClaimConfirm = ({
   contractAddress,
   chainId,
   onBack,
-  opportunity,
 }: ClaimConfirmProps) => {
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
-  const [canClaim, setCanClaim] = useState<boolean>(true)
+  const [canClaim, setCanClaim] = useState<boolean>(false)
   const { state: walletState } = useWallet()
+  const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
-  const claimAmount = bnOrZero(amount).toString()
   const history = useHistory()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -75,14 +73,9 @@ export const ClaimConfirm = ({
     if (!walletState.wallet || !contractAddress || !userAddress) return
     setLoading(true)
     try {
-      // const txid = await FoxFarming.claimWithdraw({
-      //   claimAddress: userAddress,
-      //   userAddress,
-      //   wallet: walletState.wallet,
-      //   contractAddress,
-      // })
+      const txid = await claimRewards()
       history.push('/status', {
-        txid: 'txid',
+        txid,
         assetId,
         amount,
         userAddress,
@@ -105,35 +98,43 @@ export const ClaimConfirm = ({
   useEffect(() => {
     ;(async () => {
       try {
-        const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
+        const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+        if (!(walletState.wallet && chainAdapter)) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
-        // const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
-        //   FoxFarming.estimateClaimWithdrawGas({
-        //     claimAddress: userAddress,
-        //     userAddress,
-        //     contractAddress,
-        //     wallet: walletState.wallet,
-        //   }),
-        //   FoxFarming.getGasPrice(),
-        //   FoxFarming.canClaimWithdraw({ contractAddress, userAddress }),
-        // ])
+      } catch (error) {
+        // TODO: handle client side errors
+        moduleLogger.error(error, 'FoxFarmingClaim error')
+      }
+    })()
+  }, [chainAdapterManager, walletState.wallet])
 
-        // setCanClaim(canClaimWithdraw)
-        // const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-        // setEstimatedGas(gasEstimate)
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && userAddress))
+          return
+        const gasEstimate = await getClaimGasData(userAddress)
+        if (!gasEstimate) throw new Error('Gas estimation failed')
+        const estimatedGasCrypto = bnOrZero(gasEstimate.average.txFee)
+          .div(`1e${feeAsset.precision}`)
+          .toPrecision()
+        setCanClaim(true)
+        setEstimatedGas(estimatedGasCrypto)
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingClaim error')
       }
     })()
   }, [
-    chainAdapterManager,
-    contractAddress,
+    userAddress,
+    feeAsset,
     feeAsset.precision,
+    feeMarketData,
     feeMarketData.price,
+    getClaimGasData,
     walletState.wallet,
+    foxFarmingContract,
   ])
 
   return (
@@ -143,12 +144,14 @@ export const ClaimConfirm = ({
           <Text color='gray.500' translation='defi.modals.claim.claimAmount' />
           <Stack direction='row' alignItems='center' justifyContent='center'>
             <AssetIcon boxSize='10' src={asset.icon} />
-            <Amount.Crypto
-              fontSize='3xl'
-              fontWeight='medium'
-              value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
-              symbol={asset?.symbol}
-            />
+            <Skeleton minWidth='100px' isLoaded={!!amount}>
+              <Amount.Crypto
+                fontSize='3xl'
+                fontWeight='medium'
+                value={amount}
+                symbol={asset?.symbol}
+              />
+            </Skeleton>
           </Stack>
         </Stack>
       </ModalBody>
@@ -185,14 +188,11 @@ export const ClaimConfirm = ({
               >
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
-                    value={bnOrZero(estimatedGas)
-                      .div(`1e+${feeAsset.precision}`)
-                      .times(feeMarketData.price)
-                      .toFixed(2)}
+                    value={bnOrZero(estimatedGas).times(feeMarketData.price).toFixed(2)}
                   />
                   <Amount.Crypto
                     color='gray.500'
-                    value={bnOrZero(estimatedGas).div(`1e+${feeAsset.precision}`).toFixed(5)}
+                    value={bnOrZero(estimatedGas).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />
                 </Stack>

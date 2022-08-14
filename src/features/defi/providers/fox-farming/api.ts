@@ -1,6 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import dayjs from 'dayjs'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider, makeTotalLpApr, rewardRatePerToken } from 'plugins/foxPage/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -14,12 +15,16 @@ export const getOpportunityData = async ({
   ethAssetPrecision,
   ethPrice,
   lpAssetPrecision,
+  foxAssetPrecision,
+  foxPrice,
   address,
 }: {
   contractAddress: string
   ethAssetPrecision: number
   ethPrice: string
   lpAssetPrecision: number
+  foxAssetPrecision: number
+  foxPrice: string
   address: string
 }) => {
   const ethersProvider = getEthersProvider()
@@ -29,6 +34,8 @@ export const getOpportunityData = async ({
     IUniswapV2Pair.abi,
     ethersProvider,
   )
+
+  // tvl
   const totalSupply = await foxFarmingContract.totalSupply()
   const lpTokenPrice = await getLpTokenPrice(ethAssetPrecision, ethPrice, lpAssetPrecision)
   if (!lpTokenPrice) return ''
@@ -36,10 +43,9 @@ export const getOpportunityData = async ({
     .div(`1e${lpAssetPrecision}`)
     .times(lpTokenPrice)
     .toFixed(2)
-  const stakedBalance = await foxFarmingContract.balanceOf(address)
-  const unclaimedRewards = await foxFarmingContract.earned(address)
-  const foxRewardRatePerTokenV4 = await rewardRatePerToken(foxFarmingContract)
 
+  // apr
+  const foxRewardRatePerTokenV4 = await rewardRatePerToken(foxFarmingContract)
   const pair = await Fetcher.fetchPairData(
     new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, 18),
     new Token(0, FOX_TOKEN_CONTRACT_ADDRESS, 18),
@@ -56,20 +62,36 @@ export const getOpportunityData = async ({
     .div(bnOrZero(totalSupplyV2.toString()))
     .times(`1e+${pair.token1.decimals}`) // convert to base unit value
     .toString()
-  // Fox Rewards per second for 1 staked LP token
   const apr = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken))
     .div(100)
     .toString()
+
+  // balances
+  const stakedBalance = await foxFarmingContract.balanceOf(address)
+  const unclaimedRewards = await foxFarmingContract.earned(address)
   const stakedAmount = bnOrZero(stakedBalance.toString()).div(`1e${lpAssetPrecision}`)
-  const unclaimedRewardsAmount = bnOrZero(unclaimedRewards.toString()).div(`1e${lpAssetPrecision}`)
-  const totalBalance = stakedAmount.plus(unclaimedRewardsAmount)
-  const fiatBalance = totalBalance.times(lpTokenPrice).toFixed(2)
+  const stakeFiatBalance = stakedAmount.times(lpTokenPrice)
+  const unclaimedRewardsCryptoAmount = bnOrZero(unclaimedRewards.toString()).div(
+    `1e${foxAssetPrecision}`,
+  )
+  const unclaimedRewardsFiatBalance = unclaimedRewardsCryptoAmount.times(foxPrice)
+
+  // expired
+  let expired
+  const timeStamp = await foxFarmingContract.periodFinish()
+  if (timeStamp.toNumber() === 0) {
+    expired = false
+  } else {
+    expired = dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
+  }
   return {
     tvl: totalDeposited,
+    expired,
     apr,
     balances: {
-      cryptoBalance: totalBalance.toString(),
-      fiatBalance,
+      cryptoBalance: stakedAmount.toString(),
+      fiatBalance: stakeFiatBalance.plus(unclaimedRewardsFiatBalance).toFixed(2),
+      unclaimedRewards: unclaimedRewardsCryptoAmount.toString(),
     },
   }
 }

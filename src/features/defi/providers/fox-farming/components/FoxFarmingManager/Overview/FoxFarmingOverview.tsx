@@ -21,8 +21,8 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-// import { FoxFarmingEmpty } from './FoxFarmingEmpty'
-// import { WithdrawCard } from './WithdrawCard'
+import { FoxFarmingEmpty } from './FoxFarmingEmpty'
+import { WithdrawCard } from './WithdrawCard'
 
 export const FoxFarmingOverview = () => {
   const { opportunities, loading } = useFoxFarmingBalances()
@@ -43,8 +43,8 @@ export const FoxFarmingOverview = () => {
   const rewardAsset = useAppSelector(state => selectAssetById(state, opportunity?.rewardAddress!))
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
   const fiatAmountAvailable = bnOrZero(opportunity?.fiatAmount)
-  // const hasClaim = bnOrZero(opportunity?.withdrawInfo.amount).gt(0)
-  // const claimDisabled = !claimAvailable || !hasClaim
+  const hasClaim = bnOrZero(opportunity?.withdrawInfo.amount).gt(0)
+  const claimDisabled = !claimAvailable || !hasClaim
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -59,23 +59,23 @@ export const FoxFarmingOverview = () => {
     )
   }
 
-  // if (FoxFarmingBalance.eq(0) && rewardBalance.eq(0)) {
-  //   return (
-  //     <FoxFarmingEmpty
-  //       assets={[stakingAsset, rewardAsset]}
-  //       apy={apy ?? ''}
-  //       onClick={() =>
-  //         history.push({
-  //           pathname: location.pathname,
-  //           search: qs.stringify({
-  //             ...query,
-  //             modal: DefiAction.Deposit,
-  //           }),
-  //         })
-  //       }
-  //     />
-  //   )
-  // }
+  if (FoxFarmingBalance.eq(0) && rewardBalance.eq(0)) {
+    return (
+      <FoxFarmingEmpty
+        assets={[stakingAsset, rewardAsset]}
+        apy={apy ?? ''}
+        onClick={() =>
+          history.push({
+            pathname: location.pathname,
+            search: qs.stringify({
+              ...query,
+              modal: DefiAction.Deposit,
+            }),
+          })
+        }
+      />
+    )
+  }
 
   return (
     <Overview
@@ -121,7 +121,7 @@ export const FoxFarmingOverview = () => {
       tvl={opportunity.tvl}
       apy={opportunity.apy?.toString()}
     >
-      {/* <WithdrawCard asset={stakingAsset} {...opportunity.withdrawInfo} /> */}
+      <WithdrawCard asset={stakingAsset} {...opportunity.withdrawInfo} />
     </Overview>
   )
 }

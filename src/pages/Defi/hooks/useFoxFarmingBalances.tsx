@@ -18,6 +18,7 @@ import { useAppSelector } from 'state/store'
 export type UseFoxFarmingBalancesReturn = {
   opportunities: EarnOpportunityType[]
   loading: boolean
+  totalBalance: string
 }
 
 const defaultOpportunity: EarnOpportunityType = {
@@ -58,6 +59,7 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
 
   const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+  const [totalBalance, setTotalBalance] = useState<string>('')
   const [opportunities, setOpportunities] = useState<EarnOpportunityType[]>([defaultOpportunity])
   const { isLpAprLoaded, lpApr } = useLpApr()
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -95,6 +97,11 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
             }
           }),
         )
+        const totalOpBalances = newOpportunities.reduce(
+          (acc, cur) => acc.plus(bnOrZero(cur.fiatAmount)),
+          bnOrZero(0),
+        )
+        setTotalBalance(totalOpBalances.toFixed(2))
         setOpportunities(newOpportunities)
       } catch (error) {
         console.error('error', error)
@@ -108,5 +115,6 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
   return {
     opportunities,
     loading,
+    totalBalance,
   }
 }

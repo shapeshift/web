@@ -365,6 +365,7 @@
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -384,7 +385,8 @@
         "claimWithdraw": "Claim Withdraw"
       },
       "erc20": {
-        "approve": "Approve"
+        "approve": "Approve",
+        "revoke": "Revoke"
       }
     },
     "unknown": "Transaction"
@@ -1224,6 +1226,7 @@
     "status": "Status",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
+    "approvalAmount": "Approval Amount",
     "unknownType": "Transaction",
     "from": "From",
     "to": "To",

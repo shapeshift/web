@@ -1,10 +1,12 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useTranslate } from 'react-polyglot'
-import { ContractMethod } from 'hooks/useTxDetails/useTxDetails'
+import { ContractMethod, Direction } from 'hooks/useTxDetails/useTxDetails'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Amount } from './TransactionDetails/Amount'
+import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
 import { Status } from './TransactionDetails/Status'
@@ -35,17 +37,25 @@ export const TransactionContract = ({
     isReceive && !txDetails.tx.data?.method ? txDetails.tradeTx?.type : txDetails.tx.data?.method
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
+  // TODO: Move to a better place at component-level to be passed down?
+  const isRevoke = i18n === 'approve' && bnOrZero(txDetails.tx.data?.value).isZero()
   const titlePrefix = translate(
-    txDetails.tx.data?.parser
-      ? `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`
-      : 'transactionRow.unknown',
+    (() => {
+      if (txDetails.tx.data?.parser) {
+        return `transactionRow.parser.${txDetails.tx.data?.parser}.${isRevoke ? 'revoke' : i18n}`
+      }
+      return 'transactionRow.unknown'
+    })(),
   )
+
+  // TODO: translation
+  const titleSuffix = isRevoke ? 'approval' : ''
 
   const asset = useAppSelector(state =>
     selectAssetById(state, isTokenMetadata(txDetails.tx.data) ? txDetails.tx.data.assetId! : ''),
   )
   const symbol = asset?.symbol ?? ''
-  const title = symbol ? `${titlePrefix} ${symbol}` : titlePrefix
+  const title = symbol ? `${titlePrefix} ${symbol} ${titleSuffix}` : titlePrefix
 
   return (
     <>
@@ -60,6 +70,7 @@ export const TransactionContract = ({
         fee={parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
+        txData={txDetails.tx.data}
         showDateAndGuide={showDateAndGuide}
         isFirstAssetOutgoing={isFirstAssetOutgoing}
         parentWidth={parentWidth}
@@ -67,6 +78,16 @@ export const TransactionContract = ({
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
         <TxGrid compactMode={compactMode}>
+          {txDetails.direction === Direction.InPlace &&
+          isTokenMetadata(txDetails.tx.data) &&
+          txDetails.tx.data?.assetId &&
+          txDetails.tx.data?.value ? (
+            <ApprovalAmount
+              assetId={txDetails.tx.data.assetId}
+              value={txDetails.tx.data.value}
+              isRevoke={isRevoke}
+            />
+          ) : null}
           <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
           <Row title='status'>
             <Status status={txDetails.tx.status} />

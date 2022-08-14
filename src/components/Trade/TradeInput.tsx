@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -20,7 +20,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
   selectFiatToUsdRate,
   selectPortfolioCryptoHumanBalanceByAssetId,
@@ -56,7 +56,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     feeAsset,
     refreshQuote,
   } = useSwapper()
-  const toast = useToast()
   const translate = useTranslate()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const {

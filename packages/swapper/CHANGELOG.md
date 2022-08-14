@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.14.0...@shapeshiftoss/swapper-v9.15.0) (2022-08-14)
+
+
+### Features
+
+* **swapper:** add approveAmount swapper API method ([#962](https://github.com/shapeshift/lib/issues/962)) ([8bf11b1](https://github.com/shapeshift/lib/commit/8bf11b15939d437b4fdd5668e75407d5ede931c8))
+
 # [@shapeshiftoss/swapper-v9.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.13.0...@shapeshiftoss/swapper-v9.14.0) (2022-08-12)
 
 

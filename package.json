@@ -27,7 +27,7 @@
     "version:patch": "lerna version patch --yes --no-git-tag-version --no-push",
     "version:minor": "lerna version minor --yes --no-git-tag-version --no-push",
     "version:major": "lerna version major --yes --no-git-tag-version --no-push",
-    "postinstall": "patch-package"
+    "postinstall": "./scripts/postinstall.sh"
   },
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",

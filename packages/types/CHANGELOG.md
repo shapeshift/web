@@ -1,3 +1,5 @@
+# [@shapeshiftoss/types-v8.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.2.0...@shapeshiftoss/types-v8.2.1) (2022-08-15)
+
 # [@shapeshiftoss/types-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.1.0...@shapeshiftoss/types-v8.2.0) (2022-08-02)
 
 

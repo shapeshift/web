@@ -3719,10 +3719,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-7.2.0.tgz#f1abfa03a93f856466e2a414c119350aba836aab"
-  integrity sha512-iAPeYN9Jc1qiRUONCBd5hOgFcISV9c7+avZIcnCBAMaqsIm0R87pcwMQUkpMrBqlVRFNOddxCMy/P+i3bbuyKQ==
+"@shapeshiftoss/asset-service@^7.4.0":
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-7.4.0.tgz#26c6da3ee05dc63aa376b13f2af8a0db812a8a56"
+  integrity sha512-XWZVP1Wq85S1hb74OPuk9NrkZVQ1yUpo1azMtqdj1u381QqRNPhYh1WxpS+Ag7EMfU9IpIoIHrR1kCVxi6k50A==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -3757,15 +3757,15 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^6.12.0":
-  version "6.12.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-6.12.0.tgz#4ce600784138ecbdda738ca70a0eb67656341f30"
-  integrity sha512-bo365eAYXOAJZh7fOEMhl32Mw89+u57bGwQM0mUe7EWlb87t9PMd22NaPFP3/rmuv8Vbi4OXU7ntjPUqZQeDiQ==
+"@shapeshiftoss/caip@^6.15.0":
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-6.15.0.tgz#cfe74627892e52bc88ffcd15c7f5b7f3ea1c22d2"
+  integrity sha512-OfyhWjzBDbB62+3UZdTrUeg+7OXXY5imYZ9H6Pxb6DM5SO8dhZDUr1tuuoXPBTIazxcHV7aS+SuLw9HC+u+bzA==
 
-"@shapeshiftoss/chain-adapters@^7.15.1":
-  version "7.15.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-7.15.1.tgz#94cbba9de99ab1c3cd628c1978bb75501e7f29c2"
-  integrity sha512-os2zvH4Fi3rSoAdrQHTMFLw33rEzeBTfgShDLEqiFTWXYQetwgN75Z2LHzGT37G4D97jt6PsdWdMHXBgCxhgpQ==
+"@shapeshiftoss/chain-adapters@^7.15.2":
+  version "7.15.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-7.15.2.tgz#bb1109de52b3cbd04c4a391bb9b17d8f14f0fd83"
+  integrity sha512-pKsaanHaFRq9SEydfsFgUJ0CbvQ5ammwQlk8JTygO3WRnyVZgMS9UcuY0N2ZlfrXrwfE+2asue8X4dsteuJcZA==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4026,10 +4026,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^9.11.0":
-  version "9.11.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.11.0.tgz#ab7910ea3ae3ca3bd3245b94cd59e24b94b82f7c"
-  integrity sha512-gMfGikYfYPMGs2h81zK1TVEbqzfNVhTTICL//ALCSmip9VGPpl4mDfG1egnQ/ls5fupc1oOmfjRkue/97hVglA==
+"@shapeshiftoss/swapper@^9.14.0":
+  version "9.14.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-9.14.0.tgz#6c09dba90c1957b629cedea827180c2ba7fc831b"
+  integrity sha512-CMuk8u0rNAbsUOtitDB8du+KpDME2oDQPRh/6tP4SKq2OKj2YYtiomClthT+FwoRDSjK117qhniuev6ZyYKTyQ==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -4047,10 +4047,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.2.0.tgz#9800dc9673f9ab7571d9d74c0d0d701a41efc942"
   integrity sha512-Khu5Byomu3d4Nb9XmqG50C1XyWe188vZ8v6laXQbqJEQkqbB9MQjZ/nQJDcMUeTfooPGGdJnFeyDKKX3WjwclQ==
 
-"@shapeshiftoss/unchained-client@^9.8.1":
-  version "9.8.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.8.1.tgz#17f40dc64358a5a7daa6a1c540775afc859f1e7c"
-  integrity sha512-RH3m1Lvbxql+RmowfePkcKamwEQ0QWKFJsMvRxSFyvZP5IDjxtM5vPkz9uMeP3D8/mqufhgn1Z5iQNpVzjwt7w==
+"@shapeshiftoss/unchained-client@^9.8.2":
+  version "9.8.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.8.2.tgz#46b6f290eb67f7b5c7d67a4dfaaa1cff06b4e944"
+  integrity sha512-XVDAK5ZU6AgSvm87/m2x4IJNTVw+sZgOa74VpZDpPnyPAY3R0KLw0SahPOyUOtzl4aOrlT9gepFt5nWQQWMKUA==
   dependencies:
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"

@@ -72,7 +72,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${ethAsset.precision}`))
+    .minus(bnOrZero(state.withdraw.estimatedGasCrypto))
     .gte(0)
 
   return (

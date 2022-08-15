@@ -390,7 +390,7 @@
     "errors": {
       "title": "Il y a eu un problème",
       "notEnoughEth": "Pas assez d'ETH pour les frais de carburant sur cette transaction.",
-      "amountToSmall": "Montant trop faible. Le montant minimum de transaction pour cette paire est de %{minLimit}.",
+      "amountTooSmall": "Montant trop faible. Le montant minimum de transaction pour cette paire est de %{minLimit}.",
       "negativeMax": "Pas assez de fonds pour les frais de minage sur cette transaction. Frais de minage estimés : %{estimatedMinerFee}",
       "invalidMax": "Montant invalide. Le montant maximal de la transaction pour cette paire est de %{maxLimit}.",
       "insufficientFunds": "Fonds insuffisants pour les frais de minage et le montant",

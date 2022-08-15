@@ -11,11 +11,11 @@ export const getUniswapV2Pools = (): Asset[] => {
   const foxWeth: Asset = {
     assetId,
     chainId,
-    name: 'Uniswap V2 - FOX/WETH',
+    name: 'FOX/WETH Pool',
     precision: 18,
     color: colorMap[assetId] ?? '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/256/uni.png',
-    symbol: 'UNI-V2-FOX-WETH',
+    symbol: 'UNI-V2',
     explorer: ethereum.explorer,
     explorerAddressLink: ethereum.explorerAddressLink,
     explorerTxLink: ethereum.explorerTxLink,

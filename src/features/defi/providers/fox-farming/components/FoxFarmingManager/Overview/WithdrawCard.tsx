@@ -76,12 +76,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
             />
           </Stack>
           <Stack spacing={0} ml='auto' textAlign='right'>
-            <Amount.Crypto
-              color={textColor}
-              value={amount}
-              symbol={asset.symbol}
-              maximumFractionDigits={4}
-            />
+            <Amount.Crypto color={textColor} value={amount} symbol={asset.symbol} />
             <Stack direction='row' alignItems='center' color='blue.500'>
               <Text translation='defi.modals.claim.claimNow' />
               <FaArrowRight />

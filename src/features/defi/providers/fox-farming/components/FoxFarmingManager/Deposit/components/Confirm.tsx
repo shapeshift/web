@@ -100,7 +100,13 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <PairIcons isSmall icons={opportunity?.icons!} />
+              <PairIcons
+                icons={opportunity?.icons!}
+                iconBoxSize='5'
+                h='38px'
+                p={1}
+                borderRadius={8}
+              />
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>

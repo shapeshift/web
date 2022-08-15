@@ -29,7 +29,7 @@ export const FoxFarmingDetails = () => {
   const { contractAddress } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const rewardBalance = bnOrZero(opportunity?.unclaimedRewards)
-  const FoxFarmingBalance = bnOrZero(opportunity?.cryptoAmount)
+  const foxFarmingBalance = bnOrZero(opportunity?.cryptoAmount)
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const apy = opportunity?.apy?.toString()
   if (loading || !opportunity) {
@@ -39,10 +39,10 @@ export const FoxFarmingDetails = () => {
       </Center>
     )
   }
-  if (FoxFarmingBalance.eq(0) && rewardBalance.eq(0)) {
+  if (foxFarmingBalance.eq(0) && rewardBalance.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[{ icons: opportunity.icons }, rewardAsset]}
+        assets={[{ icons: opportunity.icons! }, rewardAsset]}
         apy={apy ?? ''}
         opportunityName={opportunity.opportunityName || ''}
         onClick={() =>

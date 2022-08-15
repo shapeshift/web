@@ -61,7 +61,7 @@ export const Overview: React.FC<OverviewProps> = ({
       return (
         <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
           {asset.icons ? (
-            <PairIcons icons={asset.icons} isSmall unstyled />
+            <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
           ) : (
             <AssetIcon src={asset.icon} size='2xs' />
           )}
@@ -100,7 +100,11 @@ export const Overview: React.FC<OverviewProps> = ({
           <Stack p={8} spacing={6}>
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               <Stack direction='row' alignItems='center' spacing={2}>
-                {icons ? <PairIcons icons={icons} /> : <AssetIcon src={asset.icon} size='md' />}
+                {icons ? (
+                  <PairIcons icons={icons} iconBoxSize='6' h='46px' p={1} borderRadius={8} />
+                ) : (
+                  <AssetIcon src={asset.icon} size='md' />
+                )}
                 <Stack spacing={0}>
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}

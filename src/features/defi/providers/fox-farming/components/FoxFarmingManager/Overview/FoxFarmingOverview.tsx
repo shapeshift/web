@@ -63,7 +63,7 @@ export const FoxFarmingOverview = () => {
   if (cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[{ icons: opportunity.icons }, rewardAsset]}
+        assets={[{ icons: opportunity.icons! }, rewardAsset]}
         apy={opportunity.apy.toString() ?? ''}
         opportunityName={opportunity.opportunityName || ''}
         onClick={() =>

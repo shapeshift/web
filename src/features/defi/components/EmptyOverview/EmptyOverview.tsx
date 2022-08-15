@@ -5,10 +5,15 @@ import { AssetIcon } from 'components/AssetIcon'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
-export type EmptyOverviewAsset = {
-  icon?: string
-  icons?: string[]
-}
+export type EmptyOverviewAsset =
+  | {
+      icon: string
+      icons?: never
+    }
+  | {
+      icon?: never
+      icons: string[]
+    }
 
 type EmptyOverviewProps = {
   assets: EmptyOverviewAsset[]
@@ -39,9 +44,9 @@ export const EmptyOverview: React.FC<EmptyOverviewProps> = ({ children, footer, 
             {assets.map((asset, index) => (
               <Fragment key={index}>
                 {asset.icons ? (
-                  <PairIcons icons={asset.icons} unstyled defaultSize />
+                  <PairIcons icons={asset.icons} bg='transparent' />
                 ) : (
-                  <AssetIcon src={asset?.icon} />
+                  <AssetIcon src={asset.icon} />
                 )}
               </Fragment>
             ))}

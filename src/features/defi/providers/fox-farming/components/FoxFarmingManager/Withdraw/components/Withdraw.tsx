@@ -15,10 +15,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetById,
-  // selectMarketDataById,
-} from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -31,16 +28,11 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const opportunity = state?.opportunity
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
 
-  // const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool()
-
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
-  // const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  // const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  // const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   // user info
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)

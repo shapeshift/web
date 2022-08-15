@@ -1,26 +1,27 @@
-import { Flex, useColorModeValue } from '@chakra-ui/react'
+import { Flex, FlexProps, ThemingProps, useColorModeValue } from '@chakra-ui/react'
 import { AssetIcon } from 'components/AssetIcon'
 
 export const PairIcons = ({
   icons,
-  isSmall,
-  unstyled,
-  defaultSize,
+  iconSize,
+  iconBoxSize,
+  ...styleProps
 }: {
   icons: Array<string>
-  isSmall?: boolean
-  unstyled?: boolean
-  defaultSize?: boolean
-}) => {
-  const boxHeight = isSmall ? '38px' : '46px'
-  const assetBoxSize = isSmall ? '5' : '6'
+  iconBoxSize?: string
+  iconSize?: ThemingProps<'Avatar'>['size']
+} & FlexProps): JSX.Element => {
   const bg = useColorModeValue('gray.200', 'gray.700')
-  const wrapperProps = unstyled ? {} : { bg, p: 1, borderRadius: 8, h: boxHeight }
-  const iconProps = defaultSize ? {} : { boxSize: assetBoxSize }
   return (
-    <Flex flexDirection='row' alignItems='center' {...wrapperProps}>
+    <Flex flexDirection='row' alignItems='center' bg={bg} {...styleProps}>
       {icons.map((iconSrc, i) => (
-        <AssetIcon key={iconSrc} src={iconSrc} {...iconProps} ml={i === 0 ? '0' : '-2.5'} />
+        <AssetIcon
+          key={iconSrc}
+          src={iconSrc}
+          boxSize={iconBoxSize}
+          size={iconSize}
+          ml={i === 0 ? '0' : '-2.5'}
+        />
       ))}
     </Flex>
   )

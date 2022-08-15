@@ -8,7 +8,7 @@ import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AssetCell } from './Cells'
-import { getOverrideProviderName } from './utils'
+import { makeProviderName } from './utils'
 
 type StakingTableProps = {
   data: EarnOpportunityType[]
@@ -34,7 +34,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           <Skeleton isLoaded={row.original.isLoaded}>
             <AssetCell
               assetId={row.original.assetId}
-              subText={getOverrideProviderName(row.original.provider)}
+              subText={makeProviderName(row.original.provider)}
               icons={row.original.icons}
               opportunityName={row.original.opportunityName}
               showTeaser={showTeaser}

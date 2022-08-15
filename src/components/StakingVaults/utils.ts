@@ -12,9 +12,9 @@ export const getOverrideNameFromAssetId = (assetId: AssetId): string | null => {
   return overrideAssetIdNames[assetId] ?? null
 }
 
-export const getOverrideProviderName = (provider: string): string => {
-  const overrideAssetIdNames: Partial<Record<DefiProvider, string>> = {
+export const makeProviderName = (provider: string): string => {
+  const overrideProviderNames: Partial<Record<DefiProvider, string>> = {
     [DefiProvider.FoxFarming]: 'ShapeShift',
   }
-  return overrideAssetIdNames[provider as DefiProvider] ?? provider
+  return overrideProviderNames[provider as DefiProvider] ?? provider
 }

@@ -38,7 +38,10 @@ export const TransactionContract = ({
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
   // TODO: Move to a better place at component-level to be passed down?
-  const isRevoke = i18n === 'approve' && bnOrZero(txDetails.tx.data?.value).isZero()
+  const isRevoke =
+    i18n === 'approve' &&
+    isTokenMetadata(txDetails.tx.data) &&
+    bnOrZero(txDetails.tx.data?.value).isZero()
   const titlePrefix = translate(
     (() => {
       if (txDetails.tx.data?.parser) {

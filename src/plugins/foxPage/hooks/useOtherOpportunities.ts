@@ -1,5 +1,10 @@
 import { AssetId } from '@shapeshiftoss/caip'
-import { foxEthLpOpportunityName } from 'features/defi/providers/fox-eth-lp/constants'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  foxEthLpOpportunityName,
+  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+} from 'features/defi/providers/fox-eth-lp/constants'
+import { FOX_FARMING_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
@@ -32,6 +37,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/fox@2x.png',
               ],
+              opporunityProvider: DefiProvider.FoxFarming,
+              opportunityContractAddress: FOX_FARMING_CONTRACT_ADDRESS,
             },
           ],
         },
@@ -48,6 +55,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/fox@2x.png',
               ],
+              opporunityProvider: DefiProvider.FoxEthLP,
+              opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
             },
           ],
         },

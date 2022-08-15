@@ -12,6 +12,8 @@ import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectSelectedLocale } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'
 
@@ -29,22 +31,23 @@ export const Routes = () => {
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
   const { lang } = useQuery()
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
     path: ['/demo/:appRoute(.+)?', '/demo'],
   })
 
   useEffect(() => {
+    if (lang && LanguageTypeEnum[lang as LanguageTypeEnum] && selectedLocale !== lang) {
+      dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
+    }
+  }, [lang, dispatch, selectedLocale])
+
+  useEffect(() => {
     if (!matchDemoPath && shouldRedirectDemoRoute) return setShouldRedirectDemoRoute(false)
     if (!matchDemoPath || state.isLoadingLocalWallet) return
 
-    if (lang && LanguageTypeEnum[lang as LanguageTypeEnum]) {
-      dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
-    }
-
     state.isDemoWallet ? setShouldRedirectDemoRoute(true) : connectDemo()
   }, [
-    dispatch,
-    lang,
     matchDemoPath,
     shouldRedirectDemoRoute,
     location.pathname,

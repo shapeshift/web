@@ -8,8 +8,6 @@ const mockAxios = axios as jest.Mocked<typeof axios>
 
 describe('useHasAppUpdated', () => {
   beforeEach(() => {
-    jest.resetAllMocks()
-    jest.clearAllTimers()
     jest.useFakeTimers('legacy')
     jest.spyOn(window, 'setInterval')
   })
@@ -170,8 +168,6 @@ describe('useHasAppUpdated', () => {
         return Promise.reject({ error: {} })
       })
 
-      // without the `await` keyword, following line will throw this warning:
-      // an update to TestComponent inside a test was not wrapped in act(...).
       act(() => {
         jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
       })

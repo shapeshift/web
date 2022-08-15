@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.15.1...@shapeshiftoss/swapper-v9.16.0) (2022-08-15)
+
+
+### Features
+
+* implement CowSwap approveAmount method ([#976](https://github.com/shapeshift/lib/issues/976)) ([e777dba](https://github.com/shapeshift/lib/commit/e777dbab4c1caebf62e6f0cca4e8547c356fc325))
+
 # [@shapeshiftoss/swapper-v9.15.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.15.0...@shapeshiftoss/swapper-v9.15.1) (2022-08-15)
 
 # [@shapeshiftoss/swapper-v9.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.14.0...@shapeshiftoss/swapper-v9.15.0) (2022-08-14)

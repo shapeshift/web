@@ -1,12 +1,12 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
+import { FactoryState } from 'context/WalletProvider/KeepKey/components/FactoryState'
 import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
 import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
 import { KeepKeyRecoverySentenceEntry } from 'context/WalletProvider/KeepKey/components/RecoverySentenceEntry'
 import { KeepKeyRecoverySentenceInvalid } from 'context/WalletProvider/KeepKey/components/RecoverySentenceInvalid'
 import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
-import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 import { DemoConfig } from './DemoWallet/config'
@@ -79,7 +79,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
       { path: KeepKeyRoutes.Pin, component: KeepKeyPin },
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
-      { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
+      { path: KeepKeyRoutes.WipeSuccessful, component: FactoryState },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
       { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
       { path: KeepKeyRoutes.RecoverySentenceEntry, component: KeepKeyRecoverySentenceEntry },

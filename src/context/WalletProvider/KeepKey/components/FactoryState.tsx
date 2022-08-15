@@ -6,7 +6,7 @@ import { Text } from 'components/Text'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const WipedSuccessfully = () => {
+export const FactoryState = () => {
   const [loading, setLoading] = useState(false)
   const history = useHistory()
   const { setDeviceState } = useWallet()
@@ -32,11 +32,11 @@ export const WipedSuccessfully = () => {
       <ModalHeader>
         <Flex alignItems='center'>
           <CheckCircleIcon color='green.400' mr={3} />
-          <Text translation={'modals.keepKey.wiped.header'} />
+          <Text translation={'modals.keepKey.factoryState.header'} />
         </Flex>
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.wiped.body'} mb={4} />
+        <Text color='gray.500' translation={'modals.keepKey.factoryState.body'} mb={4} />
         <Button
           width='full'
           size='lg'
@@ -45,7 +45,7 @@ export const WipedSuccessfully = () => {
           disabled={loading}
           mb={3}
         >
-          <Text translation={'modals.keepKey.wiped.createButton'} />
+          <Text translation={'modals.keepKey.factoryState.createButton'} />
         </Button>
         <Button
           width='full'
@@ -55,7 +55,7 @@ export const WipedSuccessfully = () => {
           variant='outline'
           border='none'
         >
-          <Text translation={'modals.keepKey.wiped.recoverButton'} />
+          <Text translation={'modals.keepKey.factoryState.recoverButton'} />
         </Button>
       </ModalBody>
     </>

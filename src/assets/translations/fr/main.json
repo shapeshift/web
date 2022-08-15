@@ -463,7 +463,7 @@
         "infoSecond": "Ne partagez jamais votre phrase de récupération, elle donne accès à tous vos fonds.",
         "awaitingButtonPress": "Suivez les étapes sur votre KeepKey pour afficher votre phrase de récupération. Écrivez-la !"
       },
-      "wiped": {
+      "factoryState": {
         "header": "KeepKey effacé avec succès",
         "body": "Vous avez réinitialisé avec succès votre KeepKey avec les paramètres d'usine. Vous pouvez maintenant le restaurer à l'aide d'une phrase de récupération existante ou créer un nouveau porte-monnaie.",
         "createButton": "Créer un nouveau porte-monnaie",

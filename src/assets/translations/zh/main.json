@@ -399,7 +399,7 @@
         "infoSecond": "永远不要告诉别人你的恢复短语，这能让拥有者动用你的所有的资金。",
         "awaitingButtonPress": "按照KeepKey上的步骤查看您的恢复短语。写下来！"
       },
-      "wiped": {
+      "factoryState": {
         "header": "KeepKey已成功擦除",
         "body": "你已成功将KeepKey重置为出厂默认设置。现在，你可以使用现有恢复助记词进行还原，也可以创建一个新的钱包。",
         "createButton": "创建一个新的钱包",
